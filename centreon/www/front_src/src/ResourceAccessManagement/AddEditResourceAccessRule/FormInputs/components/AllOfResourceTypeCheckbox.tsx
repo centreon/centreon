@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
 
-import { FormControlLabel, Checkbox } from '@mui/material';
+import { Checkbox, FormControlLabel } from '@mui/material';
 
 import { Dataset, ResourceTypeEnum } from '../../../models';
-import { useAllOfResourceTypeCheckboxStyles } from '../styles/AllOfResourceTypeCheckbox.styles';
 import { useAllOfResourceTypeCheckbox } from '../hooks/useAllOfResourceTypeCheckbox';
+import { useAllOfResourceTypeCheckboxStyles } from '../styles/AllOfResourceTypeCheckbox.styles';
 
 interface Props {
   datasetFilter: Array<Dataset>;

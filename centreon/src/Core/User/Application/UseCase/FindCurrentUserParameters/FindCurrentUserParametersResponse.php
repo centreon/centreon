@@ -43,6 +43,7 @@ final class FindCurrentUserParametersResponse
         public bool $isAdmin = false,
         public bool $useDeprecatedPages = false,
         public bool $isExportButtonEnabled = false,
+        public bool $canManageApiTokens = false,
         ?UserTheme $theme = null,
         ?UserInterfaceDensity $userInterfaceDensity = null,
         public ?string $defaultPage = null,

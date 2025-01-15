@@ -1,7 +1,7 @@
-import { makeStyles } from 'tss-react/mui';
 import { isEmpty } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Typography, Button, List, ListItem } from '@mui/material';
+import { Button, List, ListItem, Typography } from '@mui/material';
 
 import FederatedComponent from '../../../components/FederatedComponents';
 

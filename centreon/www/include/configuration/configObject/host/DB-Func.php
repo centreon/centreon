@@ -43,7 +43,19 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Infrastructure\Common\Api\Router;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Infrastructure\Repository\DbWriteHostActionLogRepository;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Quickform rule that checks whether or not monitoring server can be set
@@ -75,7 +87,8 @@ function testPollerDep($instanceId)
 
     $fieldsToBind = [];
     if (!in_array(false, $hostParents)) {
-        for ($index = 0; $index < count($hostParents); $index++) {
+        $counter = count($hostParents);
+        for ($index = 0; $index < $counter; $index++) {
             $fieldsToBind[':parent_' . $index] = $hostParents[$index];
         }
         $request .= " AND host_parent_hp_id IN (" .
@@ -113,7 +126,8 @@ function hostMacHandler()
     }
 
     $fieldsToBind = [];
-    for ($index = 0; $index < count($_POST['macroInput']); $index++) {
+    $counter = count($_POST['macroInput']);
+    for ($index = 0; $index < $counter; $index++) {
         $fieldsToBind[':macro_' . $index] =
             "'\$_HOST" . strtoupper($_POST['macroInput'][$index]) . "\$'";
     }
@@ -232,7 +246,7 @@ function hasHostTemplateNeverUsed($name = null)
 function hasNoInfiniteLoop($hostId, $templateId)
 {
     global $pearDB;
-    static $antiTplLoop = array();
+    static $antiTplLoop = [];
 
     if ($hostId === $templateId) {
         return false;
@@ -243,7 +257,7 @@ function hasNoInfiniteLoop($hostId, $templateId)
         $res = $pearDB->query($query);
         while ($row = $res->fetch()) {
             if (!isset($antiTplLoop[$row['host_tpl_id']])) {
-                $antiTplLoop[$row['host_tpl_id']] = array();
+                $antiTplLoop[$row['host_tpl_id']] = [];
             }
             $antiTplLoop[$row['host_tpl_id']][$row['host_host_id']] = $row['host_host_id'];
         }
@@ -262,7 +276,7 @@ function hasNoInfiniteLoop($hostId, $templateId)
     return true;
 }
 
-function enableHostInDB($host_id = null, $host_arr = array())
+function enableHostInDB($host_id = null, $host_arr = [])
 {
     global $pearDB, $centreon;
 
@@ -284,11 +298,16 @@ function enableHostInDB($host_id = null, $host_arr = array())
         $hostName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('host', (int) $hostId);
-        $centreon->CentreonLogAction->insertLog("host", $hostId, $hostName, "enable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $hostName,
+            action_type: ActionLog::ACTION_TYPE_ENABLE
+        );
     }
 }
 
-function disableHostInDB($host_id = null, $host_arr = array())
+function disableHostInDB($host_id = null, $host_arr = [])
 {
     global $pearDB, $centreon;
     if (!$host_id && !count($host_arr)) {
@@ -309,7 +328,12 @@ function disableHostInDB($host_id = null, $host_arr = array())
         $hostName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('host', (int) $hostId, [], false);
-        $centreon->CentreonLogAction->insertLog("host", $hostId, $hostName, "disable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $hostName,
+            action_type: ActionLog::ACTION_TYPE_DISABLE
+        );
     }
 }
 
@@ -356,20 +380,20 @@ function removeRelationLastHostDependency(int $hostId): void
     };
 }
 
-function deleteHostInDB($hosts = array())
+function deleteHostInDB($hosts = [])
 {
     global $pearDB, $centreon;
 
     $hostIds = array_keys($hosts);
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
-        deleteResourceSecretsInVault($vaultConfiguration, $logger, $hostIds, []);
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        deleteResourceSecretsInVault($writeVaultRepository, $hostIds, []);
     }
     foreach ($hostIds as $hostId) {
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
@@ -399,21 +423,26 @@ function deleteHostInDB($hosts = array())
                 $dbResult2 = $pearDB->query("DELETE FROM service
                                               WHERE service_id = '" . $row["service_service_id"] . "'");
                 $centreon->CentreonLogAction->insertLog(
-                    "service",
-                    $row["service_service_id"],
-                    $hostname['host_name'] . "/" . $svcname["service_description"],
-                    "d"
+                    object_type: ActionLog::OBJECT_TYPE_SERVICE,
+                    object_id: $row["service_service_id"],
+                    object_name: $hostname['host_name'] . "/" . $svcname["service_description"],
+                    action_type: ActionLog::ACTION_TYPE_DELETE
                 );
             }
         }
-        $centreon->user->access->updateACL(array("type" => 'HOST', 'id' => $hostId, "action" => "DELETE"));
+        $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "DELETE"]);
         $dbResult = $pearDB->query("DELETE FROM host WHERE host_id = '" . (int) $hostId . "'");
         $dbResult = $pearDB->query("DELETE FROM host_template_relation WHERE host_host_id = '" . (int) $hostId . "'");
         $dbResult = $pearDB->query("DELETE FROM on_demand_macro_host WHERE host_host_id = '" . (int) $hostId . "'");
         $dbResult = $pearDB->query("DELETE FROM contact_host_relation WHERE host_host_id = '" . (int) $hostId . "'");
 
         signalConfigurationChange('host', (int) $hostId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog("host", $hostId, $hostname['host_name'], "d");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $hostname['host_name'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
     }
 }
 
@@ -421,24 +450,18 @@ function deleteHostInDB($hosts = array())
  *  This function is called for duplicating a host
  */
 
-function multipleHostInDB($hosts = array(), $nbrDup = array())
+function multipleHostInDB($hosts = [], $nbrDup = [])
 {
     global $pearDB, $path, $centreon, $is_admin;
 
     $hostAcl = [];
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
-    if ($vaultConfiguration !== null) {
-        $httpClient = new CentreonRestHttp();
-        $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
-    }
     foreach ($hosts as $key => $value) {
         $dbResult = $pearDB->query("SELECT * FROM host WHERE host_id = '" . (int)$key . "' LIMIT 1");
         $row = $dbResult->fetch();
@@ -447,7 +470,10 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
             $val = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "host_name" ? ($hostName = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "host_name") {
+                    $hostName = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . CentreonDB::escape($value2) . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . CentreonDB::escape($value2) . "'") : "NULL");
@@ -459,7 +485,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                 }
             }
             if (hasHostNameNeverUsed($hostName)) {
-                $val ? $rq = "INSERT INTO host VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO host VALUES (" . $val . ")" : null;
                 $dbResult = $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(host_id) FROM host");
                 $maxId = $dbResult->fetch();
@@ -506,8 +532,8 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                         require_once($path . "../configObject/service/DB-Func.php");
                     }
                     $hostInf = $maxId["MAX(host_id)"];
-                    $serviceArr = array();
-                    $serviceNbr = array();
+                    $serviceArr = [];
+                    $serviceNbr = [];
                     // Get all Services link to the Host
                     $dbResult = $pearDB->query("SELECT DISTINCT service_service_id
                                               FROM host_service_relation
@@ -640,9 +666,9 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                 $fields[$key2] = $value2;
                             }
                         }
-                        $val
-                            ? $rq = "INSERT INTO extended_host_information VALUES (" . $val . ")"
-                            : $rq = null;
+                        $rq = $val
+                            ? "INSERT INTO extended_host_information VALUES (" . $val . ")"
+                            : null;
                         $dbResult2 = $pearDB->query($rq);
                     }
 
@@ -718,7 +744,10 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                 "SELECT MAX(host_macro_id) from on_demand_macro_host WHERE is_password = 1"
                             );
                             $resultMacro = $maxIdStatement->fetch();
-                            $macroPasswords[$resultMacro['MAX(host_macro_id)']] = $macVal;
+                            $macroPasswords[$resultMacro['MAX(host_macro_id)']] = [
+                                'macroName' => $macName,
+                                'macroValue' => $macVal
+                            ];
                         }
                     }
 
@@ -736,24 +765,31 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
 
                     /**
                      * The value should be duplicated in vault if it's a password and is already in vault
-                     * The regex /^secret::[^:]*::/ define that the value is store in vault.
+                     * The pattern secret:: define that the value is store in vault.
                      */
                     if (
                         ! empty($row['host_snmp_community'])
-                        && preg_match('/' . VAULT_PATH_REGEX . '/', $row['host_snmp_community'])
-                        || ! empty($macroPasswords)
+                        && str_starts_with(VaultConfiguration::VAULT_PATH_PATTERN, $row['host_snmp_community'])
+                        || $macroPasswords !== []
                     ) {
                         if ($vaultConfiguration !== null) {
+                            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+                            $readVaultRepository = $kernel->getContainer()->get(
+                                ReadVaultRepositoryInterface::class
+                            );
+                            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+                            $writeVaultRepository = $kernel->getContainer()->get(
+                                WriteVaultRepositoryInterface::class
+                            );
+                            $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
                             try {
                                 duplicateHostSecretsInVault(
-                                    $vaultConfiguration,
+                                    $readVaultRepository,
+                                    $writeVaultRepository,
                                     $logger,
-                                    $uuidGenerator,
-                                    $httpClient,
                                     $row['host_snmp_community'],
                                     $macroPasswords,
                                     $key,
-                                    $clientToken,
                                     (int) $maxId["MAX(host_id)"]
                                 );
                             } catch (\Throwable $ex) {
@@ -763,7 +799,12 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                     }
 
                     signalConfigurationChange('host', (int) $maxId["MAX(host_id)"]);
-                    $centreon->CentreonLogAction->insertLog("host", $maxId["MAX(host_id)"], $hostName, "a", $fields);
+                    $centreon->CentreonLogAction->insertLog(
+                        object_type: ActionLog::OBJECT_TYPE_HOST,
+                        object_id: $maxId["MAX(host_id)"],
+                        object_name: $hostName,
+                        action_type: ActionLog::ACTION_TYPE_ADD
+                    );
                 }
             }
             // if all duplication names are already used, next value is never set
@@ -836,11 +877,7 @@ function updateHostInDB($hostId = null, $isMassiveChange = false, $configuration
         return;
     }
 
-    if (! isset($configuration)) {
-        $ret = $form->getSubmitValues();
-    } else {
-        $ret = $configuration;
-    }
+    $ret = ! isset($configuration) ? $form->getSubmitValues() : $configuration;
 
     $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
 
@@ -1068,10 +1105,8 @@ function resetHostTypeSpecificParams(array $bindParams, int $isTemplate): array
                 $bindParams[":$inputName"] = [\PDO::PARAM_NULL => null];
             }
         }
-    } else {
-        if (in_array(":command_command_id", $bindParams)) {
-            $bindParams[":command_command_id"] = [\PDO::PARAM_NULL => null];
-        }
+    } elseif (in_array(":command_command_id", $bindParams)) {
+        $bindParams[":command_command_id"] = [\PDO::PARAM_NULL => null];
     }
 
     return $bindParams;
@@ -1085,7 +1120,6 @@ function resetUnwantedParameters(array $bindParams): array
 {
     $paramsToReset = [
         'timeperiod_tp_id2',
-        'command_command_id2',
         'host_freshness_threshold',
         'host_low_flap_threshold',
         'host_high_flap_threshold',
@@ -1099,7 +1133,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_checks_enabled',
         'host_obsess_over_host',
         'host_check_freshness',
-        'host_event_handler_enabled',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -1125,7 +1158,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
-        'host_event_handler_enabled',
     ];
 
     foreach ($paramsToEnumDefault as $paramName) {
@@ -1303,26 +1335,20 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
 
     $ret = [];
 
-    if (! isset($configuration)) {
-        $ret = $form->getSubmitValues();
-    } else {
-        $ret = $configuration;
-    }
+    $ret = ! isset($configuration) ? $form->getSubmitValues() : $configuration;
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
     //Retrieve UUID for vault path before updating values in database.
-    $uuid = null;
+    $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveHostUuidFromDatabase($pearDB, $hostId, $vaultConfiguration->getName());
+        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
     if (! $isCloudPlatform) {
@@ -1334,9 +1360,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         }
     }
 
-    isset($ret["nagios_server_id"])
-        ? $server_id = $ret["nagios_server_id"]
-        : $server_id = $form->getSubmitValue("nagios_server_id");
+    $server_id = $ret["nagios_server_id"] ?? $form->getSubmitValue("nagios_server_id");
 
     if (! isset($server_id) || $server_id == "" || $server_id == 0) {
         $server_id = null;
@@ -1389,7 +1413,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
      */
     if (isset($_REQUEST['tpSelect'])) {
         /* Cleanup host service link to host template to be removed */
-        $newTp = array();
+        $newTp = [];
         foreach ($_POST['tpSelect'] as $tmpl) {
             $newTp[$tmpl] = $tmpl;
         }
@@ -1406,7 +1430,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         /* Set template */
         $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
     } elseif (isset($ret["use"]) && $ret["use"]) {
-        $already_stored = array();
+        $already_stored = [];
         $tplTab = preg_split("/\,/", $ret["use"]);
         $j = 0;
         $DBRES = $pearDB->query("DELETE FROM `host_template_relation` WHERE `host_host_id` = '" . $hostId . "'");
@@ -1422,7 +1446,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         }
     } else {
         /* Cleanup host service link to host template to be removed */
-        $newTp = array();
+        $newTp = [];
 
         $dbResult = $pearDB->query("SELECT `host_tpl_id`
                                     FROM `host_template_relation`
@@ -1434,7 +1458,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         }
 
         /* Set template */
-        $hostObj->setTemplates($hostId, array());
+        $hostObj->setTemplates($hostId, []);
     }
 
     /*
@@ -1444,7 +1468,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         isset($_REQUEST['macroInput']) &&
         isset($_REQUEST['macroValue'])
     ) {
-        $macroDescription = array();
+        $macroDescription = [];
         foreach ($_REQUEST as $nam => $ele) {
             if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
@@ -1471,15 +1495,21 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
 
     //If there is a vault configuration write into vault
     if ($vaultConfiguration !== null) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
+        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
         try {
             updateHostSecretsInVault(
-                $vaultConfiguration,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $logger,
-                $uuidGenerator,
-                $uuid,
+                $vaultPath,
                 (int) $hostId,
                 $hostObj->getFormattedMacros(),
-                $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+                $bindParams[':host_snmp_community'][\PDO::PARAM_STR] ?? null
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -1491,8 +1521,14 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
      */
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("host", $hostId, CentreonDB::escape($ret["host_name"]), "c", $fields);
-    $centreon->user->access->updateACL(array("type" => 'HOST', 'id' => $hostId, "action" => "UPDATE"));
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_HOST,
+        object_id: $hostId,
+        object_name: $ret["host_name"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
+    );
+    $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "UPDATE"]);
 }
 
 function updateHost_MC($hostId = null)
@@ -1505,23 +1541,20 @@ function updateHost_MC($hostId = null)
         return;
     }
 
-    $kernel = \App\Kernel::createForWeb();
-    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /** @var \Centreon\Domain\Log\Logger $logger */
-    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $kernel = Kernel::createForWeb();
+    /** @var Logger $logger */
+    $logger = $kernel->getContainer()->get(Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        ReadVaultConfigurationRepositoryInterface::class
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
 
     //Retrieve UUID for vault path before updating values in database.
-    $uuid = null;
+    $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveHostUuidFromDatabase($pearDB, $hostId, $vaultConfiguration->getName());
+        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
-    $submittedValues = [];
     $submittedValues = $form->getSubmitValues();
 
     if (! $isCloudPlatform) {
@@ -1582,7 +1615,7 @@ function updateHost_MC($hostId = null)
      *  update multiple templates
      */
     if (isset($_REQUEST['tpSelect'])) {
-        $oldTp = array();
+        $oldTp = [];
         if (isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0) {
             $dbResult = $pearDB->query("SELECT `host_tpl_id`
                                         FROM `host_template_relation`
@@ -1597,7 +1630,7 @@ function updateHost_MC($hostId = null)
     /*
      *  Update on demand macros
      */
-    $macroDescription = array();
+    $macroDescription = [];
     foreach ($_REQUEST as $nam => $ele) {
         if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
@@ -1624,14 +1657,25 @@ function updateHost_MC($hostId = null)
     // If there is a vault configuration write into vault.
     if ($vaultConfiguration !== null) {
         try {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
+
+            $updatedPasswordMacros = array_filter($hostObj->getFormattedMacros(), function ($macro) {
+                return $macro['macroPassword'] === '1'
+                    && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+            });
             updateHostSecretsInVaultFromMC(
-                $vaultConfiguration,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $logger,
-                $uuidGenerator,
-                $uuid,
+                $vaultPath,
                 $hostId,
-                $hostObj->getFormattedMacros(),
-                $submittedValues['host_snmp_community']
+                $updatedPasswordMacros,
+                $submittedValues['host_snmp_community'] ?? null
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);
@@ -1643,10 +1687,16 @@ function updateHost_MC($hostId = null)
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($submittedValues);
-    $centreon->CentreonLogAction->insertLog("host", $hostId, $row["host_name"], "mc", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_HOST,
+        object_id: $hostId,
+        object_name: $row["host_name"],
+        action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
+        fields: $fields
+    );
 }
 
-function updateHostHostParent($host_id = null, $ret = array())
+function updateHostHostParent($host_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1663,8 +1713,9 @@ function updateHostHostParent($host_id = null, $ret = array())
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'host_parents');
     }
+    $counter = count($ret);
 
-    for ($i = 0; $i < count($ret); $i++) {
+    for ($i = 0; $i < $counter; $i++) {
         if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != "") {
             $rq = "INSERT INTO host_hostparent_relation ";
             $rq .= "(host_parent_hp_id, host_host_id) ";
@@ -1679,7 +1730,7 @@ function updateHostHostParent($host_id = null, $ret = array())
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
 
-function updateHostHostParent_MC($host_id = null, $ret = array())
+function updateHostHostParent_MC($host_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1690,14 +1741,15 @@ function updateHostHostParent_MC($host_id = null, $ret = array())
     $rq = "SELECT * FROM host_hostparent_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hpars = array();
+    $hpars = [];
     while ($arr = $dbResult->fetch()) {
         $hpars[$arr["host_parent_hp_id"]] = $arr["host_parent_hp_id"];
     }
 
     $ret = $form->getSubmitValue("host_parents");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hpars[$ret[$i]]) && isset($ret[$i])) {
                 if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != "") {
                     $rq = "INSERT INTO host_hostparent_relation ";
@@ -1723,9 +1775,10 @@ function updateHostHostChild($host_id = null)
     $rq .= "WHERE host_parent_hp_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = array();
+    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'host_childs');
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != "") {
             $rq = "INSERT INTO host_hostparent_relation ";
             $rq .= "(host_parent_hp_id, host_host_id) ";
@@ -1750,14 +1803,15 @@ function updateHostHostChild_MC($host_id = null)
     $rq = "SELECT * FROM host_hostparent_relation ";
     $rq .= "WHERE host_parent_hp_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hchs = array();
+    $hchs = [];
     while ($arr = $dbResult->fetch()) {
         $hchs[$arr["host_host_id"]] = $arr["host_host_id"];
     }
 
     $ret = $form->getSubmitValue("host_childs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hchs[$ret[$i]]) && isset($ret[$i])) {
                 if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != "") {
                     $rq = "INSERT INTO host_hostparent_relation ";
@@ -1774,7 +1828,7 @@ function updateHostHostChild_MC($host_id = null)
 /**
  *
  */
-function updateHostExtInfos($host_id = null, $ret = array())
+function updateHostExtInfos($host_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1789,10 +1843,10 @@ function updateHostExtInfos($host_id = null, $ret = array())
     /*
      * Check if image selected isn't a directory
      */
-    if (isset($ret["ehi_icon_image"]) && strrchr("REP_", $ret["ehi_icon_image"])) {
+    if (isset($ret["ehi_icon_image"]) && strrchr("REP_", (string) $ret["ehi_icon_image"])) {
         $ret["ehi_icon_image"] = null;
     }
-    if (isset($ret["ehi_statusmap_image"]) && strrchr("REP_", $ret["ehi_statusmap_image"])) {
+    if (isset($ret["ehi_statusmap_image"]) && strrchr("REP_", (string) $ret["ehi_statusmap_image"])) {
         $ret["ehi_statusmap_image"] = null;
     }
     /*
@@ -1883,7 +1937,7 @@ function updateHostExtInfos_MC($host_id = null)
 /**
  *
  */
-function updateHostContactGroup($host_id, $ret = array())
+function updateHostContactGroup($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1895,9 +1949,10 @@ function updateHostContactGroup($host_id, $ret = array())
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = isset($ret["host_cgs"]) ? $ret["host_cgs"] : CentreonUtils::mergeWithInitialValues($form, 'host_cgs');
+    $ret = $ret["host_cgs"] ?? CentreonUtils::mergeWithInitialValues($form, 'host_cgs');
     $cg = new CentreonContactgroup($pearDB);
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         if (!is_numeric($ret[$i])) {
             $res = $cg->insertLdapGroup($ret[$i]);
             if ($res != 0) {
@@ -1920,7 +1975,7 @@ function updateHostContactGroup($host_id, $ret = array())
  *  Only for Nagios 3
  */
 
-function updateHostContact($host_id, $ret = array())
+function updateHostContact($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1931,8 +1986,9 @@ function updateHostContact($host_id, $ret = array())
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = isset($ret["host_cs"]) ? $ret["host_cs"] : CentreonUtils::mergeWithInitialValues($form, 'host_cs');
-    for ($i = 0; $i < count($ret); $i++) {
+    $ret = $ret["host_cs"] ?? CentreonUtils::mergeWithInitialValues($form, 'host_cs');
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO contact_host_relation ";
         $rq .= "(host_host_id, contact_id) ";
         $rq .= "VALUES ";
@@ -1944,7 +2000,7 @@ function updateHostContact($host_id, $ret = array())
 /**
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
-function updateHostContactGroup_MC($host_id, $ret = array())
+function updateHostContactGroup_MC($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1955,14 +2011,15 @@ function updateHostContactGroup_MC($host_id, $ret = array())
     $rq = "SELECT * FROM contactgroup_host_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $cgs = array();
+    $cgs = [];
     while ($arr = $dbResult->fetch()) {
         $cgs[$arr["contactgroup_cg_id"]] = $arr["contactgroup_cg_id"];
     }
     $ret = $form->getSubmitValue("host_cgs");
     if (is_array($ret)) {
         $cg = new CentreonContactgroup($pearDB);
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($cgs[$ret[$i]])) {
                 if (!is_numeric($ret[$i])) {
                     $res = $cg->insertLdapGroup($ret[$i]);
@@ -1987,7 +2044,7 @@ function updateHostContactGroup_MC($host_id, $ret = array())
 /**
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
-function updateHostContact_MC($host_id, $ret = array())
+function updateHostContact_MC($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -1998,13 +2055,14 @@ function updateHostContact_MC($host_id, $ret = array())
     $rq = "SELECT * FROM contact_host_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $cs = array();
+    $cs = [];
     while ($arr = $dbResult->fetch()) {
         $cs[$arr["contact_id"]] = $arr["contact_id"];
     }
     $ret = $form->getSubmitValue("host_cs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($cs[$ret[$i]])) {
                 $rq = "INSERT INTO contact_host_relation ";
                 $rq .= "(host_host_id, contact_id) ";
@@ -2019,7 +2077,7 @@ function updateHostContact_MC($host_id, $ret = array())
 /**
  *
  */
-function updateHostNotifs($host_id = null, $ret = array())
+function updateHostNotifs($host_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2027,11 +2085,7 @@ function updateHostNotifs($host_id = null, $ret = array())
         return;
     }
 
-    if (isset($ret["host_notifOpts"])) {
-        $ret = $ret["host_notifOpts"];
-    } else {
-        $ret = $form->getSubmitValue("host_notifOpts");
-    }
+    $ret = $ret["host_notifOpts"] ?? $form->getSubmitValue("host_notifOpts");
 
     $rq = "UPDATE host SET ";
     $rq .= "host_notification_options  = ";
@@ -2070,7 +2124,7 @@ function updateHostNotifs_MC($host_id = null)
     $pearDB->query($rq);
 }
 
-function updateHostNotifOptionInterval($host_id = null, $ret = array())
+function updateHostNotifOptionInterval($host_id = null, $ret = [])
 {
     if (!$host_id) {
         return;
@@ -2112,7 +2166,7 @@ function updateHostNotifOptionInterval_MC($host_id = null)
     }
 }
 
-function updateHostNotifOptionTimeperiod($host_id = null, $ret = array())
+function updateHostNotifOptionTimeperiod($host_id = null, $ret = [])
 {
     if (!$host_id) {
         return;
@@ -2120,11 +2174,7 @@ function updateHostNotifOptionTimeperiod($host_id = null, $ret = array())
     global $form;
     global $pearDB;
 
-    if (isset($ret["timeperiod_tp_id2"])) {
-        $ret = $ret["timeperiod_tp_id2"];
-    } else {
-        $ret = $form->getSubmitValue("timeperiod_tp_id2");
-    }
+    $ret = $ret["timeperiod_tp_id2"] ?? $form->getSubmitValue("timeperiod_tp_id2");
 
     $rq = "UPDATE host SET ";
     $rq .= "timeperiod_tp_id2 = ";
@@ -2154,7 +2204,7 @@ function updateHostNotifOptionTimeperiod_MC($host_id = null)
     }
 }
 
-function updateHostNotifOptionFirstNotificationDelay($host_id = null, $ret = array())
+function updateHostNotifOptionFirstNotificationDelay($host_id = null, $ret = [])
 {
     if (!$host_id) {
         return;
@@ -2199,7 +2249,7 @@ function updateHostNotifOptionFirstNotificationDelay_MC($host_id = null)
 }
 
 
-function updateHostNotifOptionRecoveryNotificationDelay($host_id = null, $ret = array())
+function updateHostNotifOptionRecoveryNotificationDelay($host_id = null, $ret = [])
 {
     if (!$host_id) {
         return;
@@ -2226,7 +2276,7 @@ function updateHostNotifOptionRecoveryNotificationDelay($host_id = null, $ret = 
 
 
 
-function updateHostHostGroup($host_id, $ret = array())
+function updateHostHostGroup($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2241,13 +2291,13 @@ function updateHostHostGroup($host_id, $ret = array())
     $rq = "SELECT hostgroup_hg_id FROM hostgroup_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hgsOLD = array();
+    $hgsOLD = [];
     while ($hg = $dbResult->fetch()) {
         $hgsOLD[$hg["hostgroup_hg_id"]] = $hg["hostgroup_hg_id"];
     }
 
     // Get service lists linked to hostgroup
-    $hgSVS = array();
+    $hgSVS = [];
     foreach ($hgsOLD as $hg) {
         $rq = "SELECT service_service_id FROM host_service_relation ";
         $rq .= "WHERE hostgroup_hg_id = '" . $hg . "' AND host_host_id IS NULL";
@@ -2260,11 +2310,12 @@ function updateHostHostGroup($host_id, $ret = array())
     $rq = "DELETE FROM hostgroup_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    isset($ret["host_hgs"]) ? $ret = $ret["host_hgs"] : $ret = $form->getSubmitValue("host_hgs");
-    $hgsNEW = array();
+    $ret = $ret["host_hgs"] ?? $form->getSubmitValue("host_hgs");
+    $hgsNEW = [];
 
     if ($ret) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             $rq = "INSERT INTO hostgroup_relation ";
             $rq .= "(hostgroup_hg_id, host_host_id) ";
             $rq .= "VALUES ";
@@ -2276,7 +2327,7 @@ function updateHostHostGroup($host_id, $ret = array())
 
     // Special Case, delete relation between host/service,
     // when service is linked to hostgroup in escalation, dependencies
-    if (count($hgSVS)) {
+    if ($hgSVS !== []) {
         foreach ($hgsOLD as $hg) {
             if (!isset($hgsNEW[$hg])) {
                 if (isset($hgSVS[$hg])) {
@@ -2303,7 +2354,7 @@ function updateHostHostGroup($host_id, $ret = array())
 /**
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
-function updateHostHostGroup_MC($host_id, $ret = array())
+function updateHostHostGroup_MC($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2314,14 +2365,15 @@ function updateHostHostGroup_MC($host_id, $ret = array())
     $rq = "SELECT * FROM hostgroup_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hgs = array();
+    $hgs = [];
     while ($arr = $dbResult->fetch()) {
         $hgs[$arr["hostgroup_hg_id"]] = $arr["hostgroup_hg_id"];
     }
 
     $ret = $form->getSubmitValue("host_hgs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hgs[$ret[$i]])) {
                 $rq = "INSERT INTO hostgroup_relation ";
                 $rq .= "(hostgroup_hg_id, host_host_id) ";
@@ -2333,7 +2385,7 @@ function updateHostHostGroup_MC($host_id, $ret = array())
     }
 }
 
-function updateHostHostCategory($host_id, $ret = array())
+function updateHostHostCategory($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2350,14 +2402,15 @@ function updateHostHostCategory($host_id, $ret = array())
                             AND hc.level IS NOT NULL) ";
     $pearDB->query($rq);
 
-    $ret = isset($ret["host_hcs"]) ? $ret["host_hcs"] : $ret = $form->getSubmitValue("host_hcs");
-    $hcsNEW = array();
+    $ret = $ret["host_hcs"] ?? ($ret = $form->getSubmitValue("host_hcs"));
+    $hcsNEW = [];
 
     if (!$ret) {
         return;
     }
+    $counter = count($ret);
 
-    for ($i = 0; $i < count($ret); $i++) {
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO hostcategories_relation ";
         $rq .= "(hostcategories_hc_id, host_host_id) ";
         $rq .= "VALUES ";
@@ -2370,7 +2423,7 @@ function updateHostHostCategory($host_id, $ret = array())
 /**
  * For massive change. We just add the new list if the elem doesn't exist yet
  */
-function updateHostHostCategory_MC($host_id, $ret = array())
+function updateHostHostCategory_MC($host_id, $ret = [])
 {
     global $form, $pearDB;
 
@@ -2381,13 +2434,14 @@ function updateHostHostCategory_MC($host_id, $ret = array())
     $rq = "SELECT * FROM hostcategories_relation ";
     $rq .= "WHERE host_host_id = '" . $host_id . "'";
     $dbResult = $pearDB->query($rq);
-    $hcs = array();
+    $hcs = [];
     while ($arr = $dbResult->fetch()) {
         $hcs[$arr["hostcategories_hc_id"]] = $arr["hostcategories_hc_id"];
     }
     $ret = $form->getSubmitValue("host_hcs");
     if (is_array($ret)) {
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if (!isset($hcs[$ret[$i]])) {
                 $rq = "INSERT INTO hostcategories_relation ";
                 $rq .= "(hostcategories_hc_id, host_host_id) ";
@@ -2429,7 +2483,7 @@ function generateHostServiceMultiTemplate($hID, $hID2 = null, $antiLoop = null)
         while (($hTpl2 = $hostServiceStatement->fetch()) !== false) {
             $alias = getMyServiceAlias($hTpl2["service_service_id"]);
 
-            $service_sgs = array();
+            $service_sgs = [];
             $statement->bindValue(':service_service_id', (int) $hTpl2["service_service_id"], \PDO::PARAM_INT);
             $statement->execute();
             for ($i = 0; $sg = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
@@ -2437,16 +2491,9 @@ function generateHostServiceMultiTemplate($hID, $hID2 = null, $antiLoop = null)
             }
             $statement->closeCursor();
 
-            if (testServiceExistence($alias, array(0 => $hID))) {
-                $service = array(
-                    "service_template_model_stm_id" => $hTpl2["service_service_id"],
-                    "service_description" => $alias,
-                    "service_register" => ($hTpl2["service_register"] + 1),
-                    "service_activate" => array("service_activate" => 1),
-                    "service_hPars" => array("0" => $hID),
-                    "service_sgs" => $service_sgs
-                );
-                insertServiceInDB($service, array());
+            if (testServiceExistence($alias, [0 => $hID])) {
+                $service = ["service_template_model_stm_id" => $hTpl2["service_service_id"], "service_description" => $alias, "service_register" => ($hTpl2["service_register"] + 1), "service_activate" => ["service_activate" => 1], "service_hPars" => ["0" => $hID], "service_sgs" => $service_sgs];
+                insertServiceInDB($service, []);
             }
         }
         $antiLoop[$hID2] = 1;
@@ -2492,7 +2539,8 @@ function updateHostTemplateService($hostId = null)
         $pearDB->query($request);
         $ret = $form->getSubmitValue("host_svTpls");
         if ($ret) {
-            for ($i = 0; $i < count($ret); $i++) {
+            $counter = count($ret);
+            for ($i = 0; $i < $counter; $i++) {
                 if (isset($ret[$i]) && $ret[$i] != "") {
                     $request = "INSERT INTO host_service_relation ";
                     $request .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
@@ -2522,14 +2570,15 @@ function updateHostTemplateService_MC($host_id = null)
         $dbResult2 = $pearDB->query("SELECT *
                                       FROM host_service_relation
                                       WHERE host_host_id = '" . (int)$host_id . "'");
-        $svtpls = array();
+        $svtpls = [];
         while ($arr = $dbResult2->fetch()) {
             $svtpls [$arr["service_service_id"]] = $arr["service_service_id"];
         }
 
         $ret = $form->getSubmitValue("host_svTpls");
         if (!empty($ret)) {
-            for ($i = 0; $i < count($ret); $i++) {
+            $counter = count($ret);
+            for ($i = 0; $i < $counter; $i++) {
                 if (!isset($svtpls[$ret[$i]])) {
                     $rq = "INSERT INTO host_service_relation ";
                     $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
@@ -2546,7 +2595,7 @@ function updateHostTemplateService_MC($host_id = null)
     }
 }
 
-function updateHostTemplateUsed($useTpls = array())
+function updateHostTemplateUsed($useTpls = [])
 {
     global $pearDB;
 
@@ -2576,9 +2625,7 @@ function updateNagiosServerRelation($hostId, $ret = [])
         return;
     }
 
-    isset($ret["nagios_server_id"])
-        ? $ret = $ret["nagios_server_id"]
-        : $ret = $form->getSubmitValue("nagios_server_id");
+    $ret = $ret["nagios_server_id"] ?? $form->getSubmitValue("nagios_server_id");
 
     if (isset($ret) && $ret != "" && $ret != 0) {
         $pearDB->query("DELETE FROM `ns_host_relation` WHERE `host_host_id` = '" . (int) $hostId . "'");
@@ -2788,7 +2835,7 @@ function insertHostInAPI(array $ret = []): int|null
     global $centreon, $form, $isCloudPlatform, $basePath;
 
     /** @var array<string,int|string|null> $formData */
-    $formData = !count($ret) ? $form->getSubmitValues() : $ret;
+    $formData = $ret === [] ? $form->getSubmitValues() : $ret;
 
     try {
         $hostId = insertHostByApi($formData, $isCloudPlatform, $basePath);
@@ -2820,16 +2867,18 @@ function insertHostInAPI(array $ret = []): int|null
             'type' => 'HOST',
             'id' => $hostId,
             'action' => 'ADD',
-            'access_grp_id' => (isset($formData['acl_groups']) ? $formData['acl_groups'] : null),
+            'access_grp_id' => ($formData['acl_groups'] ?? null),
         ]);
-        // Insert change logs
+
+        //Insert change logs
         $fields = CentreonLogAction::prepareChanges($formData);
+        $filteredFields = array_diff_key($fields, array_flip(DbWriteHostActionLogRepository::HOST_PROPERTIES_MAP));
         $centreon->CentreonLogAction->insertLog(
-            "host",
-            $hostId,
-            CentreonDB::escape($formData["host_name"]),
-            "a",
-            $fields
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $formData["host_name"],
+            action_type: ActionLog::ACTION_TYPE_ADD,
+            fields: $filteredFields
         );
 
         return ($hostId);
@@ -2854,11 +2903,11 @@ function insertHostInAPI(array $ret = []): int|null
  */
 function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePath): int
 {
-    $kernel = \App\Kernel::createForWeb();
-    /** @var Core\Infrastructure\Common\Api\Router $router */
-    $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class)
         ?? throw new LogicException('Router not found in container');
-    $client = new Symfony\Component\HttpClient\CurlHttpClient();
+    $client = new CurlHttpClient();
 
     if ((int) $formData['host_register'] === 0) {
         // is template
@@ -2867,7 +2916,7 @@ function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePat
         $url = $router->generate(
             'AddHostTemplate',
             $basePath ? ['base_uri' => $basePath] : [],
-            Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+            UrlGeneratorInterface::ABSOLUTE_URL,
         );
     } else {
         // is regular host
@@ -2876,13 +2925,13 @@ function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePat
         $url = $router->generate(
             'AddHost',
             $basePath ? ['base_uri' => $basePath] : [],
-            Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+            UrlGeneratorInterface::ABSOLUTE_URL,
         );
     }
 
     $headers = [
         'Content-Type' => 'application/json',
-        'X-AUTH-TOKEN' => $_COOKIE['PHPSESSID'],
+        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
     ];
     $response = $client->request(
         'POST',
@@ -2957,6 +3006,12 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
                 $formData['macroInput'] ?? [],
                 $formData['macroValue'] ?? []
             ),
+            'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
+                ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
+                : null,
+            'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+                ? (int) $formData['command_command_id2']
+                : null,
         ];
     } else {
         return [
@@ -3115,6 +3170,12 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
                 $formData['macroInput'] ?? [],
                 $formData['macroValue'] ?? []
             ),
+            'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
+                ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
+                : null,
+            'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+                ? (int) $formData['command_command_id2']
+                : null,
         ];
     } else {
         return [

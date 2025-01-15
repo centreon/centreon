@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 
-import { makeStyles } from 'tss-react/mui';
 import { isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Paper } from '@mui/material';
 

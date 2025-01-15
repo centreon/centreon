@@ -14,8 +14,8 @@ import {
 } from '../models';
 import useStyleTable from '../useStyleTable';
 
-import EllipsisTypography from './EllipsisTypography';
 import { useStyles } from './DataCell.styles';
+import EllipsisTypography from './EllipsisTypography';
 
 import Cell from '.';
 
@@ -280,4 +280,4 @@ const MemoizedDataCell = memo<Props>(
 );
 
 export default MemoizedDataCell;
-export { useStyles, Props };
+export { useStyles, type Props };

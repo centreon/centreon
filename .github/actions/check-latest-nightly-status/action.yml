@@ -1,0 +1,28 @@
+name: "check-latest-nightly-status"
+description: "Check the status of the latest nightly build"
+outputs:
+  last_nightly_result:
+    description: "The status of the latest nightly build (success or failure)"
+    value: ${{ steps.check-latest-nightly-status.outputs.last_nightly_result }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check the status of the latest nightly build
+      id: check-latest-nightly-status
+      run: |
+        set -x
+
+        echo "[INFO]: Filtering the results of the last nightly build"
+        lastNightlyRunDetails=$(gh run ls \
+          --json number,status,conclusion \
+          --event schedule \
+          --workflow web.yml \
+          --branch develop \
+          --limit 1)
+
+        echo "Last nightly run details:"
+        echo "$lastNightlyRunDetails"
+
+        echo "last_nightly_result=$(echo "$lastNightlyRunDetails" | jq -r '.[0].conclusion')" >> $GITHUB_OUTPUT
+      shell: bash

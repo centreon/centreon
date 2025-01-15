@@ -1,17 +1,17 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
+import { NotificationType } from '../../Panel/models';
 import {
   duplicatedNotificationAtom,
   isDuplicateDialogOpenAtom,
   isPanelOpenAtom
 } from '../../atom';
-import useDuplicateRequest from '../api/useDuplicateRequest';
 import {
   labelFailedToDuplicateNotification,
   labelNotificationDuplicated
 } from '../../translatedLabels';
-import { NotificationType } from '../../Panel/models';
+import useDuplicateRequest from '../api/useDuplicateRequest';
 
 interface UseDeleteState {
   closeDialog: () => void;

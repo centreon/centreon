@@ -1,30 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { isNil, isEmpty, values } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
+import { isEmpty, isNil, values } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 
-import { postData, useRequest, TextField, SelectField } from '@centreon/ui';
+import { SelectField, TextField, postData, useRequest } from '@centreon/ui';
 
-import { setWizardDerivedAtom } from '../pollerAtoms';
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
-import {
-  labelServerConfiguration,
-  labelCreatePoller,
-  labelSelectPoller,
-  labelServerName,
-  labelServerIp,
-  labelCentreonCentralIp,
-  labelSelectPollerIp,
-  labelRequired
-} from '../translatedLabels';
-import { Props, WaitList, WizardButtonsTypes } from '../models';
-import WizardButtons from '../forms/wizardButtons';
 import { pollerWaitListEndpoint } from '../api/endpoints';
+import WizardButtons from '../forms/wizardButtons';
+import { Props, WaitList, WizardButtonsTypes } from '../models';
+import { setWizardDerivedAtom } from '../pollerAtoms';
+import {
+  labelCentreonCentralIp,
+  labelCreatePoller,
+  labelRequired,
+  labelSelectPoller,
+  labelSelectPollerIp,
+  labelServerConfiguration,
+  labelServerIp,
+  labelServerName
+} from '../translatedLabels';
 
 interface StepOneFormData {
   centreon_central_ip: string;

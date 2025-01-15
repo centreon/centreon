@@ -43,6 +43,7 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
+use Core\Host\Application\Repository\WriteRealTimeHostRepositoryInterface;
 use Core\Host\Application\UseCase\AddHost\AddHost;
 use Core\Host\Application\UseCase\AddHost\AddHostRequest;
 use Core\Host\Application\UseCase\AddHost\AddHostResponse;
@@ -90,6 +91,7 @@ beforeEach(function (): void {
         validation: $this->validation = $this->createMock(AddHostValidation::class),
         writeVaultRepository: $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        writeRealTimeHostRepository: $this->writeRealTimeHostRepository = $this->createMock(WriteRealTimeHostRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();

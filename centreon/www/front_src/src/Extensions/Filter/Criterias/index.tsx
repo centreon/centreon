@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { pipe, isNil, sortBy, reject } from 'ramda';
+import { isNil, pipe, reject, sortBy } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Button, Grid } from '@mui/material';
 import TuneIcon from '@mui/icons-material/Tune';
+import { Button, Grid } from '@mui/material';
 
 import { PopoverMenu, useMemoComponent } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
@@ -23,8 +23,8 @@ import {
 import Criteria from './Criteria';
 import {
   CriteriaDisplayProps,
-  selectableCriterias,
-  Criteria as CriteriaModel
+  Criteria as CriteriaModel,
+  selectableCriterias
 } from './models';
 import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 

@@ -12,6 +12,11 @@ parameters:
     paths:
         - src
     ignoreErrors:
+        - # Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.
+            reportUnmatched: false
+            message: "#Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.#"
+            paths:
+                - src/Core/AdditionalConnectorConfiguration/Application/UseCase/UpdateAcc/Validator.php
         - # Baseline: 👇 dealing with this code is almost impossible without spending hours.
             reportUnmatched: false
             path: src/CentreonRemote/Infrastructure/Service/ExportService.php

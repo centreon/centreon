@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { useFormikContext, FormikErrors, FormikValues } from 'formik';
+import { FormikErrors, FormikValues, useFormikContext } from 'formik';
 
-import { Typography, TextField } from '@mui/material';
+import { TextField, Typography } from '@mui/material';
 
 import { StepComponentProps } from './models';
 

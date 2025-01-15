@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import { ParentSize } from '../..';
 
-import { BaseProp, TreeProps } from './models';
 import { Tree } from './Tree';
+import { BaseProp, TreeProps } from './models';
 
 export const StandaloneTree = <TData extends BaseProp>({
   tree,

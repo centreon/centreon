@@ -38,17 +38,17 @@ if (!isset($centreon)) {
     exit();
 }
 
-isset($_GET["cg_id"]) ? $cG = $_GET["cg_id"] : $cG = null;
-isset($_POST["cg_id"]) ? $cP = $_POST["cg_id"] : $cP = null;
-$cG ? $cg_id = $cG : $cg_id = $cP;
+$cG = $_GET["cg_id"] ?? null;
+$cP = $_POST["cg_id"] ?? null;
+$cg_id = $cG ?: $cP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
+$select = $cG ?: $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
+$dupNbr = $cG ?: $cP;
 
 /*
  * Path to the configuration dir
@@ -67,12 +67,7 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
 }
 
 $acl = $centreon->user->access;
-$allowedContacts = $acl->getContactAclConf(array(
-    'fields' => array('contact_id', 'contact_name'),
-    'keys' => array('contact_id'),
-    'get_row' => 'contact_name',
-    'order' => 'contact_name'
-));
+$allowedContacts = $acl->getContactAclConf(['fields' => ['contact_id', 'contact_name'], 'keys' => ['contact_id'], 'get_row' => 'contact_name', 'order' => 'contact_name']);
 $allowedAclGroups = $acl->getAccessGroups();
 $contactstring = "";
 if (count($allowedContacts)) {
@@ -141,7 +136,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleContactGroupInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleContactGroupInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -154,7 +149,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteContactGroupInDB(isset($select) ? $select : array());
+            deleteContactGroupInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

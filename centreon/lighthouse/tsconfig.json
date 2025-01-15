@@ -4,6 +4,7 @@
     "baseUrl": "./src",
     "typeRoots": ["./node_modules/@types"],
     "module": "nodenext",
+    "moduleResolution": "nodenext",
     "outDir": "build",
     "esModuleInterop": true,
     "resolveJsonModule": true

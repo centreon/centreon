@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import 'intl-pluralrules';
 
 import { makeStyles } from 'tss-react/mui';

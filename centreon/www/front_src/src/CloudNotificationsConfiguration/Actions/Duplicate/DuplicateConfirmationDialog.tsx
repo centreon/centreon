@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { ConfirmDialog } from '@centreon/ui';
 
@@ -9,8 +9,8 @@ import {
   labelPleaseEnterNameForDuplicatedNotification
 } from '../../translatedLabels';
 
-import useDuplicate from './useDuplicate';
 import NotificationName from './NotificationName';
+import useDuplicate from './useDuplicate';
 
 const DuplicateConfirmationDialog = (): JSX.Element => {
   const { t } = useTranslation();

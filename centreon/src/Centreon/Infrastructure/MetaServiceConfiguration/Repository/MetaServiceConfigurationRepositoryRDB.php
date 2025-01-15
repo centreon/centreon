@@ -142,7 +142,6 @@ class MetaServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implem
                     ON res.acl_res_id = argr.acl_res_id
                 INNER JOIN `:db`.acl_groups ag
                     ON argr.acl_group_id = ag.acl_group_id
-                    AND agcr.contact_contact_id = :contact_id
                 LEFT JOIN `:db`.acl_group_contacts_relations agcr
                     ON ag.acl_group_id = agcr.acl_group_id
                 LEFT JOIN `:db`.acl_group_contactgroups_relations agcgr

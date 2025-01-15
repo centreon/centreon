@@ -1,5 +1,5 @@
-import { ActionVariants } from '../../../ActionsList/models';
 import { ActionsList } from '../../..';
+import { ActionVariants } from '../../../ActionsList/models';
 
 import { useStyles } from './ConfirmationTooltip.styles';
 

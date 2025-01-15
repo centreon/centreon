@@ -7,28 +7,29 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    if: github.repository == 'centreon/centreon'
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   synchronize-jira-xray:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
+    needs: [get-environment]
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
-          version: 7
+          version: 8
           run_install: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
           node-version: 20
 
@@ -47,16 +48,16 @@ jobs:
         id: find_changed_files
         run: |
           mapfile -t CHANGED_FILES <<< "$(git show --name-only $LATEST_COMMIT | grep '\.feature$')"
-          echo "CHANGED_FILES=${CHANGED_FILES[@]}" >> $GITHUB_ENV
-          echo "Changed .feature files: ${CHANGED_FILES[@]}"
+          echo "CHANGED_FILES=${CHANGED_FILES[*]}" >> $GITHUB_ENV
+          echo "Changed .feature files: ${CHANGED_FILES[*]}"
 
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
-          echo "The target version for this script is : ${{ needs.get-version.outputs.major_version }}"
+          echo "The target version for this script is : ${{ needs.get-environment.outputs.major_version }}"
           for file in $CHANGED_FILES; do
             echo "Running script for $file on branch ${{ github.ref_name }}"
-            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-version.outputs.major_version }}
+            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-environment.outputs.major_version }}
           done
         env:
           XRAY_JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}

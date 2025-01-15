@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
 import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { RichTextEditor } from '@centreon/ui';
 
-import { Widget, WidgetPropertyProps } from '../../models';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
+import { Widget, WidgetPropertyProps } from '../../models';
 
 import { getProperty } from './utils';
 

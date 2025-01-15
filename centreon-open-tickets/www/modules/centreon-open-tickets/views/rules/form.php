@@ -25,8 +25,8 @@ $tpl = initSmartyTpl($path, $tpl);
 
 $required_field = '&nbsp;<font color="red" size="1">*</font>';
 
-$tpl->assign('host', array('label' => _("Hosts")));
-$tpl->assign('rule', array('label' => _("Rules")));
+$tpl->assign('host', ['label' => _("Hosts")]);
+$tpl->assign('rule', ['label' => _("Rules")]);
 
 $tpl->assign("img_wrench", "./modules/centreon-open-tickets/images/wrench.png");
 $tpl->assign("img_info", "./modules/centreon-open-tickets/images/information.png");
@@ -34,7 +34,7 @@ $tpl->assign("img_info", "./modules/centreon-open-tickets/images/information.png
 $tpl->assign("sort1", _("General"));
 $tpl->assign("sort2", _("Advanced"));
 
-$tpl->assign("header", array("title" => _("Rules"), "general" => _("General information")));
+$tpl->assign("header", ["title" => _("Rules"), "general" => _("General information")]);
 
 $result_rule = $rule->getAliasAndProviderId($ruleId);
 
@@ -42,7 +42,7 @@ $tpl->assign("page", $p);
 $tpl->assign('rule_id', $ruleId);
 
 $rule_alias_html = '<input size="30" name="rule_alias" type="text" value="' .
-    (isset($result_rule['alias']) ? $result_rule['alias'] : '') . '" />';
+    ($result_rule['alias'] ?? '') . '" />';
 $provider_html = '<select id="provider_id" name="provider_id"><option value=""></option>';
 ksort($register_providers);
 foreach ($register_providers as $name => $value) {
@@ -54,10 +54,7 @@ foreach ($register_providers as $name => $value) {
 }
 $provider_html .= '</select>';
 
-$array_rule_form = array(
-    'rule_alias' => array('label' => _("Rule name") . $required_field, 'html' => $rule_alias_html),
-    'rule_provider' => array('label' => _("Provider") . $required_field, 'html' => $provider_html)
-);
+$array_rule_form = ['rule_alias' => ['label' => _("Rule name") . $required_field, 'html' => $rule_alias_html], 'rule_provider' => ['label' => _("Provider") . $required_field, 'html' => $provider_html]];
 
 $tpl->assign('form', $array_rule_form);
 

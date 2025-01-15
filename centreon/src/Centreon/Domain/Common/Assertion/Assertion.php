@@ -318,6 +318,27 @@ class Assertion
     }
 
     /**
+     * Assert that value is a valid URL, IP or domain.
+     *
+     * @param mixed $value
+     * @param string|null $propertyPath
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function urlOrIpOrDomain(mixed $value, ?string $propertyPath = null): void
+    {
+        if (! \is_string($value)
+            || (
+                false === filter_var($value, FILTER_VALIDATE_IP)
+                && false === filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+                && false === filter_var($value, FILTER_VALIDATE_URL)
+            )
+        ) {
+            throw AssertionException::urlOrIpOrDomain(self::stringify($value), $propertyPath);
+        }
+    }
+
+    /**
      * @param object $value
      * @param class-string $className
      * @param string|null $propertyPath

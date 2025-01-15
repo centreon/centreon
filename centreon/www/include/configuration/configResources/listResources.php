@@ -52,7 +52,7 @@ $search = \HtmlAnalyzer::sanitizeAndRemoveTags(
 
 if (isset($_POST['searchR']) || isset($_GET['searchR'])) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
     //restoring saved values
@@ -66,11 +66,7 @@ if ($search) {
 
 $aclCond = "";
 if (!$oreon->user->admin && count($allowedResourceConf)) {
-    if (isset($search) && $search) {
-        $aclCond = " AND ";
-    } else {
-        $aclCond = " WHERE ";
-    }
+    $aclCond = isset($search) && $search ? " AND " : " WHERE ";
     $aclCond .= "resource_id IN (" . implode(',', array_keys($allowedResourceConf)) . ") ";
 }
 
@@ -89,7 +85,7 @@ $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
 // Access level
-($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 // start header menu
@@ -106,7 +102,7 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 $style = "one";
 
 // Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $resource = $dbResult->fetch(); $i++) {
@@ -128,37 +124,25 @@ for ($i = 0; $resource = $dbResult->fetch(); $i++) {
         "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;\" " .
         "maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $resource['resource_id'] . "]' />";
-    $elemArr[$i] = array(
-        "order" => isset($tabResources[1]) ? $tabResources[1] : null,
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure(
-            $resource["resource_name"],
-            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&resource_id=" . $resource['resource_id'],
-        "RowMenu_values" => CentreonUtils::escapeSecure(
-            $resource['is_password'] ? PASSWORD_REPLACEMENT_VALUE_LISTING : substr($resource["resource_line"], 0, 40),
-            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ),
-        "RowMenu_comment" => CentreonUtils::escapeSecure(
-            substr(
-                html_entity_decode(
-                    $resource["resource_comment"],
-                    ENT_QUOTES,
-                    "UTF-8"
-                ),
-                0,
-                40
+    $elemArr[$i] = ["order" => $tabResources[1] ?? null, "MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure(
+        $resource["resource_name"],
+        CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+    ), "RowMenu_link" => "main.php?p=" . $p . "&o=c&resource_id=" . $resource['resource_id'], "RowMenu_values" => CentreonUtils::escapeSecure(
+        $resource['is_password'] ? PASSWORD_REPLACEMENT_VALUE_LISTING : substr($resource["resource_line"], 0, 40),
+        CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+    ), "RowMenu_comment" => CentreonUtils::escapeSecure(
+        substr(
+            html_entity_decode(
+                $resource["resource_comment"],
+                ENT_QUOTES,
+                "UTF-8"
             ),
-            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+            0,
+            40
         ),
-        "RowMenu_associated_poller" => getLinkedPollerList($resource['resource_id']),
-        "RowMenu_status" => $resource["resource_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $resource["resource_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_options" => $moptions
-    );
-    $style != "two" ? $style = "two" : $style = "one";
+        CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+    ), "RowMenu_associated_poller" => getLinkedPollerList($resource['resource_id']), "RowMenu_status" => $resource["resource_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $resource["resource_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
+    $style = $style != "two" ? "two" : "one";
 }
 
 $flag = 1;
@@ -186,11 +170,7 @@ $tpl->assign("elemArr", $elemArr);
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    array(
-        "addL" => "main.php?p=" . $p . "&o=a",
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
-    )
+    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
 );
 
 // Toolbar select
@@ -201,27 +181,25 @@ $tpl->assign(
     }
 </script>
 <?php
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: " .
-            "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('" .
-            _("Do you confirm the duplication ?") . "')) {" .
-            " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('" .
-            _("Do you confirm the deletion ?") . "')) {" .
-            " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-            "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
-            " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-            ""
-    );
+foreach (['o1', 'o2'] as $option) {
+    $attrs1 = ['onchange' => "javascript: " .
+        "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('" .
+        _("Do you confirm the duplication ?") . "')) {" .
+        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('" .
+        _("Do you confirm the deletion ?") . "')) {" .
+        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
+        "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
+        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
+        ""];
     $form->addElement(
         'select',
         $option,
         null,
-        array(null => _("More actions"), "m" => _("Duplicate"), "d" => _("Delete")),
+        [null => _("More actions"), "m" => _("Duplicate"), "d" => _("Delete")],
         $attrs1
     );
-    $form->setDefaults(array($option => null));
+    $form->setDefaults([$option => null]);
     $o1 = $form->getElement($option);
     $o1->setValue(null);
     $o1->setSelected(null);

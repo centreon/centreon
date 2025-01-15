@@ -5,8 +5,8 @@ import { path, split } from 'ramda';
 
 import { Box } from '@mui/material';
 
-import { Checkbox as CheckboxComponent } from '../../Checkbox';
 import { useMemoComponent } from '../..';
+import { Checkbox as CheckboxComponent } from '../../Checkbox';
 
 import { InputPropsWithoutGroup } from './models';
 

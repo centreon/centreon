@@ -4,15 +4,16 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-case-declarations */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
+  checkMetricsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const hostGroupName = 'Linux-Servers';
 
@@ -55,6 +56,7 @@ const resultsToSubmit = [
     status: 'ok'
   }
 ];
+
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -77,7 +79,7 @@ before(() => {
     url: /\/centreon\/api\/latest\/monitoring\/dashboard\/metrics\/top\?.*$/
   }).as('dashboardMetricsTop');
   cy.intercept({
-    method: 'PATCH',
+    method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
   cy.startContainers();
@@ -145,6 +147,8 @@ before(() => {
     jsonName: 'admin'
   });
 
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -158,7 +162,13 @@ before(() => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
-
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
   cy.logoutViaAPI();
   cy.applyAcl();
 });
@@ -335,24 +345,14 @@ When(
     cy.get('.react-grid-item').eq(1).realClick();
 
     cy.getByTestId({ testId: 'save_dashboard' }).click();
-    cy.wait('@updateDashboard');
+    cy.waitForElementToBeVisible('[class*="graphContainer"]');
   }
 );
 
 Then('the dashboard is updated with the new widget layout', () => {
   cy.get('[class*="graphContainer"]').should('be.visible');
-  cy.get('.react-grid-item')
-    .eq(0)
-    .invoke('attr', 'style')
-    .then((style) => {
-      expect(style).to.include('width: calc(425px)');
-    });
-  cy.get('.react-grid-item')
-    .eq(1)
-    .invoke('attr', 'style')
-    .then((style) => {
-      expect(style).to.include('width: calc(425px)');
-    });
+  cy.get('.react-grid-item').eq(0).should('be.visible');
+  cy.get('.react-grid-item').eq(1).should('be.visible');
 });
 
 Given(

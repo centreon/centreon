@@ -1,17 +1,23 @@
+import { equals, isNil } from 'ramda';
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { equals, isNil } from 'ramda';
 
-import { Divider, FormHelperText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import {
+  CircularProgress,
+  Divider,
+  FormHelperText,
+  Typography
+} from '@mui/material';
 
-import { Avatar, ItemComposition } from '@centreon/ui/components';
 import {
   MultiConnectedAutocompleteField,
   SelectField,
   SingleConnectedAutocompleteField
 } from '@centreon/ui';
+import { Avatar, ItemComposition } from '@centreon/ui/components';
 
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelAddFilter,
   labelDelete,
@@ -21,10 +27,9 @@ import {
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
+import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
-import { WidgetPropertyProps } from '../../../models';
 
 import useResources from './useResources';
 
@@ -55,7 +60,10 @@ const Resources = ({
     changeResource,
     singleResourceSelection,
     isLastResourceInTree,
-    changeIdValue
+    changeIdValue,
+    hasSelectedHostForSingleMetricwidget,
+    isValidatingResources,
+    hideResourceDeleteButton
   } = useResources({
     excludedResourceTypes,
     propertyName,
@@ -84,6 +92,7 @@ const Resources = ({
         <Typography className={classes.resourceTitle}>
           {t(labelResources)}
         </Typography>
+        {isValidatingResources && <CircularProgress size={16} />}
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
       <div className={classes.resourceComposition}>
@@ -99,9 +108,11 @@ const Resources = ({
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
               deleteButtonHidden={
-                deleteButtonHidden || getResourceStatic(resource.resourceType)
+                deleteButtonHidden ||
+                getResourceStatic(resource.resourceType) ||
+                hideResourceDeleteButton()
               }
-              key={`${index}${resource.resources[0]}`}
+              key={`${index}${resource.resourceType}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteResource(index)}
             >
@@ -109,7 +120,9 @@ const Resources = ({
                 className={classes.resourceType}
                 dataTestId={labelResourceType}
                 disabled={
-                  !canEditField || getResourceStatic(resource.resourceType)
+                  !canEditField ||
+                  isValidatingResources ||
+                  getResourceStatic(resource.resourceType)
                 }
                 label={t(labelSelectResourceType) as string}
                 options={getResourceTypeOptions(index, resource)}
@@ -118,13 +131,23 @@ const Resources = ({
               />
               {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
+                  exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary'
                   }}
                   className={classes.resources}
-                  disableClearable={false}
-                  disabled={!canEditField || !resource.resourceType}
+                  disableClearable={singleResourceSelection}
+                  disabled={
+                    !canEditField ||
+                    isValidatingResources ||
+                    (equals(
+                      resource.resourceType,
+                      WidgetResourceType.service
+                    ) &&
+                      !hasSelectedHostForSingleMetricwidget) ||
+                    !resource.resourceType
+                  }
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint({
                     index,
@@ -138,6 +161,7 @@ const Resources = ({
                 />
               ) : (
                 <MultiConnectedAutocompleteField
+                  exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary',
@@ -149,7 +173,11 @@ const Resources = ({
                       })
                   }}
                   className={classes.resources}
-                  disabled={!canEditField || !resource.resourceType}
+                  disabled={
+                    !canEditField ||
+                    isValidatingResources ||
+                    !resource.resourceType
+                  }
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint({
                     index,

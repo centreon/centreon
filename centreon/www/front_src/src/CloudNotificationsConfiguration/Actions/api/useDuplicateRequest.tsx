@@ -1,7 +1,7 @@
-import { and } from 'ramda';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { and } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   Method,
@@ -12,17 +12,17 @@ import {
 } from '@centreon/ui';
 
 import {
-  notificationdecoder,
-  adaptNotification as adaptFormFields
+  adaptNotification as adaptFormFields,
+  notificationdecoder
 } from '../../Panel/api';
 import { notificationEndpoint } from '../../Panel/api/endpoints';
-import { NotificationType } from '../../Panel/models';
 import { htmlEmailBodyAtom } from '../../Panel/atom';
+import { NotificationType } from '../../Panel/models';
 
 import { adaptNotification } from './adapters';
 import { addNotificationEndpoint } from './endpoints';
 
-interface useDuplicateRequestState {
+interface UseDuplicateRequestState {
   submit: (
     values,
     {
@@ -41,7 +41,7 @@ const useDuplicateRequest = ({
   payload: panelPayload,
   labelSuccess,
   labelFailed
-}): useDuplicateRequestState => {
+}): UseDuplicateRequestState => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { showSuccessMessage } = useSnackbar();

@@ -1,16 +1,16 @@
 import { useState } from 'react';
 
-import { isNil } from 'ramda';
 import { useSetAtom } from 'jotai';
+import { isNil } from 'ramda';
 
-import { useDashboardConfig } from '../../../DashboardConfig/useDashboardConfig';
-import { unformatDashboard } from '../../utils';
-import { askBeforeRevokeAtom } from '../../atom';
 import {
   dashboardToDeleteAtom,
   dashboardToDuplicateAtom,
   isSharesOpenAtom
 } from '../../../../../atoms';
+import { useDashboardConfig } from '../../../DashboardConfig/useDashboardConfig';
+import { askBeforeRevokeAtom } from '../../atom';
+import { unformatDashboard } from '../../utils';
 
 interface UseActionsState {
   closeMoreActions: () => void;

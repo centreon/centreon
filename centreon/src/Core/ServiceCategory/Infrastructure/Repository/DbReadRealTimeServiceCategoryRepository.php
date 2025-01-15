@@ -116,13 +116,11 @@ class DbReadRealTimeServiceCategoryRepository extends AbstractRepositoryRDB impl
             $request .= $searchRequest;
         }
 
-        $request .= ' GROUP BY service_categories.name';
+        $request .= ' GROUP BY service_categories.id, service_categories.name';
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY service_categories.name ASC';
+        $request .= $sortRequest ?? ' ORDER BY service_categories.name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();
@@ -226,13 +224,11 @@ class DbReadRealTimeServiceCategoryRepository extends AbstractRepositoryRDB impl
 
         $request .= " ag.acl_group_id IN ({$bindQuery})";
 
-        $request .= ' GROUP BY service_categories.name';
+        $request .= ' GROUP BY service_categories.id, service_categories.name';
 
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
 
-        $request .= $sortRequest !== null
-            ? $sortRequest
-            : ' ORDER BY service_categories.name ASC';
+        $request .= $sortRequest ?? ' ORDER BY service_categories.name ASC';
 
         // handle pagination
         $request .= $sqlTranslator?->translatePaginationToSql();

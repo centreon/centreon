@@ -44,8 +44,8 @@ const NumberField = ({
         T,
         always(
           clamp(
-            inputProps?.min || -Infinity,
-            inputProps?.max || Infinity,
+            inputProps?.min || Number.NEGATIVE_INFINITY,
+            inputProps?.max || Number.POSITIVE_INFINITY,
             number
           )
         )

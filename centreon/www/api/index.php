@@ -33,10 +33,10 @@
  *
  */
 
-require_once dirname(__FILE__) . '/../../bootstrap.php';
+require_once __DIR__ . '/../../bootstrap.php';
 require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
-require_once dirname(__FILE__) . '/class/webService.class.php';
-require_once dirname(__FILE__) . '/interface/di.interface.php';
+require_once __DIR__ . '/class/webService.class.php';
+require_once __DIR__ . '/interface/di.interface.php';
 
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 

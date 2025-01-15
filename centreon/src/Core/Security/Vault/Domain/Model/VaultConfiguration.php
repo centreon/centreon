@@ -31,6 +31,7 @@ use Security\Interfaces\EncryptionInterface;
  */
 class VaultConfiguration
 {
+    /** Validation Constants */
     public const MIN_LENGTH = 1;
     public const MAX_LENGTH = 255;
     public const NAME_MAX_LENGTH = NewVaultConfiguration::NAME_MAX_LENGTH;
@@ -39,9 +40,22 @@ class VaultConfiguration
     public const SALT_LENGTH = 128;
     public const NAME_VALIDATION_REGEX = NewVaultConfiguration::NAME_VALIDATION_REGEX;
 
-    private ?string $secretId;
+    /** Static Vault Key Constants */
+    public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
+    public const OPENID_CLIENT_ID_KEY = '_OPENID_CLIENT_ID';
+    public const OPENID_CLIENT_SECRET_KEY = '_OPENID_CLIENT_SECRET';
+    public const DATABASE_USERNAME_KEY = '_DBUSERNAME';
+    public const DATABASE_PASSWORD_KEY = '_DBPASSWORD';
+    public const KNOWLEDGE_BASE_KEY = '_KBPASSWORD';
+    public const GORGONE_PASSWORD = '_GORGONE_PASSWORD';
 
-    private ?string $roleId;
+    /** Patterns Constants */
+    public const VAULT_PATH_PATTERN = 'secret::';
+    public const UUID_EXTRACTION_REGEX = '^(.*)\/(.*)::(.*)$';
+
+    private ?string $secretId = null;
+
+    private ?string $roleId = null;
 
     /**
      * @param EncryptionInterface $encryption

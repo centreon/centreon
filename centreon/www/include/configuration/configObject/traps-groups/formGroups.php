@@ -43,7 +43,7 @@ function myDecodeGroup($arg)
     return ($arg);
 }
 
-$group = array();
+$group = [];
 if (($o == "c" || $o == "w") && $id) {
     $query = "SELECT traps_group_name as name, traps_group_id as id FROM traps_group " .
         "WHERE traps_group_id = '" . $pearDB->escape($id) . "' LIMIT 1";
@@ -56,8 +56,8 @@ if (($o == "c" || $o == "w") && $id) {
 ##########################################################
 # Var information to format the element
 #
-$attrsText = array("size" => "50");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
+$attrsText = ["size" => "50"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
 #
 ## Form begin
 #
@@ -78,14 +78,8 @@ $form->addElement('text', 'name', _("Name"), $attrsText);
 $avRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_trap&action=list';
 $deRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_trap' .
     '&action=defaultValues&target=Traps&field=groups&id=' . $id;
-$attrTraps = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $avRoute,
-    'multiple' => true,
-    'linkedObject' => 'centreonTraps',
-    'defaultDatasetRoute' => $deRoute,
-);
-$form->addElement('select2', 'traps', _("Traps"), array(), $attrTraps);
+$attrTraps = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $avRoute, 'multiple' => true, 'linkedObject' => 'centreonTraps', 'defaultDatasetRoute' => $deRoute];
+$form->addElement('select2', 'traps', _("Traps"), [], $attrTraps);
 
 #
 ## Further informations
@@ -132,20 +126,20 @@ if ($o == "w") {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&id=" . $id . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&id=" . $id . "'"]
         );
     }
     $form->setDefaults($group);
     $form->freeze();
 } # Modify a Trap Group information
 elseif ($o == "c") {
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($group);
 } # Add a Trap Group information
 elseif ($o == "a") {
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;

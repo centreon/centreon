@@ -1,11 +1,11 @@
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { identity } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { Labels } from '../models';
 import { statsDerivedAtom } from '../atoms';
+import { Labels } from '../models';
 
 interface Props {
   labels: Labels['list'];

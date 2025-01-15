@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import { Paper } from '@mui/material';

@@ -29,13 +29,13 @@ use Core\Common\Domain\YesNoDefault;
 
 class ServiceTemplate extends NewServiceTemplate
 {
-    public const MAX_NAME_LENGTH = NewServiceTemplate::MAX_NAME_LENGTH,
-                 MAX_ALIAS_LENGTH = NewServiceTemplate::MAX_ALIAS_LENGTH,
-                 MAX_COMMENT_LENGTH = NewServiceTemplate::MAX_COMMENT_LENGTH,
-                 MAX_NOTES_LENGTH = NewServiceTemplate::MAX_NOTES_LENGTH,
-                 MAX_NOTES_URL_LENGTH = NewServiceTemplate::MAX_NOTES_URL_LENGTH,
-                 MAX_ACTION_URL_LENGTH = NewServiceTemplate::MAX_ACTION_URL_LENGTH,
-                 MAX_ICON_ALT_LENGTH = NewServiceTemplate::MAX_ICON_ALT_LENGTH;
+    public const MAX_NAME_LENGTH = NewServiceTemplate::MAX_NAME_LENGTH;
+    public const MAX_ALIAS_LENGTH = NewServiceTemplate::MAX_ALIAS_LENGTH;
+    public const MAX_COMMENT_LENGTH = NewServiceTemplate::MAX_COMMENT_LENGTH;
+    public const MAX_NOTES_LENGTH = NewServiceTemplate::MAX_NOTES_LENGTH;
+    public const MAX_NOTES_URL_LENGTH = NewServiceTemplate::MAX_NOTES_URL_LENGTH;
+    public const MAX_ACTION_URL_LENGTH = NewServiceTemplate::MAX_ACTION_URL_LENGTH;
+    public const MAX_ICON_ALT_LENGTH = NewServiceTemplate::MAX_ICON_ALT_LENGTH;
 
     /**
      * @param int $id

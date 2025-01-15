@@ -53,11 +53,7 @@ $pathRoot = "./include/monitoring/";
 $pathDetails = "./include/monitoring/objectDetails/";
 $pathTools = "./include/tools/";
 
-if (!isset($_GET["cmd"]) && isset($_POST["cmd"])) {
-    $param = $_POST;
-} else {
-    $param = $_GET;
-}
+$param = !isset($_GET["cmd"]) && isset($_POST["cmd"]) ? $_POST : $_GET;
 
 if (isset($param["cmd"])
     && $param["cmd"] == 14
@@ -97,33 +93,31 @@ if ($min) {
             require_once $pathTools . "tools.php";
             break;
     }
-} else {
+} elseif ($continue) {
     /*
-	 * Now route to pages or Actions
-	 */
-    if ($continue) {
-        switch ($o) {
-            case "h":
-                require_once $path . "host.php";
-                break;
-            case "hpb":
-                require_once $path . "host.php";
-                break;
-            case "h_unhandled":
-                require_once $path . "host.php";
-                break;
-            case "hd":
-                require_once $pathDetails . "hostDetails.php";
-                break;
-            case "hpc":
-                require_once "./include/monitoring/submitPassivResults/hostPassiveCheck.php";
-                break;
-            case "hak":
-                require_once $pathRoot . "acknowlegement/hostAcknowledge.php";
-                break;
-            default:
-                require_once $path . "host.php";
-                break;
-        }
+     * Now route to pages or Actions
+     */
+    switch ($o) {
+        case "h":
+            require_once $path . "host.php";
+            break;
+        case "hpb":
+            require_once $path . "host.php";
+            break;
+        case "h_unhandled":
+            require_once $path . "host.php";
+            break;
+        case "hd":
+            require_once $pathDetails . "hostDetails.php";
+            break;
+        case "hpc":
+            require_once "./include/monitoring/submitPassivResults/hostPassiveCheck.php";
+            break;
+        case "hak":
+            require_once $pathRoot . "acknowlegement/hostAcknowledge.php";
+            break;
+        default:
+            require_once $path . "host.php";
+            break;
     }
 }

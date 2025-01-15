@@ -1,8 +1,9 @@
-import { equals, isNil } from 'ramda';
+import { ScaleLinear } from 'd3-scale';
+import { equals } from 'ramda';
 
+import { Thresholds as ThresholdsModel } from '../models';
 import { getUnits, getYScale } from '../timeSeries';
 import { Line } from '../timeSeries/models';
-import { Thresholds as ThresholdsModel } from '../models';
 
 import { ThresholdLine } from './ThresholdLine';
 
@@ -10,40 +11,34 @@ interface Props {
   displayedLines: Array<Line>;
   hideTooltip: () => void;
   isHorizontal?: boolean;
-  leftScale: (value: number) => number;
-  rightScale: (value: number) => number;
   showTooltip: (props) => void;
   thresholdUnit?: string;
   thresholds: ThresholdsModel;
   width: number;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 const Thresholds = ({
   thresholds,
-  leftScale,
-  rightScale,
   width,
   displayedLines,
   thresholdUnit,
   showTooltip,
   hideTooltip,
+  yScalesPerUnit,
   isHorizontal = true
 }: Props): JSX.Element => {
-  const [firstUnit, secondUnit, thirdUnit] = getUnits(
-    displayedLines as Array<Line>
-  );
+  const [firstUnit, secondUnit] = getUnits(displayedLines as Array<Line>);
 
-  const shouldUseRightScale = equals(thresholdUnit, secondUnit);
+  const shouldUseRightScale =
+    thresholdUnit && equals(thresholdUnit, secondUnit);
 
   const yScale = shouldUseRightScale
-    ? rightScale
+    ? yScalesPerUnit[secondUnit]
     : getYScale({
-        hasMoreThanTwoUnits: !isNil(thirdUnit),
         invert: null,
-        leftScale,
-        rightScale,
-        secondUnit,
-        unit: firstUnit
+        unit: firstUnit,
+        yScalesPerUnit
       });
 
   return (

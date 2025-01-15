@@ -1,14 +1,12 @@
-import * as React from 'react';
-
 import { equals, isEmpty, isNil, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  CircularProgress,
-  InputAdornment,
   Autocomplete,
   AutocompleteProps,
+  CircularProgress,
+  InputAdornment,
   useTheme
 } from '@mui/material';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
@@ -16,11 +14,12 @@ import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import { ThemeMode } from '@centreon/ui-context';
 
-import Option from '../Option';
-import TextField from '../../Text';
+import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
 import { SelectEntry } from '..';
-import { searchLabel } from '../../translatedLabels';
 import { getNormalizedId } from '../../../utils';
+import TextField from '../../Text';
+import { searchLabel } from '../../translatedLabels';
+import Option from '../Option';
 
 export type Props = {
   autoFocus?: boolean;
@@ -30,7 +29,7 @@ export type Props = {
   dataTestId?: string;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
-  endAdornment?: React.ReactElement;
+  endAdornment?: ReactElement;
   error?: string;
   getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
@@ -39,6 +38,7 @@ export type Props = {
   onTextChange?;
   placeholder?: string | undefined;
   required?: boolean;
+  forceInputRenderValue?: boolean;
 } & Omit<
   AutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
   'renderInput'
@@ -141,7 +141,7 @@ type Multiple = boolean;
 type DisableClearable = boolean;
 type FreeSolo = boolean;
 
-const AutocompleteField = React.forwardRef(
+const AutocompleteField = forwardRef(
   (
     {
       options,
@@ -161,10 +161,11 @@ const AutocompleteField = React.forwardRef(
       autoSize = false,
       autoSizeDefaultWidth = 0,
       autoSizeCustomPadding,
-      getOptionItemLabel = (option) => option.name,
+      getOptionItemLabel = (option) => option?.name,
+      forceInputRenderValue = false,
       ...autocompleteProps
     }: Props,
-    ref?: React.ForwardedRef<HTMLDivElement>
+    ref?: ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
     const { classes, cx } = useStyles({ hideInput });
     const { t } = useTranslation();
@@ -179,59 +180,74 @@ const AutocompleteField = React.forwardRef(
       );
     };
 
-    const renderInput = (params): JSX.Element => (
-      <TextField
-        {...params}
-        InputLabelProps={{
-          classes: {
-            marginDense: classes.inputLabel,
-            shrink: classes.inputLabelShrink
+    const renderInput = (params): JSX.Element => {
+      return (
+        <TextField
+          {...params}
+          InputLabelProps={{
+            classes: {
+              marginDense: classes.inputLabel,
+              shrink: classes.inputLabelShrink
+            }
+          }}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {endAdornment && (
+                  <InputAdornment position="end">{endAdornment}</InputAdornment>
+                )}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+            style: {
+              background: 'transparent',
+              minWidth: 0,
+              padding: theme.spacing(
+                0.75,
+                isEmpty(placeholder) ? 0 : 5,
+                0.75,
+                0.75
+              )
+            }
+          }}
+          autoFocus={autoFocus}
+          autoSize={autoSize}
+          autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
+          autoSizeDefaultWidth={autoSizeDefaultWidth}
+          classes={{
+            root: classes.textfield
+          }}
+          error={error}
+          externalValueForAutoSize={autocompleteProps?.value?.name}
+          inputProps={{
+            ...params.inputProps,
+            'aria-label': label,
+            'data-testid': dataTestId || label,
+            id: getNormalizedId(label || ''),
+            ...(forceInputRenderValue
+              ? {
+                  value: getOptionItemLabel(
+                    autocompleteProps?.value || undefined
+                  )
+                }
+              : {}),
+            ...autocompleteProps?.inputProps
+          }}
+          label={label}
+          placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
+          required={required}
+          value={
+            inputValue ||
+            (forceInputRenderValue
+              ? getOptionItemLabel(autocompleteProps?.value || undefined)
+              : undefined) ||
+            undefined
           }
-        }}
-        InputProps={{
-          ...params.InputProps,
-          endAdornment: (
-            <>
-              {endAdornment && (
-                <InputAdornment position="end">{endAdornment}</InputAdornment>
-              )}
-              {params.InputProps.endAdornment}
-            </>
-          ),
-          style: {
-            background: 'transparent',
-            minWidth: 0,
-            padding: theme.spacing(
-              0.75,
-              isEmpty(placeholder) ? 0 : 5,
-              0.75,
-              0.75
-            )
-          }
-        }}
-        autoFocus={autoFocus}
-        autoSize={autoSize}
-        autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
-        autoSizeDefaultWidth={autoSizeDefaultWidth}
-        classes={{
-          root: classes.textfield
-        }}
-        error={error}
-        externalValueForAutoSize={autocompleteProps?.value?.name}
-        inputProps={{
-          ...params.inputProps,
-          'aria-label': label,
-          'data-testid': dataTestId || label,
-          id: getNormalizedId(label || ''),
-          ...autocompleteProps?.inputProps
-        }}
-        label={label}
-        placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
-        required={required}
-        value={inputValue || undefined}
-        onChange={onTextChange}
-      />
-    );
+          onChange={onTextChange}
+        />
+      );
+    };
 
     return (
       <Autocomplete
@@ -259,7 +275,7 @@ const AutocompleteField = React.forwardRef(
           return (
             <li
               className={classes.options}
-              {...(props as React.HTMLAttributes<HTMLLIElement>)}
+              {...(props as HTMLAttributes<HTMLLIElement>)}
             >
               <Option
                 thumbnailUrl={displayOptionThumbnail ? option.url : undefined}

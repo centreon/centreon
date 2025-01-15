@@ -1,11 +1,10 @@
-import * as React from 'react';
-import { useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import {
+  CssBaseline,
   ThemeProvider as MuiThemeProvider,
   StyledEngineProvider,
-  createTheme,
-  CssBaseline
+  createTheme
 } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
@@ -13,7 +12,7 @@ import { ThemeMode } from '@centreon/ui-context';
 import { getTheme } from '../ThemeProvider';
 
 interface Props {
-  children: React.ReactElement;
+  children: ReactElement;
   themeMode: ThemeMode;
 }
 

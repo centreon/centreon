@@ -1,23 +1,23 @@
 import { ReactElement, useCallback, useMemo } from 'react';
 
-import { string, number, object } from 'yup';
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { number, object, string } from 'yup';
 
-import { InputType } from '../../../Form/Inputs/models';
 import { Form, FormProps } from '../../../Form';
+import { InputType } from '../../../Form/Inputs/models';
 import { FormVariant } from '../Form.models';
 import { FormActions, FormActionsProps } from '../FormActions';
 
+import { DashboardResource } from './Dashboard.resource';
 import { useStyles } from './DashboardForm.styles';
+import GlobalRefreshFieldOption from './GlobalRefreshFieldOption';
 import {
   labelCharacters,
   labelMustBeAtLeast,
   labelMustBeMost,
   labelRequired
 } from './translatedLabels';
-import { DashboardResource } from './Dashboard.resource';
-import GlobalRefreshFieldOption from './GlobalRefreshFieldOption';
 
 export type DashboardFormProps = {
   labels: DashboardFormLabels;

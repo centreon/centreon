@@ -26,6 +26,7 @@ namespace Core\Media\Infrastructure\Repository;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
+use Core\Media\Domain\Model\Media;
 use Core\Media\Domain\Model\NewMedia;
 
 class DbWriteMediaRepository extends AbstractRepositoryRDB implements WriteMediaRepositoryInterface
@@ -36,6 +37,64 @@ class DbWriteMediaRepository extends AbstractRepositoryRDB implements WriteMedia
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(Media $media): void
+    {
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+        try {
+            $directoryId = $this->findDirectoryByName($media->getDirectory());
+
+            if ($directoryId === null) {
+                throw new \Exception('Directory linked to the media not found');
+            }
+
+            $this->unlinkMediaToDirectory($media, $directoryId);
+            $this->deleteMedia($media);
+
+            $this->db->commit();
+        } catch (\Throwable $ex) {
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(Media $media): void
+    {
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+        try {
+            $directoryId = $this->findDirectoryByName($media->getDirectory());
+
+            if ($directoryId === null) {
+                throw new \Exception('Directory linked to the media not found');
+            }
+
+            $this->unlinkMediaToDirectory($media, $directoryId);
+            $this->deleteMedia($media);
+
+            $this->db->commit();
+        } catch (\Throwable $ex) {
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
     }
 
     /**
@@ -61,6 +120,37 @@ class DbWriteMediaRepository extends AbstractRepositoryRDB implements WriteMedia
         }
 
         return $mediaId;
+    }
+
+    private function deleteMedia(Media $media): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                        DELETE FROM `:db`.view_img WHERE img_id = :imageId
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':imageId', $media->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    private function unlinkMediaToDirectory(Media $media, int $directoryId): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                        DELETE FROM `:db`.view_img_dir_relation
+                        WHERE img_img_id = :imageId AND dir_dir_parent_id = :directoryId
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':imageId', $media->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':directoryId', $directoryId, \PDO::PARAM_INT);
+
+        $statement->execute();
     }
 
     /**

@@ -2,6 +2,7 @@ import { equals, find, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { labelSeconds } from '../../../Resources/translatedLabels';
+import { TimeInputConfiguration } from '../models';
 import {
   labelDay,
   labelDays,
@@ -13,7 +14,6 @@ import {
   labelMonths,
   labelSecond
 } from '../translatedLabels';
-import { TimeInputConfiguration } from '../models';
 
 import TimeInput from './TimeInput';
 

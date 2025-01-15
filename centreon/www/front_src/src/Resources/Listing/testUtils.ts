@@ -1,18 +1,17 @@
-import * as Ramda from 'ramda';
-
 import type { Column } from '@centreon/ui';
 import { PlatformFeatures } from '@centreon/ui-context';
 
-import { Resource, ResourceType } from '../models';
 import { resourcesToAcknowledgeAtom } from '../Actions/actionsAtoms';
+import { Resource, ResourceType } from '../models';
 
-import { getColumns, defaultSelectedColumnIds } from './columns';
+import { identity, includes } from 'ramda';
+import { defaultSelectedColumnIds, getColumns } from './columns';
 
 export const columns = getColumns({
   actions: {
     resourcesToAcknowledgeAtom
   },
-  t: Ramda.identity
+  t: identity
 }) as Array<Column>;
 
 const fillEntities = ({
@@ -95,16 +94,13 @@ export const retrievedListingWithCriticalResources = {
 };
 
 export const getPlatformFeatures = ({
-  enableTreeView = true,
   notification = false
 }: {
-  enableTreeView?: boolean;
   notification?: boolean;
 }): PlatformFeatures => {
   return {
     featureFlags: {
-      notification,
-      resourceStatusTreeView: enableTreeView
+      notification
     },
     isCloudPlatform: false
   };
@@ -117,7 +113,7 @@ export const fakeData = {
 
 export const columnToSort = columns
   .filter(({ sortable }) => sortable !== false)
-  .filter(({ id }) => Ramda.includes(id, defaultSelectedColumnIds));
+  .filter(({ id }) => includes(id, defaultSelectedColumnIds));
 
 export const retrievedListingByHosts = {
   meta: {

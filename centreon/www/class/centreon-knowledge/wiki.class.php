@@ -38,13 +38,33 @@ require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . '/../../include/common/vault-functions.php';
 
+use App\Kernel;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Centreon\Domain\Log\Logger;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class Wiki
+ */
 class Wiki
 {
+    /** @var CentreonDB */
     private $db;
+    /** @var array */
     private $config = null;
 
     /**
-     * WikiApi constructor.
+     * Wiki constructor
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Throwable
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function __construct()
     {
@@ -52,13 +72,21 @@ class Wiki
         $this->config = $this->getWikiConfig();
     }
 
+    /**
+     * @return array|mixed
+     * @throws LogicException
+     * @throws PDOException
+     * @throws Throwable
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
     public function getWikiConfig()
     {
         if (!is_null($this->config)) {
             return $this->config;
         }
 
-        $options = array();
+        $options = [];
 
         $res = $this->db->query(
             "SELECT * FROM `options` WHERE options.key LIKE 'kb_%'"
@@ -69,7 +97,7 @@ class Wiki
         $res->closeCursor();
 
         if (!isset($options['kb_wiki_url']) || $options['kb_wiki_url'] == '') {
-            throw new \Exception(
+            throw new Exception(
                 'Wiki is not configured. ' .
                 'You can disable cron in /etc/cron.d/centreon for wiki synchronization.'
             );
@@ -80,19 +108,18 @@ class Wiki
         }
 
         if (isset($options['kb_wiki_password']) && str_starts_with($options['kb_wiki_password'], 'secret::')) {
-            $kernel = \App\Kernel::createForWeb();
+            $kernel = Kernel::createForWeb();
             $readVaultConfigurationRepository = $kernel->getContainer()->get(
-                Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+                ReadVaultConfigurationRepositoryInterface::class
             );
             $vaultConfiguration = $readVaultConfigurationRepository->find();
             if ($vaultConfiguration !== null) {
-                /**
-                 * @var \Centreon\Domain\Log\Logger $logger
-                 */
-                $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-                $vaultPathPart = explode('::', $options['kb_wiki_password']);
-                $knowledgeBasePasswordPath = end($vaultPathPart);
-                $options['kb_wiki_password'] = findKnowledgeBasePasswordFromVault($logger, $knowledgeBasePasswordPath, $vaultConfiguration);
+                /** @var ReadVaultRepositoryInterface $readVaultRepository */
+                $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+                $options['kb_wiki_password'] = findKnowledgeBasePasswordFromVault(
+                    $readVaultRepository,
+                    $options['kb_wiki_password']
+                );
             }
         }
 

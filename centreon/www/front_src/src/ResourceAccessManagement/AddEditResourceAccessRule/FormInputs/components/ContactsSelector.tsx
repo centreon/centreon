@@ -9,8 +9,8 @@ import {
   labelAllContactsSelected,
   labelContacts
 } from '../../../translatedLabels';
-import { useSelectorStyles } from '../styles/Selector.styles';
 import useContactsSelector from '../hooks/useContactsSelector';
+import { useSelectorStyles } from '../styles/Selector.styles';
 
 const ContactsSelector = (): React.JSX.Element => {
   const { t } = useTranslation();

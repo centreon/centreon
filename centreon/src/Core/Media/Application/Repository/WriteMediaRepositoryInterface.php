@@ -23,6 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\Media\Application\Repository;
 
+use Core\Media\Domain\Model\Media;
 use Core\Media\Domain\Model\NewMedia;
 
 interface WriteMediaRepositoryInterface
@@ -35,4 +36,18 @@ interface WriteMediaRepositoryInterface
      * @return int
      */
     public function add(NewMedia $media): int;
+
+    /**
+     * @param Media $media
+     *
+     * @throws \Throwable
+     */
+    public function delete(Media $media): void;
+
+    /**
+     * @param Media $media
+     *
+     * @throws \Throwable
+     */
+    public function update(Media $media): void;
 }

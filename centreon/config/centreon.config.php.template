@@ -33,7 +33,7 @@ $constants = [
     '_CENTREON_LOG_' => '@CENTREON_LOG@',
     '_CENTREON_CACHEDIR_' => '@CENTREON_CACHEDIR@',
     '_CENTREON_VARLIB_' => '@CENTREON_VARLIB@',
-    '_CENTREON_PHP_VERSION_' => '8.1',
+    '_CENTREON_PHP_VERSION_' => '8.2',
     '_CENTREON_MARIA_DB_MIN_VERSION_' => '10.5',
 ];
 
@@ -128,6 +128,7 @@ if (file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
             $httpClient = new CurlHttpClient();
             $token = $authenticateToVault($httpClient, $vaultConfiguration);
             $databaseVaultPathPart = explode("::", $conf_centreon['user']);
+            array_pop($databaseVaultPathPart);
             $vaultPath = end($databaseVaultPathPart);
             $credentialContent = $retrieveDatabaseCredentialsFromVault($token, $vaultPath, $httpClient, $vaultConfiguration);
             $conf_centreon['user'] = $credentialContent['username'];

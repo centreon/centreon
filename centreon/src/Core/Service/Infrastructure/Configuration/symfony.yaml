@@ -1,19 +1,29 @@
 services:
-    _defaults:
-        public: false
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+  _defaults:
+    public: false
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
 
-    Core\Service\:
-        resource: '../../../../Core/Service/*'
-        bind:
-            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+  Core\Service\:
+    resource: '../../../../Core/Service/*'
+    bind:
+      $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
-    Core\Service\Application\Repository\ReadServiceRepositoryInterface:
-        class: Core\Service\Infrastructure\Repository\DbReadServiceRepository
+  Core\Service\Application\Repository\WriteServiceRepositoryInterface:
+    class: Core\Service\Infrastructure\Repository\DbWriteServiceRepository
 
-    Core\Service\Infrastructure\Repository\ApiReadServiceRepository:
-        arguments:
-            $logger: '@Centreon\Domain\Log\Logger'
+  Core\Service\Application\Repository\ReadServiceRepositoryInterface:
+    class: Core\Service\Infrastructure\Repository\DbReadServiceRepository
 
+  Core\Service\Infrastructure\Repository\ApiReadServiceRepository:
+    arguments:
+      $logger: '@Centreon\Domain\Log\Logger'
 
+  Core\Service\Infrastructure\Repository\DbWriteServiceActionLogRepository:
+    decorates: Core\Service\Application\Repository\WriteServiceRepositoryInterface
+    arguments:
+      - '@.inner'
+      - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+      - '@Core\Service\Application\Repository\ReadServiceRepositoryInterface'
+      - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+      - '@Centreon\Infrastructure\DatabaseConnection'

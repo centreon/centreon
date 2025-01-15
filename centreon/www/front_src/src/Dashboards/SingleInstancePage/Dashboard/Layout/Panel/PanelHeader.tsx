@@ -1,20 +1,20 @@
 import { useMemo, useState } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { equals, isEmpty } from 'ramda';
-import { Link } from 'react-router-dom';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isEmpty } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
+import DvrIcon from '@mui/icons-material/Dvr';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import UpdateIcon from '@mui/icons-material/Update';
 import {
   Button,
   CardHeader,
   CircularProgress,
   Typography
 } from '@mui/material';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import DvrIcon from '@mui/icons-material/Dvr';
-import UpdateIcon from '@mui/icons-material/Update';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
@@ -24,15 +24,18 @@ import {
   duplicatePanelDerivedAtom,
   isEditingAtom
 } from '../../atoms';
+import { useLastRefresh } from '../../hooks/useLastRefresh';
 import {
   labelMoreActions,
   labelResourcesStatus,
   labelSeeMore
 } from '../../translatedLabels';
-import { useLastRefresh } from '../../hooks/useLastRefresh';
 
-import { usePanelHeaderStyles } from './usePanelStyles';
+import ExpandableButton from './ExpandableButton';
 import MorePanelActions from './MorePanelActions';
+import { ExpandableData } from './models';
+import { usePanelHeaderStyles } from './usePanelStyles';
+import useRefreshWebPageWidget from './useRefreshWebPageWidget';
 
 interface PanelHeaderProps {
   changeViewMode: (displayType) => void;
@@ -43,6 +46,8 @@ interface PanelHeaderProps {
   linkToResourceStatus?: string;
   pageType: string | null;
   setRefreshCount?: (id) => void;
+  name: string;
+  expandableData?: ExpandableData;
 }
 
 const PanelHeader = ({
@@ -53,7 +58,9 @@ const PanelHeader = ({
   changeViewMode,
   pageType,
   displayShrinkRefresh,
-  forceDisplayShrinkRefresh
+  forceDisplayShrinkRefresh,
+  name,
+  expandableData
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
@@ -102,10 +109,14 @@ const PanelHeader = ({
 
   const page = t(pageType || labelResourcesStatus);
 
+  const isWebPageWidget = equals(name, 'centreon-widget-webpage');
+
+  const refresWebpageWidget = useRefreshWebPageWidget(id);
+
   return (
     <CardHeader
       action={
-        displayMoreActions && (
+        displayMoreActions ? (
           <div className={classes.panelActionsIcons}>
             {hasQueryData && (
               <div>
@@ -143,6 +154,7 @@ const PanelHeader = ({
                 )}
               </div>
             )}
+
             {linkToResourceStatus && (
               <Link
                 data-testid={t(labelSeeMore, { page })}
@@ -159,20 +171,39 @@ const PanelHeader = ({
                 </IconButton>
               </Link>
             )}
-            <IconButton
-              ariaLabel={t(labelMoreActions) as string}
-              title={t(labelMoreActions) as string}
-              onClick={openMoreActions}
-            >
-              <MoreHorizIcon fontSize="small" />
-            </IconButton>
+
+            {isWebPageWidget && (
+              <IconButton
+                size="small"
+                title={'Refresh the page'}
+                tooltipPlacement="top"
+                onClick={refresWebpageWidget}
+              >
+                <UpdateIcon sx={{ height: 22, width: 22 }} />
+              </IconButton>
+            )}
+
+            {!expandableData || !expandableData?.isExpanded ? (
+              <IconButton
+                ariaLabel={t(labelMoreActions) as string}
+                title={t(labelMoreActions) as string}
+                onClick={openMoreActions}
+              >
+                <MoreHorizIcon fontSize="small" />
+              </IconButton>
+            ) : (
+              <ExpandableButton expandableData={expandableData} />
+            )}
             <MorePanelActions
               anchor={moreActionsOpen}
               close={closeMoreActions}
               duplicate={duplicate}
               id={id}
+              expandableData={expandableData}
             />
           </div>
+        ) : (
+          <ExpandableButton expandableData={expandableData} />
         )
       }
       className={classes.panelHeader}

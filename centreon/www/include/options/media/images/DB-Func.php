@@ -43,7 +43,7 @@ if (!isset($oreon)) {
 function sanitizeFilename($filename)
 {
     $cleanstr = str_replace(
-        array(' ', '/', '\\'),
+        [' ', '/', '\\'],
         "_",
         $filename
     );
@@ -53,7 +53,7 @@ function sanitizeFilename($filename)
 function sanitizePath($path)
 {
     $cleanstr = str_replace(
-        array('#', '/', '\\'),
+        ['#', '/', '\\'],
         "_",
         $path
     );
@@ -64,7 +64,7 @@ function sanitizePath($path)
 function extractDir($zipfile, $path)
 {
     if (file_exists($zipfile)) {
-        $files = array();
+        $files = [];
         $zip = new ZipArchive;
         if ($zip->open($zipfile) === true) {
             if ($zip->extractTo($path) === true) {
@@ -153,7 +153,7 @@ function insertImg($src_dir, $src_file, $dst_dir, $dst_file, $img_comment = "")
     return $image_id;
 }
 
-function deleteMultImg($images = array())
+function deleteMultImg($images = [])
 {
     foreach (array_keys($images) as $selector) {
         $id = explode('-', $selector);
@@ -238,11 +238,7 @@ function moveImg($img_id, $dir_alias)
     $img_info = $prepare->fetch(PDO::FETCH_ASSOC);
     $image_info_path = basename($img_info["img_path"]);
     $image_info_dir_alias = basename($img_info["dir_alias"]);
-    if ($dir_alias) {
-        $dir_alias = sanitizePath($dir_alias);
-    } else {
-        $dir_alias = $image_info_dir_alias;
-    }
+    $dir_alias = $dir_alias ? sanitizePath($dir_alias) : $image_info_dir_alias;
     if ($dir_alias != $img_info["dir_alias"]) {
         $oldpath = $mediadir . $image_info_dir_alias . "/" . $image_info_path;
         $newpath = $mediadir . $dir_alias . "/" . $image_info_path;
@@ -337,7 +333,7 @@ function insertDirectory($dir_alias, $dir_comment = "")
     }
 }
 
-function deleteMultDirectory($dirs = array())
+function deleteMultDirectory($dirs = [])
 {
     foreach (array_keys($dirs) as $selector) {
         $id = explode('-', $selector);
@@ -428,7 +424,7 @@ function getListDirectory($filter = null)
         $query .= "WHERE dir_name LIKE '" . $filter . "%' ";
     }
     $query .= "ORDER BY dir_name";
-    $list_dir = array();
+    $list_dir = [];
     $dbresult = $pearDB->query($query);
     while ($row = $dbresult->fetch(PDO::FETCH_ASSOC)) {
         $list_dir[$row['dir_id']] = CentreonUtils::escapeSecure(

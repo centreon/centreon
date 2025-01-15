@@ -1,7 +1,7 @@
 /* eslint-disable hooks/sort */
 import { useState } from 'react';
 
-import { cond, gt, always, T, isEmpty, not } from 'ramda';
+import { T, always, cond, gt, isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
@@ -10,29 +10,31 @@ import { Variant } from '@mui/material/styles/createTypography';
 import { Group, InputType } from '@centreon/ui';
 
 import {
-  labelSelectResourcesAndEvents,
-  labelNotificationSettings,
+  labelBusinessViews,
+  labelBusinessViewsEvents,
+  labelContacts,
   labelEmailTemplateForTheNotificationMessage,
-  labelSubject,
-  labelNotificationChannels,
   labelHostGroups,
-  labelServiceGroups,
-  labelTimePeriod,
+  labelNotificationChannels,
+  labelNotificationSettings,
+  labelSearchBusinessViews,
+  labelSearchContacts,
   labelSearchHostGroups,
   labelSearchServiceGroups,
-  labelContacts,
-  labelSearchContacts,
-  labelSearchBusinessViews,
-  labelBusinessViews,
-  labelBusinessViewsEvents
+  labelSelectResourcesAndEvents,
+  labelSelectTimePeriod,
+  labelServiceGroups,
+  labelSubject,
+  labelTimePeriod
 } from '../../translatedLabels';
-import { hostEvents, serviceEvents } from '../utils';
 import {
+  availableTimePeriodsEndpoint,
   businessViewsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
+import { hostEvents, serviceEvents } from '../utils';
 
 import { EmailBody } from './Channel';
 import { useStyles } from './Inputs.styles';
@@ -236,19 +238,21 @@ const useFormInputs = ({
           }
         ]
       : []),
-
     {
       additionalLabel: <TimePeriodTitle />,
       additionalLabelClassName: classes.additionalLabel,
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        endpoint: availableTimePeriodsEndpoint
+      },
       dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',
-      getDisabled: T,
       group: basicFormGroups[1].name,
       inputClassName: classes.input,
-      label: t(labelTimePeriod),
-      type: InputType.Checkbox
+      label: t(labelSelectTimePeriod),
+      required: true,
+      type: InputType.SingleConnectedAutocomplete
     },
-
     {
       additionalLabel: t(labelNotificationChannels),
       additionalLabelClassName: classes.additionalLabel,
@@ -290,7 +294,6 @@ const useFormInputs = ({
       },
       group: basicFormGroups[1].name,
       inputClassName: classes.input,
-      label: t(labelNotificationChannels),
       type: InputType.Grid
     },
 

@@ -1,18 +1,18 @@
 import { useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { isNil, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Theme, LinearProgress } from '@mui/material';
+import { LinearProgress, Theme } from '@mui/material';
 
-import useTab from '../useTab';
 import FormTitle from '../FormTitle';
+import useTab from '../useTab';
 
-import { labelDefinePasswordPasswordSecurityPolicy } from './translatedLabels';
-import useAuthentication from './useAuthentication';
 import Form from './Form';
 import { PasswordSecurityPolicy } from './models';
+import { labelDefinePasswordPasswordSecurityPolicy } from './translatedLabels';
+import useAuthentication from './useAuthentication';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   loading: {

@@ -1,16 +1,16 @@
 import { useCallback, useMemo } from 'react';
 
 import { Group } from '@visx/group';
-import { hierarchy, Tree as VisxTree } from '@visx/hierarchy';
+import { Tree as VisxTree, hierarchy } from '@visx/hierarchy';
 import { isNil } from 'ramda';
 
 import { useDeepCompare } from '../../utils';
 
+import DescendantNodes from './DescendantNodes';
+import Links from './Links';
 import { nodeMargins } from './constants';
 import { BaseProp, Node, TreeProps } from './models';
 import { updateNodeFromTree } from './utils';
-import Links from './Links';
-import DescendantNodes from './DescendantNodes';
 
 export const Tree = <TData extends BaseProp>({
   containerHeight,

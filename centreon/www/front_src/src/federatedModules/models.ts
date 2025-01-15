@@ -1,9 +1,12 @@
-import { SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
+import { ComponentType, LazyExoticComponent } from 'react';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
   panelMinHeight?: number;
   panelMinWidth?: number;
+  panelDefaultWidth?: number;
+  panelDefaultHeight?: number;
   path: string;
   title?: string;
 }
@@ -16,6 +19,7 @@ export interface FederatedModule {
   preloadScript?: string;
   remoteEntry: string;
   remoteUrl?: string;
+  Component?: LazyExoticComponent<ComponentType<{ [key: string]: unknown }>>;
 }
 
 export interface PageComponent {
@@ -32,9 +36,14 @@ export interface StyleMenuSkeleton {
 }
 
 export enum FederatedWidgetOptionType {
+  autocomplete = 'autocomplete',
   buttonGroup = 'button-group',
   checkbox = 'checkbox',
+  color = 'color',
+  connectedAutocomplete = 'connected-autocomplete',
+  datePicker = 'date-picker',
   displayType = 'displayType',
+  locale = 'locale',
   metrics = 'metrics',
   radio = 'radio',
   refreshInterval = 'refresh-interval',
@@ -48,13 +57,19 @@ export enum FederatedWidgetOptionType {
   textfield = 'textfield',
   threshold = 'threshold',
   tiles = 'tiles',
+  timeFormat = 'time-format',
   timePeriod = 'time-period',
+  timezone = 'timezone',
   topBottomSettings = 'top-bottom-settings',
-  valueFormat = 'value-format'
+  valueFormat = 'value-format',
+  warning = 'warning'
 }
 
 interface WidgetHiddenCondition {
   matches: unknown;
+  method: 'equals' | 'includes';
+  property?: string;
+  target: 'options' | 'data' | 'modules' | 'featureFlags';
   when: string;
 }
 
@@ -75,6 +90,7 @@ export interface FederatedWidgetOption {
         when: string;
       };
   group?: string;
+  hasModule?: string;
   hiddenCondition: WidgetHiddenCondition;
   label: string;
   options?:
@@ -100,6 +116,7 @@ export interface FederatedWidgetProperties {
         };
       };
       groups: Array<SelectEntry>;
+      hasModule?: string;
     };
   };
   customBaseColor?: boolean;
@@ -115,4 +132,9 @@ export interface FederatedWidgetProperties {
   singleMetricSelection?: boolean;
   singleResourceSelection?: boolean;
   title: string;
+  message?: {
+    label: string;
+    icon?: string;
+  };
+  canExpand?: boolean;
 }

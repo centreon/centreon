@@ -6,15 +6,15 @@ import { flatten, head, pluck } from 'ramda';
 
 import { Box, useTheme } from '@mui/material';
 
-import { Metric } from '../common/timeSeries/models';
-import { formatMetricValueWithUnit } from '../common/timeSeries';
-import { getColorFromDataAndTresholds } from '../common/utils';
-import { margins } from '../common/margins';
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
+import { margins } from '../common/margins';
+import { formatMetricValueWithUnit } from '../common/timeSeries';
+import { Metric } from '../common/timeSeries/models';
 import { useTooltipStyles } from '../common/useTooltipStyles';
+import { getColorFromDataAndTresholds } from '../common/utils';
 
-import Thresholds from './Thresholds';
 import PieData from './PieData';
+import Thresholds from './Thresholds';
 import { GaugeProps } from './models';
 
 interface Props extends Pick<GaugeProps, 'thresholds' | 'baseColor'> {

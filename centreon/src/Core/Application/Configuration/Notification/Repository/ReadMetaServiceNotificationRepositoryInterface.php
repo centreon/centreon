@@ -25,11 +25,14 @@ namespace Core\Application\Configuration\Notification\Repository;
 
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadMetaServiceNotificationRepositoryInterface
 {
     /**
      * @param int $metaServiceId
+     *
+     * @throws \Throwable
      *
      * @return NotifiedContact[]
      */
@@ -37,8 +40,30 @@ interface ReadMetaServiceNotificationRepositoryInterface
 
     /**
      * @param int $metaServiceId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return NotifiedContact[]
+     */
+    public function findNotifiedContactsByIdAndAccessGroups(int $metaServiceId, array $accessGroups): array;
+
+    /**
+     * @param int $metaServiceId
+     *
+     * @throws \Throwable
      *
      * @return NotifiedContactGroup[]
      */
     public function findNotifiedContactGroupsById(int $metaServiceId): array;
+
+    /**
+     * @param int $metaServiceId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return NotifiedContactGroup[]
+     */
+    public function findNotifiedContactGroupsByIdAndAccessGroups(int $metaServiceId, array $accessGroups): array;
 }

@@ -1,19 +1,19 @@
 /* eslint-disable react/no-array-index-key */
 import { ReactElement } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { FormHelperText } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { FormHelperText } from '@mui/material';
 
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
 
 import { Dataset, ResourceTypeEnum } from '../../../models';
 import {
-  labelDelete,
   labelAddFilter,
+  labelDelete,
   labelSelectResource,
   labelSelectResourceType
 } from '../../../translatedLabels';

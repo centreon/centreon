@@ -1,9 +1,9 @@
-import { makeStyles } from 'tss-react/mui';
 import { T, always, cond, equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { SvgIconComponent } from '@mui/icons-material';
+import { Box, FormControlLabel, Checkbox as MuiCheckbox } from '@mui/material';
 import Typography, { TypographyProps } from '@mui/material/Typography';
-import { FormControlLabel, Checkbox as MuiCheckbox, Box } from '@mui/material';
 
 export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
 

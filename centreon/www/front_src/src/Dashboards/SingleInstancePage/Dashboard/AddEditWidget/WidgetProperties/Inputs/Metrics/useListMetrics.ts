@@ -19,6 +19,7 @@ import {
 } from '@centreon/ui';
 
 import { Metric, ServiceMetric, WidgetDataResource } from '../../../models';
+
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
 
@@ -28,13 +29,12 @@ interface Props {
 }
 
 interface UseListMetricsState {
-  hasReachedTheLimitOfUnits: boolean;
+  hasMultipleUnitsSelected: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   metricCount?: number;
   metrics: Array<Metric>;
   servicesMetrics?: ListingModel<ServiceMetric>;
-  unitsFromSelectedMetrics: Array<unknown>;
 }
 
 export const useListMetrics = ({
@@ -79,7 +79,7 @@ export const useListMetrics = ({
     uniq
   )(selectedMetrics || []);
 
-  const hasReachedTheLimitOfUnits = equals(length(unitsFromSelectedMetrics), 2);
+  const hasMultipleUnitsSelected = gt(length(unitsFromSelectedMetrics), 1);
 
   const metrics: Array<Metric> = pipe(
     pluck('metrics'),
@@ -88,12 +88,11 @@ export const useListMetrics = ({
   )(servicesMetrics?.result || []);
 
   return {
-    hasReachedTheLimitOfUnits,
+    hasMultipleUnitsSelected,
     hasTooManyMetrics,
     isLoadingMetrics,
     metricCount,
     metrics,
-    servicesMetrics,
-    unitsFromSelectedMetrics
+    servicesMetrics
   };
 };

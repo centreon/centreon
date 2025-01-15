@@ -33,7 +33,7 @@ class QueryGenerator
      * @var array<array<int,mixed>>
      */
     private array $queryValues = [];
-    private ?int $is_admin;
+    private ?int $is_admin = null;
     private string $openid = '';
     private string $output = '';
     private CentreonACL $access;
@@ -72,7 +72,7 @@ class QueryGenerator
     private string $engine;
     private string|int $export;
     private int $num = 0;
-    private ?int $limit;
+    private ?int $limit = null;
 
     public function __construct(private CentreonDB $pearDBO)
     {
@@ -502,7 +502,7 @@ class QueryGenerator
                 return is_numeric($id);
             });
 
-            if (count($filteredIds) > 0) {
+            if ($filteredIds !== []) {
                 foreach ($filteredIds as $index => $filteredId) {
                     $key = ':pollerId' . $index;
                     $this->queryValues[$key] = [\PDO::PARAM_INT => $filteredId];
@@ -542,14 +542,14 @@ class QueryGenerator
         $flag_begin = 0;
 
         if ($this->notification == 'true') {
-            if (count($this->hostMsgStatusSet)) {
+            if ($this->hostMsgStatusSet !== []) {
                 $msg_req .= "(";
                 $flag_begin = 1;
                 $msg_req .= " (`msg_type` = '3' ";
                 $msg_req .= " AND `status` IN (" . implode(',', $this->hostMsgStatusSet) . "))";
                 $msg_req .= ") ";
             }
-            if (count($this->svcMsgStatusSet)) {
+            if ($this->svcMsgStatusSet !== []) {
                 if ($flag_begin == 0) {
                     $msg_req .= "(";
                 } else {
@@ -565,7 +565,7 @@ class QueryGenerator
         }
 
         if ($this->alert == 'true') {
-            if (count($this->hostMsgStatusSet)) {
+            if ($this->hostMsgStatusSet !== []) {
                 if ($flag_begin) {
                     $msg_req .= " OR ";
                 }
@@ -578,7 +578,7 @@ class QueryGenerator
                 $msg_req .= " AND `status` IN (" . implode(',', $this->hostMsgStatusSet) . ")) ";
                 $msg_req .= ") ";
             }
-            if (count($this->svcMsgStatusSet)) {
+            if ($this->svcMsgStatusSet !== []) {
                 if ($flag_begin) {
                     $msg_req .= " OR ";
                 }

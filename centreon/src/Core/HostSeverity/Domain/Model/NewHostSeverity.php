@@ -28,11 +28,11 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class NewHostSeverity
 {
-    public const MAX_NAME_LENGTH = 200,
-        MAX_ALIAS_LENGTH = 200,
-        MAX_COMMENT_LENGTH = 65535,
-        MIN_LEVEL_VALUE = -128,
-        MAX_LEVEL_VALUE = 127;
+    public const MAX_NAME_LENGTH = 200;
+    public const MAX_ALIAS_LENGTH = 200;
+    public const MAX_COMMENT_LENGTH = 65535;
+    public const MIN_LEVEL_VALUE = -128;
+    public const MAX_LEVEL_VALUE = 127;
 
     protected bool $isActivated = true;
 

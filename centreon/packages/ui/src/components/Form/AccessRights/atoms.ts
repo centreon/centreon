@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { equals, pluck, prop, remove, update } from 'ramda';
 
-import { AccessRightInitialValues, AccessRight, ContactType } from './models';
+import { AccessRight, AccessRightInitialValues, ContactType } from './models';
 
 export const valuesAtom = atom<Array<AccessRight>>([]);
 export const initialValuesAtom = atom<Array<AccessRightInitialValues>>([]);

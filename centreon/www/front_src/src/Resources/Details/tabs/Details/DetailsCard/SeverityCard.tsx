@@ -5,8 +5,8 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
-import { ResourceDetails } from '../../../models';
 import { labelSeverity } from '../../../../translatedLabels';
+import { ResourceDetails } from '../../../models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {

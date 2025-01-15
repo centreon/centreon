@@ -2,8 +2,8 @@ import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 export enum LegendMarkerVariant {
-  'dot',
-  'bar'
+  dot = 0,
+  bar = 1
 }
 
 interface StylesProps {

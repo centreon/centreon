@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Notification\Infrastructure\Repository;
 
 use Core\Notification\Application\Converter\{NotificationHostEventConverter, NotificationServiceEventConverter};
-use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, NotifiableService, NotificationHostEvent};
+use Core\Notification\Domain\Model\{HostEvent, NotifiableHost, NotifiableResource, NotifiableService};
 
 class DbNotifiableResourceFactory
 {
@@ -119,7 +119,9 @@ class DbNotifiableResourceFactory
             }
 
             if ($currentRecords[$index - 1] !== self::NO_HOST_EVENTS) {
-                $currentHostEvents = NotificationHostEventConverter::fromBitFlags((int) $currentRecords[$index - 1]);
+                $currentHostEvents = NotificationHostEventConverter::fromBitFlags(
+                    (int) $currentRecords[$index - 1]['host_events']
+                );
             }
 
             $notificationHosts[] = self::createNotificationHostFromRecord(
@@ -158,7 +160,7 @@ class DbNotifiableResourceFactory
      * @param int $hostId
      * @param string $hostName
      * @param string|null $hostAlias
-     * @param array<NotificationHostEvent> $hostEvents
+     * @param array<HostEvent> $hostEvents
      * @param array<int,array{
      *  notification_id: int,
      *  host_id: int,

@@ -30,10 +30,14 @@ module.exports = (enableCoverage = false) =>
         path: path.resolve(`${__dirname}/www/static`),
         publicPath: './static/'
       },
+      performance: {
+        maxAssetSize: 300000,
+        maxEntrypointSize: 300000
+      },
       plugins: [
         new rspack.ProvidePlugin({
           React: 'react',
-          process: 'process/browser'
+          process: require.resolve('process/browser')
         }),
         new rspack.HtmlRspackPlugin({
           filename: path.resolve(`${__dirname}`, 'www', 'index.html'),
@@ -47,9 +51,6 @@ module.exports = (enableCoverage = false) =>
         })
       ],
       resolve: {
-        alias: {
-          'centreon-widgets': path.resolve(__dirname, 'www', 'widgets', 'src')
-        },
         modules: [path.resolve(__dirname, '.'), 'node_modules']
       }
     }

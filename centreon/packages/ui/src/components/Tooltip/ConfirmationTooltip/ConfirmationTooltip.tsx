@@ -1,10 +1,10 @@
 import { MouseEvent, useState } from 'react';
 
-import { ClickAwayListener, Box, Popper } from '@mui/material';
+import { Box, ClickAwayListener, Popper } from '@mui/material';
 
+import { useStyles } from './ConfirmationTooltip.styles';
 import TooltipContent from './TooltipContent';
 import { Props } from './models';
-import { useStyles } from './ConfirmationTooltip.styles';
 
 export const ConfirmationTooltip = ({
   children,

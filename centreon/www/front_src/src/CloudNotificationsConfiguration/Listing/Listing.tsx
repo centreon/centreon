@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react';
 
-import { useAtom, useSetAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { prop } from 'ramda';
 
 import { MemoizedListing as Listing } from '@centreon/ui';
 
-import {
-  isPanelOpenAtom,
-  pageAtom,
-  limitAtom,
-  sortOrderAtom,
-  sortFieldAtom,
-  panelWidthStorageAtom,
-  selectedRowsAtom,
-  notificationsNamesAtom
-} from '../atom';
 import { editedNotificationIdAtom, panelModeAtom } from '../Panel/atom';
 import { PanelMode } from '../Panel/models';
+import {
+  isPanelOpenAtom,
+  limitAtom,
+  notificationsNamesAtom,
+  pageAtom,
+  panelWidthStorageAtom,
+  selectedRowsAtom,
+  sortFieldAtom,
+  sortOrderAtom
+} from '../atom';
 
 import { Actions } from './Header';
 import useListingColumns from './columns';

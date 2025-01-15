@@ -1,28 +1,28 @@
-import { replace } from 'ramda';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { replace } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { authenticationProvidersEndpoint } from './api/endpoints';
-import { Provider } from './models';
 import { defaultPasswordSecurityPolicyAPI } from './Local/defaults';
 import { retrievedOpenidConfiguration } from './Openid/defaults';
-import { retrievedWebSSOConfiguration } from './WebSSO/defaults';
-import { retrievedSAMLConfiguration } from './SAML/defaults';
 import {
   labelEnableOpenIDConnectAuthentication,
   labelOpenIDConnectConfiguration
 } from './Openid/translatedLabels';
-import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
+import { retrievedSAMLConfiguration } from './SAML/defaults';
 import { labelSAMLConfiguration } from './SAML/translatedLabels';
+import { retrievedWebSSOConfiguration } from './WebSSO/defaults';
+import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
+import { authenticationProvidersEndpoint } from './api/endpoints';
+import { Provider } from './models';
+import { labelRolesMapping } from './shared/translatedLabels';
 import {
   labelAuthenticationConditions,
   labelAutoImportUsers,
   labelGroupsMapping,
   labelIdentityProvider
 } from './translatedLabels';
-import { labelRolesMapping } from './shared/translatedLabels';
 
 import Authentication from '.';
 

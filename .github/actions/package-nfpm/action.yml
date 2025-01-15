@@ -45,6 +45,12 @@ runs:
   using: composite
 
   steps:
+    - name: Parse distrib name
+      id: parse-distrib
+      uses: ./.github/actions/parse-distrib
+      with:
+        distrib: ${{ inputs.distrib }}
+
     - name: Import gpg key
       env:
         RPM_GPG_SIGNING_KEY: ${{ inputs.rpm_gpg_key }}
@@ -62,16 +68,12 @@ runs:
         export ARCH="${{ inputs.arch }}"
 
         if  [ "${{ inputs.package_extension }}" = "rpm" ]; then
-          export DIST=".${{ inputs.distrib }}"
+          export DIST="${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
           export APACHE_USER="apache"
           export APACHE_GROUP="apache"
         else
           export DIST=""
-          if [ "${{ inputs.stability }}" == "unstable" ] || [ "${{ inputs.stability }}" == "canary" ]; then
-            export RELEASE="$RELEASE~${{ inputs.distrib }}"
-          else
-            export RELEASE="1~${{ inputs.distrib }}"
-          fi
+          export RELEASE="$RELEASE${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
           export APACHE_USER="www-data"
           export APACHE_GROUP="www-data"
         fi
@@ -104,6 +106,8 @@ runs:
           cd -
           mv $DIRNAME/*.${{ inputs.package_extension }} ./
         done
+
+        ls -lh ./*.${{ inputs.package_extension }}
       shell: bash
 
     - name: Cache packages
@@ -115,7 +119,7 @@ runs:
     # Update if condition to true to get packages as artifacts
     - if: ${{ false }}
       name: Upload package artifacts
-      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
       with:
         name: packages-${{ inputs.distrib }}
         path: ./*.${{ inputs.package_extension}}

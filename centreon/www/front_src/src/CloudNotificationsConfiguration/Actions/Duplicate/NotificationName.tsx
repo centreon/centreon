@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { TextField } from '@centreon/ui';
 
-import { labelNotificationName, labelName } from '../../translatedLabels';
+import { labelName, labelNotificationName } from '../../translatedLabels';
 
 const NotificationName = (): JSX.Element => {
   const { t } = useTranslation();

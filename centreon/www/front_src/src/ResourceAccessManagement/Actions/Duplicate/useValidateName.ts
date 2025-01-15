@@ -1,7 +1,7 @@
-import { useTranslation } from 'react-i18next';
-import { ObjectSchema, ObjectShape, object, string } from 'yup';
 import { useAtomValue } from 'jotai';
 import { map, prop } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { ObjectSchema, ObjectShape, object, string } from 'yup';
 
 import { resourceAccessRulesNamesAtom } from '../../atom';
 import { labelNameAlreadyExists, labelRequired } from '../../translatedLabels';

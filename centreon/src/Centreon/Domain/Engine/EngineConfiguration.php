@@ -26,9 +26,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class EngineConfiguration
 {
-    public const NOTIFICATIONS_OPTION_DISABLED = 0,
-                 NOTIFICATIONS_OPTION_ENABLED = 1,
-                 NOTIFICATIONS_OPTION_DEFAULT = 2;
+    public const NOTIFICATIONS_OPTION_DISABLED = 0;
+    public const NOTIFICATIONS_OPTION_ENABLED = 1;
+    public const NOTIFICATIONS_OPTION_DEFAULT = 2;
 
     private const AVAILABLE_NOTIFICATION_OPTIONS = [
         self::NOTIFICATIONS_OPTION_DISABLED,

@@ -67,7 +67,8 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
     $useCase($presenter);
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe('Only admin user can create vault configuration');
+    expect($presenter->getResponseStatus()?->getMessage())
+        ->toBe(VaultConfigurationException::onlyForAdmin()->getMessage());
 });
 
 it('should present NotFoundResponse when vault configuration does not exist for a given id', function (): void {

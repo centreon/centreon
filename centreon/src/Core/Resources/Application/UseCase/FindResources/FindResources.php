@@ -25,11 +25,13 @@ namespace Core\Resources\Application\UseCase\FindResources;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
+use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -42,12 +44,14 @@ final class FindResources
      * @param ContactInterface $contact
      * @param RequestParametersInterface $requestParameters
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      */
     public function __construct(
         private readonly ReadResourceRepositoryInterface $repository,
         private readonly ContactInterface $contact,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly \Traversable $extraDataProviders
     ) {
     }
 
@@ -60,13 +64,21 @@ final class FindResources
         ResourceFilter $filter
     ): void {
         try {
+            $resources = [];
             if ($this->contact->isAdmin()) {
+                $resources = $this->findResourcesAsAdmin($filter);
                 $this->info('Find resources', ['request' => $this->requestParameters->toArray()]);
-                $presenter->presentResponse($this->findResourcesAsAdmin($filter));
             } else {
+                $resources = $this->findResourcesAsUser($filter);
                 $this->info('Find resources', ['request' => $this->requestParameters->toArray()]);
-                $presenter->presentResponse($this->findResourcesAsUser($filter));
             }
+
+            $extraData = [];
+            foreach (iterator_to_array($this->extraDataProviders) as $provider) {
+                $extraData[$provider->getExtraDataSourceName()] = $provider->getExtraDataForResources($filter, $resources);
+            }
+
+            $presenter->presentResponse(FindResourcesFactory::createResponse($resources, $extraData));
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(ResourceException::errorWhileSearching()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -76,13 +88,11 @@ final class FindResources
     /**
      * @param ResourceFilter $filter
      *
-     * @return FindResourcesResponse
+     * @return ResourceEntity[]
      */
-    private function findResourcesAsAdmin(ResourceFilter $filter): FindResourcesResponse
+    private function findResourcesAsAdmin(ResourceFilter $filter): array
     {
-        return FindResourcesFactory::createResponse(
-            $this->repository->findResources($filter)
-        );
+        return $this->repository->findResources($filter);
     }
 
     /**
@@ -90,17 +100,15 @@ final class FindResources
      *
      * @throws \Throwable
      *
-     * @return FindResourcesResponse
+     * @return ResourceEntity[]
      */
-    private function findResourcesAsUser(ResourceFilter $filter): FindResourcesResponse
+    private function findResourcesAsUser(ResourceFilter $filter): array
     {
         $accessGroupIds = array_map(
             static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
             $this->accessGroupRepository->findByContact($this->contact)
         );
 
-        return FindResourcesFactory::createResponse(
-            $this->repository->findResourcesByAccessGroupIds($filter, $accessGroupIds)
-        );
+        return $this->repository->findResourcesByAccessGroupIds($filter, $accessGroupIds);
     }
 }

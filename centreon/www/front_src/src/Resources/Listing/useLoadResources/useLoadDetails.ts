@@ -10,12 +10,12 @@ import {
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
 } from '../../Details/detailsAtoms';
-import { ResourceDetails } from '../../Details/models';
+import type { ResourceDetails } from '../../Details/models';
+import { resourceDetailsDecoder } from '../../decoders';
 import {
   labelNoResourceFound,
   labelSomethingWentWrong
 } from '../../translatedLabels';
-import { resourceDetailsDecoder } from '../../decoders';
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;

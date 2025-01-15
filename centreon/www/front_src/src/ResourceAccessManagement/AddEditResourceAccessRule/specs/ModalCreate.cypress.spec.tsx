@@ -3,9 +3,35 @@ import { ReactElement } from 'react';
 import { Provider, createStore } from 'jotai';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { modalStateAtom } from '../../atom';
 import { AddEditResourceAccessRuleModal } from '..';
+import { modalStateAtom } from '../../atom';
+import { ModalMode } from '../../models';
+import {
+  labelActiveOrInactive,
+  labelAddFilter,
+  labelAddNewDataset,
+  labelAllBusinessViews,
+  labelAllBusinessViewsSelected,
+  labelAllContactGroups,
+  labelAllContacts,
+  labelAllHostGroups,
+  labelAllHostGroupsSelected,
+  labelAllResourcesSelected,
+  labelBusinessView,
+  labelContactGroups,
+  labelContacts,
+  labelDescription,
+  labelDoYouWantToQuitWithoutSaving,
+  labelExit,
+  labelName,
+  labelResourceAccessRuleAddedSuccess,
+  labelSave,
+  labelSelectResource,
+  labelSelectResourceType,
+  labelYourFormHasUnsavedChanges
+} from '../../translatedLabels';
 import {
   findBusinessViewsEndpoint,
   findContactGroupsEndpoint,
@@ -19,31 +45,6 @@ import {
   findServicesEndpoint,
   resourceAccessRuleEndpoint
 } from '../api/endpoints';
-import {
-  labelActiveOrInactive,
-  labelAddNewDataset,
-  labelContactGroups,
-  labelContacts,
-  labelDescription,
-  labelName,
-  labelAddFilter,
-  labelResourceAccessRuleAddedSuccess,
-  labelSave,
-  labelSelectResource,
-  labelSelectResourceType,
-  labelAllResourcesSelected,
-  labelAllHostGroups,
-  labelAllHostGroupsSelected,
-  labelBusinessView,
-  labelAllBusinessViews,
-  labelAllBusinessViewsSelected,
-  labelAllContacts,
-  labelAllContactGroups,
-  labelExit,
-  labelYourFormHasUnsavedChanges,
-  labelDoYouWantToQuitWithoutSaving
-} from '../../translatedLabels';
-import { ModalMode } from '../../models';
 
 import {
   allResourcesFormData,
@@ -59,14 +60,12 @@ import {
   findServicesResponse,
   formData,
   formDataWithAllBusinessViews,
-  formDataWithBusinessViews,
-  platformVersions,
   formDataWithAllContactGroups,
   formDataWithAllContacts,
-  formDataWithAllHostGroups
+  formDataWithAllHostGroups,
+  formDataWithBusinessViews,
+  platformVersions
 } from './testUtils';
-
-import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 const store = createStore();
 store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });

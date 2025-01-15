@@ -7,8 +7,8 @@ import { makeStyles } from 'tss-react/mui';
 import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
 import { Typography } from '@mui/material';
 
-import { Resource } from '../../../models';
 import ShortTypeChip from '../../../ShortTypeChip';
+import { Resource } from '../../../models';
 import { selectResourceDerivedAtom } from '../../detailsAtoms';
 import Card from '../Details/Card';
 import SelectableResourceName from '../Details/SelectableResourceName';

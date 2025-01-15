@@ -11,13 +11,13 @@ import {
 } from '@mui/material';
 
 import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelHumanReadable,
   labelRawValue,
   labelValueFormat
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useValueFormat from './useValueFormat';
 

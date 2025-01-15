@@ -1,9 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { SnackbarProvider } from '../../..';
 
-import AccessRightsForm from './AccessRights';
+import { AccessRights } from './AccessRights';
 import {
   accessRightsWithStates,
   buildResult,
@@ -13,16 +13,16 @@ import {
   roles
 } from './storiesData';
 
-const meta: Meta<typeof AccessRightsForm> = {
-  component: AccessRightsForm,
+const meta: Meta<typeof AccessRights> = {
+  component: AccessRights,
   parameters: {
     msw: {
       handlers: [
-        rest.get('api/latest/contact?**', (req, res, ctx) => {
-          return res(ctx.json(buildResult(false)));
+        http.get('api/latest/contact?**', () => {
+          return HttpResponse.json(buildResult(false));
         }),
-        rest.get('api/latest/contactGroup?**', (req, res, ctx) => {
-          return res(ctx.json(buildResult(true)));
+        http.get('api/latest/contactGroup?**', () => {
+          return HttpResponse.json(buildResult(true));
         })
       ]
     }
@@ -31,12 +31,12 @@ const meta: Meta<typeof AccessRightsForm> = {
 
 const Template = (args): JSX.Element => (
   <SnackbarProvider>
-    <AccessRightsForm {...args} />
+    <AccessRights {...args} />
   </SnackbarProvider>
 );
 
 export default meta;
-type Story = StoryObj<typeof AccessRightsForm>;
+type Story = StoryObj<typeof AccessRights>;
 
 export const Default: Story = {
   args: {

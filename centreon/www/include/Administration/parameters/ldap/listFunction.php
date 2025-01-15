@@ -41,16 +41,14 @@
  */
 function getActionList($domName)
 {
-    $tab = array(
-        'onchange' => "javascript: " .
-            "if (this.form.elements['$domName'].selectedIndex == 1 && confirm('"
-            . _("Do you confirm the deletion ?") . "')) {" .
-            " 	setA(this.form.elements['$domName'].value); submit();} " .
-            "else if (this.form.elements['$domName'].selectedIndex == 2) {" .
-            " 	setA(this.form.elements['$domName'].value); submit();} " .
-            "else if (this.form.elements['$domName'].selectedIndex == 3) {" .
-            " 	setA(this.form.elements['$domName'].value); submit();} " .
-            "this.form.elements['$domName'].selectedIndex = 0"
-    );
+    $tab = ['onchange' => "javascript: " .
+        "if (this.form.elements['$domName'].selectedIndex == 1 && confirm('"
+        . _("Do you confirm the deletion ?") . "')) {" .
+        " 	setA(this.form.elements['$domName'].value); submit();} " .
+        "else if (this.form.elements['$domName'].selectedIndex == 2) {" .
+        " 	setA(this.form.elements['$domName'].value); submit();} " .
+        "else if (this.form.elements['$domName'].selectedIndex == 3) {" .
+        " 	setA(this.form.elements['$domName'].value); submit();} " .
+        "this.form.elements['$domName'].selectedIndex = 0"];
     return $tab;
 }

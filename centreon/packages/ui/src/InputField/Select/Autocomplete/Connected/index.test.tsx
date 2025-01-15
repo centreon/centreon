@@ -1,16 +1,16 @@
 import {
-  render,
-  fireEvent,
-  waitFor,
   RenderResult,
   act,
-  resetMocks,
+  fireEvent,
+  getFetchCall,
   mockResponse,
-  getFetchCall
+  render,
+  resetMocks,
+  waitFor
 } from '../../../../../test/testRenderer';
+import TestQueryProvider from '../../../../api/TestQueryProvider';
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 import { ConditionsSearchParameter } from '../../../../api/buildListingEndpoint/models';
-import TestQueryProvider from '../../../../api/TestQueryProvider';
 
 import SingleConnectedAutocompleteField from './Single';
 
@@ -95,8 +95,8 @@ describe(SingleConnectedAutocompleteField, () => {
     });
 
     await waitFor(() => {
-      expect(getFetchCall(2)).toEqual(
-        `${baseEndpoint}?page=1&search=%7B%22%24and%22%3A%5B%7B%22%24or%22%3A%5B%7B%22host.name%22%3A%7B%22%24lk%22%3A%22%25My%20Option%202%25%22%7D%7D%5D%7D%5D%7D`
+      expect(decodeURIComponent(getFetchCall(2))).toEqual(
+        'endpoint?page=1&search={"$and":[{"$and":[{"host.name":{"$lk":"%My Option 2%"}}]}]}'
       );
     });
   });

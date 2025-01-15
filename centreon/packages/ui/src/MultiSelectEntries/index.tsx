@@ -2,8 +2,8 @@
 
 import { Ref } from 'react';
 
-import { makeStyles } from 'tss-react/mui';
 import { CxArg } from 'tss-react';
+import { makeStyles } from 'tss-react/mui';
 
 import IconCreate from '@mui/icons-material/Create';
 import { Box, Chip, FormHelperText, Grid, Typography } from '@mui/material';
@@ -134,8 +134,6 @@ const MultiSelectEntries = ({
         [classes.container]: true
       } as CxArg)}
       ref={hoverRef as Ref<HTMLDivElement>}
-      role="button"
-      tabIndex={0}
       onClick={onClick}
       onKeyDown={onClick}
     >

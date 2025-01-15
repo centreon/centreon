@@ -35,13 +35,13 @@ use Core\Notification\Application\Repository\WriteNotificationRepositoryInterfac
 use Tests\Core\Notification\Application\UseCase\DeleteNotification\DeleteNotificationPresenterStub;
 
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DeleteNotificationPresenterStub();
     $this->writeRepository = $this->createMock(WriteNotificationRepositoryInterface::class);
 });
 
-it('should present a ForbiddenResponse when the user doesn\'t have access to endpoint', function () {
+it('should present a ForbiddenResponse when the user doesn\'t have access to endpoint', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
     (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
 
@@ -51,14 +51,14 @@ it('should present a ForbiddenResponse when the user doesn\'t have access to end
         ->toBe(NotificationException::deleteNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the notification to delete is not found', function () {
+it('should present a NotFoundResponse when the notification to delete is not found', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
     $this->writeRepository
         ->expects($this->once())
-        ->method('delete')
+        ->method('deleteNotification')
         ->willReturn(0);
 
     (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
@@ -69,14 +69,14 @@ it('should present a NotFoundResponse when the notification to delete is not fou
         ->toBe('Notification not found');
 });
 
-it('should present an ErrorResponse when an unhandled error occurs', function () {
+it('should present an ErrorResponse when an unhandled error occurs', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
     $this->writeRepository
         ->expects($this->once())
-        ->method('delete')
+        ->method('deleteNotification')
         ->willThrowException(new \Exception());
 
     (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
@@ -87,14 +87,14 @@ it('should present an ErrorResponse when an unhandled error occurs', function ()
         ->toBe(NotificationException::errorWhileDeletingObject()->getMessage());
 });
 
-it('should present a NoContentResponse when a notification is deleted', function () {
+it('should present a NoContentResponse when a notification is deleted', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
     $this->writeRepository
         ->expects($this->once())
-        ->method('delete')
+        ->method('deleteNotification')
         ->willReturn(1);
 
     (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);

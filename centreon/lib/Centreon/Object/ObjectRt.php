@@ -33,6 +33,8 @@
  *
  */
 
+use Pimple\Container;
+
 /**
  * Abstract Centreon Object class
  */
@@ -59,11 +61,11 @@ abstract class Centreon_ObjectRt
     protected $uniqueLabelField = null;
 
     /**
-     * Constructor
+     * Centreon_ObjectRt constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         $this->dbMon = $dependencyInjector['realtime_db'];
     }
@@ -76,7 +78,7 @@ abstract class Centreon_ObjectRt
      * @param string $fetchMethod
      * @return array
      */
-    protected function getResult($sqlQuery, $sqlParams = array(), $fetchMethod = "fetchAll")
+    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = "fetchAll")
     {
         $res = $this->dbMon->query($sqlQuery, $sqlParams);
         $result = $res->{$fetchMethod}();
@@ -93,13 +95,9 @@ abstract class Centreon_ObjectRt
      */
     public function getParameters($objectId, $parameterNames)
     {
-        if (is_array($parameterNames)) {
-            $params = implode(",", $parameterNames);
-        } else {
-            $params = $parameterNames;
-        }
+        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table WHERE $this->primaryKey = ?";
-        return $this->getResult($sql, array($objectId), "fetch");
+        return $this->getResult($sql, [$objectId], "fetch");
     }
 
     /**
@@ -123,22 +121,18 @@ abstract class Centreon_ObjectRt
         $offset = 0,
         $order = null,
         $sort = "ASC",
-        $filters = array(),
+        $filters = [],
         $filterType = "OR"
     ) {
         if ($filterType != "OR" && $filterType != "AND") {
             throw new Exception('Unknown filter type');
         }
-        if (is_array($parameterNames)) {
-            $params = implode(",", $parameterNames);
-        } else {
-            $params = $parameterNames;
-        }
+        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
         $sql = "SELECT $params FROM $this->table ";
-        $filterTab = array();
+        $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                if (!count($filterTab)) {
+                if ($filterTab === []) {
                     $sql .= " WHERE $key LIKE ? ";
                 } else {
                     $sql .= " $filterType $key LIKE ? ";
@@ -167,12 +161,12 @@ abstract class Centreon_ObjectRt
      * @param array $paramValues
      * @return array
      */
-    public function getIdByParameter($paramName, $paramValues = array())
+    public function getIdByParameter($paramName, $paramValues = [])
     {
         $sql = "SELECT $this->primaryKey FROM $this->table WHERE ";
         $condition = "";
         if (!is_array($paramValues)) {
-            $paramValues = array($paramValues);
+            $paramValues = [$paramValues];
         }
         foreach ($paramValues as $val) {
             if ($condition != "") {
@@ -183,13 +177,13 @@ abstract class Centreon_ObjectRt
         if ($condition) {
             $sql .= $condition;
             $rows = $this->getResult($sql, $paramValues, "fetchAll");
-            $tab = array();
+            $tab = [];
             foreach ($rows as $val) {
                 $tab[] = $val[$this->primaryKey];
             }
             return $tab;
         }
-        return array();
+        return [];
     }
 
     /**

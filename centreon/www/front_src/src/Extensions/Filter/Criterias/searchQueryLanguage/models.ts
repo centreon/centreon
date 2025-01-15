@@ -1,6 +1,6 @@
 import { prop, toLower } from 'ramda';
 
-import { CriteriaNames, selectableTypes, selectableStatuses } from '../models';
+import { CriteriaNames, selectableStatuses, selectableTypes } from '../models';
 
 export interface CriteriaId {
   id: string;

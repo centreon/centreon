@@ -1,25 +1,25 @@
-import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
-import { HeadingNode } from '@lexical/rich-text';
 import { ListItemNode, ListNode } from '@lexical/list';
-import anylogger from 'anylogger';
-import { makeStyles } from 'tss-react/mui';
-import { EditorState, LexicalEditor } from 'lexical';
+import { LexicalComposer } from '@lexical/react/LexicalComposer';
+import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
-import { equals } from 'ramda';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { $generateHtmlFromNodes } from '@lexical/html';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { HeadingNode } from '@lexical/rich-text';
+import anylogger from 'anylogger';
+import { EditorState, LexicalEditor } from 'lexical';
+import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
 import ContentEditable from './ContentEditable';
-import ToolbarPlugin from './plugins/ToolbarPlugin/index';
 import AutoCompleteLinkPlugin from './plugins/AutoLinkPlugin/index';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
+import ToolbarPlugin from './plugins/ToolbarPlugin/index';
 
 export interface RichTextEditorProps {
   contentClassName?: string;

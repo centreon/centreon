@@ -9,6 +9,7 @@ interface ResponsivePieProps {
   data: Array<ArcType>;
   defaultInnerRadius: number;
   height: number;
+  innerRadiusNoLimit: boolean;
   legendRef;
   titleRef;
   unit: 'percentage' | 'number';
@@ -31,7 +32,8 @@ export const useResponsivePie = ({
   width,
   data,
   unit,
-  defaultInnerRadius
+  defaultInnerRadius,
+  innerRadiusNoLimit
 }: ResponsivePieProps): ResponsivePieState => {
   const heightOfTitle = titleRef.current?.offsetHeight || 0;
   const widthOfLegend = legendRef.current?.offsetWidth || 0;
@@ -52,7 +54,11 @@ export const useResponsivePie = ({
 
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
 
-  const innerRadius = Math.min(defaultInnerRadius, svgSize / 5);
+  let innerRadius = Math.min(defaultInnerRadius, svgSize / 5);
+
+  if (innerRadiusNoLimit) {
+    innerRadius = half * defaultInnerRadius * 0.01;
+  }
 
   const legendScale = {
     domain: data.map(({ value }) => getValueByUnit({ total, unit, value })),

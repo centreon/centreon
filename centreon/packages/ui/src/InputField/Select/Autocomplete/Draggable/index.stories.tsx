@@ -8,8 +8,8 @@ import { SelectEntry } from '../..';
 import { buildListingEndpoint } from '../../../..';
 import { Listing } from '../../../../api/models';
 
-import MultiDraggableConnectedAutocompleteField from './MultiConnected';
 import MultiDraggableAutocompleteField from './Multi';
+import MultiDraggableConnectedAutocompleteField from './MultiConnected';
 
 import { ItemActionProps } from '.';
 
@@ -49,7 +49,7 @@ const mockSearch = (page: number): object => ({
   response: (request): Listing<SelectEntry> => {
     const { searchParams } = request;
 
-    return buildResult(parseInt(searchParams.page || '0', 10));
+    return buildResult(Number.parseInt(searchParams.page || '0', 10));
   },
   status: 200,
   url: `/endpoint?page=${page}&search=`
@@ -62,7 +62,7 @@ const getMockData = (): Array<object> => [
     response: (request): Listing<SelectEntry> => {
       const { searchParams } = request;
 
-      return buildResult(parseInt(searchParams.page || '0', 10));
+      return buildResult(Number.parseInt(searchParams.page || '0', 10));
     },
     status: 200,
     url: '/endpoint?page='
@@ -74,9 +74,9 @@ const getMockData = (): Array<object> => [
 ];
 
 const options = [
-  { id: `0`, name: 'First Entity' },
-  { id: `1`, name: 'Second Entity' },
-  { id: `2`, name: 'Third Entity' }
+  { id: '0', name: 'First Entity' },
+  { id: '1', name: 'Second Entity' },
+  { id: '2', name: 'Third Entity' }
 ];
 
 const MultiDraggable = (): JSX.Element => (

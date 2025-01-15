@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { and, equals, gt, path, subtract } from 'ramda';
+import { path, and, equals, gt, subtract } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { SelectChangeEvent, Typography } from '@mui/material';
@@ -95,7 +95,10 @@ const TimeInput = ({
 
   const changeInput = useCallback(
     (event: SelectChangeEvent<unknown>): void => {
-      const value = parseInt(path(['target', 'value'], event) as string, 10);
+      const value = Number.parseInt(
+        path(['target', 'value'], event) as string,
+        10
+      );
 
       const currentDuration = dayjs.duration(timeValue || 0);
 

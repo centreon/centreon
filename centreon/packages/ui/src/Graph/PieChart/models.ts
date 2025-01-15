@@ -9,11 +9,16 @@ export interface PieProps {
   TooltipContent?: (arcData) => JSX.Element | boolean | null;
   data: Array<ArcType>;
   displayLegend?: boolean;
+  displayTotal?: boolean;
   displayValues?: boolean;
   innerRadius?: number;
+  innerRadiusNoLimit?: boolean;
   legendDirection?: 'row' | 'column';
-  onArcClick?: (ardata) => void;
+  onArcClick?: (arcData) => void;
+  opacity: number;
+  padAngle?: number;
   title?: string;
+  tooltipProps?: object;
   unit?: 'percentage' | 'number';
   variant?: 'pie' | 'donut';
 }

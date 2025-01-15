@@ -26,6 +26,7 @@ namespace Core\Resources\Application\UseCase\FindResources\Response;
 final class ResourceResponseDto
 {
     public function __construct(
+        public ?int $resourceId = null,
         public ?int $id = null,
         public ?string $name = null,
         public ?string $type = null,

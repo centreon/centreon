@@ -1,0 +1,6 @@
+FindProviders:
+  methods: GET
+  path: /providers
+  controller: 'CentreonOpenTickets\Providers\Infrastructure\API\FindProviders\FindProvidersController'
+  condition: "request.attributes.get('version') >= 24.04"
+

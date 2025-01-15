@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    Core\Contact\:
+        resource: '../../../../Core/Contact/*'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+
+
+

@@ -96,12 +96,12 @@ $template->assign(
         : $variablesThemeCSS
 );
 
-$data = array();
+$data = [];
 
 if (! isset($preferences['service']) || $preferences['service'] === "") {
     $template->display('metric.ihtml');
 } else {
-    list($hostId, $serviceId) = explode("-", $preferences['service']);
+    [$hostId, $serviceId] = explode("-", $preferences['service']);
     $numLine = 0;
     if ($isAdmin || ! empty($accessGroups)) {
         $query =
@@ -161,7 +161,7 @@ if (! isset($preferences['service']) || $preferences['service'] === "") {
     if ($numLine > 0) {
         // Human readable
         if ($preferences['display_number'] === 1000 || $preferences['display_number'] === 1024) {
-            list($size, $data[0]['unit_displayed']) = convertSizeToHumanReadable(
+            [$size, $data[0]['unit_displayed']] = convertSizeToHumanReadable(
                 $data[0]['current_float_value'],
                 $data[0]['unit_name'],
                 $preferences['display_number']

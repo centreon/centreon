@@ -35,13 +35,33 @@
 
 require_once __DIR__ . "/../List.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorServiceTemplate
+ */
 class CentreonWidgetParamsConnectorServiceTemplate extends CentreonWidgetParamsList
 {
+    /**
+     * CentreonWidgetParamsConnectorServiceTemplate constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @param $paramId
+     *
+     * @return mixed|null[]
+     * @throws PDOException
+     */
     public function getListValues($paramId)
     {
         static $tab;
@@ -52,7 +72,7 @@ class CentreonWidgetParamsConnectorServiceTemplate extends CentreonWidgetParamsL
                 "AND service_register = '0' " .
                 "ORDER BY service_description";
             $res = $this->db->query($query);
-            $tab = array(null => null);
+            $tab = [null => null];
             while ($row = $res->fetchRow()) {
                 $tab[$row['service_id']] = $row['service_description'];
             }

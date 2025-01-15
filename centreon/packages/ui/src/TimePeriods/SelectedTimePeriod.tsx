@@ -1,7 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { T, always, cond, equals, lte, map, pick } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button, ButtonGroup, Tooltip, useTheme } from '@mui/material';
 

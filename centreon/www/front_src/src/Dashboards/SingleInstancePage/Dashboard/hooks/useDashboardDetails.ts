@@ -1,34 +1,35 @@
 import { useEffect } from 'react';
 
-import { useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, propOr } from 'ramda';
+import { useParams } from 'react-router';
 
 import { useDeepCompare, useFetchQuery } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
+import { FederatedModule } from '../../../../federatedModules/models';
+import {
+  dashboardDecoder,
+  publicDashboardDecoder
+} from '../../../api/decoders';
 import {
   dashboardsEndpoint,
   getPublicDashboardEndpoint
 } from '../../../api/endpoints';
 import { Dashboard, DashboardPanel, resource } from '../../../api/models';
-import {
-  dashboardDecoder,
-  publicDashboardDecoder
-} from '../../../api/decoders';
-import { FederatedModule } from '../../../../federatedModules/models';
 import { useDashboardUserPermissions } from '../../../components/DashboardLibrary/DashboardUserPermissions/useDashboardUserPermissions';
-import { Panel, PanelConfiguration } from '../models';
 import {
   dashboardAtom,
   dashboardRefreshIntervalAtom,
   hasEditPermissionAtom,
   panelsLengthAtom
 } from '../atoms';
+import { Panel, PanelConfiguration } from '../models';
 
 interface UseDashboardDetailsState {
   dashboard?: Dashboard;
   panels?: Array<DashboardPanel>;
+  refetch: () => void;
 }
 
 interface FormatPanelProps {
@@ -100,7 +101,7 @@ const useDashboardDetails = ({
       ? getPublicDashboardEndpoint({ dashboardId, playlistID: playlistHash })
       : `${dashboardsEndpoint}/${dashboardId}`;
 
-  const { data: dashboard } = useFetchQuery({
+  const { data: dashboard, refetch } = useFetchQuery({
     decoder,
     getEndpoint: () => endpoint,
     getQueryKey: () => [resource.dashboard, dashboardId],
@@ -141,7 +142,8 @@ const useDashboardDetails = ({
 
   return {
     dashboard,
-    panels
+    panels,
+    refetch
   };
 };
 

@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Tooltip } from '@mui/material';
 import FlappingIcon from '@mui/icons-material/SwapCalls';
+import { Tooltip } from '@mui/material';
 
 import {
-  labelResourceFlapping,
-  labelFlapping
+  labelFlapping,
+  labelResourceFlapping
 } from '../../../../translatedLabels';
 import { ResourceDetails } from '../../../models';
 

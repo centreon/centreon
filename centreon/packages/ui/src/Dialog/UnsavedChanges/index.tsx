@@ -8,10 +8,10 @@ import {
   labelDoYouWantToQuitWithoutResolving,
   labelDoYouWantToResolveErrors,
   labelDoYouWantToSaveChanges,
+  labelIfYouClickOnDiscard,
   labelResolve,
   labelSave,
-  labelThereAreErrorsInTheForm,
-  labelIfYouClickOnDiscard
+  labelThereAreErrorsInTheForm
 } from './translatedLabels';
 
 interface Props {
@@ -38,9 +38,9 @@ const UnsavedChangesDialog = ({
 
   const labelConfirm = isValidForm ? labelSave : labelResolve;
 
-  const labelMessage = `${
-    isValidForm ? labelIfYouClickOnDiscard : labelThereAreErrorsInTheForm
-  }. ${isValidForm ? '' : labelDoYouWantToQuitWithoutResolving}`;
+  const labelMessage = isValidForm
+    ? labelIfYouClickOnDiscard
+    : `${labelThereAreErrorsInTheForm} ${labelDoYouWantToQuitWithoutResolving}`;
 
   if (not(dialogOpened)) {
     return null;

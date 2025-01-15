@@ -16,7 +16,10 @@ license: "Apache-2.0"
 
 depends:
   - policycoreutils
-  - centreon-common-selinux = ${VERSION}-${RELEASE}${DIST}
+  - selinux-policy
+  - selinux-policy-targeted
+  - centreon-common-selinux >= ${MAJOR_VERSION}
+  - centreon-common-selinux < ${NEXT_MAJOR_VERSION}
 
 contents:
   - src: "../selinux/centreon-web.pp"

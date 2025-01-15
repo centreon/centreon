@@ -34,16 +34,30 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Resource
+ */
 class Resource extends AbstractObject
 {
+    /** @var null */
     private $connectors = null;
+    /** @var string */
     protected $generate_filename = 'resource.cfg';
-    protected $object_name = null;
+    /** @var string */
+    protected string $object_name;
+    /** @var null */
     protected $stmt = null;
-    protected $attributes_hash = array(
-        'resources'
-    );
+    /** @var string[] */
+    protected $attributes_hash = ['resources'];
 
+    /**
+     * @param $poller_id
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     public function generateFromPollerId($poller_id)
     {
         if (is_null($poller_id)) {
@@ -59,7 +73,7 @@ class Resource extends AbstractObject
         $this->stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
         $this->stmt->execute();
 
-        $object = array('resources' => array());
+        $object = ['resources' => []];
         foreach ($this->stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             $object['resources'][$value['resource_name']] = $value['resource_line'];
         }

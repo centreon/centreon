@@ -28,8 +28,8 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 interface FindResourcesByParentPresenterInterface
 {
     /**
-     * @param FindResourcesByParentResponse|ResponseStatusInterface $data
+     * @param FindResourcesByParentResponse|ResponseStatusInterface $response
      */
-    public function presentResponse(FindResourcesByParentResponse|ResponseStatusInterface $data): void;
+    public function presentResponse(FindResourcesByParentResponse|ResponseStatusInterface $response): void;
 }
 

@@ -1,5 +1,0 @@
-CreateVaultConfiguration:
-  methods: POST
-  path: /administration/vaults/configurations
-  controller: 'Core\Security\Vault\Infrastructure\API\CreateVaultConfiguration\CreateVaultConfigurationController'
-  condition: "request.attributes.get('version') >= 23.04 and request.attributes.get('feature.vault')"

@@ -78,7 +78,7 @@ $tpl = new Smarty();
 $tpl = initSmartyTpl($path, $tpl);
 
 
-$defaultGraphs = array();
+$defaultGraphs = [];
 
 function getGetPostValue($str)
 {
@@ -122,7 +122,7 @@ if (isset($svc_id) &&
         $graphTitle = null;
         if (is_numeric($svc)) {
             $fullName = $serviceObj->getMonitoringFullName($svc);
-            $serviceParameters = $serviceObj->getParameters($svc, array('host_id'), true);
+            $serviceParameters = $serviceObj->getParameters($svc, ['host_id'], true);
             $hostId = $serviceParameters['host_id'];
             $graphId = $hostId . '-' . $svc;
             $graphTitle = $fullName;
@@ -132,14 +132,14 @@ if (isset($svc_id) &&
             $graphId = $hostId . '-' . $serviceId;
             $graphTitle = $serviceObj->getMonitoringFullName($serviceId, $hostId);
         } elseif (preg_match('/^(.+);(.+)/', $svc, $matches)) {
-            list($hostname, $serviceDescription) = explode(";", $svc);
+            [$hostname, $serviceDescription] = explode(";", $svc);
             $hostId = getMyHostID($hostname);
             $serviceId = getMyServiceID($serviceDescription, $hostId);
             $graphId = $hostId . '-' . $serviceId;
             $graphTitle = $serviceObj->getMonitoringFullName($serviceId, $hostId);
         } else {
             $hostId = getMyHostID($svc);
-            $serviceList = $centreonPerformanceServiceGraphObj->getList(array('host' => array($hostId)));
+            $serviceList = $centreonPerformanceServiceGraphObj->getList(['host' => [$hostId]]);
             $defaultGraphs = array_merge($defaultGraphs, $serviceList);
         }
 
@@ -147,10 +147,7 @@ if (isset($svc_id) &&
             !is_null($graphTitle) &&
             $graphTitle != ''
         ) {
-            $defaultGraphs[] = array(
-                'id' => $graphId,
-                'text' => $graphTitle
-            );
+            $defaultGraphs[] = ['id' => $graphId, 'text' => $graphTitle];
         }
     }
 }
@@ -180,78 +177,56 @@ $form->addElement(
     _("Choose the source to graph")
 );
 
-$periods = array(
+$periods = [
     "" => "",
-    "3h" => _("Last 3 Hours"),
-    "6h" => _("Last 6 Hours"),
-    "12h" => _("Last 12 Hours"),
-    "1d" => _("Last 24 Hours"),
-    "2d" => _("Last 2 Days"),
-    "3d" => _("Last 3 Days"),
-    "4d" => _("Last 4 Days"),
-    "5d" => _("Last 5 Days"),
-    "7d" => _("Last 7 Days"),
-    "14d" => _("Last 14 Days"),
-    "28d" => _("Last 28 Days"),
-    "30d" => _("Last 30 Days"),
-    "31d" => _("Last 31 Days"),
-    "2M" => _("Last 2 Months"),
-    "4M" => _("Last 4 Months"),
-    "6M" => _("Last 6 Months"),
-    "1y" => _("Last Year")
-);
+    "3h" => _("Last 3 hours"),
+    "6h" => _("Last 6 hours"),
+    "12h" => _("Last 12 hours"),
+    "1d" => _("Last 24 hours"),
+    "2d" => _("Last 2 days"),
+    "3d" => _("Last 3 days"),
+    "4d" => _("Last 4 days"),
+    "5d" => _("Last 5 days"),
+    "7d" => _("Last 7 days"),
+    "14d" => _("Last 14 days"),
+    "28d" => _("Last 28 days"),
+    "30d" => _("Last 30 days"),
+    "31d" => _("Last 31 days"),
+    "2M" => _("Last 2 months"),
+    "4M" => _("Last 4 months"),
+    "6M" => _("Last 6 months"),
+    "1y" => _("Last year")
+];
 $sel = $form->addElement(
     'select',
     'period',
     _("Graph Period"),
     $periods,
-    array(
-        "onchange"=>"changeInterval()"
-    )
+    ["onchange"=>"changeInterval()"]
 );
 $form->addElement(
     'text',
     'StartDate',
     '',
-    array(
-        "id" => "StartDate",
-        "class" => "datepicker-iso",
-        "size" => 10,
-        "onchange" => "changePeriod()"
-    )
+    ["id" => "StartDate", "class" => "datepicker-iso", "size" => 10, "onchange" => "changePeriod()"]
 );
 $form->addElement(
     'text',
     'StartTime',
     '',
-    array(
-        "id" => "StartTime",
-        "class" => "timepicker",
-        "size" => 5,
-        "onchange" => "changePeriod()"
-    )
+    ["id" => "StartTime", "class" => "timepicker", "size" => 5, "onchange" => "changePeriod()"]
 );
 $form->addElement(
     'text',
     'EndDate',
     '',
-    array(
-        "id" => "EndDate",
-        "class" => "datepicker-iso",
-        "size" => 10,
-        "onchange" => "changePeriod()"
-    )
+    ["id" => "EndDate", "class" => "datepicker-iso", "size" => 10, "onchange" => "changePeriod()"]
 );
 $form->addElement(
     'text',
     'EndTime',
     '',
-    array(
-        "id" => "EndTime",
-        "class" => "timepicker",
-        "size" => 5,
-        "onchange" => "changePeriod()"
-    )
+    ["id" => "EndTime", "class" => "timepicker", "size" => 5, "onchange" => "changePeriod()"]
 );
 
 /* adding hidden fields to get the result of datepicker in an unlocalized format */
@@ -259,29 +234,20 @@ $form->addElement(
     'hidden',
     'alternativeDateStartDate',
     '',
-    array(
-        'size' => 10,
-        'class' => 'alternativeDate'
-    )
+    ['size' => 10, 'class' => 'alternativeDate']
 );
 $form->addElement(
     'hidden',
     'alternativeDateEndDate',
     '',
-    array(
-        'size' => 10,
-        'class' => 'alternativeDate'
-    )
+    ['size' => 10, 'class' => 'alternativeDate']
 );
 
 $form->addElement(
     'button',
     'graph',
     _("Apply Period"),
-    array(
-        "onclick"=>"apply_period()",
-        "class"=>"btc bt_success"
-    )
+    ["onclick"=>"apply_period()", "class"=>"btc bt_success"]
 );
 
 if ($period_start != 'undefined' && $period_end != 'undefined') {
@@ -290,18 +256,11 @@ if ($period_start != 'undefined' && $period_end != 'undefined') {
     $endDay = date('Y-m-d', $period_end);
     $endTime = date('H:i', $period_end);
     $form->setDefaults(
-        array(
-            'StartDate' => $startDay,
-            'StartTime' => $startTime,
-            'EndTime' => $endTime,
-            'EndDate' => $endDay
-        )
+        ['StartDate' => $startDay, 'StartTime' => $startTime, 'EndTime' => $endTime, 'EndDate' => $endDay]
     );
 } else {
     $form->setDefaults(
-        array(
-            'period' => '3h'
-        )
+        ['period' => '3h']
     );
 }
 

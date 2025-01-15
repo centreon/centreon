@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { equals, isEmpty } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 import { Avatar, Chip, useTheme } from '@mui/material';
+import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import { ThemeMode } from '@centreon/ui-context';
 

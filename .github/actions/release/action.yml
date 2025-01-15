@@ -33,7 +33,7 @@ runs:
         set -eux
 
         # Variables
-        COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
+        COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-ha" "centreon-open-tickets" "centreon-web")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         declare -a TMP_STABLE_TAGS=()
         declare -a NEW_STABLE_TAGS=()

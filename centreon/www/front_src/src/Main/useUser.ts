@@ -1,7 +1,7 @@
-import { useAtom, atom, useSetAtom } from 'jotai';
+import { atom, useAtom, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
 
-import { useRequest, getData } from '@centreon/ui';
+import { getData, useRequest } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 import type { User } from '@centreon/ui-context';
 
@@ -47,11 +47,13 @@ const useUser = (): (() => null | Promise<void>) => {
           default_page: defaultPage,
           user_interface_density,
           dashboard,
-          isAdmin
+          isAdmin,
+          canManageApiTokens
         } = retrievedUser as User;
 
         setUser({
           alias,
+          canManageApiTokens,
           dashboard,
           default_page: defaultPage || '/monitoring/resources',
           id,

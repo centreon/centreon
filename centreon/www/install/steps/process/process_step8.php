@@ -36,7 +36,7 @@
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 
-$result = array();
+$result = [];
 
 $parameters = filter_input_array(INPUT_POST);
 
@@ -101,10 +101,7 @@ if (isset($parameters['widgets'])) {
         $installer = $widgetFactory->newInstaller($widget);
         $id = $installer->install();
         $install = ($id) ? true : false;
-        $result['widgets'][$widget] = array(
-            'widget' => $widget,
-            'install' => $install
-        );
+        $result['widgets'][$widget] = ['widget' => $widget, 'install' => $install];
     }
 }
 

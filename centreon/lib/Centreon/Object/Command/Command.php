@@ -36,13 +36,16 @@
 require_once "Centreon/Object/Object.php";
 
 /**
- * Used for interacting with commands
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Command
  */
 class Centreon_Object_Command extends Centreon_Object
 {
+    /** @var string */
     protected $table = "command";
+    /** @var string */
     protected $primaryKey = "command_id";
+    /** @var string */
     protected $uniqueLabelField = "command_name";
 }

@@ -1,8 +1,8 @@
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { List, ListItem, Slide, Paper } from '@mui/material';
 import ForwardIcon from '@mui/icons-material/ArrowForwardIos';
+import { List, ListItem, Paper, Slide } from '@mui/material';
 
 import Panel from '..';
 import ContentWithCircularLoading from '../../ContentWithCircularProgress';

@@ -34,7 +34,11 @@ parameters:
     paths:
         - src/Core
     ignoreErrors:
-
+        - # Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.
+            reportUnmatched: false
+            message: "#Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.#"
+            paths:
+                - src/Core/AdditionalConnectorConfiguration/Application/UseCase/UpdateAcc/Validator.php
         - # [CENTREON-RULE] Our try catch block logging rule cannot handle nested try catch.
             reportUnmatched: false
             message: '#Exception thrown in UseCase should be in a try catch block, and must be caught.#'
@@ -67,8 +71,11 @@ parameters:
                 - src/Core/Common/Infrastructure/Repository/FileDataStoreEngine.php
                 - src/Core/Media/Infrastructure/Command/MigrateAllMedias/MigrateAllMediasCommand.php
                 - src/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMedias.php
+                - src/Core/Media/Application/UseCase/UpdateMedia/UpdateMedia.php
+                - src/Core/Dashboard/Application/UseCase/AddDashboardThumbnail/AddDashboardThumbnail.php
                 - src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
                 - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
+                - src/Core/UserProfile/Infrastructure/Repository/DbWriteUserProfileRepository.php
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false

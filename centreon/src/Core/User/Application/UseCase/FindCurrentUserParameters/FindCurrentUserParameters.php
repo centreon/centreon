@@ -54,6 +54,11 @@ final class FindCurrentUserParameters
         }
     }
 
+    /**
+     * @param ContactInterface $user
+     *
+     * @return FindCurrentUserParametersResponse
+     */
     public function createResponse(ContactInterface $user): FindCurrentUserParametersResponse
     {
         $dto = new FindCurrentUserParametersResponse();
@@ -67,6 +72,7 @@ final class FindCurrentUserParameters
         $dto->isAdmin = $user->isAdmin();
         $dto->useDeprecatedPages = $user->isUsingDeprecatedPages();
         $dto->isExportButtonEnabled = $this->hasExportButtonRole($user);
+        $dto->canManageApiTokens = $this->canManageApiTokens($user);
         $dto->theme = UserThemeConverter::fromString($user->getTheme());
         $dto->userInterfaceDensity = UserInterfaceDensityConverter::fromString($user->getUserInterfaceDensity());
         $dto->defaultPage = $user->getDefaultPage()?->getRedirectionUri();
@@ -79,8 +85,23 @@ final class FindCurrentUserParameters
         return $dto;
     }
 
+    /**
+     * @param ContactInterface $user
+     *
+     * @return bool
+     */
     private function hasExportButtonRole(ContactInterface $user): bool
     {
         return $user->isAdmin() || $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION);
+    }
+
+    /**
+     * @param ContactInterface $user
+     *
+     * @return bool
+     */
+    private function canManageApiTokens(ContactInterface $user): bool
+    {
+        return $user->isAdmin() || $user->hasRole(Contact::ROLE_MANAGE_TOKENS);
     }
 }

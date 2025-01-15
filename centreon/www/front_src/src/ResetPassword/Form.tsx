@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { Fragment, useState } from 'react';
 
 import {
   FormikErrors,
@@ -10,6 +10,7 @@ import { equals, isEmpty, not, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import LockIcon from '@mui/icons-material/Lock';
 import { Button, CircularProgress, Divider } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
@@ -69,7 +70,7 @@ const useStyles = makeStyles()((theme) => ({
   form: {
     display: 'flex',
     flexDirection: 'column',
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(4),
     rowGap: theme.spacing(2)
   }
 }));
@@ -128,6 +129,7 @@ const Form = (): JSX.Element => {
               value={getValue(values)}
               onBlur={handleBlur(name)}
               onChange={handleChange(name)}
+              StartAdornment={LockIcon}
             />
             {equals(name, oldPasswordFieldName) && <Divider />}
           </Fragment>

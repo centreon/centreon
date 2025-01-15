@@ -4,7 +4,7 @@ import { Schema, array, boolean, number, object, string } from 'yup';
 import { NamedEntity } from '../shared/models';
 
 import { SAMLConfiguration } from './models';
-import { labelRequired, labelInvalidURL } from './translatedLabels';
+import { labelInvalidURL, labelRequired } from './translatedLabels';
 
 const urlRegexp = /https?:\/\/(\S+)/;
 

@@ -1,4 +1,4 @@
-import { forwardRef, RefObject } from 'react';
+import { RefObject, forwardRef } from 'react';
 
 import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';

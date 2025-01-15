@@ -119,7 +119,7 @@ class EntityValidator
         bool $allowExtraFields = true,
         bool $allowMissingFields = false
     ): ConstraintViolationListInterface {
-        if (empty($groups)) {
+        if ($groups === []) {
             $groups[] = Constraint::DEFAULT_GROUP;
         }
         $this->allowExtraFields = $allowExtraFields;

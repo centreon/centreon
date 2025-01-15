@@ -1,5 +1,5 @@
 import { GraphOptionId } from '../Graph/Performance/models';
-import {
+import type {
   AcknowledgementDetails,
   Downtime,
   NamedEntity,
@@ -11,7 +11,7 @@ import {
   Status
 } from '../models';
 
-import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
+import type { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
 
 export interface Group extends Partial<NamedEntity> {
   configuration_uri: string | null;
@@ -45,14 +45,14 @@ export interface ResourceDetails extends NamedEntity {
   information?: string;
   is_acknowledged: boolean;
   is_in_downtime: boolean;
-  last_check?: string;
-  last_notification?: string;
-  last_status_change?: string;
-  last_time_with_no_issue?: string;
+  last_check?: string | number;
+  last_notification?: string | number;
+  last_status_change?: string | number;
+  last_time_with_no_issue?: string | number;
   latency?: number;
   links?: ResourceLinks;
   monitoring_server_name?: string;
-  next_check?: string;
+  next_check?: string | number;
   notification_number?: number;
   parent?: Parent;
   percent_state_change?: number;

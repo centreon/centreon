@@ -36,6 +36,7 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
+use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
@@ -54,6 +55,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
+    /** @var ExtraDataProviderInterface[] */
+    private array $extraDataProviders;
+
     /** @var array<string, string> */
     private array $resourceConcordances = [
         'id' => 'resources.id',
@@ -64,14 +68,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         'h.name' => 'CASE WHEN resources.type = 1 THEN resources.name ELSE resources.parent_name END',
         'h.alias' => 'CASE WHEN resources.type = 1 THEN resources.alias ELSE parent_resource.alias END',
         'h.address' => 'parent_resource.address',
-        's.description' => 'resources.type IN (0,2) AND resources.name',
+        's.description' => 'resources.type IN (0,2,4) AND resources.name',
         'status_code' => 'resources.status',
         'status_severity_code' => 'resources.status_ordered',
         'action_url' => 'resources.action_url',
         'parent_id' => 'resources.parent_id',
         'parent_name' => 'resources.parent_name',
         'parent_alias' => 'parent_resource.alias',
-        'parent_status' => 'parent_status',
+        'parent_status' => 'parent_resource.status',
         'severity_level' => 'severity_level',
         'in_downtime' => 'resources.in_downtime',
         'acknowledged' => 'resources.acknowledged',
@@ -87,6 +91,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
      * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
+     * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      *
      * @throws \InvalidArgumentException
      */
@@ -94,7 +99,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         DatabaseConnection $db,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
-        private readonly \Traversable $resourceACLProviders
+        private readonly \Traversable $resourceACLProviders,
+        \Traversable $extraDataProviders
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
@@ -110,6 +116,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         $this->resourceTypes = iterator_to_array($resourceTypes);
+        $this->extraDataProviders = iterator_to_array($extraDataProviders);
     }
 
     public function findParentResourcesById(ResourceFilter $filter): array
@@ -128,6 +135,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.internal_id,
             resources.parent_id,
             resources.parent_name,
+            parent_resource.resource_id AS `parent_resource_id`,
             parent_resource.status AS `parent_status`,
             parent_resource.alias AS `parent_alias`,
             parent_resource.status_ordered AS `parent_status_ordered`,
@@ -182,6 +190,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
          * 'service', 'metaservice', 'host'.
          */
         $request .= $this->addResourceTypeSubRequest($filter);
+
+        foreach ($this->extraDataProviders as $provider) {
+            if ($provider->supportsExtraData($filter)) {
+                $request .= $provider->getSubFilter($filter);
+            }
+        }
 
         /**
          * Handle sort parameters.
@@ -289,7 +303,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             }
         }
 
-        if (! empty($searchedTagNames)) {
+        if ($searchedTagNames !== []) {
             $subRequest = ' INNER JOIN (';
             $intersectRequest = '';
             $index = 1;
@@ -375,6 +389,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.internal_id,
             resources.parent_id,
             resources.parent_name,
+            parent_resource.resource_id AS `parent_resource_id`,
             parent_resource.status AS `parent_status`,
             parent_resource.alias AS `parent_alias`,
             parent_resource.status_ordered AS `parent_status_ordered`,
@@ -451,6 +466,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $request .= ' AND resources.has_graph = 1';
         }
 
+        foreach ($this->extraDataProviders as $provider) {
+            $request .= $provider->getSubFilter($filter);
+        }
+
         $request .= $accessGroupRequest;
 
         $request .= $this->addResourceParentIdSubRequest($filter, $collector);
@@ -515,7 +534,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             iterator_to_array($this->resourceACLProviders)
         );
 
-        if (empty($orConditions)) {
+        if ($orConditions === []) {
             throw new \InvalidArgumentException(_('You must provide at least one ACL provider'));
         }
 
@@ -733,19 +752,19 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         if (
-            ! empty($filteredNames)
-            || ! empty($filteredLevels)
+            $filteredNames !== []
+            || $filteredLevels !== []
         ) {
             $subRequest = ' AND EXISTS (
                 SELECT 1 FROM `:dbstg`.severities
                 WHERE severities.severity_id = resources.severity_id
                     AND severities.type IN (' . implode(', ', $filteredTypes) . ')';
 
-            $subRequest .= ! empty($filteredNames)
+            $subRequest .= $filteredNames !== []
                 ? ' AND severities.name IN (' . implode(', ', $filteredNames) . ')'
                 : '';
 
-            $subRequest .= ! empty($filteredLevels)
+            $subRequest .= $filteredLevels !== []
                 ? ' AND severities.level IN (' . implode(', ', $filteredLevels) . ')'
                 : '';
 
@@ -949,7 +968,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     private function getIconsDataForResources(array $iconIds): array
     {
         $icons = [];
-        if (! empty($iconIds)) {
+        if ($iconIds !== []) {
             $request = 'SELECT
                 img_id AS `icon_id`,
                 img_name AS `icon_name`,

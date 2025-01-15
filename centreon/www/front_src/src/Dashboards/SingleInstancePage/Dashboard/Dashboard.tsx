@@ -1,4 +1,4 @@
-import { ReactElement, useEffect } from 'react';
+import { type ReactElement, useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { inc } from 'ramda';
@@ -7,34 +7,35 @@ import {
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
-import { Divider } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { Divider } from '@mui/material';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
+import type { Dashboard as DashboardType } from '../../api/models';
+import { isSharesOpenAtom } from '../../atoms';
+import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { DashboardConfigModal } from '../../components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
 import { useDashboardConfig } from '../../components/DashboardLibrary/DashboardConfig/useDashboardConfig';
-import { Dashboard as DashboardType } from '../../api/models';
-import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
-import { isSharesOpenAtom } from '../../atoms';
+import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
 
+import FavoriteAction from '../../components/DashboardLibrary/DashboardListing/Actions/favoriteAction';
+import { AddWidgetButton } from './AddEditWidget';
+import { useDashboardStyles } from './Dashboard.styles';
 import Layout from './Layout';
-import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
-import { AddWidgetButton } from './AddEditWidget';
-import { useCanEditProperties } from './hooks/useCanEditDashboard';
-import { useDashboardStyles } from './Dashboard.styles';
-import DeleteWidgetModal from './components/DeleteWidgetModal';
 import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
+import DeleteWidgetModal from './components/DeleteWidgetModal';
+import { useCanEditProperties } from './hooks/useCanEditDashboard';
+import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
 
   const { dashboardId } = routerParams.useParams();
-  const { dashboard, panels } = useDashboardDetails({
+  const { dashboard, panels, refetch } = useDashboardDetails({
     dashboardId: dashboardId as string
   });
   const { editDashboard } = useDashboardConfig();
@@ -46,7 +47,20 @@ const Dashboard = (): ReactElement => {
 
   const { canEdit } = useCanEditProperties();
 
+  const refreshIframes = () => {
+    const iframes = document.querySelectorAll(
+      'iframe[title="Webpage Display"]'
+    );
+
+    iframes.forEach((iframe) => {
+      // biome-ignore lint/correctness/noSelfAssign: <explanation>
+      iframe.src = iframe.src;
+    });
+  };
+
   const refreshAllWidgets = (): void => {
+    refreshIframes();
+
     setRefreshCounts((prev) => {
       return layout.reduce((acc, widget) => {
         const prevRefreshCount = prev[widget.i];
@@ -80,6 +94,13 @@ const Dashboard = (): ReactElement => {
             <PageHeader.Title
               description={dashboard?.description || ''}
               title={dashboard?.name || ''}
+              actions={
+                <FavoriteAction
+                  dashboardId={dashboard?.id as number}
+                  isFavorite={dashboard?.isFavorite as boolean}
+                  refetch={refetch}
+                />
+              }
             />
           </PageHeader.Main>
           <DashboardNavbar />

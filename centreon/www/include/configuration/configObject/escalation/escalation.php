@@ -38,17 +38,17 @@ if (!isset($centreon)) {
     exit();
 }
 
-isset($_GET["esc_id"]) ? $cG = $_GET["esc_id"] : $cG = null;
-isset($_POST["esc_id"]) ? $cP = $_POST["esc_id"] : $cP = null;
-$cG ? $esc_id = $cG : $esc_id = $cP;
+$cG = $_GET["esc_id"] ?? null;
+$cP = $_POST["esc_id"] ?? null;
+$esc_id = $cG ?: $cP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
+$select = $cG ?: $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
+$dupNbr = $cG ?: $cP;
 
 /*
  * Path to the configuration dir
@@ -88,7 +88,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleEscalationInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleEscalationInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -98,7 +98,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteEscalationInDB(isset($select) ? $select : array());
+            deleteEscalationInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

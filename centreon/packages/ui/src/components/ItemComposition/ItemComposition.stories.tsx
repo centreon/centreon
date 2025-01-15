@@ -16,10 +16,12 @@ type Story = StoryObj<typeof ItemComposition>;
 
 const stub = (): void => undefined;
 
+const items = [0, 1, 2, 3, 4];
+
 export const Default: Story = {
   args: {
-    children: [...Array(5)].map((_, i) => (
-      <ItemComposition.Item key={i} labelDelete="Delete" onDeleteItem={stub}>
+    children: items.map((item) => (
+      <ItemComposition.Item key={item} labelDelete="Delete" onDeleteItem={stub}>
         <Typography>Item 1</Typography>
         <Typography>Item 2</Typography>
       </ItemComposition.Item>
@@ -54,7 +56,7 @@ const options = [
 
 export const WithSelectInputs: Story = {
   args: {
-    children: [...Array(5)].map((_, i) => (
+    children: items.map((i) => (
       <ItemComposition.Item key={i} labelDelete="Delete" onDeleteItem={stub}>
         <SelectField
           dataTestId="select 1"
@@ -79,7 +81,7 @@ export const WithSelectInputs: Story = {
 
 export const WithLinkedItems: Story = {
   args: {
-    children: [...Array(5)].map((_, i) => (
+    children: items.map((i) => (
       <ItemComposition.Item key={i} labelDelete="Delete" onDeleteItem={stub}>
         <Typography>Item 1</Typography>
         <Typography>Item 2</Typography>

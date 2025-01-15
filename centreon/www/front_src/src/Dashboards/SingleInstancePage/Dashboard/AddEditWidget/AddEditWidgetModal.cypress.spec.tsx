@@ -1,54 +1,47 @@
-/* eslint-disable import/no-unresolved */
 import { Provider, createStore } from 'jotai';
-import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
-import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
-import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
-import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
-import widgetDataConfiguration from 'centreon-widgets/centreon-widget-data/moduleFederation.json';
-import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
-import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
-import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
-import widgetSingleDataConfiguration from 'centreon-widgets/centreon-widget-singledata/moduleFederation.json';
-import widgetSingleDataProperties from 'centreon-widgets/centreon-widget-singledata/properties.json';
-import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
-import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
-import widgetGraphConfiguration from 'centreon-widgets/centreon-widget-graph/moduleFederation.json';
-import widgetGraphProperties from 'centreon-widgets/centreon-widget-graph/properties.json';
-import widgetStatusGridConfiguration from 'centreon-widgets/centreon-widget-statusgrid/moduleFederation.json';
-import widgetStatusGridProperties from 'centreon-widgets/centreon-widget-statusgrid/properties.json';
-import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbottom/moduleFederation.json';
-import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
+import widgetDataProperties from '../Widgets/centreon-widget-data/properties.json';
+import widgetGenericTextProperties from '../Widgets/centreon-widget-generictext/properties.json';
+import widgetGraphProperties from '../Widgets/centreon-widget-graph/properties.json';
+import widgetInputProperties from '../Widgets/centreon-widget-input/properties.json';
+import widgetSingleDataProperties from '../Widgets/centreon-widget-singledata/properties.json';
+import widgetSingleMetricProperties from '../Widgets/centreon-widget-singlemetric/properties.json';
+import widgetStatusGridProperties from '../Widgets/centreon-widget-statusgrid/properties.json';
+import widgetTextProperties from '../Widgets/centreon-widget-text/properties.json';
+import widgetTopBottomProperties from '../Widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { federatedWidgetsAtom } from '@centreon/ui-context';
+import {
+  federatedWidgetsAtom,
+  platformVersionsAtom
+} from '@centreon/ui-context';
 
 import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
+import { dashboardAtom, hasEditPermissionAtom, isEditingAtom } from '../atoms';
 import {
-  labelSave,
-  labelDelete,
-  labelShowDescription,
-  labelSelectMetric,
-  labelTitle,
-  labelPleaseChooseAWidgetToActivatePreview,
-  labelResourceType,
-  labelSelectAResource,
-  labelSelectAWidgetType,
-  labelYouCanSelectUpToTwoMetricUnits,
-  labelWidgetType,
-  labelCancel,
-  labelEditWidget,
   labelAddFilter,
   labelAddMetric,
-  labelMetrics
+  labelCancel,
+  labelDelete,
+  labelEditWidget,
+  labelMetrics,
+  labelPleaseChooseAWidgetToActivatePreview,
+  labelResourceType,
+  labelSave,
+  labelSelectAResource,
+  labelSelectAWidgetType,
+  labelSelectMetric,
+  labelShowDescription,
+  labelTitle,
+  labelWidgetType
 } from '../translatedLabels';
-import { dashboardAtom, hasEditPermissionAtom, isEditingAtom } from '../atoms';
 
-import { widgetFormInitialDataAtom } from './atoms';
 import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
-import { WidgetResourceType } from './models';
 import { metricsEndpoint } from './api/endpoints';
+import { widgetFormInitialDataAtom } from './atoms';
+import { WidgetResourceType } from './models';
 
 import { AddEditWidgetModal } from '.';
+import { internalWidgetComponents } from '../Widgets/widgets';
 
 const widgetsProperties = [
   widgetTextProperties,
@@ -62,49 +55,25 @@ const widgetsProperties = [
   widgetTopBottomProperties
 ];
 
-const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
-  const federatedWidgets = [
-    {
-      ...widgetTextConfiguration,
-      moduleFederationName: 'centreon-widget-text/src'
-    },
-    {
-      ...widgetInputConfiguration,
-      moduleFederationName: 'centreon-widget-input/src'
-    },
-    {
-      ...widgetDataConfiguration,
-      moduleFederationName: 'centreon-widget-data/src'
-    },
-    {
-      ...widgetGenericTextConfiguration,
-      moduleFederationName: 'centreon-widget-genericText/src'
-    },
-    {
-      ...widgetSingleDataConfiguration,
-      moduleFederationName: 'centreon-widget-singledata/src'
-    },
-    {
-      ...widgetSingleMetricConfiguration,
-      moduleFederationName: 'centreon-widget-singlemetric/src'
-    },
-    {
-      ...widgetStatusGridConfiguration,
-      moduleFederationName: 'centreon-widget-statusgrid/src'
-    },
-    {
-      ...widgetGraphConfiguration,
-      moduleFederationName: 'centreon-widget-graph/src'
-    },
-    {
-      ...widgetTopBottomConfiguration,
-      moduleFederationName: 'centreon-widget-topbottom/src'
-    }
-  ];
+const availableWidgets = widgetsProperties.reduce(
+  (acc, { moduleName }) => ({ ...acc, [moduleName]: {} }),
+  {}
+);
 
+const platformVersion = {
+  modules: {},
+  web: {
+    version: '23.04.0'
+  },
+  widgets: availableWidgets
+};
+
+const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   const store = defaultStore || createStore();
-  store.set(federatedWidgetsAtom, federatedWidgets);
+
+  store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, widgetsProperties);
+  store.set(platformVersionsAtom, platformVersion);
 
   return store;
 };
@@ -119,8 +88,8 @@ const initialFormDataAdd = {
 
 const initialFormDataEdit = {
   data: {},
-  id: `centreon-widget-text_1`,
-  moduleName: widgetTextConfiguration.moduleName,
+  id: 'centreon-widget-text_1',
+  moduleName: 'centreon-widget-text',
   options: {
     description: {
       content:
@@ -166,8 +135,8 @@ const initialFormData = {
       }
     ]
   },
-  id: `centreon-widget-data_1`,
-  moduleName: widgetDataConfiguration.moduleName,
+  id: 'centreon-widget-data_1',
+  moduleName: 'centreon-widget-data',
   options: {
     description: {
       content:
@@ -377,9 +346,11 @@ describe('AddEditWidgetModal', () => {
       cy.findByLabelText('format').click();
       cy.findByLabelText('bold').click();
 
-      cy.findAllByLabelText('RichTextEditor').eq(0).type(`
-      
-      
+      cy.findAllByLabelText('RichTextEditor')
+        .eq(0)
+        .type(`
+
+
       Hello!
       https://centreon.com`);
 
@@ -404,9 +375,11 @@ describe('AddEditWidgetModal', () => {
       cy.findByLabelText('format').click();
       cy.findByLabelText('bold').click();
 
-      cy.findAllByLabelText('RichTextEditor').eq(1).type(`
-      
-      
+      cy.findAllByLabelText('RichTextEditor')
+        .eq(1)
+        .type(`
+
+
       Hello!
       https://centreon.com`);
 
@@ -650,6 +623,7 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getHosts');
 
         cy.findByText('Host 0').click();
+        cy.findByTestId(labelSelectAResource).click();
 
         cy.findAllByText('Host 0').should('have.length', 1);
         cy.findByTestId('CancelIcon').click();
@@ -685,7 +659,6 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelSelectMetric).click();
 
         cy.contains('Metrics (4 available)').should('be.visible');
-        cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
@@ -835,7 +808,6 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getHosts');
 
         cy.contains(/^Host 1$/).click();
-        cy.findByTestId(labelSelectAResource).click();
         cy.contains(/^Host 2$/).click();
         cy.waitForRequest('@getServiceMetrics');
 
@@ -873,7 +845,7 @@ describe('AddEditWidgetModal', () => {
         );
       });
 
-      it('hides metrics field when the Meta service resource type is selected and the Meta service is chosen', () => {
+      it('does not hide metrics field when the Meta service resource type is selected and the Meta service is chosen', () => {
         cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data for single metric (example)').click();
 
@@ -885,7 +857,7 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getMetaService');
         cy.contains('Meta service 0').click();
 
-        cy.contains(labelMetrics).should('not.exist');
+        cy.contains(labelMetrics).should('be.visible');
 
         cy.makeSnapshot();
       });
@@ -1007,6 +979,7 @@ describe('AddEditWidgetModal', () => {
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
       jotaiStore.set(hasEditPermissionAtom, true);
       jotaiStore.set(isEditingAtom, true);
+      jotaiStore.set(platformVersionsAtom, platformVersion);
 
       cy.mount({
         Component: (

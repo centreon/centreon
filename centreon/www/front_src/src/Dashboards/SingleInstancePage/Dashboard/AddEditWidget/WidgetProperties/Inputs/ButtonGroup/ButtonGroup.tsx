@@ -2,19 +2,19 @@ import { useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
   Button,
   ButtonGroup as MuiButtonGroup,
   Stack,
   Typography
 } from '@mui/material';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { Tooltip } from '@centreon/ui/components';
 
-import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 
 import { useButtonGroup } from './useButtonGroup';

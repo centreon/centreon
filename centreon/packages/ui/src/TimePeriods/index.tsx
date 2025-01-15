@@ -9,21 +9,30 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
 import { ParentSize } from '..';
+import LoadingSkeleton from '../LoadingSkeleton';
 
-import { WrapperTimePeriodProps } from './models';
+import { memo } from 'react';
 import TimePeriods from './TimePeriods';
+import type { WrapperTimePeriodProps } from './models';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 dayjs.extend(duration);
 
-const WrapperTimePeriods = (props: WrapperTimePeriodProps): JSX.Element => (
+const WrapperTimePeriods = ({
+  skeletonHeight = 38,
+  ...rest
+}: WrapperTimePeriodProps): JSX.Element => (
   <ParentSize>
     {({ width }): JSX.Element => {
-      return <TimePeriods width={width} {...props} />;
+      return !width ? (
+        <LoadingSkeleton height={skeletonHeight} variant="rectangular" />
+      ) : (
+        <TimePeriods width={width} {...rest} />
+      );
     }}
   </ParentSize>
 );
 
-export default WrapperTimePeriods;
+export default memo(WrapperTimePeriods);

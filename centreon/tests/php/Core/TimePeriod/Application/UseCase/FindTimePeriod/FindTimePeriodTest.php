@@ -34,14 +34,14 @@ use Core\TimePeriod\Application\UseCase\FindTimePeriod\{FindTimePeriod, FindTime
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 use Tests\Core\TimePeriod\Application\UseCase\ExtractResponse;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->writeRepository = $this->createMock(WriteTimePeriodRepositoryInterface::class);
     $this->formatter = $this->createMock(JsonFormatter::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present an ErrorResponse response when the exception is raised', function () {
+it('should present an ErrorResponse response when the exception is raised', function (): void {
     $timePeriodId = 1;
 
     $this->user
@@ -61,16 +61,15 @@ it('should present an ErrorResponse response when the exception is raised', func
         ->willThrowException(new \Exception());
 
     $useCase = new FindTimePeriod($this->readRepository, $this->user);
-    $presenter = new DefaultPresenter($this->formatter);
-    $useCase($timePeriodId, $presenter);
+    $response = $useCase($timePeriodId);
 
-    expect($presenter->getResponseStatus())
+    expect($response)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->getResponseStatus()->getMessage())
+        ->and($response->getMessage())
         ->toBe(TimePeriodException::errorWhenSearchingForTimePeriod($timePeriodId)->getMessage());
 });
 
-it('should present a NotFoundResponse when the time period is not found', function () {
+it('should present a NotFoundResponse when the time period is not found', function (): void {
     $timePeriodId = 1;
 
     $this->user
@@ -90,16 +89,16 @@ it('should present a NotFoundResponse when the time period is not found', functi
         ->willReturn(null);
 
     $useCase = new FindTimePeriod($this->readRepository, $this->user);
-    $presenter = new DefaultPresenter($this->formatter);
-    $useCase($timePeriodId, $presenter);
 
-    expect($presenter->getResponseStatus())
+    $response = $useCase($timePeriodId);
+
+    expect($response)
         ->toBeInstanceOf(NotFoundResponse::class)
-        ->and($presenter->getResponseStatus()->getMessage())
+        ->and($response->getMessage())
         ->toBe((new NotFoundResponse('Time period'))->getMessage());
 });
 
-it('should present an Forbidden response when user has insufficient rights', function () {
+it('should present an Forbidden response when user has insufficient rights', function (): void {
     $timePeriodId = 1;
 
     $this->user
@@ -113,16 +112,15 @@ it('should present an Forbidden response when user has insufficient rights', fun
         );
 
     $useCase = new FindTimePeriod($this->readRepository, $this->user);
-    $presenter = new DefaultPresenter($this->formatter);
-    $useCase($timePeriodId, $presenter);
+    $response = $useCase($timePeriodId);
 
-    expect($presenter->getResponseStatus())
+    expect($response)
         ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($presenter->getResponseStatus()->getMessage())
+        ->and($response->getMessage())
         ->toBe(TimePeriodException::accessNotAllowed()->getMessage());
 });
 
-it('should present a FindTimePeriodResponse if the time response is found and user has read only rigths', function () {
+it('should present a FindTimePeriodResponse if the time response is found and user has read only rigths', function (): void {
     $timePeriod = new TimePeriod(1, 'fake_name', 'fake_alias');
     $timePeriod->addDay(new Day(1, new TimeRange('00:30-04:00')));
     $timePeriod->addTemplate(new Template(1, 'fake_template'));
@@ -149,28 +147,27 @@ it('should present a FindTimePeriodResponse if the time response is found and us
         ->willReturn($timePeriod);
 
     $useCase = new FindTimePeriod($this->readRepository, $this->user);
-    $presenter = new FindTimePeriodPresenterStub($this->formatter);
-    $useCase($timePeriodId, $presenter);
+    /** @var FindTimePeriodResponse $response */
+    $response = $useCase($timePeriodId);
 
-    $response = $presenter->response;
     expect($response)
         ->toBeInstanceOf(FindTimePeriodResponse::class)
-        ->and($response->id)
+        ->and($response->timePeriod->getId())
         ->toBe($timePeriod->getId())
-        ->and($response->name)
+        ->and($response->timePeriod->getName())
         ->toBe($timePeriod->getName())
-        ->and($response->alias)
+        ->and($response->timePeriod->getAlias())
         ->toBe($timePeriod->getAlias())
-        ->and($response->days)
-        ->toBe(ExtractResponse::daysToArray($timePeriod))
-        ->and($response->templates)
-        ->toBe(ExtractResponse::templatesToArray($timePeriod))
-        ->and($response->exceptions)
-        ->toBe(ExtractResponse::exceptionsToArray($timePeriod));
+        ->and($response->timePeriod->getDays())
+        ->toBe($timePeriod->getDays())
+        ->and($response->timePeriod->getTemplates())
+        ->toBe($timePeriod->getTemplates())
+        ->and($response->timePeriod->getExtraTimePeriods())
+        ->toBe($timePeriod->getExtraTimePeriods());
 });
 
 
-it('should present a FindTimePeriodResponse if the time response is found and user has read-write rigths', function () {
+it('should present a FindTimePeriodResponse if the time response is found and user has read-write rigths', function (): void {
     $timePeriod = new TimePeriod(1, 'fake_name', 'fake_alias');
     $timePeriod->addDay(new Day(1, new TimeRange('00:30-04:00')));
     $timePeriod->addTemplate(new Template(1, 'fake_template'));
@@ -197,22 +194,22 @@ it('should present a FindTimePeriodResponse if the time response is found and us
         ->willReturn($timePeriod);
 
     $useCase = new FindTimePeriod($this->readRepository, $this->user);
-    $presenter = new FindTimePeriodPresenterStub($this->formatter);
-    $useCase($timePeriodId, $presenter);
 
-    $response = $presenter->response;
+    /** @var FindTimePeriodResponse $response */
+    $response = $useCase($timePeriodId);
+
     expect($response)
         ->toBeInstanceOf(FindTimePeriodResponse::class)
-        ->and($response->id)
+        ->and($response->timePeriod->getId())
         ->toBe($timePeriod->getId())
-        ->and($response->name)
+        ->and($response->timePeriod->getName())
         ->toBe($timePeriod->getName())
-        ->and($response->alias)
+        ->and($response->timePeriod->getAlias())
         ->toBe($timePeriod->getAlias())
-        ->and($response->days)
-        ->toBe(ExtractResponse::daysToArray($timePeriod))
-        ->and($response->templates)
-        ->toBe(ExtractResponse::templatesToArray($timePeriod))
-        ->and($response->exceptions)
-        ->toBe(ExtractResponse::exceptionsToArray($timePeriod));
+        ->and($response->timePeriod->getDays())
+        ->toBe($timePeriod->getDays())
+        ->and($response->timePeriod->getTemplates())
+        ->toBe($timePeriod->getTemplates())
+        ->and($response->timePeriod->getExtraTimePeriods())
+        ->toBe($timePeriod->getExtraTimePeriods());
 });

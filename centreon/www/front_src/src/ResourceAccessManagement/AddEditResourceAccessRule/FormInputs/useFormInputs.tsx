@@ -3,24 +3,24 @@ import { useTranslation } from 'react-i18next';
 import { Divider, Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
-import { InputProps, Group, InputType } from '@centreon/ui';
+import { Group, InputProps, InputType } from '@centreon/ui';
 
 import {
+  labelAddResourceDatasets,
   labelContactGroups,
   labelContacts,
   labelContactsAndContactGroups,
   labelDescription,
   labelName,
-  labelAddResourceDatasets,
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
 
 import { useFormInputStyles } from './FormInputs.styles';
 import ActivateSwitch from './components/ActivateSwitch';
-import ResourceSelection from './components/ResourceSelection';
-import ContactsSelector from './components/ContactsSelector';
 import ContactGroupsSelector from './components/ContactGroupsSelector';
+import ContactsSelector from './components/ContactsSelector';
+import ResourceSelection from './components/ResourceSelection';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -58,7 +58,6 @@ const useFormInputs = (): UseFormInputsState => {
     {
       fieldName: '',
       grid: {
-        alignItems: 'center',
         columns: [
           {
             fieldName: 'ruleProperties',

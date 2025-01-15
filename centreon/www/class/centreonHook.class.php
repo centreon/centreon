@@ -33,21 +33,26 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonHook
+ */
 class CentreonHook
 {
-    /**
-     * Class constructor
-     *
-     */
-    public function __construct()
-    {
-    }
 
+    /**
+     * @param $category
+     * @param $method
+     * @param $parameters
+     *
+     * @return array
+     */
     public static function execute($category, $method, $parameters = null)
     {
         global $centreon;
 
-        $result = array();
+        $result = [];
 
         if (isset($centreon->hooks[$category][$method])) {
             foreach ($centreon->hooks[$category][$method] as $hook) {

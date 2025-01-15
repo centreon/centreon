@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 
-import { generatePath, useNavigate, useParams } from 'react-router';
 import { isNil } from 'ramda';
+import { generatePath, useNavigate, useParams } from 'react-router';
 
 import { PageSkeleton } from '@centreon/ui';
 
-import { DeprecatedRoute } from '../../reactRoutes/deprecatedRoutes';
+import { DeprecatedRoute as DeprecatedRouteModel } from '../../reactRoutes/deprecatedRoutes';
 
 const DeprecatedRoute = ({
   newRoute
-}: Pick<DeprecatedRoute, 'newRoute'>): JSX.Element => {
+}: Pick<DeprecatedRouteModel, 'newRoute'>): JSX.Element => {
   const parameters = useParams();
 
   const navigate = useNavigate();

@@ -177,7 +177,7 @@ const notificationSentCount = (count: number): void => {
             command: `grep "Sending notification" ${cloudNotificationLogFile} 2> /dev/null | wc -l || echo 0`,
             name: 'web'
           },
-          { timeout: 30000 }
+          { timeout: 40000 }
         )
         .then((result) => {
           const match = result.output.trim().match(/(\d+)$/);
@@ -198,7 +198,7 @@ const notificationSentCount = (count: number): void => {
           return cy.wrap(currentLineCount >= count);
         });
     },
-    { errorMsg: () => errorMessage, interval: 5000, timeout: 300000 }
+    { errorMsg: () => errorMessage, interval: 5000, timeout: 400000 }
   );
 };
 

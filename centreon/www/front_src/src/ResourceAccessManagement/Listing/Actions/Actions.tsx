@@ -5,14 +5,14 @@ import { Box } from '@mui/material';
 import { ComponentColumnProps } from '@centreon/ui';
 
 import { DeleteButton } from '../../Actions/Delete';
+import useDelete from '../../Actions/Delete/useDelete';
+import { DuplicateButton } from '../../Actions/Duplicate';
+import useDuplicate from '../../Actions/Duplicate/useDuplicate';
+import { DeleteType } from '../../models';
 import {
   labelDeleteResourceAccessRule,
   labelDuplicate
 } from '../../translatedLabels';
-import useDelete from '../../Actions/Delete/useDelete';
-import useDuplicate from '../../Actions/Duplicate/useDuplicate';
-import { DeleteType } from '../../models';
-import { DuplicateButton } from '../../Actions/Duplicate';
 
 import useActionsStyles from './Actions.styles';
 

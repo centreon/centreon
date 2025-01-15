@@ -53,6 +53,8 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
     public const INVALID_MIN_DATE = 1005;
 
+    public const INVALID_URL_IP_OR_DOMAIN = 1006;
+
     /**
      * The extended constructor is here only to enforce the types used
      * and set a default `int $code = 0` for child classes.
@@ -580,5 +582,27 @@ class AssertionException extends \Assert\InvalidArgumentException
     public static function invalidTypeInArray(string $type, string $propertyPath): self
     {
         return new self(sprintf('values type in the array are not [%s]', $type), self::INVALID_CHOICE, $propertyPath);
+    }
+
+    /**
+     * Exception when the value does not respect URL, IP address or domain format.
+     *
+     * @param string $value Tested value
+     * @param string|null $propertyPath Property's path (ex: Host::maxCheckAttempts)
+     *
+     * @return self
+     */
+    public static function urlOrIpOrDomain(string $value, ?string $propertyPath = null): self
+    {
+        return new self(
+            sprintf(
+                _('[%s] The value "%s" was expected to be a valid URL, IP address or domain'),
+                $propertyPath,
+                $value
+            ),
+            self::INVALID_URL_IP_OR_DOMAIN,
+            $propertyPath,
+            $value
+        );
     }
 }

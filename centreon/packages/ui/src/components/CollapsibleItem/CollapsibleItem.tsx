@@ -2,13 +2,13 @@ import { ReactNode } from 'react';
 
 import { equals, type } from 'ramda';
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  Accordion,
   AccordionDetails,
   AccordionSummary,
-  Accordion,
   Typography
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useCollapsibleItemStyles } from './useCollapsibleItemStyles';
 

@@ -68,6 +68,7 @@ use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Utility\Difference\BasicDifference;
 
 final class PartialUpdateHost
@@ -402,12 +403,12 @@ final class PartialUpdateHost
         }
 
         if ($this->writeVaultRepository->isVaultConfigured() && ! $dto->snmpCommunity instanceOf NoValue) {
-            $vaultPath = $this->writeVaultRepository->upsert(
+            $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
-                ['_HOSTSNMPCOMMUNITY' => $host->getSnmpCommunity()]
+                [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $host->getSnmpCommunity()]
             );
-            $this->uuid ??= $this->getUuidFromPath($vaultPath);
-            $host->setSnmpCommunity($vaultPath);
+            $this->uuid ??= $this->getUuidFromPath($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
+            $host->setSnmpCommunity($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
         }
 
         $this->writeHostRepository->update($host);
@@ -681,14 +682,15 @@ final class PartialUpdateHost
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
         if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
-            $vaultPath = $this->writeVaultRepository->upsert(
+            $macroPrefixedName = '_HOST' . $macro->getName();
+            $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
-                $action === 'INSERT' ? ['_HOST' . $macro->getName() => $macro->getValue()] : [],
-                $action === 'DELETE' ? ['_HOST' . $macro->getName() => $macro->getValue()] : [],
+                $action === 'INSERT' ? [$macroPrefixedName => $macro->getValue()] : [],
+                $action === 'DELETE' ? [$macroPrefixedName => $macro->getValue()] : [],
             );
-            $this->uuid ??= $this->getUuidFromPath($vaultPath);
+            $this->uuid ??= $this->getUuidFromPath($vaultPaths[$macroPrefixedName]);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());

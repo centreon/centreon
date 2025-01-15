@@ -1,8 +1,8 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
-import { labelDisplayAs } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { labelDisplayAs } from '../../../../translatedLabels';
 
 import DisplayType from './DisplayType';
 

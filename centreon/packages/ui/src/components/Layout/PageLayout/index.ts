@@ -1,7 +1,7 @@
 import { PageLayout as PageLayoutRoot } from './PageLayout';
-import { PageLayoutHeader } from './PageLayoutHeader';
-import { PageLayoutBody } from './PageLayoutBody';
 import { PageLayoutActions } from './PageLayoutActions';
+import { PageLayoutBody } from './PageLayoutBody';
+import { PageLayoutHeader } from './PageLayoutHeader';
 import { PageQuickAccess } from './PageQuickAccess';
 
 export const PageLayout = Object.assign(PageLayoutRoot, {

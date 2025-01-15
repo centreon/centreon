@@ -1,28 +1,28 @@
 import { ChangeEvent, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil, pipe, trim } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Grid, Typography } from '@mui/material';
 
 import {
   Dialog,
   TextField,
-  useSnackbar,
+  useLocaleDateTimeFormat,
   useRequest,
-  useLocaleDateTimeFormat
+  useSnackbar
 } from '@centreon/ui';
 
+import { commentResources } from '../../../../Actions/api';
+import { ResourceDetails } from '../../../../Details/models';
+import { Resource } from '../../../../models';
 import {
   labelAdd,
   labelAddComment,
   labelComment,
-  labelRequired,
-  labelCommentAdded
+  labelCommentAdded,
+  labelRequired
 } from '../../../../translatedLabels';
-import { commentResources } from '../../../../Actions/api';
-import { Resource } from '../../../../models';
-import { ResourceDetails } from '../../../../Details/models';
 
 interface Props {
   date: Date;

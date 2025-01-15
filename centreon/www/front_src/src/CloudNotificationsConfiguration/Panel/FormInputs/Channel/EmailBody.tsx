@@ -1,14 +1,14 @@
-import { FormikValues, useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-import { path } from 'ramda';
-import { useSetAtom } from 'jotai';
 import { $generateHtmlFromNodes } from '@lexical/html';
+import { FormikValues, useFormikContext } from 'formik';
+import { useSetAtom } from 'jotai';
+import { path } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import { labelTypeYourTextHere } from '../../../translatedLabels';
-import { useStyles } from '../Inputs.styles';
 import { htmlEmailBodyAtom } from '../../atom';
+import { useStyles } from '../Inputs.styles';
 
 const EmailBody = (): JSX.Element => {
   const { classes } = useStyles({});

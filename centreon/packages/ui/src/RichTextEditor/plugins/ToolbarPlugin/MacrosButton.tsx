@@ -1,5 +1,5 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { createCommand, LexicalCommand } from 'lexical';
+import { LexicalCommand, createCommand } from 'lexical';
 
 import MacrosIcon from '@mui/icons-material/TerminalOutlined';
 
@@ -28,14 +28,14 @@ const MacrosButton = ({ disabled }: Props): JSX.Element => {
 
   const [editor] = useLexicalComposerContext();
 
-  const INSERT_MACROS_COMMAND: LexicalCommand<string> = createCommand();
+  const insertMacrosCommand: LexicalCommand<string> = createCommand();
 
   const onClick = (macro): void => {
-    editor.dispatchCommand(INSERT_MACROS_COMMAND, macro);
+    editor.dispatchCommand(insertMacrosCommand, macro);
   };
 
   editor.registerCommand(
-    INSERT_MACROS_COMMAND,
+    insertMacrosCommand,
     (payload: string) => {
       if (!editor) {
         return false;

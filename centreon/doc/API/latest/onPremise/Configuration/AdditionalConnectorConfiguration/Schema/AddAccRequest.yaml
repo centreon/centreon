@@ -1,0 +1,39 @@
+type: object
+required: ["name", "type", "pollers", "parameters"]
+properties:
+  name:
+    type: string
+    description: "ACC name"
+    example: "my-acc-name"
+  description:
+    type: string
+    description: "A short ACC description"
+    example: "some description"
+  type:
+    type: string
+    description: |
+      Type of ACC
+
+      Supported ACC types:
+        * vmware_v6
+    example: vmware_v6
+  pollers:
+    type: array
+    items:
+      type: integer
+    description: Poller ID(s) associated with the ACC
+    example: [1, 12]
+  parameters:
+    type: object
+    description: |
+      Configuration parameters, varies depending on the ACC type.
+    example:
+      port: 4242
+      vcenters: [
+        {
+          "name": "my-vcenter",
+          "url": "http://10.10.10.10/sdk",
+          "username": "admin",
+          "password": "my-pwd"
+        }
+      ]

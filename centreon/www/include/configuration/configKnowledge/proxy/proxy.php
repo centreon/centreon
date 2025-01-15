@@ -37,7 +37,7 @@
  */
 
 ini_set("display_errors", "On");
-$centreon_path = realpath(dirname(__FILE__) . '/../../../../../');
+$centreon_path = realpath(__DIR__ . '/../../../../../');
 global $etc_centreon;
 
 require_once $centreon_path . "/config/centreon.config.php";

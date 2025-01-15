@@ -11,8 +11,8 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { CreateDashboardDto, Dashboard, resource } from './models';
 import { dashboardsEndpoint } from './endpoints';
+import { CreateDashboardDto, Dashboard, resource } from './models';
 
 type UseCreateDashboard<
   TData extends Dashboard = Dashboard,

@@ -72,8 +72,6 @@ describe('Pie chart', () => {
   it('renders as a pie when variant is set to "pie"', () => {
     initialize({ variant: 'pie' });
     cy.get('[data-variant="pie"]').should('exist');
-
-    cy.makeSnapshot();
   });
 
   it('displays tooltip with correct information on hover', () => {
@@ -134,8 +132,6 @@ describe('Pie chart', () => {
 
     initialize({});
     cy.findByTestId('Title').should('not.exist');
-
-    cy.makeSnapshot();
   });
 
   it('adjusts outer radius when chart dimensions are too small', () => {

@@ -3,14 +3,14 @@ import {
   PasswordSecurityPolicyToAPI
 } from '../Local/models';
 import {
-  OpenidConfiguration,
-  OpenidConfigurationToAPI,
   AuthConditions,
   AuthConditionsToApi,
   Endpoint,
   EndpointToAPI,
   GroupsMapping,
   GroupsMappingToAPI,
+  OpenidConfiguration,
+  OpenidConfigurationToAPI,
   RolesMapping,
   RolesMappingToApi
 } from '../Openid/models';

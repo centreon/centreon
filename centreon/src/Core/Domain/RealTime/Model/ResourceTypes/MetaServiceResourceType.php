@@ -25,8 +25,8 @@ namespace Core\Domain\RealTime\Model\ResourceTypes;
 
 class MetaServiceResourceType extends AbstractResourceType
 {
-    public const TYPE_NAME = 'metaservice',
-                 TYPE_ID = 2;
+    public const TYPE_NAME = 'metaservice';
+    public const TYPE_ID = 2;
 
     /** @var string */
     protected string $name = self::TYPE_NAME;

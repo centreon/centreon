@@ -35,7 +35,7 @@ use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 
-beforeEach(function() {
+beforeEach(function(): void {
     $this->contact = $this->createMock(ContactInterface::class);
     $this->rights = $this->createMock(DashboardRights::class);
     $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class);
@@ -51,7 +51,7 @@ beforeEach(function() {
     );
 });
 
-it('should throw a Dashboard Exception when the dashboard does not exist', function () {
+it('should throw a Dashboard Exception when the dashboard does not exist', function (): void {
     $this->readDashboardRepository
        ->method('existsOne')
        ->willReturn(false);
@@ -59,7 +59,7 @@ it('should throw a Dashboard Exception when the dashboard does not exist', funct
    $this->validator->validateDashboard(1);
 })->throws(DashboardException::theDashboardDoesNotExist(1)->getMessage());
 
-it('should throw a Dashboard Exception when the dashboard is not shared has editor', function () {
+it('should throw a Dashboard Exception when the dashboard is not shared has editor', function (): void {
     $this->readDashboardRepository
         ->expects($this->once())
         ->method('existsOne')
@@ -74,7 +74,7 @@ it('should throw a Dashboard Exception when the dashboard is not shared has edit
     $this->validator->validateDashboard(1, false);
 })->throws(DashboardException::dashboardAccessRightsNotAllowedForWriting(1)->getMessage());
 
-it('should throw a Dashboard Exception when the contacts does not exists', function() {
+it('should throw a Dashboard Exception when the contacts does not exists', function(): void {
    $this->readContactRepository
        ->expects($this->once())
        ->method('exist')
@@ -99,7 +99,7 @@ it('should throw a Dashboard Exception when the contacts does not exists', funct
    );
 })->throws(DashboardException::theContactsDoNotExist([2,3])->getMessage());
 
-it('should throw a Dashboard Exception when the contacts are duplicated', function () {
+it('should throw a Dashboard Exception when the contacts are duplicated', function (): void {
     $this->readContactRepository
         ->expects($this->once())
         ->method('exist')
@@ -119,7 +119,7 @@ it('should throw a Dashboard Exception when the contacts are duplicated', functi
     );
 })->throws(DashboardException::contactForShareShouldBeUnique()->getMessage());
 
-it('should throw a Dashboard Exception when the request contacts does not have Dashboard ACLs', function () {
+it('should throw a Dashboard Exception when the request contacts does not have Dashboard ACLs', function (): void {
     $this->readContactRepository
         ->expects($this->once())
         ->method('exist')
@@ -151,7 +151,7 @@ it('should throw a Dashboard Exception when the request contacts does not have D
     );
 })->throws(DashboardException::theContactsDoesNotHaveDashboardAccessRights([2])->getMessage());
 
-it('should throw a Dashboard Exception when the request contacts does not have sufficient ACLs level', function () {
+it('should throw a Dashboard Exception when the request contacts does not have sufficient ACLs level', function (): void {
         $this->readContactRepository
             ->expects($this->once())
             ->method('exist')
@@ -180,7 +180,7 @@ it('should throw a Dashboard Exception when the request contacts does not have s
         );
     })->throws(DashboardException::notSufficientAccessRightForUser(1, 'editor')->getMessage());
 
-it('should throw a Dashboard Exception when the request contacts are not members of user Access Groups', function () {
+it('should throw a Dashboard Exception when the request contacts are not members of user Access Groups', function (): void {
     $this->readContactRepository
         ->expects($this->once())
         ->method('exist')
@@ -210,7 +210,7 @@ it('should throw a Dashboard Exception when the request contacts are not members
     );
 })->throws(DashboardException::userAreNotInAccessGroups([1])->getMessage());
 
-it('should throw a Dashboard Exception when the contact groups do not exist', function () {
+it('should throw a Dashboard Exception when the contact groups do not exist', function (): void {
     $this->readContactGroupRepository
         ->expects($this->once())
         ->method('exist')
@@ -236,7 +236,7 @@ it('should throw a Dashboard Exception when the contact groups do not exist', fu
     );
 })->throws(DashboardException::theContactGroupsDoNotExist([2,3])->getMessage());
 
-it('should throw a Dashboard Exception when the contact groups are duplicated', function () {
+it('should throw a Dashboard Exception when the contact groups are duplicated', function (): void {
     $this->readContactGroupRepository
         ->expects($this->once())
         ->method('exist')
@@ -259,7 +259,7 @@ it('should throw a Dashboard Exception when the contact groups are duplicated', 
     );
 })->throws(DashboardException::contactGroupForShareShouldBeUnique()->getMessage());
 
-it('should throw a Dashboard Exception when the contact groups does not have Dashboard ACLs', function () {
+it('should throw a Dashboard Exception when the contact groups does not have Dashboard ACLs', function (): void {
     $this->readContactGroupRepository
         ->expects($this->once())
         ->method('exist')
@@ -291,7 +291,7 @@ it('should throw a Dashboard Exception when the contact groups does not have Das
     );
 })->throws(DashboardException::theContactGroupsDoesNotHaveDashboardAccessRights([2])->getMessage());
 
-it('should throw a Dashboard Exception when the contact groups are not members of user contact groups', function () {
+it('should throw a Dashboard Exception when the contact groups are not members of user contact groups', function (): void {
     $this->readContactGroupRepository
         ->expects($this->once())
         ->method('exist')

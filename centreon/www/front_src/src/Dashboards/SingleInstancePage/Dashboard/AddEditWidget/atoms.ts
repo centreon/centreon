@@ -77,6 +77,52 @@ export const resourcesInputKeyDerivedAtom = atom<string | undefined>((get) => {
   return resourcesInput?.[0];
 });
 
+export const localeInputKeyDerivedAtom = atom<string | undefined>((get) => {
+  const widgetProperties = get(widgetPropertiesAtom);
+
+  if (isNil(widgetProperties)) {
+    return undefined;
+  }
+
+  const properties = concat(
+    Object.entries(widgetProperties.data || {}),
+    Object.entries(
+      (widgetProperties.options.groups
+        ? widgetProperties.options.elements
+        : widgetProperties.options) || {}
+    )
+  );
+
+  const metricInput = properties.find(([, { type }]) =>
+    equals(type, FederatedWidgetOptionType.locale)
+  );
+
+  return metricInput?.[0];
+});
+
+export const timezoneInputKeyDerivedAtom = atom<string | undefined>((get) => {
+  const widgetProperties = get(widgetPropertiesAtom);
+
+  if (isNil(widgetProperties)) {
+    return undefined;
+  }
+
+  const properties = concat(
+    Object.entries(widgetProperties.data || {}),
+    Object.entries(
+      (widgetProperties.options.groups
+        ? widgetProperties.options.elements
+        : widgetProperties.options) || {}
+    )
+  );
+
+  const metricInput = properties.find(([, { type }]) =>
+    equals(type, FederatedWidgetOptionType.timezone)
+  );
+
+  return metricInput?.[0];
+});
+
 export const widgetPropertiesMetaPropertiesDerivedAtom = atom<Pick<
   FederatedWidgetProperties,
   'singleResourceSelection' | 'customBaseColor' | 'singleMetricSelection'

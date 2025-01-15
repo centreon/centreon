@@ -1,0 +1,44 @@
+type: object
+properties:
+  brokerId:
+    type: integer
+    description: "Broker configuration ID"
+    example: 1
+  name:
+    type: string
+    description: "input/output name"
+    example: "central-broker-master-unified-sql"
+  type:
+    type: object
+    description: "input/output type"
+    properties:
+      id:
+        type: integer
+        description: "input/output type ID"
+        example: 33
+      name:
+        type: string
+        description: "input/output type name"
+        example: "lua"
+  parameters:
+    type: object
+    description: |
+      Input/Output parameters specific to its type.
+
+      For multiselect fields, the property name is a combination of the group field name and the sub field name (ex: "filters_category")
+
+    example:
+      path: "some/test/path"
+      filters_category: ["storage", "neb"]
+      lua_parameter: [
+        {
+          "type": "string",
+          "name": "my-lua-param-1",
+          "value": "azerty"
+        },
+        {
+          "type": "string",
+          "name": "my-lua-param-2",
+          "value": "qwerty"
+        }
+      ]

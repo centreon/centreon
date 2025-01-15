@@ -4,13 +4,13 @@ import { makeStyles } from 'tss-react/mui';
 
 import {
   Button,
-  Dialog as MuiDialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  DialogProps,
+  ButtonProps,
   CircularProgress,
-  ButtonProps
+  DialogActions,
+  DialogContent,
+  DialogProps,
+  DialogTitle,
+  Dialog as MuiDialog
 } from '@mui/material';
 
 import { DataTestAttributes } from '../@types/data-attributes';

@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 
 import { Button, Typography } from '@mui/material';
 
-import { getData, useRequest, useSnackbar, Dialog } from '@centreon/ui';
+import { Dialog, getData, useRequest, useSnackbar } from '@centreon/ui';
 
+import { exportAndReloadConfigurationEndpoint } from '../../../api/endpoints';
 import {
   labelCancel,
   labelConfigurationExportedAndReloaded,
@@ -16,7 +17,6 @@ import {
   labelFailedToExportAndReloadConfiguration,
   labelThisWillExportAndReloadOnAllOfYourPlatform
 } from '../../translatedLabels';
-import { exportAndReloadConfigurationEndpoint } from '../../../api/endpoints';
 
 interface Props {
   closeSubMenu: () => void;

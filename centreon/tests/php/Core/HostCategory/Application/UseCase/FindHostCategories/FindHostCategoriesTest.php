@@ -39,7 +39,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Exception;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
@@ -68,7 +68,7 @@ beforeEach(function () {
     $this->accessGroups = [new AccessGroup(1, 'ag-1', 'ag-1-alias')];
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->any())
         ->method('isAdmin')
@@ -132,7 +132,7 @@ it('should present a FindHostGroupsResponse when a non-admin user has read only 
 
     $this->hostCategoryRepository
         ->expects($this->once())
-        ->method('hasAclFilterOnHostCategories')
+        ->method('hasRestrictedAccessToHostCategories')
         ->willReturn(true);
 
     $this->hostCategoryRepository
@@ -170,7 +170,7 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
 
     $this->hostCategoryRepository
         ->expects($this->once())
-        ->method('hasAclFilterOnHostCategories')
+        ->method('hasRestrictedAccessToHostCategories')
         ->willReturn(true);
 
     $this->hostCategoryRepository
@@ -187,7 +187,7 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
 });
 
 
-it('should present a FindHostCategoriesResponse with admin user', function () {
+it('should present a FindHostCategoriesResponse with admin user', function (): void {
     $this->user
         ->expects($this->any())
         ->method('isAdmin')

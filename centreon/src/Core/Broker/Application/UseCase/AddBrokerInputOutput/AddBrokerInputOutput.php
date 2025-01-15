@@ -35,21 +35,29 @@ use Core\Broker\Application\Exception\BrokerException;
 use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerInputOutput;
+use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\NewBrokerInputOutput;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 
 /**
  * @phpstan-import-type _BrokerInputOutputParameter from \Core\Broker\Domain\Model\BrokerInputOutput
  */
 final class AddBrokerInputOutput
 {
-    use LoggerTrait;
+    use LoggerTrait, VaultTrait;
 
     public function __construct(
         private readonly WriteBrokerInputOutputRepositoryInterface $writeOutputRepository,
         private readonly ReadBrokerInputOutputRepositoryInterface $readOutputRepository,
         private readonly ContactInterface $user,
         private readonly BrokerInputOutputValidator $validator,
+        private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly FeatureFlags $flags,
     ) {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
     }
 
     /**
@@ -85,13 +93,20 @@ final class AddBrokerInputOutput
             /** @var _BrokerInputOutputParameter[] $validatedParameters */
             $validatedParameters = $request->parameters;
 
+            $newOutput = new NewBrokerInputOutput(
+                tag: $request->tag,
+                type: $type,
+                name: $request->name,
+                parameters: $validatedParameters
+            );
+
+            if ($this->flags->isEnabled('vault_broker') && $this->writeVaultRepository->isVaultConfigured() === true) {
+                $this->uuid = $this->getBrokerVaultUuid($request->brokerId);
+                $newOutput = $this->saveInVault($newOutput, $outputFields);
+            }
+
             $outputId = $this->writeOutputRepository->add(
-                new NewBrokerInputOutput(
-                    tag: $request->tag,
-                    type: $type,
-                    name: $request->name,
-                    parameters: $validatedParameters
-                ),
+                $newOutput,
                 $request->brokerId,
                 $outputFields
             );
@@ -135,6 +150,72 @@ final class AddBrokerInputOutput
             name: $output->getName(),
             type: new TypeDto($output->getType()->id, $output->getType()->name),
             parameters: $output->getParameters()
+        );
+    }
+
+    private function getBrokerVaultUuid(int $configId): ?string
+    {
+        $vaultPath = $this->readOutputRepository->findVaultPathByBrokerId($configId);
+        if ($vaultPath === null) {
+
+            return null;
+        }
+
+        return $this->getUuidFromPath($vaultPath);
+    }
+
+    /**
+     * @param NewBrokerInputOutput $inputOutput
+     * @param array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>> $inputOutputFields
+     *
+     * @return NewBrokerInputOutput
+     */
+    private function saveInVault(NewBrokerInputOutput $inputOutput, array $inputOutputFields): NewBrokerInputOutput
+    {
+        $updatedParameters = $inputOutput->getParameters();
+
+        foreach ($updatedParameters as $paramName => $paramValue) {
+            if (is_array($inputOutputFields[$paramName])) {
+                if (! is_array($paramValue)) {
+                    // for phpstan, should not happen.
+                    continue;
+                }
+                foreach ($paramValue as $groupIndex => $groupedParams) {
+                    if (isset($groupedParams['type']) && $groupedParams['type'] === 'password') {
+                        /** @var array{type:string,name:string,value:string|int} $groupedParams */
+                        $vaultKey = implode('_', [$inputOutput->getName(), $paramName, $groupedParams['name']]);
+                        $vaultPaths = $this->writeVaultRepository->upsert(
+                            $this->uuid,
+                            [$vaultKey => $groupedParams['value']],
+                            []
+                        );
+                        $vaultPath = $vaultPaths[$vaultKey];
+                        $this->uuid ??= $this->getUuidFromPath($vaultPath);
+                        /** @var array<array<array{value:string}>> $updatedParameters */
+                        $updatedParameters[$paramName][$groupIndex]['value'] = $vaultPath;
+                    }
+                }
+            } elseif (
+                array_key_exists($paramName, $inputOutputFields)
+                && $inputOutputFields[$paramName]->getType() === 'password'
+            ) {
+                if (! is_string($paramValue) && ! is_int($paramValue)) {
+                    // for phpstan, should not happen.
+                    continue;
+                }
+                $vaultKey = implode('_', [$inputOutput->getName(), $paramName]);
+                $vaultPaths = $this->writeVaultRepository->upsert($this->uuid, [$vaultKey => $paramValue], []);
+                $vaultPath = $vaultPaths[$vaultKey];
+                $this->uuid ??= $this->getUuidFromPath($vaultPath);
+                $updatedParameters[$paramName] = $vaultPath;
+            }
+        }
+
+        return new NewBrokerInputOutput(
+            tag: $inputOutput->getTag(),
+            type: $inputOutput->getType(),
+            name: $inputOutput->getName(),
+            parameters: $updatedParameters,
         );
     }
 }

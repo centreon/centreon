@@ -1,12 +1,12 @@
-import { TestQueryProvider, Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { buildNotificationsEndpoint } from '../Listing/api/endpoints';
-import { labelSearch } from '../translatedLabels';
 import {
   defaultQueryParams,
   getListingResponse
 } from '../Listing/Tests/testUtils';
+import { buildNotificationsEndpoint } from '../Listing/api/endpoints';
 import useLoadingNotifications from '../Listing/useLoadNotifications';
+import { labelSearch } from '../translatedLabels';
 
 import Filter from '.';
 
@@ -66,7 +66,7 @@ describe('Filter', () => {
 
     cy.findByPlaceholderText(labelSearch).clear().type('foobar');
 
-    cy.waitForRequest(`@requestWithSearchQuery`);
+    cy.waitForRequest('@requestWithSearchQuery');
 
     cy.waitForRequestAndVerifyQueries({
       queries: [

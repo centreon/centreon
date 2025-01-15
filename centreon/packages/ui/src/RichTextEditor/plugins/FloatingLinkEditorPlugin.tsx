@@ -1,30 +1,30 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { mergeRegister } from '@lexical/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   $getSelection,
   $isRangeSelection,
   $isTextNode,
   LexicalEditor
 } from 'lexical';
-import { mergeRegister } from '@lexical/utils';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
-import { useTranslation } from 'react-i18next';
 import { dec, equals, gt, isNil, replace } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { Popper, IconButton, Paper, Link, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import { Box, IconButton, Link, Paper, Popper } from '@mui/material';
 
-import { getSelectedNode } from '../utils/getSelectedNode';
-import { getDOMRangeRect } from '../utils/getDOMRangeRect';
-import { editLinkModeAtom, isInsertingLinkAtom, linkValueAtom } from '../atoms';
 import InputField from '../../InputField/Text';
+import { editLinkModeAtom, isInsertingLinkAtom, linkValueAtom } from '../atoms';
 import {
+  labelEditLink,
   labelInputLink,
-  labelSavedLink,
-  labelEditLink
+  labelSavedLink
 } from '../translatedLabels';
+import { getDOMRangeRect } from '../utils/getDOMRangeRect';
+import { getSelectedNode } from '../utils/getSelectedNode';
 
 interface FloatingLinkEditorPluginProps {
   editable: boolean;

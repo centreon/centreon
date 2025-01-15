@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { isEmpty, isNil, filter, pipe, map, split, join } from 'ramda';
+import { filter, isEmpty, isNil, join, map, pipe, split } from 'ramda';
 
 import { getFoundFields, useLocaleDateTimeFormat } from '@centreon/ui';
 

@@ -34,6 +34,11 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class Hostgroup
+ */
 class Hostgroup extends AbstractObject
 {
     private const TAG_TYPE = 'hostgroup';
@@ -42,9 +47,13 @@ class Hostgroup extends AbstractObject
     private const TAG_FILENAME = 'tags.cfg';
     private const TAG_OBJECT_NAME = 'tag';
 
-    private $hg = array();
+    /** @var array */
+    private $hg = [];
+    /** @var string */
     protected $generate_filename = self::HOSTGROUP_FILENAME;
-    protected $object_name = self::HOSTGROUP_OBJECT_NAME;
+    /** @var string */
+    protected string $object_name = self::HOSTGROUP_OBJECT_NAME;
+    /** @var string */
     protected $attributes_select = '
         hg_id,
         hg_name as hostgroup_name,
@@ -53,9 +62,16 @@ class Hostgroup extends AbstractObject
         hg_notes_url as notes_url,
         hg_action_url as action_url
     ';
+    /** @var null */
     protected $stmt_hg = null;
 
-    private function getHostgroupFromId($hg_id)
+    /**
+     * @param $hg_id
+     *
+     * @return void
+     * @throws PDOException
+     */
+    private function getHostgroupFromId($hg_id): void
     {
         if (is_null($this->stmt_hg)) {
             $this->stmt_hg = $this->backend_instance->db->prepare(
@@ -72,6 +88,14 @@ class Hostgroup extends AbstractObject
         }
     }
 
+    /**
+     * @param $hg_id
+     * @param $host_id
+     * @param $host_name
+     *
+     * @return int
+     * @throws PDOException
+     */
     public function addHostInHg($hg_id, $host_id, $host_name)
     {
         if (!isset($this->hg[$hg_id])) {
@@ -158,9 +182,12 @@ class Hostgroup extends AbstractObject
         }
     }
 
+    /**
+     * @return array
+     */
     public function getHostgroups()
     {
-        $result = array();
+        $result = [];
         foreach ($this->hg as $id => &$value) {
             if (is_null($value) || count($value['members']) == 0) {
                 continue;
@@ -170,21 +197,28 @@ class Hostgroup extends AbstractObject
         return $result;
     }
 
-    public function reset()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function reset(): void
     {
         parent::reset();
         foreach ($this->hg as &$value) {
             if (!is_null($value)) {
-                $value['members'] = array();
+                $value['members'] = [];
             }
         }
     }
 
+    /**
+     * @param $hg_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
     public function getString($hg_id, $attr)
     {
-        if (isset($this->hg[$hg_id][$attr])) {
-            return $this->hg[$hg_id][$attr];
-        }
-        return null;
+        return $this->hg[$hg_id][$attr] ?? null;
     }
 }

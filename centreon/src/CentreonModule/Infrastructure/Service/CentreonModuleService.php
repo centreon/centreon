@@ -60,7 +60,7 @@ class CentreonModuleService
             $sources = [];
 
             foreach ($this->sources as $type => $source) {
-                if (! in_array($type, $typeList)) {
+                if (! in_array($type, $typeList) && ! $installed) {
                     continue;
                 }
 

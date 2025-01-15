@@ -1,0 +1,2828 @@
+{
+	"info": {
+		"_postman_id": "51bef760-fc31-46e6-8655-5952d7fd2444",
+		"name": "UserFilter",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-51bef760-fc31-46e6-8655-5952d7fd2444?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "Manage filters with admin user",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"There is no existing filter.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result).to.be.an('Array').that.is.empty;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The new filter is successfully created with the name '\" + pm.collectionVariables.get(\"Filter1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    pm.collectionVariables.set(\"Filter1Id\", responseJson.id);\r",
+									"    pm.collectionVariables.set(\"Filter1Order\", responseJson.order);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter1Name\"),\r",
+									"        \"criterias\": [{\r",
+									"            \"name\": \"resource_types\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"service\",\r",
+									"                    \"name\": \"Service\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        },\r",
+									"        {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter1Order\")\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"Filter1Name\", \"my_filter_1\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_1\",\r\n    \"criterias\": [\r\n    {\r\n        \"name\": \"resource_types\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"service\",\r\n                \"name\": \"Service\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"name\": \"statuses\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"DOWN\",\r\n                \"name\": \"Down\"\r\n            }\r\n        ]\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a filter with a duplicated name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The filter has not been created, because the name already exists'.\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"    \r",
+									"    pm.expect(responseJson.message).to.eql(\"Filter already exists\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_1\",\r\n    \"criterias\": [\r\n    {\r\n        \"name\": \"name1\",\r\n        \"value\": \"value1\",\r\n        \"type\": \"type1\"\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter1Name\"),\r",
+									"        \"criterias\": [{\r",
+									"            \"name\": \"resource_types\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"service\",\r",
+									"                    \"name\": \"Service\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        },\r",
+									"        {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter1Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a second filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The new filter is successfully created with the name '\" + pm.collectionVariables.get(\"Filter2Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    pm.collectionVariables.set(\"Filter2Id\", responseJson.id);\r",
+									"    pm.collectionVariables.set(\"Filter2Order\", responseJson.order);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter2Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name1\",\r",
+									"            \"type\": \"type1\",\r",
+									"            \"value\": \"value1\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter2Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"Filter2Name\", \"my_filter_2\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_2\",\r\n    \"criterias\": [\r\n        {\r\n          \"name\": \"name1\",\r\n          \"value\": \"value1\",\r\n          \"type\": \"type1\"\r\n        }\r\n      ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List one filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter2Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name1\",\r",
+									"            \"type\": \"type1\",\r",
+									"            \"value\": \"value1\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter2Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter2Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter2Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The new filter is successfully updated with the name '\" + pm.collectionVariables.get(\"Filter1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter1Name\"),\r",
+									"        \"criterias\": [\r",
+									"            {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"id\": \"UNREACHABLE\",\r",
+									"                    \"name\": \"Unreachable\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }\r",
+									"        ],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter1Order\")\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"Filter1Name\", \"my_filter_1\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_1\",\r\n    \"criterias\": [{\r\n        \"name\": \"statuses\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"DOWN\",\r\n                \"name\": \"Down\"\r\n            },\r\n            {\r\n                \"id\": \"UNREACHABLE\",\r\n                \"name\": \"Unreachable\"\r\n            }],\r\n        \"object_type\": null,\r\n        \"search_data\": null\r\n    }]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter1Name\"),\r",
+									"        \"criterias\": [\r",
+									"            {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"id\": \"UNREACHABLE\",\r",
+									"                    \"name\": \"Unreachable\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter1Order\"),\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter2Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name1\",\r",
+									"            \"type\": \"type1\",\r",
+									"            \"value\": \"value1\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter2Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The new filter is successfully updated with the name '\" + pm.collectionVariables.get(\"Filter2Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    pm.collectionVariables.set(\"Filter1Order\", pm.collectionVariables.get(\"Filter2Order\"));\r",
+									"    pm.collectionVariables.set(\"Filter2Order\", responseJson.order);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter2Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name1\",\r",
+									"            \"type\": \"type1\",\r",
+									"            \"value\": \"value1\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter2Order\")\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"Filter1Name\", \"my_filter_1\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"order\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter2Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter2Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter2Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name1\",\r",
+									"            \"type\": \"type1\",\r",
+									"            \"value\": \"value1\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter2Order\"),\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter1Name\"),\r",
+									"        \"criterias\": [\r",
+									"            {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"id\": \"UNREACHABLE\",\r",
+									"                    \"name\": \"Unreachable\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter1Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Filter1Order\", \"1\");\r",
+									"\r",
+									"    pm.collectionVariables.unset(\"Filter2Id\");\r",
+									"    pm.collectionVariables.unset(\"Filter2Name\");\r",
+									"    pm.collectionVariables.unset(\"Filter2Order\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter2Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter2Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter1Name\"),\r",
+									"        \"criterias\": [\r",
+									"            {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"id\": \"UNREACHABLE\",\r",
+									"                    \"name\": \"Unreachable\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": parseInt(pm.collectionVariables.get(\"Filter1Order\")),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"    pm.collectionVariables.unset(\"Filter1Id\");\r",
+									"    pm.collectionVariables.unset(\"Filter1Name\");\r",
+									"    pm.collectionVariables.unset(\"Filter1Order\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter1Id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Manage filters with non-admin user with RW rights",
+			"item": [
+				{
+					"name": "Add user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test;user-test;user-test@localhost;Centreon!1234;0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test;reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link user to ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ALL;user-test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Menu",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"Monitoring-user;Monitoring-user\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Grant RW right",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"Monitoring-user;1;Monitoring\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Monitoring-user to ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ALL;Monitoring-user\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(\"user-test\");\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"user-test\",\r\n      \"password\": \"Centreon!1234\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"There is no existing filter.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result).to.be.an('Array').that.is.empty;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a third filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The new filter is successfully created with the name '\" + pm.collectionVariables.get(\"Filter3Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    pm.collectionVariables.set(\"Filter3Id\", responseJson.id);\r",
+									"    pm.collectionVariables.set(\"Filter3Order\", responseJson.order);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter3Name\"),\r",
+									"        \"criterias\": [{\r",
+									"            \"name\": \"resource_types\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"service\",\r",
+									"                    \"name\": \"Service\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        },\r",
+									"        {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter3Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"Filter3Name\", \"my_filter_3\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_3\",\r\n    \"criterias\": [\r\n    {\r\n        \"name\": \"resource_types\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"service\",\r\n                \"name\": \"Service\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"name\": \"statuses\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"DOWN\",\r\n                \"name\": \"Down\"\r\n            }\r\n        ]\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter3Name\"),\r",
+									"        \"criterias\": [{\r",
+									"            \"name\": \"resource_types\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"service\",\r",
+									"                    \"name\": \"Service\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        },\r",
+									"        {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter3Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a fourth filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The new filter is successfully created with the name '\" + pm.collectionVariables.get(\"Filter4Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    pm.collectionVariables.set(\"Filter4Id\", responseJson.id);\r",
+									"    pm.collectionVariables.set(\"Filter4Order\", responseJson.order);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter4Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name4\",\r",
+									"            \"type\": \"type4\",\r",
+									"            \"value\": \"value4\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter4Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"Filter4Name\", \"my_filter_4\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_4\",\r\n    \"criterias\": [\r\n        {\r\n          \"name\": \"name4\",\r\n          \"value\": \"value4\",\r\n          \"type\": \"type4\"\r\n        }\r\n      ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List one filter ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter4Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name4\",\r",
+									"            \"type\": \"type4\",\r",
+									"            \"value\": \"value4\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter4Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a filter ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The new filter is successfully updated with the name '\" + pm.collectionVariables.get(\"Filter3Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter3Name\"),\r",
+									"        \"criterias\": [\r",
+									"            {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"id\": \"UNREACHABLE\",\r",
+									"                    \"name\": \"Unreachable\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }\r",
+									"        ],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter3Order\")\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_3\",\r\n    \"criterias\": [{\r\n        \"name\": \"statuses\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"DOWN\",\r\n                \"name\": \"Down\"\r\n            },\r\n            {\r\n                \"id\": \"UNREACHABLE\",\r\n                \"name\": \"Unreachable\"\r\n            }],\r\n        \"object_type\": null,\r\n        \"search_data\": null\r\n    }]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter3Name\"),\r",
+									"        \"criterias\": [\r",
+									"            {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"id\": \"UNREACHABLE\",\r",
+									"                    \"name\": \"Unreachable\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter3Order\"),\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter4Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name4\",\r",
+									"            \"type\": \"type4\",\r",
+									"            \"value\": \"value4\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter4Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a filter ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The filter is successfully updated with the name '\" + pm.collectionVariables.get(\"Filter4Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    pm.collectionVariables.set(\"Filter3Order\", pm.collectionVariables.get(\"Filter4Order\"));\r",
+									"    pm.collectionVariables.set(\"Filter4Order\", responseJson.order);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter4Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name4\",\r",
+									"            \"type\": \"type4\",\r",
+									"            \"value\": \"value4\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter4Order\")\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"order\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter4Name\"),\r",
+									"        \"criterias\": [\r",
+									"        {\r",
+									"            \"name\": \"name4\",\r",
+									"            \"type\": \"type4\",\r",
+									"            \"value\": \"value4\",\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter4Order\"),\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter3Name\"),\r",
+									"        \"criterias\": [\r",
+									"            {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"id\": \"UNREACHABLE\",\r",
+									"                    \"name\": \"Unreachable\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter3Order\"),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a filter ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Filter3Order\", \"1\");\r",
+									"\r",
+									"    pm.collectionVariables.unset(\"Filter4Id\");\r",
+									"    pm.collectionVariables.unset(\"Filter4Name\");\r",
+									"    pm.collectionVariables.unset(\"Filter4Order\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter3Name\"),\r",
+									"        \"criterias\": [\r",
+									"            {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"id\": \"UNREACHABLE\",\r",
+									"                    \"name\": \"Unreachable\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": parseInt(pm.collectionVariables.get(\"Filter3Order\")),\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The list of filter is displayed.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"\r",
+									"    pm.collectionVariables.unset(\"Filter3Id\");\r",
+									"    pm.collectionVariables.unset(\"Filter3Name\");\r",
+									"    pm.collectionVariables.unset(\"Filter3Order\");\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user-test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Manage filters with non-admin user without rights",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test-no-access;user-test-no-access;user-test@localhost;Centreon!1234;0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test-no-access;reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The new filter is successfully created with the name '\" + pm.collectionVariables.get(\"Filter5Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    \r",
+									"    pm.collectionVariables.set(\"Filter5Id\", responseJson.id);\r",
+									"    pm.collectionVariables.set(\"Filter5Order\", responseJson.order);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Filter5Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Filter5Name\"),\r",
+									"        \"criterias\": [{\r",
+									"            \"name\": \"resource_types\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"service\",\r",
+									"                    \"name\": \"Service\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        },\r",
+									"        {\r",
+									"            \"name\": \"statuses\",\r",
+									"            \"type\": \"multi_select\",\r",
+									"            \"value\": [\r",
+									"                {\r",
+									"                    \"id\": \"DOWN\",\r",
+									"                    \"name\": \"Down\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"object_type\": null,\r",
+									"            \"search_data\": null\r",
+									"        }],\r",
+									"        \"order\": pm.collectionVariables.get(\"Filter5Order\")\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"Filter5Name\", \"my_filter_5\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_5\",\r\n    \"criterias\": [\r\n    {\r\n        \"name\": \"resource_types\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"service\",\r\n                \"name\": \"Service\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"name\": \"statuses\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"DOWN\",\r\n                \"name\": \"Down\"\r\n            }\r\n        ]\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-test-no-access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(\"user-test-no-access\");\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"user-test-no-access\",\r\n      \"password\": \"Centreon!1234\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List existing filters ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have access to the Resources Status page.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access the Resources Status page\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a filter ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The new filter has not been created because the user does not have access to the page.\", function () {\r",
+									"        pm.response.to.have.status(403);\r",
+									"\r",
+									"        pm.expect(responseJson.message).to.eql(\"You are not allowed to access the Resources Status page\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_5\",\r\n    \"criterias\": [\r\n    {\r\n        \"name\": \"resource_types\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"service\",\r\n                \"name\": \"Service\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"name\": \"statuses\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"DOWN\",\r\n                \"name\": \"Down\"\r\n            }\r\n        ]\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List one filter ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The filter has not been listed because the user does not have access to the page.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access the Resources Status page\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a filter ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The filter has not been updated because the user does not have access to the page.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access the Resources Status page\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"my_filter_3\",\r\n    \"criterias\": [{\r\n        \"name\": \"statuses\",\r\n        \"type\": \"multi_select\",\r\n        \"value\": [\r\n            {\r\n                \"id\": \"DOWN\",\r\n                \"name\": \"Down\"\r\n            }\r\n        ],\r\n        \"object_type\": null,\r\n        \"search_data\": null\r\n    }]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a filter ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The filter has not been updated because the user does not have access to the page.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access the Resources Status page\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"order\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a filter ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The filter has not been deleted because the user does not have access to the page.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access the Resources Status page\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/filters/events-view/{{Filter5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"filters",
+								"events-view",
+								"{{Filter5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user-test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

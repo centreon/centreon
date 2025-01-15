@@ -1,42 +1,45 @@
 import { Provider, createStore } from 'jotai';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
+import Form from '..';
+import { panelWidthStorageAtom } from '../../atom';
 import {
-  labelDelete,
-  labelSave,
-  labelDuplicate,
   labelActiveOrInactive,
   labelChangeName,
+  labelClosePanel,
+  labelDelete,
+  labelDoYouWantToQuitWithoutSaving,
+  labelDuplicate,
+  labelNotificationName,
+  labelSave,
+  labelSearchBusinessViews,
+  labelSearchContacts,
   labelSearchHostGroups,
   labelSearchServiceGroups,
-  labelSuccessfulNotificationAdded,
-  labelClosePanel,
-  labelDoYouWantToQuitWithoutSaving,
-  labelYourFormHasUnsavedChanges,
-  labelNotificationName,
+  labelSelectTimePeriod,
   labelSubject,
-  labelSearchBusinessViews,
-  labelSearchContacts
+  labelSuccessfulNotificationAdded,
+  labelYourFormHasUnsavedChanges
 } from '../../translatedLabels';
-import { panelWidthStorageAtom } from '../../atom';
-import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
+  availableTimePeriodsEndpoint,
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
-import Form from '..';
 import { defaultEmailSubject } from '../utils';
 
 import {
-  usersResponse,
-  hostGroupsResponse,
-  serviceGroupsResponse,
-  platformVersions,
+  emailBodyText,
   formData,
-  emailBodyText
+  hostGroupsResponse,
+  platformVersions,
+  serviceGroupsResponse,
+  timePeriodsResponse,
+  usersResponse
 } from './testUtils';
 
 const store = createStore();
@@ -85,6 +88,13 @@ const initialize = (): void => {
     response: usersResponse
   });
 
+  cy.interceptAPIRequest({
+    alias: 'getAvailableTimePeriodEndpoint',
+    method: Method.GET,
+    path: `${availableTimePeriodsEndpoint}**`,
+    response: timePeriodsResponse
+  });
+
   cy.viewport('macbook-13');
 
   cy.mount({
@@ -101,6 +111,10 @@ const fillFormRequiredFields = (): void => {
   cy.findByLabelText(labelSearchServiceGroups).click();
   cy.waitForRequest('@getServiceGroupsEndpoint');
   cy.findByText('MySQL-Servers').click();
+
+  cy.findByLabelText(labelSelectTimePeriod).click();
+  cy.waitForRequest('@getAvailableTimePeriodEndpoint');
+  cy.findByText('24X7').click();
 
   cy.findByLabelText(labelSearchContacts).click();
   cy.waitForRequest('@getUsersEndpoint');

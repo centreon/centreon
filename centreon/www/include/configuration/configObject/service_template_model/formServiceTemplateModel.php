@@ -370,6 +370,23 @@ if ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
     $checkCommandSelect->addJsCallback('change', 'changeCommand(this.value);');
 }
 
+$serviceEHE = [
+        $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
+        $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
+        $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
+];
+$form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
+    $form->setDefaults(['service_event_handler_enabled' => '2']);
+}
+
+$eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
+$eventHandlerSelect->addJsCallback(
+        'change',
+        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+);
+$form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsTextLong);
+
 if (! $isCloudPlatform) {
     $serviceIV = [
         $form->createElement('radio', 'service_is_volatile', null, _('Yes'), '1'),
@@ -380,22 +397,6 @@ if (! $isCloudPlatform) {
     if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
         $form->setDefaults(['service_is_volatile' => '2']);
     }
-    $serviceEHE = [
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
-    ];
-    $form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-        $form->setDefaults(['service_event_handler_enabled' => '2']);
-    }
-
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
-    $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
-    $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsTextLong);
 
     $serviceACE = [
         $form->createElement('radio', 'service_active_checks_enabled', null, _('Yes'), '1'),
@@ -905,11 +906,7 @@ if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
         );
     }
 } elseif ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-    if ($form->getSubmitValue('submitMC')) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
 }
 
 $argChecker = $form->addElement('hidden', 'argChecker');
@@ -1017,11 +1014,7 @@ if ($form->validate() && $from_list_menu === false) {
         }
     }
     $action = $form->getSubmitValue('action');
-    if ($action !== null && ! $action['action']['action']) {
-        $o = SERVICE_TEMPLATE_WATCH;
-    } else {
-        $o = null;
-    }
+    $o = $action !== null && ! $action['action']['action'] ? SERVICE_TEMPLATE_WATCH : null;
     $valid = true;
 } elseif ($form->isSubmitted()) {
     $tpl->assign('argChecker', "<font color='red'>" . $form->getElementError('argChecker') . '</font>');

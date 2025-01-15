@@ -5,15 +5,15 @@ import { not } from 'ramda';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-import { labelBackward, labelForward } from '../../../../translatedLabels';
 import memoizeComponent from '../../../../memoizedComponent';
+import { labelBackward, labelForward } from '../../../../translatedLabels';
 
-import TimeShiftZone, { timeShiftZoneWidth } from './Zone';
 import TimeShiftIcon, { timeShiftIconSize } from './Icon';
+import TimeShiftZone, { timeShiftZoneWidth } from './Zone';
 
 export enum TimeShiftDirection {
-  backward,
-  forward
+  backward = 0,
+  forward = 1
 }
 
 interface TimeShiftContextProps {

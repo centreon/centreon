@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unused-prop-types */
 
-import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -9,10 +9,10 @@ import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelAuthor,
-  labelFixed,
-  labelStartTime,
+  labelComment,
   labelEndTime,
-  labelComment
+  labelFixed,
+  labelStartTime
 } from '../../../../translatedLabels';
 
 import DetailsTable, { getYesNoLabel } from '.';

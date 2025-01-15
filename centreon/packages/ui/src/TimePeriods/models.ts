@@ -1,14 +1,14 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import dayjs from 'dayjs';
 
 import {
-  labelLastDay,
   label1Day,
   label7Days,
   label31Days,
   labelLast7Days,
-  labelLast31Days
+  labelLast31Days,
+  labelLastDay
 } from './translatedLabels';
 
 export const dateFormat = 'L';
@@ -98,7 +98,7 @@ export interface EndStartInterval {
   start: string;
 }
 
-interface Parameters extends EndStartInterval {
+export interface Parameters extends EndStartInterval {
   timelineEventsLimit: number;
 }
 
@@ -109,4 +109,5 @@ export interface WrapperTimePeriodProps {
   getIsError?: (value: boolean) => void;
   getParameters?: ({ start, end, timelineEventsLimit }: Parameters) => void;
   renderExternalComponent?: ReactNode;
+  skeletonHeight?: number;
 }

@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
 
-import { type, equals } from 'ramda';
+import { equals, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { Typography } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
 

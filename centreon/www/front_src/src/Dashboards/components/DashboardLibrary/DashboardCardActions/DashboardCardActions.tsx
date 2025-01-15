@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
 
-import { Menu } from '@mui/material';
 import {
   Delete as DeleteIcon,
-  Settings as SettingsIcon,
-  Share as ShareIcon,
   ContentCopy as DuplicateIcon,
-  MoreHoriz as MoreIcon
+  MoreHoriz as MoreIcon,
+  Settings as SettingsIcon,
+  Share as ShareIcon
 } from '@mui/icons-material';
+import { Menu } from '@mui/material';
 
 import {
   ActionsList,
@@ -26,17 +26,18 @@ import {
   labelMoreActions
 } from '../DashboardListing/translatedLabels';
 
+import FavoriteAction from '../DashboardListing/Actions/favoriteAction';
 import { useStyles } from './DashboardCardActions.styles';
 import useDashboardCardActions from './useDashboardCardActions';
 
 interface Props {
   dashboard: Dashboard;
+  refetch?: () => void;
 }
 
-const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
+const DashboardCardActions = ({ dashboard, refetch }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-
   const {
     moreActionsOpen,
     openDeleteModal,
@@ -57,6 +58,11 @@ const DashboardCardActions = ({ dashboard }: Props): JSX.Element => {
 
   return (
     <div className={classes.container}>
+      <FavoriteAction
+        dashboardId={dashboard.id as number}
+        isFavorite={dashboard?.isFavorite as boolean}
+        refetch={refetch}
+      />
       <IconButton
         ariaLabel={labels.labelShareWithContacts}
         title={labels.labelShareWithContacts}

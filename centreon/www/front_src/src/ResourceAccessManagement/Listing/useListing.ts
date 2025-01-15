@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
 
-import { equals, prop } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, prop } from 'ramda';
 
 import { Column, useFetchQuery } from '@centreon/ui';
 
-import {
-  resourceAccessManagementSearchAtom,
-  selectedRowsAtom,
-  resourceAccessRulesNamesAtom,
-  editedResourceAccessRuleIdAtom,
-  modalStateAtom
-} from '../atom';
-import {
-  ResourceAccessRuleType,
-  ResourceAccessRuleListingType,
-  ModalMode
-} from '../models';
-import type { SortOrder } from '../models';
 import { resourceAccessRuleDecoder } from '../AddEditResourceAccessRule/api/decoders';
 import { resourceAccessRuleEndpoint } from '../AddEditResourceAccessRule/api/endpoints';
+import {
+  editedResourceAccessRuleIdAtom,
+  modalStateAtom,
+  resourceAccessManagementSearchAtom,
+  resourceAccessRulesNamesAtom,
+  selectedRowsAtom
+} from '../atom';
+import {
+  ModalMode,
+  ResourceAccessRuleListingType,
+  ResourceAccessRuleType
+} from '../models';
+import type { SortOrder } from '../models';
 
 import { listingDecoder } from './api/decoders';
 import { buildResourceAccessRulesEndpoint } from './api/endpoints';

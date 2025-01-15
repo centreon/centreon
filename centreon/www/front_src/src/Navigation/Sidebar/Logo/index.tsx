@@ -1,14 +1,14 @@
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { IconButton, Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
 
+import centreonLogoWhiteMini from '../../../assets/centreon-logo-white-mini.svg';
+import centreonLogoWhite from '../../../assets/centreon-logo-white.svg';
 import {
   labelCentreonLogo,
   labelMiniCentreonLogo
 } from '../../translatedLabels';
-import centreonLogoWhite from '../../../assets/centreon-logo-white.svg';
-import centreonLogoWhiteMini from '../../../assets/centreon-logo-white-mini.svg';
 
 interface Props {
   isMiniLogo: boolean;

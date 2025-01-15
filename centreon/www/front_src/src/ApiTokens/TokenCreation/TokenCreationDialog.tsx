@@ -1,8 +1,14 @@
 import { Formik } from 'formik';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { number, object, string } from 'yup';
 
-import { CreateTokenFormValues } from '../TokenListing/models';
+import { userAtom } from '@centreon/ui-context';
+
+import {
+  CreateTokenFormValues,
+  PersonalInformation
+} from '../TokenListing/models';
 import { labelFieldRequired } from '../translatedLabels';
 import useRefetch from '../useRefetch';
 
@@ -22,6 +28,7 @@ const TokenCreationDialog = ({
   const { t } = useTranslation();
   const { createToken, data, isMutating } = useCreateToken();
   const { isRefetching } = useRefetch({ key: (data as CreatedToken)?.token });
+  const currentUser = useAtomValue(userAtom);
 
   const msgError = t(labelFieldRequired);
 
@@ -49,7 +56,9 @@ const TokenCreationDialog = ({
         customizeDate: null,
         duration: null,
         tokenName: '',
-        user: null
+        user: currentUser.canManageApiTokens
+          ? null
+          : (currentUser as PersonalInformation)
       }}
       validationSchema={validationForm}
       onSubmit={submit}

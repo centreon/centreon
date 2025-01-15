@@ -1,0 +1,7 @@
+UpdateAdditionalConnectorConfiguration:
+  methods: PUT
+  path: /configuration/additional-connector-configurations/{id}
+  requirements:
+    id: '\d+'
+  controller: 'Core\AdditionalConnectorConfiguration\Infrastructure\API\UpdateAcc\UpdateAccController'
+  condition: "request.attributes.get('version') >= 24.09"

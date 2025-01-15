@@ -33,14 +33,10 @@
  *
  */
 
-set_include_path(implode(PATH_SEPARATOR, array(
-    realpath(__DIR__ . '/www/class'),
-    realpath(__DIR__ . '/www/lib'),
-    get_include_path()
-)));
+set_include_path(implode(PATH_SEPARATOR, [realpath(__DIR__ . '/www/class'), realpath(__DIR__ . '/www/lib'), get_include_path()]));
 
 // Centreon Autoload
-spl_autoload_register(function ($sClass) {
+spl_autoload_register(function ($sClass): void {
     $fileName = lcfirst($sClass);
     $fileNameType1 = __DIR__ . "/www/class/" . $fileName . ".class.php";
     $fileNameType2 = __DIR__ . "/www/class/" . $fileName . ".php";
@@ -62,5 +58,8 @@ function loadDependencyInjector()
 $loader = require __DIR__ . '/vendor/autoload.php';
 
 Doctrine\Common\Annotations\AnnotationRegistry::registerLoader([$loader, 'loadClass']);
+
+// Retrieving Symfony environment variables for legacy code (APIv1,...)
+(new Symfony\Component\Dotenv\Dotenv())->bootEnv(__DIR__ . '/.env');
 
 require_once __DIR__ . "/container.php";

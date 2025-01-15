@@ -1,34 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { isNil, isEmpty, values } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
+import { isEmpty, isNil, values } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { Typography, FormControlLabel, Checkbox } from '@mui/material';
+import { Checkbox, FormControlLabel, Typography } from '@mui/material';
 import Radio from '@mui/material/Radio';
 
-import { postData, useRequest, TextField, SelectField } from '@centreon/ui';
+import { SelectField, TextField, postData, useRequest } from '@centreon/ui';
 
-import { setRemoteServerWizardDerivedAtom } from '../pollerAtoms';
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
+import { remoteServerWaitListEndpoint } from '../api/endpoints';
+import WizardButtons from '../forms/wizardButtons';
+import { Props, WaitList, WizardButtonsTypes } from '../models';
+import { setRemoteServerWizardDerivedAtom } from '../pollerAtoms';
 import {
   labelCentreonCentralIp,
   labelCentreonFolder,
+  labelCheckCertificate,
   labelCreateRemoteServer,
   labelDbPassword,
   labelDbUser,
-  labelServerName,
   labelDoNotUseConfiguredProxy,
+  labelRequired,
   labelSelectRemoteLinks,
   labelSelectRemoteServer,
-  labelServerIp,
-  labelCheckCertificate,
   labelServerConfiguration,
-  labelRequired
+  labelServerIp,
+  labelServerName
 } from '../translatedLabels';
-import { Props, WaitList, WizardButtonsTypes } from '../models';
-import WizardButtons from '../forms/wizardButtons';
-import { remoteServerWaitListEndpoint } from '../api/endpoints';
 
 interface RemoteServerStepOneFormData {
   centreon_central_ip: string;

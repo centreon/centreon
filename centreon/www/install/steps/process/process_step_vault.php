@@ -72,7 +72,6 @@ try {
         );
     $vaultConfiguration = new \Core\Security\Vault\Domain\Model\NewVaultConfiguration(
         $encryption,
-        'hashicorp_vault',
         $parameters['address'],
         (int) $parameters['port'],
         $parameters['root_path'],
@@ -87,7 +86,7 @@ try {
     $err['connection_error'] = "Unable to create vault configuration";
 }
 
-if (!count($err['required'])  && trim($err['connection_error']) == '') {
+if ($err['required'] === []  && trim($err['connection_error']) == '') {
     $step = new \CentreonLegacy\Core\Install\Step\Step6Vault($dependencyInjector);
     $step->setVaultConfiguration($parameters);
 }

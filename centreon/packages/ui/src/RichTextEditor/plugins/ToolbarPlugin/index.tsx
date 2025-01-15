@@ -2,13 +2,13 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Divider } from '@mui/material';
 
-import FormatButtons from './FormatButtons';
-import UndoRedoButtons from './UndoRedoButtons';
-import MacrosButton from './MacrosButton';
 import AlignPicker from './AlignPicker';
-import ListButton from './ListButton';
-import LinkButton from './LinkButton';
 import BlockButtons from './BlockButtons';
+import FormatButtons from './FormatButtons';
+import LinkButton from './LinkButton';
+import ListButton from './ListButton';
+import MacrosButton from './MacrosButton';
+import UndoRedoButtons from './UndoRedoButtons';
 
 interface Props {
   className?: string;

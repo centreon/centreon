@@ -11,6 +11,9 @@ export {
   platformFeaturesAtom,
   featureFlagsDerivedAtom
 } from './platformFeauresAtom';
+
+export { platformVersionsAtom } from './platformVersionsAtom';
+
 export { isOnPublicPageAtom } from './isOnPublicPageAtom';
 export { additionalResourcesAtom } from './additionalResources';
 export {

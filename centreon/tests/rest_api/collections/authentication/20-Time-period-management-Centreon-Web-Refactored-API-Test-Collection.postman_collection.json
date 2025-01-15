@@ -1050,7 +1050,7 @@
 									"const nextRequestInCaseOfFailure = null\r",
 									"\r",
 									"pm.test(\"Time periods with empty names cannot be added.\", function () {\r",
-									"    const expectedResponseCode = 400\r",
+									"    const expectedResponseCode = 422\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"});"
@@ -1071,6 +1071,10 @@
 					"request": {
 						"method": "POST",
 						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}"

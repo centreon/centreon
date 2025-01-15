@@ -2,7 +2,7 @@ import { MutableRefObject, useRef } from 'react';
 
 import { equals, isNil } from 'ramda';
 
-import { margin } from '../../LineChart/common';
+import { margin } from '../../Chart/common';
 
 export const extraMargin = 10;
 
@@ -10,6 +10,7 @@ interface UseComputeBaseChartDimensionsProps {
   hasSecondUnit?: boolean;
   height: number | null;
   legendDisplay?: boolean;
+  legendHeight?: number;
   legendPlacement?: string;
   width: number;
 }
@@ -25,14 +26,18 @@ export const useComputeBaseChartDimensions = ({
   height,
   legendDisplay,
   legendPlacement,
-  hasSecondUnit
+  hasSecondUnit,
+  legendHeight
 }: UseComputeBaseChartDimensionsProps): UseComputeBaseChartDimensionsState => {
   const legendRef = useRef<HTMLDivElement | null>(null);
+
+  const currentLegendHeight =
+    legendHeight ?? (legendRef.current?.getBoundingClientRect().height || 0);
 
   const legendBoundingHeight =
     !equals(legendDisplay, false) &&
     (isNil(legendPlacement) || equals(legendPlacement, 'bottom'))
-      ? legendRef.current?.getBoundingClientRect().height || 0
+      ? currentLegendHeight
       : 0;
   const legendBoundingWidth =
     !equals(legendDisplay, false) &&

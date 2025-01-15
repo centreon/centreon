@@ -1,15 +1,18 @@
-import { makeStyles } from 'tss-react/mui';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Container, Paper, Typography } from '@mui/material';
 
 import { CentreonLogo } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
-
-import Copyright from './Sections/Copyright';
 import SectionTitle from './SectionTitle';
+import Community from './Sections/Community';
+import Contributors from './Sections/Contibutors';
+import Copyright from './Sections/Copyright';
+import Developers from './Sections/Developers';
+import ProjectLeaders from './Sections/ProjectLeaders';
 import {
   labelCentreon,
   labelContributors,
@@ -18,10 +21,6 @@ import {
   labelProjectLeaders,
   labelSecurityAcknowledgement
 } from './translatedLabels';
-import Community from './Sections/Community';
-import ProjectLeaders from './Sections/ProjectLeaders';
-import Developers from './Sections/Developers';
-import Contributors from './Sections/Contibutors';
 
 const useStyles = makeStyles()((theme) => ({
   aboutContainer: {

@@ -1,40 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import Carousel from 'react-material-ui-carousel';
-import { useTranslation } from 'react-i18next';
 import { equals, isEmpty, length, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import Carousel from 'react-material-ui-carousel';
 
+import InstallIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
 import {
+  Button,
   Chip,
-  Typography,
+  CircularProgress,
   Divider,
   Grid,
-  Button,
   Link,
-  CircularProgress
+  Typography
 } from '@mui/material';
-import UpdateIcon from '@mui/icons-material/SystemUpdateAlt';
-import DeleteIcon from '@mui/icons-material/Delete';
-import InstallIcon from '@mui/icons-material/Add';
 
-import { Dialog, useRequest, getData, ParentSize } from '@centreon/ui';
+import { Dialog, ParentSize, getData, useRequest } from '@centreon/ui';
 
 import {
   labelAvailable,
-  labelDescription,
-  labelLastUpdate,
-  labelInstall,
   labelDelete,
+  labelDescription,
+  labelInstall,
+  labelLastUpdate,
   labelUpdate
 } from '../../translatedLabels';
-import { Entity, ExtensionDetails } from '../models';
 import { buildEndPoint } from '../api/endpoint';
+import { Entity, ExtensionDetails } from '../models';
 
 import {
-  SliderSkeleton,
-  HeaderSkeleton,
   ContentSkeleton,
-  ReleaseNoteSkeleton
+  HeaderSkeleton,
+  ReleaseNoteSkeleton,
+  SliderSkeleton
 } from './LoadingSkeleton';
 
 interface Props {

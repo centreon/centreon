@@ -1,11 +1,11 @@
 import { ChangeEvent } from 'react';
 
-import { useAtom } from 'jotai';
 import { useFormikContext } from 'formik';
+import { useAtom } from 'jotai';
 import { equals } from 'ramda';
 
-import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import { selectedDatasetFiltersAtom } from '../../../atom';
+import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
   labelAllBusinessViews,
   labelAllHostGroups,

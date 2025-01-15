@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { not, isNil } from 'ramda';
+import { isNil, not } from 'ramda';
 
 import { TimeValue } from '../models';
 

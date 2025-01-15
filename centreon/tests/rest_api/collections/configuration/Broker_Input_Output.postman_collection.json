@@ -1,0 +1,4393 @@
+{
+	"info": {
+		"_postman_id": "7496f453-806a-49ec-89ed-956a1bbd9745",
+		"name": "Broker_Input_Output",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-7496f453-806a-49ec-89ed-956a1bbd9745?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type IPv4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output1Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output1Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-1\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 3,\r",
+									"            \"name\": \"ipv4\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"port\": \"5670\",\r",
+									"            \"host\": \"localhost\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"public_cert\": \"\",\r",
+									"            \"tls\": \"no\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"negotiation\": \"no\",\r",
+									"            \"one_peer_retention_mode\": \"yes\",\r",
+									"            \"tls_hostname\": \"\",\r",
+									"            \"filters_category\": [\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-1\",\r\n  \"type\": 3,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type IPv6",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output2Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output2Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-2\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 10,\r",
+									"            \"name\": \"ipv6\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"port\": \"5670\",\r",
+									"            \"host\": \"localhost\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"public_cert\": \"\",\r",
+									"            \"tls\": \"no\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"negotiation\": \"no\",\r",
+									"            \"one_peer_retention_mode\": \"yes\",\r",
+									"            \"filters_category\": [\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-2\",\r\n  \"type\": 10,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output3Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output3Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-3\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 11,\r",
+									"            \"name\": \"file\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"path\": \"/some/random/path/\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"max_size\": \"512\",\r",
+									"            \"filters_category\": [\r",
+									"                \"correlation\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-3\",\r\n  \"type\": 11,\r\n  \"parameters\": {\r\n    \"path\": \"/some/random/path/\",\r\n    \"protocol\": \"bbdo\",\r\n    \"max_size\": 512,\r\n    \"filters_category\": [\"correlation\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type RRD file generator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output4Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output4Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-4\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 13,\r",
+									"            \"name\": \"rrd\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"metrics_path\": \"/some/random/path/\",\r",
+									"            \"status_path\": \"bbdo\",\r",
+									"            \"rrd_cached_option\": \"unix\",\r",
+									"            \"rrd_cached\": \"8090\",\r",
+									"            \"store_in_data_bin\": \"no\",\r",
+									"            \"write_metrics\": \"no\",\r",
+									"            \"insert_in_index_data\": \"2\",\r",
+									"            \"write_status\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-4\",\r\n  \"type\": 13,\r\n  \"parameters\": {\r\n    \"metrics_path\": \"/some/random/path/\",\r\n    \"status_path\": \"bbdo\",\r\n    \"rrd_cached_option\": \"unix\",\r\n    \"rrd_cached\": \"8090\",\r\n    \"store_in_data_bin\": \"no\",\r\n    \"write_metrics\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"write_status\": \"no\",\r\n    \"filters_category\": [\"dumper\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Perfdata generator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output5Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output5Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-5\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 14,\r",
+									"            \"name\": \"storage\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"interval\": \"120\",\r",
+									"            \"length\": \"155520000\",\r",
+									"            \"db_type\": \"mysql\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"connections_count\": \"2\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"storage\",\r",
+									"            \"queries_per_transaction\": \"500\",\r",
+									"            \"read_timeout\": \"3600\",\r",
+									"            \"check_replication\": \"yes\",\r",
+									"            \"rebuild_check_interval\": \"60\",\r",
+									"            \"store_in_data_bin\": \"no\",\r",
+									"            \"insert_in_index_data\": \"2\",\r",
+									"            \"filters_category\": [\r",
+									"                \"storage\", \r",
+									"                \"neb\", \r",
+									"                \"dumper\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-5\",\r\n  \"type\": 14,\r\n  \"parameters\": {\r\n    \"interval\": 120,\r\n    \"length\": 155520000,\r\n    \"db_type\": \"mysql\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"connections_count\": 2,\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 60,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"filters_category\": [\"storage\", \"neb\", \"dumper\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Broker SQL database",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output6Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output6Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-6\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 16,\r",
+									"            \"name\": \"sql\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"db_type\": \"oci\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"connections_count\": \"2\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"storage\",\r",
+									"            \"queries_per_transaction\": \"500\",\r",
+									"            \"read_timeout\": \"3600\",\r",
+									"            \"check_replication\": \"yes\",\r",
+									"            \"cleanup_check_interval\": \"60\",\r",
+									"            \"instance_timeout\": \"6000\",\r",
+									"            \"filters_category\": [\r",
+									"                \"storage\", \r",
+									"                \"dumper\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-6\",\r\n  \"type\": 16,\r\n  \"parameters\": {\r\n    \"db_type\": \"oci\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"connections_count\": 2,\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"cleanup_check_interval\": 60,\r\n    \"instance_timeout\": 6000,\r\n    \"filters_category\": [\"storage\", \"dumper\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Database configuration reader",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output7Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output7Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-7\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 28,\r",
+									"            \"name\": \"db_cfg_reader\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"db_type\": \"sqlite\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"storage\"\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-7\",\r\n  \"type\": 28,\r\n  \"parameters\": {\r\n    \"db_type\": \"sqlite\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Database configuration writer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output8Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output8Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-8\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 29,\r",
+									"            \"name\": \"db_cfg_writer\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"db_type\": \"tds\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"storage\"\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-8\",\r\n  \"type\": 29,\r\n  \"parameters\": {\r\n    \"db_type\": \"tds\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Storage - Graphite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output9Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output9Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-9\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 30,\r",
+									"            \"name\": \"graphite\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"queries_per_transaction\": \"10000\",\r",
+									"            \"metric_naming\": \"erroorrrrr\",\r",
+									"            \"status_naming\": \"try again\"\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-9\",\r\n  \"type\": 30,\r\n  \"parameters\": {\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"metric_naming\": \"erroorrrrr\",\r\n    \"status_naming\": \"try again\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Storage - InfluxDB",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output10Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output10Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-10\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 31,\r",
+									"            \"name\": \"influxdb\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"cache\": \"no\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"lol\",\r",
+									"            \"metrics_timeseries\": \"$METRIC$\",\r",
+									"            \"status_timeseries\": \"$INSTANCE$\",\r",
+									"            \"cache\": \"no\",\r",
+									"            \"metrics_column\": [\r",
+									"                {\r",
+									"                    \"name\": \"aie\",\r",
+									"                    \"value\": \"coucou\",\r",
+									"                    \"type\": \"string\",\r",
+									"                    \"is_tag\": \"true\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"status_column\": [\r",
+									"                {\r",
+									"                    \"name\": \"test\",\r",
+									"                    \"value\": \"coucou\",\r",
+									"                    \"type\": \"string\",\r",
+									"                    \"is_tag\": \"true\"\r",
+									"                }\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-10\",\r\n  \"type\": 31,\r\n  \"parameters\": {\r\n    \"cache\": \"no\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"lol\",\r\n    \"metrics_timeseries\": \"$METRIC$\",\r\n    \"status_timeseries\": \"$INSTANCE$\",\r\n    \"metrics_column\": [{\r\n        \"is_tag\": \"true\",\r\n        \"type\": \"string\",\r\n        \"value\": \"coucou\",\r\n        \"name\": \"aie\"\r\n    }],\r\n    \"status_column\": [{\r\n        \"is_tag\": \"true\",\r\n        \"type\": \"string\",\r\n        \"value\": \"coucou\",\r\n        \"name\": \"test\"\r\n    }]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Stream connector",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output11Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output11Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-11\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 33,\r",
+									"            \"name\": \"lua\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"path\": \"some-path\",\r",
+									"            \"lua_parameter\": [\r",
+									"                {\r",
+									"                    \"name\": \"my-lua-param-1\",\r",
+									"                    \"value\": \"lua-param-value-1\",\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"name\": \"my-lua-param-2\",\r",
+									"                    \"value\": \"999\",\r",
+									"                    \"type\": \"number\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"name\": \"my-lua-param-3\",\r",
+									"                    \"value\": null,\r",
+									"                    \"type\": \"password\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"storage\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-11\",\r\n  \"type\": 33,\r\n  \"parameters\": {\r\n    \"path\": \"some-path\",\r\n    \"filters_category\": [\"dumper\", \"storage\"],\r\n    \"lua_parameter\": [\r\n      {\r\n        \"type\": \"string\",\r\n        \"name\": \"my-lua-param-1\",\r\n        \"value\": \"lua-param-value-1\"\r\n      },\r\n      {\r\n        \"type\": \"number\",\r\n        \"name\": \"my-lua-param-2\",\r\n        \"value\": \"999\"\r\n      },\r\n      {\r\n        \"type\": \"password\",\r\n        \"name\": \"my-lua-param-3\",\r\n        \"value\": \"my-super-password\"\r\n      }\r\n    ]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Unified SQL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output12Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output12Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-12\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 34,\r",
+									"            \"name\": \"unified_sql\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"interval\": \"75\",\r",
+									"            \"length\": \"15553000\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"queries_per_transaction\": \"10000\",\r",
+									"            \"connections_count\": \"123\",\r",
+									"            \"db_name\": \"name1\",\r",
+									"            \"read_timeout\": \"4500\",\r",
+									"            \"check_replication\": \"yes\",\r",
+									"            \"rebuild_check_interval\": \"12\",\r",
+									"            \"store_in_data_bin\": \"no\",\r",
+									"            \"insert_in_index_data\": \"1\",\r",
+									"            \"cleanup_check_interval\": \"7500\",\r",
+									"            \"instance_timeout\": \"5000\",\r",
+									"            \"db_type\": \"oci\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\", \r",
+									"                \"storage\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-12\",\r\n  \"type\": 34,\r\n  \"parameters\": {\r\n    \"interval\": 75,\r\n    \"length\": 15553000,\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"connections_count\": 123,\r\n    \"db_name\": \"name1\",\r\n    \"read_timeout\": 4500,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 12,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"1\",\r\n    \"cleanup_check_interval\": 7500,\r\n    \"instance_timeout\": 5000,\r\n    \"db_type\": \"oci\",\r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type BBDO Server",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output13Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output13Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-13\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 35,\r",
+									"            \"name\": \"bbdo_server\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"host\": \"\",\r",
+									"            \"port\": \"5670\",\r",
+									"            \"transport_protocol\": \"gRPC\",\r",
+									"            \"authorization\": \"\",\r",
+									"            \"encryption\": \"no\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"certificate\": \"\",\r",
+									"            \"compression\": \"no\",\r",
+									"            \"retention\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"storage\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-13\",\r\n  \"type\": 35,\r\n  \"parameters\": {\r\n    \"host\": null,\r\n    \"port\": \"5670\",\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"private_key\": null,\r\n    \"certificate\": null,\r\n    \"compression\": \"no\", \r\n    \"retention\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type BBDO Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output14Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output14Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-14\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 36,\r",
+									"            \"name\": \"bbdo_client\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"host\": \"127.0.0.1\",\r",
+									"            \"port\": \"80\",\r",
+									"            \"retry_interval\": \"\",\r",
+									"            \"transport_protocol\": \"gRPC\",\r",
+									"            \"authorization\": \"\",\r",
+									"            \"encryption\": \"no\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"ca_name\": \"\",\r",
+									"            \"compression\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-14\",\r\n  \"type\": 36,\r\n  \"parameters\": {\r\n    \"host\": \"127.0.0.1\",\r\n    \"port\": 80,\r\n    \"retry_interval\": null,\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"ca_certificate\": null,\r\n    \"ca_name\": null,\r\n    \"compression\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type IPv4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input1Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input1Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-1\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 3,\r",
+									"            \"name\": \"ipv4\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"port\": \"5670\",\r",
+									"            \"host\": \"localhost\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"public_cert\": \"\",\r",
+									"            \"tls\": \"no\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"negotiation\": \"no\",\r",
+									"            \"one_peer_retention_mode\": \"yes\",\r",
+									"            \"tls_hostname\": \"\",\r",
+									"            \"filters_category\": [\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-1\",\r\n  \"type\": 3,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type IPv6",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input2Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input2Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-2\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 10,\r",
+									"            \"name\": \"ipv6\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"port\": \"5670\",\r",
+									"            \"host\": \"localhost\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"public_cert\": \"\",\r",
+									"            \"tls\": \"no\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"negotiation\": \"no\",\r",
+									"            \"one_peer_retention_mode\": \"yes\",\r",
+									"            \"filters_category\": [\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-2\",\r\n  \"type\": 10,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input3Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input3Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-3\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 11,\r",
+									"            \"name\": \"file\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"path\": \"/some/random/path/\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"max_size\": \"512\",\r",
+									"            \"filters_category\": [\r",
+									"                \"correlation\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-3\",\r\n  \"type\": 11,\r\n  \"parameters\": {\r\n    \"path\": \"/some/random/path/\",\r\n    \"protocol\": \"bbdo\",\r\n    \"max_size\": 512,\r\n    \"filters_category\": [\"correlation\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type BBDO Server",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input4Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input4Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-4\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 35,\r",
+									"            \"name\": \"bbdo_server\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"host\": \"\",\r",
+									"            \"port\": \"5670\",\r",
+									"            \"transport_protocol\": \"gRPC\",\r",
+									"            \"authorization\": \"\",\r",
+									"            \"encryption\": \"no\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"certificate\": \"\",\r",
+									"            \"compression\": \"no\",\r",
+									"            \"retention\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"storage\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-4\",\r\n  \"type\": 35,\r\n  \"parameters\": {\r\n    \"host\": null,\r\n    \"port\": \"5670\",\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"private_key\": null,\r\n    \"certificate\": null,\r\n    \"compression\": \"no\", \r\n    \"retention\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type BBDO Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input5Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input5Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-5\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 36,\r",
+									"            \"name\": \"bbdo_client\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"host\": \"127.0.0.1\",\r",
+									"            \"port\": \"80\",\r",
+									"            \"retry_interval\": \"\",\r",
+									"            \"transport_protocol\": \"gRPC\",\r",
+									"            \"authorization\": \"\",\r",
+									"            \"encryption\": \"no\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"ca_name\": \"\",\r",
+									"            \"compression\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-5\",\r\n  \"type\": 36,\r\n  \"parameters\": {\r\n    \"host\": \"127.0.0.1\",\r\n    \"port\": 80,\r\n    \"retry_interval\": null,\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"ca_certificate\": null,\r\n    \"ca_name\": null,\r\n    \"compression\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User non admin with no rights",
+			"item": [
+				{
+					"name": "Add user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test;user-test;user-test@localhost;Centreon!1234;0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test;reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link user to ALL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new access rights has been successfully granted.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ALL;user-test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(\"user-test\");\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"user-test\",\r\n      \"password\": \"Centreon!1234\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type IPv4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-1\",\r\n  \"type\": 3,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type IPv6",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-2\",\r\n  \"type\": 10,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-3\",\r\n  \"type\": 11,\r\n  \"parameters\": {\r\n    \"path\": \"/some/random/path/\",\r\n    \"protocol\": \"bbdo\",\r\n    \"max_size\": 512,\r\n    \"filters_category\": [\"correlation\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type RRD file generator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-4\",\r\n  \"type\": 13,\r\n  \"parameters\": {\r\n    \"metrics_path\": \"/some/random/path/\",\r\n    \"status_path\": \"bbdo\",\r\n    \"rrd_cached_option\": \"unix\",\r\n    \"rrd_cached\": \"8090\",\r\n    \"store_in_data_bin\": \"no\",\r\n    \"write_metrics\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"write_status\": \"no\",\r\n    \"filters_category\": [\"dumper\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Perfdata generator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-5\",\r\n  \"type\": 14,\r\n  \"parameters\": {\r\n    \"interval\": 120,\r\n    \"length\": 155520000,\r\n    \"db_type\": \"mysql\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"connections_count\": 2,\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 60,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"filters_category\": [\"storage\", \"neb\", \"dumper\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Broker SQL database",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-6\",\r\n  \"type\": 16,\r\n  \"parameters\": {\r\n    \"db_type\": \"oci\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"connections_count\": 2,\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"cleanup_check_interval\": 60,\r\n    \"instance_timeout\": 6000,\r\n    \"filters_category\": [\"storage\", \"dumper\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Database configuration reader",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-7\",\r\n  \"type\": 28,\r\n  \"parameters\": {\r\n    \"db_type\": \"sqlite\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Database configuration writer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-8\",\r\n  \"type\": 29,\r\n  \"parameters\": {\r\n    \"db_type\": \"tds\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Storage - Graphite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-9\",\r\n  \"type\": 30,\r\n  \"parameters\": {\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"metric_naming\": \"erroorrrrr\",\r\n    \"status_naming\": \"try again\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Storage - InfluxDB",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-10\",\r\n  \"type\": 31,\r\n  \"parameters\": {\r\n    \"cache\": \"no\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"lol\",\r\n    \"metrics_timeseries\": \"$METRIC$\",\r\n    \"status_timeseries\": \"$INSTANCE$\",\r\n    \"metrics_column\": [{\r\n        \"is_tag\": \"true\",\r\n        \"type\": \"string\",\r\n        \"value\": \"coucou\",\r\n        \"name\": \"aie\"\r\n    }],\r\n    \"status_column\": [{\r\n        \"is_tag\": \"true\",\r\n        \"type\": \"string\",\r\n        \"value\": \"coucou\",\r\n        \"name\": \"test\"\r\n    }]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Stream connector",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-11\",\r\n  \"type\": 33,\r\n  \"parameters\": {\r\n    \"path\": \"some-path\",\r\n    \"filters_category\": [\"dumper\", \"storage\"],\r\n    \"lua_parameter\": [\r\n      {\r\n        \"type\": \"string\",\r\n        \"name\": \"my-lua-param-1\",\r\n        \"value\": \"lua-param-value-1\"\r\n      },\r\n      {\r\n        \"type\": \"number\",\r\n        \"name\": \"my-lua-param-2\",\r\n        \"value\": \"999\"\r\n      },\r\n      {\r\n        \"type\": \"password\",\r\n        \"name\": \"my-lua-param-3\",\r\n        \"value\": \"my-super-password\"\r\n      }\r\n    ]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Unified SQL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-12\",\r\n  \"type\": 34,\r\n  \"parameters\": {\r\n    \"interval\": 75,\r\n    \"length\": 15553000,\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"connections_count\": 123,\r\n    \"db_name\": \"name1\",\r\n    \"read_timeout\": 4500,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 12,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"1\",\r\n    \"cleanup_check_interval\": 7500,\r\n    \"instance_timeout\": 5000,\r\n    \"db_type\": \"oci\",\r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type BBDO Server",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-13\",\r\n  \"type\": 35,\r\n  \"parameters\": {\r\n    \"host\": null,\r\n    \"port\": \"5670\",\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"private_key\": null,\r\n    \"certificate\": null,\r\n    \"compression\": \"no\", \r\n    \"retention\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type BBDO Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker output has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-14\",\r\n  \"type\": 36,\r\n  \"parameters\": {\r\n    \"host\": \"127.0.0.1\",\r\n    \"port\": 80,\r\n    \"retry_interval\": null,\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"ca_certificate\": null,\r\n    \"ca_name\": null,\r\n    \"compression\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type IPv4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker input has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-1\",\r\n  \"type\": 3,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type IPv6",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker input has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-2\",\r\n  \"type\": 10,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker input has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-3\",\r\n  \"type\": 11,\r\n  \"parameters\": {\r\n    \"path\": \"/some/random/path/\",\r\n    \"protocol\": \"bbdo\",\r\n    \"max_size\": 512,\r\n    \"filters_category\": [\"correlation\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type BBDO Server",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker input has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-4\",\r\n  \"type\": 35,\r\n  \"parameters\": {\r\n    \"host\": null,\r\n    \"port\": \"5670\",\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"private_key\": null,\r\n    \"certificate\": null,\r\n    \"compression\": \"no\", \r\n    \"retention\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type BBDO Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The broker input has not been created, because the user doesn't have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-5\",\r\n  \"type\": 36,\r\n  \"parameters\": {\r\n    \"host\": \"127.0.0.1\",\r\n    \"port\": 80,\r\n    \"retry_interval\": null,\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"ca_certificate\": null,\r\n    \"ca_name\": null,\r\n    \"compression\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user-test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "value",
+						"value": "{{token}}",
+						"type": "string"
+					},
+					{
+						"key": "key",
+						"value": "CENTREON-AUTH-TOKEN",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "User non admin with R/W rights",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create ACL Menu",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new access rights has been successfully granted.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "CENTREON-AUTH-TOKEN",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"Configuration-user;Configuration-user\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Grant RW right",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new access rights has been successfully granted.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "CENTREON-AUTH-TOKEN",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"Configuration-user;1;Configuration\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Configuration-user to ALL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new access rights has been successfully granted.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "CENTREON-AUTH-TOKEN",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ALL;Configuration-user\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(\"user-test\");\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"user-test\",\r\n      \"password\": \"Centreon!1234\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type IPv4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output1Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output1Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-1\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 3,\r",
+									"            \"name\": \"ipv4\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"port\": \"5670\",\r",
+									"            \"host\": \"localhost\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"public_cert\": \"\",\r",
+									"            \"tls\": \"no\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"negotiation\": \"no\",\r",
+									"            \"one_peer_retention_mode\": \"yes\",\r",
+									"            \"tls_hostname\": \"\",\r",
+									"            \"filters_category\": [\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-AUTH-TOKEN",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-1\",\r\n  \"type\": 3,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type IPv6",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output2Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output2Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-2\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 10,\r",
+									"            \"name\": \"ipv6\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"port\": \"5670\",\r",
+									"            \"host\": \"localhost\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"public_cert\": \"\",\r",
+									"            \"tls\": \"no\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"negotiation\": \"no\",\r",
+									"            \"one_peer_retention_mode\": \"yes\",\r",
+									"            \"filters_category\": [\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-2\",\r\n  \"type\": 10,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output3Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output3Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-3\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 11,\r",
+									"            \"name\": \"file\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"path\": \"/some/random/path/\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"max_size\": \"512\",\r",
+									"            \"filters_category\": [\r",
+									"                \"correlation\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-3\",\r\n  \"type\": 11,\r\n  \"parameters\": {\r\n    \"path\": \"/some/random/path/\",\r\n    \"protocol\": \"bbdo\",\r\n    \"max_size\": 512,\r\n    \"filters_category\": [\"correlation\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type RRD file generator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output4Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output4Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-4\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 13,\r",
+									"            \"name\": \"rrd\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"metrics_path\": \"/some/random/path/\",\r",
+									"            \"status_path\": \"bbdo\",\r",
+									"            \"rrd_cached_option\": \"unix\",\r",
+									"            \"rrd_cached\": \"8090\",\r",
+									"            \"store_in_data_bin\": \"no\",\r",
+									"            \"write_metrics\": \"no\",\r",
+									"            \"insert_in_index_data\": \"2\",\r",
+									"            \"write_status\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-4\",\r\n  \"type\": 13,\r\n  \"parameters\": {\r\n    \"metrics_path\": \"/some/random/path/\",\r\n    \"status_path\": \"bbdo\",\r\n    \"rrd_cached_option\": \"unix\",\r\n    \"rrd_cached\": \"8090\",\r\n    \"store_in_data_bin\": \"no\",\r\n    \"write_metrics\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"write_status\": \"no\",\r\n    \"filters_category\": [\"dumper\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Perfdata generator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output5Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output5Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-5\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 14,\r",
+									"            \"name\": \"storage\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"interval\": \"120\",\r",
+									"            \"length\": \"155520000\",\r",
+									"            \"db_type\": \"mysql\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"connections_count\": \"2\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"storage\",\r",
+									"            \"queries_per_transaction\": \"500\",\r",
+									"            \"read_timeout\": \"3600\",\r",
+									"            \"check_replication\": \"yes\",\r",
+									"            \"rebuild_check_interval\": \"60\",\r",
+									"            \"store_in_data_bin\": \"no\",\r",
+									"            \"insert_in_index_data\": \"2\",\r",
+									"            \"filters_category\": [\r",
+									"                \"storage\", \r",
+									"                \"neb\", \r",
+									"                \"dumper\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-5\",\r\n  \"type\": 14,\r\n  \"parameters\": {\r\n    \"interval\": 120,\r\n    \"length\": 155520000,\r\n    \"db_type\": \"mysql\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"connections_count\": 2,\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 60,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"filters_category\": [\"storage\", \"neb\", \"dumper\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Broker SQL database",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output6Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output6Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-6\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 16,\r",
+									"            \"name\": \"sql\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"db_type\": \"oci\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"connections_count\": \"2\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"storage\",\r",
+									"            \"queries_per_transaction\": \"500\",\r",
+									"            \"read_timeout\": \"3600\",\r",
+									"            \"check_replication\": \"yes\",\r",
+									"            \"cleanup_check_interval\": \"60\",\r",
+									"            \"instance_timeout\": \"6000\",\r",
+									"            \"filters_category\": [\r",
+									"                \"storage\", \r",
+									"                \"dumper\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-6\",\r\n  \"type\": 16,\r\n  \"parameters\": {\r\n    \"db_type\": \"oci\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"connections_count\": 2,\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"cleanup_check_interval\": 60,\r\n    \"instance_timeout\": 6000,\r\n    \"filters_category\": [\"storage\", \"dumper\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Database configuration reader",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output7Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output7Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-7\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 28,\r",
+									"            \"name\": \"db_cfg_reader\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"db_type\": \"sqlite\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"storage\"\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-7\",\r\n  \"type\": 28,\r\n  \"parameters\": {\r\n    \"db_type\": \"sqlite\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Database configuration writer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output8Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output8Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-8\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 29,\r",
+									"            \"name\": \"db_cfg_writer\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"db_type\": \"tds\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"storage\"\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-8\",\r\n  \"type\": 29,\r\n  \"parameters\": {\r\n    \"db_type\": \"tds\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Storage - Graphite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output9Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output9Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-9\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 30,\r",
+									"            \"name\": \"graphite\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"queries_per_transaction\": \"10000\",\r",
+									"            \"metric_naming\": \"erroorrrrr\",\r",
+									"            \"status_naming\": \"try again\"\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-9\",\r\n  \"type\": 30,\r\n  \"parameters\": {\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"metric_naming\": \"erroorrrrr\",\r\n    \"status_naming\": \"try again\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Storage - InfluxDB",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output10Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output10Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-10\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 31,\r",
+									"            \"name\": \"influxdb\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"cache\": \"no\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"db_name\": \"lol\",\r",
+									"            \"metrics_timeseries\": \"$METRIC$\",\r",
+									"            \"status_timeseries\": \"$INSTANCE$\",\r",
+									"            \"cache\": \"no\",\r",
+									"            \"metrics_column\": [\r",
+									"                {\r",
+									"                    \"name\": \"aie\",\r",
+									"                    \"value\": \"coucou\",\r",
+									"                    \"type\": \"string\",\r",
+									"                    \"is_tag\": \"true\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"status_column\": [\r",
+									"                {\r",
+									"                    \"name\": \"test\",\r",
+									"                    \"value\": \"coucou\",\r",
+									"                    \"type\": \"string\",\r",
+									"                    \"is_tag\": \"true\"\r",
+									"                }\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-10\",\r\n  \"type\": 31,\r\n  \"parameters\": {\r\n    \"cache\": \"no\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"lol\",\r\n    \"metrics_timeseries\": \"$METRIC$\",\r\n    \"status_timeseries\": \"$INSTANCE$\",\r\n    \"metrics_column\": [{\r\n        \"is_tag\": \"true\",\r\n        \"type\": \"string\",\r\n        \"value\": \"coucou\",\r\n        \"name\": \"aie\"\r\n    }],\r\n    \"status_column\": [{\r\n        \"is_tag\": \"true\",\r\n        \"type\": \"string\",\r\n        \"value\": \"coucou\",\r\n        \"name\": \"test\"\r\n    }]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Stream connector",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output11Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output11Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-11\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 33,\r",
+									"            \"name\": \"lua\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"path\": \"some-path\",\r",
+									"            \"lua_parameter\": [\r",
+									"                {\r",
+									"                    \"name\": \"my-lua-param-1\",\r",
+									"                    \"value\": \"lua-param-value-1\",\r",
+									"                    \"type\": \"string\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"name\": \"my-lua-param-2\",\r",
+									"                    \"value\": \"999\",\r",
+									"                    \"type\": \"number\"\r",
+									"                },\r",
+									"                {\r",
+									"                    \"name\": \"my-lua-param-3\",\r",
+									"                    \"value\": null,\r",
+									"                    \"type\": \"password\"\r",
+									"                }\r",
+									"            ],\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"storage\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-11\",\r\n  \"type\": 33,\r\n  \"parameters\": {\r\n    \"path\": \"some-path\",\r\n    \"filters_category\": [\"dumper\", \"storage\"],\r\n    \"lua_parameter\": [\r\n      {\r\n        \"type\": \"string\",\r\n        \"name\": \"my-lua-param-1\",\r\n        \"value\": \"lua-param-value-1\"\r\n      },\r\n      {\r\n        \"type\": \"number\",\r\n        \"name\": \"my-lua-param-2\",\r\n        \"value\": \"999\"\r\n      },\r\n      {\r\n        \"type\": \"password\",\r\n        \"name\": \"my-lua-param-3\",\r\n        \"value\": \"my-super-password\"\r\n      }\r\n    ]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type Unified SQL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output12Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output12Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-12\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 34,\r",
+									"            \"name\": \"unified_sql\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"interval\": \"75\",\r",
+									"            \"length\": \"15553000\",\r",
+									"            \"db_host\": \"127.0.0.1\",\r",
+									"            \"db_port\": \"3456\",\r",
+									"            \"db_user\": \"user-test\",\r",
+									"            \"db_password\": \"super_password\",\r",
+									"            \"queries_per_transaction\": \"10000\",\r",
+									"            \"connections_count\": \"123\",\r",
+									"            \"db_name\": \"name1\",\r",
+									"            \"read_timeout\": \"4500\",\r",
+									"            \"check_replication\": \"yes\",\r",
+									"            \"rebuild_check_interval\": \"12\",\r",
+									"            \"store_in_data_bin\": \"no\",\r",
+									"            \"insert_in_index_data\": \"1\",\r",
+									"            \"cleanup_check_interval\": \"7500\",\r",
+									"            \"instance_timeout\": \"5000\",\r",
+									"            \"db_type\": \"oci\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\", \r",
+									"                \"storage\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-12\",\r\n  \"type\": 34,\r\n  \"parameters\": {\r\n    \"interval\": 75,\r\n    \"length\": 15553000,\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"connections_count\": 123,\r\n    \"db_name\": \"name1\",\r\n    \"read_timeout\": 4500,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 12,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"1\",\r\n    \"cleanup_check_interval\": 7500,\r\n    \"instance_timeout\": 5000,\r\n    \"db_type\": \"oci\",\r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type BBDO Server",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output13Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output13Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-13\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 35,\r",
+									"            \"name\": \"bbdo_server\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"host\": \"\",\r",
+									"            \"port\": \"5670\",\r",
+									"            \"transport_protocol\": \"gRPC\",\r",
+									"            \"authorization\": \"\",\r",
+									"            \"encryption\": \"no\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"certificate\": \"\",\r",
+									"            \"compression\": \"no\",\r",
+									"            \"retention\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"storage\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-13\",\r\n  \"type\": 35,\r\n  \"parameters\": {\r\n    \"host\": null,\r\n    \"port\": \"5670\",\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"private_key\": null,\r\n    \"certificate\": null,\r\n    \"compression\": \"no\", \r\n    \"retention\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker output of type BBDO Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker output has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Output14Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Output14Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"output-test-14\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 36,\r",
+									"            \"name\": \"bbdo_client\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"host\": \"127.0.0.1\",\r",
+									"            \"port\": \"80\",\r",
+									"            \"retry_interval\": \"\",\r",
+									"            \"transport_protocol\": \"gRPC\",\r",
+									"            \"authorization\": \"\",\r",
+									"            \"encryption\": \"no\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"ca_name\": \"\",\r",
+									"            \"compression\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"output-test-14\",\r\n  \"type\": 36,\r\n  \"parameters\": {\r\n    \"host\": \"127.0.0.1\",\r\n    \"port\": 80,\r\n    \"retry_interval\": null,\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"ca_certificate\": null,\r\n    \"ca_name\": null,\r\n    \"compression\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/outputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"outputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type IPv4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input1Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input1Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-1\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 3,\r",
+									"            \"name\": \"ipv4\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"port\": \"5670\",\r",
+									"            \"host\": \"localhost\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"public_cert\": \"\",\r",
+									"            \"tls\": \"no\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"negotiation\": \"no\",\r",
+									"            \"one_peer_retention_mode\": \"yes\",\r",
+									"            \"tls_hostname\": \"\",\r",
+									"            \"filters_category\": [\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-1\",\r\n  \"type\": 3,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type IPv6",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input2Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input2Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-2\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 10,\r",
+									"            \"name\": \"ipv6\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"port\": \"5670\",\r",
+									"            \"host\": \"localhost\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"public_cert\": \"\",\r",
+									"            \"tls\": \"no\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"negotiation\": \"no\",\r",
+									"            \"one_peer_retention_mode\": \"yes\",\r",
+									"            \"filters_category\": [\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-2\",\r\n  \"type\": 10,\r\n  \"parameters\": {\r\n    \"port\": 5670,\r\n    \"host\": \"localhost\",\r\n    \"protocol\": \"bbdo\",\r\n    \"tls\": \"no\",\r\n    \"private_key\": null,\r\n    \"tls_hostname\": null,\r\n    \"public_cert\": null,\r\n    \"ca_certificate\": null,\r\n    \"negotiation\": \"no\",\r\n    \"one_peer_retention_mode\":\"yes\",\r\n    \"filters_category\": [\"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input3Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input3Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-3\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 11,\r",
+									"            \"name\": \"file\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"path\": \"/some/random/path/\",\r",
+									"            \"protocol\": \"bbdo\",\r",
+									"            \"max_size\": \"512\",\r",
+									"            \"filters_category\": [\r",
+									"                \"correlation\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-3\",\r\n  \"type\": 11,\r\n  \"parameters\": {\r\n    \"path\": \"/some/random/path/\",\r\n    \"protocol\": \"bbdo\",\r\n    \"max_size\": 512,\r\n    \"filters_category\": [\"correlation\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type BBDO Server",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input4Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input4Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-4\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 35,\r",
+									"            \"name\": \"bbdo_server\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"host\": \"\",\r",
+									"            \"port\": \"5670\",\r",
+									"            \"transport_protocol\": \"gRPC\",\r",
+									"            \"authorization\": \"\",\r",
+									"            \"encryption\": \"no\",\r",
+									"            \"private_key\": \"\",\r",
+									"            \"certificate\": \"\",\r",
+									"            \"compression\": \"no\",\r",
+									"            \"retention\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"storage\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-4\",\r\n  \"type\": 35,\r\n  \"parameters\": {\r\n    \"host\": null,\r\n    \"port\": \"5670\",\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"private_key\": null,\r\n    \"certificate\": null,\r\n    \"compression\": \"no\", \r\n    \"retention\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new broker input of type BBDO Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);\r",
+									"pm.test(\"The broker input has been successfully created.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"Input5Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"Input5Id\"),\r",
+									"        \"broker_id\": 1,\r",
+									"        \"name\": \"input-test-5\",\r",
+									"        \"type\": {\r",
+									"            \"id\": 36,\r",
+									"            \"name\": \"bbdo_client\"\r",
+									"        },\r",
+									"        \"parameters\": {\r",
+									"            \"host\": \"127.0.0.1\",\r",
+									"            \"port\": \"80\",\r",
+									"            \"retry_interval\": \"\",\r",
+									"            \"transport_protocol\": \"gRPC\",\r",
+									"            \"authorization\": \"\",\r",
+									"            \"encryption\": \"no\",\r",
+									"            \"ca_certificate\": \"\",\r",
+									"            \"ca_name\": \"\",\r",
+									"            \"compression\": \"no\",\r",
+									"            \"filters_category\": [\r",
+									"                \"dumper\",\r",
+									"                \"neb\"\r",
+									"            ]\r",
+									"        }\r",
+									"    })\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"input-test-5\",\r\n  \"type\": 36,\r\n  \"parameters\": {\r\n    \"host\": \"127.0.0.1\",\r\n    \"port\": 80,\r\n    \"retry_interval\": null,\r\n    \"transport_protocol\": \"gRPC\",\r\n    \"authorization\": null,\r\n    \"encryption\": \"no\", \r\n    \"ca_certificate\": null,\r\n    \"ca_name\": null,\r\n    \"compression\": \"no\", \r\n    \"filters_category\": [\"dumper\", \"neb\"]\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/broker/1/inputs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"broker",
+								"1",
+								"inputs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user-test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

@@ -175,7 +175,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function existsByAccessGroups(int $serviceId, array $accessGroups): bool
     {
-        if (empty($accessGroups)) {
+        if ($accessGroups === []) {
             $this->debug('Access groups array empty');
 
             return false;
@@ -203,13 +203,13 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             <<<SQL
                 SELECT 1
                 FROM `:db`.`service` s
-                INNER JOIN `:db`.`service_categories_relation` scr
+                LEFT JOIN `:db`.`service_categories_relation` scr
                     ON scr.`service_service_id` = s.`service_id`
-                    {$categoryAcls}
                 JOIN `:dbstg`.`centreon_acl` acl
                 WHERE acl.`group_id` IN ({$bindParamsAsString})
-                AND s.`service_id` = :service_id
-                AND s.`service_register` = '1'
+                    AND s.`service_id` = :service_id
+                    AND s.`service_register` = '1'
+                    {$categoryAcls}
                 SQL
         ));
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
@@ -465,6 +465,25 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
         $concatenator = $this->findServicesRequest();
+        $concatenator->defineSelect(<<<'SQL'
+            SELECT  service.service_id,
+                    service.service_description,
+                    service.timeperiod_tp_id as check_timeperiod_id,
+                    checktp.tp_name as check_timeperiod_name,
+                    service.timeperiod_tp_id2 as notification_timeperiod_id,
+                    notificationtp.tp_name as notification_timeperiod_name,
+                    service.service_activate,
+                    service.service_normal_check_interval,
+                    service.service_retry_check_interval,
+                    service.service_template_model_stm_id as service_template_id,
+                    serviceTemplate.service_description as service_template_name,
+                    GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                    GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
+                    GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
+                    GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
+                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as sg_host_concat
+            SQL
+        );
         $concatenator->withCalcFoundRows(true);
 
         return $this->retrieveServices($concatenator, $requestParameters);
@@ -490,6 +509,25 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         );
 
         $concatenator = $this->findServicesRequest($accessGroupIds);
+        $concatenator->defineSelect(<<<'SQL'
+            SELECT  service.service_id,
+                    service.service_description,
+                    service.timeperiod_tp_id as check_timeperiod_id,
+                    checktp.tp_name as check_timeperiod_name,
+                    service.timeperiod_tp_id2 as notification_timeperiod_id,
+                    notificationtp.tp_name as notification_timeperiod_name,
+                    service.service_activate,
+                    service.service_normal_check_interval,
+                    service.service_retry_check_interval,
+                    service.service_template_model_stm_id as service_template_id,
+                    serviceTemplate.service_description as service_template_name,
+                    GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                    GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
+                    GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
+                    GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
+                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as sg_host_concat
+            SQL
+        );
         $concatenator->withCalcFoundRows(true);
 
         $concatenator->appendJoins(
@@ -585,27 +623,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
 
         $concatenator = new SqlConcatenator();
-        $concatenator->defineSelect(
-            <<<'SQL'
-                SELECT service.service_id,
-                    service.service_description,
-                    service.timeperiod_tp_id as check_timeperiod_id,
-                    checktp.tp_name as check_timeperiod_name,
-                    service.timeperiod_tp_id2 as notification_timeperiod_id,
-                    notificationtp.tp_name as notification_timeperiod_name,
-                    service.service_activate,
-                    service.service_normal_check_interval,
-                    service.service_retry_check_interval,
-                    service.service_template_model_stm_id as service_template_id,
-                    serviceTemplate.service_description as service_template_name,
-                    GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
-                    GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
-                    GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
-                    GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
-                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as sg_host_concat
-                FROM `:db`.service
-                SQL
-        );
+        $concatenator->defineFrom('`:db`.service');
         $concatenator
             ->appendJoins(
                 <<<SQL

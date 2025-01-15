@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { RectClipPath } from '@visx/clip-path';
-import { ProvidedZoom } from '@visx/zoom/lib/types';
 
 import ZoomInIcon from '@mui/icons-material/Add';
 import ZoomOutIcon from '@mui/icons-material/Remove';
@@ -9,20 +8,19 @@ import ReplayIcon from '@mui/icons-material/Replay';
 
 import { IconButton } from '../Button';
 
-import { minimapScale, radius } from './constants';
-import { useZoom } from './useZoom';
-import { useZoomStyles } from './Zoom.styles';
 import Minimap from './Minimap';
-import { ChildrenProps, MinimapPosition, ZoomState } from './models';
+import { useZoomStyles } from './Zoom.styles';
+import { minimapScale, radius } from './constants';
+import type { ChildrenProps, MinimapPosition, ZoomInterface } from './models';
+import { useZoom } from './useZoom';
 
-export interface Props {
-  children: ({ width, height, transformMatrix }: ChildrenProps) => JSX.Element;
+export interface Props extends ZoomInterface {
+  children: (args: ChildrenProps) => JSX.Element;
   height: number;
   id?: number | string;
   minimapPosition: MinimapPosition;
   showMinimap?: boolean;
   width: number;
-  zoom: ProvidedZoom<SVGSVGElement> & ZoomState;
 }
 
 const ZoomContent = ({
@@ -107,6 +105,7 @@ const ZoomContent = ({
             contentClientRect,
             height,
             transformMatrix: zoom.transformMatrix,
+            setTransformMatrix: zoom.setTransformMatrix,
             width
           })}
         </g>
@@ -136,6 +135,7 @@ const ZoomContent = ({
                   contentClientRect,
                   height,
                   transformMatrix: zoom.transformMatrix,
+                  setTransformMatrix: zoom.setTransformMatrix,
                   width
                 })}
               </g>

@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
 import { pipe } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   Delete as DeleteIcon,
-  SettingsOutlined as SettingsIcon,
-  ContentCopy as DuplicateIcon
+  ContentCopy as DuplicateIcon,
+  SettingsOutlined as SettingsIcon
 } from '@mui/icons-material';
 import { Menu } from '@mui/material';
 

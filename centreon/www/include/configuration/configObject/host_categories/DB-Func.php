@@ -33,6 +33,8 @@
  *
  */
 
+use Core\ActionLog\Domain\Model\ActionLog;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -49,7 +51,7 @@ function checkSeverity($fields)
     if (isset($fields['hc_type']) && $fields['hc_severity_icon'] == "") {
         $arr['hc_severity_icon'] = "Severity icon is required";
     }
-    if (count($arr)) {
+    if ($arr !== []) {
         return $arr;
     }
     return true;
@@ -109,7 +111,12 @@ function enableHostCategoriesInDB(int $hcId = null, $hcArr = [])
         $statement2->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
         $statement2->execute();
         $row = $statement2->fetch();
-        $centreon->CentreonLogAction->insertLog("hostcategories", $key, $row['hc_name'], "enable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+            object_id: $key,
+            object_name: $row['hc_name'],
+            action_type: ActionLog::ACTION_TYPE_ENABLE
+        );
     }
 }
 
@@ -135,7 +142,12 @@ function disableHostCategoriesInDB(int $hcId = null, $hcArr = [])
         $statement2->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
         $statement2->execute();
         $row = $statement2->fetch();
-        $centreon->CentreonLogAction->insertLog("hostcategories", $key, $row['hc_name'], "disable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+            object_id: $key,
+            object_name: $row['hc_name'],
+            action_type: ActionLog::ACTION_TYPE_DISABLE
+        );
     }
 }
 
@@ -154,7 +166,12 @@ function deleteHostCategoriesInDB($hostCategories = [])
 
         $statement2->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
         $statement2->execute();
-        $centreon->CentreonLogAction->insertLog("hostcategories", $hcId, $row['hc_name'], "d");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+            object_id: $hcId,
+            object_name: $row['hc_name'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
     }
     $centreon->user->access->updateACL();
 }
@@ -178,7 +195,8 @@ function multipleHostCategoriesInDB($hostCategories = [], $nbrDup = [])
                 switch ($key2) {
                     case 'hc_name':
                         $value2 = \HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $hc_name = $value2 = $value2 . "_" . $i;
+                        $hc_name = $value2 . "_" . $i;
+                        $value2 = $value2 . "_" . $i;
                         $bindParams[':hc_name'] = [\PDO::PARAM_STR => $value2];
                         break;
                     case 'hc_alias':
@@ -258,11 +276,11 @@ function multipleHostCategoriesInDB($hostCategories = [], $nbrDup = [])
                     }
                     $fields["hc_hosts"] = trim($fields["hc_hosts"], ",");
                     $centreon->CentreonLogAction->insertLog(
-                        "hostcategories",
-                        $maxId["MAX(hc_id)"],
-                        $hc_name,
-                        "a",
-                        $fields
+                        object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+                        object_id: $maxId["MAX(hc_id)"],
+                        object_name: $hc_name,
+                        action_type: ActionLog::ACTION_TYPE_ADD,
+                        fields: $fields
                     );
                 }
             }
@@ -361,11 +379,11 @@ function insertHostCategories($ret = [])
     $fields = CentreonLogAction::prepareChanges($ret);
 
     $centreon->CentreonLogAction->insertLog(
-        "hostcategories",
-        $hcId["MAX(hc_id)"],
-        CentreonDB::escape($ret["hc_name"]),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+        object_id: $hcId["MAX(hc_id)"],
+        object_name: $ret["hc_name"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
     return ($hcId["MAX(hc_id)"]);
 }
@@ -379,9 +397,9 @@ function updateHostCategories($hcId)
     global $form, $pearDB, $centreon;
     $ret = [];
     $ret = $form->getSubmitValues();
-    $ret['hc_type']
-        ? $scType = true
-        : $scType = false;
+    $scType = $ret['hc_type']
+        ? true
+        : false;
     $bindParams = [];
     $bindParams[':hc_id'] = [\PDO::PARAM_INT => $hcId];
     foreach ($ret as $key => $value) {
@@ -427,12 +445,12 @@ function updateHostCategories($hcId)
 
     $statement = $pearDB->prepare("
         UPDATE hostcategories SET
-        hc_name = :hc_name,
-        hc_alias = :hc_alias,
-        level = :level,
-        icon_id = :icon_id,
-        hc_comment = :hc_comment,
-        hc_activate = :hc_activate
+            hc_name = :hc_name,
+            hc_alias = :hc_alias,
+            level = :level,
+            icon_id = :icon_id,
+            hc_comment = :hc_comment,
+            hc_activate = :hc_activate
         WHERE hc_id = :hc_id
     ");
     foreach ($bindParams as $token => $bindValues) {
@@ -445,12 +463,23 @@ function updateHostCategories($hcId)
     $fields = CentreonLogAction::prepareChanges($ret);
 
     $centreon->CentreonLogAction->insertLog(
-        "hostcategories",
-        $hcId,
-        CentreonDB::escape($ret["hc_name"]),
-        "c",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+        object_id: $hcId,
+        object_name: $ret["hc_name"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
     );
+    if (array_key_exists(':hc_activate', $bindParams)) {
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
+            object_id: $hcId,
+            object_name: $ret["hc_name"],
+            action_type: (bool) $bindParams[':hc_activate'][\PDO::PARAM_STR]
+                ? ActionLog::ACTION_TYPE_ENABLE
+                : ActionLog::ACTION_TYPE_DISABLE,
+            fields: $fields
+        );
+    }
 }
 
 function updateHostCategoriesHosts($hcId, $ret = [])
@@ -484,22 +513,19 @@ function updateHostCategoriesHosts($hcId, $ret = [])
     $statement->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
     $statement->execute();
     // get host relations
-    $linkedHosts = isset($ret["hc_hosts"]) ?
-        $ret["hc_hosts"] :
-        CentreonUtils::mergeWithInitialValues($form, 'hc_hosts');
+    $linkedHosts = $ret["hc_hosts"] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hosts');
 
     // get host template relations
-    $linkedHostTemplates = isset($ret["hc_hostsTemplate"]) ?
-        $ret["hc_hostsTemplate"] :
-        CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate');
+    $linkedHostTemplates = $ret["hc_hostsTemplate"] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate');
 
     // merge host and host template relations
     $linkedObjects = array_merge($linkedHosts, $linkedHostTemplates);
 
     // build query to insert all relations
-    if (count($linkedObjects)) {
+    if ($linkedObjects !== []) {
         $query = "INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id) VALUES ";
-        for ($i = 0; $i < count($linkedObjects); $i++) {
+        $counter = count($linkedObjects);
+        for ($i = 0; $i < $counter; $i++) {
             if ($i != 0) {
                 $query .= ", ";
             }

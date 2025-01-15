@@ -3,14 +3,14 @@ import { makeStyles } from 'tss-react/mui';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
+import DowntimeChip from '../../../../Chip/Downtime';
 import {
   labelDowntimeDuration,
   labelFrom,
   labelTo
 } from '../../../../translatedLabels';
-import DowntimeChip from '../../../../Chip/Downtime';
-import StateCard from '../StateCard';
 import { ResourceDetails } from '../../../models';
+import StateCard from '../StateCard';
 
 interface Props {
   details: ResourceDetails;

@@ -103,7 +103,6 @@ const Header = (): JSX.Element => {
         <div className={classes.platformName}>
           <FederatedComponent path="/it-edition-extensions/header/platformName" />
         </div>
-
         <UserMenu headerRef={headerRef} />
       </div>
     </header>

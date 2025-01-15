@@ -1,12 +1,14 @@
-import { Layout } from 'react-grid-layout';
-import { lte, isNil, isEmpty } from 'ramda';
+import { equals, isEmpty, isNil, lte } from 'ramda';
+import type { Layout } from 'react-grid-layout';
 
 import { DashboardLayout } from '@centreon/ui';
 
 import { AddWidgetPanel } from '../AddEditWidget';
-import { Panel } from '../models';
 import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
+import type { Panel } from '../models';
 
+import { useAtomValue } from 'jotai';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
 
@@ -36,6 +38,10 @@ const PanelsLayout = ({
   const { getLinkToResourceStatusPage, changeViewMode, getPageType } =
     useLinkToResourceStatus();
 
+  const federatedWidgetsProperties = useAtomValue(
+    federatedWidgetsPropertiesAtom
+  );
+
   return (
     <DashboardLayout.Layout
       additionalMemoProps={[dashboardId]}
@@ -52,32 +58,47 @@ const PanelsLayout = ({
               canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
             }
             disablePadding={panelConfiguration?.isAddWidgetPanel}
-            header={
-              !panelConfiguration?.isAddWidgetPanel ? (
-                <PanelHeader
-                  changeViewMode={() => changeViewMode(options?.displayType)}
-                  displayMoreActions={displayMoreActions}
-                  displayShrinkRefresh={
-                    lte(w, 3) &&
-                    !isNil(options?.name) &&
-                    !isEmpty(options?.name)
-                  }
-                  forceDisplayShrinkRefresh={
-                    lte(w, 2) &&
-                    !isNil(options?.name) &&
-                    !isEmpty(options?.name)
-                  }
-                  id={i}
-                  linkToResourceStatus={
-                    data?.resources
-                      ? getLinkToResourceStatusPage(data, name, options)
-                      : undefined
-                  }
-                  pageType={getPageType(data)}
-                  setRefreshCount={setRefreshCount}
-                />
-              ) : undefined
-            }
+            header={(headerData) => {
+              const enableExpand = Boolean(
+                federatedWidgetsProperties.find(({ moduleName }) =>
+                  equals(moduleName, name)
+                )?.canExpand
+              );
+              const expandableData = !enableExpand ? undefined : headerData;
+
+              return (
+                <>
+                  {!panelConfiguration?.isAddWidgetPanel && (
+                    <PanelHeader
+                      changeViewMode={() =>
+                        changeViewMode(options?.displayType)
+                      }
+                      displayMoreActions={displayMoreActions}
+                      displayShrinkRefresh={
+                        lte(w, 3) &&
+                        !isNil(options?.name) &&
+                        !isEmpty(options?.name)
+                      }
+                      forceDisplayShrinkRefresh={
+                        lte(w, 2) &&
+                        !isNil(options?.name) &&
+                        !isEmpty(options?.name)
+                      }
+                      id={i}
+                      linkToResourceStatus={
+                        data?.resources
+                          ? getLinkToResourceStatusPage(data, name, options)
+                          : undefined
+                      }
+                      pageType={getPageType(data)}
+                      setRefreshCount={setRefreshCount}
+                      name={name}
+                      expandableData={expandableData}
+                    />
+                  )}
+                </>
+              );
+            }}
             id={i}
             key={i}
           >
@@ -89,6 +110,7 @@ const PanelsLayout = ({
                 id={i}
                 playlistHash={playlistHash}
                 refreshCount={refreshCount}
+                name={name}
               />
             )}
           </DashboardLayout.Item>

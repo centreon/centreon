@@ -2,11 +2,11 @@ import { ReactElement } from 'react';
 
 import { ListingPage } from '@centreon/ui';
 
-import { ResourceAccessRulesListing } from './Listing';
-import PageHeader from './PageHeader';
-import AddEditResourceAccessRuleModal from './AddEditResourceAccessRule/AddEditResourceAccessRuleModal';
 import { DeleteConfirmationDialog } from './Actions/Delete';
 import { DuplicationForm } from './Actions/Duplicate';
+import AddEditResourceAccessRuleModal from './AddEditResourceAccessRule/AddEditResourceAccessRuleModal';
+import { ResourceAccessRulesListing } from './Listing';
+import PageHeader from './PageHeader';
 
 const ResourceAccessManagementPage = (): ReactElement => {
   return (

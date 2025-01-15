@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { useFormikContext } from 'formik';
 import {
   equals,
   gt,
@@ -10,16 +11,16 @@ import {
   remove,
   update
 } from 'ramda';
-import { useFormikContext } from 'formik';
 
-import { ListItem, Typography, Radio, Checkbox } from '@mui/material';
+import { Checkbox, ListItem, Radio, Typography } from '@mui/material';
 
-import { CollapsibleItem } from '@centreon/ui/components';
 import { useDeepCompare } from '@centreon/ui';
+import { CollapsibleItem } from '@centreon/ui/components';
 
 import { FormMetric, ServiceMetric } from '../../../models';
 
 import { useMetricsStyles } from './Metrics.styles';
+import { formatMetricName } from './useMetrics';
 
 interface ChangeExcludedMetricsProps {
   currentExcludedMetrics: Array<number>;
@@ -305,7 +306,7 @@ export const useRenderOptions = ({
                 size="small"
                 onChange={selectMetric(option)}
               />
-              <Typography>{`${option.name} (${option.unit})`}</Typography>
+              <Typography>{formatMetricName(option)}</Typography>
             </div>
           }
         >
@@ -316,7 +317,8 @@ export const useRenderOptions = ({
                 key={`${parentName}_${name}_${uuid}`}
               >
                 <Typography>
-                  {parentName}:{name}
+                  {equals('_Module_Meta', parentName) ? '' : `${parentName}:`}
+                  {name}
                 </Typography>
               </div>
             ))}
@@ -363,7 +365,9 @@ export const useRenderOptions = ({
               />
               <Typography
                 color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}
-              >{`${option.name} (${option.unit})`}</Typography>
+              >
+                {formatMetricName(option)}
+              </Typography>
             </div>
           }
         >
@@ -400,7 +404,8 @@ export const useRenderOptions = ({
                 <Typography
                   color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}
                 >
-                  {parentName}:{name}
+                  {equals('_Module_Meta', parentName) ? '' : `${parentName}:`}
+                  {name}
                 </Typography>
               </div>
             ))}

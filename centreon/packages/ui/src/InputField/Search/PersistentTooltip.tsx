@@ -1,11 +1,11 @@
 import { ReactElement, useState } from 'react';
 
-import { isNil, cond, T } from 'ramda';
+import { T, cond, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Tooltip, IconButton } from '@mui/material';
 import IconHelp from '@mui/icons-material/HelpOutline';
 import IconClose from '@mui/icons-material/HighlightOff';
+import { IconButton, Tooltip } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   buttonClose: {

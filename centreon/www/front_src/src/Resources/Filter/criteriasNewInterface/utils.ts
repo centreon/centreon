@@ -8,23 +8,23 @@ import {
 } from '../Criterias/models';
 
 import {
+  CategoryHostStatus,
+  CategoryServiceStatus,
   FieldInformationFromSearchInput,
   FindData,
   HandleDataByCategoryFilter,
   MergeArraysByField,
   ParametersFieldInformation,
   ParametersRemoveDuplicate,
-  SectionType,
-  categoryHostStatus,
-  categoryServiceStatus
+  SectionType
 } from './model';
 
 const statusBySectionType = (
   sectionType: SectionType | ResourceType
 ): Array<string> => {
   return sectionType === ResourceType.service
-    ? Object.keys(categoryServiceStatus)
-    : Object.keys(categoryHostStatus);
+    ? Object.keys(CategoryServiceStatus)
+    : Object.keys(CategoryHostStatus);
 };
 
 export const handleDataByCategoryFilter = ({

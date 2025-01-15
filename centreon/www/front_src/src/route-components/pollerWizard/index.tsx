@@ -1,14 +1,14 @@
-import { lazy, useState, Suspense, useRef, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 
-import { equals, isNil, path } from 'ramda';
+import { path, equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Box } from '@mui/material';
 
-import { ServerType, WizardFormProps } from '../../PollerWizard/models';
-import BaseWizard from '../../PollerWizard/forms/baseWizard';
-import ProgressBar from '../../components/progressBar';
 import LoadingSkeleton from '../../PollerWizard/LoadingSkeleton';
+import BaseWizard from '../../PollerWizard/forms/baseWizard';
+import { ServerType, WizardFormProps } from '../../PollerWizard/models';
+import ProgressBar from '../../components/progressBar';
 
 import {
   labelAddAdvancedConfiguration,

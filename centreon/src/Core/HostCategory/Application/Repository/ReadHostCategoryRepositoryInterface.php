@@ -172,9 +172,7 @@ interface ReadHostCategoryRepositoryInterface
      *
      * @param int[] $accessGroupIds
      *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
-     *
      * @return bool
      */
-    public function hasAclFilterOnHostCategories(array $accessGroupIds): bool;
+    public function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool;
 }

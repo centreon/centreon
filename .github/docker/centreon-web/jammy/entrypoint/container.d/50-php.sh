@@ -1,4 +1,4 @@
 #!/bin/sh
 
 mkdir -p /run/php
-systemctl start php8.1-fpm
+systemctl start php8.2-fpm

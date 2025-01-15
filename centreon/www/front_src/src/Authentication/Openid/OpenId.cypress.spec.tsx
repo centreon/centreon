@@ -1,5 +1,11 @@
-import { TestQueryProvider, Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
 
+import {
+  labelDoYouWantToResetTheForm,
+  labelReset,
+  labelResetTheForm,
+  labelSave
+} from '../Local/translatedLabels';
 import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
@@ -7,13 +13,6 @@ import {
   contactTemplatesEndpoint
 } from '../api/endpoints';
 import { Provider } from '../models';
-import {
-  labelActivation,
-  labelAuthenticationConditions,
-  labelAutoImportUsers,
-  labelGroupsMapping,
-  labelIdentityProvider
-} from '../translatedLabels';
 import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
@@ -31,11 +30,12 @@ import {
   labelRolesMapping
 } from '../shared/translatedLabels';
 import {
-  labelDoYouWantToResetTheForm,
-  labelReset,
-  labelResetTheForm,
-  labelSave
-} from '../Local/translatedLabels';
+  labelActivation,
+  labelAuthenticationConditions,
+  labelAutoImportUsers,
+  labelGroupsMapping,
+  labelIdentityProvider
+} from '../translatedLabels';
 
 import {
   labelAuthorizationEndpoint,

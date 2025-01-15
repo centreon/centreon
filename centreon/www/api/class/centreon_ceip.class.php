@@ -19,6 +19,16 @@
  *
  */
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+use Centreon\LegacyContainer;
+use CentreonLicense\Infrastructure\Service\LicenseService;
+use CentreonLicense\ServiceProvider;
+use Core\Common\Infrastructure\FeatureFlags;
+use Pimple\Exception\UnknownIdentifierException;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonUUID.class.php';
@@ -26,20 +36,31 @@ require_once __DIR__ . '/../../class/centreonStatistics.class.php';
 require_once __DIR__ . '/../../include/common/common-Func.php';
 require_once __DIR__ . '/webService.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonCeip
+ */
 class CentreonCeip extends CentreonWebService
 {
     /** @var string */
     private $uuid;
 
-    /** @var \CentreonUser */
+    /** @var CentreonUser */
     private $user;
 
-    private \Centreon\Domain\Log\Logger $logger;
+    /** @var Logger */
+    private Logger $logger;
 
-    private \Core\Common\Infrastructure\FeatureFlags $featureFlags;
+    /** @var FeatureFlags */
+    private FeatureFlags $featureFlags;
 
     /**
-     * Constructor.
+     * CentreonCeip constructor
+     *
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function __construct()
     {
@@ -52,10 +73,10 @@ class CentreonCeip extends CentreonWebService
         // Generate UUID
         $this->uuid = (string) (new CentreonUUID($this->pearDB))->getUUID();
 
-        $kernel = \App\Kernel::createForWeb();
-        $this->logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class)
+        $kernel = Kernel::createForWeb();
+        $this->logger = $kernel->getContainer()->get(Logger::class)
             ?? throw new LogicException('Logger not found in container');
-        $this->featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class)
+        $this->featureFlags = $kernel->getContainer()->get(FeatureFlags::class)
             ?? throw new LogicException('FeatureFlags not found in container');
     }
 
@@ -63,6 +84,7 @@ class CentreonCeip extends CentreonWebService
      * Get CEIP Account and User info.
      *
      * @return array<string,mixed> with Account/User info
+     * @throws PDOException
      */
     public function getCeipInfo(): array
     {
@@ -86,6 +108,7 @@ class CentreonCeip extends CentreonWebService
      *     type: 'central'|'remote',
      *     platform: 'on_premise'|'centreon_cloud',
      * } the type of the server
+     * @throws PDOException
      */
     private function getServerType(): array
     {
@@ -113,16 +136,13 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get visitor information.
      *
-     * @throws \PDOException
-     *
      * @return array<string,mixed> with visitor information
      */
     private function getVisitorInformation(): array
     {
         $locale = $this->user->get_lang();
 
-        
-        if (isCloudPlatform()) { 
+        if (isCloudPlatform()) {
             // Get the user role for the Centreon Cloud platform
 
             // Get list of ACL Groups linked to this user
@@ -138,7 +158,13 @@ class CentreonCeip extends CentreonWebService
             } else {
                 $role = 'User';
             }
-        } else { 
+            $dependencyInjector = LegacyContainer::getInstance();
+            $licenseService = $dependencyInjector['lm.license'];
+
+            if($licenseService->isTrial()) {
+                $email = $this->user->email;
+            }
+        } else {
             // Get the user role for the Centreon on-premises platform
             $role = $this->user->admin
                 ? 'admin'
@@ -150,11 +176,16 @@ class CentreonCeip extends CentreonWebService
             }
         }
 
-        return [
+        $visitorInformation = [
             'id' => mb_substr($this->uuid, 0, 6) . '-' . $this->user->user_id,
             'locale' => $locale,
             'role' => $role,
         ];
+
+        if (isset($email)) {
+            $visitorInformation['email'] = $email;
+        }
+        return $visitorInformation;
     }
 
     /**
@@ -177,11 +208,12 @@ class CentreonCeip extends CentreonWebService
         // Get Instance information
         $instanceInformation = $this->getServerType();
 
-        return [
+        $accountInformation =  [
             'id' => $this->uuid,
             'name' => $licenseInfo['companyName'],
             'serverType' => $instanceInformation['type'],
             'platformType' => $instanceInformation['platform'],
+            'platformEnvironment' => $licenseInfo['platformEnvironment'],
             'licenseType' => $licenseInfo['licenseType'],
             'versionMajor' => $centreonVersion['major'],
             'versionMinor' => $centreonVersion['minor'],
@@ -190,6 +222,16 @@ class CentreonCeip extends CentreonWebService
             'nb_servers' => $configUsage['nb_central'] + $configUsage['nb_remotes'] + $configUsage['nb_pollers'],
             'enabled_features_tags' => $this->featureFlags->getEnabled() ?: [],
         ];
+
+        if (isset($licenseInfo['hosts_limitation'])) {
+            $accountInformation['hosts_limitation'] = $licenseInfo['hosts_limitation'];
+        }
+
+        if (isset($licenseInfo['fingerprint'])) {
+            $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
+        }
+
+        return $accountInformation;
     }
 
     /**
@@ -202,13 +244,15 @@ class CentreonCeip extends CentreonWebService
         /**
          * Getting License information.
          */
-        $dependencyInjector = \Centreon\LegacyContainer::getInstance();
+        $dependencyInjector = LegacyContainer::getInstance();
+        $fingerprintService = $dependencyInjector[ServiceProvider::LM_FINGERPRINT];
+
         $productLicense = 'Open Source';
         $licenseClientName = '';
         try {
             $centreonModules = ['epp', 'bam', 'map', 'mbi'];
 
-            /** @var \CentreonLicense\Infrastructure\Service\LicenseService $licenseObject */
+            /** @var LicenseService $licenseObject */
             $licenseObject = $dependencyInjector['lm.license'];
 
             /** @var array<array-key, array<array-key, string|array<array-key, string>>> $licenseInformation */
@@ -226,37 +270,65 @@ class CentreonCeip extends CentreonWebService
                     $licenseInformation[$module] = $licenseObject->getData();
                     /** @var string $licenseClientName */
                     $licenseClientName = $licenseInformation[$module]['client']['name'];
-
+                    $hostsLimitation = $licenseInformation[$module]['licensing']['hosts'];
+                    $licenseStart = DateTime::createFromFormat(
+                        'Y-m-d',
+                        $licenseInformation[$module]['licensing']['start']
+                    ) ?: throw new Exception('Invalid date format');
+                    $licenseEnd = DateTime::createFromFormat(
+                        'Y-m-d',
+                        $licenseInformation[$module]['licensing']['end']
+                    ) ?: throw new Exception('Invalid date format');
+                    $licenseDurationInMonths = $licenseEnd->diff($licenseStart)->m;
                     if ($module === 'epp') {
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
                             $productLicense = 'IT-100 Edition';
+                        } else if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                            $productLicense = 'MSP Edition';
+                            $fingerprint = $fingerprintService->calculateFingerprint();
                         }
                     }
                     if (in_array($module, ['mbi', 'bam', 'map'], true)) {
                         $productLicense = 'Business Edition';
+                        $fingerprint = $fingerprintService->calculateFingerprint();
+                        if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                            $productLicense = 'MSP Edition';
+                        }
                         break;
                     }
+                    $environment = $licenseInformation[$module]['platform']['environment'];
                 }
             }
-        } catch (\Pimple\Exception\UnknownIdentifierException) {
+        } catch (UnknownIdentifierException) {
             // The licence does not exist, 99.99% chance we are on Open source. No need to log.
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
         }
 
-        return [
+        $licenseInformation = [
             'companyName' => $licenseClientName,
             'licenseType' => $productLicense,
+            'platformEnvironment' => $environment ?? 'demo',
         ];
+
+        if (isset($hostsLimitation)) {
+            $licenseInformation['hosts_limitation'] = $hostsLimitation;
+        }
+
+        if (isset($fingerprint)) {
+            $licenseInformation['fingerprint'] = $fingerprint;
+        }
+
+        return $licenseInformation;
     }
 
     /**
      * Get the major and minor versions of Centreon web.
      *
-     * @throws \PDOException
-     *
      * @return array{major: string, minor: string} with major and minor versions
+     *@throws PDOException
+     *
      */
     private function getCentreonVersion(): array
     {
@@ -270,9 +342,9 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get CEIP status.
      *
-     * @throws \PDOException
-     *
      * @return bool the status of CEIP
+     *@throws PDOException
+     *
      */
     private function isCeipActive(): bool
     {
@@ -297,11 +369,11 @@ class CentreonCeip extends CentreonWebService
                 $statement?->bindValue(...$args);
             }
             $statement?->execute();
-            $row = $statement?->fetch(\PDO::FETCH_NUM);
+            $row = $statement?->fetch(PDO::FETCH_NUM);
             $value = is_array($row) && isset($row[0]) ? $row[0] : null;
 
             return is_string($value) || is_int($value) || is_float($value) ? $value : null;
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
 
             return null;

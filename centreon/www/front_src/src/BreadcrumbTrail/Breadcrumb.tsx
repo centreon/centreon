@@ -1,6 +1,6 @@
-import { Link as RouterLink } from 'react-router-dom';
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
+import { Link as RouterLink } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import { Chip, Link } from '@mui/material';
 
@@ -44,7 +44,7 @@ const Breadcrumb = ({ last, breadcrumb }: Props): JSX.Element => {
         component={RouterLink}
         to={breadcrumb.link}
       >
-        {breadcrumb.label}
+        {t(breadcrumb.label)}
       </Link>
       {optionalLabel}
     </div>

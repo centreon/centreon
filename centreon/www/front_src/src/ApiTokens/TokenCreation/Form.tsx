@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -13,9 +14,11 @@ import {
   TextField,
   useResizeObserver
 } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
+import { Parameters } from '../api/models';
 import {
   labelCancel,
   labelClose,
@@ -25,12 +28,12 @@ import {
   labelUser
 } from '../translatedLabels';
 
+import InputCalendar from './InputCalendar/inputCalendar';
 import Title from './Title';
 import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
 import { useStyles } from './tokenCreation.styles';
 import useCreateTokenFormValues from './useTokenFormValues';
-import InputCalendar from './InputCalendar/inputCalendar';
 
 interface Props {
   closeDialog: () => void;
@@ -71,6 +74,18 @@ const FormCreation = ({
     data,
     values
   });
+
+  const { canManageApiTokens, isAdmin } = useAtomValue(userAtom);
+
+  const searchParams = isAdmin
+    ? {}
+    : { search: { regex: { fields: ['is_admin'], value: '0' } } };
+
+  const getUsersEndpoint = (parameters: Parameters): string =>
+    getEndpointConfiguredUser({
+      ...parameters,
+      ...searchParams
+    });
 
   const close = (): void => {
     resetForm();
@@ -157,9 +172,9 @@ const FormCreation = ({
       <SingleConnectedAutocompleteField
         className={classes.input}
         dataTestId={labelUser}
-        disabled={Boolean(token)}
+        disabled={Boolean(token) || !canManageApiTokens}
         field="name"
-        getEndpoint={getEndpointConfiguredUser}
+        getEndpoint={getUsersEndpoint}
         id="user"
         label={t(labelUser)}
         required={!token}

@@ -68,3 +68,16 @@ export const labelYouAreGoingToDeleteUser =
   'You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard.';
 export const labelUserDeleted = 'User deleted';
 export const labelShareWithContacts = 'Share with contacts';
+export const labelSaveYourDashboardForThumbnail =
+  'Save your dashboard to generate a thumbnail';
+export const labelDataDisplayedForRepresentativeUse =
+  'Thumbnails show a snapshot of your data, taken when the dashboard is saved';
+export const labelExpand = 'Expand';
+export const labelReduce = 'Reduce';
+export const labelFavoriteFilter = 'Show only dashboards added to favorites';
+export const labelDashboardAddedToFavorites =
+  'The dashboard has been added to your favorites.';
+export const labelDashboardRemovedFromFavorites =
+  'The dashboard has been removed from your favorites.';
+export const labelRemoveFromFavorites = 'Remove from favorites';
+export const labelAddToFavorites = 'Add to favorites';

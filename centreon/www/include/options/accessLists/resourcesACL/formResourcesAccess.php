@@ -80,7 +80,7 @@ if ($o === 'c' || $o === 'w') {
     }
 
     /*
-     * Set Hosts Groups relations
+     * Set Host Groups relations
      */
     $statement = $pearDB->prepare("SELECT hg_hg_id FROM acl_resources_hg_relations WHERE acl_res_id = :aclId");
     $statement->bindValue(':aclId', $aclId, \PDO::PARAM_INT);
@@ -144,7 +144,7 @@ if ($o === 'c' || $o === 'w') {
     }
 }
 
-$groups = array();
+$groups = [];
 $DBRESULT = $pearDB->query("SELECT acl_group_id, acl_group_name FROM acl_groups ORDER BY acl_group_name");
 while ($group = $DBRESULT->fetch()) {
     $groups[$group["acl_group_id"]] = CentreonUtils::escapeSecure(
@@ -154,56 +154,56 @@ while ($group = $DBRESULT->fetch()) {
 }
 $DBRESULT->closeCursor();
 
-$pollers = array();
+$pollers = [];
 $DBRESULT = $pearDB->query("SELECT id, name FROM nagios_server ORDER BY name");
 while ($poller = $DBRESULT->fetch()) {
-    $pollers[$poller["id"]] = $poller["name"];
+    $pollers[$poller["id"]] = HtmlSanitizer::createFromString($poller["name"])->sanitize()->getString();
 }
 $DBRESULT->closeCursor();
 
-$hosts = array();
+$hosts = [];
 $DBRESULT = $pearDB->query("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
 while ($host = $DBRESULT->fetch()) {
     $hosts[$host["host_id"]] = $host["host_name"];
 }
 $DBRESULT->closeCursor();
 
-$hosttoexcludes = array();
+$hosttoexcludes = [];
 $DBRESULT = $pearDB->query("SELECT host_id, host_name FROM host WHERE host_register = '1' ORDER BY host_name");
 while ($host = $DBRESULT->fetchRow()) {
     $hosttoexcludes[$host["host_id"]] = $host["host_name"];
 }
 $DBRESULT->closeCursor();
 
-$hostgroups = array();
+$hostgroups = [];
 $DBRESULT = $pearDB->query("SELECT hg_id, hg_name FROM hostgroup ORDER BY hg_name");
 while ($hg = $DBRESULT->fetchRow()) {
     $hostgroups[$hg["hg_id"]] = $hg["hg_name"];
 }
 $DBRESULT->closeCursor();
 
-$service_categories = array();
+$service_categories = [];
 $DBRESULT = $pearDB->query("SELECT sc_id, sc_name FROM service_categories ORDER BY sc_name");
 while ($sc = $DBRESULT->fetchRow()) {
     $service_categories[$sc["sc_id"]] = $sc["sc_name"];
 }
 $DBRESULT->closeCursor();
 
-$host_categories = array();
+$host_categories = [];
 $DBRESULT = $pearDB->query("SELECT hc_id, hc_name FROM hostcategories ORDER BY hc_name");
 while ($hc = $DBRESULT->fetchRow()) {
     $host_categories[$hc["hc_id"]] = $hc["hc_name"];
 }
 $DBRESULT->closeCursor();
 
-$service_groups = array();
+$service_groups = [];
 $DBRESULT = $pearDB->query("SELECT sg_id, sg_name FROM servicegroup ORDER BY sg_name");
 while ($sg = $DBRESULT->fetchRow()) {
     $service_groups[$sg["sg_id"]] = $sg["sg_name"];
 }
 $DBRESULT->closeCursor();
 
-$meta_services = array();
+$meta_services = [];
 $DBRESULT = $pearDB->query("SELECT meta_id, meta_name FROM meta_service ORDER BY meta_name");
 while ($ms = $DBRESULT->fetchRow()) {
     $meta_services[$ms["meta_id"]] = $ms["meta_name"];
@@ -213,10 +213,10 @@ $DBRESULT->closeCursor();
 /*
  * Var information to format the element
  */
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "60");
-$attrsAdvSelect = array("style" => "width: 300px; height: 220px;");
-$attrsTextarea = array("rows" => "3", "cols" => "80");
+$attrsText = ["size" => "30"];
+$attrsText2 = ["size" => "60"];
+$attrsAdvSelect = ["style" => "width: 300px; height: 220px;"];
+$attrsTextarea = ["rows" => "3", "cols" => "80"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />' .
 '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
@@ -236,16 +236,16 @@ if ($o == "a") {
  * LCA basic information
  */
 $form->addElement('header', 'information', _("General Information"));
-$form->addElement('header', 'hostgroups', _("Hosts Groups Shared"));
+$form->addElement('header', 'hostgroups', _("Host Groups Shared"));
 $form->addElement('header', 'services', _("Filters"));
 $form->addElement('text', 'acl_res_name', _("Access list name"), $attrsText);
 $form->addElement('text', 'acl_res_alias', _("Description"), $attrsText2);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'acl_res_activate', null, _("Enabled"), '1');
 $tab[] = $form->createElement('radio', 'acl_res_activate', null, _("Disabled"), '0');
 $form->addGroup($tab, 'acl_res_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('acl_res_activate' => '1'));
+$form->setDefaults(['acl_res_activate' => '1']);
 
 /*
  * All ressources
@@ -255,7 +255,7 @@ $allHosts[] = $form->createElement(
     'all_hosts',
     '&nbsp;',
     "",
-    array('id' => 'all_hosts', 'onClick' => 'toggleTableDeps(this)')
+    ['id' => 'all_hosts', 'onClick' => 'toggleTableDeps(this)']
 );
 $form->addGroup($allHosts, 'all_hosts', _("Include all hosts"), '&nbsp;&nbsp;');
 
@@ -264,7 +264,7 @@ $allHostgroups[] = $form->createElement(
     'all_hostgroups',
     '&nbsp;',
     "",
-    array('id' => 'all_hostgroups', 'onClick' => 'toggleTableDeps(this)')
+    ['id' => 'all_hostgroups', 'onClick' => 'toggleTableDeps(this)']
 );
 $form->addGroup($allHostgroups, 'all_hostgroups', _("Include all hostgroups"), '&nbsp;&nbsp;');
 
@@ -273,7 +273,7 @@ $allServiceGroups[] = $form->createElement(
     'all_servicegroups',
     '&nbsp;',
     "",
-    array('id' => 'all_servicegroups', 'onClick' => 'toggleTableDeps(this)')
+    ['id' => 'all_servicegroups', 'onClick' => 'toggleTableDeps(this)']
 );
 $form->addGroup($allServiceGroups, 'all_servicegroups', _("Include all servicegroups"), '&nbsp;&nbsp;');
 
@@ -285,13 +285,13 @@ $form->addElement('header', 'contacts_infos', _("People linked to this Access li
 $ams1 = $form->addElement(
     'advmultiselect',
     'acl_groups',
-    array(_("Linked Groups"), _("Available"), _("Selected")),
+    [_("Linked Groups"), _("Available"), _("Selected")],
     $groups,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams1->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams1->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams1->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams1->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
@@ -326,13 +326,13 @@ $form->addElement(
 $ams0 = $form->addElement(
     'advmultiselect',
     'acl_pollers',
-    array(_("Poller Filter"), _("Available"), _("Selected")),
+    [_("Poller Filter"), _("Available"), _("Selected")],
     $pollers,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams0->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams0->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams0->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams0->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams0->setElementTemplate($eTemplate);
 echo $ams0->getElementJs(false);
 
@@ -343,13 +343,13 @@ $attrsAdvSelect['id'] = 'hostAdvancedSelect';
 $ams2 = $form->addElement(
     'advmultiselect',
     'acl_hosts',
-    array(_("Hosts"), _("Available"), _("Selected")),
+    [_("Hosts"), _("Available"), _("Selected")],
     $hosts,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams2->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams2->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams2->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams2->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams2->setElementTemplate($eTemplate);
 echo $ams2->getElementJs(false);
 
@@ -360,13 +360,13 @@ $attrsAdvSelect['id'] = 'hostgroupAdvancedSelect';
 $ams2 = $form->addElement(
     'advmultiselect',
     'acl_hostgroup',
-    array(_("Host Groups"), _("Available"), _("Selected")),
+    [_("Host Groups"), _("Available"), _("Selected")],
     $hostgroups,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams2->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams2->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams2->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams2->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams2->setElementTemplate($eTemplate);
 echo $ams2->getElementJs(false);
 
@@ -375,13 +375,13 @@ unset($attrsAdvSelect['id']);
 $ams2 = $form->addElement(
     'advmultiselect',
     'acl_hostexclude',
-    array(_("Exclude hosts from selected host groups"), _("Available"), _("Selected")),
+    [_("Exclude hosts from selected host groups"), _("Available"), _("Selected")],
     $hosttoexcludes,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams2->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams2->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams2->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams2->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams2->setElementTemplate($eTemplate);
 echo $ams2->getElementJs(false);
 
@@ -391,13 +391,13 @@ echo $ams2->getElementJs(false);
 $ams2 = $form->addElement(
     'advmultiselect',
     'acl_sc',
-    array(_("Service Category Filter"), _("Available"), _("Selected")),
+    [_("Service Category Filter"), _("Available"), _("Selected")],
     $service_categories,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams2->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams2->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams2->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams2->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams2->setElementTemplate($eTemplate);
 echo $ams2->getElementJs(false);
 
@@ -407,13 +407,13 @@ echo $ams2->getElementJs(false);
 $ams2 = $form->addElement(
     'advmultiselect',
     'acl_hc',
-    array(_("Host Category Filter"), _("Available"), _("Selected")),
+    [_("Host Category Filter"), _("Available"), _("Selected")],
     $host_categories,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams2->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams2->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams2->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams2->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams2->setElementTemplate($eTemplate);
 echo $ams2->getElementJs(false);
 
@@ -424,13 +424,13 @@ $attrsAdvSelect['id'] = 'servicegroupAdvancedSelect';
 $ams2 = $form->addElement(
     'advmultiselect',
     'acl_sg',
-    array(_("Service Groups"), _("Available"), _("Selected")),
+    [_("Service Groups"), _("Available"), _("Selected")],
     $service_groups,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams2->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams2->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams2->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams2->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams2->setElementTemplate($eTemplate);
 echo $ams2->getElementJs(false);
 unset($attrsAdvSelect['id']);
@@ -441,17 +441,13 @@ unset($attrsAdvSelect['id']);
 $ams2 = $form->addElement(
     'advmultiselect',
     'acl_meta',
-    array(
-        _("Meta Services"),
-        _("Available"),
-        _("Selected")
-    ),
+    [_("Meta Services"), _("Available"), _("Selected")],
     $meta_services,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams2->setButtonAttributes('add', array('value' => _("Add"), "class" => "btc bt_success"));
-$ams2->setButtonAttributes('remove', array('value' => _("Remove"), "class" => "btc bt_danger"));
+$ams2->setButtonAttributes('add', ['value' => _("Add"), "class" => "btc bt_success"]);
+$ams2->setButtonAttributes('remove', ['value' => _("Remove"), "class" => "btc bt_danger"]);
 $ams2->setElementTemplate($eTemplate);
 echo $ams2->getElementJs(false);
 
@@ -492,27 +488,24 @@ if ($o == "w") {
     /*
      * Just watch a LCA information
      */
-    $form->addElement("button", "change", _("Modify"), array(
-        "onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&acl_id=" . $aclId . "'",
-        "class" => "btc bt_success"
-    ));
+    $form->addElement("button", "change", _("Modify"), ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&acl_id=" . $aclId . "'", "class" => "btc bt_success"]);
     $form->setDefaults($formDefaults);
     $form->freeze();
 } elseif ($o == "c") {
     /*
      * Modify a LCA information
      */
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Delete"), array("class" => "btc bt_danger"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Delete"), ["class" => "btc bt_danger"]);
     $form->setDefaults($formDefaults);
 } elseif ($o == "a") {
     /*
      *  Add a LCA information
      */
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Delete"), array("class" => "btc bt_danger"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Delete"), ["class" => "btc bt_danger"]);
 }
-$tpl->assign('msg', array("changeL" => "main.php?p=" . $p . "&o=c&lca_id=" . $aclId, "changeT" => _("Modify")));
+$tpl->assign('msg', ["changeL" => "main.php?p=" . $p . "&o=c&lca_id=" . $aclId, "changeT" => _("Modify")]);
 
 // prepare help texts
 $helptext = "";
@@ -546,8 +539,8 @@ if ($form->validate()) {
         $tpl->assign('form', $renderer->toArray());
         $tpl->assign('o', $o);
         $tpl->assign("sort1", _("General Information"));
-        $tpl->assign("sort2", _("Hosts Resources"));
-        $tpl->assign("sort3", _("Services Resources"));
+        $tpl->assign("sort2", _("Host Resources"));
+        $tpl->assign("sort3", _("Service Resources"));
         $tpl->assign("sort4", _("Meta Services"));
         $tpl->assign("sort5", _("Filters"));
         $tpl->display("formResourcesAccess.ihtml");

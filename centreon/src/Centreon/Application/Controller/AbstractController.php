@@ -22,26 +22,59 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
 
-use JsonSchema\Validator;
 use Centreon\Domain\Log\LoggerTrait;
-use JsonSchema\Constraints\Constraint;
-use Symfony\Component\HttpFoundation\Request;
+use Core\Application\Common\UseCase\ConflictResponse;
+use Core\Application\Common\UseCase\CreatedResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\MultiStatusResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\NotModifiedResponse;
+use Core\Application\Common\UseCase\PaymentRequiredResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use JsonSchema\Constraints\Constraint;
+use JsonSchema\Validator;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
- * Abstraction over the FOSRestController
- *
- * @package Centreon\Application\Controller
+ * Abstraction over the FOSRestController.
  */
 abstract class AbstractController extends AbstractFOSRestController
 {
     use LoggerTrait;
-
     public const ROLE_API_REALTIME = 'ROLE_API_REALTIME';
     public const ROLE_API_REALTIME_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
     public const ROLE_API_CONFIGURATION = 'ROLE_API_CONFIGURATION';
     public const ROLE_API_CONFIGURATION_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
+
+    public function createResponse(ResponseStatusInterface $response): Response
+    {
+        $statusCode = match(true) {
+            $response instanceof ConflictResponse => Response::HTTP_CONFLICT,
+            $response instanceof CreatedResponse => Response::HTTP_CREATED,
+            $response instanceof ForbiddenResponse => Response::HTTP_FORBIDDEN,
+            $response instanceof InvalidArgumentResponse => Response::HTTP_BAD_REQUEST,
+            $response instanceof MultiStatusResponse => Response::HTTP_MULTI_STATUS,
+            $response instanceof NoContentResponse => Response::HTTP_NO_CONTENT,
+            $response instanceof NotFoundResponse => Response::HTTP_NOT_FOUND,
+            $response instanceof NotModifiedResponse => Response::HTTP_NOT_MODIFIED,
+            $response instanceof PaymentRequiredResponse => Response::HTTP_PAYMENT_REQUIRED,
+            default => Response::HTTP_INTERNAL_SERVER_ERROR
+        };
+
+        return match($statusCode) {
+            Response::HTTP_CREATED, Response::HTTP_NO_CONTENT, Response::HTTP_NOT_MODIFIED => new JsonResponse(null, $statusCode),
+            default => new JsonResponse([
+                'code' => $statusCode,
+                'message' => $response->getMessage(),
+            ], $statusCode)
+        };
+    }
 
     /**
      * @throws AccessDeniedException
@@ -68,7 +101,7 @@ abstract class AbstractController extends AbstractFOSRestController
     }
 
     /**
-     * Get current base uri
+     * Get current base uri.
      *
      * @return string
      */
@@ -95,13 +128,14 @@ abstract class AbstractController extends AbstractFOSRestController
      *
      * @param Request $request Request sent by client
      * @param string $jsonValidationFile Json validation file
+     *
      * @throws \InvalidArgumentException
      */
     protected function validateDataSent(Request $request, string $jsonValidationFile): void
     {
         // We want to enforce the decoding as possible objects.
         $receivedData = json_decode((string) $request->getContent(), false);
-        if (!is_array($receivedData) && ! ($receivedData instanceof \stdClass)) {
+        if (! is_array($receivedData) && ! ($receivedData instanceof \stdClass)) {
             throw new \InvalidArgumentException('Error when decoding your sent data');
         }
 
@@ -111,12 +145,12 @@ abstract class AbstractController extends AbstractFOSRestController
             (object) [
                 '$ref' => 'file://' . realpath(
                     $jsonValidationFile
-                )
+                ),
             ],
             Constraint::CHECK_MODE_VALIDATE_SCHEMA
         );
 
-        if (!$validator->isValid()) {
+        if (! $validator->isValid()) {
             $message = '';
             $this->error('Invalid request body');
             foreach ($validator->getErrors() as $error) {
@@ -124,22 +158,25 @@ abstract class AbstractController extends AbstractFOSRestController
                     ? sprintf("[%s] %s\n", $error['property'], $error['message'])
                     : sprintf("%s\n", $error['message']);
             }
+
             throw new \InvalidArgumentException($message);
         }
     }
-
 
     /**
      * Validate the data sent and retrieve it.
      *
      * @param Request $request Request sent by client
      * @param string $jsonValidationFile Json validation file
-     * @return array<string, mixed>
+     *
      * @throws \InvalidArgumentException
+     *
+     * @return array<string, mixed>
      */
     protected function validateAndRetrieveDataSent(Request $request, string $jsonValidationFile): array
     {
         $this->validateDataSent($request, $jsonValidationFile);
+
         return json_decode((string) $request->getContent(), true);
     }
 }

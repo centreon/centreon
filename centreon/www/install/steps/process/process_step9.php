@@ -36,10 +36,14 @@
 
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
-require_once __DIR__ . '/migrateCredentialsToVault.php';
+require_once __DIR__ . '/../../../include/common/vault-functions.php';
 
+use App\Kernel;
 use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Symfony\Component\Dotenv\Dotenv;
+
+
 $step = new \CentreonLegacy\Core\Install\Step\Step9($dependencyInjector);
 $version = $step->getVersion();
 
@@ -66,7 +70,19 @@ try {
     $featureFlagManager = new FeatureFlags($isCloudPlatform, $featuresFileContent);
     $isVaultFeatureEnable = $featureFlagManager->isEnabled('vault');
     if ($isVaultFeatureEnable && file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')) {
-        migrateCredentialsToVault();
+        $kernel = Kernel::createForWeb();
+        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+        $writeVaultRepository->setCustomPath('database');
+        $databaseVaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
+        if (! empty($databaseVaultPaths)) {
+            updateConfigFilesWithVaultPath($databaseVaultPaths);
+        }
+        if ($featureFlagManager->isEnabled('vault_gorgone')) {
+            $gorgoneVaultPaths = migrateGorgoneCredentialsToVault($writeVaultRepository);
+            if (! empty($gorgoneVaultPaths)) {
+                updateGorgoneApiFile($gorgoneVaultPaths);
+            }
+        }
     }
 
     $backupDir = _CENTREON_VARLIB_ . '/installs/'
@@ -90,7 +106,4 @@ try {
     $message = $e->getMessage();
 }
 
-echo json_encode(array(
-    'result' => $result,
-    'message' => $message
-));
+echo json_encode(['result' => $result, 'message' => $message]);

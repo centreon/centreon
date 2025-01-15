@@ -1,7 +1,6 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import { PasswordExpiration, PasswordSecurityPolicy } from '../Local/models';
-import { WebSSOConfiguration } from '../WebSSO/models';
 import {
   AuthConditions,
   Endpoint,
@@ -10,12 +9,13 @@ import {
   OpenidConfiguration,
   RolesMapping
 } from '../Openid/models';
+import { SAMLConfiguration } from '../SAML/models';
+import { WebSSOConfiguration } from '../WebSSO/models';
 import {
   contactTemplateDecoder,
   groupsRelationsDecoder,
   rolesRelationsDecoder
 } from '../shared/decoders';
-import { SAMLConfiguration } from '../SAML/models';
 import {
   SharedAuthenticationConditions,
   SharedGroupsMapping,

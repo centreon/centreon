@@ -1,7 +1,7 @@
 import { Shape } from '@visx/visx';
+import { useSetAtom } from 'jotai';
 import { equals, negate } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-import { useSetAtom } from 'jotai';
 
 import { alpha, useTheme } from '@mui/material';
 
@@ -9,7 +9,7 @@ import { useMemoComponent, useTimeShiftZones } from '@centreon/ui';
 
 import { updatedGraphIntervalAtom } from '../../ExportableGraphWithTimeline/atoms';
 
-import { useTimeShiftContext, TimeShiftDirection } from '.';
+import { TimeShiftDirection, useTimeShiftContext } from '.';
 
 export const timeShiftZoneWidth = 50;
 

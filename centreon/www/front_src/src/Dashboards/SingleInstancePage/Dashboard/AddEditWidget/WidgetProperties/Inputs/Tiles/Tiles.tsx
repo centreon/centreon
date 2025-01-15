@@ -7,13 +7,13 @@ import { Typography } from '@mui/material';
 
 import { NumberField } from '@centreon/ui';
 
-import { getProperty } from '../utils';
-import { Widget, WidgetPropertyProps } from '../../../models';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { Widget, WidgetPropertyProps } from '../../../models';
+import { getProperty } from '../utils';
 
-import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 import { useTilesStyles } from './Tiles.styles';
+import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 
 const WidgetTiles = ({
   propertyName,

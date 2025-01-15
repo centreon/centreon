@@ -1,12 +1,24 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: Centreon Web RestAPI for Cloud
   description: |
-    # New features
-    +
-    # Updated features
-    +
-    +
+
+    <blockquote style="
+      color: #3a87ad;
+      background-color: #d9edf7;
+      border-color: #bce8f1;
+      padding: 14px;
+      margin-top: 1em;
+    ">
+      <p style="
+        margin: auto;
+      ">
+        Many more endpoints are available but not included in this document yet.
+        Please refer to the <a href="https://docs-api.centreon.com/api/centreon-web/24.10/">OnPrem API page</a> if you are looking for a specific endpoint.
+        Bear in mind that not all endpoints described in the OnPrem API page are available on a cloud platform, in particular those related to the administration of the Centreon platform.
+      </p>
+    </blockquote>
+
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -21,10 +33,9 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: "24.04"
 externalDocs:
-  description: You can contact us on our community Slack
-  url: 'https://centreon.slack.com/messages/CCRGLQSE5'
+  description: You can contact us on our community platform The Watch
+  url: 'https://thewatch.centreon.com/'
 servers:
   - url: '{protocol}://{server}:{port}/centreon/api/{version}'
     variables:
@@ -41,7 +52,7 @@ servers:
         default: '80'
         description: "Port used by HTTP server"
       version:
-        default: v24.04
+        default: latest
         description: "Version of the API"
 tags:
   - name: Host
@@ -70,6 +81,8 @@ paths:
     $ref: './latest/Cloud/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
     $ref: './latest/Cloud/Configuration/HostTemplate/PartialUpdateHostTemplate.yaml'
+  /configuration/hosts/{host_id}/services/deploy:
+    $ref: './latest/Cloud/Configuration/Service/DeployServices.yaml'
   /configuration/services:
     $ref: "./latest/Cloud/Configuration/Service/AddAndFindServices.yaml"
   /configuration/services/{service_id}:

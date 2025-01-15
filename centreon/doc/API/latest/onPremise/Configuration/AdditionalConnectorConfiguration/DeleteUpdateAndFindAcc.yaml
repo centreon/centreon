@@ -1,0 +1,62 @@
+delete:
+  tags:
+    - Additional Connector Configuration
+  summary: "Delete an Additional Connector Configuration (ACC)"
+  description: "Delete an Additional Connector Configuration (ACC)"
+  parameters:
+    - $ref: 'QueryParameter/AccId.yaml'
+  responses:
+    '204':
+      $ref: '../../Common/Response/NoContent.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+get:
+  tags:
+    - Additional Connector Configuration
+  summary: "Find an Additional Connector Configuration (ACC)"
+  description: "Find an Additional Connector Configuration (ACC)"
+  parameters:
+    - $ref: 'QueryParameter/AccId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/FindAccResponse.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+put:
+  tags:
+    - Additional Connector Configuration
+  summary: "Update an Additional Connector Configuration (ACC)"
+  description: "Update an Additional Connector Configuration (ACC)"
+  parameters:
+    - $ref: 'QueryParameter/AccId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/UpdateAccRequest.yaml'
+  responses:
+    '204':
+      $ref: '../../Common/Response/NoContent.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

@@ -2,8 +2,8 @@ import { ReactElement, useCallback, useEffect, useRef } from 'react';
 
 import { atom, useAtom } from 'jotai';
 
-import { Tooltip, TooltipProps } from '../Tooltip';
 import { useResizeObserver } from '../../../utils/useResizeObserver';
+import { Tooltip, TooltipProps } from '../Tooltip';
 
 import { useStyles } from './TextOverflowTooltip.styles';
 

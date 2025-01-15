@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, not } from 'ramda';
 import { useAtom } from 'jotai';
+import { equals, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { Button } from '@mui/material';
@@ -11,8 +11,8 @@ import { Button } from '@mui/material';
 import {
   ConfirmDialog,
   SaveButton,
-  useMemoComponent,
-  UnsavedChangesDialog
+  UnsavedChangesDialog,
+  useMemoComponent
 } from '@centreon/ui';
 
 import {
@@ -24,7 +24,7 @@ import {
   labelSaved,
   labelSaving
 } from './Local/translatedLabels';
-import { tabAtom, appliedTabAtom } from './tabAtoms';
+import { appliedTabAtom, tabAtom } from './tabAtoms';
 
 const useStyles = makeStyles()((theme) => ({
   buttons: {

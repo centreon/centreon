@@ -2,7 +2,7 @@ import { equals } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
-import { margin } from '../../LineChart/common';
+import { margin } from '../../Chart/common';
 
 interface Props {
   hideTooltip: () => void;

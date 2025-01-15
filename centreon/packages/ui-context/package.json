@@ -5,9 +5,10 @@
   "main": "src/index.ts",
   "keywords": [],
   "author": "centreon@centreon.com",
-  "license": "GPL-2.0",
+  "license": "MIT",
   "scripts": {
-    "eslint": "eslint ./src --ext .ts --max-warnings 0",
-    "eslint:fix": "pnpm eslint --fix"
+    "lint": "biome check ./src/ --error-on-warnings",
+    "lint:fix": "pnpm lint --fix",
+    "lint:ci": "biome ci ./src/ --error-on-warnings"
   }
 }

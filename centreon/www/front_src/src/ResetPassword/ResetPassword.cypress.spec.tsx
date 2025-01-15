@@ -1,13 +1,22 @@
-import { BrowserRouter } from 'react-router-dom';
 import { Provider, createStore } from 'jotai';
 import { replace } from 'ramda';
+import { BrowserRouter } from 'react-router';
 
-import { SnackbarProvider, Method, TestQueryProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import { labelCentreonLogo } from '../Login/translatedLabels';
-import { loginEndpoint } from '../Login/api/endpoint';
+import {
+  loginEndpoint,
+  loginPageCustomisationEndpoint
+} from '../Login/api/endpoint';
+import {
+  labelCentreonLogo,
+  labelCentreonWallpaper,
+  labelPoweredByCentreon
+} from '../Login/translatedLabels';
 import { userEndpoint } from '../api/endpoint';
 
+import { platformVersionsAtom } from '@centreon/ui-context';
+import ResetPassword from '.';
 import {
   PasswordResetInformations,
   passwordResetInformationsAtom
@@ -21,8 +30,6 @@ import {
   labelTheNewPasswordIstheSameAsTheOldPassword
 } from './translatedLabels';
 import { router } from './useResetPassword';
-
-import ResetPassword from '.';
 
 const retrievedUser = {
   alias: 'Admin',
@@ -42,11 +49,71 @@ const retrievedLogin = {
   redirect_uri: '/monitoring/resources'
 };
 
-const mountComponentAndStub = (
-  initialValues: PasswordResetInformations | null = resetPasswordInitialValues
-): unknown => {
+const retrievedWebWithItEditionInstalled = {
+  modules: {
+    'centreon-it-edition-extensions': {
+      fix: '0',
+      major: '23',
+      minor: '10',
+      version: '23.10.0'
+    }
+  },
+  web: {
+    fix: '1',
+    major: '21',
+    minor: '10',
+    version: '21.10.1'
+  }
+};
+
+const interceptAPIRequests = () => {
+  cy.interceptAPIRequest({
+    alias: 'resetPassword',
+    method: Method.PUT,
+    path: '**/authentication/users/admin/password',
+    response: {},
+    statusCode: 201
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'providersConfiguration',
+    method: Method.POST,
+    path: replace('./api/latest', '**', loginEndpoint),
+    response: retrievedLogin
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getUser',
+    method: Method.GET,
+    path: replace('./api/latest', '**', userEndpoint),
+    response: retrievedUser
+  });
+
+  cy.fixture('login/loginPageCustomization.json').then((fixture) =>
+    cy.interceptAPIRequest({
+      alias: 'getLoginCustomization',
+      method: Method.GET,
+      path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
+      response: fixture
+    })
+  );
+};
+
+const mountComponentAndStub = ({
+  initialValues = resetPasswordInitialValues,
+  hasItEditionInstalled = false
+}: {
+  initialValues?: PasswordResetInformations | null;
+  hasItEditionInstalled?: boolean;
+}): unknown => {
   const store = createStore();
+
   store.set(passwordResetInformationsAtom, initialValues);
+
+  if (hasItEditionInstalled) {
+    store.set(platformVersionsAtom, retrievedWebWithItEditionInstalled);
+  }
+
   const useNavigate = cy.stub();
   cy.stub(router, 'useNavigate').returns(useNavigate);
 
@@ -68,32 +135,11 @@ const mountComponentAndStub = (
 };
 
 describe('Reset Password', () => {
-  beforeEach(() => {
-    cy.interceptAPIRequest({
-      alias: 'resetPassword',
-      method: Method.PUT,
-      path: `**/authentication/users/admin/password`,
-      response: {},
-      statusCode: 201
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'providersConfiguration',
-      method: Method.POST,
-      path: replace('./api/latest', '**', loginEndpoint),
-      response: retrievedLogin
-    });
-
-    cy.interceptAPIRequest({
-      alias: 'getUser',
-      method: Method.GET,
-      path: replace('./api/latest', '**', userEndpoint),
-      response: retrievedUser
-    });
-  });
+  beforeEach(interceptAPIRequests);
 
   it('displays the reset password form', () => {
-    mountComponentAndStub();
+    mountComponentAndStub({});
+
     cy.contains(labelResetPassword).should('be.visible');
     cy.findByLabelText(labelCurrentPassword).should('be.visible');
     cy.findByLabelText(labelNewPassword).should('be.visible');
@@ -104,7 +150,7 @@ describe('Reset Password', () => {
   });
 
   it('displays errors when the form is not correctly filled', () => {
-    mountComponentAndStub();
+    mountComponentAndStub({});
     cy.findByLabelText(labelCurrentPassword).type('current-password');
     cy.findByLabelText(labelNewPassword).type('current-password');
     cy.findByLabelText(labelNewPasswordConfirmation).click();
@@ -128,7 +174,7 @@ describe('Reset Password', () => {
   });
 
   it('redirects the user back to the login page when the page does not have the required information', () => {
-    const useNavigate = mountComponentAndStub(null);
+    const useNavigate = mountComponentAndStub({ initialValues: null });
 
     cy.findByAltText(labelCentreonLogo)
       .should('be.visible')
@@ -136,7 +182,7 @@ describe('Reset Password', () => {
   });
 
   it('redirects to the default page when the new password is successfully renewed', () => {
-    const useNavigate = mountComponentAndStub();
+    const useNavigate = mountComponentAndStub({});
 
     cy.findByLabelText(labelCurrentPassword).type('current-password');
     cy.findByLabelText(labelNewPassword).type('new-password');
@@ -154,5 +200,30 @@ describe('Reset Password', () => {
     cy.waitForRequest('@providersConfiguration').then(() =>
       expect(useNavigate).to.be.calledWith('/monitoring/resources')
     );
+  });
+});
+
+describe('Custom Reset Password page', () => {
+  beforeEach(() => {
+    interceptAPIRequests();
+  });
+
+  it('displays the Reset Password page when it is customized', () => {
+    mountComponentAndStub({ hasItEditionInstalled: true });
+
+    cy.waitForRequest('@getLoginCustomization');
+
+    cy.findByTestId(labelCentreonLogo).should('be.visible');
+    cy.findByTestId(labelCentreonWallpaper).should('be.visible');
+    cy.contains(labelPoweredByCentreon).should('be.visible');
+    cy.contains('v. 21.10.1').should('be.visible');
+
+    cy.findByText('Gendarmerie de la Haute-Garonne').should('be.visible');
+    cy.get('#Previewtop').should('not.exist');
+    cy.findByLabelText('Previewbottom')
+      .should('be.visible')
+      .contains('centreon');
+
+    cy.makeSnapshot();
   });
 });

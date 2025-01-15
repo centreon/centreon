@@ -1,19 +1,19 @@
 import { ReactElement } from 'react';
 
-import { useAtom, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
+import { useAtom, useSetAtom } from 'jotai';
 import { or } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Button, CircularProgress } from '@mui/material';
 
-import { labelExit, labelSave } from '../../translatedLabels';
 import {
   isCloseModalConfirmationDialogOpenAtom,
   isDirtyAtom,
   modalStateAtom
 } from '../../atom';
 import { ModalMode } from '../../models';
+import { labelExit, labelSave } from '../../translatedLabels';
 
 import { useActionButtonsStyles } from './Form.styles';
 

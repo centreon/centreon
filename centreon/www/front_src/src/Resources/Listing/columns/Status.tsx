@@ -1,13 +1,14 @@
-import { equals, isNil, path, pathEq } from 'ramda';
+import { useSetAtom } from 'jotai';
+import { path, equals, isNil, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-import { useSetAtom } from 'jotai';
 
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 import {
+  DowntimeIcon,
   IconButton,
   SeverityCode,
   StatusChip,
@@ -16,7 +17,6 @@ import {
 
 import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 import useAclQuery from '../../Actions/Resource/aclQuery';
-import IconDowntime from '../../icons/Downtime';
 import {
   labelAcknowledge,
   labelActionNotPermitted,
@@ -112,6 +112,7 @@ const StatusColumnOnHover = ({
           labelAction: labelAcknowledge
         })}
         onClick={(): void => actions.onAcknowledge(row)}
+        tooltipPlacement="left"
       >
         <IconAcknowledge fontSize="small" />
       </IconButton>
@@ -125,8 +126,9 @@ const StatusColumnOnHover = ({
           labelAction: labelSetDowntime
         })}
         onClick={(): void => actions.onDowntime(row)}
+        tooltipPlacement="left"
       >
-        <IconDowntime fontSize="small" />
+        <DowntimeIcon fontSize="small" />
       </IconButton>
 
       <IconButton
@@ -147,6 +149,7 @@ const StatusColumnOnHover = ({
 
           actions.onCheck(row);
         }}
+        tooltipPlacement="right"
       >
         <IconForcedCheck fontSize="small" />
       </IconButton>
