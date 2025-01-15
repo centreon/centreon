@@ -35,5 +35,6 @@ export type {
   DashboardRolesAndPermissions,
   FeatureFlags,
   PlatformFeatures,
-  AdditionalResource
+  AdditionalResource,
+  UserPermissions
 } from './types';
