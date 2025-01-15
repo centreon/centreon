@@ -18304,6 +18304,21 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "There are errors in the form."
 # msgstr ""
 
+# msgid "Show only dashboards marked as favorites"
+# msgstr ""
+
+# msgid "The dashboard has been added to your favorites."
+# msgstr ""
+
+# msgid "The dashboard has been removed from your favorites."
+# msgstr ""
+
+# msgid "Remove from favorites"
+# msgstr ""
+
+# msgid "Add to favorites"
+# msgstr ""
+
 # msgid "PNG (as displayed)"
 # msgstr ""
 
@@ -18314,4 +18329,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Export as"
+# msgstr ""
+
+# msgid "If you click on Discard, your changes will not be saved."
 # msgstr ""
