@@ -56,9 +56,9 @@ if (isset($_GET["id"]) && $_GET["id"] && is_numeric($_GET["id"])) {
     $statement->bindValue(':img_id', $_GET["id"], \PDO::PARAM_INT);
     $statement->execute();
     while ($img = $statement->fetch(\PDO::FETCH_ASSOC)) {
-        $imgpath = $logos_path . $img["dir_name"] . "/" . $img["img_path"];
-        if (!is_file($imgpath)) {
-            $imgpath = _CENTREON_PATH_ . 'www/img/media/' . $img["dir_name"] . "/" . $img["img_path"];
+        $imgPath = $logos_path . $img["dir_name"] . "/" . $img["img_path"];
+        if (!is_file($imgPath)) {
+            $imgPath = _CENTREON_PATH_ . 'www/img/media/' . $img["dir_name"] . "/" . $img["img_path"];
         }
         if (is_file($imgPath)) {
             $mimeType = finfo_file(finfo_open(), $imgPath, FILEINFO_MIME_TYPE);
