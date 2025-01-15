@@ -27,12 +27,6 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
   >({
     getEndpoint: ({ id }) => getDashboardEndpoint(id),
     method: Method.POST,
-    optimisticListing: {
-      enabled: true,
-      queryKey: resource.dashboards,
-      total,
-      limit: limit || 10
-    }
   });
 
   const mutate = (variables: Dashboard): Promise<Dashboard | ResponseError> => {
