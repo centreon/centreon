@@ -2853,17 +2853,18 @@ function testCg($list)
 /**
  * Apply template in order to deploy services
  *
- * @param array $hosts
+ * @param int[] $hosts
  * @return void
  */
-function applytpl($hosts)
+function applytpl(array $hostIds)
 {
-    global $pearDB;
+    global $pearDB, $centreon;
 
     $hostObj = new CentreonHost($pearDB);
 
-    foreach ($hosts as $key => $value) {
-        $hostObj->deployServices($key);
+    foreach ($hostIds as $hostId) {
+        $hostObj->deployServices($hostId);
+        $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "UPDATE"]);
     }
 }
 
