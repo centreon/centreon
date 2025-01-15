@@ -15,7 +15,8 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     },
     [theme.breakpoints.down('sm')]: {
       height: '200px'
-    }
+    },
+    backgroundColor: theme.palette.background.widget
   },
   smallContainer: {
     display: 'flex',
