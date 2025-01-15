@@ -1,7 +1,10 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import { searchInput, setUserFilter } from '../common';
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkServicesAreMonitored,
+  checkMetricsAreMonitored
+} from '../../../commons';
 
 const serviceOk = 'service_test_ok';
 const serviceInDtName = 'service_downtime_1';
@@ -124,6 +127,18 @@ beforeEach(() => {
       status: 'ok'
     }
   ]);
+
+  ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  });
+
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
 });
 
 Then('the unhandled problems filter is selected', (): void => {
@@ -204,6 +219,7 @@ Given('a saved critical service filter', () => {
 
 When('I select the critical service filter', () => {
   cy.contains('Critical_Services').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
 });
 
 Then('only the critical services are displayed in the result', () => {
@@ -232,6 +248,7 @@ Given('a saved pending host filter', () => {
 
 When('I select the pending host filter', () => {
   cy.contains('Pending_Hosts').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
 });
 
 Then('only the pending hosts are displayed in the result', () => {
@@ -260,6 +277,7 @@ Given('a saved up host filter', () => {
 
 When('I select the up host filter', () => {
   cy.contains('Up_Hosts').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
 });
 
 Then('only the up hosts are displayed in the result', () => {
@@ -267,6 +285,182 @@ Then('only the up hosts are displayed in the result', () => {
     .each(($statusCell) => {
       cy.wrap($statusCell).should('contain.text', 'Up');
     });
+});
+
+Given('a saved filter that includes a host group and all possible service statuses', () => {
+  cy.fixture('resources/hostGroupAndServices.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('HostGroupAndServices');
+});
+
+When('i select host group filter with all service statuses', () => {
+  cy.contains('HostGroupAndServices').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+
+});
+
+Then('all associated services regardless of their status are shown in the result', () => {
+ cy.waitForElementToBeVisible('div[class*="statusColumn"]:first')
+  .then(() => {
+    cy.get('div[class*="statusColumn"]:first')
+      .should('contain.text', 'Unknown');
+  });
+  cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+    const cellText = $statusCell.text().trim();
+    console.log(`Cell ${index}: ${cellText}`);
+    expect(['Unknown', 'OK']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
+});
+
+Given('a saved filter that includes a host group and services with OK and Up statuses', () => {
+  cy.fixture('resources/HostGroupWithUpOkStatuses.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('HostGroupWithUpOkStatuses');
+});
+
+When('i select the host group filter with OK and Up statuses', () => {
+  cy.contains('HostGroupWithUpOkStatuses').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+});
+
+Then('only services with OK and Up statuses are shown in the result', () => {
+ cy.waitForElementToBeVisible('div[class*="statusColumn"]:first')
+  .then(() => {
+    cy.get('div[class*="statusColumn"]:first')
+      .should('contain.text', 'OK');
+  });
+  cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+    const cellText = $statusCell.text().trim();
+    console.log(`Cell ${index}: ${cellText}`);
+    expect(['OK', 'Up']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
+});
+
+Given('a saved filter that includes Up hosts and Critical services', () => {
+  cy.fixture('resources/upHostAndCriticalServiceFilter.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('upHostAndCriticalServiceFilter');
+});
+
+When('i select the Up hosts and Critical services filter', () => {
+  cy.contains('upHostAndCriticalServiceFilter').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+});
+
+Then('only Critical services associated with Up hosts are shown in the result', () => {
+ cy.waitForElementToBeVisible('div[class*="statusColumn"]:last')
+  .then(() => {
+    cy.get('div[class*="statusColumn"]:last')
+      .should('contain.text', 'Up');
+  });
+  cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+    const cellText = $statusCell.text().trim();
+    console.log(`Cell ${index}: ${cellText}`);
+    expect(['Critical', 'Up']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
+});
+
+Given('a saved filter that includes a host a monitoring server  and services with OK status', () => {
+  cy.fixture('resources/hostMonitoringServerOkStatus.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('hostMonitoringServerOkStatus');
+});
+
+When('I select the filter for the host monitoring server and OK status', () => {
+  cy.contains('hostMonitoringServerOkStatus').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+});
+
+Then('only services with OK status associated with the selected host and monitoring server are shown in the result', () => {
+ cy.waitForElementToBeVisible('div[class*="statusColumn"]:first')
+  .then(() => {
+    cy.get('div[class*="statusColumn"]:first')
+      .should('contain.text', 'OK');
+  });
+  cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+    const cellText = $statusCell.text().trim();
+    console.log(`Cell ${index}: ${cellText}`);
+    expect(['OK']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
+});
+
+Given('a saved filter that includes a monitoring server with OK status', () => {
+  cy.fixture('resources/monitoringServerAndOkStatus.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('monitoringServerAndOkStatus');
+});
+
+When('I select the filter for the monitoring server with OK status', () => {
+  cy.contains('monitoringServerAndOkStatus').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+});
+
+Then('only services with OK status associated with the selected monitoring server are shown in the result', () => {
+ cy.waitForElementToBeVisible('div[class*="statusColumn"]:first')
+  .then(() => {
+    cy.get('div[class*="statusColumn"]:first')
+      .should('contain.text', 'OK');
+  });
+  cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+    const cellText = $statusCell.text().trim();
+    console.log(`Cell ${index}: ${cellText}`);
+    expect(['OK']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
 });
 
 afterEach(() => {
