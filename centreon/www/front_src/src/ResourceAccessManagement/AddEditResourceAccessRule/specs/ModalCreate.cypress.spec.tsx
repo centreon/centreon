@@ -544,9 +544,7 @@ describe('Create modal', () => {
 
     cy.findByLabelText(labelSave).click();
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
-      expect(request.body).to.deep.equal(
-        formDataWithAllBusinessViews
-      );
+      expect(request.body).to.deep.equal(formDataWithAllBusinessViews);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
@@ -575,9 +573,7 @@ describe('Create modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
-      expect(request.body).to.deep.equal(
-        formDataWithAllContactGroups
-      );
+      expect(request.body).to.deep.equal(formDataWithAllContactGroups);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');

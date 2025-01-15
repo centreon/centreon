@@ -268,9 +268,7 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
-      expect(request.body).to.deep.equal(
-        editedRuleFormDataiWithBusinessViews
-      );
+      expect(request.body).to.deep.equal(editedRuleFormDataiWithBusinessViews);
     });
 
     cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');

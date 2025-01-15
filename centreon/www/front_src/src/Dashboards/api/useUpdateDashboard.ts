@@ -1,12 +1,6 @@
-import { UseMutationResult } from '@tanstack/react-query';
+import { UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
-
-import { useAtomValue } from 'jotai';
-import {
-  limitAtom,
-  totalAtom
-} from '../components/DashboardLibrary/DashboardListing/atom';
 import { getDashboardEndpoint } from './endpoints';
 import { Dashboard, resource } from './models';
 
@@ -18,8 +12,15 @@ type UseUpdateDashboard = {
 >;
 
 const useUpdateDashboard = (): UseUpdateDashboard => {
-  const total = useAtomValue(totalAtom);
-  const limit = useAtomValue(limitAtom);
+  const queryClient = useQueryClient();
+  const invalidateQueries = (): void => {
+    queryClient.invalidateQueries({
+      queryKey: [resource.dashboards]
+    });
+    queryClient.invalidateQueries({
+      queryKey: [resource.dashboard]
+    });
+  };
 
   const { mutateAsync, ...mutationData } = useMutationQuery<
     Dashboard,
@@ -27,6 +28,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
   >({
     getEndpoint: ({ id }) => getDashboardEndpoint(id),
     method: Method.POST,
+    onSuccess: invalidateQueries
   });
 
   const mutate = (variables: Dashboard): Promise<Dashboard | ResponseError> => {
