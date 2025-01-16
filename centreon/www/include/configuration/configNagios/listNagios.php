@@ -82,9 +82,8 @@ $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 
 include "./include/common/checkPagination.php";
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl(__DIR__, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate(__DIR__);
 
 /* Access level */
 ($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';

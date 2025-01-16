@@ -195,9 +195,8 @@ $form->setRequiredNote("<font style='color: red;'>*</font>" . _(" Required field
  * End of form definition
  */
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 if ($o == METRIC_WATCH) {
     // Just watch
