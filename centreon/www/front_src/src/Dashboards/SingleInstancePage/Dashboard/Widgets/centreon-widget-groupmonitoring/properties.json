@@ -62,5 +62,6 @@
       "restrictedResourceTypes": ["host-group", "service-group"]
     }
   },
-  "moduleName": "centreon-widget-groupmonitoring"
+  "moduleName": "centreon-widget-groupmonitoring",
+  "canExpand": true
 }
