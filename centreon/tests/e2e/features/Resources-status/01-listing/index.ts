@@ -451,15 +451,50 @@ When('I select the filter for the monitoring server with OK status', () => {
 });
 
 Then('only services with OK status associated with the selected monitoring server are shown in the result', () => {
- cy.waitForElementToBeVisible('div[class*="statusColumn"]:first')
-  .then(() => {
-    cy.get('div[class*="statusColumn"]:first')
-      .should('contain.text', 'OK');
+  cy.waitForElementToBeVisible('div[class*="statusColumn"]:first')
+    .then(() => {
+      cy.get('div[class*="statusColumn"]:first')
+        .should('contain.text', 'OK');
   });
   cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-    const cellText = $statusCell.text().trim();
-    console.log(`Cell ${index}: ${cellText}`);
-    expect(['OK']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+      const cellText = $statusCell.text().trim();
+      console.log(`Cell ${index}: ${cellText}`);
+      expect(['OK']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
+});
+
+Given('a saved filter that includes services with OK and Critical statuses', () => {
+  cy.fixture('resources/criticalAndOkServicesFilter.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('criticalAndOkServicesFilter');
+});
+
+When('I select the filter for services with OK and Critical statuses', () => {
+  cy.contains('criticalAndOkServicesFilter').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+});
+
+Then('only services with OK and Critical statuses are shown in the result', () => {
+  cy.waitForElementToBeVisible('div[class*="statusColumn"]:last')
+    .then(() => {
+      cy.get('div[class*="statusColumn"]:last')
+        .should('contain.text', 'OK');
+  });
+    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+      const cellText = $statusCell.text().trim();
+      console.log(`Cell ${index}: ${cellText}`);
+      expect(['Critical','OK']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
   });
 });
 
