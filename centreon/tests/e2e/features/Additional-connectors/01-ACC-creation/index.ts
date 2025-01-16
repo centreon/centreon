@@ -227,7 +227,7 @@ Then('a pop-up appears to confirm cancellation', () => {
 });
 
 When('the user confirms the the cancellation', () => {
-  cy.getByLabel({ label: 'Discard', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Leave', tag: 'button' }).click();
 });
 
 Then('the creation form is closed', () => {

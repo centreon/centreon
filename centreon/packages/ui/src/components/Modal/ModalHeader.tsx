@@ -1,6 +1,6 @@
 import { ReactElement, ReactNode } from 'react';
 
-import { DialogTitleProps, Typography } from '@mui/material';
+import { DialogTitleProps, DialogTitle as MuiDialogTitle } from '@mui/material';
 
 import { useStyles } from './Modal.styles';
 
@@ -16,9 +16,9 @@ const ModalHeader = ({
 
   return (
     <div className={classes.modalHeader}>
-      <Typography variant="h6" color="primary" {...rest}>
+      <MuiDialogTitle color="primary" {...rest}>
         {children}
-      </Typography>
+      </MuiDialogTitle>{' '}
     </div>
   );
 };
