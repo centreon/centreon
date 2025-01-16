@@ -37,7 +37,6 @@ use Core\ServiceCategory\Domain\Model\NewServiceCategory;
 class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB implements WriteServiceCategoryRepositoryInterface
 {
     use LoggerTrait;
-
     public const SERVICE_CATEGORY_PROPERTIES_MAP = [
         'name' => 'sc_name',
         'alias' => 'sc_alias',
