@@ -1154,8 +1154,8 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
         object_type: ActionLog::OBJECT_TYPE_HOST,
-        object_id: $maxId["MAX(host_id)"],
-        object_name: $hostName,
+        object_id: $host_id["MAX(host_id)"],
+        object_name: $ret["host_name"],
         action_type: ActionLog::ACTION_TYPE_ADD,
         fields: $fields
     );
