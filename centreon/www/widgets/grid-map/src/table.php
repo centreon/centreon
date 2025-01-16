@@ -99,9 +99,8 @@ $resourceController = $kernel->getContainer()->get(
     \Centreon\Application\Controller\MonitoringResourceController::class
 );
 
-/* Start Smarty Init */
-$template = new Smarty();
-$template = initSmartyTplForPopup(getcwd() . "/", $template, "./", $centreon_path);
+// Smarty template initialization
+$template = SmartyBC::createSmartyTemplate(getcwd() . "/", './');
 
 $data = [];
 $data_service = [];
