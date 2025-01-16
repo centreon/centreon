@@ -183,6 +183,12 @@ const DraggableAutocomplete = (
         helperText={error}
         textFieldSlotsAndSlotProps={{
           slotProps: {
+            input:{
+              ...renderProps?.InputProps
+            },
+            inputLabel:{
+              ...renderProps?.inputLabel
+            },
             htmlInput: {
               ...renderProps.inputProps,
               value: inputText || ''
