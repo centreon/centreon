@@ -34,6 +34,8 @@
  *
  */
 
+use Core\ActionLog\Domain\Model\ActionLog;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -101,7 +103,12 @@ function enableHostGroupInDB($hg_id = null, $hg_arr = array())
         $hostgroupName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('hostgroup', $hostgroupId);
-        $centreon->CentreonLogAction->insertLog("hostgroup", $hostgroupId, $hostgroupName, "enable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+            object_id: $hostgroupId,
+            object_name: $hostgroupName,
+            action_type: ActionLog::ACTION_TYPE_ENABLE
+        );
     }
 }
 
@@ -127,7 +134,12 @@ function disableHostGroupInDB($hg_id = null, $hg_arr = array())
         $hostgroupName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('hostgroup', $hostgroupId, [], false);
-        $centreon->CentreonLogAction->insertLog("hostgroup", $hostgroupId, $hostgroupName, "disable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+            object_id: $hostgroupId,
+            object_name: $hostgroupName,
+            action_type: ActionLog::ACTION_TYPE_DISABLE
+        );
     }
 }
 
@@ -177,7 +189,12 @@ function deleteHostGroupInDB($hostGroups = array())
         $pearDB->query("DELETE FROM hostgroup WHERE hg_id = '" . $hostgroupId . "'");
 
         signalConfigurationChange('hostgroup', (int) $hostgroupId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog("hostgroup", $hostgroupId, $row['hg_name'], "d");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+            object_id: $hostgroupId,
+            object_name: $row['hg_name'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
     }
     $centreon->user->access->updateACL();
 }
@@ -255,7 +272,13 @@ function multipleHostGroupInDB($hostGroups = array(), $nbrDup = array())
                     }
 
                     signalConfigurationChange('hostgroup', (int) $maxId["MAX(hg_id)"]);
-                    $centreon->CentreonLogAction->insertLog("hostgroup", $maxId["MAX(hg_id)"], $hg_name, "a", $fields);
+                    $centreon->CentreonLogAction->insertLog(
+                        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+                        object_id: $maxId["MAX(hg_id)"],
+                        object_name: $hg_name,
+                        action_type: ActionLog::ACTION_TYPE_ADD,
+                        fields: $fields
+                    );
                 }
             }
         }
@@ -363,11 +386,11 @@ function insertHostGroup($ret = array())
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "hostgroup",
-        $hg_id["MAX(hg_id)"],
-        CentreonDB::escape($ret["hg_name"]),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+        object_id: $hg_id["MAX(hg_id)"],
+        object_name: $ret["hg_name"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
 
     return ($hg_id["MAX(hg_id)"]);
@@ -437,7 +460,13 @@ function updateHostGroup($hg_id, $ret = array())
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("hostgroup", $hg_id, $pearDB->escape($ret["hg_name"]), "c", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+        object_id: $hg_id,
+        object_name: $ret["hg_name"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
+    );
 }
 
 function updateHostGroupHosts($hg_id, $ret = array(), $increment = false)

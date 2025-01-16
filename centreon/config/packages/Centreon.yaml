@@ -38,6 +38,7 @@ services:
             - '../../src/Core/HostTemplate/*'
             - '../../src/Core/TimePeriod/*'
             - '../../src/Core/HostSeverity/*'
+            - '../../src/Core/ServiceCategory/*'
             - '../../src/Core/ServiceSeverity/*'
             - '../../src/Core/Service/*'
         bind:
