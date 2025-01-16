@@ -33,6 +33,8 @@
  *
  */
 
+use Core\ActionLog\Domain\Model\ActionLog;
+
 if (!isset($centreon)) {
     exit();
 }
