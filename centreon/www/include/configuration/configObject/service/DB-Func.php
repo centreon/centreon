@@ -1619,7 +1619,7 @@ function updateService($service_id = null, $from_MC = false, $params = array())
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
         object_type: ActionLog::OBJECT_TYPE_SERVICE,
-        object_id: $serviceId,
+        object_id: $service_id,
         object_name: $ret["service_description"],
         action_type: ActionLog::ACTION_TYPE_CHANGE,
         fields: $fields
@@ -1822,7 +1822,7 @@ function updateService_MC($service_id = null, $params = array())
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
         object_type: ActionLog::OBJECT_TYPE_SERVICE,
-        object_id: $serviceId,
+        object_id: $service_id,
         object_name: $ret["service_description"] ?? "",
         action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
         fields: $fields
