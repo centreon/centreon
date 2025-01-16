@@ -30,6 +30,9 @@ on:
       stability:
         required: true
         type: string
+      target_stability:
+        required: false
+        type: string
       package_cache_key:
         required: false
         type: string
@@ -181,6 +184,7 @@ jobs:
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
           stability: ${{ inputs.stability }}
+          target_stability: ${{ inputs.target_stability }}
           is_cloud: ${{ inputs.is_cloud }}
           artifactory_internal_repo_username: ${{ secrets.artifactory_internal_repo_username }}
           artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}
