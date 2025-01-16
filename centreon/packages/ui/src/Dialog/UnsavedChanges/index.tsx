@@ -32,16 +32,17 @@ const UnsavedChangesDialog = ({
   dialogOpened
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
+
   const labelTitle = isValidForm
     ? labelDoYouWantToSaveChanges
-    : labelYourFormHasUnsavedChanges;
+    : labelDoYouWantToQuit;
 
-  const confirmLabel = isValidForm ? labelSave : labelLeave;
-  const canelLabel = isValidForm ? labelDiscard : labelStay;
+  const lebelConfirm = isValidForm ? labelSave : labelLeave;
+  const labelCancel = isValidForm ? labelDiscard : labelStay;
 
   const labelMessage = isValidForm
     ? labelIfYouClickOnDiscard
-    : labelDoYouWantToQuit;
+    : labelYourFormHasUnsavedChanges;
 
   if (not(dialogOpened)) {
     return null;
@@ -59,8 +60,8 @@ const UnsavedChangesDialog = ({
       <Modal.Actions
         disabled={isSubmitting}
         labels={{
-          cancel: t(canelLabel),
-          confirm: t(confirmLabel)
+          cancel: t(labelCancel),
+          confirm: t(lebelConfirm)
         }}
         onCancel={closeDialog}
         onConfirm={isValidForm ? saveChanges : discardChanges}
