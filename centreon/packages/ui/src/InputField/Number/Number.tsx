@@ -61,7 +61,6 @@ const NumberField = ({
 
   return (
     <TextField
-      defaultValue={defaultValue}
       type="number"
       value={actualValue}
       onChange={changeValue}

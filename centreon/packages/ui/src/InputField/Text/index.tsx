@@ -144,8 +144,11 @@ const TextField = forwardRef(
       if (debounced) {
         return {};
       }
+      if (defaultValue) {
+        return { defaultValue };
+      }
 
-      return { value: defaultValue ?? innerValue };
+      return { value: innerValue };
     }, [innerValue, debounced, defaultValue]);
 
     return (
