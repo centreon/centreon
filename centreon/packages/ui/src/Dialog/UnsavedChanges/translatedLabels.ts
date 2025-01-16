@@ -3,11 +3,11 @@ export const labelIfYouClickOnDiscard =
   'If you click on Discard, your changes will not be saved.';
 export const labelSave = 'Save';
 
-export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';
+export const labelYourFormHasUnsavedChanges = 'Do you want to leave this page?';
 
 export const labelDoYouWantToQuit =
-  'Do you want to quit without saving the changes?';
+  'Your changes will not be saved if you leave this page.';
 export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
 
-export const labelConfirm = 'Confirm';
-export const labelCancel = 'Cancel';
+export const labelLeave = 'Leave';
+export const labelStay = 'Stay';

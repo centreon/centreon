@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { Modal } from '../../components/Modal';
 
 import {
-  labelCancel,
-  labelConfirm,
   labelDiscard,
   labelDoYouWantToQuit,
   labelDoYouWantToSaveChanges,
   labelIfYouClickOnDiscard,
+  labelLeave,
   labelSave,
+  labelStay,
   labelYourFormHasUnsavedChanges
 } from './translatedLabels';
 
@@ -36,8 +36,8 @@ const UnsavedChangesDialog = ({
     ? labelDoYouWantToSaveChanges
     : labelYourFormHasUnsavedChanges;
 
-  const confirmLabel = isValidForm ? labelSave : labelConfirm;
-  const canelLabel = isValidForm ? labelDiscard : labelCancel;
+  const confirmLabel = isValidForm ? labelSave : labelLeave;
+  const canelLabel = isValidForm ? labelDiscard : labelStay;
 
   const labelMessage = isValidForm
     ? labelIfYouClickOnDiscard
@@ -62,8 +62,8 @@ const UnsavedChangesDialog = ({
           cancel: t(canelLabel),
           confirm: t(confirmLabel)
         }}
-        onCancel={discardChanges}
-        onConfirm={isValidForm ? saveChanges : closeDialog}
+        onCancel={closeDialog}
+        onConfirm={isValidForm ? saveChanges : discardChanges}
       />
     </Modal>
   );

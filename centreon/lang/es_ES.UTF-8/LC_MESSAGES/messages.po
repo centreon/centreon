@@ -17899,5 +17899,8 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Your changes will not be saved if you leave this page."
 # msgstr ""
 
-# msgid "Return"
+# msgid "Leave"
+# msgstr ""
+
+# msgid "Stay"
 # msgstr ""
