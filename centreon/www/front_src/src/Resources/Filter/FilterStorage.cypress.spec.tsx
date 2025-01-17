@@ -334,8 +334,6 @@ before(() => {
 
 describe('Filter storage', () => {
   beforeEach(() => {
-    cy.stub(window.crypto, 'randomUUID').returns(0);
-
     cy.interceptAPIRequest({
       alias: 'filterRequest',
       method: Method.GET,
