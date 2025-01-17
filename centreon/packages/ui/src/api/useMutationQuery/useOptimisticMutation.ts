@@ -60,9 +60,12 @@ export const useOptimisticMutation = <T, TMeta>({
   }: GetOptimisticMutationListingProps<T, TMeta>): object => {
     const listingQueryKey = getListingQueryKey();
 
+    const updatedPayload = payload && 'id' in payload ? payload :{...payload, id: optimisticListing?.total}
+
+
     const hasOnlyOnePage =
       (optimisticListing?.total || 0) <= (optimisticListing?.limit || 0);
-    const isFormDataPayload = equals(type(payload), 'FormData');
+    const isFormDataPayload = equals(type(updatedPayload), 'FormData');
 
     const items = last(
       queryClient.getQueriesData({
@@ -71,7 +74,7 @@ export const useOptimisticMutation = <T, TMeta>({
     )?.[1];
 
     if (equals(Method.POST, method) && !isFormDataPayload && hasOnlyOnePage) {
-      const newItems = append(payload, items.result);
+      const newItems = append(updatedPayload, items.result);
 
       return { ...items, result: newItems };
     }
@@ -96,12 +99,12 @@ export const useOptimisticMutation = <T, TMeta>({
       );
       const item = items.result.find(({ id }) => equals(id, _meta.id));
       const updatedItem = equals(Method.PUT, method)
-        ? payload
+        ? updatedPayload
         : {
             ...item,
             ...(isFormDataPayload
-              ? Object.fromEntries(payload.entries())
-              : payload)
+              ? Object.fromEntries(updatedPayload.entries())
+              : updatedPayload)
           };
       const newItems = update(itemIndex, updatedItem, items.result);
 

@@ -124,7 +124,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                     {childrenHeader && (
                       <div
                         className={classes.widgetHeader}
-                        data-canMove={canControl}
+                        data-can-move={canControl}
                       >
                         {canControl && (
                           <div

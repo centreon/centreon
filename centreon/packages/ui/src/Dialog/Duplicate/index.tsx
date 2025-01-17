@@ -56,10 +56,12 @@ const Duplicate = ({
         fullWidth
         className={classes.container}
         color="primary"
-        inputProps={{
-          'aria-label': 'Duplications',
-          max: limit,
-          min: 1
+        slotProps={{
+          htmlInput: {
+            'aria-label': 'Duplications',
+            max: limit,
+            min: 1
+          }
         }}
         label={labelInput}
         margin="dense"
