@@ -361,8 +361,6 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains(':00 AM').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it('displays the legend on the right side of the graph as list when the corresponding props are set', () => {
@@ -372,8 +370,6 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains(':00 AM').should('be.visible');
-
-      cy.makeSnapshot();
     });
   });
 
