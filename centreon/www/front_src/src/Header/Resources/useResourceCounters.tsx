@@ -4,12 +4,13 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import type { NavigateFunction } from 'react-router';
+import { useNavigate } from 'react-router';
+
 import type { JsonDecoder } from 'ts.data.json';
 
 import { useFetchQuery } from '@centreon/ui';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import { statisticsRefreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
 import { applyFilterDerivedAtom } from '../../Resources/Filter/filterAtoms';
 import type { Filter } from '../../Resources/Filter/models';
@@ -52,7 +53,7 @@ const useResourceCounters: UseRessourceCounters = ({
 
   const [isAllowed, setIsAllowed] = useState<boolean>(true);
 
-  const refetchInterval = useAtomValue(refreshIntervalAtom);
+  const refetchInterval = useAtomValue(statisticsRefreshIntervalAtom);
   const { use_deprecated_pages } = useAtomValue(userAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
 
