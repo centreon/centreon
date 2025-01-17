@@ -41,6 +41,7 @@ services:
             - '../../src/Core/ServiceCategory/*'
             - '../../src/Core/ServiceSeverity/*'
             - '../../src/Core/Service/*'
+            - '../../src/Core/HostCategory/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
