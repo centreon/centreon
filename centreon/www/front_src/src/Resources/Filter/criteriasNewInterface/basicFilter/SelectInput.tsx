@@ -58,7 +58,7 @@ const SelectInput = ({
   )?.value as Array<SelectEntry>;
 
   const value = dataByFilterName?.value?.map((item) => ({
-    id: item?.valueId??item.id,
+    id: item?.valueId ?? item.id,
     name: item?.name
   })) as Array<SelectEntry>;
 
@@ -164,7 +164,6 @@ const SelectInput = ({
       ? false
       : equals(formattedOption.toString(), formattedSelectedValue.toString());
   };
-
 
   return (
     <MultiConnectedAutocompleteField

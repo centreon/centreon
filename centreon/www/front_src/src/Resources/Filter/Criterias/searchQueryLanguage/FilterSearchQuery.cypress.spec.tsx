@@ -130,7 +130,6 @@ const parsedSearch = [
 
 describe('parse', () => {
   it('parses the given search string into a Search model', () => {
-
     const result = parse({ search });
 
     expect(result).to.deep.equal(parsedSearch);

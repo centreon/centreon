@@ -3,8 +3,6 @@ import parse from 'html-react-parser';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
-
 import { labelMsgConfirmationDeletionToken } from '../../../translatedLabels';
 import { selectedRowAtom } from '../../atoms';
 

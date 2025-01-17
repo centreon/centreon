@@ -1,7 +1,6 @@
+import { useTheme } from '@mui/material';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
-import { useTheme } from '@mui/material';
-
 
 import { detailsAtom, panelWidthStorageAtom } from '../../detailsAtoms';
 
@@ -15,13 +14,15 @@ const DetailsTab = (): JSX.Element => {
   const loading = isNil(details) || equals(panelWidth, 0);
   const panelPadding = Number.parseInt(theme.spacing(4), 10);
 
-  return(
+  return (
     <>
       {!loading && (
         <>
-        <DetailsActions details={details} />
-        <SortableCards details={details} panelWidth={panelWidth - panelPadding} />
-        
+          <DetailsActions details={details} />
+          <SortableCards
+            details={details}
+            panelWidth={panelWidth - panelPadding}
+          />
         </>
       )}
     </>

@@ -109,9 +109,12 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
         ) : (
           <MultiAutocompleteField
             disableSortedOptions
-            autocompleteSlotsAndSlotProps={{slotProps:{listbox:{
-              className: metricsClasses.listBox
-            }}
+            autocompleteSlotsAndSlotProps={{
+              slotProps: {
+                listbox: {
+                  className: metricsClasses.listBox
+                }
+              }
             }}
             chipProps={{
               color: 'primary',
