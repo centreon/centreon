@@ -60,7 +60,7 @@ export const useOptimisticMutation = <T, TMeta>({
   }: GetOptimisticMutationListingProps<T, TMeta>): object => {
     const listingQueryKey = getListingQueryKey();
 
-    const updatedPayload = payload && 'id' in payload ? payload:{...payload,id:crypto.randomUUID()}
+    const updatedPayload = payload && 'id' in payload ? payload :{...payload, id: optimisticListing?.total}
 
 
     const hasOnlyOnePage =
