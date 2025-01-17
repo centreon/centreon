@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,83 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$centreonLog = CentreonLog::create();
-
-// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
 $errorMessage = '';
 
+// -------------------------------------------- Dashboard -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add table user_profile';
+    $pearDB->executeQuery(
+        <<<SQL
+        CREATE TABLE IF NOT EXISTS `user_profile` (
+          `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+          `contact_id` INT(11) NOT NULL,
+          PRIMARY KEY (`id`),
+          UNIQUE KEY `unique_user_profile` (`id`, `contact_id`),
+          CONSTRAINT `fk_user_profile_contact_id`
+            FOREIGN KEY (`contact_id`)
+            REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        SQL
+    );
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add table user_profile_favorite_dashboards';
+    $pearDB->executeQuery(
+        <<<SQL
+        CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
+          `profile_id` INT UNSIGNED NOT NULL,
+          `dashboard_id` INT UNSIGNED NOT NULL,
+          CONSTRAINT `fk_user_profile_favorite_dashboards_profile_id`
+            FOREIGN KEY (`profile_id`)
+            REFERENCES `user_profile` (`id`) ON DELETE CASCADE,
+          CONSTRAINT `fk_user_profile_favorite_dashboards_dashboard_id`
+            FOREIGN KEY (`dashboard_id`)
+            REFERENCES `dashboard` (`id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        SQL
+    );
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table dashboard_panel';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `dashboard_panel`
+            SET `layout_x` = `layout_x` * 2,
+                `layout_width` = `layout_width` * 2 
+            SQL
+    );
+};
+
+// -------------------------------------------- Resource Status -------------------------------------------- //      
+
+/**
+ * @param CentreonDB $pearDBO
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
 $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
     $errorMessage = 'Unable to add column flapping to table resources';
     if (! $pearDBO->isColumnExist('resources', 'flapping')) {
@@ -52,38 +123,18 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
 
 try {
     $addColumnToResourcesTable($pearDBO);
-} catch (\PDOException $e) {
-    try {
-        if ($pearDBO->inTransaction()) {
-            $pearDBO->rollBack();
-        }
-    } catch (\PDOException $rollbackException) {
-        $rollbackErrorMessage = $versionOfTheUpgrade . "error while rolling back transaction : {$rollbackException->getMessage()}";
-        $centreonLog->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: $rollbackErrorMessage,
-            customContext: [
-                'exception_message' => $rollbackException->getMessage(),
-                'pdo_error_code' => $rollbackException->getCode(),
-                'pdo_error_info' => $rollbackException->errorInfo,
-                'trace' => $rollbackException->getTraceAsString(),
-            ],
-            exception: $rollbackException
-        );
-
-        throw new Exception($rollbackErrorMessage, (int) $rollbackException->getCode(), $rollbackException);
-    }
-
-    $centreonLog->error(
+    $createUserProfileTable($pearDB);
+    $createUserProfileFavoriteDashboards($pearDB);
+    $updatePanelsLayout($pearDB);
+} catch (CentreonDbException $e) {
+    CentreonLog::create()->critical(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: $versionOfTheUpgrade . $errorMessage
         . ' - Code : ' . (int) $e->getCode()
         . ' - Error : ' . $e->getMessage()
         . ' - Trace : ' . $e->getTraceAsString(),
         customContext: [
-            'exception_message' => $e->getMessage(),
-            'pdo_error_code' => $e->getCode(),
-            'pdo_error_info' => $e->errorInfo,
+            'exception' => $e->getOptions(),
             'trace' => $e->getTraceAsString(),
         ],
         exception: $e

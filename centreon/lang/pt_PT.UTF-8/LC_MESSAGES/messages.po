@@ -18330,3 +18330,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Export as"
 # msgstr ""
+
+# msgid "If you click on Discard, your changes will not be saved."
+# msgstr ""
