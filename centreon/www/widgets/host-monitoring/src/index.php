@@ -70,9 +70,9 @@ $dbb = $dependencyInjector['realtime_db'];
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
+// Smarty template initialization
 $path = $centreon_path . 'www/widgets/host-monitoring/src/';
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, './', $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
 
