@@ -80,7 +80,7 @@ const Dashboard = (): ReactElement => {
     setIsSharesOpen(dashboard as DashboardType);
   };
 
-  const updateFavorites = ()=>{
+  const updateFavorites = (): void => {
     refetch?.()
     queryClient.invalidateQueries({ queryKey: [resource.dashboards] });
   }
