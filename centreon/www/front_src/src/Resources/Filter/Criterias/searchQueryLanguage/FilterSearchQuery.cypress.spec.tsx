@@ -130,7 +130,6 @@ const parsedSearch = [
 
 describe('parse', () => {
   it('parses the given search string into a Search model', () => {
-    cy.stub(window.crypto, 'randomUUID').returns(0);
 
     const result = parse({ search });
 
