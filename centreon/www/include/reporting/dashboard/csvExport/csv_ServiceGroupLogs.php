@@ -268,7 +268,7 @@ $statesTab = ["OK", "WARNING", "CRITICAL", "UNKNOWN"];
 while ($row = $res->fetch()) {
     $duration = $row["OKTimeScheduled"] + $row["WARNINGTimeScheduled"] + $row["UNKNOWNTimeScheduled"]
         + $row["CRITICALTimeScheduled"];
-    if ($duration == 0) {
+    if ($duration === 0) {
         continue;
     }
     /* Percentage by status */
