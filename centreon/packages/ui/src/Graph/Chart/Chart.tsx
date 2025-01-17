@@ -298,37 +298,41 @@ const Chart = ({
                 hasSecondUnit={Boolean(secondUnit)}
               >
                 <>
-                  <BarGroup
-                    barStyle={barStyle}
-                    isTooltipHidden={false}
-                    lines={linesDisplayedAsBar}
-                    orientation="horizontal"
-                    size={graphHeight - margin.top - 5}
-                    timeSeries={timeSeries}
-                    xScale={xScaleBand}
-                    yScalesPerUnit={yScalesPerUnit}
-                  />
-                  <Lines
-                    areaTransparency={lineStyle?.areaTransparency}
-                    curve={lineStyle?.curve || 'linear'}
-                    dashLength={lineStyle?.dashLength}
-                    dashOffset={lineStyle?.dashOffset}
-                    displayAnchor={displayAnchor}
-                    displayedLines={linesDisplayedAsLine}
-                    dotOffset={lineStyle?.dotOffset}
-                    graphSvgRef={graphSvgRef}
-                    height={graphHeight - margin.top}
-                    lineWidth={lineStyle?.lineWidth}
-                    scale={axis?.scale}
-                    scaleLogarithmicBase={axis?.scaleLogarithmicBase}
-                    showArea={lineStyle?.showArea}
-                    showPoints={lineStyle?.showPoints}
-                    timeSeries={timeSeries}
-                    width={graphWidth}
-                    xScale={xScale}
-                    yScalesPerUnit={yScalesPerUnit}
-                    {...shapeLines}
-                  />
+                  {!isEmpty(linesDisplayedAsBar) && (
+                    <BarGroup
+                      barStyle={barStyle}
+                      isTooltipHidden={false}
+                      lines={linesDisplayedAsBar}
+                      orientation="horizontal"
+                      size={graphHeight - margin.top - 5}
+                      timeSeries={timeSeries}
+                      xScale={xScaleBand}
+                      yScalesPerUnit={yScalesPerUnit}
+                    />
+                  )}
+                  {!isEmpty(linesDisplayedAsLine) && (
+                    <Lines
+                      areaTransparency={lineStyle?.areaTransparency}
+                      curve={lineStyle?.curve || 'linear'}
+                      dashLength={lineStyle?.dashLength}
+                      dashOffset={lineStyle?.dashOffset}
+                      displayAnchor={displayAnchor}
+                      displayedLines={linesDisplayedAsLine}
+                      dotOffset={lineStyle?.dotOffset}
+                      graphSvgRef={graphSvgRef}
+                      height={graphHeight - margin.top}
+                      lineWidth={lineStyle?.lineWidth}
+                      scale={axis?.scale}
+                      scaleLogarithmicBase={axis?.scaleLogarithmicBase}
+                      showArea={lineStyle?.showArea}
+                      showPoints={lineStyle?.showPoints}
+                      timeSeries={timeSeries}
+                      width={graphWidth}
+                      xScale={xScale}
+                      yScalesPerUnit={yScalesPerUnit}
+                      {...shapeLines}
+                    />
+                  )}
                   <InteractionWithGraph
                     annotationData={{ ...annotationEvent }}
                     commonData={{
