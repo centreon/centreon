@@ -261,15 +261,15 @@ Then('a pop-up appears to confirm cancellation', () => {
   cy.get('*[role="dialog"]')
     .eq(1)
     .children()
-    .contains('Do you want to save the changes?');
+    .contains('Do you want to leave this page?');
   cy.get('*[role="dialog"]')
     .eq(1)
     .children()
-    .contains('If you click on Discard, your changes will not be saved.');
+    .contains('Your changes will not be saved if you leave this page.');
 });
 
 When('the user confirms the cancellation', () => {
-  cy.getByLabel({ label: 'Discard', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Leave', tag: 'button' }).click();
 });
 
 Then('the creation form is closed', () => {

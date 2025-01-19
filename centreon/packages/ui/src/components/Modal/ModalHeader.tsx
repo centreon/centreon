@@ -18,7 +18,7 @@ const ModalHeader = ({
     <div className={classes.modalHeader}>
       <MuiDialogTitle color="primary" {...rest}>
         {children}
-      </MuiDialogTitle>{' '}
+      </MuiDialogTitle>
     </div>
   );
 };
