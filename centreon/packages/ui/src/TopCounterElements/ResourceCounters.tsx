@@ -53,9 +53,7 @@ export default ({ counters }: CounterProps): JSX.Element => {
       {counters.map(
         ({ to, ariaLabel, onClick, count, severityCode }, index) => (
           <Fragment key={to.toString().replace(/\W/g, '')}>
-            {index === 2 && (
-              <li aria-hidden="true" className={classes.splitter} />
-            )}
+            {index === 2 && <li className={classes.splitter} />}
             <li className={classes.item}>
               <Link
                 aria-label={ariaLabel}

@@ -77,9 +77,9 @@ try {
     exit;
 }
 
+// Smarty template initialization
 $path = $centreon_path . "www/widgets/tactical-overview/src/";
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 $template->assign(
     'theme',
