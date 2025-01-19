@@ -8,7 +8,7 @@ const testWidgets =
   !equals(process.env.NODE_ENV, 'production')
     ? [
         { name: 'data' },
-        { name: 'input', panelDefaultWidth: 6, panelDefaultHeight: 6 },
+        { name: 'input', panelDefaultWidth: 12, panelDefaultHeight: 6 },
         { name: 'singledata' },
         { name: 'text' }
       ]
@@ -21,39 +21,39 @@ const internalWidgets: Array<
   {
     name: 'batree',
     panelMinHeight: 6,
-    panelMinWidth: 6,
-    panelDefaultWidth: 6,
+    panelMinWidth: 12,
+    panelDefaultWidth: 12,
     panelDefaultHeight: 6
   },
   {
     name: 'clock',
     panelDefaultHeight: 3,
-    panelDefaultWidth: 3
+    panelDefaultWidth: 6
   },
-  { name: 'generictext', panelDefaultWidth: 3, panelDefaultHeight: 3 },
+  { name: 'generictext', panelDefaultWidth: 6, panelDefaultHeight: 3 },
   {
     name: 'graph',
     panelMinHeight: 3,
-    panelMinWidth: 4,
+    panelMinWidth: 8,
     panelDefaultHeight: 4,
-    panelDefaultWidth: 6
+    panelDefaultWidth: 12
   },
   {
     name: 'groupmonitoring',
-    panelMinWidth: 4,
+    panelMinWidth: 8,
     panelMinHeight: 3,
-    panelDefaultWidth: 6,
+    panelDefaultWidth: 12,
     panelDefaultHeight: 4
   },
   {
     name: 'resourcestable',
-    panelMinWidth: 6,
+    panelMinWidth: 12,
     panelMinHeight: 3,
     panelDefaultHeight: 4,
-    panelDefaultWidth: 6
+    panelDefaultWidth: 12
   },
   { name: 'singlemetric' },
-  { name: 'statuschart', panelMinWidth: 2, panelMinHeight: 3 },
+  { name: 'statuschart', panelMinWidth: 4, panelMinHeight: 3 },
   { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },
   { name: 'webpage' }

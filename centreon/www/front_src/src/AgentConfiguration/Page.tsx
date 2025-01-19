@@ -37,7 +37,9 @@ const AgentConfigurationPage = (): JSX.Element => {
     <PageLayout>
       <PageLayout.Header>
         <PageHeader>
-          <PageHeader.Title title={t(labelAgentsConfigurations)} />
+          <PageHeader.Main>
+            <PageHeader.Title title={t(labelAgentsConfigurations)} />
+          </PageHeader.Main>
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>

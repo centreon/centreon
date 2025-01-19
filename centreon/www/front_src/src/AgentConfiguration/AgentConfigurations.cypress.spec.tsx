@@ -691,7 +691,7 @@ describe('Agent configurations modal', () => {
     cy.contains('central').click();
 
     cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.2');
-    cy.findByTestId(labelPort).find('input').should('have.value', '4317');
+    cy.findByTestId('portInput').should('have.value', '4317');
 
     cy.makeSnapshot();
   });
@@ -705,7 +705,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelConnectionInitiatedByPoller).click();
     cy.findByLabelText(labelDNSIP).type('127.0.0.1:8');
     cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.1');
-    cy.findByTestId(labelPort).find('input').should('have.value', '8');
+    cy.findByTestId('portInput').should('have.value', '8');
 
     cy.makeSnapshot();
   });

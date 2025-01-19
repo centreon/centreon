@@ -9,7 +9,7 @@ import {
 } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { equals, isNil, prop, type } from 'ramda';
+import { equals, isNil, omit, type } from 'ramda';
 
 import { Card, useTheme } from '@mui/material';
 import LoadingSkeleton from '../LoadingSkeleton';
@@ -79,25 +79,27 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
     const cardContainerListeners = !hasHeader ? listeners : {};
 
     useEffect(() => {
-      if (isNil(ref)) {
+      if (isNil(ref?.current)) {
         return;
       }
 
       setElement(ref.current);
     }, [ref]);
 
-    const originStyle = {
-      ...style,
-      width: `calc(${prop('width', style) || '0px'} - 12px)`
-    };
+    const newTransform =
+      style?.transform &&
+      `translate3d(${style.transform.match(/translate\(([a-z0-9\ \,\-]+)\)/)[1]}, 0px)`;
 
     return useMemoComponent({
       Component: (
         <div
-          ref={ref}
           {...cardContainerListeners}
           className={sanitizedReactGridLayoutClassName}
-          style={originStyle}
+          ref={ref}
+          style={{
+            ...omit(['transform'], style || {}),
+            transform: newTransform
+          }}
         >
           <ExpandableContainer>
             {({ isExpanded, label, key, ...rest }) => {
@@ -122,7 +124,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                     {childrenHeader && (
                       <div
                         className={classes.widgetHeader}
-                        data-canMove={canControl}
+                        data-can-move={canControl}
                       >
                         {canControl && (
                           <div

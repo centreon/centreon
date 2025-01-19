@@ -630,7 +630,7 @@ describe('Dashboard', () => {
         const widgetName = widget.moduleName;
 
         cy.findByLabelText(widgetName)
-          .parentsUntil('[data-canmove="false"]')
+          .parentsUntil('[data-can-move="false"]')
           .last()
           .as('header')
           .scrollIntoView();
@@ -702,10 +702,10 @@ describe('Dashboard', () => {
 
       cy.get('.react-grid-item')
         .eq(3)
-        .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 4, 252)');
-      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '585px');
+        .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 12, 240)');
+      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '593px');
 
-      cy.get('.react-grid-item').eq(3).should('have.css', 'height', '484px');
+      cy.get('.react-grid-item').eq(3).should('have.css', 'height', '444px');
     });
   });
 
@@ -747,11 +747,11 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.get('[data-canmove="true"]')
+      cy.get('[data-can-move="true"]')
         .eq(0)
         .parent()
         .should('have.css', 'height')
-        .and('equal', '232px');
+        .and('equal', '216px');
 
       cy.get('[class*="react-resizable-handle-se"]')
         .eq(0)
@@ -760,7 +760,7 @@ describe('Dashboard', () => {
         .realMouseMove(-70, -70)
         .realMouseUp();
 
-      cy.get('[data-canmove="true"]')
+      cy.get('[data-can-move="true"]')
         .eq(0)
         .parent()
         .should('have.css', 'height');
@@ -1204,7 +1204,7 @@ describe('Dashboard with complex layout', () => {
 
     cy.get('.react-grid-item')
       .eq(4)
-      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 315, 0)');
+      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 317, 12)');
 
     cy.makeSnapshot();
   });

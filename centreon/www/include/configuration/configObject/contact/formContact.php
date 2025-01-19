@@ -208,11 +208,9 @@ $aclRoute = './include/common/webServices/rest/internal.php?object=centreon_admi
 $attrAclgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $aclRoute, 'multiple' => true, 'linkedObject' => 'centreonAclGroup'];
 
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
-/**
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /**
  * @var $moduleFormManager \Centreon\Domain\Service\ModuleFormManager
