@@ -115,7 +115,7 @@ Feature: Create a new Agent Configuration
     Then a pop-up is displayed
     And the title of this pop-up is '<popup_title>'
     And the message body of this pop-up is '<popup_message>'
-    And this pop-up contains two buttons "Resolve" and "Discard"
+    And this pop-up contains two buttons "Leave" and "Stay"
     Examples:
       | action           | agent_type | popup_title                    | popup_message                                                             |
       | clicks on cancel | Centreon Monitoring Agent | Do you want to leave this page? | Your changes will not be saved if you leave this page. |
