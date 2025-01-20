@@ -14,7 +14,8 @@ import {
   platformNameAtom,
   platformVersionsAtom,
   refreshIntervalAtom,
-  statisticsRefreshIntervalAtom
+  statisticsRefreshIntervalAtom,
+  userPermissionsAtom
 } from '@centreon/ui-context';
 
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
@@ -23,7 +24,11 @@ import useNavigation from '../Navigation/useNavigation';
 import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
 
-import { aclEndpoint, parametersEndpoint } from './endpoint';
+import {
+  aclEndpoint,
+  parametersEndpoint,
+  userPermissionsEndpoint
+} from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
@@ -54,7 +59,13 @@ const useApp = (): UseAppState => {
     httpCodesBypassErrorSnackbar: [403],
     request: getData
   });
-  const { sendRequest: getAcl } = useRequest<Actions>({
+
+  const { sendRequest: getUserPermissions } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
+    request: getData
+  });
+
+  const { sendRequest: getResourcesAcl } = useRequest<Actions>({
     request: getData
   });
 
@@ -74,11 +85,12 @@ const useApp = (): UseAppState => {
   const setStatisticsRefreshInterval = useSetAtom(
     statisticsRefreshIntervalAtom
   );
-  const setAcl = useSetAtom(aclAtom);
+  const setResourcesAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
 
   const setPlaformName = useSetAtom(platformNameAtom);
+  const setUserPermissions = useSetAtom(userPermissionsAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -140,11 +152,21 @@ const useApp = (): UseAppState => {
         }
       });
 
-    getAcl({
+    getUserPermissions({
+      endpoint: userPermissionsEndpoint
+    })
+      .then(setUserPermissions)
+      .catch((error) => {
+        if (pathEq(401, ['response', 'status'])(error)) {
+          logout();
+        }
+      });
+
+    getResourcesAcl({
       endpoint: aclEndpoint
     })
       .then((retrievedAcl) => {
-        setAcl({ actions: retrievedAcl });
+        setResourcesAcl({ actions: retrievedAcl });
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {
