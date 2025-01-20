@@ -8,11 +8,13 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - ".version"
       - ".github/docker/keycloak/**"
   push:
     branches:
       - develop
     paths:
+      - ".version"
       - ".github/docker/keycloak/**"
 
 jobs:
