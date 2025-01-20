@@ -458,7 +458,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).type('agent');
 
     cy.contains(labelCancel).click();
-    cy.contains('Discard').click();
+    cy.contains('Leave').click();
 
     cy.findByLabelText(labelName).should('not.exist');
 
@@ -473,10 +473,10 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).type('agent');
 
     cy.contains(labelCancel).click();
-    cy.contains('Resolve').click();
+    cy.contains('Stay').click();
 
     cy.contains(labelAdd).should('exist');
-    cy.contains('Resolve').should('not.exist');
+    cy.contains('Stay').should('not.exist');
 
     cy.makeSnapshot();
   });
