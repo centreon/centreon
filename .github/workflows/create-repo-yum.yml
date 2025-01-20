@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - ".version"
       - ".github/workflows/create-repo-yum.yml"
 
 jobs:
