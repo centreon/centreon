@@ -159,4 +159,19 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     {
         return [];
     }
+
+    /**
+     * Create a href to a legacy page.
+     *
+     * @param int $topologyPage
+     * @param string|null $options
+     *
+     * @return string
+     */
+    public function computeLegacyHref(int $topologyPage, ?string $options = null): string
+    {
+        return $options === null
+            ? $this->getBaseUrl() . '/main.php?p=' . $topologyPage
+            : $this->getBaseUrl() . '/main.php?p=' . $topologyPage . '&' . ltrim($options, '&');
+    }
 }
