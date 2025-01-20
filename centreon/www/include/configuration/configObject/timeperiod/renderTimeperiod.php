@@ -80,8 +80,10 @@ $form->addElement('text', 'tp_wednesday', _("Wednesday"), $attrsTextLong);
 $form->addElement('text', 'tp_thursday', _("Thursday"), $attrsTextLong);
 $form->addElement('text', 'tp_friday', _("Friday"), $attrsTextLong);
 $form->addElement('text', 'tp_saturday', _("Saturday"), $attrsTextLong);
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
+
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $labels = array(

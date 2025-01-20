@@ -944,9 +944,8 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
 // #End of form definition
 //
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($hostConfigurationPath, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($hostConfigurationPath);
 
 // Just watch a host information
 if ($o === HOST_TEMPLATE_WATCH) {

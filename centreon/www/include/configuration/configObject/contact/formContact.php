@@ -241,11 +241,9 @@ $attrAclgroups = array(
 );
 
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
-/**
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /**
  * @var $moduleFormManager \Centreon\Domain\Service\ModuleFormManager

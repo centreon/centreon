@@ -256,9 +256,8 @@ $form->addRule('notification_failure_criteria', _("Required Field"), 'required')
 ##End of form definition
 #
 
-# Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 # Just watch a Dependency information
 if ($o == WATCH_DEPENDENCY) {
