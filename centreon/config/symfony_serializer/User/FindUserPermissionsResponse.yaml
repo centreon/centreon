@@ -1,0 +1,4 @@
+Core\User\Application\UseCase\FindUserPermissions\FindUserPermissionsResponse:
+  attributes:
+    permissions:
+      groups: ['FindUserPermissions:Read']
