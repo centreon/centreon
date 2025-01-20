@@ -9864,7 +9864,7 @@ msgstr "Récupération"
 #: centreon-web/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php:259
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:629
 msgid "Flapping"
-msgstr "Bagotant"
+msgstr "En bagotage"
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:777
 #: centreon-web/www/include/configuration/configObject/service/formService.php:700
@@ -15152,8 +15152,8 @@ msgstr "La date de fin doit être supérieure à la date de début"
 msgid "End time"
 msgstr "Heure de fin"
 
-msgid "This Resource is flapping"
-msgstr "Cette Ressource est bagottante"
+msgid "This resource is flapping"
+msgstr "Cette ressource est bagotante"
 
 msgid "Show criterias filters"
 msgstr "Montrer les critères de filtre"
