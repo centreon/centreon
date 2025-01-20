@@ -4,36 +4,36 @@
 *.md                                    @centreon/owners-doc
 *.mdx                                   @centreon/owners-doc
 
-**/www/widgets/                         @centreon/owners-react
+**/www/widgets/                         @centreon/owners-react @centreon/owners-qa
 
-**/config/                              @centreon/owners-php
-**/composer.*                           @centreon/owners-php
-**/tests/api/                           @centreon/owners-php
-**/tests/php/                           @centreon/owners-php
-**/tests/clapi_export/                  @centreon/owners-php
-**/www/                                 @centreon/owners-php
-**/tmpl/                                @centreon/owners-php
-**/bin/                                 @centreon/owners-php
-*.xml                                   @centreon/owners-php
-**/phpstan.neon                         @centreon/owners-php
-*.php                                   @centreon/owners-php
-*.xsl                                   @centreon/owners-php
+**/config/                              @centreon/owners-php @centreon/owners-qa
+**/composer.*                           @centreon/owners-php @centreon/owners-qa
+**/tests/api/                           @centreon/owners-php @centreon/owners-qa
+**/tests/php/                           @centreon/owners-php @centreon/owners-qa
+**/tests/clapi_export/                  @centreon/owners-php @centreon/owners-qa
+**/www/                                 @centreon/owners-php @centreon/owners-qa
+**/tmpl/                                @centreon/owners-php @centreon/owners-qa
+**/bin/                                 @centreon/owners-php @centreon/owners-qa
+*.xml                                   @centreon/owners-php @centreon/owners-qa
+**/phpstan.neon                         @centreon/owners-php @centreon/owners-qa
+*.php                                   @centreon/owners-php @centreon/owners-qa
+*.xsl                                   @centreon/owners-php @centreon/owners-qa
 
-**/www/front_src/                       @centreon/owners-react
-**/cypress/**                           @centreon/owners-react
-centreon/cypress                        @centreon/owners-react
-package.json                            @centreon/owners-react
-package-lock.json                       @centreon/owners-react
-webpack*                                @centreon/owners-react
-babel.config.js                         @centreon/owners-react
-tsconfig.json                           @centreon/owners-react
-.prettierrc.js                          @centreon/owners-react
-.eslint*                                @centreon/owners-react
-.csslintrc                              @centreon/owners-react
-*.ts                                    @centreon/owners-react
-*.tsx                                   @centreon/owners-react
-*.jsx                                   @centreon/owners-react
-**/cypress/**                           @centreon/owners-react
+**/www/front_src/                       @centreon/owners-react @centreon/owners-qa
+**/cypress/**                           @centreon/owners-react @centreon/owners-qa
+centreon/cypress                        @centreon/owners-react @centreon/owners-qa
+package.json                            @centreon/owners-react @centreon/owners-qa
+package-lock.json                       @centreon/owners-react @centreon/owners-qa
+webpack*                                @centreon/owners-react @centreon/owners-qa
+babel.config.js                         @centreon/owners-react @centreon/owners-qa
+tsconfig.json                           @centreon/owners-react @centreon/owners-qa
+.prettierrc.js                          @centreon/owners-react @centreon/owners-qa
+.eslint*                                @centreon/owners-react @centreon/owners-qa
+.csslintrc                              @centreon/owners-react @centreon/owners-qa
+*.ts                                    @centreon/owners-react @centreon/owners-qa
+*.tsx                                   @centreon/owners-react @centreon/owners-qa
+*.jsx                                   @centreon/owners-react @centreon/owners-qa
+**/cypress/**                           @centreon/owners-react @centreon/owners-qa
 
 *.pm                                    @centreon/owners-perl
 *.pl                                    @centreon/owners-perl
