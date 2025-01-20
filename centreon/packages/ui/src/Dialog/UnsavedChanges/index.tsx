@@ -63,7 +63,7 @@ const UnsavedChangesDialog = ({
           cancel: t(labelCancel),
           confirm: t(lebelConfirm)
         }}
-        onCancel={closeDialog}
+        onCancel={isValidForm ? discardChanges : closeDialog}
         onConfirm={isValidForm ? saveChanges : discardChanges}
       />
     </Modal>
