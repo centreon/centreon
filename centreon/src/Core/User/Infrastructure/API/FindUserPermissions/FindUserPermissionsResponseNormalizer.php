@@ -40,13 +40,13 @@ final readonly class FindUserPermissionsResponseNormalizer implements Normalizer
      * @param array<string, mixed> $context
      *
      * @throws ExceptionInterface
-     * @return array<string, bool>|null
+     * @return array<string, bool>
      */
     public function normalize(
         mixed $object,
         ?string $format = null,
         array $context = []
-    ): array|null
+    ): array
     {
         $data = $this->normalizer->normalize($object, $format, $context);
         $normalizedData = [];
@@ -54,18 +54,17 @@ final readonly class FindUserPermissionsResponseNormalizer implements Normalizer
             throw new \InvalidArgumentException('Normalized data missing, required fields: permissions');
         }
 
-        if (! is_iterable($data['permissions'])) {
-            return null;
-        }
-        foreach ($data['permissions'] as $permission) {
-            $name = key($permission);
-            $normalizedData[$name] = $permission[$name];
+        if (is_iterable($data['permissions'])) {
+            foreach ($data['permissions'] as $permission) {
+                $name = key($permission);
+                $normalizedData[$name] = $permission[$name];
+            }
         }
 
         return $normalizedData;
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null)
+    public function supportsNormalization(mixed $data, ?string $format = null): bool
     {
         return $data instanceof FindUserPermissionsResponse;
     }

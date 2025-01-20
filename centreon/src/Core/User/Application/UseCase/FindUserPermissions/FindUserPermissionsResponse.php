@@ -35,7 +35,7 @@ final readonly class FindUserPermissionsResponse implements StandardResponseInte
     {
     }
 
-    public function getData(): mixed
+    public function getData(): self
     {
         return $this;
     }
