@@ -14756,7 +14756,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "End date must be greater than start date"
 #  msgstr ""
 
-#  msgid "This Resource is flapping"
+#  msgid "This resource is flapping"
 #  msgstr ""
 
 #  msgid "Show criterias filters"
