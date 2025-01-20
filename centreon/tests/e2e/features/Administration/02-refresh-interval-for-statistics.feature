@@ -3,7 +3,7 @@ Feature: Refresh intervals for the top counter
   I want to check
   That the refresh intervals for the popup counters has effect
 
-  TEST_MON-157646
+  @TEST_MON-157646
   Scenario: Check that Refresh intervals for the top counters has an effect
     Given a user is logged in a Centreon server
     When the user goes to Administration > Parameters > Centreon UI page
