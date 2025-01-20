@@ -1,3 +1,4 @@
+export { FlappingIcon } from './FlappingIcon';
 export { HostIcon } from './HostIcon';
 export { ServiceIcon } from './ServiceIcon';
 export { DowntimeIcon } from './DowntimeIcon';

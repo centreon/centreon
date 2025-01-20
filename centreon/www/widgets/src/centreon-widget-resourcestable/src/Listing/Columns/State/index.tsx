@@ -8,6 +8,7 @@ import HoverChip from '../HoverChip';
 
 import AcknowledgeChip from './Chip/Acknowledge';
 import DowntimeChip from './Chip/Downtime';
+import FlappingChip from './Chip/Flapping';
 import AcknowledgementDetailsTable from './DetailsTable/Acknowledgement';
 import DowntimeDetailsTable from './DetailsTable/Downtime';
 import useStyles from './State.styles';
@@ -76,6 +77,7 @@ const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
     <div className={classes.container}>
       {row.is_in_downtime && <DowntimeHoverChip resource={row} />}
       {row.is_acknowledged && <AcknowledgeHoverChip resource={row} />}
+      {row.is_in_flapping && <FlappingChip />}
     </div>
   );
 };
