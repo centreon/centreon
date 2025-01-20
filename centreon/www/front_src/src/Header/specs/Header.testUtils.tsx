@@ -1,27 +1,72 @@
-import React from 'react';
-
 import '@testing-library/cypress/add-commands';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { mergeDeepRight } from 'ramda';
+import { BrowserRouter as Router } from 'react-router-dom';
 
-import { SnackbarProvider, Method, TestQueryProvider } from '@centreon/ui';
-
-import Header from '../index';
+import {
+  Method,
+  SnackbarProvider,
+  TestQueryProvider,
+  ThemeProvider
+} from '@centreon/ui';
+import { Provider, createStore } from 'jotai';
 import type {
   HostStatusResponse,
   ServiceStatusResponse
 } from '../api/decoders';
 import type { PollersIssuesList } from '../api/models';
-import { retrievedNavigation } from '../../Navigation/mocks';
-import type Navigation from '../../Navigation/models';
-import { testUtils } from '../UserMenu';
+import Header from '../index';
 
-export type DeepPartial<Thing> =
-  Thing extends Array<infer InferredArrayMember>
-    ? DeepPartialArray<InferredArrayMember>
-    : Thing extends object
-      ? DeepPartialObject<Thing>
-      : Thing | undefined;
+import { userPermissionsAtom } from '@centreon/ui-context';
+import { StylesProvider, createGenerateClassName } from '@mui/styles';
+import navigationAtom from '../../Navigation/navigationAtoms';
+
+const allowedPages = {
+  status: true,
+  result: [
+    {
+      page: '6',
+      label: 'Configuration',
+      menu_id: 'Configuration',
+      url: null,
+      color: '319ED5',
+      icon: 'configuration',
+      children: [
+        {
+          page: '609',
+          label: 'Pollers',
+          url: null,
+          groups: [
+            {
+              label: 'Main Menu',
+              children: [
+                {
+                  page: '60901',
+                  label: 'Pollers',
+                  url: './include/configuration/configServers/servers.php',
+                  options: null,
+                  is_react: false,
+                  show: true
+                }
+              ]
+            }
+          ],
+          options: null,
+          is_react: false,
+          show: true
+        }
+      ],
+      options: null,
+      is_react: false,
+      show: true
+    }
+  ]
+};
+
+export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
+  ? DeepPartialArray<InferredArrayMember>
+  : Thing extends object
+    ? DeepPartialObject<Thing>
+    : Thing | undefined;
 
 type DeepPartialArray<Thing> = Array<DeepPartial<Thing>>;
 
@@ -192,15 +237,34 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
 
   cy.clock(new Date(2022, 3, 28, 16, 20, 0), ['Date']);
 
+  const store = createStore();
+
+  store.set(userPermissionsAtom, {
+    top_counter: true,
+    poller_statistics: true
+  });
+
+  store.set(navigationAtom, allowedPages);
+
+  const generateClassName = createGenerateClassName({
+    seed: 'seedName'
+  });
+
   cy.mount({
     Component: (
-      <SnackbarProvider maxSnackbars={2}>
-        <TestQueryProvider>
-          <Router>
-            <Header />
-          </Router>
-        </TestQueryProvider>
-      </SnackbarProvider>
+      <TestQueryProvider>
+        <Provider store={store}>
+          <StylesProvider generateClassName={generateClassName}>
+            <ThemeProvider>
+              <SnackbarProvider maxSnackbars={2}>
+                <Router>
+                  <Header />
+                </Router>
+              </SnackbarProvider>
+            </ThemeProvider>
+          </StylesProvider>
+        </Provider>
+      </TestQueryProvider>
     )
   });
 

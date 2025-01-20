@@ -98,3 +98,9 @@ export interface PlatformFeatures {
   featureFlags: FeatureFlags;
   isCloudPlatform: boolean;
 }
+
+export interface PlatformVersions {
+  modules: Record<string, Version>;
+  web: Version;
+  widgets: Record<string, Version | null>;
+}

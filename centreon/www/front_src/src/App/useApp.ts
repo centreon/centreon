@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, not, pathEq, path } from 'ramda';
+import { path, equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -12,17 +12,22 @@ import {
   aclAtom,
   downtimeAtom,
   platformNameAtom,
-  refreshIntervalAtom
+  refreshIntervalAtom,
+  userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { logoutEndpoint } from '../api/endpoint';
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
+import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
+import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
-import { aclEndpoint, parametersEndpoint } from './endpoint';
+import {
+  aclEndpoint,
+  parametersEndpoint,
+  userPermissionsEndpoint
+} from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
@@ -50,9 +55,16 @@ const useApp = (): UseAppState => {
     request: getData
   });
   const { sendRequest: getParameters } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
     request: getData
   });
-  const { sendRequest: getAcl } = useRequest<Actions>({
+
+  const { sendRequest: getUserPermissions } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
+    request: getData
+  });
+
+  const { sendRequest: getResourcesAcl } = useRequest<Actions>({
     request: getData
   });
 
@@ -69,11 +81,13 @@ const useApp = (): UseAppState => {
   const [platformVersion] = useAtom(platformVersionsAtom);
   const setDowntime = useSetAtom(downtimeAtom);
   const setRefreshInterval = useSetAtom(refreshIntervalAtom);
-  const setAcl = useSetAtom(aclAtom);
+
+  const setResourcesAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
 
   const setPlaformName = useSetAtom(platformNameAtom);
+  const setUserPermissions = useSetAtom(userPermissionsAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -95,13 +109,13 @@ const useApp = (): UseAppState => {
       getParameters({
         endpoint: parametersEndpoint
       }),
-      getAcl({
+      getResourcesAcl({
         endpoint: aclEndpoint
       })
     ])
       .then(([retrievedParameters, retrievedAcl]) => {
         setDowntime({
-          duration: parseInt(
+          duration: Number.parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
             10
           ),
@@ -110,7 +124,10 @@ const useApp = (): UseAppState => {
             retrievedParameters.monitoring_default_downtime_with_services
         });
         setRefreshInterval(
-          parseInt(retrievedParameters.monitoring_default_refresh_interval, 10)
+          Number.parseInt(
+            retrievedParameters.monitoring_default_refresh_interval,
+            10
+          )
         );
         setAcl({ actions: retrievedAcl });
         setAcknowledgement({
@@ -129,6 +146,17 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
+
+    getUserPermissions({
+      endpoint: userPermissionsEndpoint
+    })
+      .then(setUserPermissions)
+      .catch((error) => {
+        if (pathEq(401, ['response', 'status'])(error)) {
+          logout();
+        }
+      });
+
     if (path(['modules', 'centreon-it-edition-extensions'], platformVersion)) {
       getCustomPlatformRequest({
         endpoint: loginPageCustomisationEndpoint
