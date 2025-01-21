@@ -57,6 +57,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
   const { canEditField } = useCanEditProperties();
   const widgetProperties = useAtomValue(widgetPropertiesAtom);
 
+  
   const canDisplayMetricsSelection =
     areResourcesFullfilled(resources) && !hasTooManyMetrics;
 
