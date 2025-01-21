@@ -53,6 +53,7 @@ final readonly class PermissionNormalizer implements NormalizerInterface
             throw new \InvalidArgumentException('Normalized data missing, required fields: name, is_active');
         }
 
+        /** @var array{name: string, is_active: bool} $data */
         return [$data['name'] => $data['is_active']];
     }
 
