@@ -37,11 +37,9 @@ class DeleteServicesStatusResponseNormalizer implements NormalizerInterface
     private const SERVICE_TOPOLOGY_PAGE = 60201;
 
     /**
-     * @param ObjectNormalizer $normalizer
      * @param Router $router
      */
     public function __construct(
-        private readonly ObjectNormalizer $normalizer,
         private readonly Router $router
     ) {
     }
