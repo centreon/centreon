@@ -34,6 +34,8 @@
  *
  */
 
+use Core\ActionLog\Domain\Model\ActionLog;
+
 require_once __DIR__ . '/centreonInstance.class.php';
 require_once __DIR__ . '/centreonService.class.php';
 require_once __DIR__ . '/centreonCommand.class.php';
@@ -2078,11 +2080,11 @@ class CentreonHost
                     $svcId = $this->serviceObj->insert($serviceDesc);
                     $fields = CentreonLogAction::prepareChanges($serviceDesc);
                     $centreon->CentreonLogAction->insertLog(
-                        "service",
-                        $svcId,
-                        CentreonDB::escape($service['service_alias']),
-                        "a",
-                        $fields
+                        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+                        object_id: $svcId,
+                        object_name: $service['service_alias'],
+                        action_type: ActionLog::ACTION_TYPE_ADD,
+                        fields: $fields
                     );
                     $this->insertRelHostService($hostId, $svcId);
                 }

@@ -1,0 +1,28 @@
+# parameters:
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    _instanceof:
+        Symfony\Component\Console\Command\Command:
+            tags: ['script.command']
+
+    Core\Command\:
+        resource: '../../../../Core/Command/*'
+
+    Core\Command\Application\Repository\WriteCommandRepositoryInterface:
+        class: Core\Command\Infrastructure\Repository\DbWriteCommandRepository
+
+    Core\Command\Application\UseCase\AddCommand\AddCommand:
+        arguments:
+            $writeCommandRepository: '@Core\Command\Infrastructure\Repository\DbWriteCommandActionLogRepository'
+
+    Core\Command\Infrastructure\Repository\DbWriteCommandActionLogRepository:
+        decorates: Core\Command\Application\Repository\WriteCommandRepositoryInterface
+        arguments:
+        - '@.inner'
+        - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+        - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+        - '@Centreon\Infrastructure\DatabaseConnection'
