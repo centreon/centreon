@@ -74,6 +74,12 @@ class VmWareV6Parameters implements AccParametersInterface
             Assertion::maxLength($vcenter['password'], self::MAX_LENGTH, "parameters.vcenters[{$index}].password");
             Assertion::maxLength($vcenter['url'], self::MAX_LENGTH, "parameters.vcenters[{$index}].url");
 
+            // This is a temporary fix to handle the case where the scheme should be not be a part of the URL.
+            // The scheme is removed after being reunified with the url to ensure this is not stored.
+            $parameters['vcenters'][$index]['url'] = isset($vcenter['scheme'])
+                ? $vcenter['scheme'] . '://' . $vcenter['url']
+                : $vcenter['url'];
+            unset($parameters['vcenters'][$index]['scheme']);
             // Validate specific format
             Assertion::urlOrIpOrDomain($vcenter['url'], "parameters.vcenters[{$index}].url");
         }
