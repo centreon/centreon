@@ -29,7 +29,6 @@ use Core\Infrastructure\Common\Api\Router;
 use Core\Service\Application\UseCase\DeleteServices\DeleteServicesStatusResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class DeleteServicesStatusResponseNormalizer implements NormalizerInterface
 {
