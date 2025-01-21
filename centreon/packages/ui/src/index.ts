@@ -167,4 +167,3 @@ export { default as Subtitle } from './Typography/Subtitle';
 export { default as TablePagination } from './Listing/ActionBar/Pagination';
 export { default as PaginationActions } from './Listing/ActionBar/PaginationActions';
 export * from './Icon';
-export { default as Collapse } from './Collapse';
