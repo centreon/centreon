@@ -158,7 +158,7 @@ const BarGroup = ({
       {...barComponentBaseProps}
     >
       {(barGroups) =>
-        barGroups.map((barGroup) => {
+        barGroups.map((barGroup, index) => {
           return (
             <MemoizedGroup
               key={`bar-group-${barGroup.index}-${barGroup.x0}`}
@@ -171,6 +171,7 @@ const BarGroup = ({
               isHorizontal={isHorizontal}
               neutralValue={neutralValue}
               yScalesPerUnit={yScalesPerUnit}
+              barIndex={index}
             />
           );
         })

@@ -1,6 +1,6 @@
 import { Group } from '@visx/group';
 import { ScaleLinear } from 'd3-scale';
-import { equals } from 'ramda';
+import { equals, omit } from 'ramda';
 import { memo } from 'react';
 import { Line, TimeValue } from '../common/timeSeries/models';
 import BarStack from './BarStack';
@@ -19,6 +19,7 @@ interface Props {
   notStackedTimeSeries: Array<TimeValue>;
   isHorizontal: boolean;
   barGroup;
+  barIndex: number;
 }
 
 const MemoizedGroup = ({
@@ -30,9 +31,25 @@ const MemoizedGroup = ({
   barStyle,
   isTooltipHidden,
   neutralValue,
-  yScalesPerUnit
+  yScalesPerUnit,
+  barIndex
 }: Props): JSX.Element | null => {
-  const hasEmptyValues = barGroup.bars.every(({ value }) => !value);
+  const hasEmptyValues = barGroup.bars.every(({ index, key, value }) => {
+    if (key.startsWith('stacked-')) {
+      const timeValueBar =
+        stackedLinesTimeSeriesPerUnit[key.replace('stacked-', '')].timeSeries[
+          barIndex
+        ];
+
+      console.log(Object.values(omit(['timeTick'], timeValueBar)), barIndex);
+
+      return Object.values(omit(['timeTick'], timeValueBar)).every(
+        (value) => !value
+      );
+    }
+
+    return !value;
+  });
 
   if (hasEmptyValues) {
     return null;
@@ -102,5 +119,6 @@ export default memo(
     equals(prevProps.isHorizontal, nextProps.isHorizontal) &&
     equals(prevProps.barStyle, nextProps.barStyle) &&
     equals(prevProps.isTooltipHidden, nextProps.isTooltipHidden) &&
-    equals(prevProps.neutralValue, nextProps.neutralValue)
+    equals(prevProps.neutralValue, nextProps.neutralValue) &&
+    equals(prevProps.barIndex, nextProps.barIndex)
 );
