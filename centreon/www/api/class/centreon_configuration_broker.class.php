@@ -33,8 +33,13 @@
  *
  */
 
-require_once dirname(__FILE__) . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationBroker
+ */
 class CentreonConfigurationBroker extends CentreonConfigurationObjects
 {
     /**
@@ -84,21 +89,10 @@ class CentreonConfigurationBroker extends CentreonConfigurationObjects
         }
         textdomain('messages');
 
-        /*
-         * Smarty template Init
-         */
-        $libDir = __DIR__ . "/../../../GPL_LIB";
-        $smartyDir = __DIR__ . '/../../../vendor/smarty/smarty/';
-        require_once $smartyDir . 'libs/SmartyBC.class.php';
-        $tpl = new \SmartyBC();
-        $tpl->setTemplateDir(_CENTREON_PATH_ . '/www/include/configuration/configCentreonBroker/');
-        $tpl->setCompileDir($libDir . '/SmartyCache/compile');
-        $tpl->setConfigDir($libDir . '/SmartyCache/config');
-        $tpl->setCacheDir($libDir . '/SmartyCache/cache');
-        $tpl->addPluginsDir($libDir . '/smarty-plugins');
-        $tpl->loadPlugin('smarty_function_eval');
-        $tpl->setForceCompile(true);
-        $tpl->setAutoLiteral(false);
+        // Smarty template initialization
+        $tpl = SmartyAdapter::createSmartyTemplate(
+            _CENTREON_PATH_ . '/www/include/configuration/configCentreonBroker/'
+        )->getNativeSmartyBC();
 
         /*
          * Apply a template definition

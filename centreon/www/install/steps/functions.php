@@ -62,21 +62,10 @@ function isSqlComment($str)
  */
 function getTemplate($dir)
 {
-    $libDir = __DIR__ . '/../../../GPL_LIB';
-    $smartyDir = __DIR__ . '/../../../vendor/smarty/smarty/';
-    require_once $smartyDir . 'libs/SmartyBC.class.php';
+    // Smarty template initialization
+    $tpl = SmartyAdapter::createSmartyTemplate($dir)->getNativeSmartyBC();
 
-    $template = new \SmartyBC();
-    $template->setTemplateDir($dir);
-    $template->setCompileDir($libDir . '/SmartyCache/compile');
-    $template->setConfigDir($libDir . '/SmartyCache/config');
-    $template->setCacheDir($libDir . '/SmartyCache/cache');
-    $template->addPluginsDir($libDir . '/smarty-plugins');
-    $template->loadPlugin('smarty_function_eval');
-    $template->setForceCompile(true);
-    $template->setAutoLiteral(false);
-
-    return $template;
+    return $tpl;
 }
 
 /**
