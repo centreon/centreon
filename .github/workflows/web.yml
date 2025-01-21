@@ -787,6 +787,7 @@ jobs:
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
+      target_stability: ${{ needs.get-environment.outputs.target_stability }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
       test_tags: ${{ ( needs.changes.outputs.has_upgrade_changes == 'true' || needs.get-environment.outputs.is_nightly == 'true' ) && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
