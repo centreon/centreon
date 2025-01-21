@@ -19659,3 +19659,12 @@ msgstr "Quitter"
 
 msgid "Stay"
 msgstr "Rester"
+
+msgid "Generic widgets"
+msgstr "Widgets génériques"
+
+msgid "Real time widgets"
+msgstr "Widgets temps réel"
+
+msgid "MBI Reporting widgets"
+msgstr "Widgets de reporting MBI"

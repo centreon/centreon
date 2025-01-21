@@ -34,11 +34,11 @@ const WidgetSelection = (): JSX.Element => {
 
   const { canEditField } = useCanEditProperties();
 
-  const renderGroup = ({ group, key, ...rest }) => (
+  const renderGroup = ({ group, key, ...rest }):JSX.Element => (
     <CollapsibleItem
       defaultExpanded
       key={key}
-      title={group}
+      title={t(group)}
       classes={{ root: classes.groupContainer }}
       titleProps={{ variant: 'body1', color: theme.palette.common.white }}
       expandIcon={<ExpandMoreIcon htmlColor={theme.palette.common.white} />}

@@ -18345,3 +18345,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Stay"
 # msgstr ""
+
+# msgid "Generic widgets"
+# msgstr ""
+
+# msgid "Real time widgets"
+# msgstr ""
+
+# msgid "MBI Reporting widgets"
+# msgstr ""

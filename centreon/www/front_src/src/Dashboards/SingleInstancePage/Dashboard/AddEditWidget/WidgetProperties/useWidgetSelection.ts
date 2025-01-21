@@ -36,7 +36,7 @@ import {
   singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import type { Widget } from '../models';
+import { WidgetCategories, type Widget } from '../models';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
 import usePlatformVersions from '../../../../../Main/usePlatformVersions';
@@ -125,7 +125,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     ({ title, moduleName, collapsible }) => ({
       id: moduleName,
       name: title,
-      header: collapsible?.header
+      header: collapsible.header
     }),
     filteredWidgets
   );
@@ -229,17 +229,15 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     equals(values.moduleName, id)
   );
 
-  console.log(formattedWidgets);
-
   const filterByTitle = (title) => {
     return formattedWidgets.filter(({ header }) => equals(header, title));
   };
   const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
 
   const formattedWidgetsByGroupTitle = [
-    ...sortByNameCaseInsensitive(filterByTitle('Generic widgets')),
-    ...sortByNameCaseInsensitive(filterByTitle('Real time widgets')),
-    ...sortByNameCaseInsensitive(filterByTitle('MBI reporting widgets'))
+    ...sortByNameCaseInsensitive(filterByTitle(WidgetCategories.Generic)),
+    ...sortByNameCaseInsensitive(filterByTitle(WidgetCategories.RealTime)),
+    ...sortByNameCaseInsensitive(filterByTitle(WidgetCategories.MBI))
   ];
 
   return {

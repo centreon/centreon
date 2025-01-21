@@ -140,5 +140,5 @@ export interface FederatedWidgetProperties {
     icon?: string;
   };
   canExpand?: boolean;
-  collapsible?: Collapsible; // todo remove optional
+  collapsible: Collapsible; 
 }
