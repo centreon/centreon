@@ -143,6 +143,6 @@
       }
     }
   },
-  "collapsible": {"header": "Real time widgets"},
+  "collapsible": { "header": "Real time widgets" },
   "moduleName": "centreon-widget-data"
 }

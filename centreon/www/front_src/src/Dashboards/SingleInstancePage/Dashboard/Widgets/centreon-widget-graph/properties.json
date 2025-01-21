@@ -542,5 +542,5 @@
   },
   "moduleName": "centreon-widget-graph",
   "canExpand": true,
-  "collapsible": {"header": "Real time widgets"}
+  "collapsible": { "header": "Real time widgets" }
 }

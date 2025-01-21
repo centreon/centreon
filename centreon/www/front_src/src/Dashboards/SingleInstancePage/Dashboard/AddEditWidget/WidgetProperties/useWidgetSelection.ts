@@ -122,7 +122,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   );
 
   const formattedWidgets = map(
-    ({ title, moduleName,collapsible }) => ({
+    ({ title, moduleName, collapsible }) => ({
       id: moduleName,
       name: title,
       header: collapsible?.header
@@ -229,20 +229,18 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     equals(values.moduleName, id)
   );
 
-  console.log(formattedWidgets)
+  console.log(formattedWidgets);
 
-  const filterByTitle = (title)=>{
-    return formattedWidgets.filter(({header})=>equals(header,title))
-  }
+  const filterByTitle = (title) => {
+    return formattedWidgets.filter(({ header }) => equals(header, title));
+  };
   const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
 
   const formattedWidgetsByGroupTitle = [
-    ... sortByNameCaseInsensitive(filterByTitle('Generic widgets')),
-    ... sortByNameCaseInsensitive(filterByTitle('Real time widgets')),
-   ...sortByNameCaseInsensitive(filterByTitle('MBI reporting widgets'))
-  ]
-
-
+    ...sortByNameCaseInsensitive(filterByTitle('Generic widgets')),
+    ...sortByNameCaseInsensitive(filterByTitle('Real time widgets')),
+    ...sortByNameCaseInsensitive(filterByTitle('MBI reporting widgets'))
+  ];
 
   return {
     options: formattedWidgetsByGroupTitle,

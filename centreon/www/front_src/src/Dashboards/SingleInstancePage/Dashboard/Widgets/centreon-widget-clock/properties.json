@@ -92,6 +92,5 @@
       }
     }
   },
-  "collapsible": {"header": "Generic widgets"}
-
+  "collapsible": { "header": "Generic widgets" }
 }

@@ -118,7 +118,6 @@ export const useWidgetInputs = (
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
-  console.log({widgetProperties})
 
   const selectedWidget = find(
     propEq(values.moduleName, 'moduleName'),
