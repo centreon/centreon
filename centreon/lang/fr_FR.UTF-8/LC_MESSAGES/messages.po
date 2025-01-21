@@ -19553,7 +19553,7 @@ msgid "Update poller/agent configuration"
 msgstr "Mettre à jour la configuration collecteur/agent"
 
 msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
-msgstr "Un agent est une partie d'un logiciel que vous installez sur l'hôte que vous souhaitez superviser qui exécutes les vérifications."
+msgstr "Un agent est un logiciel que vous installez sur l’hôte à superviser, et qui exécute les contrôles."
 
 msgid "Error while adding a poller/agent configuration"
 msgstr "Erreur lors de l'ajout de la configuration collecteur/agent"
@@ -19602,3 +19602,6 @@ msgstr "Sticky pour tout statut non-OK"
 
 msgid "There are errors in the form."
 msgstr "Il y a des erreurs dans le formulaire."
+
+msgid "Agent configuration"
+msgstr "Configuration d'agent"
