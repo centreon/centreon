@@ -34,8 +34,9 @@ const WidgetSelection = (): JSX.Element => {
 
   const { canEditField } = useCanEditProperties();
 
-  const renderGroup = ({ group, key, ...rest }):JSX.Element => (
+  const renderGroup = ({ group, key, ...rest }): JSX.Element => (
     <CollapsibleItem
+      dataTestId={group}
       defaultExpanded
       key={key}
       title={t(group)}

@@ -36,7 +36,7 @@ import {
   singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import { WidgetCategories, type Widget } from '../models';
+import { type Widget, WidgetCategories } from '../models';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
 import usePlatformVersions from '../../../../../Main/usePlatformVersions';
