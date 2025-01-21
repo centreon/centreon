@@ -683,6 +683,7 @@ function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedV
                         $statement->execute();
                     }
                     unset($userResourceAccesses);
+                    $pearDB->commit();
                 } catch (\Throwable $exception) {
                     $pearDB->rollBack();
                     throw $exception;

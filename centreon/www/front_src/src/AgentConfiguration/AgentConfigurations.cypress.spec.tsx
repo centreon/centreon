@@ -450,7 +450,7 @@ describe('Agent configurations modal', () => {
     cy.makeSnapshot();
   });
 
-  it('discards the form when the cancel button is clicked and the corresponding button is clicked', () => {
+  it('leaves the form when the "Leave" button of the popup is clicked', () => {
     initialize({});
 
     cy.contains(labelAdd).click();
@@ -465,7 +465,7 @@ describe('Agent configurations modal', () => {
     cy.makeSnapshot();
   });
 
-  it('resolves the form when the cancel button is clicked and the corresponding button is clicked', () => {
+  it('backs to the form when the "Stay" button of the popup is clicked', () => {
     initialize({});
 
     cy.contains(labelAdd).click();
