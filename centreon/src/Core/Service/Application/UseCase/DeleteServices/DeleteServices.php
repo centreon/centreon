@@ -82,7 +82,7 @@ final class DeleteServices
                 $this->writeServiceRepository->delete($serviceId);
                 $results[] = $statusResponse;
             } catch (\Throwable $ex) {
-                $this->error($ex->getMessage(), ['trace' =>  (string) $ex]);
+                $this->error($ex->getMessage(), ['trace' => (string) $ex]);
                 $statusResponse->status = ResponseCodeEnum::Error;
                 $statusResponse->message = ServiceException::errorWhileDeleting($ex)->getMessage();
 
