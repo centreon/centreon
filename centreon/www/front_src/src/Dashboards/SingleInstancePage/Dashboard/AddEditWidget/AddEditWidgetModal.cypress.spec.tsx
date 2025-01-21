@@ -38,7 +38,7 @@ import {
 import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
 import { metricsEndpoint } from './api/endpoints';
 import { widgetFormInitialDataAtom } from './atoms';
-import { WidgetResourceType } from './models';
+import { WidgetCategories, WidgetResourceType } from './models';
 
 import { AddEditWidgetModal } from '.';
 import { internalWidgetComponents } from '../Widgets/widgets';
@@ -1015,7 +1015,8 @@ describe('AddEditWidgetModal', () => {
               type: 'unknown'
             }
           },
-          title: 'Generic data (example)'
+          title: 'Generic data (example)',
+        collapsible: { header: WidgetCategories.RealTime }
         }
       ]);
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
