@@ -33,7 +33,6 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteServices
 {
-
     /**
      * @param ContactInterface $user
      * @param WriteServiceRepositoryInterface $writeServiceRepository

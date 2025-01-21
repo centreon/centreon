@@ -38,6 +38,7 @@ class DeleteServicesStatusResponseNormalizer implements NormalizerInterface
 
     /**
      * @param ObjectNormalizer $normalizer
+     * @param Router $router
      */
     public function __construct(
         private readonly ObjectNormalizer $normalizer,

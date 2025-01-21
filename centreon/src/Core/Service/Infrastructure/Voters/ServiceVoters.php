@@ -25,8 +25,8 @@ namespace Core\Service\Infrastructure\Voters;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * @extends Voter<string, mixed>
@@ -54,7 +54,7 @@ final class ServiceVoters extends Voter
             return false;
         }
 
-        return match($attribute) {
+        return match ($attribute) {
             self::SERVICE_DELETE => $this->checkUserRights($user),
             default => false,
         };
