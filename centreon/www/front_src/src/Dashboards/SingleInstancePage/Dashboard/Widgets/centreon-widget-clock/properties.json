@@ -91,5 +91,7 @@
         "group": "color"
       }
     }
-  }
+  },
+  "collapsible": {"header": "Generic widgets"}
+
 }

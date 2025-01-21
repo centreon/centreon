@@ -114,5 +114,6 @@
     }
   },
   "moduleName": "centreon-widget-statusgrid",
-  "canExpand": true
+  "canExpand": true,
+  "collapsible": {"header": "MBI reporting widgets"}
 }

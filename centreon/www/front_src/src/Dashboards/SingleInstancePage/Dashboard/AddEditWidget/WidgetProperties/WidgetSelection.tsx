@@ -1,5 +1,5 @@
 import parse from 'html-react-parser';
-import { find, propEq } from 'ramda';
+import { equals, find, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import WidgetsIcon from '@mui/icons-material/Widgets';
@@ -24,7 +24,17 @@ const WidgetSelection = (): JSX.Element => {
   const { options, widgets, searchWidgets, selectWidget, selectedWidget } =
     useWidgetSelection();
 
+    console.log({options})
+
   const { canEditField } = useCanEditProperties();
+
+  const renderGroup = (params) => (
+    <>
+      <ListItemText primary={params.group}
+        classes={{root:classes.headerContainer, primary:classes.header}} />
+      <div>{params.children}</div>
+    </>
+  )
 
   const renderOption = (renderProps, option): JSX.Element => {
     const widget = find(
@@ -73,7 +83,9 @@ const WidgetSelection = (): JSX.Element => {
         value={selectedWidget || null}
         onChange={(_, newValue) => selectWidget(newValue)}
         onTextChange={searchWidgets}
-      />
+        groupBy={(option) => option?.header}
+        renderGroup={renderGroup}
+            />
     </Box>
   );
 };

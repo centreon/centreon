@@ -3,6 +3,7 @@ import { type ChangeEvent, useMemo, useState } from 'react';
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
+  compose,
   equals,
   filter,
   find,
@@ -10,9 +11,12 @@ import {
   isEmpty,
   isNil,
   map,
+  prop,
   propEq,
   reduce,
   reject,
+  sortBy,
+  toLower,
   toPairs
 } from 'ramda';
 
@@ -118,9 +122,10 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   );
 
   const formattedWidgets = map(
-    ({ title, moduleName }) => ({
+    ({ title, moduleName,collapsible }) => ({
       id: moduleName,
-      name: title
+      name: title,
+      header: collapsible?.header
     }),
     filteredWidgets
   );
@@ -224,8 +229,23 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     equals(values.moduleName, id)
   );
 
+  console.log(formattedWidgets)
+
+  const filterByTitle = (title)=>{
+    return formattedWidgets.filter(({header})=>equals(header,title))
+  }
+  const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
+
+  const formattedWidgetsByGroupTitle = [
+    ... sortByNameCaseInsensitive(filterByTitle('Generic widgets')),
+    ... sortByNameCaseInsensitive(filterByTitle('Real time widgets')),
+   ...sortByNameCaseInsensitive(filterByTitle('MBI reporting widgets'))
+  ]
+
+
+
   return {
-    options: formattedWidgets,
+    options: formattedWidgetsByGroupTitle,
     searchWidgets,
     selectWidget,
     selectedWidget,
