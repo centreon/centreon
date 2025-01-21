@@ -59,7 +59,7 @@ runs:
         if [[ ${{ inputs.github_ref_name }} == "master" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
         else
-          ROOT_REPO_PATH=("rpm-standard" "rpm-standard-esr")
+          ROOT_REPO_PATHS=("rpm-standard" "rpm-standard-esr")
         fi
 
         # Process both repo (double promote)
