@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Service\Application\UseCase\DeleteServices;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -33,6 +34,8 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteServices
 {
+    use LoggerTrait;
+
     /**
      * @param ContactInterface $user
      * @param WriteServiceRepositoryInterface $writeServiceRepository
@@ -79,6 +82,7 @@ final class DeleteServices
                 $this->writeServiceRepository->delete($serviceId);
                 $results[] = $statusResponse;
             } catch (\Throwable $ex) {
+                $this->error($ex->getMessage(), ['trace' =>  (string) $ex]);
                 $statusResponse->status = ResponseCodeEnum::Error;
                 $statusResponse->message = ServiceException::errorWhileDeleting($ex)->getMessage();
 
