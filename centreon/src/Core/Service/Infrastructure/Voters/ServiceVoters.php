@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,13 @@ final class ServiceVoters extends Voter
         };
     }
 
+    /**
+     * Check that user has rights to perform write operations on services.
+     *
+     * @param ContactInterface $user
+     *
+     * @return bool
+     */
     private function checkUserRights(ContactInterface $user): bool
     {
         return $user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_WRITE);

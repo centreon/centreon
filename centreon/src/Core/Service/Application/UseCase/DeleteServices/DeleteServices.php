@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,13 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteServices
 {
+
+    /**
+     * @param ContactInterface $user
+     * @param WriteServiceRepositoryInterface $writeServiceRepository
+     * @param ReadServiceRepositoryInterface $readServiceRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     */
     public function __construct(
         private readonly ContactInterface $user,
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
@@ -41,11 +48,21 @@ final class DeleteServices
     ) {
     }
 
+    /**
+     * @param DeleteServicesRequest $request
+     *
+     * @return DeleteServicesResponse
+     */
     public function __invoke(DeleteServicesRequest $request): DeleteServicesResponse
     {
         return $this->deleteServices($request->serviceIds);
     }
 
+    /**
+     * @param int[] $serviceIds
+     *
+     * @return DeleteServicesResponse
+     */
     private function deleteServices(array $serviceIds): DeleteServicesResponse
     {
         $results = [];
@@ -53,13 +70,7 @@ final class DeleteServices
             $statusResponse = new DeleteServicesStatusResponse();
             $statusResponse->id = $serviceId;
             try {
-                $serviceExists = $this->user->isAdmin()
-                    ? $this->readServiceRepository->exists($serviceId)
-                    : $this->readServiceRepository->existsByAccessGroups(
-                        $serviceId,
-                        $this->readAccessGroupRepository->findByContact($this->user)
-                    );
-                if (! $serviceExists) {
+                if (! $this->serviceExists($serviceId)) {
                     $statusResponse->status = ResponseCodeEnum::NotFound;
                     $statusResponse->message = (new NotFoundResponse('Service'))->getMessage();
                     $results[] = $statusResponse;
@@ -77,5 +88,22 @@ final class DeleteServices
         }
 
         return new DeleteServicesResponse($results);
+    }
+
+    /**
+     * Check that service exists for the user regarding ACLs
+     *
+     * @param int $serviceId
+     *
+     * @return bool
+     */
+    private function serviceExists(int $serviceId): bool
+    {
+        return $this->user->isAdmin()
+            ? $this->readServiceRepository->exists($serviceId)
+            : $this->readServiceRepository->existsByAccessGroups(
+                $serviceId,
+                $this->readAccessGroupRepository->findByContact($this->user)
+            );
     }
 }

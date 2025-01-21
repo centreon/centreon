@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,17 +61,27 @@ class DeleteServicesStatusResponseNormalizer implements NormalizerInterface
     ): float|int|bool|array|string|null {
         return [
             'href' => $this->router->computeLegacyHref(self::SERVICE_TOPOLOGY_PAGE, 'o=w&service_id=' . $object->id),
-            'status' => $this->enumToIntConverter($object->status),
+            'status' => $this->enumToHttpStatusCodeConverter($object->status),
             'message' => $object->message,
         ];
     }
 
+    /**
+     * @inheritDoc
+     */
     public function supportsNormalization(mixed $data, ?string $format = null): bool
     {
         return $data instanceof DeleteServicesStatusResponse;
     }
 
-    private function enumToIntConverter(ResponseCodeEnum $code): int
+    /**
+     * Convert ResponseCodeEnum to HTTP Status Code
+     *
+     * @param ResponseCodeEnum $code
+     *
+     * @return int
+     */
+    private function enumToHttpStatusCodeConverter(ResponseCodeEnum $code): int
     {
         return match ($code) {
             ResponseCodeEnum::OK => Response::HTTP_NO_CONTENT,
