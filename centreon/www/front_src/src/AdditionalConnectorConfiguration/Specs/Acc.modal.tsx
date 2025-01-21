@@ -663,6 +663,7 @@ export default (): void => {
         initializeModal({ variant: 'update' });
 
         cy.get('input[name="port"]').clear();
+        cy.get('input[name="port"]').should('have.value',0);
         cy.contains(labelCancel).click();
 
         cy.contains('Do you want to resolve the errors?').should('be.visible');
