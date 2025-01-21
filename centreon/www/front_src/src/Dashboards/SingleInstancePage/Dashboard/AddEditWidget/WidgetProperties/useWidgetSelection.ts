@@ -117,7 +117,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   }, installedWidgets || []);
 
   const filteredWidgets = filter(
-    ({ title }) => title?.includes(search),
+    ({ title }) => toLower(title)?.includes(toLower(search)),
     availableWidgetsProperties || []
   );
 
