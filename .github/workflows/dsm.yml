@@ -144,7 +144,10 @@ jobs:
 
   deliver-rpm:
     needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
 
     strategy:
@@ -169,7 +172,11 @@ jobs:
 
   deliver-deb:
     needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon' &&
+      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     runs-on: [self-hosted, common]
 
     strategy:
