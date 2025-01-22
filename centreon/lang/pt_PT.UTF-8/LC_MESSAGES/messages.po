@@ -18345,5 +18345,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Stay"
 # msgstr ""
+
 # msgid "Value must be greater than 10"
 # msgstr ""
