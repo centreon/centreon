@@ -38,7 +38,7 @@ export type Props = {
   className?: string;
   confirmDisabled?: boolean;
   contentWidth?: number;
-  dialogTitleProps?:DialogTitleProps
+  dialogTitleProps?: DialogTitleProps;
   dialogActionsClassName?: string;
   dialogConfirmButtonClassName?: string;
   dialogContentClassName?: string;
@@ -93,7 +93,9 @@ const Dialog = ({
       {...rest}
     >
       {labelTitle && (
-        <DialogTitle className={dialogTitleClassName} {...dialogTitleProps}>{labelTitle}</DialogTitle>
+        <DialogTitle className={dialogTitleClassName} {...dialogTitleProps}>
+          {labelTitle}
+        </DialogTitle>
       )}
       {children && (
         <DialogContent

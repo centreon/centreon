@@ -1,4 +1,9 @@
-import { ButtonProps, DialogContentText, DialogContentTextProps, Typography } from '@mui/material';
+import {
+  ButtonProps,
+  DialogContentText,
+  DialogContentTextProps,
+  Typography
+} from '@mui/material';
 
 import Dialog, { Props as DialogProps } from '..';
 
@@ -8,7 +13,7 @@ type Props = DialogProps & {
   labelSecondMessage?: string | null;
   restCancelButtonProps?: ButtonProps;
   restConfirmButtonProps?: ButtonProps;
-  dialogContentTextProps?:DialogContentTextProps
+  dialogContentTextProps?: DialogContentTextProps;
 };
 
 const Confirm = ({

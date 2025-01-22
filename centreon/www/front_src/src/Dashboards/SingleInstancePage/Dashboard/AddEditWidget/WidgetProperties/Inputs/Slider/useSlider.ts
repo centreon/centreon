@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useState } from 'react';
 
 import { useFormikContext } from 'formik';
 
+import { useDebounce } from '@centreon/ui';
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
 
@@ -16,17 +17,25 @@ export const useSlider = ({
 }: Pick<WidgetPropertyProps, 'propertyName'>): UseSliderState => {
   const { values, setFieldValue } = useFormikContext<Widget>();
 
-  const value = useMemo<number | undefined>(
-    () => getProperty({ obj: values, propertyName }),
-    [getProperty({ obj: values, propertyName })]
+  const [value, setValue] = useState(
+    getProperty<number>({ obj: values, propertyName }) || 0
   );
 
+  const debounce = useDebounce({
+    functionToDebounce: (newValue): void => {
+      setFieldValue(`options.${propertyName}`, newValue);
+    },
+    wait: 100
+  });
+
   const changeInputValue = (newValue: number): void => {
-    setFieldValue(`options.${propertyName}`, newValue);
+    setValue(newValue);
+    debounce(newValue);
   };
 
   const changeSliderValue = (_, newValue: number): void => {
-    setFieldValue(`options.${propertyName}`, newValue);
+    setValue(newValue);
+    debounce(newValue);
   };
 
   return {
