@@ -8,7 +8,7 @@ ARG IS_CLOUD
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN -mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
+RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
     --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
     bash -e <<EOF
 
