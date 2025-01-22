@@ -350,10 +350,10 @@ When(
   }
 );
 
-Then('this pop-up contains two buttons "Resolve" and "Discard"', () => {
+Then('this pop-up contains two buttons "Leave" and "Stay"', () => {
   cy.get('div[class*="-modalActions"]').within(() => {
-    cy.get('button').contains('Discard').should('exist');
-    cy.get('button').contains('Resolve').should('exist');
+    cy.get('button').contains('Leave').should('exist');
+    cy.get('button').contains('Stay').should('exist');
     cy.get('button').should('have.length', 2);
   });
 });
