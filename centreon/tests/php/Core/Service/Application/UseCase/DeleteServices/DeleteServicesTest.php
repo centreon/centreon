@@ -20,7 +20,9 @@
  */
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Common\Domain\ResponseCodeEnum;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
@@ -34,7 +36,9 @@ beforeEach(function () {
         $this->contact = $this->createMock(ContactInterface::class),
         $this->writeRepository = $this->createMock(WriteServiceRepositoryInterface::class),
         $this->readRepository = $this->createMock(ReadServiceRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class)
+        $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->storageEngine = $this->createMock(DataStorageEngineInterface::class)
     );
 
     $this->request = new DeleteServicesRequest([1, 2, 3]);
