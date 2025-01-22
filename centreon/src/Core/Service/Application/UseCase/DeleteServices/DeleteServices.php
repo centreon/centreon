@@ -43,7 +43,9 @@ final class DeleteServices
      * @param ContactInterface $user
      * @param WriteServiceRepositoryInterface $writeServiceRepository
      * @param ReadServiceRepositoryInterface $readServiceRepository
+     * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param DataStorageEngineInterface $storageEngine
      */
     public function __construct(
         private readonly ContactInterface $user,
