@@ -58,12 +58,14 @@ function isSqlComment($str)
  * Get template
  *
  * @param string $dir directory of templates
- * @return Smarty
+ *
+ * @throws SmartyException
+ * @return \SmartyCentreon
  */
 function getTemplate($dir)
 {
     // Smarty template initialization
-    $tpl = SmartyAdapter::createSmartyTemplate($dir)->getNativeSmartyBC();
+    $tpl = SmartyCentreon::createSmartyTemplate($dir);
 
     return $tpl;
 }

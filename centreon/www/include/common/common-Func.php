@@ -195,14 +195,14 @@ function tidySearchKey($search, $advanced_search)
  *
  * @throws \SmartyException
  *
- * @return \SmartyBC A Smarty instance with configuration parameters
+ * @return SmartyCentreon A Smarty instance with configuration parameters
  *
- * @see        SmartyAdapter::createSmartyTemplate()
- * @deprecated Instead use {@see SmartyAdapter::createSmartyTemplate()}
+ * @see        SmartyCentreon::createSmartyTemplate()
+ * @deprecated Instead use {@see SmartyCentreon::createSmartyTemplate()}
  */
-function initSmartyTpl($path = null, &$tpl = null, $subDir = null): \SmartyBC
+function initSmartyTpl($path = null, &$tpl = null, $subDir = null): SmartyCentreon
 {
-    return SmartyAdapter::createSmartyTemplate($path, $subDir)->getNativeSmartyBC();
+    return SmartyCentreon::createSmartyTemplate($path, $subDir);
 }
 
 /**
@@ -215,12 +215,12 @@ function initSmartyTpl($path = null, &$tpl = null, $subDir = null): \SmartyBC
  *
  * @throws \SmartyException
  *
- * @return \SmartyBC A Smarty instance with configuration parameters
+ * @return SmartyCentreon A Smarty instance with configuration parameters
  *
- * @see        SmartyAdapter::createSmartyTemplate()
- * @deprecated Instead use {@see SmartyAdapter::createSmartyTemplate()}
+ * @see        SmartyCentreon::createSmartyTemplate()
+ * @deprecated Instead use {@see SmartyCentreon::createSmartyTemplate()}
  */
-function initSmartyTplForPopup($path = null, $tpl = null, $subDir = null, $centreonPath = null): \SmartyBC
+function initSmartyTplForPopup($path = null, $tpl = null, $subDir = null, $centreonPath = null): SmartyCentreon
 {
     return initSmartyTpl($path, $tpl, $subDir);
 }

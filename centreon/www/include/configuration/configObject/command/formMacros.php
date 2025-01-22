@@ -106,7 +106,7 @@ $subS = $form->addElement(
 );
 
 // Smarty template initialization
-$tpl = SmartyAdapter::createSmartyTemplate($path)->getNativeSmartyBC();
+$tpl = SmartyCentreon::createSmartyTemplate($path);
 
 $tpl->assign('nb_arg', $nb_arg);
 

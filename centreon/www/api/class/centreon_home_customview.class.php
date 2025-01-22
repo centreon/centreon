@@ -166,8 +166,8 @@ class CentreonHomeCustomview extends CentreonWebService
 
     /**
      * Get the list of preferences
-     * @return array
-     * @throws Exception
+     * @throws \Exception
+     * @return false|string
      */
     public function getPreferences()
     {
@@ -216,9 +216,9 @@ class CentreonHomeCustomview extends CentreonWebService
         $url = $widgetObj->getUrl($widgetId);
 
         // Smarty template initialization
-        $tpl = SmartyAdapter::createSmartyTemplate(
+        $tpl = SmartyCentreon::createSmartyTemplate(
             _CENTREON_PATH_ . '/www/include/home/customViews/'
-        )->getNativeSmartyBC();
+        );
 
         $form = new HTML_QuickFormCustom('Form', 'post', "?p=103");
         $form->addElement('header', 'title', $title);

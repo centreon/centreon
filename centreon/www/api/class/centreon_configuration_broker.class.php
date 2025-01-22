@@ -43,8 +43,8 @@ require_once __DIR__ . "/centreon_configuration_objects.class.php";
 class CentreonConfigurationBroker extends CentreonConfigurationObjects
 {
     /**
-     * @return array
-     * @throws Exception
+     * @throws \Exception
+     * @return false|string
      */
     public function getBlock()
     {
@@ -90,9 +90,9 @@ class CentreonConfigurationBroker extends CentreonConfigurationObjects
         textdomain('messages');
 
         // Smarty template initialization
-        $tpl = SmartyAdapter::createSmartyTemplate(
+        $tpl = SmartyCentreon::createSmartyTemplate(
             _CENTREON_PATH_ . '/www/include/configuration/configCentreonBroker/'
-        )->getNativeSmartyBC();
+        );
 
         /*
          * Apply a template definition

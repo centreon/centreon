@@ -24,41 +24,41 @@ declare(strict_types=1);
 /**
  * Class
  *
- * @class SmartyAdapter
+ * @class SmartyCentreon
+ * @extends \SmartyBC
+ * @description SmartyCentreon class extends SmartyBC class to add custom features.
  */
-class SmartyAdapter
+class SmartyCentreon extends \SmartyBC
 {
-
     /**
      * Forbidden tags in Smarty templates.
      */
     private const FORBIDDEN_TAGS = ['extends'];
 
-    /** @var SmartyBC */
-    private \SmartyBC $smartyBC;
-
     /**
-     * SmartyAdapter constructor
+     * SmartyCentreon constructor
+     * Private constructor to prevent creating a new instance of the SmartyCentreon class.
+     * Please use the createSmartyTemplate method to get an instance of the SmartyCentreon class.
      *
      * @param string|null $pathTemplate
      * @param string|null $subDirTemplate
      *
      * @throws \SmartyException
      */
-    public function __construct(?string $pathTemplate = null, ?string $subDirTemplate = null)
+    private function __construct(?string $pathTemplate = null, ?string $subDirTemplate = null)
     {
         try {
-            $this->smartyBC = new \SmartyBC();
-            $this->smartyBC->setTemplateDir($pathTemplate . ($subDirTemplate ?? ''));
-            $this->smartyBC->setCompileDir(__DIR__ . '/../SmartyCache/compile');
-            $this->smartyBC->setConfigDir(__DIR__ . '/../SmartyCache/config');
-            $this->smartyBC->setCacheDir(__DIR__ . '/../SmartyCache/cache');
-            $this->smartyBC->addPluginsDir(__DIR__ . '/../smarty-plugins');
-            $this->smartyBC->loadPlugin('smarty_function_eval');
-            $this->smartyBC->setForceCompile(true);
-            $this->smartyBC->setAutoLiteral(false);
-            $this->smartyBC->allow_ambiguous_resources = true;
-            $this->addFilter();
+            parent::__construct();
+            $this->setTemplateDir($pathTemplate . ($subDirTemplate ?? ''));
+            $this->setCompileDir(__DIR__ . '/../SmartyCache/compile');
+            $this->setConfigDir(__DIR__ . '/../SmartyCache/config');
+            $this->setCacheDir(__DIR__ . '/../SmartyCache/cache');
+            $this->addPluginsDir(__DIR__ . '/../smarty-plugins');
+            $this->loadPlugin('smarty_function_eval');
+            $this->setForceCompile(true);
+            $this->setAutoLiteral(false);
+            $this->allow_ambiguous_resources = true;
+            $this->addTagsFilter();
         } catch (\SmartyException $e) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_BUSINESS_LOG,
@@ -77,21 +77,13 @@ class SmartyAdapter
      * @param string|null $subDirTemplate
      *
      * @throws \SmartyException
-     * @return SmartyAdapter
+     * @return SmartyCentreon
      */
     public static function createSmartyTemplate(
         ?string $pathTemplate = null,
         ?string $subDirTemplate = null
-    ): SmartyAdapter {
+    ): SmartyCentreon {
         return new self($pathTemplate, $subDirTemplate);
-    }
-
-    /**
-     * @return SmartyBC
-     */
-    public function getNativeSmartyBC(): SmartyBC
-    {
-        return $this->smartyBC;
     }
 
     /**
@@ -104,9 +96,8 @@ class SmartyAdapter
      */
     public function display($template = null, $cache_id = null, $compile_id = null, $parent = null): void
     {
-        // fixme : useless, use a hook to improve display ?
         try {
-            $this->smartyBC->display($template, $cache_id, $compile_id, $parent);
+            parent::display($template, $cache_id, $compile_id, $parent);
         } catch (\Throwable $e) {
             CentreonLog::create()->critical(
                 CentreonLog::TYPE_BUSINESS_LOG,
@@ -134,9 +125,9 @@ class SmartyAdapter
      * @throws \SmartyException
      * @return void
      */
-    private function addFilter(): void
+    private function addTagsFilter(): void
     {
-        $this->smartyBC->smarty->reregisterFilter('pre', [$this, 'checkForbiddenTags']);
+        $this->smarty->registerFilter('pre', [$this, 'checkForbiddenTags']);
     }
 
     /**
