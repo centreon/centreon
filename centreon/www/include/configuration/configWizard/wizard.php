@@ -26,7 +26,9 @@ if (!isset($centreon)) {
 /*
  * Smarty template Init
  */
+
+// Smarty template initialization
 $path = "./include/configuration/configWizard/";
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+$tpl = SmartyBC::createSmartyTemplate($path);
+
 $tpl->display("wizard.html");

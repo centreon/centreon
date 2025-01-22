@@ -15374,8 +15374,8 @@ msgstr "Filtre créé"
 msgid "Filter saved"
 msgstr "Filtre sauvegardé"
 
-msgid "Edit filters"
-msgstr "Éditer les filtres"
+msgid "Manage filters"
+msgstr "Gérer les filtres"
 
 msgid "Rename"
 msgstr "Renommer"
@@ -19602,6 +19602,33 @@ msgstr "Sticky pour tout statut non-OK"
 
 msgid "There are errors in the form."
 msgstr "Il y a des erreurs dans le formulaire."
+
+msgid "Show only dashboards added to favorites"
+msgstr "Afficher uniquement les tableaux de bord ajoutés aux favoris"
+
+msgid "The dashboard has been added to your favorites."
+msgstr "Le tableau de bord a été ajouté aux favoris."
+
+msgid "The dashboard has been removed from your favorites."
+msgstr "Le tableau de bord a été retiré des favoris."
+
+msgid "Remove from favorites"
+msgstr "Retirer des favoris"
+
+msgid "Add to favorites"
+msgstr "Ajouter aux favoris"
+
+msgid "PNG (as displayed)"
+msgstr "PNG (tel qu'affiché)"
+
+msgid "PNG (medium size)"
+msgstr "PNG (taille moyenne)"
+
+msgid "PNG (small size)"
+msgstr "PNG (petite taille)"
+
+msgid "Export as"
+msgstr "Exporter en tant que"
 
 msgid "Agent configuration"
 msgstr "Configuration d'agent"

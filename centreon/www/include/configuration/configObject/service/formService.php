@@ -1082,9 +1082,9 @@ if (isset($service['service_template_model_stm_id']) && ($service['service_templ
 //
 // #End of form definition
 //
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     'alert_check_interval',

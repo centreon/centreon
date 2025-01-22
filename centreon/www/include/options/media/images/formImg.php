@@ -194,10 +194,8 @@ if ($o == IMAGE_WATCH) {
     $form->freeze();
 }
 
-/*
- * Smarty template Init
- */
-$tpl = initSmartyTpl($path, new Smarty());
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     "helpattr",
