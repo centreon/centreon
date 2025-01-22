@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Service\Infrastructure\API\DeleteServices;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Core\Service\Application\UseCase\DeleteServices\DeleteServices;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,6 +46,10 @@ final class DeleteServicesController extends AbstractController
         StandardPresenter $presenter
     ): Response {
         $response = $useCase(DeleteServicesRequestTransformer::transform($request));
+
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
 
         return JsonResponse::fromJsonString($presenter->present($response));
     }

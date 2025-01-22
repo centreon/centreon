@@ -25,8 +25,11 @@ namespace Core\Service\Application\UseCase\DeleteServices;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\ResponseCodeEnum;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
@@ -46,7 +49,9 @@ final class DeleteServices
         private readonly ContactInterface $user,
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly DataStorageEngineInterface $storageEngine
     ) {
     }
 
@@ -55,7 +60,7 @@ final class DeleteServices
      *
      * @return DeleteServicesResponse
      */
-    public function __invoke(DeleteServicesRequest $request): DeleteServicesResponse
+    public function __invoke(DeleteServicesRequest $request): DeleteServicesResponse|ResponseStatusInterface
     {
         return $this->deleteServices($request->serviceIds);
     }
@@ -63,9 +68,9 @@ final class DeleteServices
     /**
      * @param int[] $serviceIds
      *
-     * @return DeleteServicesResponse
+     * @return DeleteServicesResponse|ResponseStatusInterface
      */
-    private function deleteServices(array $serviceIds): DeleteServicesResponse
+    private function deleteServices(array $serviceIds): DeleteServicesResponse|ResponseStatusInterface
     {
         $results = [];
         foreach ($serviceIds as $serviceId) {
@@ -79,13 +84,24 @@ final class DeleteServices
                     continue;
                 }
 
+                if (! $this->storageEngine->isAlreadyInTransaction()) {
+                    $this->storageEngine->startTransaction();
+                }
                 $this->writeServiceRepository->delete($serviceId);
+                $this->writeMonitoringServerRepository->notifyConfigurationChange(
+                    monitoringServerId: $this->readServiceRepository->findMonitoringServerId($serviceId)
+                );
+                $this->storageEngine->commitTransaction();
                 $results[] = $statusResponse;
             } catch (\Throwable $ex) {
                 $this->error($ex->getMessage(), ['trace' => (string) $ex]);
+                if (! $this->storageEngine->isAlreadyInTransaction()) {
+                    $this->info('Rollback transaction for service ID ' . $serviceId);
+                    $this->storageEngine->rollbackTransaction();
+                }
+
                 $statusResponse->status = ResponseCodeEnum::Error;
                 $statusResponse->message = ServiceException::errorWhileDeleting($ex)->getMessage();
-
                 $results[] = $statusResponse;
             }
         }
