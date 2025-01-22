@@ -1,18 +1,18 @@
 import { Provider, createStore } from 'jotai';
+import widgetClockProperties from '../Widgets/centreon-widget-clock/properties.json';
 import widgetDataProperties from '../Widgets/centreon-widget-data/properties.json';
 import widgetGenericTextProperties from '../Widgets/centreon-widget-generictext/properties.json';
 import widgetGraphProperties from '../Widgets/centreon-widget-graph/properties.json';
+import widgetGroupMonitoringProperties from '../Widgets/centreon-widget-groupmonitoring/properties.json';
 import widgetInputProperties from '../Widgets/centreon-widget-input/properties.json';
+import widgetResourceTableProperties from '../Widgets/centreon-widget-resourcestable/properties.json';
 import widgetSingleDataProperties from '../Widgets/centreon-widget-singledata/properties.json';
 import widgetSingleMetricProperties from '../Widgets/centreon-widget-singlemetric/properties.json';
+import widgetStatusChartProperties from '../Widgets/centreon-widget-statuschart/properties.json';
 import widgetStatusGridProperties from '../Widgets/centreon-widget-statusgrid/properties.json';
 import widgetTextProperties from '../Widgets/centreon-widget-text/properties.json';
 import widgetTopBottomProperties from '../Widgets/centreon-widget-topbottom/properties.json';
-import widgetClockProperties from '../Widgets/centreon-widget-clock/properties.json';
 import widgetWebPageProperties from '../Widgets/centreon-widget-webpage/properties.json';
-import widgetGroupMonitoringProperties from '../Widgets/centreon-widget-groupmonitoring/properties.json'
-import widgetResourceTableProperties from '../Widgets/centreon-widget-resourcestable/properties.json'
-import widgetStatusChartProperties from '../Widgets/centreon-widget-statuschart/properties.json'
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
@@ -45,10 +45,12 @@ import { metricsEndpoint } from './api/endpoints';
 import { widgetFormInitialDataAtom } from './atoms';
 import { WidgetCategories, WidgetResourceType } from './models';
 
+import { Version } from 'www/front_src/src/api/models';
+import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
 import { AddEditWidgetModal } from '.';
 import { internalWidgetComponents } from '../Widgets/widgets';
 
-const widgetsProperties = [
+const widgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetTextProperties,
   widgetInputProperties,
   widgetDataProperties,
@@ -60,7 +62,7 @@ const widgetsProperties = [
   widgetTopBottomProperties
 ];
 
-const customizeWidgetsProperties = [
+const customizeWidgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetGenericTextProperties,
   widgetClockProperties,
   widgetWebPageProperties,
@@ -71,24 +73,29 @@ const customizeWidgetsProperties = [
   widgetSingleMetricProperties,
   widgetStatusGridProperties,
   widgetStatusChartProperties
-]
+];
 
-const availableWidgets = (defaultWidgetsProperties=widgetsProperties)=>defaultWidgetsProperties.reduce(
-  (acc, { moduleName }) => ({ ...acc, [moduleName]: {} }),
-  {}
-);
+const getAvailableWidgets = (
+  defaultWidgetsProperties = widgetsProperties
+): Record<string, Version | null> =>
+  defaultWidgetsProperties.reduce(
+    (acc, { moduleName }) => ({ ...acc, [moduleName]: {} }),
+    {}
+  ) as Record<string, Version | null>;
 
-const platformVersion = (defaultWidgetsProperties?)=>({
+const getPlatformVersion = (
+  defaultWidgetsProperties: Array<Partial<FederatedWidgetProperties>>
+) => ({
   modules: {},
   web: {
     version: '23.04.0'
   },
-  widgets: availableWidgets(defaultWidgetsProperties)
+  widgets: getAvailableWidgets(defaultWidgetsProperties)
 });
 
 interface InitializeWidgets {
-  defaultStore?;
-  defaultWidgetsProperties?;
+  defaultStore?: ReturnType<typeof createStore>;
+  defaultWidgetsProperties?: Array<Partial<FederatedWidgetProperties>>;
 }
 
 const initializeWidgets = ({
@@ -99,7 +106,7 @@ const initializeWidgets = ({
 
   store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, defaultWidgetsProperties);
-  store.set(platformVersionsAtom, platformVersion(defaultWidgetsProperties));
+  store.set(platformVersionsAtom, getPlatformVersion(defaultWidgetsProperties));
 
   return store;
 };
@@ -329,10 +336,11 @@ describe('AddEditWidgetModal', () => {
       });
     });
 
-    describe('Display collapsible widgets',()=>{
-
+    describe('Display collapsible widgets', () => {
       beforeEach(() => {
-        const jotaiStore = initializeWidgets({defaultWidgetsProperties:customizeWidgetsProperties});
+        const jotaiStore = initializeWidgets({
+          defaultWidgetsProperties: customizeWidgetsProperties
+        });
 
         jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
         jotaiStore.set(hasEditPermissionAtom, true);
@@ -349,9 +357,7 @@ describe('AddEditWidgetModal', () => {
             </TestQueryProvider>
           )
         });
-        });
-
-
+      });
 
       it('displays widgets grouped under the appropriate category', () => {
         cy.findByTestId(labelWidgetType).click();
@@ -366,7 +372,7 @@ describe('AddEditWidgetModal', () => {
           });
         });
       });
-    })
+    });
 
     describe('Edit widget', () => {
       beforeEach(() => {
@@ -618,7 +624,7 @@ describe('AddEditWidgetModal', () => {
   describe('Data', () => {
     describe('Resources and metrics', () => {
       beforeEach(() => {
-        initializeWidgets({defaultStore:store});
+        initializeWidgets({ defaultStore: store });
 
         store.set(widgetFormInitialDataAtom, initialFormDataAdd);
         store.set(hasEditPermissionAtom, true);
@@ -949,7 +955,7 @@ describe('AddEditWidgetModal', () => {
 
     describe('With one service metrics', () => {
       beforeEach(() => {
-        initializeWidgets({defaultStore:store});
+        initializeWidgets({ defaultStore: store });
 
         store.set(widgetFormInitialDataAtom, initialFormDataAdd);
         store.set(hasEditPermissionAtom, true);
@@ -1063,7 +1069,7 @@ describe('AddEditWidgetModal', () => {
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
       jotaiStore.set(hasEditPermissionAtom, true);
       jotaiStore.set(isEditingAtom, true);
-      jotaiStore.set(platformVersionsAtom, platformVersion());
+      jotaiStore.set(platformVersionsAtom, getPlatformVersion());
 
       cy.mount({
         Component: (
