@@ -22,7 +22,7 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$versionOfTheUpgrade = 'UPGRADE - 25.01.0:  ';
+$versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
 $errorMessage = '';
 
 // -------------------------------------------- Dashboard -------------------------------------------- //
