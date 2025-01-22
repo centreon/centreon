@@ -2732,21 +2732,21 @@ function sanitizeFormHostParameters(array $ret): array
     return $bindParams;
 }
 
+// ------ API Configuration calls --------------------------------------------------------
+
+
 /**
  * Create a new host/hostTemplate from formData.
  *
- * @param array<mixed> $ret
+ * @param array $formData
  *
  * @return int|null
  */
-function insertHostInAPI(array $ret = []): int|null
+function insertHostInAPI(array $formData): int|null
 {
-    global $centreon, $form, $isCloudPlatform, $basePath;
+    global $centreon, $isCloudPlatform, $basePath;
 
     try {
-        /** @var array<string,int|string|null> $formData */
-        $formData = $ret === [] ? $form->getSubmitValues() : $ret;
-
         $isTemplate = (int) $formData['host_register'] === 0;
 
         $hostId = insertByApi($formData, $isCloudPlatform, $basePath, $isTemplate);
@@ -2781,20 +2781,25 @@ function insertHostInAPI(array $ret = []): int|null
             'access_grp_id' => ($formData['acl_groups'] ?? null),
         ]);
 
-        //Insert change logs
-        $fields = CentreonLogAction::prepareChanges($formData);
-        $filteredFields = array_diff_key($fields, array_flip(DbWriteHostActionLogRepository::HOST_PROPERTIES_MAP));
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOST,
-            object_id: $hostId,
-            object_name: $formData["host_name"],
-            action_type: ActionLog::ACTION_TYPE_ADD,
-            fields: $filteredFields
-        );
+        return $hostId;
+    } catch (JsonException $ex) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host/hostTemplate creation',
+        [
+            'hostId' => $hostId ?? null,
+            'isTemplate' => $isTemplate ?? null,
+            'exception: ' => $ex->getMessage(),
+        ]);
+        echo "<div class='msg' align='center'>" . _('Error during creation (json encoding). See logs for more detail') . '</div>';
 
-        return ($hostId);
-    } catch (\Throwable $th) {
-        echo "<div class='msg' align='center'>" . _($th->getMessage()) . "</div>";
+        return false;
+    } catch (Throwable $th) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host/hostTemplate creation',
+        [
+            'hostId' => $hostId ?? null,
+            'isTemplate' => $isTemplate ?? null,
+            'exception: ' => $th->getMessage(),
+        ]);
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
         return (null);
     }
@@ -2808,8 +2813,7 @@ function insertHostInAPI(array $ret = []): int|null
  * @param string $basePath
  * @param bool $isTemplate
  *
- * @throws \LogicException
- * @throws \Exception
+ * @throws Exception
  *
  * @return int
  */
@@ -2817,8 +2821,7 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
 {
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
-    $router = $kernel->getContainer()->get(Router::class)
-        ?? throw new LogicException('Router not found in container');
+    $router = $kernel->getContainer()->get(Router::class);
 
     $payload = $isTemplate
         ? getPayloadForHostTemplate($isCloudPlatform, $formData)
@@ -2834,21 +2837,16 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
 }
 
 /**
- * Summary of updateHostInAPI
  * @param int $hostId
+ * @param array $formData
+ *
  * @return bool
  */
-function updateHostInAPI(int $hostId = null): bool
+function updateHostInAPI(int $hostId, array $formData): bool
 {
-    global $centreon, $form, $isCloudPlatform, $basePath;
-
-    if (! $hostId) {
-        return $hostId;
-    }
+    global $centreon, $isCloudPlatform, $basePath;
 
     try {
-        /** @var array<string,int|string|null> $formData */
-        $formData = $form->getSubmitValues();
         $isTemplate = (int) $formData['host_register'] === 0;
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
 
@@ -2885,20 +2883,25 @@ function updateHostInAPI(int $hostId = null): bool
             'access_grp_id' => ($formData['acl_groups'] ?? null),
         ]);
 
-        //Insert change logs
-        $fields = CentreonLogAction::prepareChanges($formData);
-        $filteredFields = array_diff_key($fields, array_flip(DbWriteHostActionLogRepository::HOST_PROPERTIES_MAP));
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOST,
-            object_id: $hostId,
-            object_name: $formData["host_name"],
-            action_type: ActionLog::ACTION_TYPE_CHANGE,
-            fields: $filteredFields
-        );
-
         return true;
-    } catch (\Throwable $th) {
-        echo "<div class='msg' align='center'>" . _($th->getMessage()) . "</div>";
+    } catch (JsonException $ex) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host/hostTemplate update',
+        [
+            'hostId' => $hostId ,
+            'isTemplate' => $isTemplate ?? null,
+            'exception: ' => $ex->getMessage(),
+        ]);
+        echo "<div class='msg' align='center'>" . _('Error during update (json encoding). See logs for more detail') . '</div>';
+
+        return false;
+    } catch (Throwable $th) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host/hostTemplate update',
+        [
+            'hostId' => $hostId,
+            'isTemplate' => $isTemplate ?? null,
+            'exception: ' => $th->getMessage(),
+        ]);
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
         return false;
     }
@@ -2912,8 +2915,8 @@ function updateHostInAPI(int $hostId = null): bool
  * @param string $basePath
  * @param bool $isTemplate
  *
- * @throws \LogicException
- * @throws \Exception
+ * @throws JsonException
+ * @throws Exception
  *
  * @return void
  */
@@ -2921,8 +2924,7 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
 {
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
-    $router = $kernel->getContainer()->get(Router::class)
-        ?? throw new LogicException('Router not found in container');
+    $router = $kernel->getContainer()->get(Router::class);
 
     $payload = $isTemplate
         ? getPayloadForHostTemplate($isCloudPlatform, $formData)
@@ -2949,13 +2951,12 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
  * Call api.
  * Return ID when httpMethod = POST, null otherwize.
  *
- * @param string $basePath
- * @param string $endpointName
+ * @param string $url
  * @param string $httpMethod
  * @param array<string,mixed> $payload
  *
- * @throws \LogicException
- * @throws \Exception
+ * @throws JsonException
+ * @throws Exception
  *
  * @return int|null
  */
@@ -2970,7 +2971,7 @@ function callApi(string $url, string $httpMethod, array $payload): int|null
                 'Content-Type' => 'application/json',
                 'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
             ],
-            'body' => json_encode($payload),
+            'body' => json_encode($payload, JSON_THROW_ON_ERROR),
         ],
     );
 
@@ -2979,7 +2980,7 @@ function callApi(string $url, string $httpMethod, array $payload): int|null
         ($httpMethod === 'POST' && $status !== 201)
         || ($httpMethod === 'PATCH' && $status !== 204)
     ) {
-        $content = json_decode($response->getContent(false));
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
 
         throw new \Exception($content->message ?? 'Unexpected return status');
     }
@@ -2997,6 +2998,7 @@ function callApi(string $url, string $httpMethod, array $payload): int|null
 /**
  * @param bool $isCloudPlatform
  * @param array<mixed> $formData
+ *
  * @return array<string,mixed>
  */
 function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): array

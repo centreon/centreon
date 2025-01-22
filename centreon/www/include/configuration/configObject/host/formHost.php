@@ -1142,14 +1142,15 @@ if ($o !== HOST_ADD && $o !== HOST_MODIFY) {
 $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        if (null !== $hostId = insertHostInAPI()) {
+        if (null !== $hostId = insertHostInAPI($formData)) {
             $hostObj->setValue($hostId);
             $o = HOST_WATCH;
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        if (false !== updateHostInApi($hostObj->getValue())) {
+        if (false !== updateHostInApi((int) $hostObj->getValue(), $formData)) {
             $o = HOST_WATCH;
             $valid = true;
         }
