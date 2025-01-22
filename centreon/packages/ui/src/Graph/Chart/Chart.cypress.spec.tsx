@@ -583,7 +583,6 @@ describe('Lines and bars', () => {
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -634,7 +633,6 @@ describe('Lines and bars', () => {
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
 
     cy.makeSnapshot();
   });

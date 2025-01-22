@@ -1,4 +1,5 @@
 import { Group } from '@visx/group';
+import { BarGroup } from '@visx/shape/lib/types';
 import { ScaleLinear } from 'd3-scale';
 import { equals, omit } from 'ramda';
 import { memo } from 'react';
@@ -18,7 +19,7 @@ interface Props {
   notStackedLines: Array<Line>;
   notStackedTimeSeries: Array<TimeValue>;
   isHorizontal: boolean;
-  barGroup;
+  barGroup: BarGroup<'id'>;
   barIndex: number;
 }
 
@@ -34,14 +35,12 @@ const MemoizedGroup = ({
   yScalesPerUnit,
   barIndex
 }: Props): JSX.Element | null => {
-  const hasEmptyValues = barGroup.bars.every(({ index, key, value }) => {
+  const hasEmptyValues = barGroup.bars.every(({ key, value }) => {
     if (key.startsWith('stacked-')) {
       const timeValueBar =
         stackedLinesTimeSeriesPerUnit[key.replace('stacked-', '')].timeSeries[
           barIndex
         ];
-
-      console.log(Object.values(omit(['timeTick'], timeValueBar)), barIndex);
 
       return Object.values(omit(['timeTick'], timeValueBar)).every(
         (value) => !value
