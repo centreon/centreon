@@ -199,10 +199,10 @@ Given(
                     cy.execInContainer(
                       {
                         command: `bash -e <<EOF
-                      echo "deb https://packages.centreon.com/apt-plugins-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
-                      echo "deb https://packages.centreon.com/apt-plugins-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
-                      echo "deb https://packages.centreon.com/apt-plugins-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
-                      wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+                          echo "deb https://packages.centreon.com/apt-plugins-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
+                          echo "deb https://packages.centreon.com/apt-plugins-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
+                          echo "deb https://packages.centreon.com/apt-plugins-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
+                          wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 EOF`,
                         name: 'web'
                       }
@@ -214,8 +214,8 @@ EOF`,
                       return cy.execInContainer(
                         {
                           command: `bash -e <<EOF
-                        echo "deb https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/apt-standard-internal-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-unstable.list
-                        apt-get update
+                            echo "deb https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/apt-standard-internal-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-unstable.list
+                            apt-get update
 EOF`,
                           name: 'web'
                         },
