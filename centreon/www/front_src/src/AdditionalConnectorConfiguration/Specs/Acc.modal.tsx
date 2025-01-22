@@ -592,7 +592,7 @@ export default (): void => {
         cy.contains(labelAdditionalConnectorCreated);
 
         cy.waitForRequest('@createConnector').then(({ request }) => {
-          expect(JSON.parse(request.body)).to.deep.equals({
+          expect(request.body).to.deep.equals({
             description: null,
             name: 'New name',
             parameters: {
@@ -625,7 +625,7 @@ export default (): void => {
         cy.get(`button[data-testid="submit"`).click();
 
         cy.waitForRequest('@updateConnector').then(({ request }) => {
-          expect(JSON.parse(request.body)).to.deep.equals({
+          expect(request.body).to.deep.equals({
             name: 'Updated name',
             description: 'Description for VMWare1',
             parameters: {
@@ -665,7 +665,7 @@ export default (): void => {
         cy.get('input[name="port"]').clear();
         cy.contains(labelCancel).click();
 
-        cy.contains('Do you want to resolve the errors?').should('be.visible');
+        cy.contains('Do you want to leave this page?').should('be.visible');
 
         cy.makeSnapshot();
       });

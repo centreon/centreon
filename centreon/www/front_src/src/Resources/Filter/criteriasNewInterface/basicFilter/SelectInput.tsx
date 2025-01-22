@@ -58,7 +58,7 @@ const SelectInput = ({
   )?.value as Array<SelectEntry>;
 
   const value = dataByFilterName?.value?.map((item) => ({
-    id: item?.valueId,
+    id: item?.valueId ?? item.id,
     name: item?.name
   })) as Array<SelectEntry>;
 
@@ -176,7 +176,9 @@ const SelectInput = ({
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
-      inputProps={{ dataTestId: resourceType }}
+      textFieldSlotsAndSlotProps={{
+        slotProps: { htmlInput: { 'data-testid': resourceType } }
+      }}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(label[resourceType]) as string}
       placeholder={t(label[resourceType]) as string}

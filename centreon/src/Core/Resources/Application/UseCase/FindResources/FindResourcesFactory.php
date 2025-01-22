@@ -69,7 +69,7 @@ final class FindResourcesFactory
             $resourceDto->isAcknowledged = $resource->getAcknowledged();
             $resourceDto->isInDowntime = $resource->getInDowntime();
             $resourceDto->isInFlapping = $resource->isInFlapping();
-            $resourceDto->percentStateChange = $resource->getPercentStatechange();
+            $resourceDto->percentStateChange = $resource->getPercentStateChange();
             $resourceDto->withActiveChecks = $resource->getActiveChecks();
             $resourceDto->withPassiveChecks = $resource->getPassiveChecks();
             $resourceDto->monitoringServerName = $resource->getMonitoringServerName();
