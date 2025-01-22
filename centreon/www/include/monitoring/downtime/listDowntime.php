@@ -143,6 +143,7 @@ $form->addElement('submit', 'SearchB', _('Search'), $attrBtnSuccess);
 // ------------------ BAM ------------------
 $tab_service_bam = [];
 $result = $pearDB->executeQuery("SELECT id FROM modules_informations WHERE name = 'centreon-bam-server'");
+
 if ($result->rowCount()) {
     $result = $pearDB->executeQuery("SELECT CONCAT('ba_', ba_id) AS id, ba_id, name FROM mod_bam");
 
@@ -156,7 +157,11 @@ $extraFields = '';
 if ($canViewAll) {
     $extraFields = ', actual_end_time, cancelled as was_cancelled ';
 }
-$bindValues = [];
+
+$bindValues = [
+    ':offset' => [$num * $limit, PDO::PARAM_INT],
+    ':limit' => [$limit, PDO::PARAM_INT],
+];
 $serviceAclSubRequest = '';
 $hostAclSubRequest = '';
 
@@ -267,29 +272,9 @@ $unionQuery = <<<SQL
     SQL;
 
 $downtimesStatement = $pearDBO->prepare($unionQuery);
-foreach ($bindValues as $key => $value) {
-    $downtimesStatement->bindValue($key, $value);
-}
-$downtimesStatement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
-$downtimesStatement->bindValue(':limit', $limit, PDO::PARAM_INT);
+$pearDBO->executePreparedQuery($downtimesStatement, $bindValues, true);
 
-try {
-    $downtimesStatement->execute();
-} catch (PDOException $e) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_SQL,
-        message: $e->getMessage(),
-        customContext: [
-            'pdo_error_code' => $e->getCode(),
-            'pdo_error_info' => $e->errorInfo,
-            'trace' => $e->getTraceAsString(),
-        ],
-        exception: $e
-    );
-    throw $e;
-}
-
-$rows = $pearDBO->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
+$rows = $pearDBO->executeQuery('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
 for ($i = 0; $data = $downtimesStatement->fetchRow(); $i++) {
     $tab_downtime_svc[$i] = $data;
