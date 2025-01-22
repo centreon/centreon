@@ -80,8 +80,10 @@ $form->addElement('text', 'tp_wednesday', _("Wednesday"), $attrsTextLong);
 $form->addElement('text', 'tp_thursday', _("Thursday"), $attrsTextLong);
 $form->addElement('text', 'tp_friday', _("Friday"), $attrsTextLong);
 $form->addElement('text', 'tp_saturday', _("Saturday"), $attrsTextLong);
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
+
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $labels = ['unset_timerange' => _('Unset Timerange'), 'included_timerange' => _('Included Timerange'), 'excluded_timerange' => _('Excluded Timerange'), 'timerange_overlaps' => _('Timerange Overlaps'), 'hover_for_info' => _('Hover on timeline to see more information'), 'no_tp_selected' => _('No time period selected')];

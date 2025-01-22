@@ -240,11 +240,8 @@ $form->addRule(
     'isSessionDurationValid'
 );
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path . 'general/', $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . 'general/');
 
 $form->setDefaults($gopt);
 

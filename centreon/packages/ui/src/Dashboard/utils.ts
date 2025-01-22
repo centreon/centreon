@@ -5,7 +5,7 @@ const minColumns = 1;
 const breakpoint = 768;
 
 export const rowHeight = 64;
-export const maxColumns = 12;
+export const maxColumns = 24;
 
 export const getIsSmallScreenSize = (): boolean =>
   lt(window.innerWidth, breakpoint);
