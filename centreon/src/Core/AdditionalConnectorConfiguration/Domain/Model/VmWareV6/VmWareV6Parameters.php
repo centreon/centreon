@@ -34,6 +34,10 @@ use Security\Interfaces\EncryptionInterface;
  *      port:int,
  *      vcenters:array<array{name:string,url:string,username:string,password:string}>
  *  }
+ *  @phpstan-type _VmWareV6ParametersRequest array{
+ *      port:int,
+ *      vcenters:array<array{name:string,url:string,scheme:string|null,username:string,password:string}>
+ *  }
  *  @phpstan-type _VmWareV6ParametersWithoutCredentials array{
  *      port:int,
  *      vcenters:array<array{name:string,url:string,username:null,password:null}>
@@ -59,7 +63,7 @@ class VmWareV6Parameters implements AccParametersInterface
         array $parameters,
         private readonly bool $isEncrypted = false
     ){
-        /** @var _VmWareV6Parameters $parameters */
+        /** @var _VmWareV6ParametersRequest $parameters */
         Assertion::range($parameters['port'], 0, 65535, 'parameters.port');
         foreach ($parameters['vcenters'] as $index => $vcenter) {
             // Validate min length
