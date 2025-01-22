@@ -27,7 +27,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\ResponseCodeEnum;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -62,7 +61,7 @@ final class DeleteServices
      *
      * @return DeleteServicesResponse
      */
-    public function __invoke(DeleteServicesRequest $request): DeleteServicesResponse|ResponseStatusInterface
+    public function __invoke(DeleteServicesRequest $request): DeleteServicesResponse
     {
         return $this->deleteServices($request->serviceIds);
     }
@@ -70,9 +69,9 @@ final class DeleteServices
     /**
      * @param int[] $serviceIds
      *
-     * @return DeleteServicesResponse|ResponseStatusInterface
+     * @return DeleteServicesResponse
      */
-    private function deleteServices(array $serviceIds): DeleteServicesResponse|ResponseStatusInterface
+    private function deleteServices(array $serviceIds): DeleteServicesResponse
     {
         $results = [];
         foreach ($serviceIds as $serviceId) {
