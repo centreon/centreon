@@ -67,9 +67,8 @@ foreach ($tables as $table) {
     $partitioningInfos[$table] = $partEngine->listParts($mysqlTable, $pearDBO, false);
 }
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl("./include/options/db/", $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate("./include/options/db/");
 
 $tpl->assign('conf_centreon', $conf_centreon);
 $tpl->assign('dataCentreon', $dataCentreon);
