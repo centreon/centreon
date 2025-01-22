@@ -95,7 +95,14 @@ final class DeleteServices
                 $this->storageEngine->commitTransaction();
                 $results[] = $statusResponse;
             } catch (\Throwable $ex) {
-                $this->error($ex->getMessage(), ['trace' => (string) $ex]);
+                $this->error(
+                    "Error while deleting services : {$ex->getMessage()}", 
+                    [
+                        'serviceIds' => $serviceIds,
+                        'current_serviceId' => $serviceId,
+                        'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                    ]
+                );
                 if (! $this->storageEngine->isAlreadyInTransaction()) {
                     $this->info('Rollback transaction for service ID ' . $serviceId);
                     $this->storageEngine->rollbackTransaction();
