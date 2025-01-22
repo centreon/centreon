@@ -125,9 +125,9 @@ class SmartyCentreon extends \SmartyBC
      * @throws \SmartyException
      * @return void
      */
-    private function addTagsFilter(): void
+    public function addTagsFilter(): void
     {
-        $this->smarty->registerFilter('pre', [$this, 'checkForbiddenTags']);
+        $this->register_prefilter([$this, 'checkForbiddenTags']);
     }
 
     /**
@@ -139,7 +139,7 @@ class SmartyCentreon extends \SmartyBC
      * @throws \SmartyException
      * @return string
      */
-    private function checkForbiddenTags(string $source): string
+    public function checkForbiddenTags(string $source): string
     {
         foreach (self::FORBIDDEN_TAGS as $tag) {
             if (preg_match('/\{' . $tag . '\b.*?}/', $source)) {
