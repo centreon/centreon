@@ -82,7 +82,15 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listDowntime.php");
+        try {
+            require_once($path . "listDowntime.php");
+        } catch (Exception $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $ex->getMessage(),
+                exception: $ex
+            );
+        }
         break;
     case "cs":
         purgeOutdatedCSRFTokens();

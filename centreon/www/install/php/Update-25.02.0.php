@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,18 +24,17 @@ declare(strict_types = 1);
 
 // error specific content
 $versionOfTheUpgrade = '25.02.0';
-$errorMessage = '';
 
 /**
- * Create indexes for resources and tags tables.
+ * Create index for resources table.
  *
- * @param CentreonDB $realtimeDb the realtime database
+ * @param CentreonDB $realtimeDb
  *
  * @throws CentreonDbException
  */
 $createIndexForDowntimes = function (CentreonDB $realtimeDb): void {
     try {
-        $realtimeDb->executeQuery('CREATE INDEX `downtimes_end_time_index` ON downtimes (`end_time`)');
+        $realtimeDb->executeQuery('CREATE INDEX IF NOT EXISTS `downtimes_end_time_index` ON downtimes (`end_time`)');
     } catch (CentreonDbException $e) {
         throw new CentreonDbException(
             "Unable to create index for downtimes: {$e->getMessage()}",
@@ -46,12 +45,12 @@ $createIndexForDowntimes = function (CentreonDB $realtimeDb): void {
 };
 
 try {
-    // DDL queries for realtime database
     $createIndexForDowntimes($pearDBO);
 } catch (Throwable $e) {
     $message = "UPGRADE - {$versionOfTheUpgrade}: {$e->getMessage()}";
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
+        customContext: ['trace' => $e->getTraceAsString()],
         message: $message,
         exception: $e
     );
