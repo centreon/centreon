@@ -45,9 +45,9 @@ import { metricsEndpoint } from './api/endpoints';
 import { widgetFormInitialDataAtom } from './atoms';
 import { WidgetCategories, WidgetResourceType } from './models';
 
-import { Version } from 'www/front_src/src/api/models';
-import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
 import { AddEditWidgetModal } from '.';
+import { Version } from '../../../../api/models';
+import { FederatedWidgetProperties } from '../../../../federatedModules/models';
 import { internalWidgetComponents } from '../Widgets/widgets';
 
 const widgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
@@ -370,6 +370,10 @@ describe('AddEditWidgetModal', () => {
           wigetsTitle?.forEach((title) => {
             cy.get('@container').findByText(title);
           });
+          cy.get('@container').scrollIntoView();
+          cy.makeSnapshot(
+            `displays widgets grouped under the category ${category}`
+          );
         });
       });
     });
