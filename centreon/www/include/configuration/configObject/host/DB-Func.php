@@ -2740,16 +2740,18 @@ function sanitizeFormHostParameters(array $ret): array
  *
  * @param array $formData
  *
- * @return int|null
+ * @return int|false
  */
-function insertHostInAPI(array $formData): int|null
+function insertHostInAPI(array $formData): int|false
 {
     global $centreon, $isCloudPlatform, $basePath;
 
     try {
         $isTemplate = (int) $formData['host_register'] === 0;
 
-        $hostId = insertByApi($formData, $isCloudPlatform, $basePath, $isTemplate);
+        if (null === ($hostId = insertByApi($formData, $isCloudPlatform, $basePath, $isTemplate))) {
+            throw new Exception('Return host ID invalid');
+        }
 
         if ($isTemplate) {
             updateHostTemplateService($hostId);
@@ -2787,7 +2789,7 @@ function insertHostInAPI(array $formData): int|null
         [
             'hostId' => $hostId ?? null,
             'isTemplate' => $isTemplate ?? null,
-            'exception: ' => $ex->getMessage(),
+            'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
         ]);
         echo "<div class='msg' align='center'>" . _('Error during creation (json encoding). See logs for more detail') . '</div>';
 
@@ -2797,11 +2799,11 @@ function insertHostInAPI(array $formData): int|null
         [
             'hostId' => $hostId ?? null,
             'isTemplate' => $isTemplate ?? null,
-            'exception: ' => $th->getMessage(),
+            'exception' => ['message' => $th->getMessage(), 'trace' => $th->getTraceAsString()],
         ]);
         echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
-        return (null);
+        return false;
     }
 }
 
@@ -2815,9 +2817,9 @@ function insertHostInAPI(array $formData): int|null
  *
  * @throws Exception
  *
- * @return int
+ * @return int|null
  */
-function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, bool $isTemplate): int
+function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, bool $isTemplate): ?int
 {
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
@@ -2889,7 +2891,7 @@ function updateHostInAPI(int $hostId, array $formData): bool
         [
             'hostId' => $hostId ,
             'isTemplate' => $isTemplate ?? null,
-            'exception: ' => $ex->getMessage(),
+            'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
         ]);
         echo "<div class='msg' align='center'>" . _('Error during update (json encoding). See logs for more detail') . '</div>';
 
@@ -2899,7 +2901,7 @@ function updateHostInAPI(int $hostId, array $formData): bool
         [
             'hostId' => $hostId,
             'isTemplate' => $isTemplate ?? null,
-            'exception: ' => $th->getMessage(),
+            'exception' => ['message' => $th->getMessage(), 'trace' => $th->getTraceAsString()],
         ]);
         echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
@@ -2943,8 +2945,6 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
     );
 
     callApi($url, 'PATCH', $payload);
-
-    return;
 }
 
 /**
