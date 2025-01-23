@@ -11,9 +11,11 @@ on:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
     paths:
+      - ".version"
       - ".github/docker/Dockerfile.packaging-*"
   pull_request:
     paths:
+      - ".version"
       - ".github/docker/Dockerfile.packaging-*"
 
 jobs:
