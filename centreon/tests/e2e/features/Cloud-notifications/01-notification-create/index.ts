@@ -67,28 +67,19 @@ Given(
     globalResourceType = resourceType;
     globalContactSettings = contactSettings;
 
-    switch (contactSettings) {
-      case 'one contact':
-        cy.addContact({
-          email: data.contacts.contact1.email,
-          name: data.contacts.contact1.name,
-          password: data.contacts.contact1.password
-        });
-        break;
-      case 'two contacts':
-        cy.addContact({
-          email: data.contacts.contact1.email,
-          name: data.contacts.contact1.name,
-          password: data.contacts.contact1.password
-        });
-        cy.addContact({
-          email: data.contacts.contact2.email,
-          name: data.contacts.contact2.name,
-          password: data.contacts.contact2.password
-        });
-        break;
-      default:
-        throw new Error(`${contactSettings} not managed`);
+    if (contactSettings === "two contacts") {
+      cy.addContact({
+        email: data.contacts.contact1.email,
+        name: data.contacts.contact1.name,
+        password: data.contacts.contact1.password,
+      });
+      cy.addContact({
+        email: data.contacts.contact2.email,
+        name: data.contacts.contact2.name,
+        password: data.contacts.contact2.password,
+      });
+    } else {
+      throw new Error(`${contactSettings} not managed`);
     }
 
     cy.addHostGroup({
@@ -188,20 +179,13 @@ When('the user defines a time period', () => {
 });
 
 When('the user selects the {string}', (contactSettings: string) => {
-  switch (contactSettings) {
-    case 'one contact':
-      cy.get('#Searchcontacts').click();
-      cy.wait('@getUsers');
-      cy.contains(data.contacts.contact1.name).click();
-      break;
-    case 'two contacts':
-      cy.get('#Searchcontacts').click();
-      cy.wait('@getUsers');
-      cy.contains(data.contacts.contact1.name).click();
-      cy.contains(data.contacts.contact2.name).click();
-      break;
-    default:
-      throw new Error(`${contactSettings} not managed`);
+  if (contactSettings === "two contacts") {
+    cy.get("#Searchcontacts").click();
+    cy.wait("@getUsers");
+    cy.contains(data.contacts.contact1.name).click();
+    cy.contains(data.contacts.contact2.name).click();
+  } else {
+    throw new Error(`${contactSettings} not managed`);
   }
 });
 
@@ -321,31 +305,19 @@ When('the notification refresh_delay has been reached', () => {
 Then(
   'an email is sent to the configured {string} with the configured format',
   (contactSettings) => {
-    switch (contactSettings) {
-      case 'one contact':
-        if (globalResourceType) {
-          notificationSentCheck({ logs: `<<${data.hosts.host2.name}>>` });
-        } else {
-          notificationSentCount(1000);
-        }
+    if (contactSettings === "two contacts") {
+      if (globalResourceType) {
         notificationSentCheck({
-          logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
+          logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`,
         });
-        break;
-      case 'two contacts':
-        if (globalResourceType) {
-          notificationSentCheck({
-            logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`
-          });
-        } else {
-          notificationSentCount(1000);
-        }
-        notificationSentCheck({
-          logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
-        });
-        break;
-      default:
-        throw new Error(`${contactSettings} not managed`);
+      } else {
+        notificationSentCount(1000);
+      }
+      notificationSentCheck({
+        logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`,
+      });
+    } else {
+      throw new Error(`${contactSettings} not managed`);
     }
   }
 );
@@ -353,28 +325,19 @@ Then(
 Given(
   'a minimum of 1000 services linked to a host group and {string}',
   (contactSettings) => {
-    switch (contactSettings) {
-      case 'one contact':
-        cy.addContact({
-          email: data.contacts.contact1.email,
-          name: data.contacts.contact1.name,
-          password: data.contacts.contact1.password
-        });
-        break;
-      case 'two contacts':
-        cy.addContact({
-          email: data.contacts.contact1.email,
-          name: data.contacts.contact1.name,
-          password: data.contacts.contact1.password
-        });
-        cy.addContact({
-          email: data.contacts.contact2.email,
-          name: data.contacts.contact2.name,
-          password: data.contacts.contact2.password
-        });
-        break;
-      default:
-        throw new Error(`${contactSettings} not managed`);
+    if (contactSettings === "two contacts") {
+      cy.addContact({
+        email: data.contacts.contact1.email,
+        name: data.contacts.contact1.name,
+        password: data.contacts.contact1.password,
+      });
+      cy.addContact({
+        email: data.contacts.contact2.email,
+        name: data.contacts.contact2.name,
+        password: data.contacts.contact2.password,
+      });
+    } else {
+      throw new Error(`${contactSettings} not managed`);
     }
 
     cy.addHostGroup({
