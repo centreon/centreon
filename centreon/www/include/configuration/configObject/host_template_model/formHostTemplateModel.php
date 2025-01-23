@@ -976,14 +976,15 @@ $tpl->assign('time_unit', ' * ' . $centreon->optGen['interval_length'] . ' ' . _
 $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        if (null !== $hostTplId = insertHostInAPI()) {
+        if (null !== $hostTplId = insertHostInAPI($formData)) {
             $hostObj->setValue($hostTplId);
             $o = null;
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        if (false !== updateHostInAPI($hostObj->getValue())) {
+        if (false !== updateHostInAPI((int) $hostObj->getValue(), $formData)) {
             $o = null;
             $valid = true;
         }
