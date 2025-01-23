@@ -93,7 +93,6 @@ jobs:
         if: |
           ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
           matrix.distrib != 'bookworm'
-
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
