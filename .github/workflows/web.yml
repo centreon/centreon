@@ -404,7 +404,7 @@ jobs:
 
       - name: Setup docker slim
         run: |
-          curl -sLO https://github.com/mintoolkit/mint/releases/download/1.40.11/dist_linux.tar.gz
+          curl -sLO https://github.com/mintoolkit/mint/releases/download/1.41.7/dist_linux.tar.gz
           tar zxf dist_linux.tar.gz
           mv dist_linux/{mint,mint-sensor} /usr/local/bin/
           chmod +x /usr/local/bin/{mint,mint-sensor}
