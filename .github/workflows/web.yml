@@ -404,16 +404,16 @@ jobs:
 
       - name: Setup docker slim
         run: |
-          curl -sLO https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+          curl -sLO https://github.com/mintoolkit/mint/releases/download/1.41.7/dist_linux.tar.gz
           tar zxf dist_linux.tar.gz
-          mv dist_linux/{slim,slim-sensor} /usr/local/bin/
-          chmod +x /usr/local/bin/{slim,slim-sensor}
+          mv dist_linux/{mint,mint-sensor} /usr/local/bin/
+          chmod +x /usr/local/bin/{mint,mint-sensor}
           rm -rf dist_linux.tar.gz dist_linux
         shell: bash
 
       - name: Build standard slim image
         run: |
-          slim build --show-clogs --show-blogs \
+          mint build --show-clogs --show-blogs \
             --include-shell \
             --http-probe-off \
             --exec-file .github/docker/slim-configuration/exec.txt \
