@@ -3759,7 +3759,24 @@ function deleteServiceByApi(array $services = []): void
             ['base_uri' => $basePath, 'serviceId' => $serviceId],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
-        callApi($url, 'DELETE', []);
+        $response = callApi($url, 'DELETE', []);
+        $servicesWithError = [];
+        if ($response['status_code'] !== 204) {
+            $servicesWithError[] = [
+                'service_id' => $serviceId,
+                'message' => $response['content'] !== null
+                    ? json_encode($response['content'])
+                    : null
+            ];
+        }
+    }
+
+    if (! empty($servicesWithError)) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while deleting services',
+            ['service_ids' => $servicesWithError]
+        );
     }
 }
 
@@ -3786,7 +3803,24 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
             ['base_uri' => $basePath, 'serviceTemplateId' => $serviceTemplateId],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
-        callApi($url, 'DELETE', []);
+        $response = callApi($url, 'DELETE', []);
+        $serviceTemplatesWithError = [];
+        if ($response['status_code'] !== 204) {
+            $serviceTemplatesWithError[] = [
+                'service_template_id' => $serviceTemplateId,
+                'message' => $response['content'] !== null
+                    ? json_encode($response['content'])
+                    : null
+            ];
+        }
+    }
+
+    if (! empty($serviceTemplatesWithError)) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while deleting service templates',
+            ['service_ids' => $serviceTemplatesWithError]
+        );
     }
 }
 
@@ -3795,9 +3829,9 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  * @param string $httpMethod
  * @param array<string, mixed> $payload
  *
- * @return int|null Return the newly created ID for POST request, null otherwiseÙ
+ * @return array{status_code: int, content: null|array} Return the status code of the request and its content.
  */
-function callApi(string $url, string $httpMethod, array $payload): ?int
+function callApi(string $url, string $httpMethod, array $payload): array
 {
     $client = new CurlHttpClient();
     $response = $client->request(
@@ -3813,10 +3847,11 @@ function callApi(string $url, string $httpMethod, array $payload): ?int
     );
 
     $status = $response->getStatusCode();
+    $responseAsArray = ['status_code' => $status, 'content' => null];
     if ($httpMethod === 'POST') {
         if ($status !== 201) {
-            $content = json_decode($response->getContent(false));
-            throw new Exception($content->message ?? 'Unexpected return status: ' . $status);
+            $content = json_decode($response->getContent(false), true);
+            $responseAsArray['content'] = $content;
         }
 
         $data = $response->toArray();
@@ -3826,9 +3861,9 @@ function callApi(string $url, string $httpMethod, array $payload): ?int
     }
 
     if ($status !== 204 && $status !== 200) {
-        $content = json_decode($response->getContent(false));
-        throw new Exception($content->message ?? 'Unexpected return status: ' . $status);
+        $content = json_decode($response->getContent(false), true);
+        $responseAsArray['content'] = $content;
     }
 
-    return null;
+    return $responseAsArray;
 }
