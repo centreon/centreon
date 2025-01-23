@@ -81,8 +81,7 @@ const useApp = (): UseAppState => {
   const [platformVersion] = useAtom(platformVersionsAtom);
   const setDowntime = useSetAtom(downtimeAtom);
   const setRefreshInterval = useSetAtom(refreshIntervalAtom);
-
-  const setResourcesAcl = useSetAtom(aclAtom);
+  const setAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
 
@@ -111,9 +110,12 @@ const useApp = (): UseAppState => {
       }),
       getResourcesAcl({
         endpoint: aclEndpoint
+      }),
+      getUserPermissions({
+        endpoint: userPermissionsEndpoint
       })
     ])
-      .then(([retrievedParameters, retrievedAcl]) => {
+      .then(([retrievedParameters, retrievedAcl, userPermissions]) => {
         setDowntime({
           duration: Number.parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
@@ -130,6 +132,9 @@ const useApp = (): UseAppState => {
           )
         );
         setAcl({ actions: retrievedAcl });
+
+        setUserPermissions(userPermissions);
+
         setAcknowledgement({
           force_active_checks:
             retrievedParameters.monitoring_default_acknowledgement_force_active_checks,
@@ -146,17 +151,6 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
-
-    getUserPermissions({
-      endpoint: userPermissionsEndpoint
-    })
-      .then(setUserPermissions)
-      .catch((error) => {
-        if (pathEq(401, ['response', 'status'])(error)) {
-          logout();
-        }
-      });
-
     if (path(['modules', 'centreon-it-edition-extensions'], platformVersion)) {
       getCustomPlatformRequest({
         endpoint: loginPageCustomisationEndpoint
