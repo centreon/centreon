@@ -3847,23 +3847,7 @@ function callApi(string $url, string $httpMethod, array $payload): array
     );
 
     $status = $response->getStatusCode();
-    $responseAsArray = ['status_code' => $status, 'content' => null];
-    if ($httpMethod === 'POST') {
-        if ($status !== 201) {
-            $content = json_decode($response->getContent(false), true);
-            $responseAsArray['content'] = $content;
-        }
+    $content = json_decode($response->getContent(false), true);
 
-        $data = $response->toArray();
-
-        /** @var array{id:int} $data */
-        return $data['id'];
-    }
-
-    if ($status !== 204 && $status !== 200) {
-        $content = json_decode($response->getContent(false), true);
-        $responseAsArray['content'] = $content;
-    }
-
-    return $responseAsArray;
+    return ['status_code' => $status, 'content' => $content];
 }
