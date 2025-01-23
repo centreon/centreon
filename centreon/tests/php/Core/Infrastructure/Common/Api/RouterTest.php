@@ -29,16 +29,11 @@ beforeEach(function () {
 });
 
 it('should return a legacy path without options', function () {
-    $legacyHref = $this->router->computeLegacyHref(60202);
+    $legacyHref = $this->router->generateLegacyHref(60202);
     expect($legacyHref)->toBe('/main.php?p=60202');
 });
 
 it('should return a legacy path with options', function () {
-    $legacyHref = $this->router->computeLegacyHref(60202, 'foo=bar');
-    expect($legacyHref)->toBe('/main.php?p=60202&foo=bar');
-});
-
-it('should trim "&" from the options', function () {
-    $legacyHref = $this->router->computeLegacyHref(60202, '&foo=bar');
+    $legacyHref = $this->router->generateLegacyHref(60202, ['foo' => 'bar']);
     expect($legacyHref)->toBe('/main.php?p=60202&foo=bar');
 });

@@ -37,7 +37,7 @@ final class DeleteServicesResponse implements BulkResponseInterface
     /**
      * @inheritDoc
      */
-    public function getData(): mixed
+    public function getData(): array
     {
         return $this->results;
     }

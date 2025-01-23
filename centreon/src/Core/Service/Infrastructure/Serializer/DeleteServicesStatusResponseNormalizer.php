@@ -50,15 +50,15 @@ class DeleteServicesStatusResponseNormalizer implements NormalizerInterface
      *
      * @throws \Throwable
      *
-     * @return array<string, mixed>|bool|float|int|string|null
+     * @return array<string, mixed>
      */
     public function normalize(
         mixed $object,
         ?string $format = null,
         array $context = []
-    ): float|int|bool|array|string|null {
+    ): array {
         return [
-            'href' => $this->router->computeLegacyHref(self::SERVICE_TOPOLOGY_PAGE, 'o=w&service_id=' . $object->id),
+            'href' => $this->router->generateLegacyHref(self::SERVICE_TOPOLOGY_PAGE, ['o' => 'w', 'service_id' => $object->id]),
             'status' => $this->enumToHttpStatusCodeConverter($object->status),
             'message' => $object->message,
         ];
