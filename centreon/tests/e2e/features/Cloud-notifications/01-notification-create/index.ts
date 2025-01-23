@@ -149,26 +149,18 @@ When('the user defines a name for the rule', () => {
 When(
   'the user selects a {string} with associated events on which to notify',
   (resourceType: string) => {
-    switch (resourceType) {
-      case 'host group':
-        cy.get('#Searchhostgroups').click();
-        cy.contains(data.hostGroups.hostGroup1.name).click();
-        cy.get('#Recovery').click();
-        cy.get('#Down').click();
-        cy.get('#Unreachable').click();
-        break;
-      case 'host group and services for these hosts':
-        cy.get('#Searchhostgroups').click();
+     if (resourceType === "host group and services for these hosts"){
+       cy.get('#Searchhostgroups').click();
         cy.contains(data.hostGroups.hostGroup1.name).click();
         cy.get('#Searchhostgroups').blur();
         cy.contains('Include services for these hosts').click();
         cy.get('[data-testid="Extra events services"] >').each(($el) => {
           cy.wrap($el).click();
-        });
-        break;
-      default:
-        throw new Error(`${resourceType} not managed`);
+             });
+     } else {
+      throw new Error(`${resourceType} not managed`);
     }
+
   }
 );
 
@@ -227,74 +219,46 @@ Then(
 When(
   'changes occur in the configured statuses for the selected {string}',
   (resourceType) => {
-    switch (resourceType) {
-      case 'host group':
-        cy.submitResults([
-          {
-            host: data.hosts.host2.name,
-            output: 'submit_status_1',
-            status: 'down'
-          }
-        ]);
+    if (resourceType === "host group and services for these hosts") {
+      cy.submitResults([
+        {
+          host: data.hosts.host1.name,
+          output: "submit_status_2",
+          service: data.services.service1.name,
+          status: "critical",
+        },
+      ]);
 
-        checkHostsAreMonitored([
-          {
-            name: data.hosts.host2.name,
-            status: 'down'
-          }
-        ]);
-        break;
-      case 'host group and services for these hosts':
-        cy.submitResults([
-          {
-            host: data.hosts.host1.name,
-            output: 'submit_status_2',
-            service: data.services.service1.name,
-            status: 'critical'
-          }
-        ]);
-
-        checkServicesAreMonitored([
-          {
-            name: data.services.service1.name,
-            status: 'critical'
-          }
-        ]);
-        break;
-      default:
-        throw new Error(`${resourceType} not managed`);
+      checkServicesAreMonitored([
+        {
+          name: data.services.service1.name,
+          status: "critical",
+        },
+      ]);
+    } else {
+      throw new Error(`${resourceType} not managed`);
     }
+
   }
 );
 
 When('the hard state has been reached', () => {
-  switch (globalResourceType) {
-    case 'host group':
-      checkHostsAreMonitored([
-        {
-          name: data.hosts.host2.name,
-          status: 'down',
-          statusType: 'hard'
-        }
-      ]);
-      break;
-    case 'host group and services for these hosts':
-      checkServicesAreMonitored([
-        {
-          name: data.services.service1.name,
-          status: 'critical',
-          statusType: 'hard'
-        }
-      ]);
-      break;
-    default:
-      checkServicesAreMonitored(
-        Array.from({ length: 1000 }, (_, i) => ({
-          name: `service_${i + 1}`,
-          status: 'ok',
-          statusType: 'hard'
-        }))
-      );
+  if (globalResourceType === "host group and services for these hosts") {
+    checkServicesAreMonitored([
+      {
+        name: data.services.service1.name,
+        status: "critical",
+        statusType: "hard",
+      },
+    ]);
+  } else {
+    checkServicesAreMonitored(
+      Array.from({ length: 1000 }, (_, i) => ({
+        name: `service_${i + 1}`,
+        status: "ok",
+        statusType: "hard",
+      })),
+    );
   }
 });
 
