@@ -3753,6 +3753,7 @@ function deleteServiceByApi(array $services = []): void
     $kernel = Kernel::createForWeb();
     $router = $kernel->getContainer()->get(Router::class)
         ?? throw new LogicException('Router not found in container');
+    $servicesWithError = [];
     foreach ($serviceIds as $serviceId) {
         $url = $router->generate(
             'DeleteService',
@@ -3760,7 +3761,6 @@ function deleteServiceByApi(array $services = []): void
             UrlGeneratorInterface::ABSOLUTE_URL
         );
         $response = callApi($url, 'DELETE', []);
-        $servicesWithError = [];
         if ($response['status_code'] !== 204) {
             $servicesWithError[] = [
                 'service_id' => $serviceId,
@@ -3797,6 +3797,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
     $kernel = Kernel::createForWeb();
     $router = $kernel->getContainer()->get(Router::class)
         ?? throw new LogicException('Router not found in container');
+    $serviceTemplatesWithError = [];
     foreach ($serviceTemplateIds as $serviceTemplateId) {
         $url = $router->generate(
             'DeleteServiceTemplate',
@@ -3804,7 +3805,6 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
             UrlGeneratorInterface::ABSOLUTE_URL
         );
         $response = callApi($url, 'DELETE', []);
-        $serviceTemplatesWithError = [];
         if ($response['status_code'] !== 204) {
             $serviceTemplatesWithError[] = [
                 'service_template_id' => $serviceTemplateId,
