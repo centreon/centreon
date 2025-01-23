@@ -286,7 +286,189 @@ Cypress.Commands.add('updateServiceGroupDependency', (body: ServiceGroupDependen
     .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
-})
+});
+
+Cypress.Commands.add('createOrUpdateHostGroupService', (body: HostGroupService, isUpdate: boolean) => {
+  cy.waitForElementInIframe('#main-content', 'input[name="service_description"]');
+  cy.get('iframe#main-content')
+      .its('0.contentDocument.body')
+      .find('input[name="service_description"]');
+  cy.getIframeBody()
+    .find('input[name="service_description"]')
+    .clear()
+    .type(body.name);
+  cy.getIframeBody().find('span[title="Clear field"]').eq(0).click();
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
+  cy.getIframeBody().find(`div[title="${body.hostgroups}"]`).click();
+  cy.getIframeBody().find('span[title="Clear field"]').eq(1).click();
+  cy.getIframeBody().find('#select2-service_template_model_stm_id-container').click();
+  cy.getIframeBody().find(`div[title="${body.template}"]`).click();
+  cy.getIframeBody().find('span[title="Clear field"]').eq(2).click();
+  cy.getIframeBody().find('#select2-command_command_id-container').click();
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(6).type(body.checkcommand);
+  cy.getIframeBody().find(`div[title="${body.checkcommand}"]`).click();
+  cy.getIframeBody().find('#macro_add').click();
+  cy.waitForElementInIframe('#main-content', '#macroInput_0');
+  cy.getIframeBody().find('#macroInput_0').clear().type(body.macroname);
+  cy.getIframeBody().find('#macroValue_0').clear().type(`${body.macrovalue}`);
+  cy.getIframeBody().find('span[title="Clear field"]').eq(3).click();
+  cy.getIframeBody().find('#select2-timeperiod_tp_id-container').click();
+  cy.getIframeBody().find(`div[title="${body.checkperiod}"]`).click();
+  cy.getIframeBody().find('input[name="service_max_check_attempts"]').clear().type(`${body.maxcheckattempts}`);
+  cy.getIframeBody().find('input[name="service_normal_check_interval"]').clear().type(`${body.normalcheckinterval}`);
+  cy.getIframeBody().find('input[name="service_retry_check_interval"]').clear().type(`${body.retrycheckinterval}`);
+  if(isUpdate){
+    cy.getIframeBody().contains('label','No').eq(0).click();
+  }
+  //Notifications
+  cy.getIframeBody().contains('a', 'Notifications').click();
+  cy.get('body').click(0, 0);
+  cy.getIframeBody().find('span[title="Clear field"]').eq(4).click();
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(1).click({force: true});
+  cy.getIframeBody().find(`div[title="${body.contacts}"]`).click();
+  cy.getIframeBody().find('span[title="Clear field"]').eq(5).click();
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(2).click({force: true});
+  cy.getIframeBody().find(`div[title="${body.contactgroups}"]`).click();
+  cy.getIframeBody().find('input[name="service_notification_interval"]').clear().type(`${body.notinterval}`);
+  cy.getIframeBody().find('span[title="Clear field"]').eq(6).click();
+  cy.getIframeBody().find('#select2-timeperiod_tp_id2-container').click();
+  //cy.wait('@getTimePeriods');
+  cy.getIframeBody().find(`div[title="${body.notificationperiod}"]`).click();
+  cy.getIframeBody().find('#notifC').click({ force: true });
+  if(isUpdate){
+    cy.getIframeBody().find('#notifC').click({ force: true });
+    cy.getIframeBody().find('#notifU').click({ force: true });
+  }
+  cy.getIframeBody().find('input[name="service_first_notification_delay"]').clear().type(`${body.firstnotdelay}`);
+  cy.getIframeBody().find('input[name="service_recovery_notification_delay"]').clear().type(`${body.recoverynotdelay}`);
+  //Relations
+  cy.getIframeBody().contains('a', 'Relations').click();
+  cy.get('body').click(0, 0);
+  cy.getIframeBody().find('span[title="Clear field"]').eq(7).click();
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(3).click({force: true});
+  cy.getIframeBody().find(`div[title="${body.servicegroups}"]`).click();
+  cy.getIframeBody().find('span[title="Clear field"]').eq(8).click();
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(4).click({force: true});
+  cy.getIframeBody().find(`div[title="${body.servicetrap}"]`).click();
+  //Data Processing
+  cy.getIframeBody().contains('a', 'Data Processing').click();
+  cy.get('body').click(0, 0);
+  cy.getIframeBody().find('input[name="service_freshness_threshold"]').clear().type(`${body.freshnessthreshold}`);
+ //Extended Info
+  cy.getIframeBody().contains('a', 'Extended Info').click();
+  cy.get('body').click(0, 0);
+  cy.getIframeBody().find('span[title="Clear field"]').eq(11).click();
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(5).click({force: true});
+  cy.getIframeBody().find(`div[title="${body.servicecategories}"]`).click();
+  cy.getIframeBody().find('input[name="esi_notes_url"]').clear().type(body.noteurl);
+  cy.getIframeBody().find('input[name="esi_notes"]').clear().type(body.note);
+  cy.getIframeBody().find('input[name="esi_action_url"]').clear().type(body.actionurl);
+  cy.getIframeBody().find('#esi_icon_image').select('1');
+  cy.getIframeBody().find('input[name="esi_icon_image_alt"]').clear().type(body.atlicon);
+  cy.getIframeBody().find('input[name="geo_coords"]').clear().type(body.geocoords);
+  cy.getIframeBody().find('textarea[name="service_comment"]').clear().type(body.comment);
+  cy.getIframeBody().find('input[value="Save"]').eq(1).click();
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
+});
+
+Cypress.Commands.add('checkValuesOfHostGroupService', (name:string, body: HostGroupService) => {
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${name}")`
+  );
+  cy.getIframeBody().contains(name).click();
+  cy.waitForElementInIframe('#main-content', 'input[name="service_description"]');
+  cy.getIframeBody()
+    .find('input[name="service_description"]')
+    .should('have.value', name);
+  cy.getIframeBody()
+      .find('#service_hgPars')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.hostgroups);
+  cy.getIframeBody()
+      .find('#service_template_model_stm_id')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.template);
+  cy.getIframeBody()
+      .find('#command_command_id')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.checkcommand);
+  cy.getIframeBody().find('#macroInput_0').should('have.value',body.macroname);
+  cy.getIframeBody().find('#macroValue_0').should('have.value',body.macrovalue);
+  cy.getIframeBody()
+      .find('#timeperiod_tp_id')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.checkperiod);
+  cy.getIframeBody().find('input[name="service_max_check_attempts"]').should('have.value',body.maxcheckattempts);
+  cy.getIframeBody().find('input[name="service_normal_check_interval"]').should('have.value',body.normalcheckinterval);
+  cy.getIframeBody().find('input[name="service_retry_check_interval"]').should('have.value',body.retrycheckinterval);
+  cy.checkLegacyRadioButton('No');
+  //Notifications
+  cy.getIframeBody().contains('a', 'Notifications').click();
+  cy.get('body').click(0, 0);
+   cy.getIframeBody()
+      .find('#service_cs')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.contacts);
+  cy.getIframeBody()
+      .find('#service_cgs')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.contactgroups);
+
+  cy.getIframeBody().find('input[name="service_notification_interval"]').should('have.value',body.notinterval);
+  //these lines is commented until the related bug is getting fixed https://centreon.atlassian.net/browse/MON-158257
+  //  cy.getIframeBody()
+  //     .find('#timeperiod_tp_id2')
+  //     .find('option:selected')
+  //     .should('have.length', 1)
+  //     .and('have.text', body.notificationperiod);
+  cy.getIframeBody().find('#notifC').should('be.checked');
+  cy.getIframeBody().find('#notifU').should('be.checked');
+  cy.getIframeBody().find('input[name="service_first_notification_delay"]').should('have.value',body.firstnotdelay);
+  cy.getIframeBody().find('input[name="service_recovery_notification_delay"]').should('have.value',body.recoverynotdelay);
+  //Relations
+  cy.getIframeBody().contains('a', 'Relations').click();
+  cy.get('body').click(0, 0);
+  cy.getIframeBody()
+      .find('#service_sgs')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.servicegroups);
+  cy.getIframeBody()
+      .find('#service_traps')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.servicetrap);
+  //Data Processing
+  cy.getIframeBody().contains('a', 'Data Processing').click();
+  cy.get('body').click(0, 0);
+  cy.getIframeBody().find('input[name="service_freshness_threshold"]').should('have.value',body.freshnessthreshold);
+ //Extended Info
+  cy.getIframeBody().contains('a', 'Extended Info').click();
+  cy.get('body').click(0, 0);
+  cy.getIframeBody()
+      .find('#service_categories')
+      .find('option:selected')
+      .should('have.length', 1)
+      .and('have.text', body.servicecategories);
+
+  cy.getIframeBody().find('input[name="esi_notes_url"]').should('have.value',body.noteurl);
+  cy.getIframeBody().find('input[name="esi_notes"]').should('have.value',body.note);
+  cy.getIframeBody().find('input[name="esi_action_url"]').should('have.value',body.actionurl);
+  cy.getIframeBody().find('#esi_icon_image')
+    .should('have.value', '1'); 
+  cy.getIframeBody().find('input[name="esi_icon_image_alt"]').should('have.value',body.atlicon);
+  cy.getIframeBody().find('input[name="geo_coords"]').should('have.value',body.geocoords);
+  cy.getIframeBody().find('textarea[name="service_comment"]').should('have.value',body.comment);
+});
+
 
 interface Dependency {
   name: string,
@@ -356,6 +538,36 @@ interface MetaServiceDependency {
   comment: string
 }
 
+interface HostGroupService {
+  name: string,
+  hostgroups: string,
+  template: string,
+  checkcommand: string,
+  macroname: string,
+  macrovalue: number,
+  checkperiod: string;
+  maxcheckattempts: number;
+  normalcheckinterval: number,
+  retrycheckinterval: number,
+  contacts: string;
+  contactgroups: string;
+  notinterval: number;
+  notificationperiod: string;
+  firstnotdelay: number;
+  recoverynotdelay: number,
+  servicegroups: string,
+  servicetrap: string,
+  freshnessthreshold: number,
+  servicecategories: string,
+  noteurl: string,
+  note: string,
+  actionurl: string,
+  atlicon: string,
+  geocoords: string,
+  comment: string,
+
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -370,6 +582,8 @@ declare global {
       updateCommonDependencyFileds: (body: Dependency) => Cypress.Chainable;
       addServiceGroupDependency: (body:ServiceGroupDependency) => Cypress.Chainable;
       updateServiceGroupDependency: (body:ServiceGroupDependency) => Cypress.Chainable;
+      createOrUpdateHostGroupService: (body: HostGroupService, isUpdate: boolean) => Cypress.Chainable;
+      checkValuesOfHostGroupService: (name: string, body: HostGroupService) => Cypress.Chainable;
     }
   }
 }
