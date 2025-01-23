@@ -32,6 +32,7 @@ import {
   labelUp
 } from '../translatedLabels';
 
+import { serviceNamesEndpoint } from './api/endpoint';
 import getDefaultCriterias from './Criterias/default';
 import { categoryHostStatus } from './criteriasNewInterface/model';
 import {
@@ -321,7 +322,7 @@ const initializeRequests = (): void => {
   setupIntercept({
     alias: 'GetResourcesByHostType',
     fixtureFile: 'resources/filter/resourcesByHostType.json',
-    path: `${resourcesEndpoint}**`,
+    path: `${serviceNamesEndpoint}**`,
     query: {
       name: 'types',
       value: '["host"]'
