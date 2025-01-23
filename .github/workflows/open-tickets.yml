@@ -374,6 +374,9 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
       github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
 
@@ -402,7 +405,11 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon'
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon' &&
+      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     runs-on: [self-hosted, common]
 
     strategy:
