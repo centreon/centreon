@@ -63,18 +63,8 @@ final class DeleteServices
      */
     public function __invoke(DeleteServicesRequest $request): DeleteServicesResponse
     {
-        return $this->deleteServices($request->serviceIds);
-    }
-
-    /**
-     * @param int[] $serviceIds
-     *
-     * @return DeleteServicesResponse
-     */
-    private function deleteServices(array $serviceIds): DeleteServicesResponse
-    {
         $results = [];
-        foreach ($serviceIds as $serviceId) {
+        foreach ($request->serviceIds as $serviceId) {
             $statusResponse = new DeleteServicesStatusResponse();
             $statusResponse->id = $serviceId;
             try {
@@ -96,9 +86,9 @@ final class DeleteServices
                 $results[] = $statusResponse;
             } catch (\Throwable $ex) {
                 $this->error(
-                    "Error while deleting services : {$ex->getMessage()}", 
+                    "Error while deleting services : {$ex->getMessage()}",
                     [
-                        'serviceIds' => $serviceIds,
+                        'serviceIds' => $request->serviceIds,
                         'current_serviceId' => $serviceId,
                         'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
                     ]

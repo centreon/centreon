@@ -35,7 +35,9 @@ final class DeleteServicesResponse implements BulkResponseInterface
     }
 
     /**
-     * @inheritDoc
+     * @{inheritDoc}
+     *
+     * @return DeleteServicesStatusResponse[]
      */
     public function getData(): array
     {

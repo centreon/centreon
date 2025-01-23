@@ -63,8 +63,8 @@ class StandardPresenter implements StandardPresenterInterface
     ): string {
         return match (true) {
             $data instanceof ListingResponseInterface => $this->presentListing($data, $context, $format),
-            $data instanceof BulkResponseInterface => $this->presentBulk($data, $context, $format),
-            default => $this->presentDefault($data, $context, $format),
+            $data instanceof BulkResponseInterface => $this->presentWithoutMeta($data, $context, $format),
+            default => $this->serializer->serialize($data->getData(), $format, $context)
         };
     }
 
@@ -101,7 +101,7 @@ class StandardPresenter implements StandardPresenterInterface
      *
      * @return string
      */
-    private function presentBulk(
+    private function presentWithoutMeta(
         BulkResponseInterface $data,
         array $context = [],
         string $format = JsonEncoder::FORMAT,
@@ -113,22 +113,5 @@ class StandardPresenter implements StandardPresenterInterface
             $format,
             $context,
         );
-    }
-
-    /**
-     * @param StandardResponseInterface $data
-     * @param array<string, mixed> $context
-     * @param string $format
-     *
-     * @throws ExceptionInterface
-     *
-     * @return string
-     */
-    private function presentDefault(
-        StandardResponseInterface $data,
-        array $context = [],
-        string $format = JsonEncoder::FORMAT,
-    ): string {
-        return $this->serializer->serialize($data->getData(), $format, $context);
     }
 }

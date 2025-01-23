@@ -21,6 +21,7 @@
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -100,7 +101,7 @@ it('should return a DeleteServicesResponse', function () {
         ->and($response->getData()[0]->message)->toBeNull()
         ->and($response->getData()[1]->id)->toBe(2)
         ->and($response->getData()[1]->status)->toBe(ResponseCodeEnum::NotFound)
-        ->and($response->getData()[1]->message)->toBe('Service not found')
+        ->and($response->getData()[1]->message)->toBe((new NotFoundResponse('Service'))->getMessage())
         ->and($response->getData()[2]->id)->toBe(3)
         ->and($response->getData()[2]->status)->toBe(ResponseCodeEnum::Error)
         ->and($response->getData()[2]->message)->toBe(ServiceException::errorWhileDeleting($ex)->getMessage());
