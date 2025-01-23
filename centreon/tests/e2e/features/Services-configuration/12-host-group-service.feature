@@ -5,11 +5,11 @@ Feature: Host Group Service configuration
 
   Background:
     Given a user is logged in a Centreon server
-    And some service groups are configured
-    And some service categories are configured
 
   @TEST_MON-158047
   Scenario: Create a new host group service
+    Given some service groups are configured
+    And some service categories are configured
     When the user goes to Configuration > Services > Services by host group
     And the user Add a new host group service
     Then the host group service is added to the listing page
