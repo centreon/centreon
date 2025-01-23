@@ -13,7 +13,8 @@ import {
   downtimeAtom,
   platformNameAtom,
   platformVersionsAtom,
-  refreshIntervalAtom
+  refreshIntervalAtom,
+  userPermissionsAtom
 } from '@centreon/ui-context';
 
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
@@ -22,7 +23,11 @@ import useNavigation from '../Navigation/useNavigation';
 import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
 
-import { aclEndpoint, parametersEndpoint } from './endpoint';
+import {
+  aclEndpoint,
+  parametersEndpoint,
+  userPermissionsEndpoint
+} from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
@@ -53,6 +58,12 @@ const useApp = (): UseAppState => {
     httpCodesBypassErrorSnackbar: [403],
     request: getData
   });
+
+  const { sendRequest: getUserPermissions } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
+    request: getData
+  });
+
   const { sendRequest: getAcl } = useRequest<Actions>({
     request: getData
   });
@@ -73,6 +84,7 @@ const useApp = (): UseAppState => {
   const setAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
+  const setUserPermissions = useSetAtom(userPermissionsAtom);
 
   const setPlaformName = useSetAtom(platformNameAtom);
 
@@ -122,6 +134,16 @@ const useApp = (): UseAppState => {
             retrievedParameters.monitoring_default_acknowledgement_with_services
         });
       })
+      .catch((error) => {
+        if (pathEq(401, ['response', 'status'])(error)) {
+          logout();
+        }
+      });
+
+    getUserPermissions({
+      endpoint: userPermissionsEndpoint
+    })
+      .then(setUserPermissions)
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {
           logout();

@@ -6,6 +6,8 @@ export { default as cloudServicesAtom } from './cloudServicesAtom';
 export { default as acknowledgementAtom } from './acknowledgementAtom';
 export { default as resourceStorageOptimizationModeAtom } from './resourceStorageOptimizationMode';
 export { default as platformNameAtom } from './platformNameAtom';
+export { default as userPermissionsAtom } from './userPermissionsAtom';
+
 export { ThemeMode, ListingVariant, DashboardGlobalRole } from './types';
 export {
   platformFeaturesAtom,
@@ -33,5 +35,6 @@ export type {
   DashboardRolesAndPermissions,
   FeatureFlags,
   PlatformFeatures,
-  AdditionalResource
+  AdditionalResource,
+  UserPermissions
 } from './types';
