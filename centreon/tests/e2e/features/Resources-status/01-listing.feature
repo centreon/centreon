@@ -89,7 +89,7 @@ Feature: List Resources
   @TEST_MON-158447
   Scenario: Selecting a filter for OK and Critical services with status types Hard and Soft
     Given a saved filter that includes services with statuses OK and Critical and status types Hard and Soft
-    When I apply the filter for services with statuses OK and Critical, and status types Hard and Soft
+    When I apply the filter for services with statuses OK and Critical and status types Hard and Soft
     Then only services with statuses OK and Critical and with status types Hard and Soft are displayed in the results
 
   @TEST_MON-158448
