@@ -5,6 +5,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import serviceCategories from '../../../fixtures/services/category.json';
 import servicesData from '../../../fixtures/services/service.json';
 import data from '../../../fixtures/services/host_group.json';
+import htmldata from './data.json';
 
 const services = {
   serviceCritical: {
@@ -116,7 +117,7 @@ When('the user Add a new host group service', () => {
    );
   cy.getIframeBody().contains('a', 'Add').eq(0).click();
   cy.wait('@getTimeZone');
-  cy.createOrUpdateHostGroupService(data.default, false);
+  cy.createOrUpdateHostGroupService(data.default, false, htmldata.dataForCreation);
 });
 
 Then('the host group service is added to the listing page', () => {
@@ -139,7 +140,7 @@ Given('a host group service is configured', () => {
 
 When('the user changes the properties of the host group service', () => {
   cy.getIframeBody().contains('a', data.default.name).click();
-  cy.createOrUpdateHostGroupService(data.hostgroupservice, true);
+  cy.createOrUpdateHostGroupService(data.hostgroupservice, true, htmldata.dataForUpdate);
 });
 
 Then('the properties are updated', () => {
