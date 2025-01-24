@@ -48,13 +48,9 @@ isset($_GET["service_description"]) ? $service_description = $_GET["service_desc
 isset($_GET["cmd"]) ? $cmd = $_GET["cmd"] : $cmd = null;
 isset($_GET["en"]) ? $en = $_GET["en"] : $en = 1;
 
+// Smarty template initialization
 $path = "./include/monitoring/acknowlegement/";
-
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl, './templates/');
+$tpl = SmartyBC::createSmartyTemplate($path, './templates/');
 
 if (!$is_admin) {
     $lcaHostByName["LcaHost"] = $centreon->user->access->getHostsServicesName($pearDBndo);

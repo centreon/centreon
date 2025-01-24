@@ -1,26 +1,29 @@
+import dayjs from 'dayjs';
 import { dec, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 
 import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 
-import { useLocaleDateTimeFormat } from '@centreon/ui';
+import {
+  useLocaleDateTimeFormat,
+  usePluralizedTranslation
+} from '@centreon/ui';
 
+import { Resource } from '../../../models';
 import {
   labelAreWorkingFine,
   labelStatus,
   lableNoResourceFound
 } from '../translatedLabels';
-import { Resource } from '../../../models';
 
-import { useTooltipContent } from './useTooltip';
 import { useTooltipStyles } from './Tooltip.styles';
+import { useTooltipContent } from './useTooltip';
 
 interface Props {
   color: string;
   label: string;
+  resourceType: string;
   resources: Array<Resource>;
-  title: string;
   total: number;
   value: number;
 }
@@ -30,18 +33,19 @@ const TooltipContent = ({
   color,
   value,
   total,
-  title,
-  resources: resourcesOptions
+  resources: resourcesOptions,
+  resourceType
 }: Props): JSX.Element => {
   const { classes } = useTooltipStyles();
 
   const { t } = useTranslation();
+  const { pluralizedT } = usePluralizedTranslation();
   const { format } = useLocaleDateTimeFormat();
 
   const { elementRef, isLoading, resources } = useTooltipContent({
     resources: resourcesOptions,
     status: label,
-    type: title.slice(0, -1)
+    type: resourceType
   });
 
   const isStatusOK = ['ok', 'up'].includes(label);
@@ -60,14 +64,14 @@ const TooltipContent = ({
       <Box className={classes.body}>
         {equals(value, 0) ? (
           <Typography className={classes.listContainer}>
-            {t(lableNoResourceFound(title.slice(0, -1)))}
+            {t(lableNoResourceFound(resourceType))}
           </Typography>
         ) : (
           <>
             <Typography className={classes.listContainer}>
               {isStatusOK
-                ? `${value}/${total} ${t(title)} ${t(labelAreWorkingFine)}`
-                : `${value} ${t(title)}`}
+                ? `${value}/${total} ${pluralizedT({ count: value, label: resourceType })} ${t(labelAreWorkingFine)}`
+                : `${value} ${pluralizedT({ count: value, label: resourceType })}`}
             </Typography>
             {!isStatusOK && (
               <Box className={classes.listContainer}>

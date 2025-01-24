@@ -117,6 +117,7 @@ contents:
 
   - src: "../.env"
     dst: "/usr/share/centreon/.env"
+    type: config|noreplace
     file_info:
       owner: "centreon"
       group: "centreon"
@@ -124,6 +125,7 @@ contents:
 
   - src: "../.env.local.php"
     dst: "/usr/share/centreon/.env.local.php"
+    type: config|noreplace
     file_info:
       owner: "centreon"
       group: "centreon"
@@ -500,6 +502,7 @@ overrides:
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
       - lsb-release
       - "mariadb-client | mysql-client"
+      - cron
       - apache2
       - php8.1
       - php8.1-cli

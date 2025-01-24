@@ -1,11 +1,11 @@
 import { RefObject } from 'react';
 
-import { path, isNil, equals, last, pipe, not } from 'ramda';
+import { path, equals, isNil, last, not, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Resource } from '../../../models';
 import ExportableGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
 import { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
+import { Resource } from '../../../models';
 
 interface Props {
   infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
@@ -19,12 +19,10 @@ export interface ResourceGraphMousePosition {
 
 const useStyles = makeStyles()((theme) => ({
   graph: {
-    columnGap: '8px',
+    columnGap: theme.spacing(1.5),
     display: 'grid',
-    gridTemplateColumns: `repeat(auto-fill, minmax(${theme.spacing(
-      40
-    )}, auto))`,
-    rowGap: '8px'
+    gridTemplateColumns: `repeat(auto-fit, minmax(${theme.spacing(40)}, 1fr))`,
+    rowGap: theme.spacing(1.5)
   }
 }));
 

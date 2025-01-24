@@ -33,15 +33,15 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+use enshrined\svgSanitize\Sanitizer;
 
-require_once("./class/centreonDB.class.php");
+require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 
-/**
- *
- * DB Connection
- */
+require_once './class/centreonDB.class.php';
+require_once './class/centreonLog.class.php';
+
 $pearDB = new CentreonDB();
+$mediaLogInstance = CentreonLog::create();
 
 /**
  * Counters
@@ -49,21 +49,20 @@ $pearDB = new CentreonDB();
 global $regCounter, $gdCounter, $fileRemoved, $dirCreated;
 
 $sid = session_id();
-if (!isset($sid)) {
+if ($sid === false) {
     exit;
 }
 
 if (isset($sid)) {
     $DBRESULT = $pearDB->query("SELECT * FROM session WHERE session_id = '" . $pearDB->escape($sid) . "'");
-    if ($DBRESULT->rowCount() == 0) {
+    if ($DBRESULT->rowCount() === 0) {
         exit();
     }
 }
 
-$dir = "./img/media/";
+$dir = './img/media/';
 
-$rejectedDir = array("." => 1, ".." => 1);
-$allowedExt = array("jpg" => 1, "jpeg" => 1, "png" => 1, "gif" => 1, "gd2" => 1);
+$rejectedDir = ['.' => 1, '..' => 1];
 
 $dirCreated = 0;
 $regCounter = 0;
@@ -72,12 +71,31 @@ $gdCounter = 0;
 if (is_dir($dir)) {
     if ($dh = opendir($dir)) {
         while (($subdir = readdir($dh)) !== false) {
-            if (!isset($rejectedDir[$subdir]) && filetype($dir . $subdir) == "dir") {
-                $dir_id = checkDirectory($subdir, $pearDB);
+            if (! isset($rejectedDir[$subdir]) && filetype($dir . $subdir) === 'dir') {
+                try {
+                    $dir_id = checkDirectory($subdir, $pearDB);
+                } catch (Exception $ex) {
+                    $mediaLogInstance->error(
+                        CentreonLog::TYPE_BUSINESS_LOG,
+                        $ex->getMessage(),
+                        [],
+                        $ex
+                    );
+                    continue;
+                }
                 if ($dh2 = opendir($dir . $subdir)) {
                     while (($picture = readdir($dh2)) !== false) {
-                        if (!isset($rejectedDir[$picture])) {
-                            checkPicture($picture, $dir . $subdir, $dir_id, $pearDB);
+                        if (! isset($rejectedDir[$picture])) {
+                            try {
+                                checkPicture($picture, $dir . $subdir, $dir_id, $pearDB);
+                            } catch (Exception $ex) {
+                                $mediaLogInstance->error(
+                                    CentreonLog::TYPE_BUSINESS_LOG,
+                                    $ex->getMessage(),
+                                    [],
+                                    $ex
+                                );
+                            }
                         }
                     }
                     closedir($dh2);
@@ -88,26 +106,31 @@ if (is_dir($dir)) {
     }
 }
 
-$fileRemoved = DeleteOldPictures($pearDB);
+$fileRemoved = deleteOldPictures($pearDB);
 
-/*
- * Display Stats
- */
+// Display Stats
 
 ?>
+<script type="text/javascript">
+    jQuery('body').css('overflow-x', 'hidden');
+    function reloadAndClose() {
+        window.opener.location.reload();
+        window.close();
+    }
+</script>
 <br>
 <?php
-print "<b>&nbsp;&nbsp;" . _("Media Detection") . "</b>";
+echo '<b>&nbsp;&nbsp;' . _('Media Detection') . '</b>';
 ?>
 <br><br>
 <div style="width:250px;height:50px;margin-left:5px;padding:20px;background-color:#FFFFFF;border:1px #CDCDCD solid;-moz-border-radius:4px;">
     <div style='float:left;width:270px;text-align:left;'>
         <p>
             <?php
-            print _("Bad picture alias detected :") . " $fileRemoved<br>";
-            print _("New directory added :") . " $dirCreated<br>";
-            print _("New images added :") . " $regCounter<br>";
-            print _("Convert gd2 -> png :") . " $gdCounter<br><br><br>";
+            echo _('Bad picture alias detected :') . " {$fileRemoved}<br>";
+            echo _('New directory added :') . " {$dirCreated}<br>";
+            echo _('New images added :') . " {$regCounter}<br>";
+            echo _('Convert gd2 -> png :') . " {$gdCounter}<br><br><br>";
             ?>
         </p>
         <br><br><br>
@@ -118,117 +141,215 @@ print "<b>&nbsp;&nbsp;" . _("Media Detection") . "</b>";
     <br>
     <?php
 
-    /*
-     * recreates local centreon directories as defined in DB
+    // recreates local centreon directories as defined in DB
+
+    /**
+     * Recreates local centreon directories as defined in DB.
+     *
+     * @param string $directory
+     * @param CentreonDB $db
+     *
+     * @throws CentreonDbException
+     * @return int Id of the directory
      */
-    function checkDirectory($dir, $pearDB)
+    function checkDirectory(string $directory, CentreonDB $db): int
     {
         global $dirCreated;
-        $DBRESULT = $pearDB->query(
-            "SELECT dir_id FROM view_img_dir WHERE dir_alias = '" . $dir . "'"
+        $statement = $db->prepareQuery(
+            'SELECT dir_id FROM view_img_dir WHERE dir_alias = :directory'
         );
-        if (!$DBRESULT->rowCount()) {
-            $DBRESULT = $pearDB->query(
-                "INSERT INTO view_img_dir (`dir_name`, `dir_alias`) VALUES ('" . $dir . "', '" . $dir . "')"
+        $db->executePreparedQuery($statement, [':directory' => $directory]);
+        $directoryId = $db->fetchColumn($statement);
+        if ($directoryId === false) {
+            $statement = $db->prepareQuery(<<<'SQL'
+                INSERT INTO view_img_dir (`dir_name`, `dir_alias`)
+                VALUES (:directory, :directory)
+                SQL
             );
-            @mkdir("./img/media/$dir");
-            $DBRESULT = $pearDB->query("SELECT dir_id FROM view_img_dir WHERE dir_alias = '" . $dir . "'");
-            $data = $DBRESULT->fetchRow();
+            $db->executePreparedQuery($statement, [':directory' => $directory]);
+            $directoryId = $db->lastInsertId();
+            @mkdir("./img/media/{$directory}");
             $dirCreated++;
-            return $data["dir_id"];
-        } else {
-            $data = $DBRESULT->fetchRow();
-            return $data["dir_id"];
         }
+
+        return $directoryId;
     }
 
-    /*
-     * inserts $dir_id/$picture into DB if not registered yet
+    /**
+     * Inserts $dir_id/$picture into DB if not registered yet
+     *
+     * @param string $imagePath
+     * @param string $directoryPath
+     * @param int $directoryId
+     * @param CentreonDB $pearDB
+     *
+     * @throws CentreonDbException
+     * @return void
      */
-    function checkPicture($picture, $dirpath, $dir_id, $pearDB)
-    {
-        global $allowedExt;
-        global $regCounter, $gdCounter, $fileRemoved, $dirCreated;
+    function checkPicture(
+            string $imagePath,
+            string $directoryPath,
+            int $directoryId,
+            CentreonDB $pearDB
+    ): void {
+        global $regCounter, $gdCounter;
 
-        $img_info = pathinfo($picture);
-        $img_ext = $img_info["extension"];
+        $mimeTypeFileExtensionConcordance = [
+            "svg" => "image/svg+xml",
+            "jpg" => "image/jpeg",
+            "jpeg" => "image/jpeg",
+            "gif" => "image/gif",
+            "png" => "image/png",
+            "gd2" => "",
+        ];
 
-        if (!isset($allowedExt[$img_ext])) {
-            return 0;
+        [$filename, $extension] = extractFileInfo($imagePath);
+
+        if ($filename === '') {
+            return;
         }
 
-        if (!isset($img_info["filename"])) {
-            $img_parts = explode(".", $img_info["basename"]);
-            $img_info["filename"] = $img_parts[0];
+        if (! array_key_exists(strtolower($extension), $mimeTypeFileExtensionConcordance)) {
+            return;
         }
-        if ($img_info["extension"] == 'gd2' && !is_file($img_info["filename"] . ".png")) {
-            $im = imagecreatefromgd2($dirpath . "/" . $picture);
-            if (!$im) {
-                return 0;
-            }
-            //unlink($picture);
-            $picture = $img_info["filename"] . ".png";
-            imagepng($im, $dirpath . "/" . $picture);
-            imagedestroy($im);
+
+        if ($extension === 'gd2' && ! is_file($filename . '.png')) {
+            convertGd2ToPng($directoryPath, $imagePath);
             $gdCounter++;
         }
 
-        $statement = $pearDB->prepare(
-            "SELECT img_id " .
-            "FROM view_img, view_img_dir_relation vidh " .
-            "WHERE img_path = :img_path " .
-            "AND vidh.dir_dir_parent_id = :dir_dir_parent_id " .
-            "AND vidh.img_img_id = img_id"
+        $mimeType = mime_content_type($directoryPath . '/' . $imagePath);
+
+        if (! preg_match('/^image\/(jpg|jpeg|svg\+xml|gif|png)$/', $mimeType)) {
+            return;
+        }
+
+        if ($mimeType === "image/svg+xml") {
+            sanitizeSvg($directoryPath, $imagePath);
+        }
+
+        $statement = $pearDB->prepareQuery(<<<'SQL'
+            SELECT 1
+            FROM view_img
+            INNER JOIN view_img_dir_relation idr
+                ON idr.img_img_id = img_id
+            WHERE img_path = :img_path
+                AND idr.dir_dir_parent_id = :parent_id
+            SQL
         );
-        $statement->bindValue(':img_path', $picture, \PDO::PARAM_STR);
-        $statement->bindValue(':dir_dir_parent_id', (int) $dir_id, \PDO::PARAM_INT);
-        $statement->execute();
-        if (!$statement->rowCount()) {
-            $DBRESULT = $pearDB->query(
-                "INSERT INTO view_img (`img_name`, `img_path`) VALUES ('"
-                . $img_info["filename"] . "', '" . $picture . "')"
-            );
-            $DBRESULT = $pearDB->query(
-                "SELECT img_id FROM view_img WHERE `img_name` = '"
-                . $img_info["filename"] . "' AND `img_path` = '" . $picture . "'"
-            );
-            $data = $DBRESULT->fetchRow();
-            $regCounter++;
-            $statement = $pearDB->prepare(
-                "INSERT INTO view_img_dir_relation (`dir_dir_parent_id`, `img_img_id`) 
-                VALUES (:dir_dir_parent_id, :img_img_id)"
-            );
-            $statement->bindValue(':dir_dir_parent_id', (int) $dir_id, \PDO::PARAM_INT);
-            $statement->bindValue(':img_img_id', (int) $data['img_id'], \PDO::PARAM_INT);
-            $statement->execute();
-            return $data['img_id'];
-        } else {
-            $data = $statement->fetchRow(\PDO::FETCH_ASSOC);
-            return 0;
+
+        $pearDB->executePreparedQuery(
+            $statement,
+            [
+                ':img_path' => $filename . '.' . $extension,
+                ':parent_id' => $directoryId,
+            ]
+        );
+
+        if (! $statement->rowCount()) {
+            $pearDB->beginTransaction();
+            try {
+                $pearDB->executePreparedQuery(
+                    $pearDB->prepareQuery(
+                        'INSERT INTO view_img (`img_name`, `img_path`) VALUES (:img_name, :img_path)'
+                    ), [
+                        ':img_name' => $filename,
+                        ':img_path' => $imagePath,
+                    ]
+                );
+
+                $imageId = $pearDB->lastInsertId();
+                $statement = $pearDB->prepareQuery(
+                    <<<'SQL'
+                    INSERT INTO view_img_dir_relation (`dir_dir_parent_id`, `img_img_id`)
+                    VALUES (:parent_id, :img_id)
+                    SQL
+                );
+                $pearDB->executePreparedQuery(
+                    $statement, [
+                        ':parent_id' => $directoryId,
+                        ':img_id' => $imageId,
+                    ]
+                );
+                $pearDB->commit();
+                $regCounter++;
+            } catch (Exception $ex) {
+                $pearDB->rollBack();
+                throw $ex;
+            }
         }
     }
 
-    /*
-     * removes obsolete files from DB if not on filesystem
+    /**
+     * @param string $directoryPath
+     * @param string $picture
      */
-    function DeleteOldPictures($pearDB)
+    function sanitizeSvg(string $directoryPath, string $picture): void
+    {
+        $sanitizer = new Sanitizer();
+        $svgFile = file_get_contents($directoryPath . '/' . $picture);
+        $cleanSVG = $sanitizer->sanitize($svgFile);
+        file_put_contents($directoryPath . '/' . $picture, $cleanSVG);
+    }
+
+    /**
+     * Extracts file info from a picture
+     *
+     * @param string $picture
+     * @return array{0: string, 1: string} [filename, extension]
+     */
+    function extractFileInfo(string $picture): array
+    {
+        $fileInfo = pathinfo($picture);
+        if (! isset($fileInfo['filename'])) {
+            $basenameDetails = explode('.', $fileInfo['basename']);
+            $fileInfo['filename'] = $basenameDetails[0];
+        }
+
+        return [
+            $fileInfo['filename'],
+            $fileInfo['extension'],
+        ];
+    }
+
+    function convertGd2ToPng(string $directoryPath, string $picture): void
+    {
+        $gdImage = imagecreatefromgd2($directoryPath . '/' . $picture);
+        if (! $gdImage) {
+            return;
+        }
+        [$filename] = extractFileInfo($picture);
+        imagepng($gdImage, $directoryPath . '/' . $filename . '.png');
+        imagedestroy($gdImage);
+    }
+
+    /**
+     * Removes obsolete files from DB if not on filesystem.
+     *
+     * @param CentreonDB $pearDB
+     *
+     * @return int Number of files removed
+     */
+    function deleteOldPictures(CentreonDB $pearDB): int
     {
         $fileRemoved = 0;
         $DBRESULT = $pearDB->query(
-            "SELECT img_id, img_path, dir_alias FROM view_img vi, "
-            . "view_img_dir vid, view_img_dir_relation vidr "
-            . "WHERE vidr.img_img_id = vi.img_id AND vid.dir_id = vidr.dir_dir_parent_id"
+            'SELECT img_id, img_path, dir_alias FROM view_img vi, '
+            . 'view_img_dir vid, view_img_dir_relation vidr '
+            . 'WHERE vidr.img_img_id = vi.img_id AND vid.dir_id = vidr.dir_dir_parent_id'
         );
-        $statement = $pearDB->prepare("DELETE FROM view_img WHERE img_id = :img_id");
+        $statement = $pearDB->prepare('DELETE FROM view_img WHERE img_id = :img_id');
         while ($row2 = $DBRESULT->fetchRow()) {
-            if (!file_exists("./img/media/" . $row2["dir_alias"] . "/" . $row2["img_path"])) {
-                $statement->bindValue(':img_id', (int) $row2["img_id"], \PDO::PARAM_INT);
+            if (! file_exists('./img/media/' . $row2['dir_alias'] . '/' . $row2['img_path'])) {
+                $statement->bindValue(':img_id', (int) $row2['img_id'], PDO::PARAM_INT);
                 $statement->execute();
                 $fileRemoved++;
             }
         }
         $DBRESULT->closeCursor();
+
         return $fileRemoved;
     }
 
     ?>
+</div>

@@ -14963,7 +14963,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Filter saved"
 #  msgid ""
 
-#  msgid "Edit filters"
+#  msgid "Manage filters"
 #  msgstr ""
 
 #  msgid "Rename"
@@ -17526,4 +17526,16 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
+# msgid "PNG (as displayed)"
+# msgstr ""
+
+# msgid "PNG (medium size)"
+# msgstr ""
+
+# msgid "PNG (small size)"
+# msgstr ""
+
+# msgid "Export as"
 # msgstr ""
