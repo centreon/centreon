@@ -288,85 +288,81 @@ Cypress.Commands.add('updateServiceGroupDependency', (body: ServiceGroupDependen
   cy.exportConfig();
 });
 
-Cypress.Commands.add('createOrUpdateHostGroupService', (body: HostGroupService, isUpdate: boolean) => {
+Cypress.Commands.add('createOrUpdateHostGroupService', (body: HostGroupService, isUpdate: boolean, htmldata: HtmlElt[]) => {
   cy.waitForElementInIframe('#main-content', 'input[name="service_description"]');
-  cy.get('iframe#main-content')
-      .its('0.contentDocument.body')
-      .find('input[name="service_description"]');
-  cy.getIframeBody()
-    .find('input[name="service_description"]')
-    .clear()
-    .type(body.name);
-  cy.getIframeBody().find('span[title="Clear field"]').eq(0).click();
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
-  cy.getIframeBody().find(`div[title="${body.hostgroups}"]`).click();
-  cy.getIframeBody().find('span[title="Clear field"]').eq(1).click();
+  cy.fillFieldInIframe(htmldata[0]);
+  [htmldata[1], htmldata[2], htmldata[3], htmldata[4]].forEach((elt) => {
+    cy.clickOnFieldInIframe(elt);
+  })
   cy.getIframeBody().find('#select2-service_template_model_stm_id-container').click();
-  cy.getIframeBody().find(`div[title="${body.template}"]`).click();
-  cy.getIframeBody().find('span[title="Clear field"]').eq(2).click();
+  [htmldata[5], htmldata[6]].forEach((elt) => {
+    cy.clickOnFieldInIframe(elt);
+  })
   cy.getIframeBody().find('#select2-command_command_id-container').click();
   cy.getIframeBody().find('input[class="select2-search__field"]').eq(6).type(body.checkcommand);
-  cy.getIframeBody().find(`div[title="${body.checkcommand}"]`).click();
+  cy.clickOnFieldInIframe(htmldata[7]);
   cy.getIframeBody().find('#macro_add').click();
   cy.waitForElementInIframe('#main-content', '#macroInput_0');
   cy.getIframeBody().find('#macroInput_0').clear().type(body.macroname);
   cy.getIframeBody().find('#macroValue_0').clear().type(`${body.macrovalue}`);
-  cy.getIframeBody().find('span[title="Clear field"]').eq(3).click();
+  cy.clickOnFieldInIframe(htmldata[8]);
   cy.getIframeBody().find('#select2-timeperiod_tp_id-container').click();
-  cy.getIframeBody().find(`div[title="${body.checkperiod}"]`).click();
-  cy.getIframeBody().find('input[name="service_max_check_attempts"]').clear().type(`${body.maxcheckattempts}`);
-  cy.getIframeBody().find('input[name="service_normal_check_interval"]').clear().type(`${body.normalcheckinterval}`);
-  cy.getIframeBody().find('input[name="service_retry_check_interval"]').clear().type(`${body.retrycheckinterval}`);
+  cy.clickOnFieldInIframe(htmldata[9]);
+  [htmldata[10], htmldata[11], htmldata[12]].forEach((elt) => {
+    cy.fillFieldInIframe(elt);
+  })
   if(isUpdate){
     cy.getIframeBody().contains('label','No').eq(0).click();
   }
   //Notifications
   cy.getIframeBody().contains('a', 'Notifications').click();
   cy.get('body').click(0, 0);
-  cy.getIframeBody().find('span[title="Clear field"]').eq(4).click();
+  cy.clickOnFieldInIframe(htmldata[13]);
   cy.getIframeBody().find('input[class="select2-search__field"]').eq(1).click({force: true});
-  cy.getIframeBody().find(`div[title="${body.contacts}"]`).click();
-  cy.getIframeBody().find('span[title="Clear field"]').eq(5).click();
+  [htmldata[14], htmldata[15]].forEach((elt) => {
+    cy.clickOnFieldInIframe(elt);
+  })
   cy.getIframeBody().find('input[class="select2-search__field"]').eq(2).click({force: true});
-  cy.getIframeBody().find(`div[title="${body.contactgroups}"]`).click();
-  cy.getIframeBody().find('input[name="service_notification_interval"]').clear().type(`${body.notinterval}`);
-  cy.getIframeBody().find('span[title="Clear field"]').eq(6).click();
+  cy.clickOnFieldInIframe(htmldata[16]);
+  cy.fillFieldInIframe(htmldata[17]);
+  cy.clickOnFieldInIframe(htmldata[18]);
   cy.getIframeBody().find('#select2-timeperiod_tp_id2-container').click();
-  //cy.wait('@getTimePeriods');
-  cy.getIframeBody().find(`div[title="${body.notificationperiod}"]`).click();
+  cy.clickOnFieldInIframe(htmldata[19]);
   cy.getIframeBody().find('#notifC').click({ force: true });
   if(isUpdate){
     cy.getIframeBody().find('#notifC').click({ force: true });
     cy.getIframeBody().find('#notifU').click({ force: true });
   }
-  cy.getIframeBody().find('input[name="service_first_notification_delay"]').clear().type(`${body.firstnotdelay}`);
-  cy.getIframeBody().find('input[name="service_recovery_notification_delay"]').clear().type(`${body.recoverynotdelay}`);
+  [htmldata[20], htmldata[21]].forEach((elt) => {
+    cy.fillFieldInIframe(elt);
+  })
   //Relations
   cy.getIframeBody().contains('a', 'Relations').click();
   cy.get('body').click(0, 0);
-  cy.getIframeBody().find('span[title="Clear field"]').eq(7).click();
+  cy.clickOnFieldInIframe(htmldata[22]);
   cy.getIframeBody().find('input[class="select2-search__field"]').eq(3).click({force: true});
-  cy.getIframeBody().find(`div[title="${body.servicegroups}"]`).click();
-  cy.getIframeBody().find('span[title="Clear field"]').eq(8).click();
+  [htmldata[23], htmldata[24]].forEach((elt) => {
+    cy.clickOnFieldInIframe(elt);
+  })
   cy.getIframeBody().find('input[class="select2-search__field"]').eq(4).click({force: true});
-  cy.getIframeBody().find(`div[title="${body.servicetrap}"]`).click();
+  cy.clickOnFieldInIframe(htmldata[25]);
   //Data Processing
   cy.getIframeBody().contains('a', 'Data Processing').click();
   cy.get('body').click(0, 0);
-  cy.getIframeBody().find('input[name="service_freshness_threshold"]').clear().type(`${body.freshnessthreshold}`);
+  cy.fillFieldInIframe(htmldata[26]);
  //Extended Info
   cy.getIframeBody().contains('a', 'Extended Info').click();
   cy.get('body').click(0, 0);
-  cy.getIframeBody().find('span[title="Clear field"]').eq(11).click();
+  cy.clickOnFieldInIframe(htmldata[27]);
   cy.getIframeBody().find('input[class="select2-search__field"]').eq(5).click({force: true});
-  cy.getIframeBody().find(`div[title="${body.servicecategories}"]`).click();
-  cy.getIframeBody().find('input[name="esi_notes_url"]').clear().type(body.noteurl);
-  cy.getIframeBody().find('input[name="esi_notes"]').clear().type(body.note);
-  cy.getIframeBody().find('input[name="esi_action_url"]').clear().type(body.actionurl);
+  cy.clickOnFieldInIframe(htmldata[28]);
+  [htmldata[29], htmldata[30], htmldata[31]].forEach((elt) => {
+    cy.fillFieldInIframe(elt);
+  })
   cy.getIframeBody().find('#esi_icon_image').select('1');
-  cy.getIframeBody().find('input[name="esi_icon_image_alt"]').clear().type(body.atlicon);
-  cy.getIframeBody().find('input[name="geo_coords"]').clear().type(body.geocoords);
-  cy.getIframeBody().find('textarea[name="service_comment"]').clear().type(body.comment);
+  [htmldata[32], htmldata[33], htmldata[34]].forEach((elt) => {
+    cy.fillFieldInIframe(elt);
+  })
   cy.getIframeBody().find('input[value="Save"]').eq(1).click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -565,7 +561,13 @@ interface HostGroupService {
   atlicon: string,
   geocoords: string,
   comment: string,
+}
 
+interface HtmlElt {
+  tag: string,
+  attribut: string,
+  attributValue: string,
+  valueOrIndex: string
 }
 
 declare global {
@@ -582,7 +584,7 @@ declare global {
       updateCommonDependencyFileds: (body: Dependency) => Cypress.Chainable;
       addServiceGroupDependency: (body:ServiceGroupDependency) => Cypress.Chainable;
       updateServiceGroupDependency: (body:ServiceGroupDependency) => Cypress.Chainable;
-      createOrUpdateHostGroupService: (body: HostGroupService, isUpdate: boolean) => Cypress.Chainable;
+      createOrUpdateHostGroupService: (body: HostGroupService, isUpdate: boolean, htmldata: HtmlElt[]) => Cypress.Chainable;
       checkValuesOfHostGroupService: (name: string, body: HostGroupService) => Cypress.Chainable;
     }
   }
