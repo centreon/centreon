@@ -43,7 +43,7 @@ import {
 import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
 import { metricsEndpoint } from './api/endpoints';
 import { widgetFormInitialDataAtom } from './atoms';
-import { WidgetCategories, WidgetResourceType } from './models';
+import { WidgetType, WidgetResourceType } from './models';
 
 import { AddEditWidgetModal } from '.';
 import { Version } from '../../../../api/models';
@@ -60,7 +60,7 @@ const widgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetSingleMetricProperties,
   widgetGraphProperties,
   widgetTopBottomProperties
-];
+] as  Array<Partial<FederatedWidgetProperties>>;
 
 const customizeWidgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetGenericTextProperties,
@@ -73,7 +73,7 @@ const customizeWidgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetSingleMetricProperties,
   widgetStatusGridProperties,
   widgetStatusChartProperties
-];
+] as  Array<Partial<FederatedWidgetProperties>>;
 
 const getAvailableWidgets = (
   defaultWidgetsProperties = widgetsProperties
@@ -196,13 +196,13 @@ const generateResources = (resourceLabel: string): object => ({
   }))
 });
 
-const availableWidgetCategories = [
+const availableWidgetsType = [
   {
-    category: WidgetCategories.Generic,
+    category: WidgetType.Generic,
     wigetsTitle: ['Clock / Timer', 'Generic text', 'Web page']
   },
   {
-    category: WidgetCategories.RealTime,
+    category: WidgetType.RealTime,
     wigetsTitle: [
       'Group monitoring',
       'Metrics graph',
@@ -361,7 +361,7 @@ describe('AddEditWidgetModal', () => {
 
       it('displays widgets grouped under the appropriate category', () => {
         cy.findByTestId(labelWidgetType).click();
-        availableWidgetCategories.forEach(({ category, wigetsTitle }) => {
+        availableWidgetsType.forEach(({ category, wigetsTitle }) => {
           cy.findByTestId(`${category}-accordion`).as('container');
           cy.get('@container').findByText(category);
 
@@ -1110,7 +1110,7 @@ describe('AddEditWidgetModal', () => {
             }
           },
           title: 'Generic data (example)',
-          collapsible: { header: WidgetCategories.RealTime }
+          widgetType:  WidgetType.RealTime 
         }
       ]);
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);

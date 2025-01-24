@@ -95,7 +95,7 @@ const WidgetSelection = (): JSX.Element => {
         value={selectedWidget || null}
         onChange={(_, newValue) => selectWidget(newValue)}
         onTextChange={searchWidgets}
-        groupBy={(option) => option.header}
+        groupBy={(option) => option.widgetType}
         renderGroup={renderGroup}
       />
     </Box>

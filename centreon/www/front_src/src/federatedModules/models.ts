@@ -1,5 +1,6 @@
 import type { SelectEntry } from '@centreon/ui';
 import { ComponentType, LazyExoticComponent } from 'react';
+import { WidgetType } from '../Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
@@ -107,9 +108,7 @@ export interface FederatedWidgetOption {
   type: FederatedWidgetOptionType;
 }
 
-interface Collapsible {
-  header: string;
-}
+
 export interface FederatedWidgetProperties {
   categories?: {
     [category: string]: {
@@ -140,5 +139,5 @@ export interface FederatedWidgetProperties {
     icon?: string;
   };
   canExpand?: boolean;
-  collapsible: Collapsible;
+  widgetType: WidgetType;
 }

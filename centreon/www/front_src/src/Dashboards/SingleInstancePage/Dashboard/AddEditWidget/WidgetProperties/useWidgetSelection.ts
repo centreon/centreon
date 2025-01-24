@@ -36,7 +36,7 @@ import {
   singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import { type Widget, WidgetCategories } from '../models';
+import { type Widget, WidgetType } from '../models';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
 import usePlatformVersions from '../../../../../Main/usePlatformVersions';
@@ -122,10 +122,10 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   );
 
   const formattedWidgets = map(
-    ({ title, moduleName, collapsible }) => ({
+    ({ title, moduleName, widgetType }) => ({
       id: moduleName,
       name: title,
-      header: collapsible.header
+      widgetType
     }),
     filteredWidgets
   );
@@ -235,9 +235,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
 
   const formattedWidgetsByGroupTitle = [
-    ...sortByNameCaseInsensitive(filterByTitle(WidgetCategories.Generic)),
-    ...sortByNameCaseInsensitive(filterByTitle(WidgetCategories.RealTime)),
-    ...sortByNameCaseInsensitive(filterByTitle(WidgetCategories.MBI))
+    ...sortByNameCaseInsensitive(filterByTitle(WidgetType.Generic)),
+    ...sortByNameCaseInsensitive(filterByTitle(WidgetType.RealTime)),
+    ...sortByNameCaseInsensitive(filterByTitle(WidgetType.MBI))
   ];
 
   return {

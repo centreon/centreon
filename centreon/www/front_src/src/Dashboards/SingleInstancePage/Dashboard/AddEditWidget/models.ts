@@ -113,7 +113,7 @@ export enum RadioOptions {
   manual = 'manual'
 }
 
-export enum WidgetCategories {
+export enum WidgetType {
   Generic = 'Generic widgets',
   RealTime = 'Real time widgets',
   MBI = 'MBI reporting widgets'
