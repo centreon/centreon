@@ -229,15 +229,17 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     equals(values.moduleName, id)
   );
 
-  const filterByTitle = (title) => {
-    return formattedWidgets.filter(({ header }) => equals(header, title));
+  const filterByType = (type) => {
+    return formattedWidgets.filter(({ widgetType }) =>
+      equals(widgetType, type)
+    );
   };
   const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
 
   const formattedWidgetsByGroupTitle = [
-    ...sortByNameCaseInsensitive(filterByTitle(WidgetType.Generic)),
-    ...sortByNameCaseInsensitive(filterByTitle(WidgetType.RealTime)),
-    ...sortByNameCaseInsensitive(filterByTitle(WidgetType.MBI))
+    ...sortByNameCaseInsensitive(filterByType(WidgetType.Generic)),
+    ...sortByNameCaseInsensitive(filterByType(WidgetType.RealTime)),
+    ...sortByNameCaseInsensitive(filterByType(WidgetType.MBI))
   ];
 
   return {
