@@ -74,8 +74,26 @@ Feature: List Resources
     When I select the filter for services with OK and Critical statuses
     Then only services with OK and Critical statuses are shown in the result
 
-  # @TEST_MON-157272
-  # Scenario: Selecting a filter for services with OK and Critical statuses
-  #   Given a saved filter that includes services with OK and Critical statuses
-  #   When I select the filter for services with OK and Critical statuses
-  #   Then only services with OK and Critical statuses are shown in the result
+  @TEST_MON-158445
+  Scenario: Selecting a filter for acknowledged services with all states selected
+    Given a saved filter that includes acknowledged services with all states selected
+    When I apply the filter for acknowledged services with all states selected
+    Then all acknowledged services with any state OK, Warning, Critical and Unknown are displayed in the results
+
+  @TEST_MON-158446
+  Scenario: Selecting a filter for a service with status OK and service category ping
+    Given a saved filter that includes services with status OK and service category ping
+    When I apply the filter for services with status OK and service category ping
+    Then only services with status OK and belonging to the ping category are displayed in the results
+
+  @TEST_MON-158447
+  Scenario: Selecting a filter for OK and Critical services with status types Hard and Soft
+    Given a saved filter that includes services with statuses OK and Critical and status types Hard and Soft
+    When I apply the filter for services with statuses OK and Critical, and status types Hard and Soft
+    Then only services with statuses OK and Critical and with status types Hard and Soft are displayed in the results
+
+  @TEST_MON-158448
+  Scenario: Selecting a filter with a host a service and a service category
+    Given a saved filter that includes a specific host a specific service and a specific service category
+    When I apply the filter for the selected host service and service category
+    Then only services matching the selected host service and service category are displayed in the results

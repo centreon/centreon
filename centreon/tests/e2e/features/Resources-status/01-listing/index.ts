@@ -498,6 +498,146 @@ Then('only services with OK and Critical statuses are shown in the result', () =
   });
 });
 
+Given('a saved filter that includes acknowledged services with all states selected', () => {
+  cy.fixture('resources/acknowledgeServiceAllStates.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('acknowledgeServiceAllStates');
+});
+
+When('I apply the filter for acknowledged services with all states selected', () => {
+  cy.contains('acknowledgeServiceAllStates').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+});
+
+Then('all acknowledged services with any state OK, Warning, Critical and Unknown are displayed in the results', () => {
+  cy.waitForElementToBeVisible('div[class*="statusColumn"]:last')
+    .then(() => {
+      cy.get('div[class*="statusColumn"]:last')
+        .should('contain.text', 'Critical');
+  });
+    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+      const cellText = $statusCell.text().trim();
+      console.log(`Cell ${index}: ${cellText}`);
+      expect(['Critical']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
+});
+
+Given('a saved filter that includes services with status OK and service category ping', () => {
+  cy.fixture('resources/okServiceAndPingServiceCategory.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('OkServiceAndPingServiceCategory');
+});
+
+When('I apply the filter for services with status OK and service category ping', () => {
+  cy.contains('OkServiceAndPingServiceCategory').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+});
+
+Then('only services with status OK and belonging to the ping category are displayed in the results', () => {
+  cy.waitForElementToBeVisible('div[class*="statusColumn"]:last')
+    .then(() => {
+      cy.get('div[class*="statusColumn"]:last')
+        .should('contain.text', 'OK');
+  });
+    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+      const cellText = $statusCell.text().trim();
+      console.log(`Cell ${index}: ${cellText}`);
+      expect(['OK']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
+});
+
+Given('a saved filter that includes services with statuses OK and Critical and status types Hard and Soft', () => {
+  cy.fixture('resources/hardSoftStatusFilter.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('hardSoftStatusFilter');
+});
+
+When('I apply the filter for services with statuses OK and Critical and status types Hard and Soft', () => {
+  cy.contains('hardSoftStatusFilter').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+});
+
+Then('only services with statuses OK and Critical and with status types Hard and Soft are displayed in the results', () => {
+  cy.waitForElementToBeVisible('div[class*="statusColumn"]:last')
+    .then(() => {
+      cy.get('div[class*="statusColumn"]:last')
+        .should('contain.text', 'OK');
+  });
+    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+      const cellText = $statusCell.text().trim();
+      console.log(`Cell ${index}: ${cellText}`);
+      expect(['OK','Critical']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
+});
+
+Given('a saved filter that includes a specific host a specific service and a specific service category', () => {
+  cy.fixture('resources/hostServiceServiceCategory.json').then((filters) =>
+    setUserFilter(filters)
+  );
+
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
+
+  cy.contains('Unhandled alerts').should('be.visible');
+
+  cy.get(`div[data-testid="selectedFilter"]`).click();
+
+  cy.contains('hostServiceServiceCategory');
+});
+
+When('I apply the filter for the selected host service and service category', () => {
+  cy.contains('hostServiceServiceCategory').click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+});
+
+Then('only services matching the selected host service and service category are displayed in the results', () => {
+  cy.waitForElementToBeVisible('div[class*="statusColumn"]:last')
+    .then(() => {
+      cy.get('div[class*="statusColumn"]:last')
+        .should('contain.text', 'OK');
+  });
+    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+      const cellText = $statusCell.text().trim();
+      console.log(`Cell ${index}: ${cellText}`);
+      expect(['OK']).to.include(cellText, `Cell ${index} has unexpected text: ${cellText}`);
+  });
+});
+
 afterEach(() => {
   cy.stopContainers();
 });
