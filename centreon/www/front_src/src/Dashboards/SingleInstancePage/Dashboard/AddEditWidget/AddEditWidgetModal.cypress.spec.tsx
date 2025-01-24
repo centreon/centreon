@@ -43,7 +43,7 @@ import {
 import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
 import { metricsEndpoint } from './api/endpoints';
 import { widgetFormInitialDataAtom } from './atoms';
-import { WidgetType, WidgetResourceType } from './models';
+import { WidgetResourceType, WidgetType } from './models';
 
 import { AddEditWidgetModal } from '.';
 import { Version } from '../../../../api/models';
@@ -60,7 +60,7 @@ const widgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetSingleMetricProperties,
   widgetGraphProperties,
   widgetTopBottomProperties
-] as  Array<Partial<FederatedWidgetProperties>>;
+] as Array<Partial<FederatedWidgetProperties>>;
 
 const customizeWidgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetGenericTextProperties,
@@ -73,7 +73,7 @@ const customizeWidgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetSingleMetricProperties,
   widgetStatusGridProperties,
   widgetStatusChartProperties
-] as  Array<Partial<FederatedWidgetProperties>>;
+] as Array<Partial<FederatedWidgetProperties>>;
 
 const getAvailableWidgets = (
   defaultWidgetsProperties = widgetsProperties
@@ -1110,7 +1110,7 @@ describe('AddEditWidgetModal', () => {
             }
           },
           title: 'Generic data (example)',
-          widgetType:  WidgetType.RealTime 
+          widgetType: WidgetType.RealTime
         }
       ]);
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);

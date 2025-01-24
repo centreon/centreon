@@ -108,7 +108,6 @@ export interface FederatedWidgetOption {
   type: FederatedWidgetOptionType;
 }
 
-
 export interface FederatedWidgetProperties {
   categories?: {
     [category: string]: {
