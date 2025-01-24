@@ -41,19 +41,19 @@ Feature: List Resources
   @TEST_MON-157266
   Scenario: Selecting a host group filter with all service statuses
     Given a saved filter that includes a host group and all possible service statuses
-    When i select host group filter with all service statuses
+    When I select host group filter with all service statuses
     Then all associated services regardless of their status are shown in the result
 
   @TEST_MON-157267
   Scenario: Selecting a host group filter with OK and Up statuses
     Given a saved filter that includes a host group and services with OK and Up statuses
-    When i select the host group filter with OK and Up statuses
+    When I select the host group filter with OK and Up statuses
     Then only services with OK and Up statuses are shown in the result
 
   @TEST_MON-157268
   Scenario: Selecting Up hosts and Critical services filter
     Given a saved filter that includes Up hosts and Critical services
-    When i select the Up hosts and Critical services filter
+    When I select the Up hosts and Critical services filter
     Then only Critical services associated with Up hosts are shown in the result
 
   @TEST_MON-157269

@@ -304,7 +304,7 @@ Given('a saved filter that includes a host group and all possible service status
   cy.contains('HostGroupAndServices');
 });
 
-When('i select host group filter with all service statuses', () => {
+When('I select host group filter with all service statuses', () => {
   cy.contains('HostGroupAndServices').click();
   cy.getByTestId({ testId: 'RefreshIcon' }).click();
 
@@ -340,7 +340,7 @@ Given('a saved filter that includes a host group and services with OK and Up sta
   cy.contains('HostGroupWithUpOkStatuses');
 });
 
-When('i select the host group filter with OK and Up statuses', () => {
+When('I select the host group filter with OK and Up statuses', () => {
   cy.contains('HostGroupWithUpOkStatuses').click();
   cy.getByTestId({ testId: 'RefreshIcon' }).click();
 });
@@ -375,7 +375,7 @@ Given('a saved filter that includes Up hosts and Critical services', () => {
   cy.contains('upHostAndCriticalServiceFilter');
 });
 
-When('i select the Up hosts and Critical services filter', () => {
+When('I select the Up hosts and Critical services filter', () => {
   cy.contains('upHostAndCriticalServiceFilter').click();
   cy.getByTestId({ testId: 'RefreshIcon' }).click();
 });
