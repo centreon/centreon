@@ -613,7 +613,7 @@ jobs:
 
       - run: |
           if [ "${{ steps.matrix_include.outputs.package_extension }}" = "rpm" ]; then
-            rm -f centreon{,-central,-mariadb,-mysql,web-selinux}-${{ needs.get-environment.outputs.major_version }}*.rpm
+            rm -f centreon{,-central,-mariadb,-mysql,-web-selinux}-${{ needs.get-environment.outputs.major_version }}*.rpm
           else
             rm -f centreon{,-central,-mariadb,-mysql}_${{ needs.get-environment.outputs.major_version }}*.deb
           fi
