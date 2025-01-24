@@ -63,7 +63,7 @@ export const useOptimisticMutation = <T, TMeta>({
     const updatedPayload =
       payload && 'id' in payload
         ? payload
-        : { ...payload, id: optimisticListing?.total };
+        : { ...payload, id: (optimisticListing?.total ?? 0) + 1 };
 
     const hasOnlyOnePage =
       (optimisticListing?.total || 0) <= (optimisticListing?.limit || 0);
