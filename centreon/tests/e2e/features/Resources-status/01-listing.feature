@@ -73,3 +73,9 @@ Feature: List Resources
     Given a saved filter that includes services with OK and Critical statuses
     When I select the filter for services with OK and Critical statuses
     Then only services with OK and Critical statuses are shown in the result
+
+  # @TEST_MON-157272
+  # Scenario: Selecting a filter for services with OK and Critical statuses
+  #   Given a saved filter that includes services with OK and Critical statuses
+  #   When I select the filter for services with OK and Critical statuses
+  #   Then only services with OK and Critical statuses are shown in the result
