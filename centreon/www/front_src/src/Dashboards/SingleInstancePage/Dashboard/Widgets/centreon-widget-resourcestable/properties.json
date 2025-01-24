@@ -183,5 +183,5 @@
   },
   "moduleName": "centreon-widget-resourcestable",
   "canExpand": true,
-  "collapsible": { "header": "Real time widgets" }
+  "widgetType": "Real time widgets"
 }

@@ -92,5 +92,5 @@
       }
     }
   },
-  "collapsible": { "header": "Generic widgets" }
+  "widgetType": "Generic widgets"
 }

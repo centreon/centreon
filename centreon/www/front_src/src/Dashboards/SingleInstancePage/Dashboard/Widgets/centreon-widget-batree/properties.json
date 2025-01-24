@@ -61,5 +61,5 @@
   "singleResourceSelection": true,
   "moduleName": "centreon-widget-batree",
   "canExpand": true,
-  "collapsible": { "header": "Real time widgets" }
+  "widgetType": "Real time widgets"
 }

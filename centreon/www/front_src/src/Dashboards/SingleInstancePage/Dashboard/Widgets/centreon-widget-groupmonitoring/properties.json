@@ -64,5 +64,5 @@
   },
   "moduleName": "centreon-widget-groupmonitoring",
   "canExpand": true,
-  "collapsible": { "header": "Real time widgets" }
+  "widgetType": "Real time widgets"
 }

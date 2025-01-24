@@ -10,5 +10,5 @@
     }
   },
   "moduleName": "centreon-widget-input",
-  "collapsible": { "header": "Generic widgets" }
+  "widgetType": "Generic widgets"
 }
