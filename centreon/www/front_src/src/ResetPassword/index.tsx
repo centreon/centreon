@@ -12,7 +12,6 @@ import { LoadingSkeleton, WallpaperPage } from '@centreon/ui';
 
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
 import routeMap from '../reactRoutes/routeMap';
-
 import CustomText from '../Login/CustomText';
 import LoginHeader from '../Login/LoginHeader';
 import {
@@ -21,6 +20,7 @@ import {
 } from '../Login/translatedLabels';
 import useGetLoginCustomData from '../Login/useGetLoginCustomData';
 import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
+
 import Form from './Form';
 import { ResetPasswordValues } from './models';
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';

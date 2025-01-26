@@ -13,10 +13,9 @@ import {
   labelCentreonWallpaper,
   labelPoweredByCentreon
 } from '../Login/translatedLabels';
+import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 import { userEndpoint } from '../api/endpoint';
 
-import ResetPassword from '.';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 import {
   PasswordResetInformations,
   passwordResetInformationsAtom
@@ -30,6 +29,8 @@ import {
   labelTheNewPasswordIstheSameAsTheOldPassword
 } from './translatedLabels';
 import { router } from './useResetPassword';
+
+import ResetPassword from '.';
 
 const retrievedUser = {
   alias: 'Admin',
@@ -66,7 +67,7 @@ const retrievedWebWithItEditionInstalled = {
   }
 };
 
-const interceptAPIRequests = () => {
+const interceptAPIRequests = (): void => {
   cy.interceptAPIRequest({
     alias: 'resetPassword',
     method: Method.PUT,
@@ -103,8 +104,8 @@ const mountComponentAndStub = ({
   initialValues = resetPasswordInitialValues,
   hasItEditionInstalled = false
 }: {
-  initialValues?: PasswordResetInformations | null;
   hasItEditionInstalled?: boolean;
+  initialValues?: PasswordResetInformations | null;
 }): unknown => {
   const store = createStore();
 
