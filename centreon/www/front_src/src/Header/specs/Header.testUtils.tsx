@@ -28,25 +28,25 @@ const allowedPages = {
         {
           groups: [
             {
-              label: 'Main Menu',
               children: [
                 {
-                  page: '60901',
-                  label: 'Pollers',
-                  url: './include/configuration/configServers/servers.php',
-                  options: null,
                   is_react: false,
-                  show: true
+                  label: 'Pollers',
+                  options: null,
+                  page: '60901',
+                  show: true,
+                  url: './include/configuration/configServers/servers.php'
                 }
-              ]
+              ],
+              label: 'Main Menu'
             }
           ],
-          label: 'Pollers',
           is_react: false,
-          page: '609',
+          label: 'Pollers',
           options: null,
-          url: null,
-          show: true
+          page: '609',
+          show: true,
+          url: null
         }
       ],
       color: '319ED5',
