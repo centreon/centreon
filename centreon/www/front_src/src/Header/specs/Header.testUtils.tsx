@@ -1,6 +1,9 @@
 import '@testing-library/cypress/add-commands';
 import { mergeDeepRight } from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { Provider, createStore } from 'jotai';
+
+import { StylesProvider, createGenerateClassName } from '@mui/styles';
 
 import {
   Method,
@@ -8,9 +11,8 @@ import {
   TestQueryProvider,
   ThemeProvider
 } from '@centreon/ui';
-
 import { userPermissionsAtom } from '@centreon/ui-context';
-import { Provider, createStore } from 'jotai';
+
 import { retrievedNavigation } from '../../Navigation/mocks';
 import type Navigation from '../../Navigation/models';
 import { testUtils } from '../UserMenu';
@@ -20,16 +22,14 @@ import type {
 } from '../api/decoders';
 import type { PollersIssuesList } from '../api/models';
 import Header from '../index';
-
-import { StylesProvider, createGenerateClassName } from '@mui/styles';
-
 import navigationAtom from '../../Navigation/navigationAtoms';
 
-export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
-  ? DeepPartialArray<InferredArrayMember>
-  : Thing extends object
-    ? DeepPartialObject<Thing>
-    : Thing | undefined;
+export type DeepPartial<Thing> =
+  Thing extends Array<infer InferredArrayMember>
+    ? DeepPartialArray<InferredArrayMember>
+    : Thing extends object
+      ? DeepPartialObject<Thing>
+      : Thing | undefined;
 
 type DeepPartialArray<Thing> = Array<DeepPartial<Thing>>;
 
@@ -38,45 +38,45 @@ type DeepPartialObject<Thing> = {
 };
 
 const allowedPages = {
-  status: true,
   result: [
     {
-      page: '6',
-      label: 'Configuration',
-      menu_id: 'Configuration',
-      url: null,
-      color: '319ED5',
-      icon: 'configuration',
       children: [
         {
-          page: '609',
-          label: 'Pollers',
-          url: null,
           groups: [
             {
-              label: 'Main Menu',
               children: [
                 {
-                  page: '60901',
-                  label: 'Pollers',
-                  url: './include/configuration/configServers/servers.php',
-                  options: null,
                   is_react: false,
-                  show: true
+                  label: 'Pollers',
+                  options: null,
+                  page: '60901',
+                  show: true,
+                  url: './include/configuration/configServers/servers.php'
                 }
-              ]
+              ],
+              label: 'Main Menu'
             }
           ],
-          options: null,
           is_react: false,
-          show: true
+          label: 'Pollers',
+          options: null,
+          page: '609',
+          show: true,
+          url: null
         }
       ],
-      options: null,
+      color: '319ED5',
+      icon: 'configuration',
       is_react: false,
-      show: true
+      label: 'Configuration',
+      menu_id: 'Configuration',
+      options: null,
+      page: '6',
+      show: true,
+      url: null
     }
-  ]
+  ],
+  status: true
 };
 
 const hostStatusStub: HostStatusResponse = {
@@ -245,8 +245,8 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
   const store = createStore();
 
   store.set(userPermissionsAtom, {
-    top_counter: true,
-    poller_statistics: true
+    poller_statistics: true,
+    top_counter: true
   });
 
   store.set(navigationAtom, allowedPages);
