@@ -9,7 +9,11 @@ import type { NavigateFunction } from 'react-router-dom';
 import type { JsonDecoder } from 'ts.data.json';
 
 import { useFetchQuery } from '@centreon/ui';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import {
+  refreshIntervalAtom,
+  userAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import { applyFilterDerivedAtom } from '../../Resources/Filter/filterAtoms';
 import type { Filter } from '../../Resources/Filter/models';

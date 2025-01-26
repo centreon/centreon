@@ -64,11 +64,12 @@ const allowedPages = {
   status: true
 };
 
-export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
-  ? DeepPartialArray<InferredArrayMember>
-  : Thing extends object
-    ? DeepPartialObject<Thing>
-    : Thing | undefined;
+export type DeepPartial<Thing> =
+  Thing extends Array<infer InferredArrayMember>
+    ? DeepPartialArray<InferredArrayMember>
+    : Thing extends object
+      ? DeepPartialObject<Thing>
+      : Thing | undefined;
 
 type DeepPartialArray<Thing> = Array<DeepPartial<Thing>>;
 
