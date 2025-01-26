@@ -1,7 +1,7 @@
 import '@testing-library/cypress/add-commands';
+import { Provider, createStore } from 'jotai';
 import { mergeDeepRight } from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Provider, createStore } from 'jotai';
 
 import { StylesProvider, createGenerateClassName } from '@mui/styles';
 
@@ -13,13 +13,14 @@ import {
 } from '@centreon/ui';
 import { userPermissionsAtom } from '@centreon/ui-context';
 
+import navigationAtom from '../../Navigation/navigationAtoms';
+import { testUtils } from '../UserMenu';
 import type {
   HostStatusResponse,
   ServiceStatusResponse
 } from '../api/decoders';
 import type { PollersIssuesList } from '../api/models';
 import Header from '../index';
-import navigationAtom from '../../Navigation/navigationAtoms';
 
 const allowedPages = {
   result: [
@@ -63,12 +64,11 @@ const allowedPages = {
   status: true
 };
 
-export type DeepPartial<Thing> =
-  Thing extends Array<infer InferredArrayMember>
-    ? DeepPartialArray<InferredArrayMember>
-    : Thing extends object
-      ? DeepPartialObject<Thing>
-      : Thing | undefined;
+export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
+  ? DeepPartialArray<InferredArrayMember>
+  : Thing extends object
+    ? DeepPartialObject<Thing>
+    : Thing | undefined;
 
 type DeepPartialArray<Thing> = Array<DeepPartial<Thing>>;
 
