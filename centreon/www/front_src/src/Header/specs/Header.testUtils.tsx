@@ -1,6 +1,9 @@
 import '@testing-library/cypress/add-commands';
 import { mergeDeepRight } from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { Provider, createStore } from 'jotai';
+
+import { StylesProvider, createGenerateClassName } from '@mui/styles';
 
 import {
   Method,
@@ -8,33 +11,21 @@ import {
   TestQueryProvider,
   ThemeProvider
 } from '@centreon/ui';
-import { Provider, createStore } from 'jotai';
+import { userPermissionsAtom } from '@centreon/ui-context';
+
 import type {
   HostStatusResponse,
   ServiceStatusResponse
 } from '../api/decoders';
 import type { PollersIssuesList } from '../api/models';
 import Header from '../index';
-
-import { userPermissionsAtom } from '@centreon/ui-context';
-import { StylesProvider, createGenerateClassName } from '@mui/styles';
 import navigationAtom from '../../Navigation/navigationAtoms';
 
 const allowedPages = {
-  status: true,
   result: [
     {
-      page: '6',
-      label: 'Configuration',
-      menu_id: 'Configuration',
-      url: null,
-      color: '319ED5',
-      icon: 'configuration',
       children: [
         {
-          page: '609',
-          label: 'Pollers',
-          url: null,
           groups: [
             {
               label: 'Main Menu',
@@ -50,23 +41,34 @@ const allowedPages = {
               ]
             }
           ],
-          options: null,
+          label: 'Pollers',
           is_react: false,
+          page: '609',
+          options: null,
+          url: null,
           show: true
         }
       ],
-      options: null,
+      color: '319ED5',
+      icon: 'configuration',
       is_react: false,
-      show: true
+      label: 'Configuration',
+      menu_id: 'Configuration',
+      options: null,
+      page: '6',
+      show: true,
+      url: null
     }
-  ]
+  ],
+  status: true
 };
 
-export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
-  ? DeepPartialArray<InferredArrayMember>
-  : Thing extends object
-    ? DeepPartialObject<Thing>
-    : Thing | undefined;
+export type DeepPartial<Thing> =
+  Thing extends Array<infer InferredArrayMember>
+    ? DeepPartialArray<InferredArrayMember>
+    : Thing extends object
+      ? DeepPartialObject<Thing>
+      : Thing | undefined;
 
 type DeepPartialArray<Thing> = Array<DeepPartial<Thing>>;
 
@@ -240,8 +242,8 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
   const store = createStore();
 
   store.set(userPermissionsAtom, {
-    top_counter: true,
-    poller_statistics: true
+    poller_statistics: true,
+    top_counter: true
   });
 
   store.set(navigationAtom, allowedPages);

@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { useFetchQuery } from '@centreon/ui';
-
 import {
   refreshIntervalAtom,
   userAtom,
@@ -44,8 +43,8 @@ export const usePollerData = (): UsePollerDataResult => {
     getQueryKey: () => [pollerListIssuesEndPoint, 'get-poller-status'],
     httpCodesBypassErrorSnackbar: [401],
     queryOptions: {
-      refetchInterval: refetchInterval * 1000,
       enabled: isAllowed,
+      refetchInterval: refetchInterval * 1000,
       suspense: false
     }
   });
