@@ -216,11 +216,11 @@ $form->addRule('oreon_path', _("Can't write in directory"), 'is_valid_path');
 
 $form->addRule('AjaxTimeReloadMonitoring', _('Mandatory field'), 'required');
 $form->addRule('AjaxTimeReloadMonitoring', _('Must be a number'), 'numeric');
-$form->addRule('AjaxTimeReloadMonitoring', _('Value must be greater than 10'), 'greaterthan', 10);
+$form->addRule('AjaxTimeReloadMonitoring', _('The minimum allowed value is 10'), 'greaterthan', 10);
 
 $form->addRule('AjaxTimeReloadStatistic', _('Mandatory field'), 'required');
 $form->addRule('AjaxTimeReloadStatistic', _('Must be a number'), 'numeric');
-$form->addRule('AjaxTimeReloadStatistic', _('Value must be greater than 10'), 'greaterthan', 10);
+$form->addRule('AjaxTimeReloadStatistic', _('The minimum allowed value is 10'), 'greaterthan', 10);
 
 
 $form->addRule('selectPaginationSize', _('Mandatory field'), 'required');

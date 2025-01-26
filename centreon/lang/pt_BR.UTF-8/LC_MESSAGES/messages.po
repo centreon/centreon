@@ -18354,7 +18354,7 @@ msgstr ""
 # msgid "If you click on Discard, your changes will not be saved."
 # msgstr ""
 
-# msgid "Value must be greater than 10"
+# msgid "The minimum allowed value is 10"
 # msgstr ""
 
 # msgid "Do you want to leave this page?"

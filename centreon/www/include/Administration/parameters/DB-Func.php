@@ -146,7 +146,7 @@ function is_writable_file_if_exist($path = null)
 
 function is_greater_than($value, $minValue) 
 {
-    return is_numeric($value) && $value > $minValue;
+    return is_numeric($value) && $value >= $minValue;
 }
 
 

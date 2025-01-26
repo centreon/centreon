@@ -19663,5 +19663,5 @@ msgstr "Rester"
 msgid "Agent configuration"
 msgstr "Configuration d'agent"
 
-msgid "Value must be greater than 10"
-msgstr "La valeur doit être supérieure à 10"
+msgid "The minimum allowed value is 10"
+msgstr "La valeur minimale autorisée est 10"
