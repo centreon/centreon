@@ -1,9 +1,6 @@
 import '@testing-library/cypress/add-commands';
-import { Provider, createStore } from 'jotai';
 import { mergeDeepRight } from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
-
-import { StylesProvider, createGenerateClassName } from '@mui/styles';
 
 import {
   Method,
@@ -11,9 +8,11 @@ import {
   TestQueryProvider,
   ThemeProvider
 } from '@centreon/ui';
-import { userPermissionsAtom } from '@centreon/ui-context';
 
-import navigationAtom from '../../Navigation/navigationAtoms';
+import { userPermissionsAtom } from '@centreon/ui-context';
+import { Provider, createStore } from 'jotai';
+import { retrievedNavigation } from '../../Navigation/mocks';
+import type Navigation from '../../Navigation/models';
 import { testUtils } from '../UserMenu';
 import type {
   HostStatusResponse,
@@ -22,59 +21,62 @@ import type {
 import type { PollersIssuesList } from '../api/models';
 import Header from '../index';
 
-const allowedPages = {
-  result: [
-    {
-      children: [
-        {
-          groups: [
-            {
-              children: [
-                {
-                  is_react: false,
-                  label: 'Pollers',
-                  options: null,
-                  page: '60901',
-                  show: true,
-                  url: './include/configuration/configServers/servers.php'
-                }
-              ],
-              label: 'Main Menu'
-            }
-          ],
-          is_react: false,
-          label: 'Pollers',
-          options: null,
-          page: '609',
-          show: true,
-          url: null
-        }
-      ],
-      color: '319ED5',
-      icon: 'configuration',
-      is_react: false,
-      label: 'Configuration',
-      menu_id: 'Configuration',
-      options: null,
-      page: '6',
-      show: true,
-      url: null
-    }
-  ],
-  status: true
-};
+import { StylesProvider, createGenerateClassName } from '@mui/styles';
 
-export type DeepPartial<Thing> =
-  Thing extends Array<infer InferredArrayMember>
-    ? DeepPartialArray<InferredArrayMember>
-    : Thing extends object
-      ? DeepPartialObject<Thing>
-      : Thing | undefined;
+import navigationAtom from '../../Navigation/navigationAtoms';
+
+export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
+  ? DeepPartialArray<InferredArrayMember>
+  : Thing extends object
+    ? DeepPartialObject<Thing>
+    : Thing | undefined;
 
 type DeepPartialArray<Thing> = Array<DeepPartial<Thing>>;
 
 type DeepPartialObject<Thing> = {
   [Key in keyof Thing]?: DeepPartial<Thing[Key]>;
+};
+
+const allowedPages = {
+  status: true,
+  result: [
+    {
+      page: '6',
+      label: 'Configuration',
+      menu_id: 'Configuration',
+      url: null,
+      color: '319ED5',
+      icon: 'configuration',
+      children: [
+        {
+          page: '609',
+          label: 'Pollers',
+          url: null,
+          groups: [
+            {
+              label: 'Main Menu',
+              children: [
+                {
+                  page: '60901',
+                  label: 'Pollers',
+                  url: './include/configuration/configServers/servers.php',
+                  options: null,
+                  is_react: false,
+                  show: true
+                }
+              ]
+            }
+          ],
+          options: null,
+          is_react: false,
+          show: true
+        }
+      ],
+      options: null,
+      is_react: false,
+      show: true
+    }
+  ]
 };
 
 const hostStatusStub: HostStatusResponse = {
@@ -243,8 +245,8 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
   const store = createStore();
 
   store.set(userPermissionsAtom, {
-    poller_statistics: true,
-    top_counter: true
+    top_counter: true,
+    poller_statistics: true
   });
 
   store.set(navigationAtom, allowedPages);
@@ -255,19 +257,19 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
 
   cy.mount({
     Component: (
-      <TestQueryProvider>
+      <SnackbarProvider maxSnackbars={2}>
         <Provider store={store}>
-          <StylesProvider generateClassName={generateClassName}>
-            <ThemeProvider>
-              <SnackbarProvider maxSnackbars={2}>
+          <TestQueryProvider>
+            <StylesProvider generateClassName={generateClassName}>
+              <ThemeProvider>
                 <Router>
                   <Header />
                 </Router>
-              </SnackbarProvider>
-            </ThemeProvider>
-          </StylesProvider>
+              </ThemeProvider>
+            </StylesProvider>
+          </TestQueryProvider>
         </Provider>
-      </TestQueryProvider>
+      </SnackbarProvider>
     )
   });
 
