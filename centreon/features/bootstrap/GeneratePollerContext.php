@@ -61,7 +61,8 @@ class GeneratePollerContext extends CentreonContext
      */
     public function iClickOnTheConfigurationExportButton()
     {
-        $this->pollers_page = $this->pollers_page->exportConfiguration();
+        $this->assertFindLink('#exportConfigurationLink')->click();
+
     }
 
     /**
@@ -70,7 +71,7 @@ class GeneratePollerContext extends CentreonContext
     public function iClickOnTheExportButton()
     {
         // Cannot use pollers_page, as the export will fail.
-        $this->assertFindLink('#exportConfigurationLink')->click();
+         $this->assertFindButton('Export')->click();
     }
 
     /**
