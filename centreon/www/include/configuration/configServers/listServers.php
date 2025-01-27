@@ -357,7 +357,6 @@ if (!$isRemote) {
             "text" => _("Export configuration"), 
             "class" => "btc bt-poller-action bt_info", 
             "icon" => returnSvg("www/img/icons/export.svg", "var(--button-icons-fill-color)", 14, 14),
-            "onClickAction" => "applyConfiguration();"
             "id" => "exportConfigurationLink" 
         )
     );
