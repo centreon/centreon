@@ -136,7 +136,7 @@ final class PatchUser
 
         foreach ($userSessionIds as $sessionId) {
             /**
-             * @var \Centreon $centreon
+             * @var \Centreon|null $centreon
              */
             $centreon = $this->readSessionRepository->getValueFromSession(
                 $sessionId,
