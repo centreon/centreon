@@ -16800,6 +16800,9 @@ msgstr "Erreur lors de la mise à jour du thème de l'utilisateur"
 msgid "Error while searching for the user"
 msgstr "Erreur lors de la recherche de l'utilisateur"
 
+msgid "Centreon session not found while updating user"
+msgstr "Session Centreon non trouvée lors de la mise à jour de l'utilisateur"
+
 msgid "Web SSO configuration"
 msgstr "Configuration Web SSO"
 
