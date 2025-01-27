@@ -64,6 +64,13 @@ class GeneratePollerContext extends CentreonContext
      */
     public function iClickOnTheConfigurationExportButton()
     {
+        $this->spin(function () {
+    $link = $this->assertFind('css', '#exportConfigurationLink');
+    if ($link && $link->isVisible()) {
+        return true;
+    }
+    return false;
+});
         $this->assertFindLink('#exportConfigurationLink')->click();
 
     }
