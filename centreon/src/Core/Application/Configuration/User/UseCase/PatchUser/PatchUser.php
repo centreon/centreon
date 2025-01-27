@@ -162,7 +162,7 @@ final class PatchUser
             );
         }
         if ($centreonSessionFound === false) {
-            throw UserException::CentronSessionNotFound();
+            throw UserException::centronSessionNotFound();
         }
             $centreon->user->theme = $request->theme;
             $this->writeSessionRepository->updateSession(
