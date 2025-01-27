@@ -35,6 +35,9 @@ class GeneratePollerContext extends CentreonContext
      */
     public function multiplePollersAreSelected()
     {
+        $this->spin(function () {
+            return $this->assertFind('css', 'input[type="checkbox"]');
+        });
         $this->pollers_page->selectEntry('Central');
         $this->pollers_page->selectEntry('Central_1');
     }
