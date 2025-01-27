@@ -18335,6 +18335,8 @@ msgstr ""
 
 # msgid "Export as"
 # msgstr ""
+# msgid "The minimum allowed value is 10"
+# msgstr ""
 
 # msgid "Do you want to leave this page?"
 # msgstr ""

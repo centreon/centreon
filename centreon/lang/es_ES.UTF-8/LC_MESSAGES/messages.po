@@ -17892,3 +17892,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "Stay"
 # msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""
