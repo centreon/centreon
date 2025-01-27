@@ -132,7 +132,6 @@ final class PatchUser
     private function updateUserSessions(PatchUserRequest $request): void
     {
         $userSessionIds = $this->readSessionRepository->findSessionIdsByUserId($request->userId);
-        $centreonSessionFound = false;
 
         foreach ($userSessionIds as $sessionId) {
             /**
@@ -146,16 +145,12 @@ final class PatchUser
                 continue;
             }
 
-            $centreonSessionFound = true;
             $centreon->user->theme = $request->theme;
             $this->writeSessionRepository->updateSession(
                 $sessionId,
                 'centreon',
                 $centreon
             );
-        }
-        if ($centreonSessionFound === false) {
-            throw UserException::CentronSessionNotFound();
         }
     }
 

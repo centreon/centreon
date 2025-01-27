@@ -62,12 +62,4 @@ class UserException extends \Exception
             $ex
         );
     }
-
-    /**
-     * @return self
-     */
-    public static function centronSessionNotFound(): self
-    {
-        return new self(_('Centreon session not found while updating user'));
-    }
 }
