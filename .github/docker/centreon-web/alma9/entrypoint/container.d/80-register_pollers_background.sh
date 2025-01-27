@@ -16,5 +16,7 @@ while true ; do
     echo "Restarting gorgoned to register new pollers."
     systemctl restart gorgoned
     sleep 120
+  else
+    echo "No new pollers to register."
   fi
 done
