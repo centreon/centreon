@@ -27,17 +27,18 @@ class GeneratePollerContext extends CentreonContext
      */
     public function onePollerIsSelected()
     {
+         $this->getSession()->reload();
         $this->pollers_page->selectEntry('Central');
     }
+
+ 
 
     /**
      * @Given multiple pollers are selected
      */
     public function multiplePollersAreSelected()
     {
-        $this->spin(function () {
-            return $this->assertFind('css', 'input[type="checkbox"]');
-        },180);
+         $this->getSession()->reload();
         $this->pollers_page->selectEntry('Central');
         $this->pollers_page->selectEntry('Central_1');
     }
@@ -64,13 +65,8 @@ class GeneratePollerContext extends CentreonContext
      */
     public function iClickOnTheConfigurationExportButton()
     {
-        $this->spin(function () {
-    $link = $this->assertFind('css', '#exportConfigurationLink');
-    if ($link && $link->isVisible()) {
-        return true;
-    }
-    return false;
-},180);
+
+         $this->getSession()->reload();
         $this->assertFindLink('#exportConfigurationLink')->click();
 
     }
