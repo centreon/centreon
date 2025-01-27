@@ -20,6 +20,7 @@ class GeneratePollerContext extends CentreonContext
         $this->pollers_page->selectEntry('Central');
         $this->pollers_page->duplicateAction();
         $this->pollers_page->enableEntry('Central_1');
+         $this->getSession()->reload();
     }
 
     /**
@@ -27,7 +28,7 @@ class GeneratePollerContext extends CentreonContext
      */
     public function onePollerIsSelected()
     {
-         $this->getSession()->reload();
+        
         $this->pollers_page->selectEntry('Central');
     }
 
@@ -38,7 +39,6 @@ class GeneratePollerContext extends CentreonContext
      */
     public function multiplePollersAreSelected()
     {
-         $this->getSession()->reload();
         $this->pollers_page->selectEntry('Central');
         $this->pollers_page->selectEntry('Central_1');
     }
