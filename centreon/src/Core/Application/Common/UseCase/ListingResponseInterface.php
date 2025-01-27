@@ -21,22 +21,9 @@
 
 declare(strict_types = 1);
 
-namespace Core\User\Application\UseCase\FindUserPermissions;
+namespace Core\Application\Common\UseCase;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
-use Core\User\Domain\Model\Permission;
-
-final class FindUserPermissionsResponse implements StandardResponseInterface
+interface ListingResponseInterface extends StandardResponseInterface
 {
-    /**
-     * @param Permission[] $permissions
-     */
-    public function __construct(public readonly array $permissions)
-    {
-    }
-
-    public function getData(): self
-    {
-        return $this;
-    }
+    public function getData(): mixed;
 }

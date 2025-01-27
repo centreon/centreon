@@ -25,7 +25,7 @@ namespace Core\User\Domain\Model;
 
 use Core\Common\Domain\NotEmptyString;
 
-readonly class Permission
+class Permission
 {
     public function __construct(private NotEmptyString $name, private bool $isActive)
     {

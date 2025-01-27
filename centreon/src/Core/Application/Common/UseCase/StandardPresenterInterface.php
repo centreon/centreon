@@ -21,22 +21,22 @@
 
 declare(strict_types = 1);
 
-namespace Core\User\Application\UseCase\FindUserPermissions;
+namespace Core\Application\Common\UseCase;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
-use Core\User\Domain\Model\Permission;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
-final class FindUserPermissionsResponse implements StandardResponseInterface
+interface StandardPresenterInterface
 {
     /**
-     * @param Permission[] $permissions
+     * @param StandardResponseInterface $data
+     * @param array<string, mixed> $context
+     * @param string $format
+     *
+     * @return string
      */
-    public function __construct(public readonly array $permissions)
-    {
-    }
-
-    public function getData(): self
-    {
-        return $this;
-    }
+    public function present(
+        StandardResponseInterface $data,
+        array $context = [],
+        string $format = JsonEncoder::FORMAT,
+    ): string;
 }

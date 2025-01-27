@@ -28,7 +28,7 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-final readonly class PermissionNormalizer implements NormalizerInterface
+final class PermissionNormalizer implements NormalizerInterface
 {
     public function __construct(private ObjectNormalizer $normalizer)
     {
@@ -54,6 +54,7 @@ final readonly class PermissionNormalizer implements NormalizerInterface
             throw new \InvalidArgumentException('Normalized data missing, required fields: name, is_active');
         }
 
+        /** @var array<string, bool> */
         return [$data['name'] => $data['is_active']];
     }
 

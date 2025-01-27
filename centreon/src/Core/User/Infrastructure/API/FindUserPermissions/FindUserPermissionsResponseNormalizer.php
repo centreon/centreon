@@ -28,7 +28,7 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-final readonly class FindUserPermissionsResponseNormalizer implements NormalizerInterface
+final class FindUserPermissionsResponseNormalizer implements NormalizerInterface
 {
     public function __construct(private ObjectNormalizer $normalizer)
     {
@@ -57,8 +57,8 @@ final readonly class FindUserPermissionsResponseNormalizer implements Normalizer
 
         if (is_iterable($data['permissions'])) {
             foreach ($data['permissions'] as $permission) {
-                $name = key($permission);
-                $normalizedData[$name] = $permission[$name];
+                $name = (string) key($permission);
+                $normalizedData[$name] = (bool) $permission[$name];
             }
         }
 

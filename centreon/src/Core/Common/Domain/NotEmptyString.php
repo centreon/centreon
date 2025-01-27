@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,22 @@
 
 declare(strict_types = 1);
 
-namespace Core\User\Application\UseCase\FindUserPermissions;
+namespace Core\Common\Domain;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
-use Core\User\Domain\Model\Permission;
-
-final class FindUserPermissionsResponse implements StandardResponseInterface
+class NotEmptyString
 {
-    /**
-     * @param Permission[] $permissions
-     */
-    public function __construct(public readonly array $permissions)
+    public readonly string $value;
+
+    public function __construct(string|\Stringable $value)
     {
+        $this->value = trim((string) $value);
+        if ($this->value === '') {
+            throw new \InvalidArgumentException('The string must not be empty');
+        }
     }
 
-    public function getData(): self
+    public function __toString(): string
     {
-        return $this;
+        return $this->value;
     }
 }
