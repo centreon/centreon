@@ -28,7 +28,7 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-final readonly class NotEmptyStringNormalizer implements NormalizerInterface
+final class NotEmptyStringNormalizer implements NormalizerInterface
 {
     public function __construct(private ObjectNormalizer $normalizer)
     {
@@ -40,6 +40,7 @@ final readonly class NotEmptyStringNormalizer implements NormalizerInterface
      * @param array<string, mixed> $context
      *
      * @throws ExceptionInterface
+     *
      * @return string
      */
     public function normalize(

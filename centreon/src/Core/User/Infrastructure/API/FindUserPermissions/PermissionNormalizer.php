@@ -40,6 +40,7 @@ final readonly class PermissionNormalizer implements NormalizerInterface
      * @param array<string, mixed> $context
      *
      * @throws ExceptionInterface
+     *
      * @return array<string, bool>
      */
     public function normalize(

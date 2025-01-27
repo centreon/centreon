@@ -40,6 +40,7 @@ final class FindUserPermissionsController extends AbstractController
      * @param ContactInterface $user
      *
      * @throws ExceptionInterface
+     *
      * @return Response
      */
     public function __invoke(
