@@ -145,9 +145,8 @@ final class PatchUser
             if ($centreon === null) {
                 continue;
             }
-            else {
-                $centreonSessionFound = true;
-            }
+
+            $centreonSessionFound = true;
             $centreon->user->theme = $request->theme;
             $this->writeSessionRepository->updateSession(
                 $sessionId,

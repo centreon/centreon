@@ -64,7 +64,6 @@ class UserException extends \Exception
     }
 
     /**
-     *
      * @return self
      */
     public static function centronSessionNotFound(): self
