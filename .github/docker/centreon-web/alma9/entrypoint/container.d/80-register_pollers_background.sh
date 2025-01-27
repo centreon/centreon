@@ -1,7 +1,7 @@
 #!/bin/sh
 
 while true ; do
-  sleep 30
+  sleep 10
 
   for var in $(printenv | grep -Eo '^CENTREON_POLLER_[0-9]+='); do
     var_name=$(echo $var | sed 's/=//')
@@ -15,7 +15,7 @@ while true ; do
   if [[ "$SQL_RESULT" == *"id"* ]] ; then
     echo "Restarting gorgoned to register new pollers."
     systemctl restart gorgoned
-    sleep 120
+    sleep 60
   else
     echo "No new pollers to register."
   fi
