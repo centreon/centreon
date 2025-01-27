@@ -17913,3 +17913,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "MBI Reporting widgets"
 # msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""

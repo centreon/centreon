@@ -18354,3 +18354,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "MBI Reporting widgets"
 # msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""

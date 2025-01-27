@@ -19671,3 +19671,6 @@ msgstr "Widgets de reporting MBI"
 
 msgid "Agent configuration"
 msgstr "Configuration d'agent"
+
+msgid "The minimum allowed value is 10"
+msgstr "La valeur minimale autorisée est 10"
