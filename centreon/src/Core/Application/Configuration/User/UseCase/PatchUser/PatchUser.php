@@ -148,12 +148,6 @@ final class PatchUser
             else {
                 $centreonSessionFound = true;
             }
-            if ($centreon === null) {
-                continue;
-            }
-            else {
-                $centreonSessionFound = true;
-            }
             $centreon->user->theme = $request->theme;
             $this->writeSessionRepository->updateSession(
                 $sessionId,
@@ -162,14 +156,7 @@ final class PatchUser
             );
         }
         if ($centreonSessionFound === false) {
-            throw UserException::centronSessionNotFound();
-        }
-            $centreon->user->theme = $request->theme;
-            $this->writeSessionRepository->updateSession(
-                $sessionId,
-                'centreon',
-                $centreon
-            );
+            throw UserException::CentronSessionNotFound();
         }
     }
 
