@@ -70,7 +70,7 @@ class GeneratePollerContext extends CentreonContext
     public function iClickOnTheExportButton()
     {
         // Cannot use pollers_page, as the export will fail.
-        $this->assertFindButton('Export')->click();
+        $this->assertFindLink('Export configuration')->click();
     }
 
     /**
