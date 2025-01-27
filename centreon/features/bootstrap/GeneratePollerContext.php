@@ -37,7 +37,7 @@ class GeneratePollerContext extends CentreonContext
     {
         $this->spin(function () {
             return $this->assertFind('css', 'input[type="checkbox"]');
-        });
+        },180);
         $this->pollers_page->selectEntry('Central');
         $this->pollers_page->selectEntry('Central_1');
     }
@@ -70,7 +70,7 @@ class GeneratePollerContext extends CentreonContext
         return true;
     }
     return false;
-});
+},180);
         $this->assertFindLink('#exportConfigurationLink')->click();
 
     }
