@@ -56,6 +56,7 @@ jobs:
         working-directory: ${{ env.directory }}
 
   publish-snapshots:
+    if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-22.04
 
     steps:

@@ -189,15 +189,19 @@ class CentreonLogAction
         global $pearDBO;
 
         /* Get Hosts */
-        $query = "SELECT a.action_log_id, field_value 
-                    FROM log_action a, log_action_modification m 
-                    WHERE m.action_log_id = a.action_log_id 
-                    AND field_name LIKE 'service_hPars' 
-                    AND object_id = :service_id
-                    AND object_type = 'service' 
-                    AND field_value <> ''
-                    ORDER BY action_log_date DESC 
-                    LIMIT 1";
+        $query = <<<'SQL'
+            SELECT a.action_log_id,
+                m.field_value
+            FROM log_action a
+            INNER JOIN log_action_modification m
+                ON m.action_log_id = a.action_log_id
+            WHERE object_id = :service_id
+                AND object_type = 'service'
+                AND (field_name = 'service_hPars' OR field_name = 'hostId')
+                AND field_value <> ''
+            ORDER BY action_log_date DESC
+            LIMIT 1
+            SQL;
         $statement = $pearDBO->prepare($query);
         $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
         $statement->execute();
@@ -238,7 +242,15 @@ class CentreonLogAction
             return $info['host_name'];
         }
 
-        $statement = $pearDBO->prepare("SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = :host_id");
+        $statement = $pearDBO->prepare(
+            <<<'SQL'
+                SELECT object_id,
+                    object_name
+                FROM log_action
+                WHERE object_type = 'host'
+                    AND object_id = :host_id
+                SQL
+        );
         $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
