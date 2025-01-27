@@ -115,7 +115,7 @@ const parse = ({
       name: pluralizedKey,
       object_type: objectType,
       type: 'multi_select',
-      value: values?.split(',').map((value) => {
+      value: values?.split(',').map((value, index) => {
         const isStaticCriteria = isNil(objectType);
 
         if (isStaticCriteria) {
@@ -128,7 +128,7 @@ const parse = ({
         }
 
         return {
-          id: 0,
+          id: index,
           name: replaceEscapeWithSpace(value),
           formattedName: value
         };

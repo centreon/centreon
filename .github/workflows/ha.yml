@@ -13,6 +13,7 @@ on:
       - reopened
       - ready_for_review
     paths:
+      - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
       - "!centreon-ha/veracode.json"
@@ -22,6 +23,7 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
+      - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
       - "!centreon-ha/veracode.json"
@@ -94,7 +96,10 @@ jobs:
 
   delivery-rpm:
     needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
 
     strategy:
@@ -119,7 +124,11 @@ jobs:
 
   deliver-deb:
     needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.is_cloud == 'false' && contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
+      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
 
     strategy:

@@ -11,6 +11,7 @@ import {
   totalAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
 
+import { useEffect } from 'react';
 import { onlyFavoriteDashboardsAtom } from '../components/DashboardLibrary/DashboardListing/Actions/favoriteFilter/atoms';
 import { dashboardListDecoder } from './decoders';
 import { dashboardsEndpoint, dashboardsFavoriteEndpoint } from './endpoints';
@@ -74,7 +75,9 @@ const useListDashboards = (): UseListDashboards => {
     }
   });
 
-  setTotal(data?.meta?.total || 0);
+  useEffect(() => {
+    setTotal(data?.meta?.total || 0);
+  }, [data?.meta?.total]);
 
   return {
     data,

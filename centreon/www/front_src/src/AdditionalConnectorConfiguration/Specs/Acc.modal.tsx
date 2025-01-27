@@ -662,10 +662,11 @@ export default (): void => {
       it('displays a modal when the form is updated with errors and the cancel button is clicked', () => {
         initializeModal({ variant: 'update' });
 
-        cy.get('input[name="port"]').clear();
+        cy.findAllByTestId('vCenter name_value').eq(1).clear();
+        cy.findAllByTestId('vCenter name_value').eq(1).blur();
         cy.contains(labelCancel).click();
 
-        cy.contains('Do you want to resolve the errors?').should('be.visible');
+        cy.contains('Do you want to leave this page?').should('be.visible');
 
         cy.makeSnapshot();
       });

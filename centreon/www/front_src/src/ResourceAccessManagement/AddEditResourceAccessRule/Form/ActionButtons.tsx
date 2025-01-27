@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
@@ -30,7 +30,9 @@ const ActionButtons = (): ReactElement => {
   const { isSubmitting, isValid, dirty, submitForm } =
     useFormikContext<FormikValues>();
 
-  setIsDirty(dirty);
+  useEffect(() => {
+    setIsDirty(dirty);
+  }, [dirty]);
 
   const close = (): void =>
     setModalState({ isOpen: false, mode: ModalMode.Create });
