@@ -7,5 +7,9 @@ set -x
 # ls is required to ensure that the scripts are properly sorted by name.
 BASEDIR="/usr/share/centreon/container.d"
 for file in `ls $BASEDIR` ; do
-  . "$BASEDIR/$file"
+  if [[ "$file" == *"_background"* ]]; then
+    . "$BASEDIR/$file" &
+  else
+    . "$BASEDIR/$file"
+  fi
 done
