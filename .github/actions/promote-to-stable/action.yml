@@ -32,7 +32,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: jfrog/setup-jfrog-cli@18e785fb220d332edbf01964f853ff0fcaa22220 # v4.4.2
+    - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
