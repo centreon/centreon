@@ -1021,7 +1021,7 @@ function insertHostGroup(): int|false
             'hostGroupId' => $hostGroupId ?? null,
             'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
         ]);
-        echo "<div class='msg' align='center'>" . _('Error during creation (json encoding). See logs for more detail') . '</div>';
+        echo "<div class='msg' align='center'>" . _('Error during creation. See logs for more detail or contact your administrator') . '</div>';
 
         return false;
     } catch (Throwable $th) {
