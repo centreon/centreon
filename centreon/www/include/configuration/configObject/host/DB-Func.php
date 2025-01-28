@@ -2893,7 +2893,7 @@ function updateHostInAPI(int $hostId, array $formData): bool
             'isTemplate' => $isTemplate ?? null,
             'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
         ]);
-        echo "<div class='msg' align='center'>" . _('Error during update (json encoding). See logs for more detail') . '</div>';
+        echo "<div class='msg' align='center'>" . _('Error during update. See logs for more detail or contact your administrator.') . '</div>';
 
         return false;
     } catch (Throwable $th) {
