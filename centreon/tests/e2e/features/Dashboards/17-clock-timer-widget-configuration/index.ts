@@ -254,8 +254,8 @@ Then('a second Clock timer widget is displayed on the dashboard', () => {
 When(
   'the dashboard administrator updates the background color of the Clock Timer widget',
   () => {
-    cy.getByTestId({ testId: 'color selector' }).realClick();
-    cy.getByTestId({ testId: 'color-chip-#076059' }).realClick();
+    cy.getByTestId({ testId: 'color selector' }).click({force:true})
+    cy.getByTestId({ testId: 'color-chip-#076059' }).click({force:true})
   }
 );
 
