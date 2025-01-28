@@ -87,7 +87,7 @@ const DashboardConfigModal = ({
   );
 
   return (
-    <Modal open={isDialogOpen} onClose={closeDialog}>
+    <Modal open={isDialogOpen} onClose={closeDialog} closeAfterTransition={false}>
       <Modal.Header>{labels.modalTitle[variant]}</Modal.Header>
       <Modal.Body>
         <DashboardForm
