@@ -93,9 +93,10 @@ runs:
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
 
         # NON-CLOUD + (HOTFIX OR RELEASE) + REPO STANDARD
+        # + REPO ESR (22.10 ONLY)
         elif [[ ${{ inputs.release_cloud }} -eq 0 ]]; then
-          echo "[DEBUG] : NOT Release cloud + ${{ inputs.release_type }}, using rpm-standard."
-          ROOT_REPO_PATHS="rpm-standard"
+          echo "[DEBUG] : NOT Release cloud + ${{ inputs.release_type }}, using rpm-standard and rpm-standard-esr."
+          ROOT_REPO_PATHS=("rpm-standard" "rpm-standard-esr")
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
 
         # ANYTHING ELSE
@@ -105,7 +106,7 @@ runs:
         fi
 
         # Deliver based on inputs
-        for ROOT_REPO_PATH in "$ROOT_REPO_PATHS"; do
+        for ROOT_REPO_PATH in "${ROOT_REPO_PATHS[@]}"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
               if [ "${{ inputs.stability }}" == "stable" ]; then

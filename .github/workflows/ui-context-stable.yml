@@ -19,8 +19,8 @@ env:
 
 jobs:
   clean-up-npm-beta-tag:
+    if: github.event.pull_request.merged == true && github.repository == 'centreon/centreon'
     runs-on: ubuntu-22.04
-    if: github.event.pull_request.merged == true
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
