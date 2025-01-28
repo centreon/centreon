@@ -90,6 +90,15 @@ Then('the properties are updated', () => {
         groups.GroupForUpdate.linkedContact
       ]);
     });
+  cy.getIframeBody()
+    .find('#cg_acl_groups')
+    .find('option:selected')
+    .then(($selectedOptions) => {
+      const selectedTexts = Array.from($selectedOptions).map(
+        (option) => option.text
+      );
+      expect(selectedTexts).to.include.members(['ALL']);
+    });
   cy.checkLegacyRadioButton(groups.GroupForUpdate.status);
   cy.getIframeBody()
     .find('textarea[name="cg_comment"]')
@@ -124,6 +133,15 @@ Then('a new contact group is created with identical properties', () => {
       expect(selectedTexts).to.include.members([
         groups.defaultGroup.linkedContact
       ]);
+    });
+  cy.getIframeBody()
+    .find('#cg_acl_groups')
+    .find('option:selected')
+    .then(($selectedOptions) => {
+      const selectedTexts = Array.from($selectedOptions).map(
+        (option) => option.text
+      );
+      expect(selectedTexts).to.include.members(['ALL']);
     });
   cy.checkLegacyRadioButton(groups.defaultGroup.status);
   cy.getIframeBody()

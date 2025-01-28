@@ -5,6 +5,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import serviceCategories from '../../../fixtures/services/category.json';
 import servicesData from '../../../fixtures/services/service.json';
 import data from '../../../fixtures/services/host_group.json';
+
 import htmldata from './data.json';
 
 const services = {
@@ -93,9 +94,9 @@ Given('some service groups are configured', () => {
 
 Given('some service categories are configured', () => {
   cy.addSubjectViaAPIv2(
-      serviceCategories.default,
-      '/centreon/api/latest/configuration/services/categories'
-   );
+    serviceCategories.default,
+    '/centreon/api/latest/configuration/services/categories'
+  );
 });
 
 When(
@@ -111,13 +112,14 @@ When(
 );
 
 When('the user Add a new host group service', () => {
-  cy.waitForElementInIframe(
-      '#main-content',
-      'a:contains("Add")'
-   );
+  cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
   cy.getIframeBody().contains('a', 'Add').eq(0).click();
   cy.wait('@getTimeZone');
-  cy.createOrUpdateHostGroupService(data.default, false, htmldata.dataForCreation);
+  cy.createOrUpdateHostGroupService(
+    data.default,
+    false,
+    htmldata.dataForCreation
+  );
 });
 
 Then('the host group service is added to the listing page', () => {
@@ -126,61 +128,62 @@ Then('the host group service is added to the listing page', () => {
 
 Given('a host group service is configured', () => {
   cy.navigateTo({
-      page: 'Services by host group',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    page: 'Services by host group',
+    rootItemNumber: 3,
+    subMenu: 'Services'
+  });
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe(
-      '#main-content',
-      'a:contains("Add")'
-   );
+  cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
   cy.getIframeBody().contains('a', data.default.name).should('exist');
 });
 
 When('the user changes the properties of the host group service', () => {
   cy.getIframeBody().contains('a', data.default.name).click();
-  cy.createOrUpdateHostGroupService(data.hostgroupservice, true, htmldata.dataForUpdate);
+  cy.createOrUpdateHostGroupService(
+    data.hostgroupservice,
+    true,
+    htmldata.dataForUpdate
+  );
 });
 
 Then('the properties are updated', () => {
-  cy.checkValuesOfHostGroupService(data.hostgroupservice.name, data.hostgroupservice);
+  cy.checkValuesOfHostGroupService(
+    data.hostgroupservice.name,
+    data.hostgroupservice
+  );
 });
 
 When('the user duplicates the host group service', () => {
   cy.navigateTo({
-      page: 'Services by host group',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    page: 'Services by host group',
+    rootItemNumber: 3,
+    subMenu: 'Services'
+  });
   cy.checkFirstRowFromListing('hostgroups');
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
-Then(
-  'the new duplicated host group service has the same properties',
-  () => {
-    cy.checkValuesOfHostGroupService(`${data.hostgroupservice.name}_1`, data.hostgroupservice);
-  }
-);
+Then('the new duplicated host group service has the same properties', () => {
+  cy.checkValuesOfHostGroupService(
+    `${data.hostgroupservice.name}_1`,
+    data.hostgroupservice
+  );
+});
 
 When('the user deletes the host group service', () => {
   cy.navigateTo({
-      page: 'Services by host group',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    page: 'Services by host group',
+    rootItemNumber: 3,
+    subMenu: 'Services'
+  });
   cy.checkFirstRowFromListing('hostgroups');
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
-Then(
-  'the deleted host group service is not displayed in the list',
-  () => {
-    cy.getIframeBody().find('a[href*="service_id=29"]').should('not.exist');
-  }
-);
+Then('the deleted host group service is not displayed in the list', () => {
+  cy.getIframeBody().find('a[href*="service_id=29"]').should('not.exist');
+});
