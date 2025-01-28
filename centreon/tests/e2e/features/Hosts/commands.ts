@@ -84,7 +84,7 @@ Cypress.Commands.add('addHostDependency', (body: HostDependency) => {
 });
 
 Cypress.Commands.add('updateHostDependency', (body: HostDependency) => {
-  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
     cy.getIframeBody()
       .find('input[name="dep_name"]')
       .clear()
@@ -132,7 +132,7 @@ Cypress.Commands.add('updateHostDependency', (body: HostDependency) => {
 })
 
 Cypress.Commands.add('addHostGroupDependency', (body: HostGroupDependency) => {
-  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
     .type(body.name);
@@ -152,7 +152,7 @@ Cypress.Commands.add('addHostGroupDependency', (body: HostGroupDependency) => {
 });
 
 Cypress.Commands.add('updateHostGroupDependency', (body: HostGroupDependency) => {
-  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
     cy.getIframeBody()
       .find('input[name="dep_name"]')
       .clear()
