@@ -15,6 +15,7 @@ import '../features/Services-configuration/commands';
 import '../features/Agent-configuration/commands';
 import '../features/Logs/commands';
 import '../features/Notifications/commands';
+import '../features/Resources-status/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
