@@ -43,8 +43,7 @@ Cypress.Commands.add('exportConfig', () => {
 });
 
 Cypress.Commands.add('addHostDependency', (body: HostDependency) => {
-  cy.reload();
-  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
     .type(body.name);
