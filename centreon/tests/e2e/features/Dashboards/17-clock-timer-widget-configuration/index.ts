@@ -250,4 +250,3 @@ Then('a second Clock timer widget is displayed on the dashboard', () => {
   cy.get('p[class$="date"]').eq(1).should('be.visible');
   cy.get('div[class$="clockLabel"] p').eq(1).should('be.visible');
 });
-
