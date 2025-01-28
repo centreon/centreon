@@ -353,11 +353,11 @@ if (!$isRemote) {
     $tpl->assign(
         'exportBtn',
         array(
-            "link" => "DYNAMIC_LINK", // Placeholder for dynamic link
-            "text" => _("Export configuration"), 
-            "class" => "btc bt-poller-action bt_info", 
+            "text" => _("Export configuration"),
+            "class" => "btc bt-poller-action bt_info",
+            "name" => "apply_configuration",
             "icon" => returnSvg("www/img/icons/export.svg", "var(--button-icons-fill-color)", 14, 14),
-            "id" => "exportConfigurationLink"
+            "onClickAction" => "applyConfiguration();"
         )
     );
 }

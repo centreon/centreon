@@ -6,8 +6,7 @@
         jQuery('form tr').not('.row_disabled').find('input[id^="poller_"]:checked').each(function() {
             pollers.push(this.id.substr(7));
         });
-        var href = "main.php?p=60902&poller=" + pollers.join(',');
-        jQuery('#exportConfigurationLink').attr('href', href);
+        window.location.href = "?p=60902&poller=" + pollers.join(',');
     }
 
     function setO(_i) {
@@ -29,13 +28,6 @@
         }
     }
     hasPollersSelected();
-
-    jQuery(document).ready(function() {
-        jQuery('#exportConfigurationLink').on('click', function(event) {
-            event.preventDefault(); 
-            applyConfiguration();
-        });
-    })
 
 </script>
 {/literal}
@@ -66,9 +58,10 @@
                         </a>
                     {/if}
                     {if $can_generate == 1}
-                        <a id="exportConfigurationLink" href="{$exportBtn.link}" class="{$exportBtn.class}">
-                            {$exportBtn.icon} {$exportBtn.text}
-                        </a>
+                         <button type="button" class="{$exportBtn.class}" name="{$exportBtn.name}"
+                             onClick="{$exportBtn.onClickAction}">
+                             {$exportBtn.icon} {$exportBtn.text}
+                         </button>
                     {/if}
                     {if $can_create_edit == 1}
                         <button type="submit" class="{$duplicateBtn.class}" name="{$duplicateBtn.name}" onClick="{$duplicateBtn.onClickAction}">
