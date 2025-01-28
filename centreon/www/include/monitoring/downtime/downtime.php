@@ -87,9 +87,10 @@ switch ($o) {
         } catch (Exception $ex) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: $ex->getMessage(),
+                message: 'Error while listing downtime: ' . $ex->getMessage(),
                 exception: $ex
             );
+            throw $ex;
         }
         break;
     case "cs":
@@ -116,6 +117,15 @@ switch ($o) {
     case "vs":
     case "vh":
     default:
-        require_once($path . "listDowntime.php");
+        try {
+            require_once($path . "listDowntime.php");
+        } catch (Exception $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: 'Error while listing downtime: ' . $ex->getMessage(),
+                exception: $ex
+            );
+            throw $ex;
+        }
         break;
 }
