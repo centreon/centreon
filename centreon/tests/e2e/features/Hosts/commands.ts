@@ -62,7 +62,8 @@ Cypress.Commands.add('updateHostGroupViaApi', (body: HostGroup, hostGroup_name: 
 });
 
 Cypress.Commands.add('addHostDependency', (body: HostDependency) => {
-  //cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
+  cy.reload();
+  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
     .type(body.name);
