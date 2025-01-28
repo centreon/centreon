@@ -234,7 +234,7 @@ $form->registerRule('is_executable_binary', 'callback', 'is_executable_binary');
 $form->registerRule('is_writable_path', 'callback', 'is_writable_path');
 $form->registerRule('is_writable_file', 'callback', 'is_writable_file');
 $form->registerRule('is_writable_file_if_exist', 'callback', 'is_writable_file_if_exist');
-$form->registerRule('greaterthan', 'callback', 'is_greater_than');
+$form->registerRule('greaterthan', 'callback', 'isGreaterThan');
 
 $form->addRule('oreon_path', _('Mandatory field'), 'required');
 $form->addRule('oreon_path', _("Can't write in directory"), 'is_valid_path');
