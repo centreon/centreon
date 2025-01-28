@@ -2835,7 +2835,7 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    return callApi($url, 'POST', $payload);
+    return callHostApi($url, 'POST', $payload);
 }
 
 /**
@@ -2944,7 +2944,7 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    callApi($url, 'PATCH', $payload);
+    callHostApi($url, 'PATCH', $payload);
 }
 
 /**
@@ -2960,7 +2960,7 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
  *
  * @return int|null
  */
-function callApi(string $url, string $httpMethod, array $payload): int|null
+function callHostApi(string $url, string $httpMethod, array $payload): int|null
 {
     $client = new CurlHttpClient();
     $response = $client->request(
