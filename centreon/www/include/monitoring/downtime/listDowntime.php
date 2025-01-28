@@ -271,12 +271,12 @@ $unionQuery = <<<SQL
     LIMIT :offset, :limit
     SQL;
 
-$downtimesStatement = $pearDBO->prepare($unionQuery);
+$downtimesStatement = $pearDBO->prepareQuery($unionQuery);
 $pearDBO->executePreparedQuery($downtimesStatement, $bindValues, true);
 
 $rows = $pearDBO->executeQuery('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
-for ($i = 0; $data = $downtimesStatement->fetchRow(); $i++) {
+for ($i = 0; $data = $downtimesStatement->fetch(); $i++) {
     $tab_downtime_svc[$i] = $data;
 
     $tab_downtime_svc[$i]['comment_data']
