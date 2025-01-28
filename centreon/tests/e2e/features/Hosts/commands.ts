@@ -10,18 +10,18 @@ Cypress.Commands.add(
   (iframeSelector, elementSelector) => {
     cy.waitUntil(
       () =>
-        cy.get(iframeSelector).then(($iframe) => {
-          const iframeBody = $iframe[0].contentDocument.body;
-          if (iframeBody) {
-            const $element = Cypress.$(iframeBody).find(elementSelector);
+        cy
+          .get(iframeSelector)
+          .its('0.contentDocument.body')
+          .should('not.be.empty')
+          .then(cy.wrap)
+          .within(() => {
+            const element = Cypress.$(elementSelector);
 
-            return $element.length > 0 && $element.is(':visible');
-          }
-
-          return false;
-        }),
+            return element.length > 0 && element.is(':visible');
+          }),
       {
-        errorMsg: 'The element is not visible within the iframe',
+        errorMsg: 'The element is not visible',
         interval: 5000,
         timeout: 100000
       }
