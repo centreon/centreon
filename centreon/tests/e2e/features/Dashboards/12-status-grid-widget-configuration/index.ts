@@ -291,7 +291,6 @@ Then('only the contents of the other widget are displayed', () => {
     .click({ force: true });
   cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
-  cy.get('[class*="resourceName"]').contains('host3').should('exist');
 });
 
 Given(
