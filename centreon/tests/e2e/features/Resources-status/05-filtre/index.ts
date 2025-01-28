@@ -610,6 +610,7 @@ Then('only services matching the selected host service and service category are 
 });
 
 afterEach(() => {
+  cy.deleteAllEventViewFilters()
   cy.logoutViaAPI();
 });
 
