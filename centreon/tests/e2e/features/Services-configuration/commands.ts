@@ -177,7 +177,7 @@ Cypress.Commands.add('updateMSDependency', (body: MetaServiceDependency) => {
 })
 
 Cypress.Commands.add('addCommonDependencyFileds', (body: Dependency) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
     .type(body.name);
@@ -196,7 +196,7 @@ Cypress.Commands.add('addCommonDependencyFileds', (body: Dependency) => {
 });
 
 Cypress.Commands.add('updateCommonDependencyFileds', (body: Dependency) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
     .clear()
@@ -289,7 +289,7 @@ Cypress.Commands.add('updateServiceGroupDependency', (body: ServiceGroupDependen
 });
 
 Cypress.Commands.add('createOrUpdateHostGroupService', (body: HostGroupService, isUpdate: boolean, htmldata: HtmlElt[]) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="service_description"]');
+  cy.waitForElementInIframe('iframe#main-content', 'input[name="service_description"]');
   cy.fillFieldInIframe(htmldata[0]);
   [htmldata[1], htmldata[2], htmldata[3], htmldata[4]].forEach((elt) => {
     cy.clickOnFieldInIframe(elt);
@@ -370,7 +370,7 @@ Cypress.Commands.add('createOrUpdateHostGroupService', (body: HostGroupService, 
 
 Cypress.Commands.add('checkValuesOfHostGroupService', (name:string, body: HostGroupService) => {
   cy.waitForElementInIframe(
-    '#main-content',
+    'iframe#main-content',
     `a:contains("${name}")`
   );
   cy.getIframeBody().contains(name).click();
