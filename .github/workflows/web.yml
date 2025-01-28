@@ -638,10 +638,10 @@ jobs:
 
       - name: Setup docker slim
         run: |
-          curl -sLO https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+          curl -sLO https://github.com/mintoolkit/mint/releases/download/1.41.7/dist_linux.tar.gz
           tar zxf dist_linux.tar.gz
-          mv dist_linux/{slim,slim-sensor} /usr/local/bin/
-          chmod +x /usr/local/bin/{slim,slim-sensor}
+          mv dist_linux/{mint,mint-sensor} /usr/local/bin/
+          chmod +x /usr/local/bin/{mint,mint-sensor}
           rm -rf dist_linux.tar.gz dist_linux
         shell: bash
 
@@ -650,7 +650,7 @@ jobs:
           export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}"
           sed -i '/openid:/,$d' .github/docker/docker-compose.yml # remove all services after openid
           docker compose -f .github/docker/docker-compose.yml pull db
-          slim build \
+          mint build \
             --compose-file .github/docker/docker-compose.yml \
             --compose-env-file .github/docker/.env \
             --target-compose-svc web \

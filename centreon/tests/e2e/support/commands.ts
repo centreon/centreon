@@ -10,6 +10,7 @@ import '../features/Contacts/commands';
 import '../features/Ldaps/commands';
 import '../features/Logs/commands';
 import '../features/Services-configuration/commands';
+import '../features/Notifications/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -90,6 +91,36 @@ Cypress.Commands.add("enterIframe", (iframeSelector): Cypress.Chainable => {
     .its("0.contentDocument");
 });
 
+Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
+  cy.waitForElementInIframe('#main-content', `input[name=${waitElt}]`);
+  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
+    );
+});
+
+Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
+  cy.getIframeBody()
+  .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
+  .clear()
+  .type(body.valueOrIndex);
+});
+
+Cypress.Commands.add('clickOnFieldInIframe',(body: HtmlElt)=> {
+  cy.getIframeBody().find(`${body.tag}[${body.attribut}="${body.attributValue}"]`).eq(Number(body.valueOrIndex)).click();
+});
+
+interface HtmlElt {
+  tag: string,
+  attribut: string,
+  attributValue: string,
+  valueOrIndex: string
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -107,6 +138,9 @@ declare global {
         paramValue,
       }: Serviceparams) => Cypress.Chainable;
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
+      checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
+      fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
+      clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
     }
   }
 }

@@ -151,9 +151,8 @@ $form->registerRule('exist', 'callback', 'testExistence');
 $form->addRule('resource_name', _("Resource used by one of the instances"), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 // Just watch a Resources CFG information
 if ($o == MACRO_WATCH) {

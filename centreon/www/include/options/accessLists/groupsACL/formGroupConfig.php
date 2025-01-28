@@ -361,11 +361,8 @@ $form->addRule(
     'cg_group_exists'
 );
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * Define tab title

@@ -79,7 +79,7 @@ Given(
     cy.wait('@getDashboard');
     cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
-    cy.waitUntilForDashboardRoles('ShareIcon', 4);
+    cy.waitUntilForDashboardRoles('ShareIcon', 4, 1);
   }
 );
 
@@ -260,7 +260,7 @@ Given(
     cy.wait('@getDashboard');
     cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
-    cy.waitUntilForDashboardRoles('ShareIcon', 4);
+    cy.waitUntilForDashboardRoles('ShareIcon', 4, 1);
     cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(1).click();
     cy.get('[data-state="removed"]').should('exist');
