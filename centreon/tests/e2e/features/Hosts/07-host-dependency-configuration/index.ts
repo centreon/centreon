@@ -26,7 +26,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topcounter&action=*'
+    url: '/centreon/api/internal.php?object=centreon_topcounter&action=servicesStatus'
   }).as('getTopCounter');
   cy.intercept({
     method: 'GET',
