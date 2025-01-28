@@ -27,12 +27,11 @@ class GeneratePollerContext extends CentreonContext
      */
     public function onePollerIsSelected()
     {
-         $this->getSession()->reload();
-        
+        $this->getSession()->reload();
+
         $this->pollers_page->selectEntry('Central');
     }
 
- 
 
     /**
      * @Given multiple pollers are selected
@@ -40,14 +39,12 @@ class GeneratePollerContext extends CentreonContext
     public function multiplePollersAreSelected()
     {
         $this->spin(function () {
-    $checkbox = $this->assertFind('css', 'input[type="checkbox"]');
-    if ($checkbox) {
-       
-        $this->pollers_page->selectEntry('Central');
-        $this->pollers_page->selectEntry('Central_1');
-    }
- 
-},180);
+            $checkbox = $this->assertFind('css', 'input[type="checkbox"]');
+            if ($checkbox) {
+                $this->pollers_page->selectEntry('Central');
+                $this->pollers_page->selectEntry('Central_1');
+            }
+        }, 180);
     }
 
     /**
@@ -72,10 +69,8 @@ class GeneratePollerContext extends CentreonContext
      */
     public function iClickOnTheConfigurationExportButton()
     {
-
-         $this->getSession()->reload();
+        $this->getSession()->reload();
         $this->assertFindLink('#exportConfigurationLink')->click();
-
     }
 
     /**
@@ -84,7 +79,7 @@ class GeneratePollerContext extends CentreonContext
     public function iClickOnTheExportButton()
     {
         // Cannot use pollers_page, as the export will fail.
-         $this->assertFindButton('Export')->click();
+        $this->assertFindButton('Export')->click();
     }
 
     /**
@@ -119,8 +114,10 @@ class GeneratePollerContext extends CentreonContext
         // Wait configuration is generated.
         $this->spin(
             function ($context) {
-                return count($context->getSession()->getPage()
-                        ->findAll('css', 'div#consoleDetails font[color="green"]')) === 6;
+                return count(
+                        $context->getSession()->getPage()
+                            ->findAll('css', 'div#consoleDetails font[color="green"]')
+                    ) === 6;
             }
         );
     }
