@@ -81,8 +81,7 @@ Given('a host dependency is configured', () => {
     rootItemNumber: 3,
     subMenu: 'Notifications'
   });
-  cy.getIframeBody().contains('a', 'Add').click({ force: true });
-  cy.wait('@getTopCounter');
+  cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
   cy.addHostDependency(data.default);
 });
