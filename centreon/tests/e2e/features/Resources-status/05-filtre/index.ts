@@ -314,10 +314,13 @@ When('I select the host group filter with OK and Up statuses', () => {
 });
 
 Then('only services with OK and Up statuses are shown in the result', () => {
- cy.waitForElementToBeVisible('div[class*="statusColumn"]:first')
-  .then(() => {
+  cy.waitForElementToBeVisible('div[class*="statusColumn"]:first')
+   .then(() => {
     cy.get('div[class*="statusColumn"]:first')
-      .should('contain.text', 'Up');
+      .invoke('text')
+      .then((text) => {
+        expect(text.trim()).to.match(/^(Up|OK)$/);
+      });
   });
   cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
     const cellText = $statusCell.text().trim();
@@ -607,6 +610,7 @@ Then('only services matching the selected host service and service category are 
 });
 
 afterEach(() => {
+  cy.deleteAllEventViewFilters()
   cy.logoutViaAPI();
 });
 
