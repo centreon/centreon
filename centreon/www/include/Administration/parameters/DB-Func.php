@@ -144,7 +144,7 @@ function is_writable_file_if_exist($path = null)
     return false;
 }
 
-function is_greater_than($value, $minValue) 
+function isGreaterThan($value, $minValue) 
 {
     return is_numeric($value) && $value >= $minValue;
 }
