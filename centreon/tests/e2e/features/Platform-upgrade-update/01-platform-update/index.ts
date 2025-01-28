@@ -7,12 +7,7 @@ import {
 } from '../common';
 
 beforeEach(() => {
-  // Clear cookies and local storage before each test
-  cy.clearCookies();
-  cy.clearLocalStorage();
-  
-  // Force reload to bypass the cache
-  cy.reload(true);
+  cy.clearBrowserCache();
 
   cy.getWebVersion().then(({ major_version }) => {
     cy.intercept({

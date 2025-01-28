@@ -121,9 +121,27 @@ interface HtmlElt {
   valueOrIndex: string
 }
 
+Cypress.Commands.add('clearBrowserCache', () => {
+  cy.window().then((win) => {
+    if (win.caches) {
+      return win.caches.keys().then((cacheNames) => {
+        return Promise.all(cacheNames.map((cacheName) => win.caches.delete(cacheName)));
+      });
+    }
+  });
+
+  // Clear local storage and cookies
+  cy.clearLocalStorage();
+  cy.clearCookies();
+
+  // Force reload the page without cache
+  cy.reload(true);
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
+      clearBrowserCache: () => Cypress.Chainable;
       disableListingAutoRefresh: () => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
