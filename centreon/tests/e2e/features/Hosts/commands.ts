@@ -3,18 +3,18 @@ Cypress.Commands.add(
   (iframeSelector, elementSelector) => {
     cy.waitUntil(
       () =>
-        cy
-          .get(iframeSelector)
-          .its('0.contentDocument.body')
-          .should('not.be.empty')
-          .then(cy.wrap)
-          .within(() => {
-            const element = Cypress.$(elementSelector);
+        cy.get(iframeSelector).then(($iframe) => {
+          const iframeBody = $iframe[0].contentDocument.body;
+          if (iframeBody) {
+            const $element = Cypress.$(iframeBody).find(elementSelector);
 
-            return element.length > 0 && element.is(':visible');
-          }),
+            return $element.length > 0 && $element.is(':visible');
+          }
+
+          return false;
+        }),
       {
-        errorMsg: 'The element is not visible',
+        errorMsg: 'The element is not visible within the iframe',
         interval: 5000,
         timeout: 100000
       }
@@ -43,7 +43,7 @@ Cypress.Commands.add('exportConfig', () => {
 });
 
 Cypress.Commands.add('addHostDependency', (body: HostDependency) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
     .type(body.name);
@@ -65,7 +65,7 @@ Cypress.Commands.add('addHostDependency', (body: HostDependency) => {
 });
 
 Cypress.Commands.add('updateHostDependency', (body: HostDependency) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
     cy.getIframeBody()
       .find('input[name="dep_name"]')
       .clear()
@@ -113,7 +113,7 @@ Cypress.Commands.add('updateHostDependency', (body: HostDependency) => {
 })
 
 Cypress.Commands.add('addHostGroupDependency', (body: HostGroupDependency) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
     .type(body.name);
@@ -133,7 +133,7 @@ Cypress.Commands.add('addHostGroupDependency', (body: HostGroupDependency) => {
 });
 
 Cypress.Commands.add('updateHostGroupDependency', (body: HostGroupDependency) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
+  cy.waitForElementInIframe('iframe#main-content', 'input[name="dep_name"]');
     cy.getIframeBody()
       .find('input[name="dep_name"]')
       .clear()
