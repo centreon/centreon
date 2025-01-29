@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,22 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Application\Repository;
+namespace Core\Service\Infrastructure\API\DeleteServices;
 
-interface WriteMonitoringServerRepositoryInterface {
+use Symfony\Component\Validator\Constraints as Assert;
+
+final class DeleteServicesInput
+{
     /**
-     * Define the monitoring server as changed since its last configuration export.
-     *
-     * @param int $monitoringServerId
-     *
-     * @throws \Throwable
+     * @param int[] $ids
      */
-    public function notifyConfigurationChange(int $monitoringServerId): void;
+    public function __construct(
+        #[Assert\NotNull()]
+        #[Assert\Type('array')]
+        #[Assert\All(
+            new Assert\Type('integer')
+        )]
+        public readonly mixed $ids
+    ) {
+    }
 }
