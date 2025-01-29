@@ -133,7 +133,8 @@ When("the user delete a service category", () => {
       .find("div.md-checkbox")
       .eq(1)
       .click();
-    cy.getIframeBody()
+    cy.get("iframe#main-content")
+      .its("0.contentDocument.body")
       .find("table.ToolbarTable tbody")
       .find("td.Toolbar_TDSelectAction_Bottom")
       .find("select")
@@ -142,7 +143,8 @@ When("the user delete a service category", () => {
         "onchange",
         "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }",
       );
-    cy.getIframeBody()
+    cy.get("iframe#main-content")
+      .its("0.contentDocument.body")
       .find("table.ToolbarTable tbody")
       .find("td.Toolbar_TDSelectAction_Bottom")
       .find("select")
