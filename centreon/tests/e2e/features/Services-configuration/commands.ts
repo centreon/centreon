@@ -80,14 +80,15 @@ Cypress.Commands.add('addOrUpdateVirtualMetric', (body: VirtualMetric) => {
 });
 
 Cypress.Commands.add('checkFieldsOfVM', (body: VirtualMetric) => {
-  cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="vmetric_name"]');
   cy.getIframeBody()
     .find('input[name="vmetric_name"]')
     .should('have.value', body.name);
   cy.getIframeBody()
-    .find('#select2-host_id-container')
-    .should('have.attr', 'title', body.linkedHostServices);
+    .find('#host_id')
+    .find('option:selected')
+    .should('have.length', 1)
+    .and('have.text', body.linkedHostServices);
   cy.getIframeBody()
     .find('textarea[name="rpn_function"]')
     .should('have.value', body.knownMetric);
