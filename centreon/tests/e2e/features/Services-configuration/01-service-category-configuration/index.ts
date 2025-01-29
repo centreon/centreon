@@ -4,12 +4,12 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: "GET",
-    url: "/centreon/include/common/userTimezone.php",
-  }).as("getUserTimezone");
-  cy.intercept({
-    method: "GET",
     url: "/centreon/api/internal.php?object=centreon_topology&action=navigationList",
   }).as("getNavigationList");
+  cy.intercept({
+    method: "GET",
+    url: "/centreon/include/common/userTimezone.php",
+  }).as("getTimeZone");
 });
 
 Given("a user is logged in Centreon", () => {
@@ -99,7 +99,7 @@ When("the user duplicate a service category", () => {
 });
 
 Then("the new service category has the same properties", () => {
-  cy.reload()
+  cy.wait("@getTimeZone");
   cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
   cy.getIframeBody()
     .contains("Ping_1")
@@ -149,7 +149,7 @@ When("the user delete a service category", () => {
 });
 
 Then("the deleted service category is not displayed in the list", () => {
-  cy.reload();
+  cy.wait("@getTimeZone");
   cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
   cy.getIframeBody()
     .find("table.ListTable tbody")
