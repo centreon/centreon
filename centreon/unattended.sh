@@ -450,6 +450,29 @@ function set_required_prerequisite() {
   case "$detected_os_release" in
 	oraclelinux-release* | redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
 		case "$detected_os_version" in
+    7*)
+        log "INFO" "Setting specific part for v7 ($detected_os_version)"
+
+        BASE_PACKAGES=(centos-release-scl)
+
+        RELEASE_REPO_FILE="http://packages.centreon.com/artifactory/rpm-standard-esr/$version/el7/centreon-$version-esr.repo.txt"
+        REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-7.rpm"
+        PHP_SERVICE_UNIT="php-fpm"
+				HTTP_SERVICE_UNIT="httpd24-httpd"
+        PKG_MGR="yum"
+
+        install_remi_repo
+        $PKG_MGR -y -q install yum-utils
+        yum-config-manager --enable remi-php81
+
+        set_centreon_repos
+
+        log "INFO" "Installing required base packages"
+        if ! $PKG_MGR -y -q install ${BASE_PACKAGES[@]}; then
+            error_and_exit "Failed to install required base packages ${BASE_PACKAGES[@]}"
+        fi
+        ;;
+
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
