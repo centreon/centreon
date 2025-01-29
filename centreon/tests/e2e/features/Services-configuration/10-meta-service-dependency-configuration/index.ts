@@ -50,7 +50,7 @@ Given('a meta service dependency is configured', () => {
     rootItemNumber: 3,
     subMenu: 'Notifications'
   });
-  cy.getIframeBody().contains('a', 'Add').click({ force: true });
+  cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
   cy.addMSDependency(data.defaultMetaServiceDep);
 });

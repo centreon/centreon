@@ -1,4 +1,4 @@
-import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
+import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 beforeEach(() => {
   cy.startContainers();
@@ -12,8 +12,8 @@ beforeEach(() => {
   }).as("getTimeZone");
 });
 
-Given("a user is logged in Centreon", () => {
-  cy.loginByTypeOfUser({ jsonName: "admin" });
+Given('a user is logged in Centreon', () => {
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
 Then("a service category is configured", () => {
@@ -68,11 +68,11 @@ Then("the properties are updated", () => {
     .contains("test description modified");
 });
 
-When("the user duplicate a service category", () => {
+When('the user duplicate a service category', () => {
   cy.navigateTo({
-       page: "Categories",
-       rootItemNumber: 3,
-       subMenu: "Services",
+    page: 'Categories',
+    rootItemNumber: 3,
+    subMenu: 'Services'
   });
   cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
   cy.getIframeBody()
@@ -112,9 +112,9 @@ Then("the new service category has the same properties", () => {
     .should('exist');
   cy.getIframeBody()
     .find('input[value="ping"]')
-    .should("exist");
-  cy.getIframeBody().contains("Ping-LAN").should("exist");
-  cy.getIframeBody().contains("Ping-WAN").should("exist");
+    .should('exist');
+  cy.getIframeBody().contains('Ping-LAN').should('exist');
+  cy.getIframeBody().contains('Ping-WAN').should('exist');
 });
 
 When("the user delete a service category", () => {

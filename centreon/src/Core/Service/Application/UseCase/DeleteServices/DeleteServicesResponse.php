@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Application\Repository;
+namespace Core\Service\Application\UseCase\DeleteServices;
 
-interface WriteMonitoringServerRepositoryInterface {
+use Core\Application\Common\UseCase\BulkResponseInterface;
+
+final class DeleteServicesResponse implements BulkResponseInterface
+{
     /**
-     * Define the monitoring server as changed since its last configuration export.
-     *
-     * @param int $monitoringServerId
-     *
-     * @throws \Throwable
+     * @param DeleteServicesStatusResponse[] $results
      */
-    public function notifyConfigurationChange(int $monitoringServerId): void;
+    public function __construct(private readonly array $results)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return DeleteServicesStatusResponse[]
+     */
+    public function getData(): array
+    {
+        return $this->results;
+    }
 }
