@@ -74,14 +74,13 @@ When('the user duplicate a service category', () => {
     rootItemNumber: 3,
     subMenu: 'Services'
   });
-  cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
-  cy.getIframeBody()
-    .find("tr.list_one, tr.list_two")
-    .contains("td", "Ping")
-    .parent()
-    .find('input[type="checkbox"]')
-    .parent()
-    .parent()
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("table tbody")
+    .find("tr.list_one")
+    .find("td.ListColPicker")
+    .find("div.md-checkbox")
+    .eq(1)
     .click();
     cy.getIframeBody()
       .find("table.ToolbarTable tbody")
@@ -103,7 +102,9 @@ Then("the new service category has the same properties", () => {
   cy.wait("@getTimeZone");
   cy.reload();
   cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
-  cy.getIframeBody()
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
+    .find("table tbody")
     .contains("Ping_1")
     .should("be.visible");
   cy.getIframeBody()
@@ -126,15 +127,13 @@ When("the user delete a service category", () => {
       rootItemNumber: 3,
       subMenu: "Services",
     });
-    cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
-    cy.getIframeBody().contains("Ping");
-    cy.getIframeBody()
-      .find("tr.list_one, tr.list_two")
-      .contains("td", "test")
-      .parent()
-      .find('input[type="checkbox"]')
-      .parent()
-      .parent()
+    cy.get("iframe#main-content")
+      .its("0.contentDocument.body")
+      .find("table tbody")
+      .find("tr.list_two")
+      .find("td.ListColPicker")
+      .find("div.md-checkbox")
+      .eq(1)
       .click();
     cy.getIframeBody()
       .find("table.ToolbarTable tbody")
@@ -154,8 +153,6 @@ When("the user delete a service category", () => {
 
 Then("the deleted service category is not displayed in the list", () => {
   cy.wait("@getTimeZone");
-  cy.reload();
-  cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
   cy.getIframeBody()
     .find("table.ListTable tbody")
     .children()
