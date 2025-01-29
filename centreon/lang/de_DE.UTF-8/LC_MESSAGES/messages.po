@@ -17551,3 +17551,7 @@ msgstr "Erweiterter Modus"
 
 # msgid "Stay"
 # msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""
+

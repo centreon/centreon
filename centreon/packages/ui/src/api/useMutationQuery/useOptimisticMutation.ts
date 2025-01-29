@@ -60,8 +60,10 @@ export const useOptimisticMutation = <T, TMeta>({
   }: GetOptimisticMutationListingProps<T, TMeta>): object => {
     const listingQueryKey = getListingQueryKey();
 
-    const updatedPayload = payload && 'id' in payload ? payload :{...payload, id: optimisticListing?.total}
-
+    const updatedPayload =
+      payload && 'id' in payload
+        ? payload
+        : { ...payload, id: (optimisticListing?.total ?? 0) + 1 };
 
     const hasOnlyOnePage =
       (optimisticListing?.total || 0) <= (optimisticListing?.limit || 0);
