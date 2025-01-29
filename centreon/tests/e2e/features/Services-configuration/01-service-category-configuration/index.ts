@@ -76,12 +76,11 @@ When("the user duplicate a service category", () => {
   });
   cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
   cy.getIframeBody()
-    .find("table tbody")
-    .find("tr.list_one")
-    .find("td.ListColPicker")
-    .find("div.md-checkbox")
-    .eq(1)
-    .click();
+    .find("tr.list_one, tr.list_two")
+    .contains("td", "test")
+    .parent()
+    .find('input[type="checkbox"]')
+    .check();
     cy.getIframeBody()
       .find("table.ToolbarTable tbody")
       .find("td.Toolbar_TDSelectAction_Bottom")
@@ -126,12 +125,11 @@ When("the user delete a service category", () => {
     });
     cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
     cy.getIframeBody()
-      .find("table tbody")
-      .find("tr.list_two")
-      .find("td.ListColPicker")
-      .find("div.md-checkbox")
-      .eq(1)
-      .click();
+      .find("tr.list_one, tr.list_two")
+      .contains("td", "test")
+      .parent()
+      .find('input[type="checkbox"]')
+      .check();
     cy.getIframeBody()
       .find("table.ToolbarTable tbody")
       .find("td.Toolbar_TDSelectAction_Bottom")
