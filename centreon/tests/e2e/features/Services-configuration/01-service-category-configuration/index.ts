@@ -1,7 +1,7 @@
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
 beforeEach(() => {
-  cy.startContainers();
+  // cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/include/common/userTimezone.php",
@@ -17,52 +17,41 @@ Given("a user is logged in Centreon", () => {
 });
 
 Then("a service category is configured", () => {
-    cy.navigateTo({
-      page: "Categories",
-      rootItemNumber: 3,
-      subMenu: "Services",
-    });
-    cy.getIframeBody()
-      .find("tr.ToolbarTR")
-      .find('.btc.bt_success')
-      .contains('Add')
-      .click();
-    cy.get('iframe#main-content')
-        .its('0.contentDocument.body')
-      .find("table > tbody > tr.list_one > td.FormRowValue")
-      .find('input[name="sc_name"]')
-      .type("test");
-    cy.getIframeBody()
-      .find("table tr.list_two td.FormRowValue")
-      .find('input[name="sc_description"]')
-      .type("test description");
-    cy.get("iframe#main-content")
-      .its("0.contentDocument.body")
-      .find("table tr.list_two")
-      .find("td.FormRowValue")
-      .find("select#sc_svcTpl")
-      .next()
-      .click();
-    cy.getIframeBody()
-      .contains('Ping-LAN')
-      .click();
-    cy.getIframeBody()
-      .find("div#validForm")
-      .find("p.oreonbutton")
-      .find('.btc.bt_success[name="submitA"]')
-      .click();
+  cy.navigateTo({
+    page: "Categories",
+    rootItemNumber: 3,
+    subMenu: "Services",
+  });
+  cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
+  cy.getIframeBody()
+    .contains("Add")
+    .click();
+  cy.waitForElementInIframe("#main-content", 'input[name="sc_name"]');
+  cy.getIframeBody()
+    .find('input[name="sc_name"]')
+    .type("test");
 
+  cy.getIframeBody()
+    .find('input[name="sc_description"]')
+    .type("test description");
+  cy.getIframeBody().find("select#sc_svcTpl")
+    .next()
+    .click();
+  cy.getIframeBody().contains("Ping-LAN").click();
+  cy.getIframeBody()
+    .find("div#validForm")
+    .find("p.oreonbutton")
+    .find('.btc.bt_success[name="submitA"]')
+    .click();
 });
 
 When("the user change the properties of a service category", () => {
-    cy.get("iframe#main-content")
-      .its("0.contentDocument.body")
-      .find('table tbody')
+    cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
+    cy.getIframeBody()
       .contains('test')
       .click();
-    cy.get("iframe#main-content")
-      .its("0.contentDocument.body")
-      .find("table tr.list_two td.FormRowValue")
+    cy.waitForElementInIframe("#main-content", 'input[name="sc_description"]');
+    cy.getIframeBody()
       .find('input[name="sc_description"]')
       .clear()
       .type("test description modified");
@@ -74,9 +63,8 @@ When("the user change the properties of a service category", () => {
 });
 
 Then("the properties are updated", () => {
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
-    .find("table tbody")
+  cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
+  cy.getIframeBody()
     .contains("test description modified");
 });
 
@@ -86,16 +74,15 @@ When("the user duplicate a service category", () => {
        rootItemNumber: 3,
        subMenu: "Services",
   });
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
+  cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
+  cy.getIframeBody()
     .find("table tbody")
     .find("tr.list_one")
     .find("td.ListColPicker")
     .find("div.md-checkbox")
     .eq(1)
     .click();
-    cy.get("iframe#main-content")
-      .its("0.contentDocument.body")
+    cy.getIframeBody()
       .find("table.ToolbarTable tbody")
       .find("td.Toolbar_TDSelectAction_Bottom")
       .find("select")
@@ -104,8 +91,7 @@ When("the user duplicate a service category", () => {
         "onchange",
         "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }",
       );
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
+  cy.getIframeBody()
     .find("table.ToolbarTable tbody")
     .find("td.Toolbar_TDSelectAction_Bottom")
     .find("select")
@@ -113,23 +99,19 @@ When("the user duplicate a service category", () => {
 });
 
 Then("the new service category has the same properties", () => {
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
-    .find("table tbody")
+  cy.reload()
+  cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
+  cy.getIframeBody()
     .contains("Ping_1")
     .should("be.visible");
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
-    .find("table tbody")
+  cy.getIframeBody()
     .contains("Ping_1")
     .click();
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
-    .find("table > tbody > tr.list_one > td.FormRowValue")
+  cy.waitForElementInIframe("#main-content", 'input[name="sc_description"]');
+  cy.getIframeBody()
     .find('input[value="Ping_1"]')
     .should('exist');
   cy.getIframeBody()
-    .find("table tr.list_two td.FormRowValue")
     .find('input[value="ping"]')
     .should("exist");
   cy.getIframeBody().contains("Ping-LAN").should("exist");
@@ -142,16 +124,15 @@ When("the user delete a service category", () => {
       rootItemNumber: 3,
       subMenu: "Services",
     });
-    cy.get("iframe#main-content")
-      .its("0.contentDocument.body")
+    cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
+    cy.getIframeBody()
       .find("table tbody")
       .find("tr.list_two")
       .find("td.ListColPicker")
       .find("div.md-checkbox")
       .eq(1)
       .click();
-    cy.get("iframe#main-content")
-      .its("0.contentDocument.body")
+    cy.getIframeBody()
       .find("table.ToolbarTable tbody")
       .find("td.Toolbar_TDSelectAction_Bottom")
       .find("select")
@@ -160,8 +141,7 @@ When("the user delete a service category", () => {
         "onchange",
         "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }",
       );
-    cy.get("iframe#main-content")
-      .its("0.contentDocument.body")
+    cy.getIframeBody()
       .find("table.ToolbarTable tbody")
       .find("td.Toolbar_TDSelectAction_Bottom")
       .find("select")
@@ -169,14 +149,13 @@ When("the user delete a service category", () => {
 });
 
 Then("the deleted service category is not displayed in the list", () => {
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
+  cy.reload();
+  cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
+  cy.getIframeBody()
     .find("table.ListTable tbody")
     .children()
     .should("have.length", 5);
-  cy.get("iframe#main-content")
-    .its("0.contentDocument.body")
-    .find("table.ListTable tbody")
+  cy.getIframeBody()
     .contains('test')
     .should('not.exist');
 });
