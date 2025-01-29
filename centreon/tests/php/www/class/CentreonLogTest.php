@@ -280,10 +280,50 @@ it('test writing logs with a custom context and an exception', function () {
             "[{$this->centreonLogTest->date}",
             '] NOTICE : login_message | {"context":{"default":{"back_trace":',
             sprintf(
-                '"exception":{"exception_type":"RuntimeException","file":"%s","line":%s,"code":99,"message":' .
-                '"test_message_exception","previous":null},"custom":{"custom_value1":"foo"}}}',
+                '"exception":{"exception_type":"%s","file":"%s","line":%s,"code":%s,"message":' .
+                '"%s","previous":%s},"custom":{"custom_value1":"%s"}}}',
+                'RuntimeException',
                 $e->getFile(),
-                $e->getLine()
+                $e->getLine(),
+                99,
+                'test_message_exception',
+                'null',
+                'foo'
+            )
+        );
+        $successDeleteFile = unlink($logfile);
+        expect($successDeleteFile)->toBeTrue();
+    }
+});
+
+it('test writing logs with a custom context and an exception with a previous exception', function (): void {
+    try {
+        $previous = new LogicException('test_message_exception_previous', 98);
+        throw new RuntimeException('test_message_exception', 99, $previous);
+    } catch (RuntimeException $e) {
+        $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
+        $this->centreonLogTest->loggerTest
+            ->notice(CentreonLog::TYPE_LOGIN, 'login_message', ['custom_value1' => 'foo'], $e);
+        expect(file_exists($logfile))->toBeTrue();
+        $contentLog = file_get_contents($logfile);
+        expect($contentLog)->toBeString()->toContain(
+            "[{$this->centreonLogTest->date}",
+            '] NOTICE : login_message | {"context":{"default":{"back_trace":',
+            sprintf(
+                '"exception":{"exception_type":"%s","file":"%s","line":%s,"code":%s,"message":' .
+                '"%s","previous":{"exception_type":"%s","file":"%s","line":%s,' .
+                '"code":%s,"message":"%s"}},"custom":{"custom_value1":"%s"}}}',
+                "RuntimeException",
+                $e->getFile(),
+                $e->getLine(),
+                99,
+                "test_message_exception",
+                "LogicException",
+                $e->getPrevious()->getFile(),
+                $e->getPrevious()->getLine(),
+                98,
+                "test_message_exception_previous",
+                "foo"
             )
         );
         $successDeleteFile = unlink($logfile);
@@ -296,7 +336,8 @@ it('test writing logs with a custom context and an exception', function () {
  * @param string $logfile
  * @param string $date
  * @param string $message
- * @param int $line
+ * @param int    $line
+ *
  * @return void
  */
 function testContentLogWithoutContext(
