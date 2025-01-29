@@ -18345,3 +18345,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Stay"
 # msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""

@@ -84,7 +84,7 @@ runs:
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
     - name: Cypress end-to-end testing
-      uses: cypress-io/github-action@f1f0912d392f0d06bdd01fb9ebe3b3299e5806fb # v6.7.7
+      uses: cypress-io/github-action@b86ab8d33218c786a7c2d17dfea9724eb8aa8b6b # v6.7.9
       with:
         command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }} --env tags="${{ inputs.test_tags }}"
         install: false

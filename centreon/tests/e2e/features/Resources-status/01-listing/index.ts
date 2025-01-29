@@ -1,7 +1,10 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import { searchInput, setUserFilter } from '../common';
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkServicesAreMonitored,
+  checkMetricsAreMonitored
+} from '../../../commons';
 
 const serviceOk = 'service_test_ok';
 const serviceInDtName = 'service_downtime_1';
@@ -122,6 +125,18 @@ beforeEach(() => {
     {
       name: serviceOk,
       status: 'ok'
+    }
+  ]);
+
+  ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  });
+
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
     }
   ]);
 });
