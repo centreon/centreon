@@ -1,15 +1,19 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 
-import { useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { equals, isNil } from 'ramda';
+import { useNavigate } from 'react-router-dom';
 
 import { useFetchQuery } from '@centreon/ui';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import {
+  refreshIntervalAtom,
+  userAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
-import { pollerListIssuesEndPoint } from '../api/endpoints';
 import { pollerIssuesDecoder } from '../api/decoders';
+import { pollerListIssuesEndPoint } from '../api/endpoints';
 
 import { getPollerPropsAdapter } from './getPollerPropsAdapter';
 import type { GetPollerPropsAdapterResult } from './getPollerPropsAdapter';
@@ -23,22 +27,25 @@ interface UsePollerDataResult {
 export const usePollerData = (): UsePollerDataResult => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [isAllowed, setIsAllowed] = useState<boolean>(true);
+
+  const userPermissions = useAtomValue(userPermissionsAtom);
   const { isExportButtonEnabled } = useAtomValue(userAtom);
   const refetchInterval = useAtomValue(refreshIntervalAtom);
 
+  const isAllowed = useMemo(
+    () => userPermissions?.poller_statistics || false,
+    [userPermissions?.poller_statistics]
+  );
+
   const { isLoading, data } = useFetchQuery({
-    catchError: ({ statusCode }): void => {
-      if (equals(statusCode, 401)) {
-        setIsAllowed(false);
-      }
-    },
     decoder: pollerIssuesDecoder,
     getEndpoint: () => pollerListIssuesEndPoint,
     getQueryKey: () => [pollerListIssuesEndPoint, 'get-poller-status'],
     httpCodesBypassErrorSnackbar: [401],
     queryOptions: {
-      refetchInterval: refetchInterval * 1000
+      enabled: isAllowed,
+      refetchInterval: refetchInterval * 1000,
+      suspense: false
     }
   });
 
