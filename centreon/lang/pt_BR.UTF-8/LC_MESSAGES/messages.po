@@ -14757,7 +14757,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "End time"
 #  msgstr ""
 
-#  msgid "This Resource is flapping"
+#  msgid "This resource is flapping"
 #  msgstr ""
 
 #  msgid "Show criterias filters"
@@ -18354,3 +18354,17 @@ msgstr ""
 # msgid "If you click on Discard, your changes will not be saved."
 # msgstr ""
 
+# msgid "The minimum allowed value is 10"
+# msgstr ""
+
+# msgid "Do you want to leave this page?"
+# msgstr ""
+
+# msgid "Your changes will not be saved if you leave this page."
+# msgstr ""
+
+# msgid "Leave"
+# msgstr ""
+
+# msgid "Stay"
+# msgstr ""

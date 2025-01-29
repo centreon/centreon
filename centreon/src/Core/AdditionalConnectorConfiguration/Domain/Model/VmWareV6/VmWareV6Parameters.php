@@ -80,7 +80,7 @@ class VmWareV6Parameters implements AccParametersInterface
 
             // This is a temporary fix to handle the case where the scheme should be not be a part of the URL.
             // The scheme is removed after being reunified with the url to ensure this is not stored.
-            $parameters['vcenters'][$index]['url'] = $vcenter['scheme'] !== null
+            $parameters['vcenters'][$index]['url'] = isset($vcenter['scheme'])
                 ? $vcenter['scheme'] . '://' . $vcenter['url']
                 : $vcenter['url'];
             unset($parameters['vcenters'][$index]['scheme']);

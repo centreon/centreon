@@ -83,9 +83,9 @@ try {
     exit;
 }
 
+// Smarty template initialization
 $path = $centreon_path . 'www/widgets/engine-status/src/';
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, './', $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 $dataLat = [];
 $dataEx = [];

@@ -84,6 +84,7 @@ export interface ResourceData {
   information?: string;
   is_acknowledged?: boolean;
   is_in_downtime?: boolean;
+  is_in_flapping?: boolean;
   metricsEndpoint?: string;
   name: string;
   parentId?: string;

@@ -1,0 +1,162 @@
+{
+   "criterias":[
+      {
+         "name":"parent_names",
+         "object_type":"parent_names",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"statuses",
+         "object_type":null,
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"status_types",
+         "object_type":null,
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"host_groups",
+         "object_type":"host_groups",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"service_groups",
+         "object_type":"service_groups",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"monitoring_servers",
+         "object_type":"monitoring_servers",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"host_categories",
+         "object_type":"host_categories",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"service_categories",
+         "object_type":"service_categories",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"host_severities",
+         "object_type":"host_severities",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"host_severity_levels",
+         "object_type":"host_severity_levels",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"service_severities",
+         "object_type":"service_severities",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"service_severity_levels",
+         "object_type":"service_severity_levels",
+         "type":"multi_select",
+         "value":[
+
+         ]
+      },
+      {
+         "name":"names",
+         "object_type":"names",
+         "type":"multi_select",
+         "value":[
+            {
+               "id":0,
+               "name":"service_ack_1",
+               "formattedName":"service_ack_1"
+            }
+         ]
+      },
+      {
+         "name":"resource_types",
+         "object_type":null,
+         "type":"multi_select",
+         "value":[
+            {
+               "id":"service",
+               "name":"Service"
+            }
+         ]
+      },
+      {
+         "name":"states",
+         "object_type":null,
+         "type":"multi_select",
+         "value":[
+            {
+               "id":"in_downtime",
+               "name":"In downtime"
+            },
+            {
+               "id":"acknowledged",
+               "name":"Acknowledged"
+            },
+            {
+               "id":"unhandled_problems",
+               "name":"Unhandled"
+            },
+            {
+               "id":"in_flapping",
+               "name":"Flapping"
+            }
+         ]
+      },
+      {
+         "name":"search",
+         "object_type":null,
+         "type":"text",
+         "value":""
+      },
+      {
+         "name":"sort",
+         "object_type":null,
+         "type":"array",
+         "value":[
+            "status_severity_code",
+            "desc"
+         ]
+      }
+   ],
+   "name":"acknowledgeServiceAllStates"
+}
