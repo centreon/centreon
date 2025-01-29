@@ -43,7 +43,8 @@ Given('a host group dependency is configured', () => {
     rootItemNumber: 3,
     subMenu: 'Notifications'
   });
-  cy.getIframeBody().contains('a', 'Add').click({ force: true });
+  cy.getIframeBody().contains('a', 'Add').click();
+  cy.wait('@getTimeZone');
   cy.addHostGroupDependency(data.default);
 });
 
