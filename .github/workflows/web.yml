@@ -763,7 +763,7 @@ jobs:
 
   e2e-test:
     # needs: [get-environment, changes, dockerize, create-xray-test-plan-and-test-execution]
-    needs: [get-environment, changes, create-xray-test-plan-and-test-execution]
+    needs: [get-environment, changes]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       !cancelled() &&

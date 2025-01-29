@@ -75,7 +75,6 @@ When('the user duplicate a service category', () => {
     subMenu: 'Services'
   });
   cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
-  cy.getIframeBody().contains("Ping");
   cy.getIframeBody()
     .find("tr.list_one, tr.list_two")
     .contains("td", "Ping")
@@ -102,6 +101,7 @@ When('the user duplicate a service category', () => {
 
 Then("the new service category has the same properties", () => {
   cy.wait("@getTimeZone");
+  cy.reload();
   cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
   cy.getIframeBody()
     .contains("Ping_1")
@@ -154,6 +154,7 @@ When("the user delete a service category", () => {
 
 Then("the deleted service category is not displayed in the list", () => {
   cy.wait("@getTimeZone");
+  cy.reload();
   cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
   cy.getIframeBody()
     .find("table.ListTable tbody")
