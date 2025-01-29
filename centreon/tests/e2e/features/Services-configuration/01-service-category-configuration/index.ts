@@ -1,7 +1,7 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 beforeEach(() => {
-  cy.startContainers();
+  // cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/api/internal.php?object=centreon_topology&action=navigationList",
@@ -75,12 +75,15 @@ When('the user duplicate a service category', () => {
     subMenu: 'Services'
   });
   cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
+  cy.getIframeBody().contains("Ping");
   cy.getIframeBody()
     .find("tr.list_one, tr.list_two")
-    .contains("td", "test")
+    .contains("td", "Ping")
     .parent()
     .find('input[type="checkbox"]')
-    .check();
+    .parent()
+    .parent()
+    .click();
     cy.getIframeBody()
       .find("table.ToolbarTable tbody")
       .find("td.Toolbar_TDSelectAction_Bottom")
@@ -124,12 +127,15 @@ When("the user delete a service category", () => {
       subMenu: "Services",
     });
     cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
+    cy.getIframeBody().contains("Ping");
     cy.getIframeBody()
       .find("tr.list_one, tr.list_two")
       .contains("td", "test")
       .parent()
       .find('input[type="checkbox"]')
-      .check();
+      .parent()
+      .parent()
+      .click();
     cy.getIframeBody()
       .find("table.ToolbarTable tbody")
       .find("td.Toolbar_TDSelectAction_Bottom")
