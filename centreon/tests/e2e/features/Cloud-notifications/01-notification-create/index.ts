@@ -263,7 +263,11 @@ Then(
           logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`,
         });
       } else {
-        notificationSentCount(1000);
+        const logsToCheck = Array.from(
+          { length: 1000 },
+          (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
+        );
+        notificationSentCheck({ logs: logsToCheck });
       }
       notificationSentCheck({
         logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`,
