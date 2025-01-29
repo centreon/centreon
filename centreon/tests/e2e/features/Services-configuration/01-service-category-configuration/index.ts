@@ -100,8 +100,6 @@ When('the user duplicate a service category', () => {
 
 Then("the new service category has the same properties", () => {
   cy.wait("@getTimeZone");
-  cy.reload();
-  cy.waitForElementInIframe("#main-content", 'input[name="searchSC"]');
   cy.get("iframe#main-content")
     .its("0.contentDocument.body")
     .find("table tbody")
