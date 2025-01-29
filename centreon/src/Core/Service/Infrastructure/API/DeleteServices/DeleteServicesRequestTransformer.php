@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Application\Repository;
+namespace Core\Service\Infrastructure\API\DeleteServices;
 
-interface WriteMonitoringServerRepositoryInterface {
+use Core\Service\Application\UseCase\DeleteServices\DeleteServicesRequest;
+
+abstract readonly class DeleteServicesRequestTransformer
+{
     /**
-     * Define the monitoring server as changed since its last configuration export.
-     *
-     * @param int $monitoringServerId
-     *
-     * @throws \Throwable
+     * @param DeleteServicesInput $input
+     * @return DeleteServicesRequest
      */
-    public function notifyConfigurationChange(int $monitoringServerId): void;
+    public static function transform(DeleteServicesInput $input): DeleteServicesRequest
+    {
+        return new DeleteServicesRequest(serviceIds: $input->ids);
+    }
 }
