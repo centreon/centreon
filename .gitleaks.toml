@@ -5,12 +5,12 @@ useDefault = true
 
 [allowlist]
 files = [
-	'''pnpm-lock\.yaml''',
-	'''composer\.lock''',
-	'''sonar-project\.properties''',
-	'''(.*?)(jpg|gif|md|doc)'''
 ]
 
 paths = [
-  '''jira'''
+  '''jira''',
+  '''pnpm-lock\.yaml''',
+  '''composer\.lock''',
+  '''sonar-project\.properties''',
+  '''(.*?)(jpg|gif|md|doc)'''
 ]
