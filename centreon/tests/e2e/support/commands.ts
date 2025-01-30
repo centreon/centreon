@@ -16,6 +16,7 @@ import '../features/Agent-configuration/commands';
 import '../features/Logs/commands';
 import '../features/Services-configuration/commands';
 import '../features/Notifications/commands';
+import '../features/Commands/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -108,14 +109,14 @@ Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
     );
 });
 
-Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
+Cypress.Commands.add('fillFieldInIframe', (body: HtmlElt) => {
   cy.getIframeBody()
-  .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
-  .clear()
-  .type(body.valueOrIndex);
+    .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
+    .clear()
+    .type(body.valueOrIndex);
 });
 
-Cypress.Commands.add('clickOnFieldInIframe',(body: HtmlElt)=> {
+Cypress.Commands.add('clickOnFieldInIframe', (body: HtmlElt) => {
   cy.getIframeBody().find(`${body.tag}[${body.attribut}="${body.attributValue}"]`).eq(Number(body.valueOrIndex)).click();
 });
 
