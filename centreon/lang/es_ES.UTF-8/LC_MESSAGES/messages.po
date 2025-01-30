@@ -17905,5 +17905,14 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Stay"
 # msgstr ""
 
+# msgid "Generic widgets"
+# msgstr ""
+
+# msgid "Real time widgets"
+# msgstr ""
+
+# msgid "MBI Reporting widgets"
+# msgstr ""
+
 # msgid "The minimum allowed value is 10"
 # msgstr ""
