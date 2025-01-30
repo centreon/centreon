@@ -349,6 +349,10 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function exist(array $hostGroupIds): array
     {
+        if ([] === $hostGroupIds) {
+            return [];
+        }
+
         $concatenator = $this->getFindHostGroupConcatenator();
 
         return $this->existHostGroups($concatenator, $hostGroupIds);
@@ -359,7 +363,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function existByAccessGroups(array $hostGroupIds, array $accessGroups): array
     {
-        if ([] === $accessGroups) {
+        if ([] === $accessGroups || [] === $hostGroupIds) {
             return [];
         }
 
