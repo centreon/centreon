@@ -61,18 +61,6 @@ const setPassiveResource = (url_string) => {
 
 before(() => {
   cy.startContainers();
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getTimeZone');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/monitoring/resources?page=*'
-  }).as('getResources');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/monitoring/resources/hosts/*'
-  }).as('getResourcesDetails');
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
@@ -87,6 +75,25 @@ before(() => {
     })
     .applyPollerConfiguration();
 });
+
+beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/userTimezone.php'
+  }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/monitoring/resources?page=*'
+  }).as('getResources');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/monitoring/resources/hosts/*'
+  }).as('getResourcesDetails');
+})
 
 after(() => {
   cy.stopContainers();
