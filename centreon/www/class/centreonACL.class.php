@@ -448,7 +448,7 @@ class CentreonACL
 
         if ($this->hasAccessToAllServiceGroups === false) {
             [$bindValues, $bindQuery] = createMultipleBindQuery(
-                list: explode(',', $this->getAccessGroupsString()),
+                list: explode(',', $this->getAccessGroupsString('ID')),
                 prefix: ':access_group_id_'
             );
 
