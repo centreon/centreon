@@ -120,18 +120,14 @@ Then("the new service category has the same properties", () => {
 });
 
 When("the user delete a service category", () => {
-    cy.navigateTo({
-      page: "Categories",
-      rootItemNumber: 3,
-      subMenu: "Services",
-    });
     cy.get("iframe#main-content")
       .its("0.contentDocument.body")
       .find("table tbody")
-      .find("tr.list_two")
+      .find("tr.list_one, tr.list_two")
+      .contains("td", "test")
+      .parent()
       .find("td.ListColPicker")
       .find("div.md-checkbox")
-      .eq(1)
       .click();
     cy.get("iframe#main-content")
       .its("0.contentDocument.body")
@@ -153,7 +149,9 @@ When("the user delete a service category", () => {
 
 Then("the deleted service category is not displayed in the list", () => {
   cy.wait("@getTimeZone");
-  cy.getIframeBody()
+  cy.window().then((win) => win.location.reload());
+  cy.get("iframe#main-content")
+    .its("0.contentDocument.body")
     .find("table.ListTable tbody")
     .children()
     .should("have.length", 5);
