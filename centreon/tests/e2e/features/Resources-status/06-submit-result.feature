@@ -4,7 +4,7 @@ Feature: Submit a Result to a Passive service or host
   To launch a specific event
 
   Background:
-  Given an admin user is logged in a Centreon server
+    Given an admin user is logged in a Centreon server
 
   @TEST_MON-158565
   Scenario: Submit result to a passive service
