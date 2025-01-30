@@ -272,9 +272,12 @@ $valid = false;
 if ($form->validate()) {
     $hgObj = $form->getElement('hg_id');
     if ($form->getSubmitValue('submitA')) {
-        $hgObj->setValue(
-            insertHostGroupInDB(isCloudPlatform: $isCloudPlatform)
-        );
+        if (false !== $hostGroupId = insertHostGroup()) {
+            $hgObj->setValue($hostGroupId);
+            $o = null;
+            $hgObj = $form->getElement('hg_id');
+            $valid = true;
+        }
         $hgs = $acl->getHostGroupAclConf();
         $hostGroupIds = array_keys($hgs);
     } elseif ($form->getSubmitValue('submitC')) {
@@ -282,10 +285,10 @@ if ($form->validate()) {
             hostGroupId: $hgObj->getValue(),
             isCloudPlatform: $isCloudPlatform
         );
+        $o = null;
+        $hgObj = $form->getElement('hg_id');
+        $valid = true;
     }
-    $o = null;
-    $hgObj = $form->getElement('hg_id');
-    $valid = true;
 }
 
 if ($valid) {
