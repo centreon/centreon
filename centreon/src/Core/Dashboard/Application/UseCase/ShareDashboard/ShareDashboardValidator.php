@@ -80,12 +80,57 @@ class ShareDashboardValidator
      *  - If the user executing the request is not an admin, the contacts should be member of his access groups
      *
      * @param array<array{id: int, role: string}> $contacts
+     * @param int[] $contactIdsInUserContactGroups
+     * @param bool $isAdmin
+     *
+     * @throws DashboardException|\Throwable
+     */
+    public function validateContactsForCloud(
+        array $contacts,
+        array $contactIdsInUserContactGroups = [],
+        bool $isAdmin = true
+    ): void {
+        $contactIds = array_map(static fn (array $contact): int => $contact['id'], $contacts);
+        $this->validateContactsExist($contactIds);
+        $this->validateContactsAreUnique($contactIds);
+
+        /**
+         * Retrieve the contacts which have Dashboard's ACLs.
+         */
+        $dashboardContactRoles = $this->readDashboardShareRepository->findContactsWithAccessRightByContactIds(
+            $contactIds
+        );
+
+        $this->validateContactsHaveDashboardACLs($dashboardContactRoles, $contactIds);
+        $contactsByIdAndRole = [];
+        foreach ($contacts as $contact) {
+            $contactsByIdAndRole[$contact['id']] = $contact['role'];
+        }
+        $this->validateContactsHaveSufficientRightForSharingRole($contactsByIdAndRole, $dashboardContactRoles);
+
+        // If the current user is not admin, the shared contacts should be member of his contact groups.
+        if (! $isAdmin) {
+            $this->validateContactsAreInTheSameContactGroupThanCurrentUser($contactIds, $contactIdsInUserContactGroups);
+        }
+
+    }
+
+    /**
+     * Validate request contacts against the following rules:
+     *  - The contacts should exist
+     *  - The contacts should be unique in the request
+     *  - The contacts should have Dashboard related ACLs
+     *  - The contacts should have sufficient ACLs for their given roles
+     *      (e.g a Viewer in ACLs can not be shared as Editor)
+     *  - If the user executing the request is not an admin, the contacts should be member of his access groups
+     *
+     * @param array<array{id: int, role: string}> $contacts
      * @param int[] $contactIdsInUserAccessGroups
      * @param bool $isAdmin
      *
      * @throws DashboardException|\Throwable
      */
-    public function validateContacts(
+    public function validateContactsForOnPremise(
         array $contacts,
         array $contactIdsInUserAccessGroups = [],
         bool $isAdmin = true
@@ -143,7 +188,7 @@ class ShareDashboardValidator
      *
      * @throws DashboardException|\Throwable
      */
-    public function validateContactGroups(
+    public function validateContactGroupsForOnPremise(
         array $contactGroups,
         array $userContactGroupIds = [],
         bool $isAdmin = true
@@ -157,6 +202,33 @@ class ShareDashboardValidator
             ->findContactGroupsWithAccessRightByContactGroupIds($contactGroupIds);
         $this->validateContactGroupsHaveDashboardACLs($dashboardContactGroupRoles, $contactGroupIds);
         $this->validateContactGroupsHaveSufficientRightForSharingRole($contactGroups, $dashboardContactGroupRoles);
+        if (! $isAdmin) {
+            $this->validateContactGroupsAreInCurrentUserContactGroups($contactGroupIds, $userContactGroupIds);
+        }
+    }
+
+    /**
+     *  Validate request contact groups against the following rules:
+     *   - The contact groups should exist
+     *   - The contact groups should be unique in the request
+     *   - If the user executing the request is not an admin, the contactgroups shoul be part of his contact groups
+     *
+     * @param array<array{id: int, role: string}> $contactGroups
+     * @param int[] $userContactGroupIds
+     * @param bool $isAdmin
+     *
+     * @throws DashboardException|\Throwable
+     */
+    public function validateContactGroupsForCloud(
+        array $contactGroups,
+        array $userContactGroupIds = [],
+        bool $isAdmin = true
+    ): void {
+        // Validate contact groups exists
+        $contactGroupIds = array_map(static fn (array $contactGroup): int => $contactGroup['id'], $contactGroups);
+        $this->validateContactGroupsExist($contactGroupIds);
+        $this->validateContactGroupsAreUnique($contactGroupIds);
+
         if (! $isAdmin) {
             $this->validateContactGroupsAreInCurrentUserContactGroups($contactGroupIds, $userContactGroupIds);
         }
@@ -251,7 +323,7 @@ class ShareDashboardValidator
                 && $dashboardContactRole->getMostPermissiveRole() === DashboardGlobalRole::Viewer
             ) {
                 throw DashboardException::notSufficientAccessRightForUser(
-                    $dashboardContactRole->getContactId(),
+                    $dashboardContactRole->getContactName(),
                     $contactsByIdAndRole[$dashboardContactRole->getContactId()]
                 );
             }
@@ -281,10 +353,26 @@ class ShareDashboardValidator
                 && $dashboardContactGroupRole->getMostPermissiveRole() === DashboardGlobalRole::Viewer
             ) {
                 throw DashboardException::notSufficientAccessRightForContactGroup(
-                    $dashboardContactGroupRole->getContactGroupId(),
+                    $dashboardContactGroupRole->getContactGroupName(),
                     $contactGroupByIdAndRole[$dashboardContactGroupRole->getContactGroupId()]
                 );
             }
+        }
+    }
+
+    /**
+     * @param int[] $requestContactIds
+     * @param int[] $contactIdsInUserContactGroups
+     *
+     * @throws DashboardException
+     */
+    private function validateContactsAreInTheSameContactGroupThanCurrentUser(
+        array $requestContactIds,
+        array $contactIdsInUserContactGroups
+    ): void {
+        $contactDifference = new BasicDifference($requestContactIds, $contactIdsInUserContactGroups);
+        if ([] !== $contactDifference->getRemoved()) {
+            throw DashboardException::userAreNotInContactGroups($contactDifference->getRemoved());
         }
     }
 

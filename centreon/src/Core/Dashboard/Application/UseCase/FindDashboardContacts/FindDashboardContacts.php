@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
@@ -51,6 +52,7 @@ final class FindDashboardContacts
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ReadContactRepositoryInterface $readContactRepository
      * @param bool $isCloudPlatform
+     * @param ReadContactGroupRepositoryInterface $readContactGroupRepository
      */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
@@ -59,6 +61,7 @@ final class FindDashboardContacts
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly bool $isCloudPlatform
     ) {
     }
@@ -125,25 +128,29 @@ final class FindDashboardContacts
     private function findContactAsAdmin(): array
     {
         $users = $this->readDashboardShareRepository->findContactsWithAccessRightByRequestParameters(
-            $this->requestParameters,
-            $this->isCloudPlatform
-        );
-        $total = $this->requestParameters->getTotal();
-        $admins = $this->readContactRepository->findAdminWithRequestParameters(
             $this->requestParameters
         );
-        $this->requestParameters->setTotal($total + $this->requestParameters->getTotal());
-        $adminContactRoles = [];
-        foreach ($admins as $admin) {
-            $adminContactRoles[] = new DashboardContactRole(
-                $admin->getId(),
-                $admin->getName(),
-                $admin->getEmail(),
-                [DashboardGlobalRole::Administrator]
+
+        if ($this->isCloudPlatform === false ) {
+            $total = $this->requestParameters->getTotal();
+            $admins = $this->readContactRepository->findAdminWithRequestParameters(
+                $this->requestParameters
             );
+            $this->requestParameters->setTotal($total + $this->requestParameters->getTotal());
+            $adminContactRoles = [];
+            foreach ($admins as $admin) {
+                $adminContactRoles[] = new DashboardContactRole(
+                    $admin->getId(),
+                    $admin->getName(),
+                    $admin->getEmail(),
+                    [DashboardGlobalRole::Administrator]
+                );
+            }
+
+            return [...$users, ...$adminContactRoles];
         }
 
-        return [...$users, ...$adminContactRoles];
+        return $users;
     }
 
     /**
@@ -155,6 +162,15 @@ final class FindDashboardContacts
      */
     private function findContactsAsNonAdmin(): array
     {
+        if ($this->isCloudPlatform === true) {
+            $contactGroups = $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
+
+            return $this->readDashboardShareRepository->findContactsWithAccessRightsByContactGroupsAndRequestParameters(
+                $contactGroups,
+                $this->requestParameters
+            );
+        }
+
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
         $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
 
