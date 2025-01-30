@@ -27,21 +27,13 @@ Feature: Configuration of a command
     Then the deleted command is not displayed in the list
 
   @TEST_MON-158779
-  Scenario: Check if the command appears on the checks page
-    When the user creates a check command
-    Then the command is displayed on the checks page
+  Scenario Outline: Create different types of commands
+    When the user creates a <type> command
+    Then the command is displayed on the <type> page
 
-  @TEST_MON-158780
-  Scenario: Check if the command appears on the notifications page
-    When the user creates a notification command
-    Then the command is displayed on the notifications page
-
-  @TEST_MON-158781
-  Scenario: Check if the command appears on the discovery page
-    When the user creates a discovery command
-    Then the command is displayed on the discovery page
-
-  @TEST_MON-158782
-  Scenario: Check if the command appears on the miscellaneous page
-    When the user creates a miscellaneous command
-    Then the command is displayed on the miscellaneous page
+    Examples:
+      | type          | 
+      | check         |
+      | notification  |
+      | discovery     |
+      | miscellaneous |
