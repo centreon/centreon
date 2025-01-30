@@ -928,6 +928,7 @@ class CentreonConfigCentreonBroker
             foreach (array_keys($output) as $key) {
                 if (
                     preg_match('/^lua_parameter__value_(\\d+)$/', (string) $key, $matches) === 1
+                    && array_key_exists("lua_parameter__value_{$matches[1]}", $output)
                     && $output["lua_parameter__value_{$matches[1]}"] === CentreonAuth::PWS_OCCULTATION
                 ) {
                     $originalPassword = $this->findOriginalValueWithFieldIndex(
