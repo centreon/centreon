@@ -9,10 +9,9 @@ const commandTypeMap = {
   miscellaneous: { type: 3, data: data.miscellaneous }
 };
 
-
-// before(() => {
-//   cy.startContainers();
-// });
+before(() => {
+  cy.startContainers();
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -25,9 +24,9 @@ beforeEach(() => {
   }).as('getCommandsPage');
 });
 
-// after(() => {
-//   cy.stopContainers();
-// });
+after(() => {
+  cy.stopContainers();
+});
 
 Given('an admin user is logged in a Centreon server', () => {
   cy.loginByTypeOfUser({
@@ -101,7 +100,7 @@ When('the user deletes a command', () => {
 
 Then('the deleted command is not displayed in the list', () => {
   cy.reload();
-  cy.getIframeBody().should('not.contain', data.miscellaneous.name);
+  cy.getIframeBody().should('not.have.text', data.miscellaneous.name);
 });
 
 When('the user creates a {string} command', (type: string) => {
