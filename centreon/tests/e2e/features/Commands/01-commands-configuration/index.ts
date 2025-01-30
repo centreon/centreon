@@ -10,9 +10,9 @@ const commandTypeMap = {
 };
 
 
-before(() => {
-  cy.startContainers();
-});
+// before(() => {
+//   cy.startContainers();
+// });
 
 beforeEach(() => {
   cy.intercept({
@@ -25,9 +25,9 @@ beforeEach(() => {
   }).as('getCommandsPage');
 });
 
-after(() => {
-  cy.stopContainers();
-});
+// after(() => {
+//   cy.stopContainers();
+// });
 
 Given('an admin user is logged in a Centreon server', () => {
   cy.loginByTypeOfUser({
@@ -71,7 +71,7 @@ Then('the properties are updated', () => {
   cy.reload();
   cy.getIframeBody().contains(data.miscellaneous.name).should('exist');
   cy.getIframeBody().contains(data.miscellaneous.name).click();
-  cy.checkValuesoOfCommands(data.miscellaneous.name, data.miscellaneous);
+  cy.checkValuesOfCommands(data.miscellaneous.name, data.miscellaneous);
 });
 
 When('the user duplicates a command', () => {
@@ -86,7 +86,7 @@ Then('the new command has the same properties', () => {
     `a:contains("${data.miscellaneous.name}_1")`
   );
   cy.getIframeBody().contains('a', `${data.miscellaneous.name}_1`).click();
-  cy.checkValuesoOfCommands(`${data.miscellaneous.name}_1`, data.miscellaneous);
+  cy.checkValuesOfCommands(`${data.miscellaneous.name}_1`, data.miscellaneous);
 });
 
 When('the user deletes a command', () => {

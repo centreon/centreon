@@ -28,8 +28,8 @@ Feature: Configuration of a command
 
   @TEST_MON-158779
   Scenario Outline: Create different types of commands
-    When the user creates a <type> command
-    Then the command is displayed on the <type> page
+    When the user creates a "<type>" command
+    Then the command is displayed on the "<type>" page
 
     Examples:
       | type          |

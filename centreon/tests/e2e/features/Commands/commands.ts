@@ -54,11 +54,11 @@ Cypress.Commands.add("updateCommands", (body: Cmd) => {
     .select(`${body.graph_template_id}`);
 });
 
-Cypress.Commands.add("checkValuesoOfCommands", (name: string, body: Cmd) => {
+Cypress.Commands.add("checkValuesOfCommands", (name: string, body: Cmd) => {
   cy.waitForElementInIframe("#main-content", 'input[name="command_name"]');
   cy.getIframeBody()
     .find('input[name="command_name"]')
-    .should("have.value", `${body.name}_1`);
+    .should("have.value", `${name}`);
   cy.getIframeBody()
     .find(`input[name="command_type[command_type]"][value="${body.type}"]`)
     .should("be.checked");
@@ -104,9 +104,9 @@ declare global {
     interface Chainable {
       addCommands: (body: Cmd) => Cypress.Chainable;
       updateCommands: (body: Cmd) => Cypress.Chainable;
-      checkValuesoOfCommands: (name: string, body: Cmd) => Cypress.Chainable;
+      checkValuesOfCommands: (name: string, body: Cmd) => Cypress.Chainable;
     }
   }
 }
 
-export {};
+export { };
