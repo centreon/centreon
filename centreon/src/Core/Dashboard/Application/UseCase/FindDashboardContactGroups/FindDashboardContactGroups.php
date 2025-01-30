@@ -83,7 +83,18 @@ final class FindDashboardContactGroups
      */
     private function findContactGroupsAsAdmin(): array
     {
-        return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByRequestParameters(
+        /**
+         * Cloud UseCase - ACL groups are not linked to contact groups.
+         * Therefore, we need to retrieve all contact groups as admin.
+         * Those contact groups will have as most permissive role 'Viewer'.
+         * No checks will be done regarding Dashboard Rights when sharing to the contact groups selected
+         * however it will be not possible for contacts belonging to these contact groups
+         * to have more rights than configured through their ACLs as user dashboard rights will
+         * be applied for the user that reaches Dashboard.
+         */
+        return $this->isCloudPlatform
+            ? $this->readDashboardShareRepository->findContactGroupsByRequestParameters($this->requestParameters)
+            : $this->readDashboardShareRepository->findContactGroupsWithAccessRightByRequestParameters(
             $this->requestParameters
         );
     }
@@ -95,6 +106,22 @@ final class FindDashboardContactGroups
      */
     private function findContactGroupsAsContact(): array
     {
+        if ($this->isCloudPlatform === true) {
+            /**
+             * Cloud UseCase - ACL groups are not linked to contact groups.
+             * Therefore, we need to retrieve all contact groups to which belongs the current user.
+             * Those contact groups will have as most permissive role 'Viewer'.
+             * No checks will be done regarding Dashboard Rights when sharing to the contact groups selected
+             * however it will be not possible for contacts belonging to these contact groups
+             * to have more rights than configured through their ACLs as user dashboard rights will
+             * be applied for the user that reaches Dashboard.
+             */
+            return $this->readDashboardShareRepository->findContactGroupsByUserAndRequestParameters(
+                $this->requestParameters,
+                $this->contact->getId()
+            );
+        }
+
         return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByUserAndRequestParameters(
             $this->requestParameters,
             $this->contact->getId()

@@ -64,40 +64,74 @@ final class ShareDashboard
     {
         try {
             $isUserAdmin = $this->isUserAdmin();
+            $contactIdsRelationsToDelete = [];
             if ($isUserAdmin) {
                 $this->validator->validateDashboard($request->dashboardId);
-                $this->validator->validateContacts($request->contacts);
-                $this->validator->validateContactGroups($request->contactGroups);
+
+                $this->isCloudPlatform
+                    ? $this->validator->validateContactsForCloud($request->contacts)
+                    : $this->validator->validateContactsForOnPremise($request->contacts);
+
+                $this->isCloudPlatform
+                    ? $this->validator->validateContactGroupsForCloud($request->contactGroups)
+                    : $this->validator->validateContactGroupsForOnPremise($request->contactGroups);
             } elseif ($this->rights->canCreate()) {
-                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                $accessGroupIds = array_map(
-                    static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
-                    $accessGroups
-                );
-                $contactIdsInUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups(
-                    $accessGroupIds
-                );
-
-                $userContactGroups = $this->readContactGroupRepository->findAllByUserId($this->user->getId());
-                $userContactGroupIds = array_map(
-                    static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
-                    $userContactGroups
-                );
-
                 $this->validator->validateDashboard(
                     dashboardId: $request->dashboardId,
                     isAdmin: false
                 );
-                $this->validator->validateContacts(
-                    contacts: $request->contacts,
-                    contactIdsInUserAccessGroups: $contactIdsInUserAccessGroups,
-                    isAdmin: false
-                );
-                $this->validator->validateContactGroups(
-                    contactGroups: $request->contactGroups,
-                    userContactGroupIds: $userContactGroupIds,
-                    isAdmin: false
-                );
+
+                if ($this->isCloudPlatform) {
+                    $userContactGroupIds = array_map(
+                        static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
+                        $this->readContactGroupRepository->findAllByUserId($this->user->getId())
+                    );
+
+                    $contactIdsInUserContactGroups = $this->readContactRepository->findContactIdsByContactGroups(
+                        $userContactGroupIds
+                    );
+
+                    $this->validator->validateContactsForCloud(
+                        contacts: $request->contacts,
+                        contactIdsInUserContactGroups: $contactIdsInUserContactGroups,
+                        isAdmin: false
+                    );
+
+                    $this->validator->validateContactGroupsForCloud(
+                        contactGroups: $request->contactGroups,
+                        userContactGroupIds: $userContactGroupIds,
+                        isAdmin: false
+                    );
+
+                    $contactIdsRelationsToDelete = $contactIdsInUserContactGroups;
+                } else {
+                    $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                    $accessGroupIds = array_map(
+                        static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+                        $accessGroups
+                    );
+                    $contactIdsInUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups(
+                        $accessGroupIds
+                    );
+
+                    $userContactGroups = $this->readContactGroupRepository->findAllByUserId($this->user->getId());
+                    $userContactGroupIds = array_map(
+                        static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
+                        $userContactGroups
+                    );
+                    $this->validator->validateContactsForOnPremise(
+                        contacts: $request->contacts,
+                        contactIdsInUserAccessGroups: $contactIdsInUserAccessGroups,
+                        isAdmin: false
+                    );
+                    $this->validator->validateContactGroupsForOnPremise(
+                        contactGroups: $request->contactGroups,
+                        userContactGroupIds: $userContactGroupIds,
+                        isAdmin: false
+                    );
+
+                    $contactIdsRelationsToDelete = $contactIdsInUserAccessGroups;
+                }
             } else {
                 $this->error("User doesn't have sufficient rights to add shares on dashboards");
                 $presenter->presentResponse(
@@ -131,7 +165,7 @@ final class ShareDashboard
                     $contactRoles,
                     $contactGroupRoles,
                     $userContactGroupIds,
-                    $contactIdsInUserAccessGroups
+                    $contactIdsRelationsToDelete
                 );
             }
 

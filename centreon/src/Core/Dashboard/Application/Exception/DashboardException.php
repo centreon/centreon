@@ -231,15 +231,15 @@ class DashboardException extends \Exception
         return new self(_('You cannot share the same dashboard to a contact group several times'));
     }
 
-    public static function notSufficientAccessRightForUser(int $contactId, string $role): self
+    public static function notSufficientAccessRightForUser(string $contactName, string $role): self
     {
-        return new self(sprintf(_('No sufficient access rights to user [%d] to give role [%s]'), $contactId, $role));
+        return new self(sprintf(_('No sufficient access rights to user [%s] to give role [%s]'), $contactName, $role));
     }
 
-    public static function notSufficientAccessRightForContactGroup(int $contactGroupId, string $role): self
+    public static function notSufficientAccessRightForContactGroup(string $contactGroupName, string $role): self
     {
         return new self(
-            sprintf(_('No sufficient access rights to contact group [%d] to give role [%s]'), $contactGroupId, $role)
+            sprintf(_('No sufficient access rights to contact group [%s] to give role [%s]'), $contactGroupName, $role)
         );
     }
 
@@ -252,6 +252,19 @@ class DashboardException extends \Exception
     {
         return new self(sprintf(
             _('The users [%s] are not in your access groups'),
+            implode(', ', $contactIds)
+        ));
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function userAreNotInContactGroups(array $contactIds): self
+    {
+        return new self(sprintf(
+            _('The users [%s] are not in your contact groups'),
             implode(', ', $contactIds)
         ));
     }
