@@ -16,7 +16,7 @@ Feature: HostGroupConfiguration
   Scenario: Duplicate one existing host group
     When the user duplicates the configured host group
     Then a new host group is created with identical properties
-  
+
   @TEST_MON-158794
   Scenario: Delete one existing host group
     When the user deletes the configured host group
