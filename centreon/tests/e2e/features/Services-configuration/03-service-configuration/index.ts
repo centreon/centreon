@@ -165,10 +165,7 @@ When('the user deletes a service', () => {
 
 Then('the deleted service is not displayed in the service list', () => {
   cy.wait("@getTimeZone");
-  cy.enterIframe('iframe#main-content')
-    .find('table.ListTable tbody')
-    .contains('test')
-    .should('not.exist');
+  cy.getIframeBody().find('a[href*="service_id=29"]').should('not.exist');
 });
 
 afterEach(() => {
