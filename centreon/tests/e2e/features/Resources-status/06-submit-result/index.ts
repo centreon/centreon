@@ -63,10 +63,6 @@ before(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
   cy.intercept({
