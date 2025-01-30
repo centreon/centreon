@@ -32,7 +32,7 @@ Feature: Configuration of a command
     Then the command is displayed on the <type> page
 
     Examples:
-      | type          | 
+      | type          |
       | check         |
       | notification  |
       | discovery     |
