@@ -289,7 +289,7 @@ function get_current_node_ip() {
 
   if [[ $count_available_ips -gt 1 ]];
   then
-    echo "Which IP do you want to use as CURRENT NODE IP ?"
+    echo "Which IP do you want to use as CURRENT NODE IP?"
     for i in "${!ips[@]}";
     do
       printf "%s) %s\n" "$i" "${ips[$i]}"
