@@ -77,7 +77,7 @@ final class DeleteHostGroups
                 );
 
                 $statusResponse->status = ResponseCodeEnum::Error;
-                $statusResponse->message = HostGroupException::errorWhileDeleting($ex)->getMessage();
+                $statusResponse->message = HostGroupException::errorWhileDeleting()->getMessage();
                 $results[] = $statusResponse;
             }
         }

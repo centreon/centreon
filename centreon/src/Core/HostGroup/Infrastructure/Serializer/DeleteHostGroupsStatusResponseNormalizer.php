@@ -58,7 +58,7 @@ class DeleteHostGroupsStatusResponseNormalizer implements NormalizerInterface
         array $context = []
     ): array {
         return [
-            'href' => $this->router->generate('FindHostGroup', ['hostGroupId' => $object->id]),
+            'href' => $this->router->generate(self::HOSTGROUP_ROUTE_NAME, ['hostGroupId' => $object->id]),
             'status' => $this->enumToHttpStatusCodeConverter($object->status),
             'message' => $object->message,
         ];
