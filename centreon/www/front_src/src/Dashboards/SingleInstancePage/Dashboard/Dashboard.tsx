@@ -12,7 +12,7 @@ import { Divider } from '@mui/material';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import type { Dashboard as DashboardType } from '../../api/models';
+import { type Dashboard as DashboardType, resource } from '../../api/models';
 import { isSharesOpenAtom } from '../../atoms';
 import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { DashboardConfigModal } from '../../components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
@@ -20,6 +20,8 @@ import { useDashboardConfig } from '../../components/DashboardLibrary/DashboardC
 import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
 
+import { useQueryClient } from '@tanstack/react-query';
+import FavoriteAction from '../../components/DashboardLibrary/DashboardListing/Actions/favoriteAction';
 import { AddWidgetButton } from './AddEditWidget';
 import { useDashboardStyles } from './Dashboard.styles';
 import Layout from './Layout';
@@ -34,7 +36,9 @@ const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
 
   const { dashboardId } = routerParams.useParams();
-  const { dashboard, panels } = useDashboardDetails({
+  const queryClient = useQueryClient();
+
+  const { dashboard, panels, refetch } = useDashboardDetails({
     dashboardId: dashboardId as string
   });
   const { editDashboard } = useDashboardConfig();
@@ -76,6 +80,11 @@ const Dashboard = (): ReactElement => {
     setIsSharesOpen(dashboard as DashboardType);
   };
 
+  const updateFavorites = (): void => {
+    refetch?.();
+    queryClient.invalidateQueries({ queryKey: [resource.dashboards] });
+  };
+
   useEffect(() => {
     return () => {
       setRefreshCounts({});
@@ -93,6 +102,13 @@ const Dashboard = (): ReactElement => {
             <PageHeader.Title
               description={dashboard?.description || ''}
               title={dashboard?.name || ''}
+              actions={
+                <FavoriteAction
+                  dashboardId={dashboard?.id as number}
+                  isFavorite={dashboard?.isFavorite as boolean}
+                  refetch={updateFavorites}
+                />
+              }
             />
           </PageHeader.Main>
           <DashboardNavbar />
@@ -142,7 +158,7 @@ const Dashboard = (): ReactElement => {
             </div>
           )}
         </PageLayout.Actions>
-        <Layout dashboardId={dashboardId} />
+        <Layout />
       </PageLayout.Body>
       <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />

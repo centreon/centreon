@@ -65,7 +65,9 @@ const ColorSelector = ({
         <div className={classes.colors}>
           {colors.map((color) => (
             <IconButton
-              className={isColorSelected(color) && classes.selectedColor}
+              className={
+                isColorSelected(color) ? classes.selectedColor : undefined
+              }
               icon={<ColorChip color={color} />}
               key={color}
               size="small"

@@ -1,16 +1,18 @@
-import fs from 'fs';
 import { execSync } from 'child_process';
-
-import puppeteer from 'puppeteer';
+import fs from 'fs';
 import { startFlow } from 'lighthouse';
+import puppeteer from 'puppeteer';
 
-import { generateReportForLoginPage } from './pages/login';
-import { generateReportForResourceStatusPage } from './pages/resourceStatus';
-import { generateReportForAuthenticationPage } from './pages/authentication';
 import { baseConfig } from './defaults';
 import type { NavigateProps } from './models';
+import { generateReportForAuthenticationPage } from './pages/authentication';
 import { generateReportForDashboardsPage } from './pages/dashboards';
+import { generateReportForLoginPage } from './pages/login';
 import { generateReportForNotificationsPage } from './pages/notifications';
+import { generateReportForResourceStatusPage } from './pages/resourceStatus';
+
+import { generateReportForACCsPage } from './pages/additionalConnecters.js';
+import { generateReportForAgentConfigurationPage } from './pages/agentConfiguration.js';
 import { generateReportForResourceStatusPageFilterInteraction } from './pages/interactions/resourceStatus/filters';
 
 const createReportFile = async (report): Promise<void> => {
@@ -26,7 +28,7 @@ const createReportFile = async (report): Promise<void> => {
 const captureReport = async (): Promise<void> => {
   const browser = await puppeteer.launch({
     args: ['--lang=en-US,en', '--no-sandbox', '--disable-setuid-sandbox'],
-    headless: "new",
+    headless: 'new'
   });
   const page = await browser.newPage();
   await page.setExtraHTTPHeaders({
@@ -34,10 +36,12 @@ const captureReport = async (): Promise<void> => {
   });
 
   const flow = await startFlow(page, {
-    name: 'Centreon Web pages',
+    name: 'Centreon Web pages'
   });
 
-  execSync(`docker compose -f ../../.github/docker/docker-compose.yml cp ./features.json web:/usr/share/centreon/config/features.json`);
+  execSync(
+    `docker compose -f ../../.github/docker/docker-compose.yml cp ./features.json web:/usr/share/centreon/config/features.json`
+  );
 
   const navigate = async ({ url, name }: NavigateProps): Promise<void> => {
     await flow.navigate(url, { formFactor: 'desktop', name, ...baseConfig });
@@ -60,7 +64,7 @@ const captureReport = async (): Promise<void> => {
     navigate,
     page,
     snapshot,
-    startTimespan,
+    startTimespan
   });
 
   await generateReportForResourceStatusPage({
@@ -68,7 +72,7 @@ const captureReport = async (): Promise<void> => {
     navigate,
     page,
     snapshot,
-    startTimespan,
+    startTimespan
   });
 
   await generateReportForResourceStatusPageFilterInteraction({
@@ -76,7 +80,7 @@ const captureReport = async (): Promise<void> => {
     navigate,
     page,
     snapshot,
-    startTimespan,
+    startTimespan
   });
 
   await generateReportForAuthenticationPage({
@@ -84,7 +88,7 @@ const captureReport = async (): Promise<void> => {
     navigate,
     page,
     snapshot,
-    startTimespan,
+    startTimespan
   });
 
   await generateReportForDashboardsPage({
@@ -92,7 +96,7 @@ const captureReport = async (): Promise<void> => {
     navigate,
     page,
     snapshot,
-    startTimespan,
+    startTimespan
   });
 
   await generateReportForNotificationsPage({
@@ -100,7 +104,23 @@ const captureReport = async (): Promise<void> => {
     navigate,
     page,
     snapshot,
-    startTimespan,
+    startTimespan
+  });
+
+  await generateReportForACCsPage({
+    endTimespan,
+    navigate,
+    page,
+    snapshot,
+    startTimespan
+  });
+
+  await generateReportForAgentConfigurationPage({
+    endTimespan,
+    navigate,
+    page,
+    snapshot,
+    startTimespan
   });
 
   await browser.close();

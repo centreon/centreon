@@ -124,11 +124,9 @@ if (isset($_GET["sort_types"])) {
     $sort_type = $_GET["sort_types"];
 }
 
-/*
- * Smarty template Init
- */
+// Smarty template initialization
 $path = "./include/configuration/configKnowledge/";
-$tpl = initSmartyTpl($path, new Smarty(), "./");
+$tpl = SmartyBC::createSmartyTemplate($path, "./");
 
 $page_max = ceil($rows / $limit);
 if ($num >= $page_max && $rows) {

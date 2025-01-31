@@ -31,8 +31,8 @@ import {
 } from '../translatedLabels';
 import { getColor } from '../utils';
 
-import useBATooltipContent from './useBATooltipContent';
 import { useMemo } from 'react';
+import useBATooltipContent from './useBATooltipContent';
 
 interface Props {
   data: ResourceData;
@@ -77,18 +77,19 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
       : `${threshold}%`;
   };
 
-  const healthSeverityCode = useMemo(
-    (): SeverityCode => {
-        if (isNil(criticalLevel) || isNil(warningLevel) || health <= criticalLevel) {
-        return SeverityCode.High;
-      }
-      if (health <= warningLevel) {
-        return SeverityCode.Medium;
-      }
-      return SeverityCode.OK;
-    },
-    [criticalLevel, warningLevel, health]
-  );
+  const healthSeverityCode = useMemo((): SeverityCode => {
+    if (
+      isNil(criticalLevel) ||
+      isNil(warningLevel) ||
+      health <= criticalLevel
+    ) {
+      return SeverityCode.High;
+    }
+    if (health <= warningLevel) {
+      return SeverityCode.Medium;
+    }
+    return SeverityCode.OK;
+  }, [criticalLevel, warningLevel, health]);
 
   return (
     <Box className={classes.container}>

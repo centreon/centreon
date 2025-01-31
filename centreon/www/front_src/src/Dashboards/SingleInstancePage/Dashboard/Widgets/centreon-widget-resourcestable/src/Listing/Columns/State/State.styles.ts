@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
   comment: {
     display: 'block',
     overflow: 'hidden',
@@ -9,10 +9,8 @@ const useStyles = makeStyles()({
   },
   container: {
     display: 'flex',
-    flexDirection: 'row',
-    gridGap: 2,
-    marginLeft: 2
+    gap: theme.spacing(0.5)
   }
-});
+}));
 
 export default useStyles;

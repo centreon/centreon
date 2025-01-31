@@ -609,7 +609,7 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
 
         if ($response->getStatusCode() !== 204) {
             $content = json_decode($response->getContent(false), true);
-            $message = $content['message'] ?? '';
+            $message = $content['message'] ?? 'Unknown error';
 
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,

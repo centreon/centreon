@@ -41,12 +41,15 @@ if (!isset($centreon)) {
 use App\Kernel;
 Use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Utility\Interfaces\UUIDGeneratorInterface;
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
@@ -420,7 +423,14 @@ function removeRelationLastServiceDependency(int $serviceId): void
     }
 }
 
-function deleteServiceInDB($services = [])
+/**
+ * Delete service in DB
+ *
+ * Keep this method as service deletion by hostgroup is not supported in APIv2 for the moment.
+ *
+ * @param array<int, int> $services The list of service IDs to delete (Ids are the keys)
+ */
+function deleteServiceInDB(array $services = []): void
 {
     global $pearDB, $centreon;
 
@@ -1022,7 +1032,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null
         ? $rq .= "'" . $ret["timeperiod_tp_id"] . "', "
         : $rq .= "NULL, ";
-    $rq .= "command_command_id2 = null, ";
+
+    $rq .= "command_command_id2 = ";
+    isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
+        ? $rq .= "'" . $ret["command_command_id2"] . "', "
+        : $rq .= "NULL, ";
 
     // If we are doing a MC, we don't have to set name and alias field
     if (!$massiveChange) {
@@ -1050,7 +1064,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         : $rq .= "NULL, ";
     $rq .= "service_passive_checks_enabled = '2', service_obsess_over_service = '2', ";
     $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
-    $rq .= "service_event_handler_enabled = '2', ";
+    $rq .= "service_event_handler_enabled = ";
+    isset($ret["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $ret["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $rq .= "'" . $ret["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $rq .= "'2', ";
     $rq .= "service_low_flap_threshold = null, service_high_flap_threshold = null, ";
     $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
     $rq .= "service_retain_nonstatus_information = '2', service_notifications_enabled = '2', ";
@@ -1187,7 +1205,11 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     if (isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null) {
         $rq .= "timeperiod_tp_id = '" . $ret["timeperiod_tp_id"] . "', ";
     }
-    $rq .= 'command_command_id2 = null, ';
+
+    $rq .= "command_command_id2 = ";
+    isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
+        ? $rq .= "'" . $ret["command_command_id2"] . "', "
+        : $rq .= "NULL, ";
 
     if (isset($ret["service_alias"]) && $ret["service_alias"] != null) {
         $rq .= "service_alias = '" . $ret["service_alias"] . "', ";
@@ -1207,7 +1229,14 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
     $rq .= "service_active_checks_enabled = '2', service_passive_checks_enabled = '2', ";
     $rq .= "service_obsess_over_service = '2', service_check_freshness = '2', ";
-    $rq .= "service_freshness_threshold = null, service_event_handler_enabled = '2', ";
+    $rq .= "service_freshness_threshold = null, ";
+
+    $rq .= "service_event_handler_enabled = ";
+    isset($ret["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $ret["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $rq .= "'" . $ret["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $rq .= "'2', ";
+
     $rq .= 'service_low_flap_threshold = null, service_high_flap_threshold = null, ';
     $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
     $rq .= "service_retain_nonstatus_information = '2', ";
@@ -1798,7 +1827,11 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["timeperiod_tp_id"]) && $submittedValues["timeperiod_tp_id"] != null
         ? $request .= "'" . $submittedValues["timeperiod_tp_id"] . "', "
         : $request .= "NULL, ";
-    $request .= 'null, '; // command_command_id2 = null
+
+    isset($submittedValues["command_command_id2"]) && $submittedValues["command_command_id2"] != null
+        ? $request .= "'" . $submittedValues["command_command_id2"] . "', "
+        : $request .= "NULL, ";
+
     $request .= 'null, '; // timeperiod_tp_id2 => null
     isset($submittedValues["service_description"]) && $submittedValues["service_description"] != null
         ? $request .= "'" . CentreonDB::escape($submittedValues["service_description"]) . "', "
@@ -1824,7 +1857,12 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     $request .= "'2', ";  // service_obsess_over_service = '2' (default)
     $request .= "'2', ";  // service_check_freshness = '2' (default)
     $request .= 'null, '; // service_freshness_threshold = null
-    $request .= "'2', ";  // service_event_handler_enabled = '2' (default)
+
+    isset($submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $request .= "'" . $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $request .= "'2', ";
+
     $request .= 'null, '; // service_low_flap_threshold = null
     $request .= 'null, '; // service_high_flap_threshold = null
     $request .= "'2', ";  // service_flap_detection_enabled = '2' (default)
@@ -3694,4 +3732,122 @@ function findHostsOfService(int $serviceId): array
         $hostIds[] = $hostId;
     }
     return $hostIds;
+}
+
+// ------ API Configuration calls --------------------------------------------------------
+
+/**
+ * @param array<int, int> $services The list of service IDs to delete (Ids are the keys)
+ *
+ * @throws Exception
+ */
+function deleteServiceByApi(array $services = []): void
+{
+    global $basePath;
+
+    $serviceIds = array_keys($services);
+    if (empty($serviceIds)) {
+        return;
+    }
+
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class)
+        ?? throw new LogicException('Router not found in container');
+    $servicesWithError = [];
+    foreach ($serviceIds as $serviceId) {
+        $url = $router->generate(
+            'DeleteService',
+            ['base_uri' => $basePath, 'serviceId' => $serviceId],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+        $response = callApi($url, 'DELETE', []);
+        if ($response['status_code'] !== 204) {
+            $servicesWithError[] = [
+                'service_id' => $serviceId,
+                'message' => $response['content'] !== null
+                    ? json_encode($response['content'])
+                    : null
+            ];
+        }
+    }
+
+    if (! empty($servicesWithError)) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while deleting services',
+            ['service_ids' => $servicesWithError]
+        );
+    }
+}
+
+/**
+ * @param array<int, array> $serviceTemplates The list of service templates to delete (Ids are the keys)
+ *
+ * @throws Exception
+ */
+function deleteServiceTemplateByApi(array $serviceTemplates = []): void
+{
+    global $basePath;
+
+    $serviceTemplateIds = array_keys($serviceTemplates);
+    if (empty($serviceTemplateIds)) {
+        return;
+    }
+
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class)
+        ?? throw new LogicException('Router not found in container');
+    $serviceTemplatesWithError = [];
+    foreach ($serviceTemplateIds as $serviceTemplateId) {
+        $url = $router->generate(
+            'DeleteServiceTemplate',
+            ['base_uri' => $basePath, 'serviceTemplateId' => $serviceTemplateId],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+        $response = callApi($url, 'DELETE', []);
+        if ($response['status_code'] !== 204) {
+            $serviceTemplatesWithError[] = [
+                'service_template_id' => $serviceTemplateId,
+                'message' => $response['content'] !== null
+                    ? json_encode($response['content'])
+                    : null
+            ];
+        }
+    }
+
+    if (! empty($serviceTemplatesWithError)) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while deleting service templates',
+            ['service_ids' => $serviceTemplatesWithError]
+        );
+    }
+}
+
+/**
+ * @param string $url
+ * @param string $httpMethod
+ * @param array<string, mixed> $payload
+ *
+ * @return array{status_code: int, content: null|array} Return the status code of the request and its content.
+ */
+function callApi(string $url, string $httpMethod, array $payload): array
+{
+    $client = new CurlHttpClient();
+    $response = $client->request(
+        $httpMethod,
+        $url,
+        [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+            ],
+            'body' => json_encode($payload)
+        ]
+    );
+
+    $status = $response->getStatusCode();
+    $content = json_decode($response->getContent(false), true);
+
+    return ['status_code' => $status, 'content' => $content];
 }
