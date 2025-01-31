@@ -25,32 +25,41 @@ namespace Core\Dashboard\Infrastructure\API\FindDashboardContacts;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContacts;
-use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContactsPresenterInterface;
+use Core\Infrastructure\Common\Api\StandardPresenter;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
+#[IsGranted(
+    'dashboard_access_editor',
+    null,
+    'You do not have sufficient rights to list the dashboard contacts'
+)]
 final class FindDashboardContactsController extends AbstractController
 {
     use LoggerTrait;
 
     /**
      * @param FindDashboardContacts $useCase
-     * @param FindDashboardContactsPresenter $presenter
-     *
-     * @throws AccessDeniedException
-     *
+     * @param StandardPresenter $presenter
+     * @throws ExceptionInterface
      * @return Response
      */
     public function __invoke(
         FindDashboardContacts $useCase,
-        FindDashboardContactsPresenterInterface $presenter
-    ): Response
-    {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
+        StandardPresenter $presenter
+    ): Response {
+        $response = $useCase();
 
-        $useCase($presenter);
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
 
-        return $presenter->show();
+        return JsonResponse::fromJsonString(
+            $presenter->present($response, ['groups' => ['FindDashboardContacts:Read']])
+        );
     }
 }

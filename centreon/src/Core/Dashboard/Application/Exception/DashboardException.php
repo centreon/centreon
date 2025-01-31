@@ -119,6 +119,22 @@ class DashboardException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileSearchingSharableContacts(): self
+    {
+        return new self(_('Error while retrieving contacts allowed to receive a dashboard share'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileSearchingSharableContactGroups(): self
+    {
+        return new self(_('Error while retrieving contact groups allowed to receive a dashboard share'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileDeleting(): self
     {
         return new self(_('Error while deleting a dashboard'));

@@ -23,16 +23,25 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboardContacts;
 
+use Core\Application\Common\UseCase\ListingResponseInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto;
 
-final class FindDashboardContactsResponse
+final class FindDashboardContactsResponse implements ListingResponseInterface
 {
     /**
-     * @param array<ContactsResponseDto> $contacts
+     * @param ContactsResponseDto[] $contacts
      */
     public function __construct(
         public array $contacts = [],
     )
     {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getData(): mixed
+    {
+        return $this->contacts;
     }
 }
