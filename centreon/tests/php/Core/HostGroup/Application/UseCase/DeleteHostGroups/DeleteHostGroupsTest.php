@@ -102,5 +102,5 @@ it('should return a DeleteHostGroupsResponse', function () {
         ->and($response->getData()[1]->message)->toBe((new NotFoundResponse('Host Group'))->getMessage())
         ->and($response->getData()[2]->id)->toBe(3)
         ->and($response->getData()[2]->status)->toBe(ResponseCodeEnum::Error)
-        ->and($response->getData()[2]->message)->toBe(HostGroupException::errorWhileDeleting($ex)->getMessage());
+        ->and($response->getData()[2]->message)->toBe(HostGroupException::errorWhileDeleting()->getMessage());
 });
