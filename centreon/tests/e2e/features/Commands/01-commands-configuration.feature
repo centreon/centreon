@@ -46,7 +46,7 @@ Feature: Configuration of a command
     And the user can configure those arguments
 
   @TEST_MON-158940
-  Scenario: Display Service command arguments
+  Scenario: Display Host command arguments
     Given a host being configured
     When the user selects a check command
     Then Arguments of this command are displayed for the host
