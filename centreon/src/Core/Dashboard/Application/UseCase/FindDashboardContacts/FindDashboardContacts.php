@@ -27,7 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
@@ -67,35 +67,28 @@ final class FindDashboardContacts
     }
 
     /**
-     * @param FindDashboardContactsPresenterInterface $presenter
+     * @return FindDashboardContactsResponse|ResponseStatusInterface
      */
-    public function __invoke(FindDashboardContactsPresenterInterface $presenter): void
+    public function __invoke(): FindDashboardContactsResponse|ResponseStatusInterface
     {
         try {
-            if ($this->isUserAdmin()) {
-                $users = $this->findContactAsAdmin();
-            }
-            elseif ($this->rights->canAccess()) {
-                $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                $users = $this->findContactsAsNonAdmin();
-            } else {
-                $this->error(
-                    "User doesn't have sufficient rights to see dashboards",
-                    ['user_id' => $this->contact->getId()]
-                );
-                $presenter->presentResponse(new ForbiddenResponse(DashboardException::accessNotAllowed()));
+            return $this->isUserAdmin()
+                ? $this->createResponse($this->findContactAsAdmin())
+                : $this->createResponse($this->findContactsAsNonAdmin());
+        } catch (\Throwable $ex) {
+            $this->error(
+                "Error while retrieving contacts allowed to receive a dashboard share : {$ex->getMessage()}",
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => [
+                        'message' => $ex->getMessage(),
+                        'trace' => $ex->getTraceAsString(),
+                    ],
+                ]
+            );
 
-                return;
-            }
-
-            $presenter->presentResponse($this->createResponse($users));
-        } catch (\UnexpectedValueException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            }
-        catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            return new ErrorResponse(DashboardException::errorWhileSearchingSharableContacts());
         }
     }
 
@@ -120,6 +113,8 @@ final class FindDashboardContacts
 
     /**
      * Find contacts with their Dashboards roles.
+     * Cloud - Return all users with Dashboard access rights (including cloud administrators linked to customer_admin_acl).
+     * OnPremise - Return all users with Dashboard access rights and administrators (not link with ACL Groups onPremise).
      *
      * @throws \Throwable
      *
@@ -155,6 +150,8 @@ final class FindDashboardContacts
 
     /**
      * Find contacts with their Dashboards roles.
+     * Cloud - Return users that are part of the same contact groups as the current user.
+     * OnPrem - Return users that are part of the same access groups as the current user.
      *
      * @throws \Throwable
      *
