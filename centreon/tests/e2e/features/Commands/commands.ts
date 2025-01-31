@@ -87,6 +87,56 @@ Cypress.Commands.add("checkValuesOfCommands", (name: string, body: Cmd) => {
     .should("be.selected");
 });
 
+Cypress.Commands.add("addConnectors", (body: Ctr) => {
+  cy.waitForElementInIframe("#main-content", 'input[name="connector_name"]');
+  cy.getIframeBody().find('input[name="connector_name"]').type(body.name);
+  cy.getIframeBody().find('input[name="connector_description"]').type(body.description);
+  cy.getIframeBody()
+    .find('textarea[id="command_line"]')
+    .type(body.command_line);
+  cy.getIframeBody()
+    .find('input[name="connector_status[connector_status]"][value="1"]')
+    .then(($val) => {
+      if (body.is_enabled === 1) {
+        cy.wrap($val).click();
+      }
+    });
+});
+
+Cypress.Commands.add("updateConnectors", (body: Ctr) => {
+  cy.waitForElementInIframe("#main-content", 'input[name="connector_name"]');
+  cy.getIframeBody().find('input[name="connector_name"]').clear().type(body.name);
+  cy.getIframeBody().find('input[name="connector_description"]').clear().type(body.description);
+  cy.getIframeBody()
+    .find('textarea[id="command_line"]')
+    .clear()
+    .type(body.command_line);
+  cy.getIframeBody()
+    .find('input[name="connector_status[connector_status]"][value="1"]')
+    .then(($val) => {
+      if (body.is_enabled === 1) {
+        cy.wrap($val).click();
+      }
+    });
+});
+
+Cypress.Commands.add("checkValuesOfConnectors", (name: string, body: Ctr) => {
+  cy.waitForElementInIframe("#main-content", 'input[name="connector_name"]');
+  cy.getIframeBody()
+    .find('input[name="connector_name"]')
+    .should("have.value", body.name);
+  cy.getIframeBody()
+    .find('input[name="connector_description"]')
+    .should("have.value", body.description);
+  cy.getIframeBody()
+    .find('textarea[id="command_line"]')
+    .should("have.value", body.command_line);
+  cy.getIframeBody()
+    .find(`input[name="connector_status[connector_status]"][value="${body.is_enabled}"]`)
+    .should("be.checked");
+});
+
+
 interface Cmd {
   name: string;
   type: number;
@@ -99,12 +149,23 @@ interface Cmd {
   graph_template_id: number;
 }
 
+interface Ctr {
+  name: string;
+  description: string;
+  command_line: string;
+  used_by_command: string;
+  is_enabled: number;
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
       addCommands: (body: Cmd) => Cypress.Chainable;
       updateCommands: (body: Cmd) => Cypress.Chainable;
       checkValuesOfCommands: (name: string, body: Cmd) => Cypress.Chainable;
+      addConnectors: (body: Ctr) => Cypress.Chainable;
+      updateConnectors: (body: Ctr) => Cypress.Chainable;
+      checkValuesOfConnectors: (name: string, body: Ctr) => Cypress.Chainable;
     }
   }
 }
