@@ -5,6 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { LoadingSkeleton, useFullscreenListener } from '@centreon/ui';
 
+import GlobalSearchDialog from '../components/GlobalSearch/Dialog/Dialog';
 import PageLoader from '../components/PageLoader';
 
 import useApp from './useApp';
@@ -70,6 +71,7 @@ const App = (): JSX.Element => {
             <MainRouter />
           </div>
         </div>
+        <GlobalSearchDialog />
       </div>
     </Suspense>
   );
