@@ -36,11 +36,11 @@ interface UseNavigationState {
   reactRoutes?: Record<string, string>;
 }
 
-const isDefined = pipe(isNil, not);
+export const isDefined = pipe(isNil, not);
 const propExists = <T>(property: string): ((obj: T) => boolean) =>
   pipe(prop(property) as (obj: T) => unknown, isDefined);
 
-const getAllowedPages = ({ page, newAccumulator }): Array<string> => {
+export const getAllowedPages = ({ page, newAccumulator }): Array<string> => {
   return cond([
     [
       propEq(true, 'is_react') as (obj: Page) => boolean,

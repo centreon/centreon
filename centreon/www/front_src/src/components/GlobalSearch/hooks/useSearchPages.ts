@@ -1,46 +1,68 @@
-import { includes, isEmpty } from 'ramda';
-import useNavigation from 'www/front_src/src/Navigation/useNavigation';
+import {
+  append,
+  filter,
+  flatten,
+  includes,
+  isEmpty,
+  isNil,
+  map,
+  pipe
+} from 'ramda';
+import { useCallback, useMemo } from 'react';
+import useNavigation, {
+  isDefined
+} from 'www/front_src/src/Navigation/useNavigation';
 
 export const useSearchPages = (search) => {
   const { menu } = useNavigation();
 
-  const reduceParentPage = ({ pages }) => {
-    if (!pages) {
-      return [];
-    }
-    return pages.reduce((acc, page) => {
-      if (!page.show) {
-        return acc;
-      }
-      const pageState =
-        page.url || page.page
-          ? {
-              url: page.is_react ? page.url : `/main.php?p=${page.page}`,
-              label: page.label
+  const reduceAllowedPages = useCallback(
+    (parent) =>
+      (acc: Array<string>, page): Array<string> => {
+        const children = pipe(
+          map<string, string | null>((property) => {
+            if (!page[property]) {
+              return null;
             }
-          : undefined;
 
-      if (!isEmpty(page.children)) {
-        return [
-          ...acc,
-          ...reduceParentPage({ pages: page.children }),
-          pageState
-        ];
-      }
+            return page[property].reduce(reduceAllowedPages(page.label), []);
+          }),
+          filter(isDefined)
+        )(['groups', 'children']) as Array<string>;
 
-      if (!isEmpty(page.groups)) {
-        return [...acc, ...reduceParentPage({ pages: page.group }), pageState];
-      }
+        const newAccumulator = [...acc, ...flatten(children)];
 
-      return [...acc, pageState];
-    }, []);
-  };
+        const newPage =
+          (page.is_react || page.page) &&
+          !page.children &&
+          (!page.groups || isEmpty(page.groups))
+            ? {
+                label: page.label,
+                parentLabel: parent,
+                url: page.is_react ? page.url : `/main.php?p=${page.page}`
+              }
+            : undefined;
 
-  const searchablePages = reduceParentPage({ pages: menu }).filter((v) => v);
+        return append(newPage, newAccumulator);
+      },
+    []
+  );
+  const searchablePages = useMemo(
+    (): Array<string> =>
+      isNil(menu)
+        ? []
+        : (menu || [])
+            .reduce(reduceAllowedPages(null), [] as Array<string>)
+            .filter((v) => v),
+    [menu]
+  );
 
   const searchedPages = searchablePages.filter(({ label }) =>
     includes(search.toLowerCase(), label.toLowerCase())
   );
 
-  return searchedPages.slice(0, 5);
+  return searchedPages.slice(0, 5).map(({ label, parentLabel, url }) => ({
+    label: `Go to "${parentLabel} > ${label}" page`,
+    url
+  }));
 };

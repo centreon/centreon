@@ -45,7 +45,7 @@ interface GetResourcesUrlProps {
   type: string;
 }
 
-const getResourceStatusDetailsEndpoint = ({
+export const getResourceStatusDetailsEndpoint = ({
   resourceType,
   id,
   parentId

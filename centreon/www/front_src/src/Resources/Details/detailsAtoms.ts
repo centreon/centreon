@@ -76,6 +76,7 @@ export const selectedResourceDetailsEndpointDerivedAtom = atom((get) => {
     endpoint: selectedResourceDetails?.resourcesDetailsEndpoint || '',
     newWord: './'
   });
+  console.log(selectedResourceDetails);
 
   if (!isNil(selectedResourceDetails?.parentResourceId)) {
     return `${resourcesEndpoint}/${selectedResourceDetails?.parentResourceType}s/${selectedResourceDetails?.parentResourceId}`;

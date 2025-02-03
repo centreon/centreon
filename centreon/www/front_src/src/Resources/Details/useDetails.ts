@@ -10,7 +10,6 @@ import {
   selectedTimePeriodAtom
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
 import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
-
 import {
   defaultSelectedCustomTimePeriodAtom,
   defaultSelectedTimePeriodIdAtom,
