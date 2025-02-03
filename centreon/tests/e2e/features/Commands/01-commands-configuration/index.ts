@@ -50,10 +50,10 @@ When('the user creates a command', () => {
     .find('input[class="btc bt_success"][name^="submit"]')
     .eq(0)
     .click();
+  cy.wait('@getCommandsPage');
 });
 
 Then('the command is displayed in the list', () => {
-  cy.wait('@getCommandsPage');
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.reload();
   cy.getIframeBody().contains(data.check.name).should('exist');
@@ -68,10 +68,10 @@ When('the user changes the properties of a command', () => {
     .find('input[class="btc bt_success"][name^="submit"]')
     .eq(0)
     .click();
+  cy.wait('@getCommandsPage');
 });
 
 Then('the properties are updated', () => {
-  cy.wait('@getCommandsPage');
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.reload();
   cy.getIframeBody().contains(data.miscellaneous.name).should('exist');
@@ -119,12 +119,15 @@ When('the user creates a {string} command', (type: string) => {
     .find('input[class="btc bt_success"][name^="submit"]')
     .eq(0)
     .click();
+  cy.wait('@getCommandsPage');
+  cy.exportConfig();
 });
 
 Then('the command is displayed on the {string} page', (type: string) => {
-  cy.wait('@getCommandsPage');
-  cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
-  cy.reload();
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${commandTypeMap[type].data.name}")`
+  );
   cy.getIframeBody().contains(commandTypeMap[type].data.name).should('exist');
 });
 
