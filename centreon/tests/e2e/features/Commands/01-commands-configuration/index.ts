@@ -3,11 +3,13 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import data from '../../../fixtures/commands/command.json';
 
 const commandTypeMap = {
-  check: { type: 2, data: data.check },
-  notification: { type: 1, data: data.notification },
-  discovery: { type: 4, data: data.discovery },
-  miscellaneous: { type: 3, data: data.miscellaneous }
+  check: { data: data.check, type: 2 },
+  discovery: { data: data.discovery, type: 4 },
+  miscellaneous: { data: data.miscellaneous, type: 3 },
+  notification: { data: data.notification, type: 1 }
 };
+
+let hostID = 0;
 
 before(() => {
   cy.startContainers();
@@ -22,6 +24,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/main.php?p=60802&type=*'
   }).as('getCommandsPage');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/userTimezone.php'
+  }).as('getTimeZone');
 });
 
 after(() => {
@@ -120,4 +126,78 @@ Then('the command is displayed on the {string} page', (type: string) => {
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.reload();
   cy.getIframeBody().contains(commandTypeMap[type].data.name).should('exist');
+});
+
+Given('a service being configured', () => {
+  cy.navigateTo({
+    page: 'Services by host',
+    rootItemNumber: 3,
+    subMenu: 'Services'
+  });
+  cy.getIframeBody().contains('a', 'Add').click();
+  cy.waitForElementInIframe(
+    '#main-content',
+    'input[name="service_description"]'
+  );
+  cy.getIframeBody().find('input[name="service_description"]').type('service2');
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
+  cy.getIframeBody().find('div[title="generic-active-host"]').click();
+});
+
+When('the user selects a check command on the service form', () => {
+  cy.getIframeBody().find('span[title="Check Command"]').click();
+  cy.getIframeBody().find('div[title="check_centreon_dummy"]').click();
+});
+
+Then('Arguments of this command are displayed for the service', () => {
+  cy.getIframeBody().find('input[name="ARG1"]').should('be.visible');
+  cy.getIframeBody().find('input[name="ARG2"]').should('be.visible');
+});
+
+Then('the user can configure those arguments on the service form', () => {
+  cy.getIframeBody().find('input[name="ARG1"]').type('0');
+  cy.getIframeBody().find('input[name="ARG2"]').type('OK');
+  cy.getIframeBody()
+    .find('input[class="btc bt_success"][name^="submit"]')
+    .eq(0)
+    .click();
+});
+
+Given('a host being configured', () => {
+  cy.addNewHostAndReturnId().then((hostId) => {
+    cy.log(`Host ID is: ${hostId}`);
+    hostID = hostId;
+  });
+});
+
+When('the user selects a check command on the host form', () => {
+  cy.navigateTo({
+    page: 'Hosts',
+    rootItemNumber: 3,
+    subMenu: 'Hosts'
+  });
+  cy.waitForElementInIframe(
+    '#main-content',
+    'a:contains("generic-active-host")'
+  );
+  cy.visit(`/centreon/main.php?p=60101&o=c&host_id=${hostID}`);
+  cy.waitForElementInIframe('#main-content', '#command_command_id');
+  cy.getIframeBody().find('span[title="Check Command"]').click();
+  cy.getIframeBody().find('div[title="check_centreon_dummy"]').click();
+});
+
+Then('Arguments of this command are displayed for the host', () => {
+  cy.getIframeBody()
+    .find('input[name="command_command_id_arg1"]')
+    .should('be.visible');
+});
+
+Then('the user can configure those arguments on the host form', () => {
+  cy.getIframeBody()
+    .find('input[name="command_command_id_arg1"]')
+    .type('!0!OK');
+  cy.getIframeBody()
+    .find('input[class="btc bt_success"][name^="submit"]')
+    .eq(0)
+    .click();
 });
