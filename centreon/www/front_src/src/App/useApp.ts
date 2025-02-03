@@ -73,6 +73,7 @@ const useApp = (): UseAppState => {
   const setStatisticsRefreshInterval = useSetAtom(
     statisticsRefreshIntervalAtom
   );
+
   const setAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
