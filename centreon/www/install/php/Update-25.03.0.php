@@ -17,3 +17,79 @@
  * For more information : contact@centreon.com
  *
  */
+
+require_once __DIR__ . '/../../../bootstrap.php';
+require_once __DIR__ . '/../../class/centreonLog.class.php';
+
+$versionOfTheUpgrade = 'UPGRADE - 25.03.0: ';
+$errorMessage = '';
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$removeConstraintFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    // prevent side effect on the $removeFieldFromBrokerConfiguration function
+    $errorMessage = 'Unable to update table cb_list_values';
+    $pearDB->executeQuery(
+        <<<SQL
+        ALTER TABLE cb_list_values DROP CONSTRAINT `fk_cb_list_values_1`
+        SQL
+    );
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$removeFieldFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to remove data from cb_field';
+    $pearDB->executeQuery(
+        <<<SQL
+        DELETE FROM cb_field WHERE fieldname = 'check_replication'
+        SQL
+    );
+
+    $errorMessage = 'Unable to remove data from cfg_centreonbroker_info';
+    $pearDB->executeQuery(
+        <<<SQL
+        DELETE FROM cfg_centreonbroker_info WHERE config_key = 'check_replication'
+        SQL
+    );
+};
+
+try {
+    $removeConstraintFromBrokerConfiguration($pearDB);
+
+    // Transactional queries
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
+
+    $removeFieldFromBrokerConfiguration($pearDB);
+
+    $pearDB->commit();
+} catch (CentreonDbException $e) {
+    CentreonLog::create()->critical(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString(),
+        customContext: [
+            'exception' => $e->getOptions(),
+            'trace' => $e->getTraceAsString(),
+        ],
+        exception: $e
+    );
+
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+}

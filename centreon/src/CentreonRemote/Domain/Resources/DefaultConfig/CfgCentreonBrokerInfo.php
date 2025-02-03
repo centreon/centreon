@@ -311,13 +311,6 @@ class CfgCentreonBrokerInfo
             ],
             [
                 'config_id' => 1,
-                'config_key' => 'check_replication',
-                'config_value' => 'no',
-                'config_group' => 'output',
-                'config_group_id' => 1,
-            ],
-            [
-                'config_id' => 1,
                 'config_key' => 'rebuild_check_interval',
                 'config_value' => '',
                 'config_group' => 'output',
