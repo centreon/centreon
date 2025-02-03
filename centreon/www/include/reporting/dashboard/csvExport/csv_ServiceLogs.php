@@ -201,12 +201,14 @@ $dbResult->bindValue(':endDate', $endDate, PDO::PARAM_INT);
 $dbResult->execute();
 
 while ($row = $dbResult->fetch()) {
-    $duration = $row["date_end"] - $row["date_start"];
-    /* Percentage by status */
     $duration = $row["OKTimeScheduled"]
         + $row["WARNINGTimeScheduled"]
         + $row["UNKNOWNTimeScheduled"]
         + $row["CRITICALTimeScheduled"];
+    if ($duration === 0) {
+        continue;
+    }
+    /* Percentage by status */
     $row["OK_MP"] = round($row["OKTimeScheduled"] * 100 / $duration, 2);
     $row["WARNING_MP"] = round($row["WARNINGTimeScheduled"] * 100 / $duration, 2);
     $row["UNKNOWN_MP"] = round($row["UNKNOWNTimeScheduled"] * 100 / $duration, 2);

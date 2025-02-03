@@ -19,7 +19,6 @@ import { DashboardConfigModal } from '../../components/DashboardLibrary/Dashboar
 import { useDashboardConfig } from '../../components/DashboardLibrary/DashboardConfig/useDashboardConfig';
 import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
-
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import FavoriteAction from '../../components/DashboardLibrary/DashboardListing/Actions/favoriteAction';
 import { AddWidgetButton } from './AddEditWidget';
