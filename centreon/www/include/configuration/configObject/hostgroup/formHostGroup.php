@@ -271,8 +271,9 @@ $tpl->assign('helptext', $helptext);
 $valid = false;
 if ($form->validate()) {
     $hgObj = $form->getElement('hg_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        if (false !== $hostGroupId = insertHostGroup()) {
+        if (false !== $hostGroupId = insertHostGroup($formData)) {
             $hgObj->setValue($hostGroupId);
             $o = null;
             $hgObj = $form->getElement('hg_id');
@@ -281,13 +282,11 @@ if ($form->validate()) {
         $hgs = $acl->getHostGroupAclConf();
         $hostGroupIds = array_keys($hgs);
     } elseif ($form->getSubmitValue('submitC')) {
-        updateHostGroupInDB(
-            hostGroupId: $hgObj->getValue(),
-            isCloudPlatform: $isCloudPlatform
-        );
-        $o = null;
-        $hgObj = $form->getElement('hg_id');
-        $valid = true;
+        if (false !== updateHostGroup((int) $hgObj->getValue(), $formData)) {
+            $o = null;
+            $hgObj = $form->getElement('hg_id');
+            $valid = true;
+        }
     }
 }
 
