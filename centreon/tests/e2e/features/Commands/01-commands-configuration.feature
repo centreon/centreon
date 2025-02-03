@@ -38,16 +38,16 @@ Feature: Configuration of a command
       | discovery     |
       | miscellaneous |
 
-  @TEST_MON-158939
-  Scenario: Display Service command arguments
-    Given a service being configured
-    When the user selects a check command
-    Then Arguments of this command are displayed for the service
-    And the user can configure those arguments
-
   @TEST_MON-158940
   Scenario: Display Host command arguments
     Given a host being configured
-    When the user selects a check command
+    When the user selects a check command on the host form
     Then Arguments of this command are displayed for the host
-    And the user can configure those arguments
+    And the user can configure those arguments on the host form
+
+  @TEST_MON-158939
+  Scenario: Display Service command arguments
+    Given a service being configured
+    When the user selects a check command on the service form
+    Then Arguments of this command are displayed for the service
+    And the user can configure those arguments on the service form
