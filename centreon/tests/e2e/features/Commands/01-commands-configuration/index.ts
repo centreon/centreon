@@ -114,10 +114,13 @@ When('the user creates a {string} command', (type: string) => {
     .eq(0)
     .click();
   cy.wait('@getCommandsPage');
+  cy.exportConfig();
 });
 
 Then('the command is displayed on the {string} page', (type: string) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
-  cy.reload();
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${commandTypeMap[type].data.name}")`
+  );
   cy.getIframeBody().contains(commandTypeMap[type].data.name).should('exist');
 });
