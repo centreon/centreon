@@ -138,6 +138,5 @@ Then('the command is displayed on the {string} page', (type: string) => {
     '#main-content',
     `a:contains("${commandTypeMap[type].data.name}")`
   );
-  cy.reload();
   cy.getIframeBody().contains(commandTypeMap[type].data.name).should('exist');
 });
