@@ -455,7 +455,7 @@ function set_required_prerequisite() {
 
         BASE_PACKAGES=(centos-release-scl)
 
-        RELEASE_REPO_FILE="http://packages.centreon.com/artifactory/rpm-standard-esr/$version/el7/centreon-$version-esr.repo.txt"
+        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard-esr/$version/el7/centreon-$version-esr.repo.txt"
         REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-7.rpm"
         PHP_SERVICE_UNIT="php-fpm"
 				HTTP_SERVICE_UNIT="httpd24-httpd"
