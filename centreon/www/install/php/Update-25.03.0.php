@@ -171,11 +171,55 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     }
 };
 
+
+// -------------------------------------------- Broker I/O Configuration -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$removeConstraintFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    // prevent side effect on the $removeFieldFromBrokerConfiguration function
+    $errorMessage = 'Unable to update table cb_list_values';
+    $pearDB->executeQuery(
+        <<<SQL
+        ALTER TABLE cb_list_values DROP CONSTRAINT `fk_cb_list_values_1`
+        SQL
+    );
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$removeFieldFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to remove data from cb_field';
+    $pearDB->executeQuery(
+        <<<SQL
+        DELETE FROM cb_field WHERE fieldname = 'check_replication'
+        SQL
+    );
+
+    $errorMessage = 'Unable to remove data from cfg_centreonbroker_info';
+    $pearDB->executeQuery(
+        <<<SQL
+        DELETE FROM cfg_centreonbroker_info WHERE config_key = 'check_replication'
+        SQL
+    );
+};
+
 try {
     $createAgentInformationTable($pearDBO);
     $addConnectorToTopology($pearDB);
     $changeAccNameInTopology($pearDB);
     $addColumnToResourcesTable($pearDBO);
+    $removeConstraintFromBrokerConfiguration($pearDB);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -184,6 +228,9 @@ try {
 
     $insertAccConnectors($pearDB);
     $updatePanelsLayout($pearDB);
+    $removeFieldFromBrokerConfiguration($pearDB);
+
+    $pearDB->commit();
 
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
