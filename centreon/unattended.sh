@@ -833,7 +833,11 @@ function install_centreon_repo() {
 
 	log "INFO" "Centreon official repositories installation..."
 
-	$PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE
+	if [[ $detected_os_version == "7" ]]; then
+		yum-config-manager --add-repo $RELEASE_REPO_FILE
+	else
+		$PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE
+	fi
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install Centreon repository"
 	fi
