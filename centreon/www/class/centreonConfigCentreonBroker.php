@@ -888,21 +888,25 @@ class CentreonConfigCentreonBroker
      * @param int $configId
      * @param string $configKey
      * @param int $fieldIndex
+     * @param int $configGroupId
      *
      * @return string|null
      * @throws PDOException
      */
-    private function findOriginalValueWithFieldIndex(int $configId, string $configKey, int $fieldIndex): ?string
+    private function findOriginalValueWithFieldIndex(int $configId, string $configKey, int $fieldIndex, int $configGroupId): ?string
     {
         $stmt = $this->db->prepare(
             'SELECT config_value FROM cfg_centreonbroker_info
             WHERE config_id = :configId
             AND config_key = :configKey
-            AND fieldIndex = :fieldIndex'
+            AND fieldIndex = :fieldIndex
+            AND config_group_id = :configGroupId'
         );
-        $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
-        $stmt->bindValue(':configKey', $configKey, PDO::PARAM_STR);
-        $stmt->bindValue(':fieldIndex', $fieldIndex, PDO::PARAM_STR);
+
+        $stmt->bindValue(':configId', $configId, \PDO::PARAM_INT);
+        $stmt->bindValue(':configKey', $configKey, \PDO::PARAM_STR);
+        $stmt->bindValue(':fieldIndex', $fieldIndex, \PDO::PARAM_INT);
+        $stmt->bindValue(':configGroupId', $configGroupId, \PDO::PARAM_INT);
         $stmt->execute();
 
         $row = $stmt->fetch();
@@ -920,16 +924,18 @@ class CentreonConfigCentreonBroker
      */
     private function revealLuaPasswords(int $configId, array &$values): void
     {
-        foreach ($values['output'] as &$output) {
+        foreach ($values['output'] as $configGroupId => &$output) {
             foreach (array_keys($output) as $key) {
                 if (
-                    preg_match('/^lua_parameter__value_(\\d+)$/', (string) $key, $matches)
+                    preg_match('/^lua_parameter__value_(\\d+)$/', (string) $key, $matches) === 1
+                    && array_key_exists("lua_parameter__value_{$matches[1]}", $output)
                     && $output["lua_parameter__value_{$matches[1]}"] === CentreonAuth::PWS_OCCULTATION
                 ) {
                     $originalPassword = $this->findOriginalValueWithFieldIndex(
                         $configId,
                         "lua_parameter__value",
-                        $matches[1]
+                        $matches[1],
+                        $configGroupId
                     );
                     $output["lua_parameter__value_{$matches[1]}"] = $originalPassword;
                 }
