@@ -38,7 +38,7 @@ Given('an admin user is logged in a Centreon server', () => {
 When('the user creates a command', () => {
   cy.visit('/centreon/main.php?p=60802&type=2');
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
-  cy.getIframeBody().contains('a', '+ ADD').click();
+  cy.getIframeBody().contains('a', 'Add').click();
   cy.addCommands(data.check);
   cy.getIframeBody()
     .find('input[class="btc bt_success"][name^="submit"]')
@@ -76,7 +76,15 @@ Then('the properties are updated', () => {
 When('the user duplicates a command', () => {
   cy.visit('/centreon/main.php?p=60802&type=3');
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
-  cy.getIframeBody().find('[alt="Duplicate"]').eq(1).click();
+  cy.getIframeBody().contains(data.miscellaneous.name).parents('tr').find('input[type="checkbox"]').check({ force: true });
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('the new command has the same properties', () => {
@@ -92,10 +100,18 @@ When('the user deletes a command', () => {
   cy.visit('/centreon/main.php?p=60802&type=3');
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.getIframeBody()
-    .contains('a', `${data.miscellaneous.name}`)
+    .contains(data.miscellaneous.name)
     .parents('tr')
-    .find('[alt="Delete"]')
-    .click();
+    .find('input[type="checkbox"]')
+    .check({ force: true });
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
+  cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the deleted command is not displayed in the list', () => {
@@ -107,17 +123,21 @@ When('the user creates a {string} command', (type: string) => {
   const { type: pageType, data: commandData } = commandTypeMap[type];
   cy.visit(`/centreon/main.php?p=60802&type=${pageType}`);
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
-  cy.getIframeBody().contains('a', '+ ADD').click();
+  cy.getIframeBody().contains('a', 'Add').click();
   cy.addCommands(commandData);
   cy.getIframeBody()
     .find('input[class="btc bt_success"][name^="submit"]')
     .eq(0)
     .click();
+  cy.wait('@getCommandsPage');
+  cy.exportConfig();
 });
 
 Then('the command is displayed on the {string} page', (type: string) => {
-  cy.wait('@getCommandsPage');
-  cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${commandTypeMap[type].data.name}")`
+  );
   cy.reload();
   cy.getIframeBody().contains(commandTypeMap[type].data.name).should('exist');
 });
