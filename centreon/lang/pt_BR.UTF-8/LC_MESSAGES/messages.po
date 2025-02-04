@@ -14757,7 +14757,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "End time"
 #  msgstr ""
 
-#  msgid "This Resource is flapping"
+#  msgid "This resource is flapping"
 #  msgstr ""
 
 #  msgid "Show criterias filters"
@@ -18324,6 +18324,21 @@ msgstr ""
 # msgid "There are errors in the form."
 # msgstr ""
 
+# msgid "Show only dashboards added to favorites"
+# msgstr ""
+
+# msgid "The dashboard has been added to your favorites."
+# msgstr ""
+
+# msgid "The dashboard has been removed from your favorites."
+# msgstr ""
+
+# msgid "Remove from favorites"
+# msgstr ""
+
+# msgid "Add to favorites"
+# msgstr ""
+
 # msgid "PNG (as displayed)"
 # msgstr ""
 
@@ -18334,4 +18349,31 @@ msgstr ""
 # msgstr ""
 
 # msgid "Export as"
+# msgstr ""
+
+# msgid "If you click on Discard, your changes will not be saved."
+# msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""
+
+# msgid "Do you want to leave this page?"
+# msgstr ""
+
+# msgid "Your changes will not be saved if you leave this page."
+# msgstr ""
+
+# msgid "Leave"
+# msgstr ""
+
+# msgid "Stay"
+# msgstr ""
+
+# msgid "Generic widgets"
+# msgstr ""
+
+# msgid "Real time widgets"
+# msgstr ""
+
+# msgid "MBI Reporting widgets"
 # msgstr ""

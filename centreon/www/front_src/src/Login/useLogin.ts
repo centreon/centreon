@@ -14,7 +14,7 @@ import {
 } from 'ramda';
 import { useCookies } from 'react-cookie';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 
 import { ResponseError, useFetchQuery, useSnackbar } from '@centreon/ui';
 

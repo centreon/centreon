@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,10 @@ class SmartyBC extends Smarty
         'strtotime',
         'number_format',
     ];
+    /**
+     * Forbidden tags in Smarty templates.
+     */
+    private const FORBIDDEN_TAGS = ['extends'];
 
     /**
      * Smarty 2 BC.
@@ -62,15 +66,56 @@ class SmartyBC extends Smarty
     public $trusted_dir = [];
 
     /**
-     * Initialize new SmartyBC object.
+     * SmartyBC constructor
+     *
+     * @throws SmartyException
      */
     public function __construct()
     {
         parent::__construct();
 
+        // Check if forbidden tags like 'extends' are used in templates, if yes a SmartyException is thrown.
+        $this->registerFilter('pre', [$this, 'checkForbiddenTags']);
+
         // We need to explicitly define these plugins to avoid breaking a future smarty upgrade.
         foreach (self::SMARTY_V3_DEPRECATED_PHP_MODIFIERS as $phpFunction) {
             $this->registerPlugin(self::PLUGIN_MODIFIER, $phpFunction, $phpFunction);
+        }
+    }
+
+    /**
+     * Factory
+     *
+     * @param string|null $pathTemplate
+     * @param string|null $subDirTemplate
+     *
+     * @return SmartyBC
+     * @throws SmartyException
+     */
+    public static function createSmartyTemplate(?string $pathTemplate = null, ?string $subDirTemplate = null): SmartyBC
+    {
+        try {
+            $template = new \SmartyBC();
+
+            $template->setTemplateDir($pathTemplate . ($subDirTemplate ?? ''));
+            $template->setCompileDir(__DIR__ . '/../SmartyCache/compile');
+            $template->setConfigDir(__DIR__ . '/../SmartyCache/config');
+            $template->setCacheDir(__DIR__ . '/../SmartyCache/cache');
+            $template->addPluginsDir(__DIR__ . '/../smarty-plugins');
+            $template->loadPlugin('smarty_function_eval');
+            $template->setForceCompile(true);
+            $template->setAutoLiteral(false);
+            $template->allow_ambiguous_resources = true;
+
+            return $template;
+        } catch (SmartyException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                "Smarty error while initializing smarty template : {$e->getMessage()}",
+                ['path_template' => $pathTemplate, 'sub_directory_template' => $subDirTemplate],
+                $e
+            );
+            throw new SmartyException("Smarty error while initializing smarty template : {$e->getMessage()}");
         }
     }
 
@@ -115,7 +160,7 @@ class SmartyBC extends Smarty
      * @param bool $cacheable
      * @param mixed $cache_attrs
      *
-     * @throws \SmartyException
+     * @throws SmartyException
      */
     public function register_function($function, $function_impl, $cacheable = true, $cache_attrs = null): void
     {
@@ -175,7 +220,7 @@ class SmartyBC extends Smarty
      * @param bool $cacheable
      * @param mixed $cache_attrs
      *
-     * @throws \SmartyException
+     * @throws SmartyException
      */
     public function register_block($block, $block_impl, $cacheable = true, $cache_attrs = null): void
     {
@@ -199,7 +244,7 @@ class SmartyBC extends Smarty
      * @param string $function_impl name of PHP function to register
      * @param bool $cacheable
      *
-     * @throws \SmartyException
+     * @throws SmartyException
      */
     public function register_compiler_function($function, $function_impl, $cacheable = true): void
     {
@@ -222,7 +267,7 @@ class SmartyBC extends Smarty
      * @param string $modifier name of template modifier
      * @param string $modifier_impl name of PHP function to register
      *
-     * @throws \SmartyException
+     * @throws SmartyException
      */
     public function register_modifier($modifier, $modifier_impl): void
     {
@@ -266,7 +311,7 @@ class SmartyBC extends Smarty
      *
      * @param callable $function
      *
-     * @throws \SmartyException
+     * @throws SmartyException
      */
     public function register_prefilter($function): void
     {
@@ -289,7 +334,7 @@ class SmartyBC extends Smarty
      *
      * @param callable $function
      *
-     * @throws \SmartyException
+     * @throws SmartyException
      */
     public function register_postfilter($function): void
     {
@@ -312,7 +357,7 @@ class SmartyBC extends Smarty
      *
      * @param callable $function
      *
-     * @throws \SmartyException
+     * @throws SmartyException
      */
     public function register_outputfilter($function): void
     {
@@ -335,7 +380,7 @@ class SmartyBC extends Smarty
      * @param string $type filter type
      * @param string $name filter name
      *
-     * @throws \SmartyException
+     * @throws SmartyException
      */
     public function load_filter($type, $name): void
     {
@@ -376,10 +421,10 @@ class SmartyBC extends Smarty
      * @param string $cache_id
      * @param string $compile_id
      *
-     * @throws \Exception
-     * @throws \SmartyException
-     *
      * @return bool
+     * @throws SmartyException
+     *
+     * @throws \Exception
      */
     public function is_cached($tpl_file, $cache_id = null, $compile_id = null)
     {
@@ -415,9 +460,9 @@ class SmartyBC extends Smarty
      *
      * @param string $tpl_file
      *
-     * @throws \SmartyException
-     *
      * @return bool
+     * @throws SmartyException
+     *
      */
     public function template_exists($tpl_file)
     {
@@ -491,5 +536,65 @@ class SmartyBC extends Smarty
     public function trigger_error($error_msg, $error_type = E_USER_WARNING): void
     {
         trigger_error("Smarty error: {$error_msg}", $error_type);
+    }
+
+    /**
+     * Display a Smarty template.
+     * Error handling is done here to avoid breaking the legacy.
+     * If an error occurs, a generic error message is displayed using the following template :
+     * www/include/common/templates/error.ihtml.
+     *
+     * @param string|null $template
+     * @param string|null $cache_id
+     * @param string|null $compile_id
+     * @param object|null $parent
+     *
+     * @return void
+     */
+    public function display($template = null, $cache_id = null, $compile_id = null, $parent = null): void
+    {
+        try {
+            parent::display($template, $cache_id, $compile_id, $parent);
+        } catch (Throwable $e) {
+            CentreonLog::create()->critical(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                "An error occurred while displaying the following template {$template} : {$e->getMessage()}",
+                ['template_name' => $template, 'error_message' => $e->getMessage()],
+                $e
+            );
+            try {
+                $smartyErrorTpl = new Smarty();
+                $error = "An unexpected error occurred. Please try again later or contact your administrator.";
+                $smartyErrorTpl->assign('error', $error);
+                $smartyErrorTpl->display(__DIR__ . '/../../www/include/common/templates/error.ihtml');
+            } catch (Throwable $e) {
+                CentreonLog::create()->critical(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    "An error occurred while displaying the error template : {$e->getMessage()}",
+                    ['error_message' => $e->getMessage()],
+                    $e
+                );
+            }
+        }
+    }
+
+    /**
+     * Check if forbidden tags are used in templates. If yes, a SmartyException is thrown.
+     * Forbidden tags are defined in the $forbiddenTags array.
+     *
+     * @param string $source
+     *
+     * @return string
+     * @throws SmartyException
+     */
+    public function checkForbiddenTags(string $source): string
+    {
+        foreach (self::FORBIDDEN_TAGS as $tag) {
+            if (preg_match('/\{' . $tag . '\b.*?}/', $source)) {
+                throw new SmartyException("The '{{$tag}}' tag is forbidden in templates.");
+            }
+        }
+
+        return $source;
     }
 }

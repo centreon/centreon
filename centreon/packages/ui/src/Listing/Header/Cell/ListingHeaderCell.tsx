@@ -64,7 +64,9 @@ const ListingHeaderCell = ({
 
   const headerContent = (
     <Tooltip placement="top" title={getTooltipLabel(column.shortLabel)}>
-      <HeaderLabel>{columnLabel}</HeaderLabel>
+      <span>
+        <HeaderLabel>{columnLabel}</HeaderLabel>
+      </span>
     </Tooltip>
   );
 

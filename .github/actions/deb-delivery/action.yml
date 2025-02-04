@@ -30,13 +30,13 @@ runs:
   using: "composite"
   steps:
     - name: Use cache DEB files
-      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ./*.deb
         key: ${{ inputs.cache_key }}
         fail-on-cache-miss: true
 
-    - uses: jfrog/setup-jfrog-cli@26da2259ee7690e63b5410d7451b2938d08ce1f9 # v4.0.0
+    - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
@@ -59,8 +59,9 @@ runs:
           exit 1
         fi
 
-        # Handle either standard debian or ubuntu repository path
-        if [[ "${{ inputs.distrib }}" == "jammy" ]]; then
+        if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
+          ROOT_REPO_PATH="apt-standard-internal-${{ inputs.stability }}"
+        elif [[ "${{ inputs.distrib }}" == "jammy" ]]; then
           ROOT_REPO_PATH="ubuntu-standard-${{ inputs.version }}-${{ inputs.stability }}"
         else
           ROOT_REPO_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}"

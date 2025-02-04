@@ -3,7 +3,7 @@ import widgetInputProperties from './Widgets/centreon-widget-input/properties.js
 import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
 
 import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { federatedWidgetsAtom, isOnPublicPageAtom } from '@centreon/ui-context';
