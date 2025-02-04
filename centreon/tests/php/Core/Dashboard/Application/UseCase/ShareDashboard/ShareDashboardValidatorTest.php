@@ -35,7 +35,7 @@ use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 
-beforeEach(function(): void {
+beforeEach(function (): void {
     $this->contact = $this->createMock(ContactInterface::class);
     $this->rights = $this->createMock(DashboardRights::class);
     $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class);
@@ -53,8 +53,8 @@ beforeEach(function(): void {
 
 it('should throw a Dashboard Exception when the dashboard does not exist', function (): void {
     $this->readDashboardRepository
-       ->method('existsOne')
-       ->willReturn(false);
+        ->method('existsOne')
+        ->willReturn(false);
 
    $this->validator->validateDashboard(1);
 })->throws(DashboardException::theDashboardDoesNotExist(1)->getMessage());
@@ -70,34 +70,32 @@ it('should throw a Dashboard Exception when the dashboard is not shared has edit
         ->method('existsAsEditor')
         ->willReturn(false);
 
-
     $this->validator->validateDashboard(1, false);
 })->throws(DashboardException::dashboardAccessRightsNotAllowedForWriting(1)->getMessage());
 
-it('should throw a Dashboard Exception when the contacts does not exists', function(): void {
+it('should throw a Dashboard Exception when the contacts does not exists', function (): void {
    $this->readContactRepository
        ->expects($this->once())
        ->method('exist')
        ->willReturn([1]);
 
-
-   $this->validator->validateContacts(
+   $this->validator->validateContactsForOnPremise(
        [
            [
                'id' => 1,
-               'role' => 'editor'
+               'role' => 'editor',
            ],
            [
                'id' => 2,
-               'role' => 'editor'
+               'role' => 'editor',
            ],
            [
                'id' => 3,
-               'role' => 'editor'
+               'role' => 'editor',
            ],
        ],
    );
-})->throws(DashboardException::theContactsDoNotExist([2,3])->getMessage());
+})->throws(DashboardException::theContactsDoNotExist([2, 3])->getMessage());
 
 it('should throw a Dashboard Exception when the contacts are duplicated', function (): void {
     $this->readContactRepository
@@ -105,15 +103,15 @@ it('should throw a Dashboard Exception when the contacts are duplicated', functi
         ->method('exist')
         ->willReturn([1]);
 
-    $this->validator->validateContacts(
+    $this->validator->validateContactsForOnPremise(
         [
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
         ],
     );
@@ -123,7 +121,7 @@ it('should throw a Dashboard Exception when the request contacts does not have D
     $this->readContactRepository
         ->expects($this->once())
         ->method('exist')
-        ->willReturn([1,2]);
+        ->willReturn([1, 2]);
 
     $this->readDashboardShareRepository
         ->expects($this->once())
@@ -134,18 +132,18 @@ it('should throw a Dashboard Exception when the request contacts does not have D
                 'user',
                 'user@email.com',
                 [DashboardGlobalRole::Creator]
-            )
+            ),
         ]);
 
-    $this->validator->validateContacts(
+    $this->validator->validateContactsForOnPremise(
         [
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
             [
                 'id' => 2,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
         ],
     );
@@ -155,7 +153,7 @@ it('should throw a Dashboard Exception when the request contacts does not have s
         $this->readContactRepository
             ->expects($this->once())
             ->method('exist')
-            ->willReturn([1,2]);
+            ->willReturn([1, 2]);
 
         $this->readDashboardShareRepository
             ->expects($this->once())
@@ -166,19 +164,19 @@ it('should throw a Dashboard Exception when the request contacts does not have s
                     'user',
                     'user@email.com',
                     [DashboardGlobalRole::Viewer]
-                )
+                ),
             ]);
 
-        $this->validator->validateContacts(
+        $this->validator->validateContactsForOnPremise(
             [
                 [
                     'id' => 1,
-                    'role' => 'editor'
+                    'role' => 'editor',
                 ],
             ],
             []
         );
-    })->throws(DashboardException::notSufficientAccessRightForUser(1, 'editor')->getMessage());
+    })->throws(DashboardException::notSufficientAccessRightForUser('user', 'editor')->getMessage());
 
 it('should throw a Dashboard Exception when the request contacts are not members of user Access Groups', function (): void {
     $this->readContactRepository
@@ -195,14 +193,14 @@ it('should throw a Dashboard Exception when the request contacts are not members
                 'user',
                 'user@email.com',
                 [DashboardGlobalRole::Creator]
-            )
+            ),
         ]);
 
-    $this->validator->validateContacts(
+    $this->validator->validateContactsForOnPremise(
         [
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
         ],
         [],
@@ -216,25 +214,24 @@ it('should throw a Dashboard Exception when the contact groups do not exist', fu
         ->method('exist')
         ->willReturn([1]);
 
-
-    $this->validator->validateContactGroups(
+    $this->validator->validateContactGroupsForOnPremise(
         [
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
             [
                 'id' => 2,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
             [
                 'id' => 3,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
         ],
         []
     );
-})->throws(DashboardException::theContactGroupsDoNotExist([2,3])->getMessage());
+})->throws(DashboardException::theContactGroupsDoNotExist([2, 3])->getMessage());
 
 it('should throw a Dashboard Exception when the contact groups are duplicated', function (): void {
     $this->readContactGroupRepository
@@ -242,18 +239,16 @@ it('should throw a Dashboard Exception when the contact groups are duplicated', 
         ->method('exist')
         ->willReturn([1]);
 
-
-    $this->validator->validateContactGroups(
+    $this->validator->validateContactGroupsForOnPremise(
         [
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
-
         ],
         []
     );
@@ -263,7 +258,7 @@ it('should throw a Dashboard Exception when the contact groups does not have Das
     $this->readContactGroupRepository
         ->expects($this->once())
         ->method('exist')
-        ->willReturn([1,2]);
+        ->willReturn([1, 2]);
 
     $this->readDashboardShareRepository
         ->expects($this->once())
@@ -273,19 +268,19 @@ it('should throw a Dashboard Exception when the contact groups does not have Das
                 1,
                 'CG1',
                 [DashboardGlobalRole::Creator]
-            )
+            ),
         ]);
 
-    $this->validator->validateContactGroups(
+    $this->validator->validateContactGroupsForOnPremise(
         [
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
             [
                 'id' => 2,
-                'role' => 'editor'
-            ]
+                'role' => 'editor',
+            ],
         ],
         []
     );
@@ -305,14 +300,14 @@ it('should throw a Dashboard Exception when the contact groups are not members o
                 1,
                 'CG1',
                 [DashboardGlobalRole::Creator]
-            )
+            ),
         ]);
 
-    $this->validator->validateContactGroups(
+    $this->validator->validateContactGroupsForOnPremise(
         [
             [
                 'id' => 1,
-                'role' => 'editor'
+                'role' => 'editor',
             ],
         ],
         [],

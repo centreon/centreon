@@ -29,7 +29,7 @@ final readonly class ShareDashboardInput
 {
     /**
      * @param array<array{id: int, role: string}> $contacts
-     * @param array<array{id: int, role: string}>$contactGroups
+     * @param array<array{id: int, role: string}> $contactGroups
      */
     public function __construct(
         #[Assert\All([
