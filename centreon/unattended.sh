@@ -834,7 +834,8 @@ function install_centreon_repo() {
 	log "INFO" "Centreon official repositories installation..."
 
 	if [[ $detected_os_version == "7" ]]; then
-		yum-config-manager --add-repo $RELEASE_REPO_FILE
+		curl $RELEASE_REPO_FILE -o centreon-22.10-esr.repo
+		yum-config-manager --add-repo centreon-22.10-esr.repo
 	else
 		$PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE
 	fi
