@@ -17907,7 +17907,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Critical KPIs"
 # msgstr ""
 
-# msgid "Additional Configuration"
+# msgid "Additional Configurations"
 # msgstr ""
 
 # msgid "Types"

@@ -1,5 +1,5 @@
 export const labelAdditionalConnectorConfiguration =
-  'Additional Configuration';
+  'Additional Configurations';
 export const labelName = 'Name';
 export const labelType = 'Type';
 export const labelTypes = 'Types';

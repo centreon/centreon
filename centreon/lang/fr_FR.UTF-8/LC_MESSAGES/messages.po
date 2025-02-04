@@ -19229,8 +19229,8 @@ msgstr "Santé"
 msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
 
-msgid "Additional Configuration"
-msgstr "Configuration additionnelle"
+msgid "Additional Configurations"
+msgstr "Configurations additionnelles"
 
 msgid "Types"
 msgstr "Types"
