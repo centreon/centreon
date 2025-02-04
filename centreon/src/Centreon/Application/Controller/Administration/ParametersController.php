@@ -42,13 +42,13 @@ class ParametersController extends AbstractController
     private const DEFAULT_DOWNTIME_DURATION = 'monitoring_dwt_duration',
                   DEFAULT_DOWNTIME_DURATION_SCALE = 'monitoring_dwt_duration_scale',
                   DEFAULT_REFRESH_INTERVAL = 'AjaxTimeReloadMonitoring',
-    private const DEFAULT_STATISTICS_REFRESH_INTERVAL = 'AjaxTimeReloadStatistic';
                   DEFAULT_ACKNOWLEDGEMENT_STICKY = 'monitoring_ack_sticky',
                   DEFAULT_ACKNOWLEDGEMENT_PERSISTENT = 'monitoring_ack_persistent',
                   DEFAULT_ACKNOWLEDGEMENT_NOTIFY = 'monitoring_ack_notify',
                   DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES = 'monitoring_ack_svc',
                   DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS = 'monitoring_ack_active_checks',
                   DEFAULT_DOWNTIME_FIXED = 'monitoring_dwt_fixed',
+                  DEFAULT_STATISTICS_REFRESH_INTERVAL = 'AjaxTimeReloadStatistic',
                   DEFAULT_DOWNTIME_WITH_SERVICES = 'monitoring_dwt_svc';
 
     /**
