@@ -346,8 +346,7 @@ CREATE TABLE `cb_list_values` (
   `value_name` varchar(255) NOT NULL,
   `value_value` varchar(255) NOT NULL,
   PRIMARY KEY (`cb_list_id`,`value_name`),
-  KEY `fk_cb_list_values_1` (`cb_list_id`),
-  CONSTRAINT `fk_cb_list_values_1` FOREIGN KEY (`cb_list_id`) REFERENCES `cb_list` (`cb_list_id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  KEY `fk_cb_list_values_1` (`cb_list_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

@@ -432,7 +432,6 @@ CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_port;3306
 CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_user;centreon
 CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_password;centreon
 CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_name;centreon_storage
-CENTBROKERCFG;SETOUTPUT;central-broker-master;2;check_replication;no
 CENTBROKERCFG;SETPARAM;central-module-master;filename;central-module.json
 CENTBROKERCFG;SETPARAM;central-module-master;cache_directory;/var/lib/centreon-engine
 CENTBROKERCFG;SETPARAM;central-module-master;stats_activate;1
