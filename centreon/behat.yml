@@ -59,10 +59,6 @@ default:
       paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
       contexts: [ DowntimeRecurrentContext ]
 
-    command_arguments:
-      paths: [ "%paths.base%/features/CommandArguments.feature" ]
-      contexts: [ CommandArgumentsContext ]
-
     autologin:
       paths: [ "%paths.base%/features/Autologin.feature" ]
       contexts: [ AutologinContext ]
@@ -98,10 +94,6 @@ default:
     ldap_manual_import:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
-
-    command_configuration:
-      paths: [ "%paths.base%/features/CommandConfiguration.feature" ]
-      contexts: [ CommandConfigurationContext ]
 
     connector_configuration:
       paths: [ "%paths.base%/features/ConnectorConfiguration.feature" ]
