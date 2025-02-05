@@ -23,7 +23,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
-use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
@@ -31,13 +30,27 @@ use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Application\UseCase\DeleteHostGroups\DeleteHostGroups;
 use Core\HostGroup\Application\UseCase\DeleteHostGroups\DeleteHostGroupsRequest;
 use Core\HostGroup\Application\UseCase\DeleteHostGroups\DeleteHostGroupsResponse;
+use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
+use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
+use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 beforeEach(function () {
     $this->useCase = new DeleteHostGroups(
         $this->contact = $this->createMock(ContactInterface::class),
         $this->writeRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
         $this->readRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class)
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readNotificationRepository = $this->createMock(ReadNotificationRepositoryInterface::class),
+        $this->writeNotificationRepository = $this->createMock(WriteNotificationRepositoryInterface::class),
+        $this->readServiceRepository = $this->createMock(ReadServiceRepositoryInterface::class),
+        $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class),
+        $this->readResourceAccessRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
+        $this->writeResourceAccessRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
+        $this->storageEngine = $this->createMock(DataStorageEngineInterface::class),
+        $this->isCloudPlatform = false
     );
 
     $this->request = new DeleteHostGroupsRequest([1, 2, 3]);

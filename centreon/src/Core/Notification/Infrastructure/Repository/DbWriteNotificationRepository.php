@@ -280,4 +280,16 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
 
         return $statement->rowCount();
     }
+
+    public function deleteDependency(int $lastDependencyId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    DELETE FROM `:db`.dependency
+                    WHERE dep_id = :lastDependencyId
+                SQL
+        ));
+        $statement->bindValue(':lastDependencyId', $lastDependencyId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
 }

@@ -73,7 +73,7 @@ class DeleteHostGroupsStatusResponseNormalizer implements NormalizerInterface
     }
 
     /**
-     * Convert ResponseCodeEnum to HTTP Status Code
+     * Convert ResponseCodeEnum to HTTP Status Code.
      *
      * @param ResponseCodeEnum $code
      *

@@ -167,4 +167,28 @@ interface ReadServiceRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array;
+
+    /**
+     * Find services relations with host group.
+     *
+     * param int $hostGroupId
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceRelation[]
+     */
+    public function findServiceRelationsByHostGroupId(int $hostGroupId): array;
+
+    /**
+     * Find a service name by its ID.
+     *
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return string|null
+     */
+    public function findNameById(int $serviceId): ?string;
 }

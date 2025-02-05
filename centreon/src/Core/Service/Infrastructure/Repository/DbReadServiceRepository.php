@@ -43,6 +43,7 @@ use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
 use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
+use Core\Service\Domain\Model\ServiceRelation;
 use Core\ServiceCategory\Infrastructure\Repository\ServiceCategoryRepositoryTrait;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Utility\SqlConcatenator;
@@ -544,6 +545,55 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
 
         return $this->retrieveServices($concatenator, $requestParameters);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceRelationsByHostGroupId(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    SELECT (
+                        SELECT GROUP_CONCAT(DISTINCT host_service_relation.hostgroup_hg_id)
+                        FROM host_service_relation
+                                WHERE service_service_id = hsr.service_service_id
+                                GROUP BY service_service_id
+                    ) AS hostgroups,
+                        hsr.service_service_id
+                    FROM host_service_relation hsr
+                    WHERE hsr.hostgroup_hg_id = :hostGroupId;
+                SQL
+        ));
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceRelations = [];
+
+        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            $serviceRelations[] = new ServiceRelation(
+                serviceId: (int) $result['service_service_id'],
+                hostGroupIds: explode(',', $result['hostgroups'])
+            );
+        }
+
+        return $serviceRelations;
+    }
+
+    public function findNameById(int $serviceId): ?string
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT service_description
+                FROM `:db`.service
+                WHERE service_id = :service_id
+                SQL
+        ));
+        $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchColumn() ?: null;
     }
 
     /**

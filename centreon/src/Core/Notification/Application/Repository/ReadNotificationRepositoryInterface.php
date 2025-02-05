@@ -205,4 +205,15 @@ interface ReadNotificationRepositoryInterface
      * @return Notification[]
      */
     public function findAll(?RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Return the dependency id the given host group is the only one linked to.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return int|null ID is returned if the host group is the only one linked to the dependency or null otherwise
+     */
+    public function findLastNotificationDependencyIdByHostGroup(int $hostGroupId): ?int;
 }

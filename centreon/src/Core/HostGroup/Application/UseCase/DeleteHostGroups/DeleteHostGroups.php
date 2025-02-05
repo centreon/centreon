@@ -25,12 +25,19 @@ namespace Core\HostGroup\Application\UseCase\DeleteHostGroups;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
+use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
+use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteHostGroups
 {
@@ -40,7 +47,15 @@ final class DeleteHostGroups
         private readonly ContactInterface $user,
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadNotificationRepositoryInterface $readNotificationRepository,
+        private readonly WriteNotificationRepositoryInterface $writeNotificationRepository,
+        private readonly ReadServiceRepositoryInterface $readServiceRepository,
+        private readonly WriteServiceRepositoryInterface $writeServiceRepository,
+        private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
+        private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
+        private readonly DataStorageEngineInterface $storageEngine,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -56,17 +71,30 @@ final class DeleteHostGroups
             $statusResponse = new DeleteHostGroupsStatusResponse();
             $statusResponse->id = $hostGroupId;
             try {
+                if (! $this->storageEngine->isAlreadyinTransaction()) {
+                    $this->storageEngine->startTransaction();
+                }
                 if (! $this->hostGroupExists($hostGroupId)) {
                     $statusResponse->status = ResponseCodeEnum::NotFound;
                     $statusResponse->message = (new NotFoundResponse('Host Group'))->getMessage();
                     $results[] = $statusResponse;
+
                     continue;
+                }
+                $this->deleteNotificationHostGroupDependency($hostGroupId);
+                $this->deleteServiceRelations($hostGroupId);
+                if ($this->isCloudPlatform) {
+                    $this->deleteFromDatasets($hostGroupId);
                 }
 
                 $this->writeHostGroupRepository->deleteHostGroup($hostGroupId);
+                $this->storageEngine->commitTransaction();
 
                 $results[] = $statusResponse;
             } catch (\Throwable $ex) {
+                if ($this->storageEngine->isAlreadyinTransaction()) {
+                    $this->storageEngine->rollbackTransaction();
+                }
                 $this->error(
                     "Error while deleting host groups : {$ex->getMessage()}",
                     [
@@ -78,6 +106,7 @@ final class DeleteHostGroups
 
                 $statusResponse->status = ResponseCodeEnum::Error;
                 $statusResponse->message = HostGroupException::errorWhileDeleting()->getMessage();
+
                 $results[] = $statusResponse;
             }
         }
@@ -86,7 +115,7 @@ final class DeleteHostGroups
     }
 
     /**
-     * Check that host group exists for the user regarding ACLs
+     * Check that host group exists for the user regarding ACLs.
      *
      * @param int $hostGroupId
      *
@@ -100,5 +129,63 @@ final class DeleteHostGroups
                 $hostGroupId,
                 $this->readAccessGroupRepository->findByContact($this->user)
             );
+    }
+
+    /**
+     * If the host group was the last dependency of a notification, we need to delete the Dependency.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     */
+    private function deleteNotificationHostGroupDependency(int $hostGroupId): void
+    {
+        $lastDependencyId = $this->readNotificationRepository
+            ->findLastNotificationDependencyIdByHostGroup($hostGroupId);
+
+        if ($lastDependencyId !== null) {
+            $this->writeNotificationRepository->deleteDependency($lastDependencyId);
+        }
+    }
+
+    /**
+     * If the host group was the last host group of a service, we need to delete the service.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     */
+    private function deleteServiceRelations(int $hostGroupId): void
+    {
+        $lastRelations = array_filter(
+            $this->readServiceRepository->findServiceRelationsByHostGroupId($hostGroupId),
+            fn ($relation) => $relation->hasOnlyOneHostGroup());
+        if (! empty($lastRelations)) {
+            $this->writeServiceRepository->deleteByIds(
+                ...array_map(fn ($relation) => $relation->getServiceId(), $lastRelations)
+            );
+        }
+    }
+
+    /**
+     * Delete the host group from the Resource Access datasets.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     */
+    private function deleteFromDatasets(int $hostGroupId): void
+    {
+        $datasetResourceIds = $this->readResourceAccessRepository
+            ->findDatasetResourceIdsByHostGroupId($hostGroupId);
+
+        foreach ($datasetResourceIds as $datasetFilterId => &$resourceIds) {
+            $resourceIds = array_filter($resourceIds, fn($resourceId) => (int) $resourceId !== $hostGroupId);
+            if (empty($resourceIds)) {
+                $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterId);
+            } else {
+                $this->writeResourceAccessRepository->updateDatasetResources($datasetFilterId, $resourceIds);
+            }
+        }
     }
 }
