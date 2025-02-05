@@ -59,7 +59,7 @@ runs:
         version: 8
         run_install: false
 
-    - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+    - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
       with:
         node-version: 20
         cache: pnpm
@@ -84,7 +84,7 @@ runs:
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
     - name: Cypress end-to-end testing
-      uses: cypress-io/github-action@b86ab8d33218c786a7c2d17dfea9724eb8aa8b6b # v6.7.9
+      uses: cypress-io/github-action@7271bed2a170d73c0b08939cd192db51a1c46c50 # v6.7.10
       with:
         command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }} --env tags="${{ inputs.test_tags }}"
         install: false
@@ -98,7 +98,7 @@ runs:
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
         CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.saml_image_version }}
         CYPRESS_STABILITY: ${{ inputs.stability }}
-        CYPRESS_TARGET_STABILITY: ${{ inputs.stability }}
+        CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
         CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
         CYPRESS_INTERNAL_REPO_USERNAME: ${{ inputs.artifactory_internal_repo_username }}
         CYPRESS_INTERNAL_REPO_PASSWORD: ${{ inputs.artifactory_internal_repo_password }}
