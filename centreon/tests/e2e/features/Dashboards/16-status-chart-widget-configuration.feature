@@ -44,3 +44,12 @@ Feature: Configuring Status Chart widget
     Given a dashboard with a Status Chart widget
     When the dashboard administrator clicks on a random resource
     Then the user should be redirected to the resource status screen and all the resources must be displayed
+
+  @TEST_MON-152783
+  Scenario: Adding over 20 hosts and checking the status chart widget
+    Given the dashboard administrator adds more than 20 hosts
+    When a dashboard in the dashboard administrator user's dashboard library
+    And the dashboard administrator user selects the option to add a new widget
+    And the dashboard administrator user selects the widget type "Status Chart"
+    And configuration properties for the status chart widget are displayed
+    Then the number of hosts is evaluated to be 23

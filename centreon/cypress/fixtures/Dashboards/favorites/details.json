@@ -1,0 +1,107 @@
+{
+  "id": 1,
+  "name": "My Dashboard",
+  "description": "my description",
+  "created_at": "",
+  "updated_at": "",
+  "is_favorite": true,
+  "shares": {
+    "contacts": [
+      {
+        "id": 1,
+        "name": "Arnaud",
+        "email": "arnaud@centreon.com",
+        "role": "editor"
+      }
+    ],
+    "contact_groups": [
+      {
+        "id": 1,
+        "name": "Guest",
+        "email": "",
+        "role": "viewer"
+      }
+    ]
+  },
+  "created_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "updated_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "name": "centreon-widget-text",
+      "widget_type": "/widgets/text",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "options": {
+          "name": "Widget text",
+          "description": {
+            "enabled": true,
+            "content": null
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "centreon-widget-generictext",
+      "widget_type": "/widgets/generictext",
+      "layout": {
+        "x": 3,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "options": {
+          "name": "Generic text",
+          "description": {
+            "enabled": true,
+            "content": "{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Description\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}"
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "centreon-widget-text",
+      "widget_type": "/widgets/text",
+      "layout": {
+        "x": 6,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "options": {
+          "name": null,
+          "description": {
+            "enabled": true,
+            "content": null
+          }
+        }
+      }
+    }
+  ],
+  "own_role": "viewer",
+  "refresh": {
+    "type": "global",
+    "interval": null
+  }
+}

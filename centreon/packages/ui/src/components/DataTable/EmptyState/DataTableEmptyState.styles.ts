@@ -10,7 +10,6 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(4),
-
     h2: {
       color: theme.palette.text.primary,
       font: 'normal normal 600 34px/36px Roboto',
@@ -20,6 +19,9 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'center',
     minHeight: '30vh',
     width: '100%'
+  },
+  description: {
+    maxWidth: '65%'
   }
 }));
 

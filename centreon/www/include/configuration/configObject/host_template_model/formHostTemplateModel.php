@@ -445,27 +445,27 @@ $checkCommandSelect->addJsCallback(
 
 $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
 
-// Check information
-if (! $isCloudPlatform) {
-    $hostEHE = [
+$hostEHE = [
         $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1'),
         $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0'),
         $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2'),
-    ];
+];
 
-    $form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_event_handler_enabled' => '2']);
-    }
+$form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_event_handler_enabled' => '2']);
+}
 
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
-    $eventHandlerSelect->addJsCallback(
+$eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
+$eventHandlerSelect->addJsCallback(
         'change',
         'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
+);
 
-    $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
+$form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
 
+// Check information
+if (! $isCloudPlatform) {
     $hostACE = [
         $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1'),
         $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0'),

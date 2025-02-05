@@ -131,6 +131,7 @@ export {
   default as useGraphQuery,
   resourceTypeQueryParameter
 } from './api/useGraphQuery';
+export { WidgetResourceType as ResourceType } from './api/useGraphQuery/models';
 export { default as QueryProvider, client } from './api/QueryProvider';
 export {
   default as FileDropZone,

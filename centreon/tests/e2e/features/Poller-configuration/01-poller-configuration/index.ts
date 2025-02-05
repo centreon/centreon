@@ -16,17 +16,13 @@ import { checkIfConfigurationIsExported } from '../../../commons';
 
 let dateBeforeLogin: Date;
 
-before(() => {
-  cy.startContainers();
-
-  cy.addCheckCommand({
-    command: 'echo "Post command"',
-    enableShell: true,
-    name: 'post_command'
-  });
-});
-
 beforeEach(() => {
+  cy.startContainers();
+  cy.addCheckCommand({
+      command: 'echo "Post command"',
+      enableShell: true,
+      name: "post_command",
+  });
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -114,8 +110,7 @@ When('I select some pollers', () => {
 
 When('I click on the Export configuration button', () => {
   cy.getIframeBody()
-    .find('form button[name="apply_configuration"]')
-    .contains('Export configuration')
+    .find('#exportConfigurationLink')
     .click({ force: true });
 });
 
@@ -124,6 +119,7 @@ Then('I am redirected to generate page', () => {
 });
 
 Then('the selected poller names are displayed', () => {
+  cy.reload()
   cy.get<string>('@pollerName').then((pollerName) => {
     cy.getIframeBody()
       .find('form span[class="selection"]')
@@ -203,7 +199,8 @@ Then('the selected pollers are {string}', (poller_action: string) => {
 });
 
 Then('no poller names are displayed', () => {
-  cy.getIframeBody()
+  cy.get('iframe#main-content')
+        .its('0.contentDocument.body')
     .find('form span[class="selection"]')
     .eq(0)
     .should('have.value', '');
@@ -258,6 +255,6 @@ Then('the configuration is not generated on selected pollers', () => {
   checkIfConfigurationIsNotExported();
 });
 
-after(() => {
+afterEach(() => {
   cy.stopContainers();
 });

@@ -110,7 +110,9 @@ When(
 
     cy.getByLabel({ label: 'Notify' }).should('not.be.checked');
 
-    cy.getByLabel({ label: 'Sticky' }).should('be.checked');
+    cy.getByLabel({ label: 'Sticky for any non-OK status' }).should(
+      'be.checked'
+    );
   }
 );
 
@@ -342,12 +344,16 @@ Given(
 When('"sticky" checkbox is {string} in the form', (check: string) => {
   switch (check) {
     case 'unchecked':
-      cy.getByLabel({ label: 'Sticky' }).uncheck();
-      cy.getByLabel({ label: 'Sticky' }).should('not.be.checked');
+      cy.getByLabel({ label: 'Sticky for any non-OK status' }).uncheck();
+      cy.getByLabel({ label: 'Sticky for any non-OK status' }).should(
+        'not.be.checked'
+      );
       break;
     default:
-      cy.getByLabel({ label: 'Sticky' }).check();
-      cy.getByLabel({ label: 'Sticky' }).should('be.checked');
+      cy.getByLabel({ label: 'Sticky for any non-OK status' }).check();
+      cy.getByLabel({ label: 'Sticky for any non-OK status' }).should(
+        'be.checked'
+      );
       break;
   }
 });
@@ -456,7 +462,9 @@ Given(
 
     cy.getByLabel({ label: 'Acknowledge' }).last().click();
 
-    cy.getByTestId({tag:'button', testId:'Confirm'}).contains('Acknowledge').click();
+    cy.getByTestId({ tag: 'button', testId: 'Confirm' })
+      .contains('Acknowledge')
+      .click();
 
     cy.wait('@postAcknowledgments').then(() => {
       cy.contains('Acknowledge command sent').should('have.length', 1);

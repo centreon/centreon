@@ -3,12 +3,19 @@ import { type MouseEvent, type MutableRefObject, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
-import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
+import {
+  Divider,
+  Menu,
+  MenuItem,
+  Typography,
+  alpha,
+  useTheme
+} from '@mui/material';
 
 import {
   ContentWithCircularLoading,
@@ -23,12 +30,13 @@ import type { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
 import { type Resource, ResourceType } from '../../models';
 import {
-  labelAsDisplayed,
   labelCSV,
   labelExport,
-  labelMediumSize,
-  labelPerformancePage,
-  labelSmallSize
+  labelExportAs,
+  labelPNGAsDisplayed,
+  labelPNGMediumSize,
+  labelPNGSmallSize,
+  labelPerformancePage
 } from '../../translatedLabels';
 
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
@@ -48,6 +56,23 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     paddingRight: theme.spacing(1),
     justifyContent: 'flex-end'
+  },
+  menu: {
+    width: theme.spacing(22)
+  },
+  menuHeader: {
+    fontWeight: theme.typography.fontWeightBold,
+    color: theme.palette.primary.main
+  },
+  menuItem: {
+    fontWeight: theme.typography.fontWeightRegular,
+    color: alpha(theme.palette.text.primary, 0.7)
+  },
+  exportAs: {
+    cursor: 'auto',
+    '&:hover': {
+      backgroundColor: 'transparent'
+    }
   }
 }));
 
@@ -177,33 +202,48 @@ const GraphActions = ({
             open={Boolean(menuAnchor)}
             onClose={closeSizeExportMenu}
           >
-            <MenuItem data-testid={labelExport} sx={{ cursor: 'auto' }}>
-              {t(labelExport)}
-            </MenuItem>
-            <Divider />
+            <div className={classes.menu}>
+              <MenuItem
+                data-testid={labelExportAs}
+                className={classes.exportAs}
+              >
+                <Typography className={classes.menuHeader}>
+                  {t(labelExportAs)}
+                </Typography>
+              </MenuItem>
+              <Divider />
 
-            <MenuItem
-              data-testid={labelAsDisplayed}
-              onClick={(): void => convertToPng(1)}
-            >
-              {t(labelAsDisplayed)}
-            </MenuItem>
-            <MenuItem
-              data-testid={labelMediumSize}
-              onClick={(): void => convertToPng(0.75)}
-            >
-              {t(labelMediumSize)}
-            </MenuItem>
-            <MenuItem
-              data-testid={labelSmallSize}
-              onClick={(): void => convertToPng(0.5)}
-            >
-              {t(labelSmallSize)}
-            </MenuItem>
-            <Divider />
-            <MenuItem data-testid={labelCSV} onClick={exportToCsv}>
-              {t(labelCSV)}
-            </MenuItem>
+              <MenuItem
+                data-testid={labelPNGAsDisplayed}
+                onClick={(): void => convertToPng(1)}
+              >
+                <Typography variant="body2" className={classes.menuItem}>
+                  {t(labelPNGAsDisplayed)}
+                </Typography>
+              </MenuItem>
+              <MenuItem
+                data-testid={labelPNGMediumSize}
+                onClick={(): void => convertToPng(0.75)}
+              >
+                <Typography variant="body2" className={classes.menuItem}>
+                  {t(labelPNGMediumSize)}
+                </Typography>
+              </MenuItem>
+              <MenuItem
+                data-testid={labelPNGSmallSize}
+                onClick={(): void => convertToPng(0.5)}
+              >
+                <Typography variant="body2" className={classes.menuItem}>
+                  {t(labelPNGSmallSize)}
+                </Typography>
+              </MenuItem>
+              <Divider />
+              <MenuItem data-testid={labelCSV} onClick={exportToCsv}>
+                <Typography variant="body2" className={classes.menuItem}>
+                  {t(labelCSV)}
+                </Typography>
+              </MenuItem>
+            </div>
           </Menu>
         </>
       </ContentWithCircularLoading>

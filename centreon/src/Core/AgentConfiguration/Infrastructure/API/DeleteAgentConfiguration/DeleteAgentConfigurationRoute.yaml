@@ -1,0 +1,7 @@
+DeleteAgentConfiguration:
+  methods: DELETE
+  path: /configuration/agent-configurations/{id}
+  requirements:
+    id: '\d+'
+  controller: 'Core\AgentConfiguration\Infrastructure\API\DeleteAgentConfiguration\DeleteAgentConfigurationController'
+  condition: "request.attributes.get('version') >= 24.10"

@@ -65,6 +65,7 @@ export default ({
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
       SAML_IMAGE_VERSION: process.env.MAJOR || '24.04',
       STABILITY: 'unstable',
+      TARGET_STABILITY: 'unstable',
       WEB_IMAGE_OS: 'alma9',
       WEB_IMAGE_VERSION: webImageVersion
     },

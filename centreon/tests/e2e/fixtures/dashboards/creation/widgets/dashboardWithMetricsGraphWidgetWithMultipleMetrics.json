@@ -1,121 +1,104 @@
 {
-    "panels": [
-      {
-        "id": null,
-        "layout": {
-          "height": 4,
-          "min_height": 4,
-          "min_width": 6,
-          "width": 6,
-          "x": 0,
-          "y": 0
+    "data": {
+      "resources": [
+        {
+          "resourceType": "host",
+          "resources": [
+            {
+              "id": 14,
+              "name": "Centreon-Server"
+            }
+          ]
+        }
+      ],
+      "metrics": [
+        {
+          "criticalHighThreshold": 400,
+          "criticalLowThreshold": 0,
+          "id": 1,
+          "name": "rta",
+          "unit": "ms",
+          "warningHighThreshold": 200,
+          "warningLowThreshold": 0,
+          "excludedMetrics": [],
+          "includeAllMetrics": true
         },
-        "name": "centreon-widget-graph",
-        "widget_settings": {
-          "data": {
-            "resources": [
-              {
-                "resourceType": "host",
-                "resources": [
-                  {
-                    "id": 14,
-                    "name": "Centreon-Server"
-                  }
-                ]
-              }
-            ],
-            "metrics": [
-              {
-                "criticalHighThreshold": 400,
-                "criticalLowThreshold": 0,
-                "id": 1,
-                "name": "rta",
-                "unit": "ms",
-                "warningHighThreshold": 200,
-                "warningLowThreshold": 0,
-                "excludedMetrics": [],
-                "includeAllMetrics": true
-              },
-              {
-                "criticalHighThreshold": 50,
-                "criticalLowThreshold": 0,
-                "id": 2,
-                "name": "pl",
-                "unit": "%",
-                "warningHighThreshold": 20,
-                "warningLowThreshold": 0,
-                "excludedMetrics": [],
-                "includeAllMetrics": true
-              },
-              {
-                "criticalHighThreshold": null,
-                "criticalLowThreshold": null,
-                "id": 3,
-                "name": "rtmax",
-                "unit": "ms",
-                "warningHighThreshold": null,
-                "warningLowThreshold": null,
-                "excludedMetrics": [],
-                "includeAllMetrics": true
-              },
-              {
-                "criticalHighThreshold": null,
-                "criticalLowThreshold": null,
-                "id": 4,
-                "name": "rtmin",
-                "unit": "ms",
-                "warningHighThreshold": null,
-                "warningLowThreshold": null,
-                "excludedMetrics": [],
-                "includeAllMetrics": true
-              }
-            ],
-            "services": [
-              {
-                "uuid": "h14-s26",
-                "id": 26,
-                "name": "Ping",
-                "parentName": "Centreon-Server"
-              }
-            ]
-          },
-          "options": {
-            "timeperiod": {
-              "start": null,
-              "end": null,
-              "timePeriodType": 1
-            },
-            "threshold": {
-              "enabled": false,
-              "customCritical": null,
-              "criticalType": "default",
-              "customWarning": null,
-              "warningType": "default"
-            },
-            "refreshInterval": "default",
-            "curveType": "linear",
-            "showPoints": false,
-            "lineWidthMode": "auto",
-            "showArea": "auto",
-            "lineStyleMode": "solid",
-            "showAxisBorder": true,
-            "yAxisTickLabelRotation": 0,
-            "isCenteredZero": false,
-            "showGridLines": true,
-            "scale": "linear",
-            "showLegend": true,
-            "tooltipMode": "all",
-            "tooltipSortOrder": "name",
-            "description": {
-              "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
-              "enabled": true
-            },
-            "gridLinesType": "all",
-            "legendDisplayMode": "grid",
-            "legendPlacement": "bottom"
-          }
+        {
+          "criticalHighThreshold": 50,
+          "criticalLowThreshold": 0,
+          "id": 2,
+          "name": "pl",
+          "unit": "%",
+          "warningHighThreshold": 20,
+          "warningLowThreshold": 0,
+          "excludedMetrics": [],
+          "includeAllMetrics": true
         },
-        "widget_type": "/widgets/graph"
-      }
-    ]
-  }
+        {
+          "criticalHighThreshold": null,
+          "criticalLowThreshold": null,
+          "id": 3,
+          "name": "rtmax",
+          "unit": "ms",
+          "warningHighThreshold": null,
+          "warningLowThreshold": null,
+          "excludedMetrics": [],
+          "includeAllMetrics": true
+        },
+        {
+          "criticalHighThreshold": null,
+          "criticalLowThreshold": null,
+          "id": 4,
+          "name": "rtmin",
+          "unit": "ms",
+          "warningHighThreshold": null,
+          "warningLowThreshold": null,
+          "excludedMetrics": [],
+          "includeAllMetrics": true
+        }
+      ],
+      "services": [
+        {
+          "uuid": "h14-s26",
+          "id": 26,
+          "name": "Ping",
+          "parentName": "Centreon-Server"
+        }
+      ]
+    },
+    "options": {
+      "timeperiod": {
+        "start": null,
+        "end": null,
+        "timePeriodType": 1
+      },
+      "threshold": {
+        "enabled": false,
+        "customCritical": null,
+        "criticalType": "default",
+        "customWarning": null,
+        "warningType": "default"
+      },
+      "refreshInterval": "default",
+      "curveType": "linear",
+      "showPoints": false,
+      "lineWidthMode": "auto",
+      "showArea": "auto",
+      "lineStyleMode": "solid",
+      "showAxisBorder": true,
+      "yAxisTickLabelRotation": 0,
+      "isCenteredZero": false,
+      "showGridLines": true,
+      "scale": "linear",
+      "showLegend": true,
+      "tooltipMode": "all",
+      "tooltipSortOrder": "name",
+      "description": {
+        "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+        "enabled": true
+      },
+      "gridLinesType": "all",
+      "legendDisplayMode": "grid",
+      "legendPlacement": "bottom"
+    }
+}

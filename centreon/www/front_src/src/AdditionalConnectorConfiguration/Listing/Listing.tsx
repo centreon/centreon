@@ -10,8 +10,8 @@ const Listing = (): JSX.Element => {
 
   const {
     changePage,
-    changeSort,
     page,
+    changeSort,
     resetColumns,
     setLimit,
     selectColumns,

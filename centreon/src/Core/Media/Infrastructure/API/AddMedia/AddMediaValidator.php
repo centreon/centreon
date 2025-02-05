@@ -23,7 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\Media\Infrastructure\API\AddMedia;
 
-use Core\Media\Infrastructure\API\Exception\AddMediaException;
+use Core\Media\Infrastructure\API\Exception\MediaException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -40,12 +40,12 @@ class AddMediaValidator
     }
 
     /**
-     * @throws AddMediaException
+     * @throws MediaException
      */
     public function assertFilesSent(): void
     {
         if (! in_array('data', $this->allProperties, true)) {
-            throw AddMediaException::propertyNotPresent('data');
+            throw MediaException::propertyNotPresent('data');
         }
         $files = $this->request->files->get('data');
         // The presence of an array means that it contains files.
@@ -55,29 +55,29 @@ class AddMediaValidator
     }
 
     /**
-     * @throws AddMediaException
+     * @throws MediaException
      */
     public function assertDirectory(): void
     {
         if (! in_array('directory', $this->allProperties, true)) {
-            AddMediaException::propertyNotPresent('directory');
+            MediaException::propertyNotPresent('directory');
         }
 
         $value = $this->request->get('directory');
         if (empty($value)) {
-            AddMediaException::stringPropertyCanNotBeEmpty('directory');
+            MediaException::stringPropertyCanNotBeEmpty('directory');
         }
     }
 
     /**
      * @param mixed $file
      *
-     * @throws AddMediaException
+     * @throws MediaException
      */
     private function assertUploadedFile(mixed $file): void
     {
         if (! $file instanceof UploadedFile) {
-            throw AddMediaException::wrongFileType('data');
+            throw MediaException::wrongFileType('data');
         }
     }
 }

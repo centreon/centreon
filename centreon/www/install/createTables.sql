@@ -2556,15 +2556,15 @@ CREATE TABLE IF NOT EXISTS `notification_sg_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(200) NOT NULL,
-  `description` text,
-  `created_by` int(11) NULL,
-  `updated_by` int(11) NULL,
-  `created_at` int(11) NOT NULL,
-  `updated_at` int(11) NOT NULL,
-  `refresh_type` enum('global', 'manual') NOT NULL DEFAULT 'global',
-  `refresh_interval` int(11) NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Dashboard ID',
+  `name` VARCHAR(200) NOT NULL COMMENT 'Dashboard name (mandatory)',
+  `description` text COMMENT 'Dashboard description',
+  `created_by` int(11) NULL COMMENT 'ID of the user which created the dashboard',
+  `updated_by` int(11) NULL COMMENT 'ID of the user which last updated the dashboard',
+  `created_at` int(11) NOT NULL COMMENT 'Creation date in timestamp format',
+  `updated_at` int(11) NOT NULL COMMENT 'Last update date in timestamp format',
+  `refresh_type` enum('global', 'manual') NOT NULL DEFAULT 'global' COMMENT 'Type of refresh for the dashboard',
+  `refresh_interval` int(11) NULL COMMENT 'Refresh interval in seconds for the dashboard',
   PRIMARY KEY (`id`),
   KEY `name_index` (`name`),
   CONSTRAINT `contact_created_by`
@@ -2573,32 +2573,32 @@ CREATE TABLE IF NOT EXISTS `dashboard` (
   CONSTRAINT `contact_updated_by`
     FOREIGN KEY (`updated_by`)
     REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing dashboard configurations' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard_panel` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `dashboard_id` INT UNSIGNED NOT NULL,
-  `name` VARCHAR(200) NOT NULL,
-  `widget_type` VARCHAR(200) NOT NULL,
-  `widget_settings` text NOT NULL,
-  `layout_x` smallint(6) NOT NULL,
-  `layout_y` smallint(6) NOT NULL,
-  `layout_width` smallint(6) NOT NULL,
-  `layout_height` smallint(6) NOT NULL,
-  `layout_min_width` smallint(6) NOT NULL,
-  `layout_min_height` smallint(6) NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the widget',
+  `dashboard_id` INT UNSIGNED NOT NULL COMMENT 'ID of the dashboard to which the widget belongs',
+  `name` VARCHAR(200) NOT NULL COMMENT 'Name of the widget',
+  `widget_type` VARCHAR(200) NOT NULL COMMENT 'Type of the widget. List of available widgets is in the `dashboard_widgets` table',
+  `widget_settings` text NOT NULL COMMENT 'Settings of the widget in JSON format',
+  `layout_x` smallint(6) NOT NULL COMMENT 'X position of the widget in the dashboard',
+  `layout_y` smallint(6) NOT NULL COMMENT 'Y position of the widget in the dashboard',
+  `layout_width` smallint(6) NOT NULL COMMENT 'Width of the widget in the dashboard',
+  `layout_height` smallint(6) NOT NULL COMMENT 'Height of the widget in the dashboard',
+  `layout_min_width` smallint(6) NOT NULL COMMENT 'Minimum width of the widget in the dashboard',
+  `layout_min_height` smallint(6) NOT NULL COMMENT 'Minimum height of the widget in the dashboard',
   PRIMARY KEY (`id`),
   KEY `name_index` (`name`),
   CONSTRAINT `parent_dashboard_id`
     FOREIGN KEY (`dashboard_id`)
     REFERENCES `dashboard` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing widget configurations linked to dashboards' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard_contact_relation` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `dashboard_id` INT UNSIGNED NOT NULL,
-  `contact_id` int(11) NOT NULL,
-  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',
+  `dashboard_id` INT UNSIGNED NOT NULL COMMENT 'ID of the dashboard to wich the contact is related',
+  `contact_id` int(11) NOT NULL COMMENT 'ID of the contact related to the dashboard',
+  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer' COMMENT 'Role of the contact in the dashboard',
   PRIMARY KEY (`id`),
   KEY `role_index` (`role`),
   UNIQUE KEY `dashboard_contact_relation_unique` (`dashboard_id`,`contact_id`),
@@ -2608,13 +2608,13 @@ CREATE TABLE IF NOT EXISTS `dashboard_contact_relation` (
   CONSTRAINT `dashboard_contact_relation_contact_id`
     FOREIGN KEY (`contact_id`)
     REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing dashboard contact shares' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `dashboard_id` INT UNSIGNED NOT NULL,
-  `contactgroup_id` int(11) NOT NULL,
-  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',
+  `dashboard_id` INT UNSIGNED NOT NULL COMMENT 'ID of the dashboard to wich the contactgroup is related',
+  `contactgroup_id` int(11) NOT NULL COMMENT 'ID of the contactgroup related to the dashboard',
+  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer' COMMENT 'Contactgroup role. Role applies to all contacts in the contactgroup',
   PRIMARY KEY (`id`),
   KEY `role_index` (`role`),
   UNIQUE KEY `dashboard_contactgroup_relation_unique` (`dashboard_id`,`contactgroup_id`),
@@ -2624,13 +2624,13 @@ CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
   CONSTRAINT `dashboard_contactgroup_relation_contactgroup_id`
     FOREIGN KEY (`contactgroup_id`)
     REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing dashboard contactgroups shares' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the widget model',
+  `name` varchar(255) NOT NULL COMMENT 'Name of the widget model',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing available widget models for dashboards' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -2662,6 +2662,62 @@ CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
   CONSTRAINT `poller_id_contraint`
     FOREIGN KEY (`poller_id`)
     REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',
+  `dashboard_id` INT UNSIGNED NOT NULL COMMENT 'ID of the dashboard to which the thumbnail is related',
+  `img_id` int(11) NOT NULL COMMENT 'ID of the media used as thumbnail and stored in view_img table',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `dashboard_thumbnail_relation_unique` (`dashboard_id`,`img_id`),
+  CONSTRAINT `dashboard_thumbnail_relation_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_thumbnail_relation_img_id`
+    FOREIGN KEY (`img_id`)
+    REFERENCES `view_img` (`img_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `agent_configuration` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `type` enum('telegraf', 'centreon-agent') NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `configuration` JSON NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `ac_poller_relation` (
+  `ac_id` INT UNSIGNED NOT NULL,
+  `poller_id` INT(11) NOT NULL,
+  UNIQUE KEY `rel_unique` (`ac_id`, `poller_id`),
+  CONSTRAINT `ac_id_contraint`
+    FOREIGN KEY (`ac_id`)
+    REFERENCES `agent_configuration` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ac_poller_id_contraint`
+    FOREIGN KEY (`poller_id`)
+    REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `user_profile` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `contact_id` INT(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_profile` (`id`, `contact_id`),
+  CONSTRAINT `fk_user_profile_contact_id`
+    FOREIGN KEY (`contact_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
+  `profile_id` INT UNSIGNED NOT NULL,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  CONSTRAINT `fk_user_profile_favorite_dashboards_profile_id`
+    FOREIGN KEY (`profile_id`)
+    REFERENCES `user_profile` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_profile_favorite_dashboards_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

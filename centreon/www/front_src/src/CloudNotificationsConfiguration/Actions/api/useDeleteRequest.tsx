@@ -4,6 +4,7 @@ import {
   equals,
   includes,
   isEmpty,
+  isNil,
   last,
   length,
   prop,
@@ -73,41 +74,37 @@ const useDeleteRequest = ({
       payload: payload || {}
     })
       .then((response) => {
-        const { isError, statusCode, message, data } =
-          response as ResponseError;
+        const { isError, message, data } = response as ResponseError;
 
         if (isError) {
           return;
         }
 
-        if (equals(statusCode, 207)) {
-          const successfullResponses = data.filter(propEq(204, 'status'));
-          const failedResponsesIds = data
-            .filter(complement(propEq(204, 'status')))
-            .map(prop('href'))
-            .map((item) =>
-              Number.parseInt(last(split('/', item)) as string, 10)
-            );
+        const successfullResponses =
+          data?.filter(propEq(204, 'status')) || isNil(data);
+        const failedResponsesIds = data
+          ?.filter(complement(propEq(204, 'status')))
+          .map(prop('href'))
+          .map((item) => Number.parseInt(last(split('/', item)) as string, 10));
 
-          if (isEmpty(successfullResponses)) {
-            showErrorMessage(t(labelFailed));
+        if (isEmpty(successfullResponses)) {
+          showErrorMessage(t(labelFailed));
 
-            return;
-          }
+          return;
+        }
 
-          if (length(successfullResponses) < length(data)) {
-            const failedResponsesName = selectedRows
-              ?.filter((item) => includes(item.id, failedResponsesIds))
-              .map((item) => item.name);
+        if (length(successfullResponses) < length(data)) {
+          const failedResponsesName = selectedRows
+            ?.filter((item) => includes(item.id, failedResponsesIds))
+            .map((item) => item.name);
 
-            showWarningMessage(
-              `${labelFailedToDeleteNotifications}: ${failedResponsesName.join(
-                ', '
-              )}`
-            );
+          showWarningMessage(
+            `${labelFailedToDeleteNotifications}: ${failedResponsesName.join(
+              ', '
+            )}`
+          );
 
-            return;
-          }
+          return;
         }
 
         showSuccessMessage(message || t(labelSuccess));

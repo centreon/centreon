@@ -51,8 +51,7 @@ beforeEach(function (): void {
 
 it('should present a ForbiddenResponse when the user does not has sufficient rights', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -77,8 +76,7 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
 
 it('should present an ErrorResponse when an error occurs', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->adminUser,
         $this->requestParameters,
@@ -107,8 +105,7 @@ it('should present an ErrorResponse when an error occurs', function (): void {
 
 it('should present a NotFoundResponse when no metrics are found', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->adminUser,
         $this->requestParameters,
@@ -137,8 +134,7 @@ it('should present a NotFoundResponse when no metrics are found', function (): v
 
 it('should take account of access groups when the user is not admin', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -162,8 +158,7 @@ it('should take account of access groups when the user is not admin', function (
 
 it('should present a FindMetricsTopResponse when metrics are found', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->adminUser,
         $this->requestParameters,

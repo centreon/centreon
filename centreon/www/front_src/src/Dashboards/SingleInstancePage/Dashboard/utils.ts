@@ -13,6 +13,7 @@ import {
 import { centreonBaseURL } from '@centreon/ui';
 
 import { WidgetResourceType } from './AddEditWidget/models';
+import { getIsMetaServiceSelected } from './Widgets/utils';
 
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
 export const isRichTextEditorEmpty = (editorState: string): boolean => {
@@ -85,9 +86,15 @@ export const getResourcesUrlForMetricsWidgets = ({
     };
   });
 
+  const isMetaService = getIsMetaServiceSelected(data?.resources || []);
+
   const serviceCriteria = {
     name: 'resource_types',
-    value: [{ id: 'service', name: 'Service' }]
+    value: [
+      isMetaService
+        ? { id: 'metaservice', name: 'Meta-Service' }
+        : { id: 'service', name: 'Service' }
+    ]
   };
 
   const filterQueryParameter = {

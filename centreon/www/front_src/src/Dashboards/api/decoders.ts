@@ -5,6 +5,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
+import { Thumbnail } from '../SingleInstancePage/Dashboard/models';
 import {
   ContactType,
   Dashboard,
@@ -98,10 +99,21 @@ export const dashboardEntityDecoder = {
       contactGroups: 'contact_groups'
     }
   ),
+  thumbnail: JsonDecoder.optional(
+    JsonDecoder.object<Thumbnail>(
+      {
+        id: JsonDecoder.number,
+        name: JsonDecoder.string,
+        directory: JsonDecoder.string
+      },
+      'thumbnail'
+    )
+  ),
   updatedAt: JsonDecoder.string,
   updatedBy: JsonDecoder.nullable(
     JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
-  )
+  ),
+  isFavorite: JsonDecoder.optional(JsonDecoder.boolean)
 };
 
 export const dashboardDecoder = JsonDecoder.object<Dashboard>(
@@ -124,7 +136,8 @@ export const dashboardDecoder = JsonDecoder.object<Dashboard>(
     createdBy: 'created_by',
     ownRole: 'own_role',
     updatedAt: 'updated_at',
-    updatedBy: 'updated_by'
+    updatedBy: 'updated_by',
+    isFavorite: 'is_favorite'
   }
 );
 
@@ -163,7 +176,8 @@ export const dashboardListDecoder = buildListingDecoder({
       createdBy: 'created_by',
       ownRole: 'own_role',
       updatedAt: 'updated_at',
-      updatedBy: 'updated_by'
+      updatedBy: 'updated_by',
+      isFavorite: 'is_favorite'
     }
   ),
   entityDecoderName: 'Dashboard List',

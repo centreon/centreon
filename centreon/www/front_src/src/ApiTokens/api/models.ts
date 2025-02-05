@@ -1,4 +1,8 @@
-import { ListingParameters, QueryParameter } from '@centreon/ui';
+import {
+  ListingParameters,
+  QueryParameter,
+  SearchParameter
+} from '@centreon/ui';
 
 export interface BuildListEndpoint {
   customQueryParameters?: Array<QueryParameter> | null;
@@ -9,4 +13,9 @@ export interface BuildListEndpoint {
 export interface TokenEndpoint {
   tokenName: string;
   userId: number;
+}
+
+export interface Parameters {
+  page: number;
+  search: SearchParameter;
 }

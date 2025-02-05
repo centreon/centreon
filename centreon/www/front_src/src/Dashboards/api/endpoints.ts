@@ -40,3 +40,9 @@ export const dashboardSharesEndpoint = (id: number | string): string =>
 
 export const playlistsByDashboardEndpoint = (id: number | string): string =>
   `/it-edition-extensions/configuration/dashboards/${id}/playlists`;
+
+export const dashboardsFavoriteEndpoint = '/configuration/dashboards/favorites';
+
+export const dashboardsFavoriteDeleteEndpoint = (id: number) => {
+  return `/configuration/dashboards/${id}/favorites`;
+};

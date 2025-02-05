@@ -27,104 +27,21 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsData;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequest;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\Constraints\Type as TypeConstraint;
-use Symfony\Component\Validator\Validation;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 
 final class FindPerformanceMetricsDataController extends AbstractController
 {
     use LoggerTrait;
-    private const START_DATE_PARAMETER = 'start';
-    private const END_DATE_PARAMETER = 'end';
-    private const METRIC_NAMES_PARAMETER = 'metric_names';
 
     public function __invoke(
         FindPerformanceMetricsData $useCase,
         FindPerformanceMetricsDataPresenter $presenter,
-        Request $request
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] FindPerformanceMetricsDataRequest $request,
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
-
-        $findPerformanceMetricsDataRequest = $this->createRequest($request);
-
-        $useCase($presenter, $findPerformanceMetricsDataRequest);
+        $useCase($presenter, $request->toDto());
 
         return $presenter->show();
-    }
-
-    /**
-     * Retrieves date attribute from http request.
-     *
-     * @param Request $request
-     *
-     * @return array{
-     *  start: \DateTime,
-     *  end: \DateTime,
-     *  metric_names: list<string>
-     * }
-     */
-    private function validateAndRetrieveParametersFromRequest(Request $request): array
-    {
-        $startParameter = $request->query->get(self::START_DATE_PARAMETER);
-        $endParameter = $request->query->get(self::END_DATE_PARAMETER);
-        /** @var string|null $metricNamesParameter */
-        $metricNamesParameter = $request->query->get(self::METRIC_NAMES_PARAMETER);
-        if ($startParameter === null || $endParameter === null || $metricNamesParameter === null) {
-            throw new \InvalidArgumentException('Missing mandatory properties');
-        }
-
-        $validator = Validation::createValidator();
-        $integerConstraint = new TypeConstraint('string');
-        $validationConstraints = [];
-
-        try {
-            $start = new \DateTime((string) $startParameter);
-            $end = new \DateTime((string) $endParameter);
-            $metricNames = \explode(',', \trim($metricNamesParameter, '[]'));
-        } catch ( \Throwable $ex) {
-            $this->error('Invalid parameters format', ['trace' => (string) $ex]);
-
-            throw new \InvalidArgumentException('Invalid parameters format');
-        }
-
-        $sanitizedMetricNames = [];
-        foreach ($metricNames as $metricName) {
-            $metricName = \trim($metricName, '"');
-            $validationConstraints[] = $validator->validate($metricName, $integerConstraint);
-            $sanitizedMetricNames[] = $metricName;
-        }
-
-        foreach ($validationConstraints as $validationConstraint) {
-            if ($validationConstraint->count() > 0) {
-                throw new \InvalidArgumentException('Invalid metric name format');
-            }
-        }
-
-        return [
-            'start' => $start,
-            'end' => $end,
-            'metric_names' => $sanitizedMetricNames,
-        ];
-    }
-
-    /**
-     * Create the Request DTO with the query parameters.
-     *
-     * @param Request $request
-     *
-     * @return FindPerformanceMetricsDataRequest
-     */
-    private function createRequest(Request $request): FindPerformanceMetricsDataRequest
-    {
-        $parameterFromRequest = $this->validateAndRetrieveParametersFromRequest($request);
-        $requestDto = new FindPerformanceMetricsDataRequest(
-            $parameterFromRequest['start'],
-            $parameterFromRequest['end']
-        );
-
-        $requestDto->metricNames = $parameterFromRequest['metric_names'];
-
-        return $requestDto;
     }
 }

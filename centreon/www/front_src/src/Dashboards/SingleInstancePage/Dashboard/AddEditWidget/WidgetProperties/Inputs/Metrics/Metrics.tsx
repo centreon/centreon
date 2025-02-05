@@ -51,8 +51,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
     hasMultipleUnitsSelected,
     metricWithSeveralResources,
     renderOptionsForSingleMetric,
-    renderOptionsForMultipleMetricsAndResources,
-    hasMetaService
+    renderOptionsForMultipleMetricsAndResources
   } = useMetrics(propertyName);
 
   const { canEditField } = useCanEditProperties();
@@ -76,10 +75,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
     )
   ];
 
-  if (hasMetaService) {
-    return null;
-  }
-
   const header = (
     <div className={classes.resourcesHeader}>
       <Avatar compact className={avatarClasses.widgetAvatar}>
@@ -97,6 +92,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
         {widgetProperties?.singleMetricSelection &&
         widgetProperties?.singleResourceSelection ? (
           <SingleAutocompleteField
+            forceInputRenderValue
             className={classes.resources}
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection

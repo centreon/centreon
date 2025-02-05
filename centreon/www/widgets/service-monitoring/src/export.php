@@ -356,8 +356,56 @@ if (!$centreon->user->admin) {
         AND acl.group_id IN (" . $groupList . ")";
 }
 $orderby = " hostname ASC , description ASC";
-if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    $orderby = $preferences['order_by'];
+
+// Define allowed columns and directions 
+$allowedOrderColumns = [
+    'host_id',
+    'hostname',
+    'hostalias',
+    'latency',
+    'execution_time',
+    'h_state',
+    'service_id',
+    'description',
+    's_state',
+    'state_type',
+    'last_hard_state',
+    'output',
+    's_scheduled_downtime_depth',
+    's_acknowledged',
+    's_notify',
+    'perfdata',
+    's_active_checks',
+    's_passive_checks',
+    'h_scheduled_downtime_depth',
+    'h_acknowledged',
+    'h_notify',
+    'h_active_checks',
+    'h_passive_checks',
+    'last_check',
+    'last_state_change',
+    'last_hard_state_change',
+    'check_attempt',
+    'max_check_attempts',
+    'h_action_url',
+    'h_notes_url',
+    's_action_url',
+    's_notes_url',
+    'criticality_id',
+    'criticality_level',
+    'icon_image'
+];
+
+$allowedDirections = ['ASC', 'DESC'];
+
+if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
+    $aOrder = explode(' ', trim($preferences['order_by']));
+    $column = $aOrder[0] ?? '';
+    $direction = isset($aOrder[1]) ? strtoupper($aOrder[1]) : 'ASC';
+
+    if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+        $orderby = $column . ' ' . $direction;
+    }
 }
 
 $query .= " ORDER BY " . $orderby;

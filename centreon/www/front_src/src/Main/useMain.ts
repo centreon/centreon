@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, includes, isEmpty, isNil, not, or } from 'ramda';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 
 import { getData, useRequest, useSnackbar } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';

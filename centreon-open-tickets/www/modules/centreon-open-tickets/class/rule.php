@@ -181,11 +181,14 @@ class Centreon_OpenTickets_Rule
 
         $selectedValues = explode(',', $selection);
 
+        // cmd 3 = open ticket on services
         if ($cmd == 3) {
             $selectedStr = '';
             $selectedStr2 = '';
             $selectedStrAppend = '';
             $queryParams = [];
+            $graphQueryParams = [];
+
             foreach ($selectedValues as $key => $value) {
                 [$hostId, $serviceId] = explode(';', $value);
                 $selectedStr .=
@@ -197,6 +200,8 @@ class Centreon_OpenTickets_Rule
                     . ' AND service_id = :service_id_' . $key;
                 $queryParams['host_id_' . $key] = $hostId;
                 $queryParams['service_id_' . $key] = $serviceId;
+                $graphQueryParams['host_id_' . $key] = $hostId;
+                $graphQueryParams['service_id_' . $key] = $serviceId;
                 $selectedStrAppend = ' OR ';
             }
 
@@ -215,16 +220,24 @@ class Centreon_OpenTickets_Rule
             SQL;
 
             if (!$centreon_bg->is_admin) {
-                $query .= <<<'SQL'
+                $aclGroupIdsCondition = '';
+                foreach (explode(',', str_replace("'", "", $centreon_bg->grouplistStr)) as $aclId) {
+                    if (empty($aclGroupIdsCondition)) {
+                        $aclGroupIdsCondition .= ':acl_' . $aclId;
+                    } else {
+                        $aclGroupIdsCondition .= ', :acl_' . $aclId;
+                    }
+                    $queryParams[':acl_' . $aclId] = (int) $aclId;
+                }
 
+                $query .= <<<SQL
                     AND EXISTS (
                         SELECT * FROM centreon_acl
-                        WHERE centreon_acl.group_id IN (:group_ids)
+                        WHERE centreon_acl.group_id IN ($aclGroupIdsCondition)
                         AND hosts.host_id = centreon_acl.host_id
                         AND services.service_id = centreon_acl.service_id
                     )
                 SQL;
-                $queryParams["group_ids"] = $centreon_bg->grouplistStr;
             }
 
             $graphQuery = <<<SQL
@@ -244,7 +257,7 @@ class Centreon_OpenTickets_Rule
                 $dbStorage->executePreparedQuery($hostServiceStatement, $queryParams);
 
                 $graphStatement = $dbStorage->prepareQuery($graphQuery);
-                $dbStorage->executePreparedQuery($graphStatement, $queryParams);
+                $dbStorage->executePreparedQuery($graphStatement, $graphQueryParams);
 
                 $graphData = [];
                 while (($row = $dbStorage->fetch($graphStatement))) {
@@ -273,6 +286,7 @@ class Centreon_OpenTickets_Rule
 
                 return $selected;
             }
+        // cmd 4 = open a ticket on hosts
         } elseif ($cmd == 4) {
             $hostsSelectedStr = '';
             $hostsSelectedStrAppend = '';
@@ -291,15 +305,23 @@ class Centreon_OpenTickets_Rule
                 SQL;
 
             if (!$centreon_bg->is_admin) {
-                $query .= <<<'SQL'
+                $aclGroupIdsCondition = '';
+                foreach (explode(',', str_replace("'", '', $centreon_bg->grouplistStr)) as $aclId) {
+                    if (empty($aclGroupIdsCondition)) {
+                        $aclGroupIdsCondition .= ':acl_' . $aclId;
+                    } else {
+                        $aclGroupIdsCondition .= ', :acl_' . $aclId;
+                    }
+                    $queryParams[':acl_' . $aclId] = (int) $aclId;
+                }
 
+                $query .= <<<SQL
                     AND EXISTS (
                         SELECT * FROM centreon_acl
-                        WHERE centreon_acl.group_id IN (:group_ids)
+                        WHERE centreon_acl.group_id IN ($aclGroupIdsCondition)
                         AND hosts.host_id = centreon_acl.host_id
                     )
                 SQL;
-                $queryParams['group_ids'] = $centreon_bg->grouplistStr;
             }
 
             try {

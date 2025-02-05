@@ -25,6 +25,7 @@ namespace Core\Dashboard\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Core\Dashboard\Domain\Model\Validation\DashboardValidationTrait;
+use Core\Media\Domain\Model\Media;
 
 /**
  * @immutable
@@ -37,6 +38,8 @@ class Dashboard
     public const MIN_DESCRIPTION_LENGTH = 1;
 
     protected ?string $description = null;
+
+    protected ?Media $thumbnail = null;
 
     private string $name = '';
 
@@ -123,5 +126,25 @@ class Dashboard
     public function getRefresh(): Refresh
     {
         return $this->refresh;
+    }
+
+    /**
+     * @return null|Media
+     */
+    public function getThumbnail(): ?Media
+    {
+        return $this->thumbnail;
+    }
+
+    /**
+     * @param null|Media $thumbnail
+     *
+     * @return self
+     */
+    public function setThumbnail(?Media $thumbnail): self
+    {
+        $this->thumbnail = $thumbnail;
+
+        return $this;
     }
 }

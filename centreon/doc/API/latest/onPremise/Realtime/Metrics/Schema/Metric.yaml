@@ -1,23 +1,28 @@
 type: object
 properties:
   id:
-    type: int
+    type: integer
   name:
     type: string
   unit:
     type: string
   current_value:
-    type: float
+    type: number
+    format: float
     nullable: true
   warning_high_threshold:
-    type: float
+    type: number
+    format: float
     nullable: true
   warning_low_threshold:
-    type: float
+    type: number
+    format: float
     nullable: true
   critical_high_threshold:
-    type: float
+    type: number
+    format: float
     nullable: true
   critical_low_threshold:
-    type: float
+    type: number
+    format: float
     nullable: true

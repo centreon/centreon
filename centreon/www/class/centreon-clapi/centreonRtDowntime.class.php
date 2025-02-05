@@ -41,7 +41,7 @@ use CentreonClapi\Validator\RtValidator;
 use CentreonExternalCommand;
 use CentreonGMT;
 use CentreonHostgroups;
-use CentreonServiceGroups;
+use CentreonServicegroups;
 use DateTime;
 use PDOException;
 use Pimple\Container;
@@ -76,7 +76,7 @@ class CentreonRtDowntime extends CentreonObject
 {
     /** @var CentreonHostgroups */
     public $hgObject;
-    /** @var CentreonServiceGroups */
+    /** @var CentreonServicegroups */
     public $sgObject;
     /** @var \CentreonInstance */
     public $instanceObject;
@@ -112,7 +112,7 @@ class CentreonRtDowntime extends CentreonObject
         $this->hgObject = new CentreonHostgroups($this->db);
         $this->hostObject = new CentreonHost($dependencyInjector);
         $this->serviceObject = new CentreonService($dependencyInjector);
-        $this->sgObject = new CentreonServiceGroups($this->db);
+        $this->sgObject = new CentreonServicegroups($this->db);
         $this->instanceObject = new \CentreonInstance($this->db);
         $this->GMTObject = new CentreonGMT();
         $this->externalCmdObj = new CentreonExternalCommand();

@@ -46,7 +46,6 @@ import ChecksColumn from './Checks';
 import GraphColumn from './Graph';
 import NotificationColumn from './Notification';
 import ParentResourceColumn from './Parent';
-import ParentAliasColumn from './ParentAlias';
 import ResourceColumn from './Resource';
 import SubItem from './ServiceSubItemColumn/SubItem';
 import SeverityColumn from './Severity';
@@ -251,7 +250,6 @@ export const getColumns = ({
       width: 'max-content'
     },
     {
-      Component: ParentAliasColumn,
       getFormattedString: ({ parent }): string => parent?.alias,
       id: 'parent_alias',
       label: t(labelParentAlias),

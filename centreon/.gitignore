@@ -3,6 +3,7 @@ www/index.html
 
 #api html documentation
 doc/API/centreon-api-v2.html
+doc/API/index.html
 
 #backend development and project files
 GPL_LIB/SmartyCache/*

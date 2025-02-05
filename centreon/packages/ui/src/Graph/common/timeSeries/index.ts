@@ -14,6 +14,7 @@ import {
   filter,
   find,
   flatten,
+  gt,
   head,
   identity,
   includes,
@@ -298,13 +299,17 @@ const getTimeSeriesForLines = ({
   return map(
     ({ timeTick, ...metricsValue }): TimeValue => ({
       ...reduce(
-        (acc, metric_id): Omit<TimeValue, 'timePick'> => ({
-          ...acc,
-          [metric_id]:
-            invert && metricsValue[metric_id]
-              ? negate(metricsValue[metric_id])
-              : metricsValue[metric_id]
-        }),
+        (acc, metric_id): Omit<TimeValue, 'timePick'> => {
+          return {
+            ...acc,
+            [metric_id]:
+              invert &&
+              metricsValue[metric_id] &&
+              gt(metricsValue[metric_id], 0)
+                ? negate(metricsValue[metric_id])
+                : metricsValue[metric_id]
+          };
+        },
         {},
         metrics
       ),
@@ -363,7 +368,9 @@ const getScale = ({
   const isLogScale = equals(scale, 'logarithmic');
   const minValue = Math.min(
     hasDisplayAsBar && 0,
-    invert ? negate(getMax(graphValues)) : getMin(graphValues),
+    invert && graphValues.every(lt(0))
+      ? negate(getMax(graphValues))
+      : getMin(graphValues),
     getMin(stackedValues),
     Math.min(...thresholds)
   );

@@ -43,7 +43,8 @@ const useStyles = makeStyles()((theme) => ({
   },
   tooltip: {
     maxWidth: theme.spacing(60)
-  }
+  },
+  title: {}
 }));
 
 const CollapsibleGroup = ({
@@ -97,7 +98,7 @@ const CollapsibleGroup = ({
           <div className={classes.groupTitleIcon}>
             <Typography
               className="groupText"
-              variant="h5"
+              variant="h6"
               {...group?.titleAttributes}
             >
               {t(group?.name as string)}

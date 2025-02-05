@@ -15,6 +15,7 @@ else
   su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
   su www-data -s /bin/bash -c "php partitionTables.php"
   su www-data -s /bin/bash -c "php generationCache.php"
+  cd -
 
   sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
   sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml

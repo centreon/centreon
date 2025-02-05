@@ -5668,7 +5668,7 @@
 									"const responseJson = pm.response.json();\r",
 									"console.log(responseJson);\r",
 									"pm.test(\"The notifications have not been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(207);\r",
+									"    pm.response.to.have.status(200);\r",
 									"\r",
 									"    pm.expect(responseJson.results.length).to.eql(2);\r",
 									"\r",
@@ -5826,120 +5826,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "api_login_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "api_login_user1",
-			"value": ""
-		},
-		{
-			"key": "api_login_user2",
-			"value": ""
-		},
-		{
-			"key": "user1_Id",
-			"value": ""
-		},
-		{
-			"key": "user2_Id",
-			"value": ""
-		},
-		{
-			"key": "Contact_Group_1_Id",
-			"value": ""
-		},
-		{
-			"key": "Contact_Group_2_Id",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Name",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Id",
-			"value": ""
-		},
-		{
-			"key": "HostGroup2Name",
-			"value": ""
-		},
-		{
-			"key": "HostGroup2Alias",
-			"value": ""
-		},
-		{
-			"key": "HostGroup2Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup1Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup2Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup2Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup2Id",
-			"value": ""
-		},
-		{
-			"key": "Notification1Name",
-			"value": ""
-		},
-		{
-			"key": "Notification1Id",
-			"value": ""
-		},
-		{
-			"key": "Notification4Name",
-			"value": ""
-		},
-		{
-			"key": "Notification4Id",
-			"value": ""
 		}
 	]
 }

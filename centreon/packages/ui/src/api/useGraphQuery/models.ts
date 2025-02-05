@@ -10,6 +10,7 @@ export enum WidgetResourceType {
   hostCategory = 'host-category',
   hostGroup = 'host-group',
   service = 'service',
+  metaService = 'meta-service',
   serviceCategory = 'service-category',
   serviceGroup = 'service-group'
 }

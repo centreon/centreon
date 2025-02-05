@@ -9,10 +9,11 @@ type UseDashboardsOverview = {
   data?: List<Dashboard>;
   isEmptyList: boolean;
   isLoading: boolean;
+  refetch: () => void;
 };
 
 const useDashboardsOverview = (): UseDashboardsOverview => {
-  const { data, isLoading } = useListDashboards();
+  const { data, isLoading, refetch } = useListDashboards();
 
   const isEmptyList = isEmpty((data as List<Dashboard>)?.result || []);
 
@@ -20,7 +21,8 @@ const useDashboardsOverview = (): UseDashboardsOverview => {
     dashboards: (data as List<Dashboard>)?.result || [],
     data,
     isEmptyList,
-    isLoading
+    isLoading,
+    refetch
   };
 };
 

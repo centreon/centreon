@@ -1,3 +1,4 @@
+/* eslint-disable no-lonely-if */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
@@ -19,7 +20,7 @@ const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
   let year = match[1];
   let month = match[2];
 
-  if (month === '04') {
+  if (Number(month) <= 4 || Number(month) > 10) {
     year = (Number(year) - 1).toString();
     month = '10';
   } else {
@@ -316,10 +317,10 @@ const updatePlatformPackages = (): Cypress.Chainable => {
     })
     .getWebVersion()
     .then(({ major_version }) => {
-      let installCommands: string[] = [];
+      let installCommands: Array<string> = [];
 
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-        if (Cypress.env('STABILITY') === 'testing') {
+        if ([Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes('testing')) {
           installCommands = [
             ...installCommands,
             `dnf config-manager --set-disabled 'centreon*unstable*'`
@@ -331,7 +332,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
           ];
         }
       } else {
-        if (Cypress.env('STABILITY') === 'testing') {
+        if ([Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes('testing')) {
           installCommands = [
             ...installCommands,
             `rm -f /etc/apt/sources.list.d/centreon*unstable*`

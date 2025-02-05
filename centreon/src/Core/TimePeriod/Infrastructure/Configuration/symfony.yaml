@@ -21,3 +21,18 @@ services:
     Core\TimePeriod\Infrastructure\API\FindTimePeriod\TimePeriodNormalizer:
         arguments:
             $strategies: !tagged_iterator 'timeperiod.rule.strategy'
+
+    Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface:
+        class: Core\TimePeriod\Infrastructure\Repository\DbReadTimePeriodRepository
+
+    Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface:
+        class: Core\TimePeriod\Infrastructure\Repository\DbWriteTimePeriodRepository
+
+    Core\TimePeriod\Infrastructure\Repository\DbWriteTimePeriodActionLogRepository:
+        decorates: Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface
+        arguments:
+        - '@.inner'
+        - '@Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface'
+        - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+        - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+        - '@Centreon\Infrastructure\DatabaseConnection'

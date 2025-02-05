@@ -61,7 +61,7 @@ import {
   SortOrder
 } from './models';
 import { subItemsPivotsAtom } from './tableAtoms';
-import { labelNoResultFound } from './translatedLabels';
+import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
 import useStyleTable from './useStyleTable';
 
 const subItemPrefixKey = 'listing';
@@ -139,6 +139,8 @@ export interface Props<TRow> {
   totalRows?: number;
   viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
+  isActionBarVisible: boolean;
+  labelNoResultFound?: string | JSX.Element;
 }
 
 const defaultColumnConfiguration = {
@@ -147,7 +149,13 @@ const defaultColumnConfiguration = {
 
 export const performanceRowsLimit = 60;
 
-const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
+const Listing = <
+  TRow extends {
+    id: RowId;
+    internalListingParentId?: RowId;
+    internalListingParentRow: TRow;
+  }
+>({
   customListingComponent,
   displayCustomListing,
   limit = 10,
@@ -191,7 +199,9 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
     getRowProperty: () => '',
     labelCollapse: 'Collapse',
     labelExpand: 'Expand'
-  }
+  },
+  isActionBarVisible = true,
+  labelNoResultFound = defaultLabelNoResultFound
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -246,7 +256,8 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                   row,
                   ...row[subItems.getRowProperty()].map((subRow) => ({
                     ...subRow,
-                    internalListingParentId: row.id
+                    internalListingParentId: row.id,
+                    internalListingParentRow: row
                   }))
                 ];
               }
@@ -517,30 +528,32 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
         className={classes.container}
         ref={containerRef as RefObject<HTMLDivElement>}
       >
-        <div
-          className={classes.actionBar}
-          ref={actionBarRef as RefObject<HTMLDivElement>}
-        >
-          <ListingActionBar
-            actions={actions}
-            actionsBarMemoProps={actionsBarMemoProps}
-            columnConfiguration={columnConfiguration}
-            columns={columns}
-            currentPage={currentPage}
-            customPaginationClassName={customPaginationClassName}
-            limit={limit}
-            listingVariant={listingVariant}
-            moveTablePagination={moveTablePagination}
-            paginated={paginated}
-            totalRows={totalRows}
-            viewerModeConfiguration={viewerModeConfiguration}
-            widthToMoveTablePagination={widthToMoveTablePagination}
-            onLimitChange={changeLimit}
-            onPaginate={onPaginate}
-            onResetColumns={onResetColumns}
-            onSelectColumns={onSelectColumns}
-          />
-        </div>
+        {isActionBarVisible && (
+          <div
+            className={classes.actionBar}
+            ref={actionBarRef as RefObject<HTMLDivElement>}
+          >
+            <ListingActionBar
+              actions={actions}
+              actionsBarMemoProps={actionsBarMemoProps}
+              columnConfiguration={columnConfiguration}
+              columns={columns}
+              currentPage={currentPage}
+              customPaginationClassName={customPaginationClassName}
+              limit={limit}
+              listingVariant={listingVariant}
+              moveTablePagination={moveTablePagination}
+              paginated={paginated}
+              totalRows={totalRows}
+              viewerModeConfiguration={viewerModeConfiguration}
+              widthToMoveTablePagination={widthToMoveTablePagination}
+              onLimitChange={changeLimit}
+              onPaginate={onPaginate}
+              onResetColumns={onResetColumns}
+              onSelectColumns={onSelectColumns}
+            />
+          </div>
+        )}
 
         <ParentSize
           parentSizeStyles={{
@@ -692,7 +705,11 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                       (loading ? (
                         <SkeletonLoader rows={limit} />
                       ) : (
-                        <EmptyResult label={t(labelNoResultFound)} />
+                        <EmptyResult
+                          label={
+                            labelNoResultFound || t(defaultLabelNoResultFound)
+                          }
+                        />
                       ))}
                   </TableBody>
                 </Table>
@@ -728,6 +745,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   moveTablePagination,
   widthToMoveTablePagination,
   listingVariant,
+  labelNoResultFound,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
@@ -750,6 +768,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortOrder={sortOrder}
         totalRows={totalRows}
         widthToMoveTablePagination={widthToMoveTablePagination}
+        labelNoResultFound={labelNoResultFound}
         {...props}
       />
     ),
@@ -772,7 +791,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       sortOrder,
       sortField,
       innerScrollDisabled,
-      listingVariant
+      listingVariant,
+      labelNoResultFound
     ]
   });
 

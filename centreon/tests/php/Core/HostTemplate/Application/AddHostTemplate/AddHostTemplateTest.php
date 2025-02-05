@@ -114,7 +114,7 @@ beforeEach(function (): void {
     $this->request->flapDetectionEnabled = 1;
     $this->request->lowFlapThreshold = 5;
     $this->request->highFlapThreshold = 5;
-    $this->request->eventHandlerEnabled = 1;
+    $this->request->eventHandlerEnabled = YesNoDefaultConverter::fromScalar(1);
     $this->request->eventHandlerCommandId = 2;
     $this->request->eventHandlerCommandArgs = ['arg3', '  arg4'];
     $this->request->noteUrl = 'noteUrl-value';
@@ -154,7 +154,7 @@ beforeEach(function (): void {
         flapDetectionEnabled: YesNoDefaultConverter::fromScalar($this->request->flapDetectionEnabled),
         lowFlapThreshold: $this->request->lowFlapThreshold,
         highFlapThreshold: $this->request->highFlapThreshold,
-        eventHandlerEnabled: YesNoDefaultConverter::fromScalar($this->request->eventHandlerEnabled),
+        eventHandlerEnabled: $this->request->eventHandlerEnabled,
         eventHandlerCommandId: $this->request->eventHandlerCommandId,
         eventHandlerCommandArgs: $this->request->eventHandlerCommandArgs,
         noteUrl: $this->request->noteUrl,

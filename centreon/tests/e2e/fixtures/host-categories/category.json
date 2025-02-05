@@ -1,0 +1,20 @@
+{
+    "default": {
+        "name": "host-category-default",
+        "alias": "host-category-default",
+        "is_activated": true,
+        "comment": "default"
+    },
+    "forTest": {
+        "name": "host-category",
+        "alias": "host-category",
+        "is_activated": true,
+        "comment": "for update or for duplication"
+    },
+    "disabled": {
+        "name": "host-category-default",
+        "alias": "host-category-default",
+        "is_activated": false,
+        "comment": "default"
+    }
+}

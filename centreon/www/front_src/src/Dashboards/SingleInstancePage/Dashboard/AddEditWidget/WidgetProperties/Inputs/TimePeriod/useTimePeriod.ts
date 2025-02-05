@@ -17,7 +17,9 @@ import {
   labelLast12Months,
   labelLast24Hours,
   labelLast30Days,
-  labelLastHour
+  labelLastHour,
+  labelLast14Days,
+  labelLast2Months
 } from '../../../../translatedLabels';
 import { Widget } from '../../../models';
 import { getProperty } from '../utils';
@@ -51,8 +53,16 @@ export const options: Array<SelectEntry> = [
     name: labelLast7Days
   },
   {
+    id: 14 * day,
+    name: labelLast14Days
+  },
+  {
     id: month * day,
     name: labelLast30Days
+  },
+  {
+    id: 2 * month * day,
+    name: labelLast2Months
   },
   {
     id: 3 * month * day,

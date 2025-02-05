@@ -216,7 +216,9 @@ class CentreonResourceCfg extends CentreonObject
             $updateParams['objectId'] = $objectId;
             return $updateParams;
         }
-    } // FIXME no return
+
+        return [];
+    }
 
     /**
      * @param $parameters

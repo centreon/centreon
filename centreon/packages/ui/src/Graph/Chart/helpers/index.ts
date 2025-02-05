@@ -2,15 +2,15 @@ import dayjs from 'dayjs';
 import durationPlugin from 'dayjs/plugin/duration';
 import { gt, gte, isEmpty, isNil, prop, propEq, reject, sortBy } from 'ramda';
 
-import { LineChartData } from '../../common/models';
+import type { LineChartData } from '../../common/models';
 import {
   getLineData,
   getTimeSeries,
   getTimeValue
 } from '../../common/timeSeries';
-import { LinesData } from '../BasicComponents/Lines/models';
+import type { LinesData } from '../BasicComponents/Lines/models';
 import { dateFormat, timeFormat } from '../common';
-import { GetDate, GraphInterval } from '../models';
+import type { GetDate, GraphInterval } from '../models';
 
 dayjs.extend(durationPlugin);
 
@@ -56,11 +56,11 @@ export const displayArea = (data: unknown): boolean =>
   !isEmpty(data) && !isNil(data);
 
 export const getDate = ({ positionX, xScale, timeSeries }: GetDate): Date => {
-  const { timeTick } = getTimeValue({
+  const timeValue = getTimeValue({
     timeSeries,
     x: positionX,
     xScale
   });
 
-  return new Date(timeTick);
+  return new Date(timeValue?.timeTick || 0);
 };

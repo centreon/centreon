@@ -1,8 +1,9 @@
 import { useAtomValue } from 'jotai';
-import { equals, reject, type } from 'ramda';
+import { equals, isNil, reject, type } from 'ramda';
 
 import { federatedModulesAtom, isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { PageSkeleton } from '@centreon/ui';
 import { Remote } from '../../federatedModules/Load';
 import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
 import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
@@ -20,6 +21,10 @@ const FederatedPage = ({
 }: Props): JSX.Element => {
   const federatedModules = useAtomValue(federatedModulesAtom);
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
+  if (isNil(federatedModules)) {
+    return <PageSkeleton />;
+  }
 
   const filteredFederatedModules = reject(
     (federatedModule) => equals(type(federatedModule), 'String'),

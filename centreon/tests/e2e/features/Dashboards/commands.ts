@@ -1,13 +1,8 @@
+/* eslint-disable @typescript-eslint/method-signature-style */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable newline-before-return */
 /* eslint-disable @typescript-eslint/no-namespace */
 import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
-import singleMetricPayloadPl from '../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
-import singleMetricPayloadRta from '../../fixtures/dashboards/creation/widgets/singleMetricPayloadRta.json';
-import singleMetricDoubleWidgets from '../../fixtures/dashboards/creation/widgets/dashboardWithTwoWidgets.json';
-import metricsGraphWidget from '../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
-import statusGridWidget from '../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
-import textWidget from '../../fixtures/dashboards/creation/widgets/textWidget.json';
-import topBottomWidget from '../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
 
 Cypress.Commands.add('enableDashboardFeature', () => {
   cy.execInContainer({
@@ -35,7 +30,6 @@ Cypress.Commands.add('visitDashboards', () => {
 
 Cypress.Commands.add('visitDashboard', (name) => {
   cy.visitDashboards();
-
   cy.contains(name).click();
 
   cy.url().should('match', /\/home\/dashboards\/library\/\d+$/);
@@ -160,7 +154,6 @@ Cypress.Commands.add('waitUntilPingExists', () => {
     () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
       cy.contains('Centreon-Server').realClick();
-      cy.wait(60_000);
       cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
       return cy.wait('@servicesRequest').then((interception) => {
@@ -200,15 +193,14 @@ Cypress.Commands.add('waitUntilPingExists', () => {
 
 Cypress.Commands.add(
   'insertDashboardWithWidget',
-  (dashboardBody, patchBody) => {
+  (dashboardBody, patchBody, widgetName, widgetType) => {
     cy.request({
-      body: {
-        ...dashboardBody
-      },
+      body: { ...dashboardBody },
       method: 'POST',
       url: '/centreon/api/latest/configuration/dashboards'
     }).then((response) => {
       const dashboardId = response.body.id;
+
       cy.waitUntil(
         () => {
           return cy
@@ -220,14 +212,102 @@ Cypress.Commands.add(
               return getResponse.body && getResponse.body.id === dashboardId;
             });
         },
-        {
-          timeout: 10000
-        }
+        { timeout: 10000 }
       );
+
+      const formData = new FormData();
+
+      formData.append('panels[0][name]', widgetName);
+      formData.append('panels[0][widget_type]', widgetType);
+
+      formData.append('panels[0][layout][x]', '0');
+      formData.append('panels[0][layout][y]', '0');
+      formData.append('panels[0][layout][width]', '12');
+      formData.append('panels[0][layout][height]', '3');
+      formData.append('panels[0][layout][min_width]', '2');
+      formData.append('panels[0][layout][min_height]', '2');
+
+      formData.append('panels[0][widget_settings]', JSON.stringify(patchBody));
+
       cy.request({
-        body: patchBody,
-        method: 'PATCH',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        method: 'POST',
         url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+      }).then((patchResponse) => {
+        console.log('Widget added successfully:', patchResponse);
+      });
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'insertDashboardWithDoubleWidget',
+  (dashboardBody, patchBody1, patchBody2, widgetName, widgetType) => {
+    cy.request({
+      body: { ...dashboardBody },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    }).then((response) => {
+      const dashboardId = response.body.id;
+
+      cy.waitUntil(
+        () => {
+          return cy
+            .request({
+              method: 'GET',
+              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+            })
+            .then((getResponse) => {
+              return getResponse.body && getResponse.body.id === dashboardId;
+            });
+        },
+        { timeout: 10000 }
+      );
+
+      const formData = new FormData();
+
+      // Panel 1
+      formData.append('panels[0][name]', widgetName);
+      formData.append('panels[0][widget_type]', widgetType);
+      formData.append('panels[0][layout][x]', '0');
+      formData.append('panels[0][layout][y]', '0');
+      formData.append('panels[0][layout][width]', '12');
+      formData.append('panels[0][layout][height]', '3');
+      formData.append('panels[0][layout][min_width]', '2');
+      formData.append('panels[0][layout][min_height]', '2');
+      formData.append('panels[0][widget_settings]', JSON.stringify(patchBody1));
+
+      // Panel 2
+      formData.append('panels[1][name]', widgetName);
+      formData.append('panels[1][widget_type]', widgetType);
+      formData.append('panels[1][layout][x]', '0');
+      formData.append('panels[1][layout][y]', '3');
+      formData.append('panels[1][layout][width]', '12');
+      formData.append('panels[1][layout][height]', '3');
+      formData.append('panels[1][layout][min_width]', '2');
+      formData.append('panels[1][layout][min_height]', '2');
+      formData.append('panels[1][widget_settings]', JSON.stringify(patchBody2));
+
+      // Log form data
+      const dataToLog = {};
+      formData.forEach((value, key) => {
+        dataToLog[key] = value;
+      });
+
+      console.log('FormData before POST:', JSON.stringify(dataToLog, null, 2));
+
+      cy.request({
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        method: 'POST',
+        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+      }).then((patchResponse) => {
+        console.log('Widget added successfully:', patchResponse);
       });
     });
   }
@@ -363,6 +443,109 @@ Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
   });
 });
 
+Cypress.Commands.add(
+  'addNewServiceAndReturnId',
+  (hostId: number, serviceData = {}) => {
+    const defaultServiceData = {
+      check_command_args: [],
+      check_command_id: null,
+      comment: 'string',
+      geo_coords: '48.10,12.5',
+      host_id: hostId,
+      max_check_attempts: 1,
+      name: 'generic-service',
+      service_template_id: 5
+    };
+
+    const requestBody = {
+      ...defaultServiceData,
+      ...serviceData,
+      host_id: hostId
+    };
+
+    cy.request({
+      body: requestBody,
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/services'
+    }).then((response) => {
+      expect(response.status).to.eq(201);
+      return response.body.id;
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'addMultipleHosts',
+  (
+    numberOfHosts = 20
+  ): Cypress.Chainable<{
+    hostIds: Array<number>;
+    serviceIds: Array<number>;
+  }> => {
+    const hostIds: Array<number> = [];
+    const serviceIds: Array<number> = [];
+
+    let chain = cy.wrap(null);
+
+    for (let i = 0; i < numberOfHosts; i++) {
+      const uniqueHostData = {
+        alias: `generic-active-host-alias-${i + 1}`,
+        name: `generic-active-host-${i + 1}`
+      };
+
+      const uniqueServiceData = {
+        geo_coords: '48.10,12.5',
+        name: `service-${i + 1}`
+      };
+
+      chain = chain.then(() => {
+        return cy
+          .addNewHostAndReturnId(uniqueHostData)
+          .then((hostId: number) => {
+            hostIds.push(hostId);
+
+            return cy
+              .addNewServiceAndReturnId(hostId, uniqueServiceData)
+              .then((serviceId: number | null) => {
+                if (serviceId !== null) {
+                  serviceIds.push(serviceId);
+                }
+                return cy.wrap(null);
+              });
+          });
+      });
+    }
+
+    return chain.then(() => {
+      cy.log('All hosts and services have been created and associated.');
+      return cy.wrap({ hostIds, serviceIds });
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'waitForElementToBeVisible',
+  (selector, timeout = 50000, interval = 2000) => {
+    cy.waitUntil(
+      () =>
+        cy.get('body').then(($body) => {
+          const element = $body.find(selector);
+
+          return element.length > 0 && element.is(':visible');
+        }),
+      {
+        errorMsg: `The element '${selector}' is not visible`,
+        interval,
+        timeout
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error(`The element '${selector}' is not visible`);
+      }
+    });
+  }
+);
+
 interface Dashboard {
   description?: string;
   name: string;
@@ -399,59 +582,104 @@ interface HostDataType {
   max_check_attempts: number;
   monitoring_server_id: number;
   name: string;
-  snmp_community: string;
+  normal_check_interval: number;
   note: string;
   note_url: string;
   notification_enabled: number;
-  normal_check_interval: number;
+  notification_interval: number;
   notification_options: number;
-  snmp_version: string;
+  notification_timeperiod_id: number;
   passive_check_enabled: number;
   recovery_notification_delay: number;
   retry_check_interval: number;
-  notification_interval: number;
-  timezone_id: number;
-  notification_timeperiod_id: number;
-  templates: Array<number>;
   severity_id: number;
+  snmp_community: string;
+  snmp_version: string;
+  templates: Array<number>;
+  timezone_id: number;
 }
 
-type metricsGraphWidgetJSONData = typeof metricsGraphWidget;
-type statusGridWidgetJSONData = typeof statusGridWidget;
-type singleMetricPayloadPlJSONData = typeof singleMetricPayloadPl;
-type singleMetricPayloadRtaJSONData = typeof singleMetricPayloadRta;
-type singleMetricDoubleWidgetsJSONData = typeof singleMetricDoubleWidgets;
-type textWidgetJSONData = typeof textWidget;
-type topBottomWidgetJSONData = typeof topBottomWidget;
-type widgetJSONData =
-  | singleMetricPayloadPlJSONData
-  | singleMetricPayloadRtaJSONData
-  | singleMetricDoubleWidgetsJSONData
-  | metricsGraphWidgetJSONData
-  | statusGridWidgetJSONData
-  | textWidgetJSONData
-  | topBottomWidgetJSONData;
+interface ServiceDataType {
+  acknowledgement_timeout: number;
+  action_url: string;
+  active_check_enabled: number;
+  check_command_args: Array<string>;
+  check_command_id: number | null;
+  check_timeperiod_id: number | null;
+  comment: string;
+  event_handler_command_args: Array<string>;
+  event_handler_command_id: number;
+  event_handler_enabled: number;
+  first_notification_delay: number;
+  flap_detection_enabled: number;
+  freshness_checked: number;
+  freshness_threshold: number;
+  notification_enabled: number;
+  is_contact_additive_inheritance: boolean;
+  is_contact_group_additive_inheritance: boolean;
+  notification_interval: number;
+  notification_timeperiod_id: number;
+  notification_type: number;
+  retry_check_interval: number;
+  recovery_notification_delay: number;
+  low_flap_threshold: number;
+  passive_check_enabled: number;
+  macros: Array<object>;
+  geo_coords: string;
+  name: string;
+  high_flap_threshold: number;
+  normal_check_interval: number;
+  max_check_attempts: number;
+  service_template_id: number | null;
+  graph_template_id: number | null;
+  note: string;
+  note_url: string;
+  host_id: number;
+  icon_id: number | null;
+  icon_alternative: string;
+  severity_id: number;
+  is_activated: boolean;
+  service_categories: Array<number>;
+  service_groups: Array<number>;
+  volatility_enabled: number;
+}
 
 declare global {
   namespace Cypress {
     interface Chainable {
+      addMultipleHosts(
+        numberOfHosts?: number
+      ): Chainable<{ hostIds: Array<number>; serviceIds: Array<number> }>;
       addNewHostAndReturnId: (
         hostData?: Partial<HostDataType>
       ) => Cypress.Chainable;
+      addNewServiceAndReturnId(
+        hostId: number,
+        serviceData?: Partial<ServiceDataType>
+      ): Chainable<number>;
       applyAcl: () => Cypress.Chainable;
       editDashboard: (name: string) => Cypress.Chainable;
       editWidget: (nameOrPosition: string | number) => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
       getCellContent: (rowIndex: number, colIndex: number) => Cypress.Chainable;
       getServiceIdByName: (serviceName: string) => Cypress.Chainable;
-      insertDashboardWithWidget: (
+      insertDashboardWithDoubleWidget: (
         dashboard: Dashboard,
-        patch: widgetJSONData
+        patchBody1: Record<string, any>,
+        patchBody2: Record<string, any>,
+        widgetName: string,
+        widgetType: string
       ) => Cypress.Chainable;
       patchServiceWithHost: (
         hostId: string,
         serviceId: string
       ) => Cypress.Chainable;
+      insertDashboardWithWidget: (
+        dashboard: Dashboard,
+        patchBody: Record<string, any>,
+        widgetName: string,
+        widgetType: string
+      ) => Chainable<any>;
       verifyDuplicatesGraphContainer: (metrics) => Cypress.Chainable;
       verifyGraphContainer: (metrics) => Cypress.Chainable;
       verifyLegendItemStyle: (
@@ -461,10 +689,15 @@ declare global {
       ) => Cypress.Chainable;
       visitDashboard: (name: string) => Cypress.Chainable;
       visitDashboards: () => Cypress.Chainable;
+      waitForElementToBeVisible(
+        selector: string,
+        timeout?: number,
+        interval?: number
+      ): Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number,
-        closeIconIndex?:number
+        closeIconIndex?: number
       ) => Cypress.Chainable;
       waitUntilPingExists: () => Cypress.Chainable;
     }

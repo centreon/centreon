@@ -2,7 +2,7 @@ import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { replace } from 'ramda';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
@@ -200,8 +200,6 @@ const mockPostLoginServerError = (): void => {
 };
 
 const setupBeforeEach = (): void => {
-  cy.clock(mockNow);
-
   cy.interceptAPIRequest({
     alias: 'getTranslations',
     method: Method.GET,
@@ -232,6 +230,8 @@ const setupBeforeEach = (): void => {
 
 describe('Login Page', () => {
   beforeEach(() => {
+    cy.clock(mockNow);
+
     setupBeforeEach();
   });
 

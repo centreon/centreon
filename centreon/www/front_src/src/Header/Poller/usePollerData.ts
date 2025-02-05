@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { useFetchQuery } from '@centreon/ui';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';

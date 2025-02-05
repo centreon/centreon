@@ -7,7 +7,7 @@ import i18next from 'i18next';
 import { Provider, createStore, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router';
 
 import {
   ListingParameters,

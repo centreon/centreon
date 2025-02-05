@@ -20,6 +20,7 @@ import { useDashboardConfig } from '../../components/DashboardLibrary/DashboardC
 import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
 
+import FavoriteAction from '../../components/DashboardLibrary/DashboardListing/Actions/favoriteAction';
 import { AddWidgetButton } from './AddEditWidget';
 import { useDashboardStyles } from './Dashboard.styles';
 import Layout from './Layout';
@@ -34,7 +35,7 @@ const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
 
   const { dashboardId } = routerParams.useParams();
-  const { dashboard, panels } = useDashboardDetails({
+  const { dashboard, panels, refetch } = useDashboardDetails({
     dashboardId: dashboardId as string
   });
   const { editDashboard } = useDashboardConfig();
@@ -93,6 +94,13 @@ const Dashboard = (): ReactElement => {
             <PageHeader.Title
               description={dashboard?.description || ''}
               title={dashboard?.name || ''}
+              actions={
+                <FavoriteAction
+                  dashboardId={dashboard?.id as number}
+                  isFavorite={dashboard?.isFavorite as boolean}
+                  refetch={refetch}
+                />
+              }
             />
           </PageHeader.Main>
           <DashboardNavbar />

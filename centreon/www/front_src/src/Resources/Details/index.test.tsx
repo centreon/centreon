@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Provider, createStore } from 'jotai';
 import mockDate from 'mockdate';
 import { path, equals, reject } from 'ramda';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import {
   getSearchQueryParameterValue,
@@ -593,8 +593,8 @@ const mockedLocalStorageGetItem = jest.fn();
 const mockedLocalStorageSetItem = jest.fn();
 const mockedNavigate = jest.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: (): jest.Mock => mockedNavigate
 }));
 

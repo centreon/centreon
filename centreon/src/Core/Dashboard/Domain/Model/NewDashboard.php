@@ -25,6 +25,7 @@ namespace Core\Dashboard\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Core\Dashboard\Domain\Model\Validation\DashboardValidationTrait;
+use Core\Media\Domain\Model\Media;
 
 class NewDashboard
 {
@@ -41,6 +42,8 @@ class NewDashboard
     protected int $createdBy;
 
     protected int $updatedBy;
+
+    protected ?Media $thumbnail = null;
 
     /**
      * @param string $name
@@ -140,5 +143,21 @@ class NewDashboard
     public function getRefresh(): Refresh
     {
         return $this->refresh;
+    }
+
+    /**
+     * @return null|Media
+     */
+    public function getThumbnail(): ?Media
+    {
+        return $this->thumbnail;
+    }
+
+    /**
+     * @param null|Media $thumbnail
+     */
+    public function setThumbnail(?Media $thumbnail): void
+    {
+        $this->thumbnail = $thumbnail;
     }
 }

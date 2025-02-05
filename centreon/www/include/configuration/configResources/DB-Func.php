@@ -438,7 +438,7 @@ function getLinkedPollerList($resource_id)
         . $resource_id . "'";
     $dbResult = $pearDB->query($query);
     while ($data = $dbResult->fetch()) {
-        $str .= "<a href='main.php?p=60901&o=c&server_id=" . $data['id'] . "'>" . $data['name'] . '</a> ';
+        $str .= "<a href='main.php?p=60901&o=c&server_id=" . $data['id'] . "'>" . HtmlSanitizer::createFromString($data['name'])->sanitize()->getString() . '</a> ';
     }
     unset($dbResult);
 

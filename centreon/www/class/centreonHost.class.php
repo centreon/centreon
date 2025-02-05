@@ -36,6 +36,7 @@
 
 use Centreon\LegacyContainer;
 use CentreonLicense\ServiceProvider;
+use Core\ActionLog\Domain\Model\ActionLog;
 
 require_once __DIR__ . '/centreonInstance.class.php';
 require_once __DIR__ . '/centreonService.class.php';
@@ -423,7 +424,9 @@ class CentreonHost
             $row = $stmt->fetch();
             return $row['host_name'];
         }
-    }// FIXME no return
+
+        return '';
+    }
 
     /**
      * @param int[] $hostId
@@ -472,8 +475,9 @@ class CentreonHost
 
     /**
      * @param $hostId
-     * @return mixed
-     * @throws Exception
+     *
+     * @return int
+     * @throws PDOException
      */
     public function getHostCommandId($hostId)
     {
@@ -488,7 +492,9 @@ class CentreonHost
             $row = $stmt->fetch();
             return $row['command_command_id'];
         }
-    }// FIXME no return
+
+        return 0;
+    }
 
     /**
      * @param $hostId
@@ -2056,11 +2062,11 @@ class CentreonHost
                     $svcId = $this->serviceObj->insert($serviceDesc);
                     $fields = CentreonLogAction::prepareChanges($serviceDesc);
                     $centreon->CentreonLogAction->insertLog(
-                        "service",
-                        $svcId,
-                        CentreonDB::escape($service['service_alias']),
-                        "a",
-                        $fields
+                        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+                        object_id: $svcId,
+                        object_name: $service['service_alias'],
+                        action_type: ActionLog::ACTION_TYPE_ADD,
+                        fields: $fields
                     );
                     $this->insertRelHostService($hostId, $svcId);
                 }

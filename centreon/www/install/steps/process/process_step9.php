@@ -73,9 +73,15 @@ try {
         $kernel = Kernel::createForWeb();
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath('database');
-        $vaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
-        if ($vaultPaths !== []) {
-            updateConfigFilesWithVaultPath($vaultPaths);
+        $databaseVaultPaths = migrateDatabaseCredentialsToVault($writeVaultRepository);
+        if (! empty($databaseVaultPaths)) {
+            updateConfigFilesWithVaultPath($databaseVaultPaths);
+        }
+        if ($featureFlagManager->isEnabled('vault_gorgone')) {
+            $gorgoneVaultPaths = migrateGorgoneCredentialsToVault($writeVaultRepository);
+            if (! empty($gorgoneVaultPaths)) {
+                updateGorgoneApiFile($gorgoneVaultPaths);
+            }
         }
     }
 

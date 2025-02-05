@@ -1,5 +1,5 @@
-import dom2image from 'dom-to-image';
 import { saveAs } from 'file-saver';
+import { toBlob } from 'html-to-image';
 
 interface Props {
   backgroundColor: string;
@@ -23,18 +23,16 @@ const exportToPng = async ({
   const translateY = getTranslation(element.offsetHeight);
   const translateX = getTranslation(element.offsetWidth);
 
-  return dom2image
-    .toBlob(element, {
-      bgcolor: backgroundColor,
-      height: element.offsetHeight * ratio,
-      style: {
-        transform: `translate(-${translateX}px, -${translateY}px) scale(${ratio})`
-      },
-      width: element.offsetWidth * ratio
-    })
-    .then((blob) => {
-      return saveAs(blob, `${title}-${dateTime}.png`);
-    });
+  return toBlob(element, {
+    backgroundColor,
+    height: element.offsetHeight * ratio,
+    style: {
+      transform: `translate(-${translateX}px, -${translateY}px) scale(${ratio})`
+    },
+    width: element.offsetWidth * ratio
+  }).then((blob) => {
+    return saveAs(blob, `${title}-${dateTime}.png`);
+  });
 };
 
 export default exportToPng;

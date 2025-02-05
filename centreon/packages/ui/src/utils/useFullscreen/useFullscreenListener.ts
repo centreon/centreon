@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { equals, includes } from 'ramda';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import { useDeepCompare } from '../useMemoComponent';
 

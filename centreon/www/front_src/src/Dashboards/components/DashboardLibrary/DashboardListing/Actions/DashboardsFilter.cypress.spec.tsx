@@ -1,7 +1,7 @@
 import { Provider, createStore } from 'jotai';
 import { searchAtom } from '../atom';
-import Filter from './Filter';
 import { labelClearFilter } from '../translatedLabels';
+import Filter from './Filter';
 
 const store = createStore();
 describe('Filter Component', () => {

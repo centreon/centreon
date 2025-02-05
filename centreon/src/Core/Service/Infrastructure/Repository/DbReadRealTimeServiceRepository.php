@@ -65,8 +65,9 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= 'services.type = 0 AND services.enabled = 1';
 
-        $sort = $sqlTranslator->translateSortParameterToSql();
+        $request .= ' GROUP BY services.id, services.name, services.status ';
 
+        $sort = $sqlTranslator->translateSortParameterToSql();
         $request .= $sort ?? ' ORDER BY services.name ASC';
 
         $statement = $this->db->prepare($this->translateDbName($request));
@@ -108,6 +109,8 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= "services.type = 0 AND services.enabled = 1 AND acls.group_id IN ({$bindQuery})";
 
+        $request .= ' GROUP BY services.id, services.name, services.status ';
+
         $sort = $sqlTranslator->translateSortParameterToSql();
 
         $request .= $sort ?? ' ORDER BY services.name ASC';
@@ -132,27 +135,27 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      */
     public function findUniqueServiceNamesByRequestParameters(RequestParametersInterface $requestParameters): array
     {
-        $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
-        $request = $this->returnBaseQuery();
-        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
-        $request .= $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0';
+        $selectSqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
+        $countSqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
 
-        $request .= ' GROUP BY services.name ';
+        $selectRequest = $this->findServiceNamesQuery($selectSqlTranslator, false);
+        $countRequest = $this->findServiceNamesQuery($countSqlTranslator, true);
 
-        $sort = $sqlTranslator->translateSortParameterToSql();
+        $selectStatement = $this->db->prepare($this->translateDbName($selectRequest));
+        $selectSqlTranslator->bindSearchValues($selectStatement);
+        $selectStatement->execute();
 
-        $request .= $sort ?? ' ORDER BY services.name ASC';
+        $countStatement = $this->db->prepare($this->translateDbName($countRequest));
+        $countSqlTranslator->bindSearchValues($countStatement);
+        $countStatement->execute();
 
-        $request .= $sqlTranslator->translatePaginationToSql();
+        $serviceNames = $selectStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $countResult = $countStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $numberOfRows = $countResult ? current($countResult) : 0;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator->bindSearchValues($statement);
+        $countSqlTranslator->setNumberOfRows($numberOfRows);
 
-        $statement->execute();
-
-        $sqlTranslator->calculateNumberOfRows($this->db);
-
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 1);
+        return $serviceNames;
     }
 
     /**
@@ -168,35 +171,107 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group');
 
-        $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
+        $selectSqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
+        $countSqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
 
-        $request = $this->returnBaseQuery();
-        $request .= <<<'SQL'
+        $selectRequest = $this->findServiceNamesQuery($selectSqlTranslator, false, $accessGroupIds, $bindQuery);
+        $countRequest = $this->findServiceNamesQuery($countSqlTranslator, true, $accessGroupIds, $bindQuery);
+
+        $selectStatement = $this->db->prepare($this->translateDbName($selectRequest));
+        $selectSqlTranslator->bindSearchValues($selectStatement);
+        foreach ($bindValues as $token => $value) {
+            $selectStatement->bindValue($token, $value, \PDO::PARAM_INT);
+        }
+        $selectStatement->execute();
+
+        $countStatement = $this->db->prepare($this->translateDbName($countRequest));
+        $countSqlTranslator->bindSearchValues($countStatement);
+        foreach ($bindValues as $token => $value) {
+            $countStatement->bindValue($token, $value, \PDO::PARAM_INT);
+        }
+        $countStatement->execute();
+        
+        $serviceNames = $selectStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $countResult = $countStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $numberOfRows = $countResult ? current($countResult) : 0;
+
+        $countSqlTranslator->setNumberOfRows($numberOfRows);
+
+        return $serviceNames;
+    }
+
+    /**
+     * @param SqlRequestParametersTranslator $sqlTranslator
+     * @param bool $calculateNumberOfRows
+     * @param int[] $accessGroupIds
+     * @param string $aclBindQuery
+     *
+     * @return string
+     */
+    private function findServiceNamesQuery(
+        SqlRequestParametersTranslator $sqlTranslator,
+        bool $calculateNumberOfRows,
+        array $accessGroupIds = [],
+        string $aclBindQuery = ''
+    ): string {
+        $search = $sqlTranslator->translateSearchParameterToSql();
+        $typeSearch = $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0 ';
+        $sort = $sqlTranslator->translateSortParameterToSql() ?? ' ORDER BY services.name ASC';
+        $aclJoin = '';
+        $aclSearch = '';
+
+        if ($calculateNumberOfRows) {
+            $select = ' COUNT(*) OVER(), services.name AS `name`';
+            $limit = '';
+        } else {
+            $select = ' services.name AS `name`';
+            $limit = $sqlTranslator->translatePaginationToSql();
+        }
+
+        if ($accessGroupIds !== []) {
+            $aclJoin = <<<'SQL'
                 INNER JOIN `:dbstg`.centreon_acl acls
                     ON acls.host_id = services.parent_id
                     AND acls.service_id = services.id
-            SQL;
-
-        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
-        $request .= $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0 ';
-        $request .= " AND acls.group_id IN ({$bindQuery})";
-
-        $request .= ' GROUP BY services.id, services.name, services.status ';
-
-        $sort = $sqlTranslator->translateSortParameterToSql();
-
-        $request .= $sort ?? ' ORDER BY services.name ASC';
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator->bindSearchValues($statement);
-
-        foreach ($bindValues as $token => $value) {
-            $statement->bindValue($token, $value, \PDO::PARAM_INT);
+                SQL;
+            $aclSearch = <<<SQL
+                AND acls.group_id IN ({$aclBindQuery})
+                SQL; 
         }
 
-        $statement->execute();
-
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 1);
+        return <<<SQL
+            SELECT {$select}
+            FROM `:dbstg`.resources AS services
+            INNER JOIN `:dbstg`.resources AS hosts
+                ON hosts.id = services.parent_id
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
+                ON hosts.resource_id = rtags_host_groups.resource_id
+            LEFT JOIN `:dbstg`.tags host_groups
+                ON rtags_host_groups.tag_id = host_groups.tag_id
+                AND host_groups.type = 1
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
+                ON hosts.resource_id = rtags_host_categories.resource_id
+            LEFT JOIN `:dbstg`.tags host_categories
+                ON rtags_host_categories.tag_id = host_categories.tag_id
+                AND host_categories.type = 3
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
+                ON services.resource_id = rtags_service_groups.resource_id
+            LEFT JOIN `:dbstg`.tags service_groups
+                ON rtags_service_groups.tag_id = service_groups.tag_id
+                AND service_groups.type = 0
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
+                ON services.resource_id = rtags_service_categories.resource_id
+            LEFT JOIN `:dbstg`.tags service_categories
+                ON rtags_service_categories.tag_id = service_categories.tag_id
+                AND service_categories.type = 2
+            {$aclJoin}
+            {$search}
+            {$typeSearch}
+            {$aclSearch}
+            GROUP BY services.name
+            {$sort}
+            {$limit}
+            SQL;
     }
 
     /**

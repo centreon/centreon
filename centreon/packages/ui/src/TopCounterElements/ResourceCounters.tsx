@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import { SeverityCode } from '@centreon/ui';

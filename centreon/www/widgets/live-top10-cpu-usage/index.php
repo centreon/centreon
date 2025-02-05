@@ -103,56 +103,79 @@ $template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $data = [];
 
-$query = "SELECT
-        1 AS REALTIME,
-        i.host_name,
-        i.service_description,
-        i.service_id,
-        i.host_id,
-        AVG(m.current_value) AS current_value,
-        s.state AS status
-    FROM
-        metrics m,
-        hosts h "
-    . ($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
-    . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
-    . " , index_data i
-    LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1
-    WHERE i.service_description LIKE '%" . $preferences['service_description'] . "%'
-    AND i.id = m.index_id
-    AND m.metric_name LIKE '%" . $preferences['metric_name'] . "%'
-    AND current_value <= 100
-    AND i.host_id = h.host_id "
-    . ($preferences['host_group']
-        ? "AND hg.hostgroup_id = " . $preferences['host_group'] . " AND i.host_id = hg.host_id " : "");
-if ($centreon->user->admin == 0) {
-    $query .= "AND i.host_id = acl.host_id
-        AND i.service_id = acl.service_id
-        AND acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")";
-}
-$query .= "AND s.enabled = 1
-        AND h.enabled = 1
-    GROUP BY i.host_id
-    ORDER BY current_value DESC
-    LIMIT " . $preferences['nb_lin'] . ";";
+try {
+    $query = "SELECT
+            1 AS REALTIME,
+            i.host_name,
+            i.service_description,
+            i.service_id,
+            i.host_id,
+            AVG(m.current_value) AS current_value,
+            s.state AS status
+        FROM
+            metrics m,
+            hosts h "
+        . ($preferences['host_group'] ? ", hosts_hostgroups hg " : "")
+        . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "")
+        . " , index_data i
+        LEFT JOIN services s ON s.service_id  = i.service_id AND s.enabled = 1
+        WHERE i.service_description LIKE :service_description
+        AND i.id = m.index_id
+        AND m.metric_name LIKE :metric_name
+        AND current_value <= 100
+        AND i.host_id = h.host_id "
+        . ($preferences['host_group']
+            ? "AND hg.hostgroup_id = :host_group AND i.host_id = hg.host_id " : "");
+    if ($centreon->user->admin == 0) {
+        $query .= "AND i.host_id = acl.host_id
+            AND i.service_id = acl.service_id
+            AND acl.group_id IN (" . ($grouplistStr != "" ? $grouplistStr : 0) . ")";
+    }
+    $query .= "AND s.enabled = 1
+            AND h.enabled = 1
+        GROUP BY i.host_id
+        ORDER BY current_value DESC
+        LIMIT :nb_lin;";
 
-$numLine = 1;
+    $numLine = 1;
 
-$res = $db->query($query);
-while ($row = $res->fetch()) {
-    $row['numLin'] = $numLine;
-    $row['current_value'] = ceil($row['current_value']);
-    $row['details_uri'] = $useDeprecatedPages
-        ? '../../main.php?p=20201&o=svcd&host_name='
-            . $row['host_name']
-            . '&service_description='
-            . $row['service_description']
-        : $resourceController->buildServiceDetailsUri(
-            $row['host_id'],
-            $row['service_id']
-        );
-    $data[] = $row;
-    $numLine++;
+    $statement = $db->prepareQuery($query);
+
+    $bindParams = [
+        ':service_description' => ['%' . $preferences['service_description'] . '%', PDO::PARAM_STR],
+        ':metric_name' => ['%' . $preferences['metric_name'] . '%', PDO::PARAM_STR],
+        ':nb_lin' => [$preferences['nb_lin'], PDO::PARAM_INT],
+    ];
+
+    if ($preferences['host_group']) {
+        $bindParams[':host_group'] = [$preferences['host_group'], PDO::PARAM_INT];
+    }
+
+    $db->executePreparedQuery($statement, $bindParams, true);
+
+    while ($row = $db->fetch($statement)) {
+        $row['numLin'] = $numLine;
+        $row['current_value'] = ceil($row['current_value']);
+        $row['details_uri'] = $useDeprecatedPages
+            ? '../../main.php?p=20201&o=svcd&host_name='
+                . $row['host_name']
+                . '&service_description='
+                . $row['service_description']
+            : $resourceController->buildServiceDetailsUri(
+                $row['host_id'],
+                $row['service_id']
+            );
+        $data[] = $row;
+        $numLine++;
+    }
+} catch (CentreonDbException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: "Error fetching cpu usage data: " . $e->getMessage(),
+        exception: $e
+    );
+
+    throw $e;
 }
 
 $template->assign('preferences', $preferences);

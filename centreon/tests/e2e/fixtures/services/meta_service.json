@@ -1,0 +1,77 @@
+{
+   "default": {
+        "name" : "metaServiceName",
+        "output_format": "metaServiceOutputFormat",
+        "warning_level": "75",
+        "critical_level" : "90",
+        "calculation_type" : "Sum",
+        "data_source_type" : "ABSOLUTE",
+        "selection_mode" : 2,
+        "sql_like_clause_expression" : "metaServiceExpression",
+        "check_period" : "workhours",
+        "max_check_attempts" : "10",
+        "normal_check_interval" : "15",
+        "retry_check_interval" : "5",
+        "notification_enabled" : "1",
+        "contacts" : "User",
+        "contact_groups" : "Guest",
+        "notification_interval" : "34",
+        "notification_period" : "none",
+        "geo_coordinates" : "2.3522219,48.856614",
+        "graph_template" : "Latency",
+        "enabled" : "1",
+        "comments" : "metaServiceComments"
+  },
+  "metaService1": {
+        "name" : "metaServiceName1",
+        "max_check_attempts" : "10"
+  },
+  "metaService2": {
+        "name" : "metaServiceName2",
+        "max_check_attempts" : "40"
+  }, 
+  "metaService3": {
+        "name" : "metaServiceName3",
+        "max_check_attempts" : "3"
+  },
+  "defaultMetaServiceDep": {
+        "name": "metaServiceDependencyName",
+        "description": "metaServiceDependencyDescription",
+        "parent_relationship": 0,
+        "execution_fails_on_ok": 0,
+        "execution_fails_on_warning": 0,
+        "execution_fails_on_unknown": 1,
+        "execution_fails_on_critical": 0,
+        "execution_fails_on_pending": 0,
+        "execution_fails_on_none": 0,
+        "notification_fails_on_none": 0,
+        "notification_fails_on_ok": 0,
+        "notification_fails_on_warning": 0,
+        "notification_fails_on_unknown": 1,
+        "notification_fails_on_critical": 0,
+        "notification_fails_on_pending": 0,
+        "metaServicesNames": ["metaServiceName1", "metaServiceName2"],
+        "dependentMSNames": ["metaServiceName3"],
+        "comment": "metaServiceDependencyComment"
+  },
+  "MetaServiceDep1": {
+        "name": "metaServiceDependencyName-changed",
+        "description": "metaServiceDependencyDescription-changed",
+        "parent_relationship": 0,
+        "execution_fails_on_ok": 1,
+        "execution_fails_on_warning": 0,
+        "execution_fails_on_unknown": 0,
+        "execution_fails_on_critical": 0,
+        "execution_fails_on_pending": 0,
+        "execution_fails_on_none": 0,
+        "notification_fails_on_none": 0,
+        "notification_fails_on_ok": 0,
+        "notification_fails_on_warning": 0,
+        "notification_fails_on_unknown": 0,
+        "notification_fails_on_critical": 1,
+        "notification_fails_on_pending": 0,
+        "metaServicesNames": ["metaServiceName2"],
+        "dependentMSNames": ["metaServiceName1"],
+        "comment": "comment!"
+  }
+}

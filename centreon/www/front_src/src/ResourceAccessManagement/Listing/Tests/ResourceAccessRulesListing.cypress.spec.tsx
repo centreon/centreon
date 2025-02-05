@@ -267,8 +267,13 @@ describe('Listing row actions: Delete button', () => {
       alias: 'deleteResourceAccessRuleRequest',
       method: Method.DELETE,
       path: resourceAccessRuleEndpoint({ id: 1 }),
-      response: undefined,
-      statusCode: 204
+      response: {
+        data: [
+          {
+            status: 204
+          }
+        ]
+      }
     });
 
     cy.render(ListingWithQueryProvider);

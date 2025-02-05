@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { useAtom } from 'jotai';
-import { equals, flatten, isNil, pluck, reject } from 'ramda';
+import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
@@ -56,13 +56,24 @@ interface Props extends LineChartProps {
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
+  transformMatrix?: {
+    fx?: (pointX: number) => number;
+    fy?: (pointY: number) => number;
+  };
 }
 
-const filterLines = (lines: Array<Line>, displayThreshold): Array<Line> => {
+const filterLines = (
+  lines: Array<Line>,
+  displayThreshold: boolean
+): Array<Line> => {
   if (!displayThreshold) {
     return lines;
   }
   const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
+
+  if (isEmpty(lineOriginMetric)) {
+    return lines;
+  }
 
   const findLinesUpperLower = lines.map((line) =>
     equals(line.name, lowerLineName) || equals(line.name, upperLineName)
@@ -97,7 +108,9 @@ const Chart = ({
   },
   thresholds,
   thresholdUnit,
-  limitLegend
+  limitLegend,
+  skipIntersectionObserver,
+  transformMatrix
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
@@ -219,7 +232,7 @@ const Chart = ({
     [axis?.showGridLines]
   );
 
-  if (!isInViewport) {
+  if (!isInViewport && !skipIntersectionObserver) {
     return (
       <Skeleton
         height={graphSvgRef?.current?.clientHeight ?? graphHeight}
@@ -319,6 +332,7 @@ const Chart = ({
                       graphInterval
                     }}
                     zoomData={{ ...zoomPreview }}
+                    transformMatrix={transformMatrix}
                   />
                   {thresholds?.enabled && (
                     <Thresholds

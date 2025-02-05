@@ -364,7 +364,7 @@ $statement = $pearDB->query(
     . ' ORDER BY name'
 );
 while ($nsServer = $statement->fetch()) {
-    $nsServers[$nsServer['id']] = $nsServer['name'];
+    $nsServers[$nsServer['id']] = HtmlSanitizer::createFromString($nsServer['name'])->sanitize()->getString();
 }
 $statement->closeCursor();
 
@@ -546,37 +546,36 @@ $checkCommandSelect->addJsCallback(
 
 $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
 
-if (! $isCloudPlatform) {
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
-    $form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_event_handler_enabled' => '2']);
-    }
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
+$form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_event_handler_enabled' => '2']);
+}
 
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
-    $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
-    $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
+$eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
+$eventHandlerSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+);
 
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2');
-    $form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_active_checks_enabled' => '2']);
-    }
+$form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
 
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2');
-    $form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_passive_checks_enabled' => '2']);
-    }
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1');
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0');
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2');
+$form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_active_checks_enabled' => '2']);
+}
+
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1');
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0');
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2');
+$form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_passive_checks_enabled' => '2']);
 }
 
 $form->addElement('select2', 'timeperiod_tp_id', _('Check Period'), [], $attributes['check_periods']);
@@ -800,7 +799,7 @@ $form->addElement('textarea', 'host_comment', _('Comments'), $attrsTextarea);
 
 $form->addElement('select2', 'host_hgs', _('Host Groups'), [], $attributes['host_groups']);
 
-if ($isCloudPlatform) {
+if ($isCloudPlatform && $o !== HOST_MASSIVE_CHANGE) {
     $form->addRule('host_hgs', _('Mandatory field for ACL purpose.'), 'required');
 }
 
@@ -1208,12 +1207,12 @@ if ($valid) {
         $tpl->assign('Freshness_Control_options', _('Freshness Control options'));
         $tpl->assign('Flapping_Options', _('Flapping options'));
         $tpl->assign('History_Options', _('History Options'));
-        $tpl->assign('Event_Handler', _('Event Handler'));
         $tpl->assign('hostID', $host_id);
         $tpl->assign('add_mtp_label', _('Add a template'));
         $tpl->assign('tpl', 0);
         $tpl->assign('is_not_template', $host_register);
     }
+    $tpl->assign('Event_Handler', _('Event Handler'));
     $tpl->assign('inheritance', $inheritanceMode['value']);
     $tpl->assign('topdoc', _('Documentation'));
     $tpl->assign('custom_macro_label', _('Custom macros'));

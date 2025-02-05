@@ -1,0 +1,484 @@
+{
+  "result": [
+      {
+          "uuid": "h22",
+          "duration": "2w 2h",
+          "last_check": "3m 18s",
+          "short_type": "h",
+          "id": 22,
+          "type": "host",
+          "name": "i-0ed42615100398296",
+          "alias": "i-0ed42615100398296",
+          "fqdn": "172.52.3.225",
+          "host_id": 22,
+          "service_id": null,
+          "icon": {
+              "id": 1042,
+              "name": "cloud-aws-ec2-aws-ec2-128.png",
+              "url": "/funky-donkey/img/media/ppm/cloud-aws-ec2-aws-ec2-128.png"
+          },
+          "monitoring_server_name": "Central",
+          "parent": null,
+          "status": {
+              "code": 1,
+              "name": "DOWN",
+              "severity_code": 1
+          },
+          "is_in_downtime": false,
+          "is_acknowledged": false,
+          "has_active_checks_enabled": true,
+          "has_passive_checks_enabled": false,
+          "last_status_change": "2024-12-10T14:15:28+00:00",
+          "tries": "1/3 (H)",
+          "information": "UNKNOWN: Command error:  - Partial credentials found in env, missing: AWS_SECRET_ACCESS_KEY",
+          "performance_data": null,
+          "is_notification_enabled": false,
+          "severity": null,
+          "links": {
+              "endpoints": {
+                  "details": "/funky-donkey/api/latest/monitoring/resources/hosts/22",
+                  "timeline": "/funky-donkey/api/latest/monitoring/hosts/22/timeline",
+                  "status_graph": null,
+                  "performance_graph": null,
+                  "acknowledgement": "/funky-donkey/api/latest/monitoring/hosts/22/acknowledgements?limit=1",
+                  "downtime": "/funky-donkey/api/latest/monitoring/hosts/22/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1735058081%7D,%22end_time%22:%7B%22%24gt%22:1735058081%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1735058081%7D%7D%7D%7D%5D%7D",
+                  "check": "/funky-donkey/api/latest/monitoring/hosts/22/check",
+                  "forced_check": "/funky-donkey/api/latest/monitoring/hosts/22/check",
+                  "metrics": null
+              },
+              "uris": {
+                  "configuration": "/funky-donkey/main.php?p=60101&o=c&host_id=22",
+                  "logs": "/funky-donkey/main.php?p=20301&h=22",
+                  "reporting": "/funky-donkey/main.php?p=307&host=22"
+              },
+              "externals": {
+                  "action_url": "",
+                  "notes": {
+                      "label": "",
+                      "url": ""
+                  }
+              }
+          },
+          "extra": []
+      },
+      {
+          "uuid": "h40",
+          "duration": "2w 2h",
+          "last_check": "2m 24s",
+          "short_type": "h",
+          "id": 40,
+          "type": "host",
+          "name": "pendo.centreon.io",
+          "alias": "pendo.centreon.io",
+          "fqdn": "172.31.47.139",
+          "host_id": 40,
+          "service_id": null,
+          "icon": {
+              "id": 1042,
+              "name": "cloud-aws-ec2-aws-ec2-128.png",
+              "url": "/funky-donkey/img/media/ppm/cloud-aws-ec2-aws-ec2-128.png"
+          },
+          "monitoring_server_name": "Central",
+          "parent": null,
+          "status": {
+              "code": 1,
+              "name": "DOWN",
+              "severity_code": 1
+          },
+          "is_in_downtime": false,
+          "is_acknowledged": false,
+          "has_active_checks_enabled": true,
+          "has_passive_checks_enabled": false,
+          "last_status_change": "2024-12-10T14:16:23+00:00",
+          "tries": "1/3 (H)",
+          "information": "UNKNOWN: Command error:  - Partial credentials found in env, missing: AWS_SECRET_ACCESS_KEY",
+          "performance_data": null,
+          "is_notification_enabled": false,
+          "severity": null,
+          "links": {
+              "endpoints": {
+                  "details": "/funky-donkey/api/latest/monitoring/resources/hosts/40",
+                  "timeline": "/funky-donkey/api/latest/monitoring/hosts/40/timeline",
+                  "status_graph": null,
+                  "performance_graph": null,
+                  "acknowledgement": "/funky-donkey/api/latest/monitoring/hosts/40/acknowledgements?limit=1",
+                  "downtime": "/funky-donkey/api/latest/monitoring/hosts/40/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1735058081%7D,%22end_time%22:%7B%22%24gt%22:1735058081%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1735058081%7D%7D%7D%7D%5D%7D",
+                  "check": "/funky-donkey/api/latest/monitoring/hosts/40/check",
+                  "forced_check": "/funky-donkey/api/latest/monitoring/hosts/40/check",
+                  "metrics": null
+              },
+              "uris": {
+                  "configuration": "/funky-donkey/main.php?p=60101&o=c&host_id=40",
+                  "logs": "/funky-donkey/main.php?p=20301&h=40",
+                  "reporting": "/funky-donkey/main.php?p=307&host=40"
+              },
+              "externals": {
+                  "action_url": "",
+                  "notes": {
+                      "label": "",
+                      "url": ""
+                  }
+              }
+          },
+          "extra": []
+      },
+      {
+          "uuid": "h41",
+          "duration": "2w 2h",
+          "last_check": "3m 23s",
+          "short_type": "h",
+          "id": 41,
+          "type": "host",
+          "name": "stack-dbo-central",
+          "alias": "stack-dbo-central",
+          "fqdn": "172.52.4.163",
+          "host_id": 41,
+          "service_id": null,
+          "icon": {
+              "id": 1042,
+              "name": "cloud-aws-ec2-aws-ec2-128.png",
+              "url": "/funky-donkey/img/media/ppm/cloud-aws-ec2-aws-ec2-128.png"
+          },
+          "monitoring_server_name": "Central",
+          "parent": null,
+          "status": {
+              "code": 1,
+              "name": "DOWN",
+              "severity_code": 1
+          },
+          "is_in_downtime": false,
+          "is_acknowledged": false,
+          "has_active_checks_enabled": true,
+          "has_passive_checks_enabled": false,
+          "last_status_change": "2024-12-10T14:15:23+00:00",
+          "tries": "1/3 (H)",
+          "information": "UNKNOWN: Command error:  - Partial credentials found in env, missing: AWS_SECRET_ACCESS_KEY",
+          "performance_data": null,
+          "is_notification_enabled": false,
+          "severity": null,
+          "links": {
+              "endpoints": {
+                  "details": "/funky-donkey/api/latest/monitoring/resources/hosts/41",
+                  "timeline": "/funky-donkey/api/latest/monitoring/hosts/41/timeline",
+                  "status_graph": null,
+                  "performance_graph": null,
+                  "acknowledgement": "/funky-donkey/api/latest/monitoring/hosts/41/acknowledgements?limit=1",
+                  "downtime": "/funky-donkey/api/latest/monitoring/hosts/41/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1735058081%7D,%22end_time%22:%7B%22%24gt%22:1735058081%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1735058081%7D%7D%7D%7D%5D%7D",
+                  "check": "/funky-donkey/api/latest/monitoring/hosts/41/check",
+                  "forced_check": "/funky-donkey/api/latest/monitoring/hosts/41/check",
+                  "metrics": null
+              },
+              "uris": {
+                  "configuration": "/funky-donkey/main.php?p=60101&o=c&host_id=41",
+                  "logs": "/funky-donkey/main.php?p=20301&h=41",
+                  "reporting": "/funky-donkey/main.php?p=307&host=41"
+              },
+              "externals": {
+                  "action_url": "",
+                  "notes": {
+                      "label": "",
+                      "url": ""
+                  }
+              }
+          },
+          "extra": []
+      },
+      {
+          "uuid": "h42-s294",
+          "duration": "2w 29m",
+          "last_check": "12m 46s",
+          "short_type": "s",
+          "id": 294,
+          "type": "service",
+          "name": "Swap",
+          "alias": null,
+          "fqdn": null,
+          "host_id": 42,
+          "service_id": 294,
+          "icon": null,
+          "monitoring_server_name": "Central",
+          "parent": {
+              "uuid": "h42",
+              "id": 42,
+              "name": "central",
+              "type": "host",
+              "short_type": "h",
+              "status": {
+                  "code": 0,
+                  "name": "UP",
+                  "severity_code": 5
+              },
+              "alias": "central",
+              "fqdn": "127.0.0.1",
+              "monitoring_server_name": null,
+              "extra": []
+          },
+          "status": {
+              "code": 1,
+              "name": "WARNING",
+              "severity_code": 2
+          },
+          "is_in_downtime": false,
+          "is_acknowledged": false,
+          "has_active_checks_enabled": true,
+          "has_passive_checks_enabled": false,
+          "last_status_change": "2024-12-10T16:04:55+00:00",
+          "tries": "3/3 (H)",
+          "information": "WARNING: Used : 18.73 %",
+          "performance_data": null,
+          "is_notification_enabled": false,
+          "severity": null,
+          "links": {
+              "endpoints": {
+                  "details": "/funky-donkey/api/latest/monitoring/resources/hosts/42/services/294",
+                  "timeline": "/funky-donkey/api/latest/monitoring/hosts/42/services/294/timeline",
+                  "status_graph": "/funky-donkey/api/latest/monitoring/hosts/42/services/294/metrics/status",
+                  "performance_graph": "/funky-donkey/api/latest/monitoring/hosts/42/services/294/metrics/performance",
+                  "acknowledgement": "/funky-donkey/api/latest/monitoring/hosts/42/services/294/acknowledgements?limit=1",
+                  "downtime": "/funky-donkey/api/latest/monitoring/hosts/42/services/294/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1735058081%7D,%22end_time%22:%7B%22%24gt%22:1735058081%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1735058081%7D%7D%7D%7D%5D%7D",
+                  "check": "/funky-donkey/api/latest/monitoring/hosts/42/services/294/check",
+                  "forced_check": "/funky-donkey/api/latest/monitoring/hosts/42/services/294/check",
+                  "metrics": "/funky-donkey/api/latest/monitoring/hosts/42/services/294/metrics"
+              },
+              "uris": {
+                  "configuration": "/funky-donkey/main.php?p=60201&o=c&service_id=294",
+                  "logs": "/funky-donkey/main.php?p=20301&svc=42_294",
+                  "reporting": "/funky-donkey/main.php?p=30702&period=yesterday&start=&end=&host_id=42&item=294"
+              },
+              "externals": {
+                  "action_url": "",
+                  "notes": {
+                      "label": "",
+                      "url": ""
+                  }
+              }
+          },
+          "extra": []
+      },
+      {
+          "uuid": "h45-s310",
+          "duration": "2w 34m",
+          "last_check": "2m 4s",
+          "short_type": "s",
+          "id": 310,
+          "type": "service",
+          "name": "Swap",
+          "alias": null,
+          "fqdn": null,
+          "host_id": 45,
+          "service_id": 310,
+          "icon": null,
+          "monitoring_server_name": "Central",
+          "parent": {
+              "uuid": "h45",
+              "id": 45,
+              "name": "test-host2",
+              "type": "host",
+              "short_type": "h",
+              "status": {
+                  "code": 0,
+                  "name": "UP",
+                  "severity_code": 5
+              },
+              "alias": "test-api",
+              "fqdn": "127.0.0.1",
+              "monitoring_server_name": null,
+              "extra": []
+          },
+          "status": {
+              "code": 1,
+              "name": "WARNING",
+              "severity_code": 2
+          },
+          "is_in_downtime": false,
+          "is_acknowledged": false,
+          "has_active_checks_enabled": true,
+          "has_passive_checks_enabled": false,
+          "last_status_change": "2024-12-10T16:00:37+00:00",
+          "tries": "3/3 (H)",
+          "information": "WARNING: Used : 18.73 %",
+          "performance_data": null,
+          "is_notification_enabled": false,
+          "severity": null,
+          "links": {
+              "endpoints": {
+                  "details": "/funky-donkey/api/latest/monitoring/resources/hosts/45/services/310",
+                  "timeline": "/funky-donkey/api/latest/monitoring/hosts/45/services/310/timeline",
+                  "status_graph": "/funky-donkey/api/latest/monitoring/hosts/45/services/310/metrics/status",
+                  "performance_graph": "/funky-donkey/api/latest/monitoring/hosts/45/services/310/metrics/performance",
+                  "acknowledgement": "/funky-donkey/api/latest/monitoring/hosts/45/services/310/acknowledgements?limit=1",
+                  "downtime": "/funky-donkey/api/latest/monitoring/hosts/45/services/310/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1735058081%7D,%22end_time%22:%7B%22%24gt%22:1735058081%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1735058081%7D%7D%7D%7D%5D%7D",
+                  "check": "/funky-donkey/api/latest/monitoring/hosts/45/services/310/check",
+                  "forced_check": "/funky-donkey/api/latest/monitoring/hosts/45/services/310/check",
+                  "metrics": "/funky-donkey/api/latest/monitoring/hosts/45/services/310/metrics"
+              },
+              "uris": {
+                  "configuration": "/funky-donkey/main.php?p=60201&o=c&service_id=310",
+                  "logs": "/funky-donkey/main.php?p=20301&svc=45_310",
+                  "reporting": "/funky-donkey/main.php?p=30702&period=yesterday&start=&end=&host_id=45&item=310"
+              },
+              "externals": {
+                  "action_url": "",
+                  "notes": {
+                      "label": "",
+                      "url": ""
+                  }
+              }
+          },
+          "extra": []
+      },
+      {
+          "uuid": "h48-s334",
+          "duration": "2w 29m",
+          "last_check": "12m 12s",
+          "short_type": "s",
+          "id": 334,
+          "type": "service",
+          "name": "Swap",
+          "alias": null,
+          "fqdn": null,
+          "host_id": 48,
+          "service_id": 334,
+          "icon": null,
+          "monitoring_server_name": "Central",
+          "parent": {
+              "uuid": "h48",
+              "id": 48,
+              "name": "sfarouq",
+              "type": "host",
+              "short_type": "h",
+              "status": {
+                  "code": 0,
+                  "name": "UP",
+                  "severity_code": 5
+              },
+              "alias": "sfarouq",
+              "fqdn": "127.0.0.1",
+              "monitoring_server_name": null,
+              "extra": []
+          },
+          "status": {
+              "code": 1,
+              "name": "WARNING",
+              "severity_code": 2
+          },
+          "is_in_downtime": false,
+          "is_acknowledged": false,
+          "has_active_checks_enabled": true,
+          "has_passive_checks_enabled": false,
+          "last_status_change": "2024-12-10T16:05:29+00:00",
+          "tries": "3/3 (H)",
+          "information": "WARNING: Used : 18.73 %",
+          "performance_data": null,
+          "is_notification_enabled": false,
+          "severity": null,
+          "links": {
+              "endpoints": {
+                  "details": "/funky-donkey/api/latest/monitoring/resources/hosts/48/services/334",
+                  "timeline": "/funky-donkey/api/latest/monitoring/hosts/48/services/334/timeline",
+                  "status_graph": "/funky-donkey/api/latest/monitoring/hosts/48/services/334/metrics/status",
+                  "performance_graph": "/funky-donkey/api/latest/monitoring/hosts/48/services/334/metrics/performance",
+                  "acknowledgement": "/funky-donkey/api/latest/monitoring/hosts/48/services/334/acknowledgements?limit=1",
+                  "downtime": "/funky-donkey/api/latest/monitoring/hosts/48/services/334/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1735058081%7D,%22end_time%22:%7B%22%24gt%22:1735058081%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1735058081%7D%7D%7D%7D%5D%7D",
+                  "check": "/funky-donkey/api/latest/monitoring/hosts/48/services/334/check",
+                  "forced_check": "/funky-donkey/api/latest/monitoring/hosts/48/services/334/check",
+                  "metrics": "/funky-donkey/api/latest/monitoring/hosts/48/services/334/metrics"
+              },
+              "uris": {
+                  "configuration": "/funky-donkey/main.php?p=60201&o=c&service_id=334",
+                  "logs": "/funky-donkey/main.php?p=20301&svc=48_334",
+                  "reporting": "/funky-donkey/main.php?p=30702&period=yesterday&start=&end=&host_id=48&item=334"
+              },
+              "externals": {
+                  "action_url": "",
+                  "notes": {
+                      "label": "",
+                      "url": ""
+                  }
+              }
+          },
+          "extra": []
+      },
+      {
+          "uuid": "h50-s360",
+          "duration": "2w 33m",
+          "last_check": "1m 36s",
+          "short_type": "s",
+          "id": 360,
+          "type": "service",
+          "name": "Swap",
+          "alias": null,
+          "fqdn": null,
+          "host_id": 50,
+          "service_id": 360,
+          "icon": null,
+          "monitoring_server_name": "Central",
+          "parent": {
+              "uuid": "h50",
+              "id": 50,
+              "name": "central_Change_status",
+              "type": "host",
+              "short_type": "h",
+              "status": {
+                  "code": 0,
+                  "name": "UP",
+                  "severity_code": 5
+              },
+              "alias": "central_Change_status",
+              "fqdn": "127.0.0.1",
+              "monitoring_server_name": null,
+              "extra": []
+          },
+          "status": {
+              "code": 1,
+              "name": "WARNING",
+              "severity_code": 2
+          },
+          "is_in_downtime": false,
+          "is_acknowledged": false,
+          "has_active_checks_enabled": true,
+          "has_passive_checks_enabled": false,
+          "last_status_change": "2024-12-10T16:01:05+00:00",
+          "tries": "3/3 (H)",
+          "information": "WARNING: Used : 18.73 %",
+          "performance_data": null,
+          "is_notification_enabled": false,
+          "severity": null,
+          "links": {
+              "endpoints": {
+                  "details": "/funky-donkey/api/latest/monitoring/resources/hosts/50/services/360",
+                  "timeline": "/funky-donkey/api/latest/monitoring/hosts/50/services/360/timeline",
+                  "status_graph": "/funky-donkey/api/latest/monitoring/hosts/50/services/360/metrics/status",
+                  "performance_graph": "/funky-donkey/api/latest/monitoring/hosts/50/services/360/metrics/performance",
+                  "acknowledgement": "/funky-donkey/api/latest/monitoring/hosts/50/services/360/acknowledgements?limit=1",
+                  "downtime": "/funky-donkey/api/latest/monitoring/hosts/50/services/360/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1735058081%7D,%22end_time%22:%7B%22%24gt%22:1735058081%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1735058081%7D%7D%7D%7D%5D%7D",
+                  "check": "/funky-donkey/api/latest/monitoring/hosts/50/services/360/check",
+                  "forced_check": "/funky-donkey/api/latest/monitoring/hosts/50/services/360/check",
+                  "metrics": "/funky-donkey/api/latest/monitoring/hosts/50/services/360/metrics"
+              },
+              "uris": {
+                  "configuration": "/funky-donkey/main.php?p=60201&o=c&service_id=360",
+                  "logs": "/funky-donkey/main.php?p=20301&svc=50_360",
+                  "reporting": "/funky-donkey/main.php?p=30702&period=yesterday&start=&end=&host_id=50&item=360"
+              },
+              "externals": {
+                  "action_url": "",
+                  "notes": {
+                      "label": "",
+                      "url": ""
+                  }
+              }
+          },
+          "extra": []
+      }
+  ],
+  "meta": {
+      "page": 1,
+      "limit": 10,
+      "search": {
+          "$and": []
+      },
+      "sort_by": {},
+      "total": 7
+  }
+}

@@ -38,6 +38,9 @@ inputs:
   stability:
     description: "Branch stability"
     required: true
+  target_stability:
+    description: "Target branch stability"
+    required: true
   is_cloud:
     description: "Define if the version is targeting cloud"
     required: false
@@ -56,7 +59,7 @@ runs:
         version: 8
         run_install: false
 
-    - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+    - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
       with:
         node-version: 20
         cache: pnpm
@@ -95,6 +98,7 @@ runs:
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
         CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.saml_image_version }}
         CYPRESS_STABILITY: ${{ inputs.stability }}
+        CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
         CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
         CYPRESS_INTERNAL_REPO_USERNAME: ${{ inputs.artifactory_internal_repo_username }}
         CYPRESS_INTERNAL_REPO_PASSWORD: ${{ inputs.artifactory_internal_repo_password }}

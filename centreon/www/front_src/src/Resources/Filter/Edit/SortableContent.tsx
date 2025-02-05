@@ -54,12 +54,7 @@ const SortableContent = ({
       style={style}
     >
       <EditFilterCard filter={{ criterias, id, name }} />
-      <div
-        {...listeners}
-        className={classes.filterCardHandler}
-        role="button"
-        tabIndex={0}
-      >
+      <div {...listeners} className={classes.filterCardHandler}>
         <MoveIcon />
       </div>
     </Paper>

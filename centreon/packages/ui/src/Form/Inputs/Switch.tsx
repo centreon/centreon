@@ -22,11 +22,19 @@ const Switch = ({
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
-  const { values, setFieldValue } = useFormikContext<FormikValues>();
+  const { values, setFieldValue, setFieldTouched, setValues, setTouched } =
+    useFormikContext<FormikValues>();
 
   const changeSwitchValue = (event: ChangeEvent<HTMLInputElement>): void => {
     if (change) {
-      change({ setFieldValue, value: event.target.checked });
+      change({
+        setFieldValue,
+        value: event.target.checked,
+        values,
+        setFieldTouched,
+        setValues,
+        setTouched
+      });
 
       return;
     }
@@ -59,7 +67,7 @@ const Switch = ({
         label={t(label) as string}
       />
     ),
-    memoProps: [value, disabled, additionalMemoProps]
+    memoProps: [value, disabled, additionalMemoProps, values]
   });
 };
 

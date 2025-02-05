@@ -45,11 +45,13 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
+use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Infrastructure\Repository\DbWriteHostActionLogRepository;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Component\HttpClient\CurlHttpClient;
@@ -296,7 +298,12 @@ function enableHostInDB($host_id = null, $host_arr = [])
         $hostName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('host', (int) $hostId);
-        $centreon->CentreonLogAction->insertLog("host", $hostId, $hostName, "enable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $hostName,
+            action_type: ActionLog::ACTION_TYPE_ENABLE
+        );
     }
 }
 
@@ -321,7 +328,12 @@ function disableHostInDB($host_id = null, $host_arr = [])
         $hostName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('host', (int) $hostId, [], false);
-        $centreon->CentreonLogAction->insertLog("host", $hostId, $hostName, "disable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $hostName,
+            action_type: ActionLog::ACTION_TYPE_DISABLE
+        );
     }
 }
 
@@ -411,10 +423,10 @@ function deleteHostInDB($hosts = [])
                 $dbResult2 = $pearDB->query("DELETE FROM service
                                               WHERE service_id = '" . $row["service_service_id"] . "'");
                 $centreon->CentreonLogAction->insertLog(
-                    "service",
-                    $row["service_service_id"],
-                    $hostname['host_name'] . "/" . $svcname["service_description"],
-                    "d"
+                    object_type: ActionLog::OBJECT_TYPE_SERVICE,
+                    object_id: $row["service_service_id"],
+                    object_name: $hostname['host_name'] . "/" . $svcname["service_description"],
+                    action_type: ActionLog::ACTION_TYPE_DELETE
                 );
             }
         }
@@ -425,7 +437,12 @@ function deleteHostInDB($hosts = [])
         $dbResult = $pearDB->query("DELETE FROM contact_host_relation WHERE host_host_id = '" . (int) $hostId . "'");
 
         signalConfigurationChange('host', (int) $hostId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog("host", $hostId, $hostname['host_name'], "d");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $hostname['host_name'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
     }
 }
 
@@ -782,7 +799,12 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     }
 
                     signalConfigurationChange('host', (int) $maxId["MAX(host_id)"]);
-                    $centreon->CentreonLogAction->insertLog("host", $maxId["MAX(host_id)"], $hostName, "a", $fields);
+                    $centreon->CentreonLogAction->insertLog(
+                        object_type: ActionLog::OBJECT_TYPE_HOST,
+                        object_id: $maxId["MAX(host_id)"],
+                        object_name: $hostName,
+                        action_type: ActionLog::ACTION_TYPE_ADD
+                    );
                 }
             }
             // if all duplication names are already used, next value is never set
@@ -1098,7 +1120,6 @@ function resetUnwantedParameters(array $bindParams): array
 {
     $paramsToReset = [
         'timeperiod_tp_id2',
-        'command_command_id2',
         'host_freshness_threshold',
         'host_low_flap_threshold',
         'host_high_flap_threshold',
@@ -1112,7 +1133,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_checks_enabled',
         'host_obsess_over_host',
         'host_check_freshness',
-        'host_event_handler_enabled',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -1138,7 +1158,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
-        'host_event_handler_enabled',
     ];
 
     foreach ($paramsToEnumDefault as $paramName) {
@@ -1502,7 +1521,13 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
      */
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("host", $hostId, CentreonDB::escape($ret["host_name"]), "c", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_HOST,
+        object_id: $hostId,
+        object_name: $ret["host_name"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
+    );
     $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "UPDATE"]);
 }
 
@@ -1662,7 +1687,13 @@ function updateHost_MC($hostId = null)
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($submittedValues);
-    $centreon->CentreonLogAction->insertLog("host", $hostId, $row["host_name"], "mc", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_HOST,
+        object_id: $hostId,
+        object_name: $row["host_name"],
+        action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
+        fields: $fields
+    );
 }
 
 function updateHostHostParent($host_id = null, $ret = [])
@@ -2838,14 +2869,16 @@ function insertHostInAPI(array $ret = []): int|null
             'action' => 'ADD',
             'access_grp_id' => ($formData['acl_groups'] ?? null),
         ]);
-        // Insert change logs
+
+        //Insert change logs
         $fields = CentreonLogAction::prepareChanges($formData);
+        $filteredFields = array_diff_key($fields, array_flip(DbWriteHostActionLogRepository::HOST_PROPERTIES_MAP));
         $centreon->CentreonLogAction->insertLog(
-            "host",
-            $hostId,
-            CentreonDB::escape($formData["host_name"]),
-            "a",
-            $fields
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $formData["host_name"],
+            action_type: ActionLog::ACTION_TYPE_ADD,
+            fields: $filteredFields
         );
 
         return ($hostId);
@@ -2973,6 +3006,12 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
                 $formData['macroInput'] ?? [],
                 $formData['macroValue'] ?? []
             ),
+            'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
+                ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
+                : null,
+            'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+                ? (int) $formData['command_command_id2']
+                : null,
         ];
     } else {
         return [
@@ -3131,6 +3170,12 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
                 $formData['macroInput'] ?? [],
                 $formData['macroValue'] ?? []
             ),
+            'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
+                ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
+                : null,
+            'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+                ? (int) $formData['command_command_id2']
+                : null,
         ];
     } else {
         return [
