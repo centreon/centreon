@@ -18,6 +18,10 @@ inputs:
     required: true
     description: ticket labels, usually Pipeline + Nightly/Veracode + x
     default: 'Pipeline'
+  ticket_squad:
+    required: true
+    description: id of the squad to assign the ticket to
+    default: 'DevSecOps'
 
 runs:
   using: "composite"
@@ -57,6 +61,34 @@ runs:
           exit 1
         fi
 
+        case "${{ inputs.ticket_squad }}" in
+          "DevSecOps")
+            ticket_squad_id=10524
+            ticket_board_id=184
+            assign_to_current_sprint=true
+            ;;
+          "Collect")
+            ticket_squad_id=10255
+            ticket_board_id=118
+            assign_to_current_sprint=true
+            ;;
+          "MAP")
+            ticket_squad_id=10258
+            ticket_board_id=149
+            assign_to_current_sprint=true
+            ;;
+          "Product Backlog")
+            ticket_squad_id=10623
+            ticket_board_id=211
+            assign_to_current_sprint=false
+            ;;
+          *)
+            echo "::error::Cannot find a valid squad for value ${{ inputs.ticket_squad }}."
+            exit 1
+            ;;
+        esac
+        echo "Ticket will be assigned to the ${{ inputs.ticket_squad }} team."
+
         sed -i \
           -e 's|@GITHUB_BRANCH@|${{ github.base_ref || github.ref_name }}|g' \
           -e 's|@GITHUB_SERVER_URL@|${{ github.server_url }}|g' \
@@ -67,6 +99,8 @@ runs:
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
         echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
+        echo "ticket_squad_id=$ticket_squad_id" >> $GITHUB_OUTPUT
+        echo "ticket_board_id=$ticket_board_id" >> $GITHUB_OUTPUT
         echo "json_template_file=$JSON_TEMPLATE_FILE" >> $GITHUB_OUTPUT
 
         cat $JSON_TEMPLATE_FILE
@@ -116,8 +150,7 @@ runs:
             "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
             "labels": ${{ inputs.ticket_labels }},
             "components":[{"name": "${{ inputs.module_name }}"}],
-            "customfield_10902": {"id": "10524", "value": "DevSecOps"},
-            "customfield_10005": 1.0,
+            "customfield_10902": {"id": "${{ steps.get_context.outputs.ticket_squad_id }}", "value": "${{ inputs.ticket_squad }}"},
             "description": $(cat ${{ steps.get_context.outputs.json_template_file }})
           }
         }
