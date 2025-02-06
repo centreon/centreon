@@ -56,7 +56,7 @@ final class DeleteHostGroups
      * @param ReadResourceAccessRepositoryInterface $readResourceAccessRepository
      * @param WriteResourceAccessRepositoryInterface $writeResourceAccessRepository
      * @param DataStorageEngineInterface $storageEngine
-     * @param boolean $isCloudPlatform
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ContactInterface $user,

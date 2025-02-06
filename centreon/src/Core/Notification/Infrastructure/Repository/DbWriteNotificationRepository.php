@@ -300,7 +300,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                     DELETE FROM `:db`.dependency
-                    WHERE dep_id IN ($dependeciesAsString)
+                    WHERE dep_id IN ({$dependeciesAsString})
                 SQL
         ));
 
