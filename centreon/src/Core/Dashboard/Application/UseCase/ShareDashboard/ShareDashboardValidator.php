@@ -53,7 +53,7 @@ class ShareDashboardValidator
      *
      * @throws DashboardException|\Throwable
      */
-    public function validateDashboard(int $dashboardId, bool $isAdmin = true): void
+    public function validateDashboard(int $dashboardId, bool $isAdmin): void
     {
         // Validate Dashboard Exists
         if ($this->readDashboardRepository->existsOne($dashboardId) === false) {
@@ -79,16 +79,16 @@ class ShareDashboardValidator
      *      (e.g a Viewer in ACLs can not be shared as Editor)
      *  - If the user executing the request is not an admin, the contacts should be member of his access groups
      *
+     * @param bool $isAdmin
      * @param array<array{id: int, role: string}> $contacts
      * @param int[] $contactIdsInUserContactGroups
-     * @param bool $isAdmin
      *
      * @throws DashboardException|\Throwable
      */
     public function validateContactsForCloud(
+        bool $isAdmin,
         array $contacts,
         array $contactIdsInUserContactGroups = [],
-        bool $isAdmin = true
     ): void {
         $contactIds = array_map(static fn (array $contact): int => $contact['id'], $contacts);
         $this->validateContactsExist($contactIds);
@@ -124,16 +124,16 @@ class ShareDashboardValidator
      *      (e.g a Viewer in ACLs can not be shared as Editor)
      *  - If the user executing the request is not an admin, the contacts should be member of his access groups
      *
+     * @param bool $isAdmin
      * @param array<array{id: int, role: string}> $contacts
      * @param int[] $contactIdsInUserAccessGroups
-     * @param bool $isAdmin
      *
      * @throws DashboardException|\Throwable
      */
     public function validateContactsForOnPremise(
+        bool $isAdmin,
         array $contacts,
         array $contactIdsInUserAccessGroups = [],
-        bool $isAdmin = true
     ): void {
         $contactIds = array_map(static fn (array $contact): int => $contact['id'], $contacts);
         $this->validateContactsExist($contactIds);
@@ -182,16 +182,16 @@ class ShareDashboardValidator
      *       (e.g a Viewer in ACLs can not be shared as Editor)
      *   - If the user executing the request is not an admin, the contacts should be member of his contact groups
      *
+     * @param bool $isAdmin
      * @param array<array{id: int, role: string}> $contactGroups
      * @param int[] $userContactGroupIds
-     * @param bool $isAdmin
      *
      * @throws DashboardException|\Throwable
      */
     public function validateContactGroupsForOnPremise(
+        bool $isAdmin,
         array $contactGroups,
         array $userContactGroupIds = [],
-        bool $isAdmin = true
     ): void {
         // Validate contact groups exists
         $contactGroupIds = array_map(static fn (array $contactGroup): int => $contactGroup['id'], $contactGroups);
@@ -213,16 +213,16 @@ class ShareDashboardValidator
      *   - The contact groups should be unique in the request
      *   - If the user executing the request is not an admin, the contactgroups shoul be part of his contact groups
      *
+     * @param bool $isAdmin
      * @param array<array{id: int, role: string}> $contactGroups
      * @param int[] $userContactGroupIds
-     * @param bool $isAdmin
      *
      * @throws DashboardException|\Throwable
      */
     public function validateContactGroupsForCloud(
+        bool $isAdmin,
         array $contactGroups,
         array $userContactGroupIds = [],
-        bool $isAdmin = true
     ): void {
         // Validate contact groups exists
         $contactGroupIds = array_map(static fn (array $contactGroup): int => $contactGroup['id'], $contactGroups);

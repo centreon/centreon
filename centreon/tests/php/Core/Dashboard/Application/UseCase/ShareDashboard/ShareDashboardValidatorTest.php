@@ -56,7 +56,7 @@ it('should throw a Dashboard Exception when the dashboard does not exist', funct
         ->method('existsOne')
         ->willReturn(false);
 
-   $this->validator->validateDashboard(1);
+   $this->validator->validateDashboard(1, true);
 })->throws(DashboardException::theDashboardDoesNotExist(1)->getMessage());
 
 it('should throw a Dashboard Exception when the dashboard is not shared has editor', function (): void {
@@ -80,7 +80,8 @@ it('should throw a Dashboard Exception when the contacts does not exists', funct
        ->willReturn([1]);
 
    $this->validator->validateContactsForOnPremise(
-       [
+        isAdmin: true,
+       contacts: [
            [
                'id' => 1,
                'role' => 'editor',
@@ -104,7 +105,8 @@ it('should throw a Dashboard Exception when the contacts are duplicated', functi
         ->willReturn([1]);
 
     $this->validator->validateContactsForOnPremise(
-        [
+        isAdmin: true,
+        contacts: [
             [
                 'id' => 1,
                 'role' => 'editor',
@@ -136,7 +138,8 @@ it('should throw a Dashboard Exception when the request contacts does not have D
         ]);
 
     $this->validator->validateContactsForOnPremise(
-        [
+        isAdmin: true,
+        contacts: [
             [
                 'id' => 1,
                 'role' => 'editor',
@@ -168,13 +171,13 @@ it('should throw a Dashboard Exception when the request contacts does not have s
             ]);
 
         $this->validator->validateContactsForOnPremise(
-            [
+            isAdmin: true,
+            contacts: [
                 [
                     'id' => 1,
                     'role' => 'editor',
                 ],
             ],
-            []
         );
     })->throws(DashboardException::notSufficientAccessRightForUser('user', 'editor')->getMessage());
 
@@ -197,14 +200,13 @@ it('should throw a Dashboard Exception when the request contacts are not members
         ]);
 
     $this->validator->validateContactsForOnPremise(
-        [
+        isAdmin: false,
+        contacts: [
             [
                 'id' => 1,
                 'role' => 'editor',
             ],
         ],
-        [],
-        false
     );
 })->throws(DashboardException::userAreNotInAccessGroups([1])->getMessage());
 
@@ -215,7 +217,8 @@ it('should throw a Dashboard Exception when the contact groups do not exist', fu
         ->willReturn([1]);
 
     $this->validator->validateContactGroupsForOnPremise(
-        [
+        isAdmin: true,
+        contactGroups: [
             [
                 'id' => 1,
                 'role' => 'editor',
@@ -229,7 +232,6 @@ it('should throw a Dashboard Exception when the contact groups do not exist', fu
                 'role' => 'editor',
             ],
         ],
-        []
     );
 })->throws(DashboardException::theContactGroupsDoNotExist([2, 3])->getMessage());
 
@@ -240,7 +242,8 @@ it('should throw a Dashboard Exception when the contact groups are duplicated', 
         ->willReturn([1]);
 
     $this->validator->validateContactGroupsForOnPremise(
-        [
+        isAdmin: true,
+        contactGroups: [
             [
                 'id' => 1,
                 'role' => 'editor',
@@ -250,7 +253,6 @@ it('should throw a Dashboard Exception when the contact groups are duplicated', 
                 'role' => 'editor',
             ],
         ],
-        []
     );
 })->throws(DashboardException::contactGroupForShareShouldBeUnique()->getMessage());
 
@@ -272,7 +274,8 @@ it('should throw a Dashboard Exception when the contact groups does not have Das
         ]);
 
     $this->validator->validateContactGroupsForOnPremise(
-        [
+        isAdmin: true,
+        contactGroups: [
             [
                 'id' => 1,
                 'role' => 'editor',
@@ -282,7 +285,6 @@ it('should throw a Dashboard Exception when the contact groups does not have Das
                 'role' => 'editor',
             ],
         ],
-        []
     );
 })->throws(DashboardException::theContactGroupsDoesNotHaveDashboardAccessRights([2])->getMessage());
 
@@ -304,14 +306,13 @@ it('should throw a Dashboard Exception when the contact groups are not members o
         ]);
 
     $this->validator->validateContactGroupsForOnPremise(
-        [
+        isAdmin: false,
+        contactGroups: [
             [
                 'id' => 1,
                 'role' => 'editor',
             ],
         ],
-        [],
-        false
     );
 })->throws(DashboardException::contactGroupIsNotInUserContactGroups([1]
 )->getMessage());

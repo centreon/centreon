@@ -35,7 +35,7 @@ final class DashboardContactResponseNormalizer implements NormalizerInterface
     ) {
     }
 
-    public function supportsNormalization(mixed $data, ?string $format = null)
+    public function supportsNormalization(mixed $data, ?string $format = null): bool
     {
         return $data instanceof ContactsResponseDto;
     }

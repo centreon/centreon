@@ -68,22 +68,21 @@ final class ShareDashboard
         try {
             $isUserAdmin = $this->isUserAdmin();
             $contactIdsRelationsToDelete = [];
+
+            $this->validator->validateDashboard(
+                dashboardId: $request->dashboardId,
+                isAdmin: $isUserAdmin,
+            );
+
             if ($isUserAdmin) {
-                $this->validator->validateDashboard($request->dashboardId);
+                $this->isCloudPlatform
+                    ? $this->validator->validateContactsForCloud(isAdmin: true, contacts: $request->contacts)
+                    : $this->validator->validateContactsForOnPremise(isAdmin: true, contacts: $request->contacts);
 
                 $this->isCloudPlatform
-                    ? $this->validator->validateContactsForCloud($request->contacts)
-                    : $this->validator->validateContactsForOnPremise($request->contacts);
-
-                $this->isCloudPlatform
-                    ? $this->validator->validateContactGroupsForCloud($request->contactGroups)
-                    : $this->validator->validateContactGroupsForOnPremise($request->contactGroups);
+                    ? $this->validator->validateContactGroupsForCloud(isAdmin: true, contactGroups: $request->contactGroups)
+                    : $this->validator->validateContactGroupsForOnPremise(isAdmin: true, contactGroups: $request->contactGroups);
             } else {
-                $this->validator->validateDashboard(
-                    dashboardId: $request->dashboardId,
-                    isAdmin: false
-                );
-
                 $currentUserContactGroupIds = $this->findCurrentUserContactGroupIds();
 
                 if ($this->isCloudPlatform) {
@@ -92,15 +91,15 @@ final class ShareDashboard
                     );
 
                     $this->validator->validateContactsForCloud(
+                        isAdmin: false,
                         contacts: $request->contacts,
                         contactIdsInUserContactGroups: $contactIdsInCurrentUserContactGroups,
-                        isAdmin: false
                     );
 
                     $this->validator->validateContactGroupsForCloud(
+                        isAdmin: false,
                         contactGroups: $request->contactGroups,
                         userContactGroupIds: $currentUserContactGroupIds,
-                        isAdmin: false
                     );
 
                     $contactIdsRelationsToDelete = $contactIdsInCurrentUserContactGroups;
@@ -110,14 +109,14 @@ final class ShareDashboard
                     );
 
                     $this->validator->validateContactsForOnPremise(
+                        isAdmin: false,
                         contacts: $request->contacts,
                         contactIdsInUserAccessGroups: $contactIdsInUserAccessGroups,
-                        isAdmin: false
                     );
                     $this->validator->validateContactGroupsForOnPremise(
+                        isAdmin: false,
                         contactGroups: $request->contactGroups,
                         userContactGroupIds: $currentUserContactGroupIds,
-                        isAdmin: false
                     );
 
                     $contactIdsRelationsToDelete = $contactIdsInUserAccessGroups;
