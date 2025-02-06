@@ -523,27 +523,28 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $query = <<<SQL
             SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, c.contact_name, c.contact_id, c.contact_email
-                FROM `:db`.contact c
-                    LEFT JOIN `:db`.contactgroup_contact_relation cgcr
-                        ON cgcr.contact_contact_id = c.contact_id
-                    LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
-                        ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
-                    LEFT JOIN `:db`.acl_group_contacts_relations gcr
-                        ON gcr.contact_contact_id = c.contact_id
-                    LEFT JOIN `:db`.acl_group_topology_relations agtr
-                        ON agtr.acl_group_id = gcr.acl_group_id
-                            OR agtr.acl_group_id = gcgr.acl_group_id
-                    LEFT JOIN `:db`.acl_topology_relations acltr
-                        ON acltr.acl_topo_id = agtr.acl_topology_id
-                    INNER JOIN `:db`.topology
-                        ON topology.topology_id = acltr.topology_topology_id
-                    INNER JOIN `:db`.topology parent
-                        ON topology.topology_parent = parent.topology_page
-                    WHERE parent.topology_name = 'Dashboards'
-                        AND topology.topology_name IN ('Viewer','Administrator','Creator')
-                        AND acltr.access_right IS NOT NULL
-                        AND c.contact_id IN ({$bindTokenAsString})
-                        GROUP BY c.contact_id
+            FROM `:db`.contact c
+            LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                ON cgcr.contact_contact_id = c.contact_id
+            LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
+            LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                ON gcr.contact_contact_id = c.contact_id
+            LEFT JOIN `:db`.acl_group_topology_relations agtr
+                ON agtr.acl_group_id = gcr.acl_group_id
+                    OR agtr.acl_group_id = gcgr.acl_group_id
+            LEFT JOIN `:db`.acl_topology_relations acltr
+                ON acltr.acl_topo_id = agtr.acl_topology_id
+            INNER JOIN `:db`.topology
+                ON topology.topology_id = acltr.topology_topology_id
+            INNER JOIN `:db`.topology parent
+                ON topology.topology_parent = parent.topology_page
+            WHERE parent.topology_name = 'Dashboards'
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                AND acltr.access_right IS NOT NULL
+                AND c.contact_id IN ({$bindTokenAsString})
+                AND c.contact_admin = '0'
+                GROUP BY c.contact_id
             SQL;
         $statement = $this->db->prepare($this->translateDbName($query));
         foreach ($bind as $token => $contactId) {
@@ -789,7 +790,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 c.contact_oreon = '1'
                 AND parent.topology_name = 'Dashboards'
                 AND topology.topology_name IN ('Viewer','Administrator','Creator')
-                AND gcgr.cg_cg_id IN ({$bindQuery})
+                AND cgcr.contactgroup_cg_id IN ({$bindQuery})
                 AND acltr.access_right IS NOT NULL
             SQL;
 
@@ -864,7 +865,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                         ON gcr.contact_contact_id = c.contact_id
                     LEFT JOIN `:db`.acl_group_topology_relations agtr
                         ON agtr.acl_group_id = gcr.acl_group_id
-                            OR agtr.acl_group_id = gcgr.acl_group_id
+                        OR agtr.acl_group_id = gcgr.acl_group_id
                     LEFT JOIN `:db`.acl_topology_relations acltr
                         ON acltr.acl_topo_id = agtr.acl_topology_id
                     INNER JOIN `:db`.topology
