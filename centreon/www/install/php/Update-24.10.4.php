@@ -22,11 +22,41 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.10.4: ';
 $errorMessage = '';
 
-// ACC
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws PDOException
+ * @return void
+ */
+$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add the colum all_contacts to the table acl_groups';
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
+        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL');
+    }
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws PDOException
+ * @return void
+ */
+$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add the colum all_contact_groups to the table acl_groups';
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
+        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL');
+    }
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDBException
+ * @return void
+ */
 $fixNamingOfAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to update table topology';
     $constraintStatement = $pearDB->executeQuery(
@@ -38,10 +68,16 @@ $fixNamingOfAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): vo
     );
 };
 
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws PDOException
+ * @return void
+ */
 $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table user_profile';
-    $pearDB->executeQuery(
-        <<<SQL
+    $pearDB->exec(
+        <<<'SQL'
         CREATE TABLE IF NOT EXISTS `user_profile` (
           `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
           `contact_id` INT(11) NOT NULL,
@@ -55,10 +91,16 @@ $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): vo
     );
 };
 
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws PDOException
+ * @return void
+ */
 $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table user_profile_favorite_dashboards';
-    $pearDB->executeQuery(
-        <<<SQL
+    $pearDB->exec(
+        <<<'SQL'
         CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
           `profile_id` INT UNSIGNED NOT NULL,
           `dashboard_id` INT UNSIGNED NOT NULL,
@@ -78,7 +120,7 @@ $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$erro
 /**
  * @param CentreonDB $pearDBO
  *
- * @throws CentreonDbException
+ * @throws PDOException
  * @return void
  */
 $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
@@ -107,12 +149,12 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
 /**
  * @param CentreonDB $pearDBO
  *
- * @throws CentreonDbException
- *
+ * @throws PDOException
+ * @return void
  */
 $createAgentInformationTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
     $errorMessage = 'Unable to create table agent_information';
-    $pearDBO->executeQuery(
+    $pearDBO->exec(
         <<<SQL
             CREATE TABLE IF NOT EXISTS `agent_information` (
                 `poller_id` bigint(20) unsigned NOT NULL,
@@ -125,11 +167,17 @@ $createAgentInformationTable = function (CentreonDB $pearDBO) use (&$errorMessag
 };
 
 try {
+    // DDL statements for real time database
     $addColumnToResourcesTable($pearDBO);
+    $createAgentInformationTable($pearDBO);
+
+    // DDL statements for configuration database
+    $addAllContactsColumnToAclGroups($pearDB);
+    $addAllContactGroupsColumnToAclGroups($pearDB);
     $createUserProfileTable($pearDB);
     $createUserProfileFavoriteDashboards($pearDB);
-    $createAgentInformationTable($pearDBO);
-    // Transactional queries
+
+    // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
@@ -137,10 +185,18 @@ try {
     $fixNamingOfAccTopology($pearDB);
 
     $pearDB->commit();
-} catch (Exception $e) {
-
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
+} catch (\Exception $e) {
+    try {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+    } catch (PDOException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+            customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
+            exception: $e
+        );
     }
 
     CentreonLog::create()->error(
