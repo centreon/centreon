@@ -8,7 +8,14 @@ import { makeStyles } from 'tss-react/mui';
 
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
-import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
+import {
+  Divider,
+  Menu,
+  MenuItem,
+  Typography,
+  alpha,
+  useTheme
+} from '@mui/material';
 
 import {
   ContentWithCircularLoading,
@@ -23,12 +30,13 @@ import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
 import { Resource, ResourceType } from '../../models';
 import {
-  labelAsDisplayed,
   labelCSV,
   labelExport,
-  labelMediumSize,
-  labelPerformancePage,
-  labelSmallSize
+  labelExportAs,
+  labelPNGAsDisplayed,
+  labelPNGMediumSize,
+  labelPNGSmallSize,
+  labelPerformancePage
 } from '../../translatedLabels';
 
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
@@ -52,6 +60,23 @@ const useStyles = makeStyles()((theme) => ({
     columnGap: theme.spacing(1),
     display: 'flex',
     flexDirection: 'row'
+  },
+  exportAs: {
+    '&:hover': {
+      backgroundColor: 'transparent'
+    },
+    cursor: 'auto'
+  },
+  menu: {
+    width: theme.spacing(22)
+  },
+  menuHeader: {
+    color: theme.palette.primary.main,
+    fontWeight: theme.typography.fontWeightBold
+  },
+  menuItem: {
+    color: alpha(theme.palette.text.primary, 0.7),
+    fontWeight: theme.typography.fontWeightRegular
   }
 }));
 
@@ -178,33 +203,48 @@ const GraphActions = ({
             open={Boolean(menuAnchor)}
             onClose={closeSizeExportMenu}
           >
-            <MenuItem data-testid={labelExport} sx={{ cursor: 'auto' }}>
-              {t(labelExport)}
-            </MenuItem>
-            <Divider />
+            <div className={classes.menu}>
+              <MenuItem
+                className={classes.exportAs}
+                data-testid={labelExportAs}
+              >
+                <Typography className={classes.menuHeader}>
+                  {t(labelExportAs)}
+                </Typography>
+              </MenuItem>
+              <Divider />
 
-            <MenuItem
-              data-testid={labelAsDisplayed}
-              onClick={(): void => convertToPng(1)}
-            >
-              {t(labelAsDisplayed)}
-            </MenuItem>
-            <MenuItem
-              data-testid={labelMediumSize}
-              onClick={(): void => convertToPng(0.75)}
-            >
-              {t(labelMediumSize)}
-            </MenuItem>
-            <MenuItem
-              data-testid={labelSmallSize}
-              onClick={(): void => convertToPng(0.5)}
-            >
-              {t(labelSmallSize)}
-            </MenuItem>
-            <Divider />
-            <MenuItem data-testid={labelCSV} onClick={exportToCsv}>
-              {t(labelCSV)}
-            </MenuItem>
+              <MenuItem
+                data-testid={labelPNGAsDisplayed}
+                onClick={(): void => convertToPng(1)}
+              >
+                <Typography className={classes.menuItem} variant="body2">
+                  {t(labelPNGAsDisplayed)}
+                </Typography>
+              </MenuItem>
+              <MenuItem
+                data-testid={labelPNGMediumSize}
+                onClick={(): void => convertToPng(0.75)}
+              >
+                <Typography className={classes.menuItem} variant="body2">
+                  {t(labelPNGMediumSize)}
+                </Typography>
+              </MenuItem>
+              <MenuItem
+                data-testid={labelPNGSmallSize}
+                onClick={(): void => convertToPng(0.5)}
+              >
+                <Typography className={classes.menuItem} variant="body2">
+                  {t(labelPNGSmallSize)}
+                </Typography>
+              </MenuItem>
+              <Divider />
+              <MenuItem data-testid={labelCSV} onClick={exportToCsv}>
+                <Typography className={classes.menuItem} variant="body2">
+                  {t(labelCSV)}
+                </Typography>
+              </MenuItem>
+            </div>
           </Menu>
         </>
       </ContentWithCircularLoading>

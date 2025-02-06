@@ -47,5 +47,13 @@
         "check_downtime": 2,
         "output_transform": "trapOutputTransform",
         "custom_code": "trapCustomCode"
+    },
+    "snmpGroup1":{
+        "name": "default-trap-grp",
+        "traps":["Cisco - ccmCTIDRolledOver", "Dell - alertBatteryWarning"]
+    },
+    "snmpGroup2":{
+        "name": "trap-grp-test",
+        "traps":["Dell - alertPowerSupplyFailure", "Dell - adDiagStarted"]
     }
 }

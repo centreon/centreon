@@ -461,6 +461,14 @@ class SqlRequestParametersTranslator
     }
 
     /**
+     * @param int $numberOfRows
+     */
+    public function setNumberOfRows(int $numberOfRows): void
+    {
+        $this->requestParameters->setTotal($numberOfRows);
+    }
+
+    /**
      * Add a normalizer for a property name to be declared in the search parameters.
      * <code>
      * $sqlRequestTranslator = new SqlRequestParametersTranslator(new RequestParameters());

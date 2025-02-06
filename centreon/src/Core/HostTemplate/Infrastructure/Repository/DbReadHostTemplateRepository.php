@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostTemplate\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -593,14 +594,15 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $request = $this->translateDbName(
             <<<'SQL'
                 WITH RECURSIVE parents AS (
-                    SELECT * FROM `:db`.`host_template_relation`
+                    SELECT 1 as counter, host_template_relation.* FROM `:db`.`host_template_relation`
                     WHERE `host_host_id` = :hostTemplateId
                     UNION
-                    SELECT rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
+                    SELECT p.counter + 1, rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
                     WHERE rel.`host_host_id` = p.`host_tpl_id`
                 )
-                SELECT `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
+                SELECT counter, `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
                 FROM parents
+                order by counter, `order`;
                 SQL
         );
         $statement = $this->db->prepare($request);
@@ -771,6 +773,113 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         }
 
         return $nameById;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAll(): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    h.host_id,
+                    h.host_name,
+                    h.host_alias,
+                    h.host_snmp_version,
+                    h.host_snmp_community,
+                    h.host_location,
+                    h.command_command_id,
+                    h.command_command_id_arg1,
+                    h.timeperiod_tp_id,
+                    h.host_max_check_attempts,
+                    h.host_check_interval,
+                    h.host_retry_check_interval,
+                    h.host_active_checks_enabled,
+                    h.host_passive_checks_enabled,
+                    h.host_notifications_enabled,
+                    h.host_notification_options,
+                    h.host_notification_interval,
+                    h.timeperiod_tp_id2,
+                    h.cg_additive_inheritance,
+                    h.contact_additive_inheritance,
+                    h.host_first_notification_delay,
+                    h.host_recovery_notification_delay,
+                    h.host_acknowledgement_timeout,
+                    h.host_check_freshness,
+                    h.host_freshness_threshold,
+                    h.host_flap_detection_enabled,
+                    h.host_low_flap_threshold,
+                    h.host_high_flap_threshold,
+                    h.host_event_handler_enabled,
+                    h.command_command_id2,
+                    h.command_command_id_arg2,
+                    h.host_comment,
+                    h.host_locked,
+                    ehi.ehi_notes_url,
+                    ehi.ehi_notes,
+                    ehi.ehi_action_url,
+                    ehi.ehi_icon_image,
+                    ehi.ehi_icon_image_alt,
+                    hc.hc_id AS severity_id
+                FROM `:db`.host h
+                LEFT JOIN `:db`.extended_host_information ehi
+                    ON h.host_id = ehi.host_host_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = h.host_id
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NOT NULL
+                WHERE h.host_register = :hostTemplateType
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
+        $statement->execute();
+
+        $hostTemplates = [];
+
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _HostTemplate $result */
+            $hostTemplates[] = $this->createHostTemplateFromArray($result);
+        }
+
+        return $hostTemplates;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostId(int $hostId): array
+    {
+        try {
+            $request = $this->translateDbName(
+                <<<'SQL'
+                    SELECT host_tpl_id
+                    FROM host_template_relation
+                    WHERE host_host_id = :hostId
+                    ORDER BY `order` ASC
+                    SQL
+            );
+            $statement = $this->db->prepare($request);
+            $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+            $statement->execute();
+
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        } catch (\PDOException $exception) {
+            $errorMessage = 'Error while fetching host templates by host ID';
+            $this->error($errorMessage, [
+                'host_id' => $hostId,
+                'exception' => [
+                    'message' => $exception->getMessage(),
+                    'pdo_code' => $exception->getCode(),
+                    'pdo_info' => $exception->errorInfo,
+                    'trace' => $exception->getTraceAsString(),
+                ],
+            ]);
+
+            throw new RepositoryException(message: $errorMessage, previous: $exception);
+        }
     }
 
     /**

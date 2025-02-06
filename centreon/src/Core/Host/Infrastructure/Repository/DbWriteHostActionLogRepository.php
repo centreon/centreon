@@ -44,7 +44,6 @@ use Core\Host\Domain\Model\SnmpVersion;
 class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements WriteHostRepositoryInterface
 {
     use LoggerTrait;
-    public const HOST_OBJECT_TYPE = 'host';
     public const HOST_PROPERTIES_MAP = [
         'name' => 'host_name',
         'alias' => 'host_alias',
@@ -118,7 +117,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
             }
 
             $actionLog = new ActionLog(
-                self::HOST_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOST,
                 $hostId,
                 $host->getName(),
                 ActionLog::ACTION_TYPE_ADD,
@@ -156,7 +155,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
             $this->writeHostRepository->deleteById($hostId);
 
             $actionLog = new ActionLog(
-                self::HOST_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOST,
                 $hostId,
                 $host->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
@@ -193,7 +192,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     ? ActionLog::ACTION_TYPE_ENABLE
                     : ActionLog::ACTION_TYPE_DISABLE;
                 $actionLog = new ActionLog(
-                    self::HOST_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_HOST,
                     $host->getId(),
                     $host->getName(),
                     $action,
@@ -207,7 +206,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     ? ActionLog::ACTION_TYPE_ENABLE
                     : ActionLog::ACTION_TYPE_DISABLE;
                 $actionLog = new ActionLog(
-                    self::HOST_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_HOST,
                     $host->getId(),
                     $host->getName(),
                     $action,
@@ -216,7 +215,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                 $this->writeActionLogRepository->addAction($actionLog);
 
                 $actionLogChange = new ActionLog(
-                    self::HOST_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_HOST,
                     $host->getId(),
                     $host->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
@@ -232,7 +231,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
 
             if (! array_key_exists('isActivated', $diff) && count($diff) >= 1) {
                 $actionLogChange = new ActionLog(
-                    self::HOST_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_HOST,
                     $host->getId(),
                     $host->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,

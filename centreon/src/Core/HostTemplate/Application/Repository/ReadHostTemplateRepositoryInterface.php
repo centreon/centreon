@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\Repository;
 
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -164,4 +165,24 @@ interface ReadHostTemplateRepositoryInterface
      * @return array<int,string>
      */
     public function findNamesByIds(array $templateIds): array;
+
+    /**
+     * Find all host templates.
+     *
+     * @throws \Throwable
+     *
+     * @return HostTemplate[]
+     */
+    public function findAll(): array;
+
+    /**
+     * Find direct parent templates of a host id.
+     *
+     * @param int $hostId
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int, int>
+     */
+    public function findByHostId(int $hostId): array;
 }

@@ -115,7 +115,7 @@ When(
 );
 
 When('the user applies the acknowledgement', () => {
-  cy.get('button').contains('Acknowledge').click();
+  cy.getByTestId({ testId: 'Confirm' }).click();
 });
 
 Then(

@@ -26,8 +26,11 @@
     },
   
     "service_group": {
-      "service1": {
-        "name": "service_group"
-      }
+    "service1": {
+      "name": "service_group"
+    },
+    "service2": {
+      "name": "service_group_2"
     }
+  }
 }  

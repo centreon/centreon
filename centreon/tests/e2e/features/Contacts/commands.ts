@@ -40,11 +40,7 @@ Cypress.Commands.add('addOrUpdateContactGroup', (body: ContactGroup) => {
   cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
   cy.wait('@getContacts');
   cy.getIframeBody().contains('div', body.linkedContact).click();
-
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(1).click();
-  cy.wait('@getACLGroups');
-  cy.getIframeBody().contains('div', 'ALL').click();
-
+  cy.get('body').click();
   cy.getIframeBody().contains(body.status).click();
 
   cy.getIframeBody()
@@ -90,12 +86,12 @@ Cypress.Commands.add('addOrUpdateContactTemplate', (body: ContactTemplate) => {
   cy.exportConfig();
 });
 
-Cypress.Commands.add('loginByDuplicatedUser', (jsonName: string) =>{
+Cypress.Commands.add('loginByDuplicatedOrUpdatedUser', (jsonName: string, login: string) =>{
   cy.visit(`${Cypress.config().baseUrl}`)
     .fixture(`users/${jsonName}.json`)
     .then((credential) => {
       cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
-        `{selectAll}{backspace}${credential.login}_1`
+        `{selectAll}{backspace}${login}`
       );
       cy.getByLabel({ label: 'Password', tag: 'input' }).type(
         `{selectAll}{backspace}${credential.password}`
@@ -110,8 +106,7 @@ Cypress.Commands.add('loginByDuplicatedUser', (jsonName: string) =>{
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
-}
-);
+});
 
 interface Contact {
 alias: string,
@@ -146,7 +141,7 @@ namespace Cypress {
     addOrUpdateContact: (body: Contact) => Cypress.Chainable;
     addOrUpdateContactGroup: (body: ContactGroup) => Cypress.Chainable;
     addOrUpdateContactTemplate: (body: ContactTemplate) => Cypress.Chainable;
-    loginByDuplicatedUser: (jsonName: string) => Cypress.Chainable;
+    loginByDuplicatedOrUpdatedUser: (jsonName: string, login: string) => Cypress.Chainable;
   }
 }
 }

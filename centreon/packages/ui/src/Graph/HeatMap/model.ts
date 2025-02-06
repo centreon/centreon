@@ -10,7 +10,9 @@ interface ChildrenProps<TData> {
   backgroundColor: string;
   data: TData;
   id: string;
+  isMediumSize?: boolean;
   isSmallestSize: boolean;
+  tileSize?: number;
 }
 
 export interface HeatMapProps<TData> {
@@ -19,7 +21,9 @@ export interface HeatMapProps<TData> {
     backgroundColor,
     id,
     data,
-    isSmallestSize
+    isSmallestSize,
+    tileSize,
+    isMediumSize
   }: ChildrenProps<TData>) => ReactElement | boolean | null;
   displayTooltipCondition?: (data: TData) => boolean;
   tileSizeFixed?: boolean;

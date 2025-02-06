@@ -12,7 +12,7 @@ echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sourc
 
 apt-get update
 
-apt-get install -y zstd nfpm=2.35.3
+apt-get install -y zstd nfpm=2.41.1
 
 apt-get remove -y ca-certificates
 

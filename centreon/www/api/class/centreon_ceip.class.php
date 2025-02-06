@@ -19,6 +19,9 @@
  *
  */
 
+use Centreon\LegacyContainer;
+use CentreonLicense\ServiceProvider;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonUUID.class.php';
@@ -121,8 +124,7 @@ class CentreonCeip extends CentreonWebService
     {
         $locale = $this->user->get_lang();
 
-        
-        if (isCloudPlatform()) { 
+        if (isCloudPlatform()) {
             // Get the user role for the Centreon Cloud platform
 
             // Get list of ACL Groups linked to this user
@@ -138,7 +140,7 @@ class CentreonCeip extends CentreonWebService
             } else {
                 $role = 'User';
             }
-        } else { 
+        } else {
             // Get the user role for the Centreon on-premises platform
             $role = $this->user->admin
                 ? 'admin'
@@ -150,11 +152,13 @@ class CentreonCeip extends CentreonWebService
             }
         }
 
-        return [
+        $visitorInformation = [
             'id' => mb_substr($this->uuid, 0, 6) . '-' . $this->user->user_id,
             'locale' => $locale,
             'role' => $role,
         ];
+
+        return $visitorInformation;
     }
 
     /**
@@ -177,11 +181,12 @@ class CentreonCeip extends CentreonWebService
         // Get Instance information
         $instanceInformation = $this->getServerType();
 
-        return [
+        $accountInformation =  [
             'id' => $this->uuid,
             'name' => $licenseInfo['companyName'],
             'serverType' => $instanceInformation['type'],
             'platformType' => $instanceInformation['platform'],
+            'platformEnvironment' => $licenseInfo['platformEnvironment'],
             'licenseType' => $licenseInfo['licenseType'],
             'versionMajor' => $centreonVersion['major'],
             'versionMinor' => $centreonVersion['minor'],
@@ -190,6 +195,16 @@ class CentreonCeip extends CentreonWebService
             'nb_servers' => $configUsage['nb_central'] + $configUsage['nb_remotes'] + $configUsage['nb_pollers'],
             'enabled_features_tags' => $this->featureFlags->getEnabled() ?: [],
         ];
+
+        if (isset($licenseInfo['hosts_limitation'])) {
+            $accountInformation['hosts_limitation'] = $licenseInfo['hosts_limitation'];
+        }
+
+        if (isset($licenseInfo['fingerprint'])) {
+            $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
+        }
+
+        return $accountInformation;
     }
 
     /**
@@ -202,7 +217,9 @@ class CentreonCeip extends CentreonWebService
         /**
          * Getting License information.
          */
-        $dependencyInjector = \Centreon\LegacyContainer::getInstance();
+        $dependencyInjector = LegacyContainer::getInstance();
+        $fingerprintService = $dependencyInjector[ServiceProvider::LM_FINGERPRINT];
+
         $productLicense = 'Open Source';
         $licenseClientName = '';
         try {
@@ -226,17 +243,34 @@ class CentreonCeip extends CentreonWebService
                     $licenseInformation[$module] = $licenseObject->getData();
                     /** @var string $licenseClientName */
                     $licenseClientName = $licenseInformation[$module]['client']['name'];
-
+                    $hostsLimitation = $licenseInformation[$module]['licensing']['hosts'];
+                    $licenseStart = DateTime::createFromFormat(
+                        'Y-m-d',
+                        $licenseInformation[$module]['licensing']['start']
+                    ) ?: throw new Exception('Invalid date format');
+                    $licenseEnd = DateTime::createFromFormat(
+                        'Y-m-d',
+                        $licenseInformation[$module]['licensing']['end']
+                    ) ?: throw new Exception('Invalid date format');
+                    $licenseDurationInMonths = $licenseEnd->diff($licenseStart)->m;
                     if ($module === 'epp') {
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
                             $productLicense = 'IT-100 Edition';
+                        } else if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                            $productLicense = 'MSP Edition';
+                            $fingerprint = $fingerprintService->calculateFingerprint();
                         }
                     }
                     if (in_array($module, ['mbi', 'bam', 'map'], true)) {
                         $productLicense = 'Business Edition';
+                        $fingerprint = $fingerprintService->calculateFingerprint();
+                        if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                            $productLicense = 'MSP Edition';
+                        }
                         break;
                     }
+                    $environment = $licenseInformation[$module]['platform']['environment'];
                 }
             }
         } catch (\Pimple\Exception\UnknownIdentifierException) {
@@ -245,10 +279,21 @@ class CentreonCeip extends CentreonWebService
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
         }
 
-        return [
+        $licenseInformation = [
             'companyName' => $licenseClientName,
             'licenseType' => $productLicense,
+            'platformEnvironment' => $environment ?? 'demo',
         ];
+
+        if (isset($hostsLimitation)) {
+            $licenseInformation['hosts_limitation'] = $hostsLimitation;
+        }
+
+        if (isset($fingerprint)) {
+            $licenseInformation['fingerprint'] = $fingerprint;
+        }
+
+        return $licenseInformation;
     }
 
     /**

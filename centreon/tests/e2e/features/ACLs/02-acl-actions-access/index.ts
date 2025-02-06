@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import data from '../../../fixtures/acls/acl-data.json';
 import '../commands';
@@ -196,15 +198,18 @@ Then(
         rootItemNumber: 4,
         subMenu: 'ACL'
       });
-      cy.wait('@getTimeZone');
+      cy.waitForElementInIframe(
+        '#main-content',
+        `a:contains("${ACLGroup}")`
+      );
 
       cy.getIframeBody()
-        .contains('tr', ACLGroup)
-        .within(() => {
-          cy.get('td.ListColLeft').click();
-        });
+        .contains('a', ACLGroup).click();
+      cy.waitForElementInIframe(
+        '#main-content',
+        'a:contains("Authorizations information")'
+      );
 
-      cy.wait('@getTimeZone');
       cy.getIframeBody().contains('a', 'Authorizations information').click();
 
       cy.getIframeBody()
@@ -345,31 +350,26 @@ Then(
       subMenu: 'ACL'
     });
 
-    cy.wait('@getTimeZone').then(() => {
-      cy.executeActionOnIframe(
-        data.ACLGroups.ACLGroup1.name,
-        ($body) => {
-          cy.wrap($body)
-            .contains('tr', data.ACLGroups.ACLGroup1.name)
-            .within(() => {
-              cy.get('td.ListColLeft').click();
-            });
-        },
-        3,
-        3000
-      );
-    });
-
-    cy.wait('@getTimeZone').then(() => {
-      cy.executeActionOnIframe(
-        'Authorizations information',
-        ($body) => {
-          cy.wrap($body).contains('a', 'Authorizations information').click();
-        },
-        3,
-        3000
-      );
-    });
+    cy.waitForElementInIframe(
+      '#main-content',
+      `a:contains("${data.ACLGroups.ACLGroup1.name}")`
+    );
+  
+    cy.getIframeBody()
+      .contains('a', data.ACLGroups.ACLGroup1.name).click();
+    cy.waitForElementInIframe(
+      '#main-content',
+      'a:contains("Authorizations information")'
+    )
+    
+    cy.executeActionOnIframe(
+      'Authorizations information',
+      ($body) => {
+        cy.wrap($body).contains('a', 'Authorizations information').click();
+      },
+      3,
+      3000
+    );
 
     cy.getIframeBody()
       .find('select[name="actionAccess-t[]"]')
@@ -557,15 +557,18 @@ Then('the links with the acl groups are broken', () => {
       rootItemNumber: 4,
       subMenu: 'ACL'
     });
-    cy.wait('@getTimeZone');
+
+    cy.waitForElementInIframe(
+      '#main-content',
+      `a:contains("${ACLGroup}")`
+    );
 
     cy.getIframeBody()
-      .contains('tr', ACLGroup)
-      .within(() => {
-        cy.get('td.ListColLeft').click();
-      });
-
-    cy.wait('@getTimeZone');
+      .contains('a', ACLGroup).click();
+    cy.waitForElementInIframe(
+      '#main-content',
+      'a:contains("Authorizations information")'
+    );
     cy.getIframeBody().contains('a', 'Authorizations information').click();
 
     cy.getIframeBody()

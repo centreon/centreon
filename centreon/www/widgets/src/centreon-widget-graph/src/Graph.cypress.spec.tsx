@@ -4,8 +4,8 @@ import { Method } from '@centreon/ui';
 
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 
-import { Data, FormThreshold, FormTimePeriod } from './models';
 import { graphEndpoint } from './api/endpoints';
+import { Data, FormThreshold, FormTimePeriod } from './models';
 
 import Widget from '.';
 
@@ -84,6 +84,7 @@ const customTimePeriod: FormTimePeriod = {
 
 interface InitializeComponentProps {
   data?: Data;
+  graphDataPath?: string;
   threshold?: FormThreshold;
   timePeriod?: FormTimePeriod;
 }
@@ -91,13 +92,14 @@ interface InitializeComponentProps {
 const initializeComponent = ({
   data = serviceMetrics,
   threshold = defaultThreshold,
-  timePeriod = defaultTimePeriod
+  timePeriod = defaultTimePeriod,
+  graphDataPath = 'Widgets/Graph/lineChart.json'
 }: InitializeComponentProps): void => {
   const store = createStore();
 
   cy.viewport('macbook-13');
 
-  cy.fixture('Widgets/Graph/lineChart.json').then((lineChart) => {
+  cy.fixture(graphDataPath).then((lineChart) => {
     cy.interceptAPIRequest({
       alias: 'getLineChart',
       method: Method.GET,
@@ -208,5 +210,29 @@ describe('Graph Widget', () => {
       expect(request.url.search).to.include('start=2021-09-01T00:00:00.000Z');
       expect(request.url.search).to.include('end=2021-09-02T00:00:00.000Z');
     });
+  });
+
+  it(`displays the legend with a scrollbar when there are numerous metrics to show.`, () => {
+    cy.fixture(
+      'Widgets/Graph/legend/serviceMetricsForScrollableLegend.json'
+    ).then((data) => {
+      initializeComponent({
+        data,
+        graphDataPath: 'Widgets/Graph/legend/lineChartForScrollableLegend.json'
+      });
+    });
+    cy.waitForRequest('@getLineChart');
+    cy.get('path').its('length').should('eq', 100);
+
+    cy.get('[class$="legend"]').as('legendContainer');
+    cy.get('@legendContainer').should('have.css', 'overflow-Y', 'auto');
+    cy.get('@legendContainer').should('have.css', 'overflow-X', 'hidden');
+
+    cy.findByText('Legend 1 Centreon-Server').should('exist');
+
+    cy.get('@legendContainer').scrollTo('bottom');
+
+    cy.findByText('Legend 99 Centreon-Server').should('exist');
+    cy.makeSnapshot();
   });
 });

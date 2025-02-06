@@ -161,12 +161,14 @@ const StatusGrid = ({
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
       tooltipContent={Tooltip(resourceType)}
     >
-      {({ isSmallestSize, data: resourceData }) => (
+      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize }) => (
         <Tile
           data={resourceData}
+          isMediumSize={isMediumSize}
           isSmallestSize={isSmallestSize}
           resources={resources}
           statuses={statuses}
+          tileSize={tileSize}
           type={resourceType}
         />
       )}

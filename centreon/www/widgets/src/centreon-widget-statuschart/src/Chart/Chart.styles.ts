@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 export const useStyles = makeStyles()(() => ({
   barStack: {
     height: '98%',
-    width: '98%'
+    width: '100%'
   },
   container: {
     alignItems: 'center',
@@ -14,15 +14,15 @@ export const useStyles = makeStyles()(() => ({
   },
   pieChart: {
     height: '100%',
-    width: '96%'
+    width: '98%'
   },
   singleHorizontalBar: {
-    height: '49%'
+    height: '100%'
   },
   singlePieChart: {
     width: '48%'
   },
   verticalBar: {
-    width: '49%'
+    width: '98%'
   }
 }));

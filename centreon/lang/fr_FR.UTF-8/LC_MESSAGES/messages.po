@@ -15403,8 +15403,8 @@ msgstr "Filtre créé"
 msgid "Filter saved"
 msgstr "Filtre sauvegardé"
 
-msgid "Edit filters"
-msgstr "Éditer les filtres"
+msgid "Manage filters"
+msgstr "Gérer les filtres"
 
 msgid "Rename"
 msgstr "Renommer"
@@ -18888,3 +18888,15 @@ msgstr "Vous n'êtes pas autorisé à accéder aux hôtes dans le cadre du temps
 
 msgid "You are not allowed to access services in the real time context"
 msgstr "Vous n'êtes pas autorisé à accéder aux services dans le cadre du temps réel"
+
+msgid "PNG (as displayed)"
+msgstr "PNG (tel qu'affiché)"
+
+msgid "PNG (medium size)"
+msgstr "PNG (taille moyenne)"
+
+msgid "PNG (small size)"
+msgstr "PNG (petite taille)"
+
+msgid "Export as"
+msgstr "Exporter en tant que"

@@ -61,6 +61,7 @@ export type ConditionValue = {
 
 export interface ConditionsSearchParameter {
   field: string;
+  operator?: '$and' | '$or';
   value?: unknown;
   values?: ConditionValue;
 }
