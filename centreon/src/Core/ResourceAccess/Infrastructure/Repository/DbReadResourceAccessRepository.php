@@ -247,8 +247,12 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         $statement->execute();
 
         $datasetFilters = [];
+
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                $datasetFilters[$record['id']] = explode(',', $record['resource_ids']);
+                /**
+                 * @var array{id: int, resource_ids: string} $record
+                 */
+                $datasetFilters[$record['id']] = array_map('intval', explode(',', $record['resource_ids']));
         }
 
         return $datasetFilters;

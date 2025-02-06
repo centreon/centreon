@@ -25,6 +25,12 @@ namespace Core\Service\Domain\Model;
 
 final readonly class ServiceRelation
 {
+    /**
+     * @param int $serviceId
+     * @param int[] $hostGroupIds
+     * @param int[] $hostIds
+     * @param int[] $serviceGroupIds
+     */
     public function __construct(
         private int $serviceId,
         private array $hostGroupIds = [],
@@ -38,16 +44,25 @@ final readonly class ServiceRelation
         return $this->serviceId;
     }
 
+    /**
+     * @return int[]
+     */
     public function getHostGroupIds(): array
     {
         return $this->hostGroupIds;
     }
 
+    /**
+     * @return int[]
+     */
     public function getHostIds(): array
     {
         return $this->hostIds;
     }
 
+    /**
+     * @return int[]
+     */
     public function getServiceGroupIds(): array
     {
         return $this->serviceGroupIds;

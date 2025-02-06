@@ -648,7 +648,10 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
         $result = $statement->fetch();
 
-        if (isset($result['nb_dependency']) && $result['nb_dependency'] === 1) {
+        /**
+         * @var array{id:int,nb_dependency:int} $result
+         */
+        if ($result['nb_dependency'] === 1) {
             return $result['id'];
         }
 

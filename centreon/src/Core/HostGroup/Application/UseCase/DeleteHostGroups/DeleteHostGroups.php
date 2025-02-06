@@ -38,6 +38,7 @@ use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInte
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
+use Core\Service\Domain\Model\ServiceRelation;
 
 final class DeleteHostGroups
 {
@@ -159,10 +160,11 @@ final class DeleteHostGroups
     {
         $lastRelations = array_filter(
             $this->readServiceRepository->findServiceRelationsByHostGroupId($hostGroupId),
-            fn ($relation) => $relation->hasOnlyOneHostGroup());
+            fn (ServiceRelation $relation): bool => $relation->hasOnlyOneHostGroup()
+        );
         if (! empty($lastRelations)) {
             $this->writeServiceRepository->deleteByIds(
-                ...array_map(fn ($relation) => $relation->getServiceId(), $lastRelations)
+                ...array_map(fn (ServiceRelation $relation) => $relation->getServiceId(), $lastRelations)
             );
         }
     }
@@ -180,7 +182,7 @@ final class DeleteHostGroups
             ->findDatasetResourceIdsByHostGroupId($hostGroupId);
 
         foreach ($datasetResourceIds as $datasetFilterId => &$resourceIds) {
-            $resourceIds = array_filter($resourceIds, fn($resourceId) => (int) $resourceId !== $hostGroupId);
+            $resourceIds = array_filter($resourceIds, fn($resourceId) => $resourceId !== $hostGroupId);
             if (empty($resourceIds)) {
                 $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterId);
             } else {

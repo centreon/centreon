@@ -572,9 +572,12 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $serviceRelations = [];
 
         while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /**
+             * @var array{hostgroups: string, service_service_id: string} $result
+             */
             $serviceRelations[] = new ServiceRelation(
                 serviceId: (int) $result['service_service_id'],
-                hostGroupIds: explode(',', $result['hostgroups'])
+                hostGroupIds: array_map('intval', explode(',', $result['hostgroups']))
             );
         }
 
@@ -593,7 +596,9 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
         $statement->execute();
 
-        return $statement->fetchColumn() ?: null;
+        return is_string($statement->fetchColumn())
+            ? $statement->fetchColumn()
+            : null;
     }
 
     /**
