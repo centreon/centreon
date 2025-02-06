@@ -27,6 +27,10 @@ use Core\HostGroup\Application\UseCase\DeleteHostGroups\DeleteHostGroupsRequest;
 
 final class DeleteHostGroupsRequestTransformer
 {
+    /**
+     * @param DeleteHostGroupsInput $input
+     * @return DeleteHostGroupsRequest
+     */
     public static function transform(DeleteHostGroupsInput $input): DeleteHostGroupsRequest
     {
         return new DeleteHostGroupsRequest($input->ids);

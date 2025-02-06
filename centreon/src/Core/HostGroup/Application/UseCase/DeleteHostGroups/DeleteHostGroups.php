@@ -44,6 +44,20 @@ final class DeleteHostGroups
 {
     use LoggerTrait;
 
+    /**
+     * @param ContactInterface $user
+     * @param WriteHostGroupRepositoryInterface $writeHostGroupRepository
+     * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param ReadNotificationRepositoryInterface $readNotificationRepository
+     * @param WriteNotificationRepositoryInterface $writeNotificationRepository
+     * @param ReadServiceRepositoryInterface $readServiceRepository
+     * @param WriteServiceRepositoryInterface $writeServiceRepository
+     * @param ReadResourceAccessRepositoryInterface $readResourceAccessRepository
+     * @param WriteResourceAccessRepositoryInterface $writeResourceAccessRepository
+     * @param DataStorageEngineInterface $storageEngine
+     * @param boolean $isCloudPlatform
+     */
     public function __construct(
         private readonly ContactInterface $user,
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,

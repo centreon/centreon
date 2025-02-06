@@ -584,6 +584,9 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         return $serviceRelations;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findNameById(int $serviceId): ?string
     {
         $statement = $this->db->prepare($this->translateDbName(

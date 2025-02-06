@@ -363,6 +363,9 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         $statement->execute();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function updateDatasetResources(int $datasetId, array $resourceIds): void
     {
         if ([] === $resourceIds) {
@@ -382,6 +385,9 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         $statement->execute();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function deleteDatasetFilter(int $datasetFilterid): void
     {
         $statement = $this->db->prepare($this->translateDbName(

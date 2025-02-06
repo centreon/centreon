@@ -48,7 +48,6 @@ final class DeleteHostGroup
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $contact
     ) {
-
     }
 
     public function __invoke(int $hostGroupId, PresenterInterface $presenter): void
