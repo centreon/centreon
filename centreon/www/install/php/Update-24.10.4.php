@@ -22,8 +22,6 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$centreonLog = new CentreonLog();
-
 // error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.10.4: ';
 $errorMessage = '';
@@ -105,10 +103,32 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     }
 };
 
+// -------------------------------------------- CEIP Agent Information -------------------------------------------- //
+/**
+ * @param CentreonDB $pearDBO
+ *
+ * @throws CentreonDbException
+ *
+ */
+$createAgentInformationTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
+    $errorMessage = 'Unable to create table agent_information';
+    $pearDBO->executeQuery(
+        <<<SQL
+            CREATE TABLE IF NOT EXISTS `agent_information` (
+                `poller_id` bigint(20) unsigned NOT NULL,
+                `enabled` tinyint(1) NOT NULL DEFAULT 1,
+                `infos` JSON NOT NULL,
+            PRIMARY KEY (`poller_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        SQL
+    );
+};
+
 try {
     $addColumnToResourcesTable($pearDBO);
     $createUserProfileTable($pearDB);
     $createUserProfileFavoriteDashboards($pearDB);
+    $createAgentInformationTable($pearDBO);
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
@@ -123,12 +143,11 @@ try {
         $pearDB->rollBack();
     }
 
-    $centreonLog->insertLog(
-        4,
-        $versionOfTheUpgrade . $errorMessage
-            . ' - Code : ' . (int) $e->getCode()
-            . ' - Error : ' . $e->getMessage()
-            . ' - Trace : ' . $e->getTraceAsString()
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: $versionOfTheUpgrade . $errorMessage,
+        customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
+        exception: $e
     );
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
