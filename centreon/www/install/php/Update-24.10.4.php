@@ -145,6 +145,27 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     }
 };
 
+// -------------------------------------------- CEIP Agent Information -------------------------------------------- //
+/**
+ * @param CentreonDB $pearDBO
+ *
+ * @throws CentreonDbException
+ *
+ */
+$createAgentInformationTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
+    $errorMessage = 'Unable to create table agent_information';
+    $pearDBO->executeQuery(
+        <<<SQL
+            CREATE TABLE IF NOT EXISTS `agent_information` (
+                `poller_id` bigint(20) unsigned NOT NULL,
+                `enabled` tinyint(1) NOT NULL DEFAULT 1,
+                `infos` JSON NOT NULL,
+            PRIMARY KEY (`poller_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        SQL
+    );
+};
+
 try {
     // DDL statements for real time database
     $addColumnToResourcesTable($pearDBO);
@@ -154,6 +175,8 @@ try {
     $addAllContactGroupsColumnToAclGroups($pearDB);
     $createUserProfileTable($pearDB);
     $createUserProfileFavoriteDashboards($pearDB);
+
+    $createAgentInformationTable($pearDBO);
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
