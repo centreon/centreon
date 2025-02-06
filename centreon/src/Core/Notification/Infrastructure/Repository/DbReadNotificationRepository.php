@@ -632,7 +632,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function findLastNotificationDependencyIdByHostGroup(int $hostGroupId): ?int
+    public function findLastNotificationDependencyIdsByHostGroup(int $hostGroupId): array
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -646,16 +646,18 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         ));
         $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
         $statement->execute();
-        $result = $statement->fetch();
 
-        /**
-         * @var array{id:int,nb_dependency:int} $result
-         */
-        if ($result['nb_dependency'] === 1) {
-            return $result['id'];
+        $lastDependencyIds = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+            /**
+             * @var array{id:int,nb_dependency:int} $result
+             */
+            if ($result['nb_dependency'] === 1) {
+                $lastDependencyIds[] = $result['id'];
+            }
         }
 
-        return null;
+        return $lastDependencyIds;
     }
 
     /**

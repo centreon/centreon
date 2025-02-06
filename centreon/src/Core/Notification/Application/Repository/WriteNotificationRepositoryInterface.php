@@ -133,11 +133,11 @@ interface WriteNotificationRepositoryInterface
     public function deleteNotification(int $notificationId): int;
 
     /**
-     * Delete a dependency.
+     * Delete multiple dependencies.
      *
-     * @param int $dependencyId
+     * @param int[] $dependencyIds
      *
      * @throws \Throwable
      */
-    public function deleteDependency(int $dependencyId): void;
+    public function deleteDependencies(array $dependencyIds): void;
 }

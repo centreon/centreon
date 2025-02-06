@@ -141,11 +141,11 @@ final class DeleteHostGroups
      */
     private function deleteNotificationHostGroupDependency(int $hostGroupId): void
     {
-        $lastDependencyId = $this->readNotificationRepository
-            ->findLastNotificationDependencyIdByHostGroup($hostGroupId);
+        $lastDependencyIds = $this->readNotificationRepository
+            ->findLastNotificationDependencyIdsByHostGroup($hostGroupId);
 
-        if ($lastDependencyId !== null) {
-            $this->writeNotificationRepository->deleteDependency($lastDependencyId);
+        if (! empty($lastDependencyIds)) {
+            $this->writeNotificationRepository->deleteDependencies($lastDependencyIds);
         }
     }
 
