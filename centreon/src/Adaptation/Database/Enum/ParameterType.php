@@ -51,12 +51,4 @@ enum ParameterType: int
      * Represents a boolean data type.
      */
     case BOOL = 5;
-    /**
-     * Represents a binary string data type.
-     */
-    case BINARY = 16;
-    /**
-     * Represents an ASCII string data type
-     */
-    case ASCII = 17;
 }
