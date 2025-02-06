@@ -2079,28 +2079,6 @@ function getServiceTemplatePayload(
         $payload = array_merge($payload, $additionalFields);
     }
 
-    // if ($isCloudPlatform) {
-    //     $payload['notification_timeperiod_id'] = null;
-    //     $payload['volatility_enabled'] = 2;
-    //     $payload['active_check_enabled'] = 2;
-    //     $payload['passive_check_enabled'] = 2;
-    //     $payload['freshness_checked'] = 2;
-    //     $payload['freshness_threshold'] = null;
-    //     $payload['low_flap_threshold'] = null;
-    //     $payload['high_flap_threshold'] = null;
-    //     $payload['flap_detection_enabled'] = 2;
-    //     $payload['notification_interval'] = null;
-    //     $payload['notification_options'] = null;
-    //     $payload['notification_enabled'] = 2;
-    //     $payload['is_contact_additive_inheritance'] = false;
-    //     $payload['is_contact_group_additive_inheritance'] = false;
-    //     $payload['first_notification_delay'] = null;
-    //     $payload['recovery_notification_delay'] = null;
-    //     $payload['comment'] = null;
-    //     $payload['event_handler_command_args'] = null;
-    //     $payload['acknowledgement_timeout'] = null;
-    // }
-
     if (isset($submittedValues['macroInput']) && isset($submittedValues['macroValue'])) {
         $macroDescription = [];
         foreach ($submittedValues as $name => $value) {
