@@ -268,7 +268,6 @@ class CentreonCeip extends CentreonWebService
             foreach ($centreonModules as $module) {
                 $licenseObject->setProduct($module);
                 $isLicenseValid = $licenseObject->validate();
-
                 if ($isLicenseValid && ! empty($licenseObject->getData())) {
                     /**
                      * @var array<
