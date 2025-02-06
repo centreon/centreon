@@ -197,7 +197,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with all informations",
+					"name": "Add a additional configuration with all informations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -281,7 +281,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -355,7 +355,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with mandatory informations",
+					"name": "Add a additional configuration with mandatory informations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -436,7 +436,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -525,7 +525,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration without name",
+					"name": "Add a additional configuration without name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -580,7 +580,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with empty name",
+					"name": "Add a additional configuration with empty name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -635,7 +635,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration without poller",
+					"name": "Add a additional configuration without poller",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -690,7 +690,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration without type",
+					"name": "Add a additional configuration without type",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -745,7 +745,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration without parameters",
+					"name": "Add a additional configuration without parameters",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -800,7 +800,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with wrong parameters",
+					"name": "Add a additional configuration with wrong parameters",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -855,7 +855,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with duplicated name",
+					"name": "Add a additional configuration with duplicated name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -875,7 +875,7 @@
 									"pm.test(\"The ACC has not been created, because the name must be unique.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"The additional connector configuration name '\" + pm.collectionVariables.get(\"ACC1Name\") + \"' already exists\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"The additional configuration name '\" + pm.collectionVariables.get(\"ACC1Name\") + \"' already exists\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -910,7 +910,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with duplicated vcenter name",
+					"name": "Add a additional configuration with duplicated vcenter name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -965,7 +965,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with duplicated poller",
+					"name": "Add a additional configuration with duplicated poller",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -985,7 +985,7 @@
 									"pm.test(\"The ACC has not been created, because the poller must be unique.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"An additional connector configuration of type 'vmware_v6' is already associated with poller ID(s) '1'\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"An additional configuration of type 'vmware_v6' is already associated with poller ID(s) '1'\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1020,7 +1020,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with special characters",
+					"name": "Add a additional configuration with special characters",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1103,7 +1103,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configuration",
+					"name": "List one additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1190,7 +1190,7 @@
 					"response": []
 				},
 				{
-					"name": "Update an additional connector configuration",
+					"name": "Update an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1246,7 +1246,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1350,7 +1350,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete an additional connector configuration",
+					"name": "Delete an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1407,7 +1407,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2050,7 +2050,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration",
+					"name": "Add a additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2070,7 +2070,7 @@
 									"pm.test(\"The ACC has not been created.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -2105,7 +2105,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2125,7 +2125,7 @@
 									"pm.test(\"The ACC has not been listed.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -2163,7 +2163,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configurations",
+					"name": "List one additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2183,7 +2183,7 @@
 									"pm.test(\"The ACC has not been listed.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -2222,7 +2222,7 @@
 					"response": []
 				},
 				{
-					"name": "Update an additional connector configuration",
+					"name": "Update an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2244,7 +2244,7 @@
 									"pm.test(\"The ACC has not been updated.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -2280,7 +2280,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete an additional connector configuration",
+					"name": "Delete an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2302,7 +2302,7 @@
 									"pm.test(\"The ACC has not been deleted.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -2647,7 +2647,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration",
+					"name": "Add a additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2735,7 +2735,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2839,7 +2839,7 @@
 					"response": []
 				},
 				{
-					"name": "Update an additional connector configuration",
+					"name": "Update an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2895,7 +2895,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configuration",
+					"name": "List one additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2982,7 +2982,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete an additional connector configuration",
+					"name": "Delete an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3040,7 +3040,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3493,7 +3493,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration",
+					"name": "Add a additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3550,7 +3550,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3624,7 +3624,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configuration",
+					"name": "List one additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3711,7 +3711,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configuration with no access",
+					"name": "List one additional configuration with no access",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3771,7 +3771,7 @@
 					"response": []
 				},
 				{
-					"name": "Update an additional connector configuration",
+					"name": "Update an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3827,7 +3827,7 @@
 					"response": []
 				},
 				{
-					"name": "Update an additional connector configuration with no access",
+					"name": "Update an additional configuration with no access",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3886,7 +3886,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete an additional connector configuration with no access",
+					"name": "Delete an additional configuration with no access",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3943,7 +3943,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete an additional connector configuration",
+					"name": "Delete an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
