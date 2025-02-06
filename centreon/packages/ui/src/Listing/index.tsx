@@ -699,7 +699,11 @@ const Listing = <
                       (loading ? (
                         <SkeletonLoader rows={limit} />
                       ) : (
-                        <EmptyResult label={t(labelNoResultFound)} />
+                        <EmptyResult
+                          label={
+                            labelNoResultFound ? t(labelNoResultFound) : t(defaultLabelNoResultFound)
+                          }
+                        />
                       ))}
                   </TableBody>
                 </Table>

@@ -66,7 +66,7 @@ When('the user clicks on the Edit properties button of an additional connector c
 
 Then('a pop-up menu with the form is displayed', () => {
   cy.wait('@getConnectorDetail');
-  cy.contains('Update additional connector configuration').should('be.visible');
+  cy.contains('Update additional configuration').should('be.visible');
 });
 
 Then('all of the informations of the additional connector configuration are correct', () => {
@@ -101,7 +101,7 @@ When('the user clicks on Update', () => {
 
 Then('the form is closed', () => {
   cy.wait('@updateConnectorDetail');
-  cy.contains('Update additional connector configuration').should('not.exist');
+  cy.contains('Update additional configuration').should('not.exist');
 });
 
 Then('the informations are successfully saved', () => {
