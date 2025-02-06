@@ -45,31 +45,18 @@ interface ConnectionInterface
     ];
 
     /**
-     * Factory
-     *
-     * @param ConnectionConfig $connectionConfig
-     *
-     * @return ConnectionInterface
-     *
-     * @throws ConnectionException
-     */
-    public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface;
-
-    /**
      * Return the database name if it exists.
      *
-     * @return string|null
-     *
      * @throws ConnectionException
+     * @return string|null
      */
     public function getDatabaseName(): ?string;
 
     /**
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
-     * @return object
-     *
      * @throws ConnectionException
+     * @return object
      */
     public function getNativeConnection(): object;
 
@@ -77,9 +64,8 @@ interface ConnectionInterface
      * Returns the ID of the last inserted row.
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
-     * @return string
-     *
      * @throws ConnectionException
+     * @return string
      */
     public function getLastInsertId(): string;
 
@@ -91,20 +77,15 @@ interface ConnectionInterface
     public function isConnected(): bool;
 
     /**
-     * Closes the connection.
-     */
-    public function close(): void;
-
-    /**
      * The usage of this method is discouraged. Use prepared statements.
      *
      * @param string $value
      *
      * @return string
      */
-    public function quote(string $value): string;
+    public function quoteString(string $value): string;
 
-    // ----------------------------------------- CRUD METHODS -----------------------------------------
+    // ----------------------------------------- CUD METHODS ------------------------------------------
 
     /**
      * To execute all queries except the queries getting results.
@@ -124,9 +105,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types
      *
+     * @throws ConnectionException
      * @return int
      *
-     * @throws ConnectionException
      */
     public function executeStatement(string $query, array $params = [], array $types = []): int;
 
@@ -141,9 +122,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}
      *
+     * @throws ConnectionException
      * @return int
      *
-     * @throws ConnectionException
      */
     public function insert(string $query, array $params = [], array $types = []): int;
 
@@ -158,9 +139,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}
      *
+     * @throws ConnectionException
      * @return int
      *
-     * @throws ConnectionException
      */
     public function update(string $query, array $params = [], array $types = []): int;
 
@@ -175,9 +156,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}
      *
+     * @throws ConnectionException
      * @return int
      *
-     * @throws ConnectionException
      */
     public function delete(string $query, array $params = [], array $types = []): int;
 
@@ -194,9 +175,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
-     * @throws ConnectionException
      */
     public function fetchAssociative(string $query, array $params = [], array $types = []): false | array;
 
@@ -212,9 +193,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
-     * @throws ConnectionException
      */
     public function fetchNumeric(string $query, array $params = [], array $types = []): false | array;
 
@@ -230,9 +211,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return mixed|false False is returned if no rows are found.
      *
-     * @throws ConnectionException
      */
     public function fetchOne(string $query, array $params = [], array $types = []): mixed;
 
@@ -247,9 +228,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return array<array<int,mixed>>
      *
-     * @throws ConnectionException
      */
     public function fetchAllNumeric(string $query, array $params = [], array $types = []): array;
 
@@ -264,9 +245,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return array<array<string,mixed>>
      *
-     * @throws ConnectionException
      */
     public function fetchAllAssociative(string $query, array $params = [], array $types = []): array;
 
@@ -282,9 +263,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return array<int|string,mixed>
      *
-     * @throws ConnectionException
      */
     public function fetchAllKeyValue(string $query, array $params = [], array $types = []): array;
 
@@ -301,9 +282,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return array<mixed,array<string,mixed>>
      *
-     * @throws ConnectionException
      */
     public function fetchAllAssociativeIndexed(string $query, array $params = [], array $types = []): array;
 
@@ -318,9 +299,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return list<mixed>
      *
-     * @throws ConnectionException
      */
     public function fetchFirstColumn(string $query, array $params = [], array $types = []): array;
 
@@ -337,9 +318,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return Traversable<int,list<mixed>>
      *
-     * @throws ConnectionException
      */
     public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable;
 
@@ -355,9 +336,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return Traversable<int,array<string,mixed>>
      *
-     * @throws ConnectionException
      */
     public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable;
 
@@ -373,9 +354,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return Traversable<mixed,mixed>
      *
-     * @throws ConnectionException
      */
     public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable;
 
@@ -392,9 +373,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return Traversable<mixed,array<string,mixed>>
      *
-     * @throws ConnectionException
      */
     public function iterateAssociativeIndexed(string $query, array $params = [], array $types = []): Traversable;
 
@@ -409,9 +390,9 @@ interface ConnectionInterface
      * @param array<string,int|string> $params
      * @param array<string,int|string> $types {@see ParameterType}.
      *
+     * @throws ConnectionException
      * @return Traversable<int,mixed>
      *
-     * @throws ConnectionException
      */
     public function iterateColumn(string $query, array $params = [], array $types = []): Traversable;
 
@@ -438,9 +419,9 @@ interface ConnectionInterface
      *
      * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
      *
+     * @throws ConnectionException
      * @return void
      *
-     * @throws ConnectionException
      */
     public function setAutoCommit(bool $autoCommit): void;
 
@@ -461,27 +442,27 @@ interface ConnectionInterface
      * Similarly, if a rollback occurs in a nested transaction, the level 1 transaction will also be rolled back and
      * no data will be updated.
      *
+     * @throws ConnectionException
      * @return void
      *
-     * @throws ConnectionException
      */
     public function startTransaction(): void;
 
     /**
      * To validate a transaction.
      *
+     * @throws ConnectionException
      * @return void
      *
-     * @throws ConnectionException
      */
     public function commit(): void;
 
     /**
      * To cancel a transaction.
      *
+     * @throws ConnectionException
      * @return void
      *
-     * @throws ConnectionException
      */
     public function rollBack(): void;
 
@@ -497,9 +478,9 @@ interface ConnectionInterface
     /**
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
+     * @throws ConnectionException
      * @return void
      *
-     * @throws ConnectionException
      */
     public function startUnbufferedQuery(): void;
 
@@ -513,9 +494,9 @@ interface ConnectionInterface
     /**
      * To close an unbuffered query.
      *
+     * @throws ConnectionException
      * @return void
      *
-     * @throws ConnectionException
      */
     public function stopUnbufferedQuery(): void;
 }

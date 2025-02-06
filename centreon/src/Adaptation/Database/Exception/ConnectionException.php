@@ -76,6 +76,17 @@ class ConnectionException extends DatabaseException
     }
 
     /**
+     * @return ConnectionException
+     */
+    public static function getDatabaseNameFailed(): ConnectionException
+    {
+        return new self(
+            "Error while getting the database name",
+            code: self::ERROR_CODE_DATABASE
+        );
+    }
+
+    /**
      * @param Throwable $previous
      *
      * @return ConnectionException

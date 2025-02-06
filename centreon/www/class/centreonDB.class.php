@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\ConnectionInterface;
+use Adaptation\Database\Exception\ConnectionException;
+
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
 if ($configFile !== false) {
@@ -34,7 +37,7 @@ require_once __DIR__ . '/centreonLog.class.php';
  * @class       CentreonDB
  * @description used to manage DB connection
  */
-class CentreonDB extends PDO
+class CentreonDB extends PDO implements ConnectionInterface
 {
     public const DRIVER_PDO_MYSQL = "mysql";
     public const LABEL_DB_CONFIGURATION = 'centreon';
@@ -165,8 +168,8 @@ class CentreonDB extends PDO
      *
      * @param CentreonDbConfig $dbConfig
      *
-     * @return CentreonDB
      * @throws Exception
+     * @return CentreonDB
      */
     public static function connectToCentreonDb(CentreonDbConfig $dbConfig): CentreonDB
     {
@@ -178,8 +181,8 @@ class CentreonDB extends PDO
      *
      * @param CentreonDbConfig $dbConfig
      *
-     * @return CentreonDB
      * @throws Exception
+     * @return CentreonDB
      */
     public static function connectToCentreonStorageDb(CentreonDbConfig $dbConfig): CentreonDB
     {
@@ -187,15 +190,48 @@ class CentreonDB extends PDO
     }
 
     /**
-     * @return string
+     * Return the database name if it exists.
+     *
+     * @throws ConnectionException
+     * @return string|null
      */
-    public function getCurrentDatabaseName(): string
+    public function getDatabaseName(): ?string
     {
+        if (! isset($this->dbConfig->dbName) || empty($this->dbConfig->dbName)) {
+            throw ConnectionException::getDatabaseNameFailed();
+        }
+
         return $this->dbConfig->dbName;
     }
 
     /**
-     * To know if the connection is established
+     * To get the used native connection by DBAL (PDO, mysqli, ...).
+     *
+     * @return object
+     */
+    public function getNativeConnection(): object
+    {
+        return $this;
+    }
+
+    /***
+     * Returns the ID of the last inserted row.
+     * If the underlying driver does not support identity columns, an exception is thrown.
+     *
+     * @throws ConnectionException
+     * @return string
+     */
+    public function getLastInsertId(): string
+    {
+        try {
+            return (string) $this->lastInsertId();
+        } catch (Throwable $e) {
+            throw ConnectionException::getLastInsertFailed($e);
+        }
+    }
+
+    /**
+     * Check if a connection with the database exist.
      *
      * @return bool
      */
@@ -210,25 +246,16 @@ class CentreonDB extends PDO
         }
     }
 
-    /***
-     * Returns the ID of the last inserted row.
+    /**
+     * The usage of this method is discouraged. Use prepared statements.
+     *
+     * @param string $value
      *
      * @return string
-     *
-     * @throws CentreonDbException
      */
-    public function getLastInsertId(): string
+    public function quoteString(string $value): string
     {
-        try {
-            return (string) $this->lastInsertId();
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while getting last insert ID : {$e->getMessage()}",
-                [],
-                '',
-                $e
-            );
-        }
+        return parent::quote($value);
     }
 
     // --------------------------------------- CUD METHODS -----------------------------------------
@@ -244,8 +271,8 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
-     * @return int
      * @throws CentreonDbException
+     * @return int
      */
     public function delete(string $query, array $bindParams, bool $withParamType = false): int
     {
@@ -279,8 +306,8 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
-     * @return int
      * @throws CentreonDbException
+     * @return int
      */
     public function insert(string $query, array $bindParams, bool $withParamType = false): int
     {
@@ -317,8 +344,8 @@ class CentreonDB extends PDO
      * @param bool   $withParamType If true, $bindParams must have an array of arrays like
      *                              ['column => ['value', PDO::PARAM_*]]
      *
-     * @return int
      * @throws CentreonDbException
+     * @return int
      */
     public function iterateInsert(
         string $tableName,
@@ -415,8 +442,8 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
-     * @return int
      * @throws CentreonDbException
+     * @return int
      */
     public function update(string $query, array $bindParams, bool $withParamType = false): int
     {
@@ -452,9 +479,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
-     * @throws CentreonDbException
      */
     public function fetchAssociative(string $query, array $bindParams = [], bool $withParamType = false): false | array
     {
@@ -489,9 +516,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
-     * @throws CentreonDbException
      */
     public function fetchNumeric(string $query, array $bindParams = [], bool $withParamType = false): false | array
     {
@@ -526,8 +553,8 @@ class CentreonDB extends PDO
      * @param bool   $withParamType
      * @param int    $column
      *
-     * @return array|bool
      * @throws CentreonDbException
+     * @return array|bool
      */
     public function fetchByColumn(
         string $query,
@@ -572,9 +599,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return array<array<int,mixed>>
      *
-     * @throws CentreonDbException
      */
     public function fetchAllNumeric(string $query, array $bindParams = [], bool $withParamType = false): array
     {
@@ -608,9 +635,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return array<array<string,mixed>>
      *
-     * @throws CentreonDbException
      */
     public function fetchAllAssociative(string $query, array $bindParams = [], bool $withParamType = false): array
     {
@@ -646,9 +673,9 @@ class CentreonDB extends PDO
      * @param bool   $withParamType
      * @param int    $column
      *
+     * @throws CentreonDbException
      * @return array<array<string,mixed>>
      *
-     * @throws CentreonDbException
      */
     public function fetchAllByColumn(
         string $query,
@@ -694,9 +721,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return array<int|string,mixed>
      *
-     * @throws CentreonDbException
      */
     public function fetchAllKeyValue(string $query, array $bindParams = [], bool $withParamType = false): array
     {
@@ -737,9 +764,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return array<mixed,array<string,mixed>>
      *
-     * @throws CentreonDbException
      */
     public function fetchAllAssociativeIndexed(
         string $query,
@@ -771,9 +798,9 @@ class CentreonDB extends PDO
      *
      * @param PDOStatement $pdoStatement
      *
-     * @return mixed
-     *
      * @throws CentreonDbException
+     *
+     * @return mixed
      *
      * @see fetchNumeric(), fetchAssociative()
      */
@@ -797,9 +824,9 @@ class CentreonDB extends PDO
      *
      * @param PDOStatement $pdoStatement
      *
-     * @return array
-     *
      * @throws CentreonDbException
+     *
+     * @return array
      *
      * @see fetchAllNumeric(), fetchAllAssociative()
      */
@@ -833,9 +860,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return Traversable<int,array<string,mixed>>
      *
-     * @throws CentreonDbException
      */
     public function iterateAssociative(string $query, array $bindParams = [], bool $withParamType = false): Traversable
     {
@@ -870,9 +897,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return Traversable<int,list<mixed>>
      *
-     * @throws CentreonDbException
      */
     public function iterateNumeric(string $query, array $bindParams = [], bool $withParamType = false): Traversable
     {
@@ -908,9 +935,9 @@ class CentreonDB extends PDO
      * @param int    $column
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return Traversable<int,list<mixed>>
      *
-     * @throws CentreonDbException
      */
     public function iterateByColumn(
         string $query,
@@ -957,9 +984,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return Traversable<mixed,mixed>
      *
-     * @throws CentreonDbException
      */
     public function iterateKeyValue(string $query, array $bindParams = [], bool $withParamType = false): Traversable
     {
@@ -1001,9 +1028,9 @@ class CentreonDB extends PDO
      * @param array  $bindParams
      * @param bool   $withParamType
      *
+     * @throws CentreonDbException
      * @return Traversable<mixed,array<string,mixed>>
      *
-     * @throws CentreonDbException
      */
     public function iterateAssociativeIndexed(
         string $query,
@@ -1034,8 +1061,8 @@ class CentreonDB extends PDO
      *
      * @param string $query
      *
-     * @return bool
      * @throws CentreonDbException
+     * @return bool
      */
     public function updateDatabase(string $query): bool
     {
@@ -1076,8 +1103,8 @@ class CentreonDB extends PDO
      * @param string $query
      * @param array  $options
      *
-     * @return PDOStatement|bool
      * @throws CentreonDbException
+     * @return PDOStatement|bool
      */
     public function prepareQuery(string $query, array $options = []): PDOStatement | bool
     {
@@ -1124,10 +1151,10 @@ class CentreonDB extends PDO
      * @param int          $fetchMode     Only for the SELECT queries
      * @param array        $fetchModeArgs
      *
+     * @throws CentreonDbException
      * @return bool|PDOStatement If the query is a CUD query, it returns a boolean, if it's a SELECT query, it returns
      *                           a PDOStatement
      *
-     * @throws CentreonDbException
      */
     public function executePreparedQuery(
         PDOStatement $pdoStatement,
@@ -1215,8 +1242,8 @@ class CentreonDB extends PDO
      * @param PDOStatement $pdoStatement
      * @param array|null   $bindParams
      *
-     * @return bool (no signature for this method because of a bug with tests with \Centreon\Test\Mock\CentreonDb::execute())
      * @throws CentreonDbException
+     * @return bool (no signature for this method because of a bug with tests with \Centreon\Test\Mock\CentreonDb::execute())
      */
     public function execute(PDOStatement $pdoStatement, ?array $bindParams = null)
     {
@@ -1250,9 +1277,9 @@ class CentreonDB extends PDO
      * @param int   $fetchMode
      * @param array $fetchModeArgs
      *
+     * @throws CentreonDbException
      * @return PDOStatement|bool
      *
-     * @throws CentreonDbException
      */
     public function executeQuery(
         $query,
@@ -1303,8 +1330,8 @@ class CentreonDB extends PDO
      * @param mixed        $value
      * @param int          $type
      *
-     * @return bool
      * @throws CentreonDbException
+     * @return bool
      */
     public function makeBindValue(
         PDOStatement $pdoStatement,
@@ -1354,8 +1381,8 @@ class CentreonDB extends PDO
      * @param int          $type
      * @param int          $maxLength
      *
-     * @return bool
      * @throws CentreonDbException
+     * @return bool
      */
     public function makeBindParam(
         PDOStatement $pdoStatement,
@@ -1403,8 +1430,8 @@ class CentreonDB extends PDO
     /**
      * @param PDOStatement $pdoStatement
      *
-     * @return bool
      * @throws CentreonDbException
+     * @return bool
      */
     public function closeQuery(PDOStatement $pdoStatement): bool
     {
@@ -1424,8 +1451,10 @@ class CentreonDB extends PDO
      * @param string $string
      * @param int    $type
      *
-     * @return string
      * @throws CentreonDbException
+     * @return string
+     *
+     * @deprecated Use {@see quote()} instead
      */
     public function escapeString(string $string, int $type = PDO::PARAM_STR): string
     {
@@ -1453,9 +1482,9 @@ class CentreonDB extends PDO
      * Opens a new transaction. This must be closed by calling one of the following methods:
      * {@see commit} or {@see rollBack}
      *
+     * @throws CentreonDbException
      * @return void
      *
-     * @throws CentreonDbException
      */
     public function startTransaction(): void
     {
@@ -1469,9 +1498,9 @@ class CentreonDB extends PDO
     /**
      * To validate a transaction.
      *
+     * @throws CentreonDbException
      * @return bool
      *
-     * @throws CentreonDbException
      */
     public function commit(): bool
     {
@@ -1489,9 +1518,9 @@ class CentreonDB extends PDO
     /**
      * To cancel a transaction.
      *
+     * @throws CentreonDbException
      * @return bool
      *
-     * @throws CentreonDbException
      */
     public function rollBack(): bool
     {
@@ -1511,9 +1540,9 @@ class CentreonDB extends PDO
     /**
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
+     * @throws CentreonDbException
      * @return void
      *
-     * @throws CentreonDbException
      */
     public function startUnbufferedQuery(): void
     {
@@ -1540,9 +1569,9 @@ class CentreonDB extends PDO
     /**
      * To close an unbuffered query.
      *
+     * @throws CentreonDbException
      * @return void
      *
-     * @throws CentreonDbException
      */
     public function stopUnbufferedQuery(): void
     {
@@ -1604,8 +1633,8 @@ class CentreonDB extends PDO
      *
      * @param string $name The name of centreon datasource
      *
-     * @return CentreonDB
      * @throws Exception
+     * @return CentreonDB
      */
     public static function factory($name = self::LABEL_DB_CONFIGURATION)
     {
@@ -1726,8 +1755,8 @@ class CentreonDB extends PDO
      * @param string $table
      * @param string $indexName
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     public function isIndexExists(string $table, string $indexName): bool
     {
@@ -1755,8 +1784,8 @@ class CentreonDB extends PDO
      * @param string $table
      * @param string $constraintName
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     public function isConstraintExists(string $table, string $constraintName): bool
     {
@@ -1832,8 +1861,8 @@ class CentreonDB extends PDO
      * @param string         $query
      * @param Throwable|null $exception
      *
-     * @return void
      * @throws CentreonDbException
+     * @return void
      */
     private function logAndCreateException(
         string $message,
@@ -1918,9 +1947,9 @@ class CentreonDB extends PDO
      * @param PDOStatement $pdoStatement
      * @param int          $column
      *
-     * @return array|bool
-     *
      * @throws CentreonDbException
+     *
+     * @return array|bool
      *
      * @deprecated Instead use {@see CentreonDB::fetchByColumn()}
      * @see        CentreonDB::fetchByColumn()
@@ -1948,9 +1977,9 @@ class CentreonDB extends PDO
      * @param string $query
      * @param int    $column
      *
-     * @return array
-     *
      * @throws CentreonDbException
+     *
+     * @return array
      *
      * @deprecated Instead use {@see CentreonDB::fetchAllByColumn()}
      * @see        CentreonDB::fetchAllByColumn()
@@ -1979,9 +2008,9 @@ class CentreonDB extends PDO
      *
      * @param string $query
      *
-     * @return array
      * @throws CentreonDbException
      *
+     * @return array
      * @deprecated Instead use {@see CentreonDB::fetchAllAssociative()}
      * @see        CentreonDB::fetchAllAssociative()
      */
@@ -2041,9 +2070,9 @@ class CentreonDB extends PDO
      * @param null|mixed $parameters
      * @param mixed      ...$parametersArgs
      *
+     * @throws PDOException
      * @return CentreonDBStatement|false
      *
-     * @throws PDOException
      * @deprecated Instead use fetch* methods
      *
      * #[\ReturnTypeWillChange] to fix the change of the method's signature and avoid a fatal error
@@ -2094,9 +2123,9 @@ class CentreonDB extends PDO
      * @param string       $query_string query
      * @param array<mixed> $placeHolders
      *
-     * @return array|false  getAll result
-     *
      * @throws PDOException
+     *
+     * @return array|false  getAll result
      *
      * @deprecated Instead use {@see CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()}
      * @see        CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()

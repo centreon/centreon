@@ -117,7 +117,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it('get the database name of the current connection', function () use ($dbConfigCentreon): void {
         $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $dbName = $db->getCurrentDatabaseName();
+        $dbName = $db->getDatabaseName();
         expect($dbName)->toBe('centreon');
     });
 
