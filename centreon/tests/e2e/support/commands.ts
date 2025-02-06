@@ -16,6 +16,7 @@ import '../features/Agent-configuration/commands';
 import '../features/Logs/commands';
 import '../features/Services-configuration/commands';
 import '../features/Notifications/commands';
+import '../features/Resources-status/commands';
 import '../features/Commands/commands';
 
 
