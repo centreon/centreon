@@ -149,12 +149,12 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
 /**
  * @param CentreonDB $pearDBO
  *
- * @throws CentreonDbException
- *
+ * @throws PDOException
+ * @return void
  */
 $createAgentInformationTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
     $errorMessage = 'Unable to create table agent_information';
-    $pearDBO->executeQuery(
+    $pearDBO->exec(
         <<<SQL
             CREATE TABLE IF NOT EXISTS `agent_information` (
                 `poller_id` bigint(20) unsigned NOT NULL,
@@ -169,14 +169,13 @@ $createAgentInformationTable = function (CentreonDB $pearDBO) use (&$errorMessag
 try {
     // DDL statements for real time database
     $addColumnToResourcesTable($pearDBO);
+    $createAgentInformationTable($pearDBO);
 
     // DDL statements for configuration database
     $addAllContactsColumnToAclGroups($pearDB);
     $addAllContactGroupsColumnToAclGroups($pearDB);
     $createUserProfileTable($pearDB);
     $createUserProfileFavoriteDashboards($pearDB);
-
-    $createAgentInformationTable($pearDBO);
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
