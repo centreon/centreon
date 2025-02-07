@@ -220,6 +220,9 @@ $dbResult->execute();
 
 while ($row = $dbResult->fetch()) {
     $duration = $row["UPTimeScheduled"] + $row["DOWNTimeScheduled"] + $row["UNREACHABLETimeScheduled"];
+    if ($duration === 0) {
+        continue;
+    }
     /* Percentage by status */
     $row["UP_MP"] = round($row["UPTimeScheduled"] * 100 / $duration, 2);
     $row["DOWN_MP"] = round($row["DOWNTimeScheduled"] * 100 / $duration, 2);
