@@ -3,14 +3,13 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
 
-import { useTooltipStyles } from '../Tooltip.styles';
-
 import {
   NoDisabledHostsLabel,
   NoEnabledHostsLabel,
   labelDisabledHosts,
   labelEnabledHosts
 } from '../../../../translatedLabels';
+import { useTooltipStyles } from './TooltipContent.styles';
 import { useLoadHosts } from './useLoadHosts';
 
 interface Props {

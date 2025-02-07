@@ -1,27 +1,40 @@
 import { ComponentColumnProps } from '@centreon/ui';
-import { useTooltipStyles } from './Tooltip.styles';
 import TooltipContent from './Tooltip/TooltipContent';
 
 import { Tooltip } from '@mui/material';
+import { useHostsStyles } from './Hosts.styles';
+
+interface Props {
+  enabled: boolean;
+}
 
 const Hosts =
-  ({ enabled }: { enabled: boolean }) =>
-  ({ row }: ComponentColumnProps): JSX.Element => {
+  ({ enabled }: Props) =>
+  ({
+    row,
+    renderEllipsisTypography,
+    isHovered
+  }: ComponentColumnProps): JSX.Element => {
+    const { classes } = useHostsStyles({ isHovered });
+
     const hostCount = enabled
       ? row.enabled_hosts_count
       : row.disabled_hosts_count;
 
-    const { classes } = useTooltipStyles();
+    const formattedHostCount = renderEllipsisTypography?.({
+      className: classes.hostCount,
+      formattedString: hostCount
+    });
 
     return (
       <Tooltip
         classes={{
-          tooltip: classes.tooltip
+          tooltip: classes.tooltipContainer
         }}
         title={<TooltipContent enabled={enabled} hostGroupName={row.name} />}
         arrow
       >
-        <div className={classes.content}>{hostCount}</div>
+        <div className={classes.content}>{formattedHostCount}</div>
       </Tooltip>
     );
   };
