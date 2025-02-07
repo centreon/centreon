@@ -52,31 +52,19 @@ $form = new HTML_QuickFormCustom('Form', 'post', "?p=".$p);
 $form->addElement('header', 'title', _("Modify General Options"));
 $form->addElement('header', 'debug', _("Debug"));
 
+
 $form->addElement('text', 'debug_path', _("Logs Directory"), $attrsText);
 
 $form->addElement('checkbox', 'debug_auth', _("Authentication debug"));
-$form->addElement(
-    'select',
-    'debug_level',
-    _("Debug level"),
-    [
-        000 => 'None',
-        100 => 'Debug',
-        200 => 'Info',
-        250 => 'Notice',
-        300 => 'Warning',
-        400 => 'Error',
-        500 => 'Critical',
-        550 => 'Alert',
-        600 => 'Emergency'
-    ]
-);
 $form->addElement('checkbox', 'debug_sql', _("SQL debug"));
 $form->addElement('checkbox', 'debug_nagios_import', _("Monitoring Engine Import debug"));
 $form->addElement('checkbox', 'debug_rrdtool', _("RRDTool debug"));
 $form->addElement('checkbox', 'debug_ldap_import', _("LDAP User Import debug"));
 $form->addElement('checkbox', 'debug_gorgone', _("Centreon Gorgone debug"));
 $form->addElement('checkbox', 'debug_centreontrapd', _("Centreontrapd debug"));
+
+// Download button of label platform_log_and_info
+$form->addElement('button','debug_platform_log_and_info',_("Download"),array("onClick"=>"javascript:window.location.href='include/Administration/parameters/debug/loading_screen.html'", 'class' => 'btc bt_info'));
 
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('debug_path', 'slash');
