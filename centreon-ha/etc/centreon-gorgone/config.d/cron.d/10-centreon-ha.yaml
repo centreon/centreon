@@ -40,3 +40,10 @@
     - command: "/usr/bin/php /usr/share/centreon/cron/centreon-partitioning.php >> /var/log/centreon-gorgone/centreon-partitioning.log 2>&1"
       timeout: 120
   keep_token: true
+- id: outdated_token_removal
+  timespec: "*/5 * * * *"
+  action: COMMAND
+  parameters:
+    - command: "/usr/bin/php /usr/share/centreon/cron/outdated-token-removal.php >> /var/log/centreon-gorgone/outdated-token-removal.log 2>&1"
+      timeout: 120
+  keep_token: true 
