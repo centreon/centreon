@@ -101,7 +101,11 @@ const DashboardsOverview = (): ReactElement => {
             <DataTable.Item
               hasCardAction
               Actions={
-                <DashboardCardActions dashboard={dashboard} refetch={refetch} />
+                <DashboardCardActions
+                  dashboard={dashboard}
+                  refetch={refetch}
+                  isFetchingListing={isLoading}
+                />
               }
               description={dashboard.description ?? undefined}
               hasActions={hasEditPermission(dashboard)}

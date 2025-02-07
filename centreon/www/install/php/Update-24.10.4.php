@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,21 +22,62 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
+$versionOfTheUpgrade = 'UPGRADE - 24.10.4: ';
 $errorMessage = '';
-
-// -------------------------------------------- Dashboard -------------------------------------------- //
 
 /**
  * @param CentreonDB $pearDB
  *
- * @throws CentreonDbException
+ * @throws PDOException
+ * @return void
+ */
+$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add the colum all_contacts to the table acl_groups';
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
+        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL');
+    }
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws PDOException
+ * @return void
+ */
+$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add the colum all_contact_groups to the table acl_groups';
+    if (! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
+        $pearDB->exec('ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL');
+    }
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDBException
+ * @return void
+ */
+$fixNamingOfAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table topology';
+    $constraintStatement = $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `topology`
+            SET `topology_name` = 'Additional connector configurations'
+            WHERE `topology_url` = '/configuration/additional-connector-configurations'
+            SQL
+    );
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws PDOException
  * @return void
  */
 $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table user_profile';
-    $pearDB->executeQuery(
-        <<<SQL
+    $pearDB->exec(
+        <<<'SQL'
         CREATE TABLE IF NOT EXISTS `user_profile` (
           `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
           `contact_id` INT(11) NOT NULL,
@@ -53,13 +94,13 @@ $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): vo
 /**
  * @param CentreonDB $pearDB
  *
- * @throws CentreonDbException
+ * @throws PDOException
  * @return void
  */
 $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table user_profile_favorite_dashboards';
-    $pearDB->executeQuery(
-        <<<SQL
+    $pearDB->exec(
+        <<<'SQL'
         CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
           `profile_id` INT UNSIGNED NOT NULL,
           `dashboard_id` INT UNSIGNED NOT NULL,
@@ -74,29 +115,12 @@ $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$erro
     );
 };
 
-/**
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- * @return void
- */
-$updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to update table dashboard_panel';
-    $pearDB->executeQuery(
-        <<<'SQL'
-            UPDATE `dashboard_panel`
-            SET `layout_x` = `layout_x` * 2,
-                `layout_width` = `layout_width` * 2
-            SQL
-    );
-};
-
 // -------------------------------------------- Resource Status -------------------------------------------- //
 
 /**
  * @param CentreonDB $pearDBO
  *
- * @throws CentreonDbException
+ * @throws PDOException
  * @return void
  */
 $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
@@ -122,21 +146,41 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
 };
 
 try {
+    // DDL statements for real time database
     $addColumnToResourcesTable($pearDBO);
+
+    // DDL statements for configuration database
+    $addAllContactsColumnToAclGroups($pearDB);
+    $addAllContactGroupsColumnToAclGroups($pearDB);
     $createUserProfileTable($pearDB);
     $createUserProfileFavoriteDashboards($pearDB);
-    $updatePanelsLayout($pearDB);
-} catch (CentreonDbException $e) {
-    CentreonLog::create()->critical(
+
+    // Transactional queries for configuration database
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
+
+    $fixNamingOfAccTopology($pearDB);
+
+    $pearDB->commit();
+} catch (\Exception $e) {
+    try {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+    } catch (PDOException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+            customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
+            exception: $e
+        );
+    }
+
+    CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: $versionOfTheUpgrade . $errorMessage
-        . ' - Code : ' . (int) $e->getCode()
-        . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString(),
-        customContext: [
-            'exception' => $e->getOptions(),
-            'trace' => $e->getTraceAsString(),
-        ],
+        message: $versionOfTheUpgrade . $errorMessage,
+        customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
         exception: $e
     );
 
