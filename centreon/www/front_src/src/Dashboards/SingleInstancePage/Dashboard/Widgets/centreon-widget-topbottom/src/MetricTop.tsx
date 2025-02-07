@@ -60,7 +60,7 @@ const MetricTop = ({
 
   return (
     <>
-      <Box className={classes.singleBarContainer} style={{ height: 50 }}>
+      <Box className={classes.singleBarContainer}>
         <Link
           className={classes.linkToResourcesStatus}
           data-testid={`link to ${metricTop?.name}`}

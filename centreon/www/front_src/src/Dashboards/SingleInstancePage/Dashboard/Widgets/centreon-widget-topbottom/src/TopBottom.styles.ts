@@ -24,6 +24,7 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
     textOverflow: 'ellipsis',
     transform: 'translateY(50%)',
     whiteSpace: 'nowrap',
+    height: 50 ,
     [theme.containerQueries.up(620)]: {
       maxWidth: '60ch'
     },
@@ -35,7 +36,8 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
     }
   },
   singleBarContainer: {
-    cursor: 'pointer'
+    cursor: 'pointer',
+    height: 50 
   },
   containerText: {
     display: 'flex',
@@ -44,6 +46,5 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
   containerGraph: {
     display: 'flex',
     flexDirection: 'column'
-    // width: '100%'
   }
 }));

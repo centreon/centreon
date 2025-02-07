@@ -10,9 +10,6 @@ import { useTopBottomStyles } from './TopBottom.styles';
 
 const Label = forwardRef(({ metricTop, index }, ref) => {
   const { classes } = useTopBottomStyles();
-  // const ref = useRef(null)
-
-  // console.log('---->ref',ref)
 
   return (
     <Typography className={classes.resourceLabel} ref={ref}>
