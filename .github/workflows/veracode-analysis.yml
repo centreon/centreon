@@ -275,6 +275,7 @@ jobs:
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: ${{ inputs.module_name }}
           ticket_labels: '["Veracode", "Pipeline"]'
+          ticket_squad: "DevSecOps"
 
   clean-artifact:
     needs: [pipeline-scan]
