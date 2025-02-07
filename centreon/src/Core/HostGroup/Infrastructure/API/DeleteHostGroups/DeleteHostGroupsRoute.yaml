@@ -1,0 +1,5 @@
+DeleteHostGroups:
+  methods: POST
+  path: /configuration/hosts/groups/_delete
+  controller: 'Core\HostGroup\Infrastructure\API\DeleteHostGroups\DeleteHostGroupsController'
+  condition: "request.attributes.get('version') >= 25.03"

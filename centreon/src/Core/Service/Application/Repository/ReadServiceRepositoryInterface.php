@@ -29,6 +29,7 @@ use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
 use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
+use Core\Service\Domain\Model\ServiceRelation;
 use Core\Service\Domain\Model\TinyService;
 
 interface ReadServiceRepositoryInterface
@@ -167,4 +168,28 @@ interface ReadServiceRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array;
+
+    /**
+     * Find services relations with host group.
+     *
+     * param int $hostGroupId
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceRelation[]
+     */
+    public function findServiceRelationsByHostGroupId(int $hostGroupId): array;
+
+    /**
+     * Find a service name by its ID.
+     *
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return string|null
+     */
+    public function findNameById(int $serviceId): ?string;
 }

@@ -364,6 +364,44 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     }
 
     /**
+     * @inheritDoc
+     */
+    public function updateDatasetResources(int $datasetId, array $resourceIds): void
+    {
+        if ([] === $resourceIds) {
+            return;
+        }
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.dataset_filters
+                SET resource_ids = :resource_ids
+                WHERE id = :id
+                SQL
+        ));
+        $statement->bindValue(':resource_ids', implode(',', $resourceIds), \PDO::PARAM_STR);
+        $statement->bindValue(':id', (int) $datasetId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteDatasetFilter(int $datasetFilterid): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.dataset_filters
+                WHERE id = :id
+                SQL
+        ));
+        $statement->bindValue(':id', $datasetFilterid, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
      * @param int $ruleId
      *
      * @return int[]
