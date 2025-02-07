@@ -99,7 +99,8 @@ abstract class DomainException extends Exception
     private function addExceptionContext(): void
     {
         $exceptionContext = $this->getExceptionContext($this);
-        $exceptionContext['previous'] = $this->getExceptionContext($this->getPrevious());
+        $exceptionContext['previous'] = ($this->getPrevious() !== null) ?
+            $this->getExceptionContext($this->getPrevious()) : null;
         $exceptionContext['trace'] = $this->getTraceAsString();
         $this->addContextItem('exception', $exceptionContext);
     }
