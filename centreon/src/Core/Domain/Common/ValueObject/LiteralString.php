@@ -34,19 +34,19 @@ use Core\Domain\Common\Exception\InvalidValueObjectException;
 readonly class LiteralString implements ValueObjectInterface
 {
     /**
-     * $literalString constructor
+     * LiteralString constructor
      *
      * @param string $value
      */
-    public function __construct(protected string $value)
-    {
-    }
+    public function __construct(protected string $value) {}
 
     /**
      * @param string $value
+     *
      * @return LiteralString
      */
-    public static function createFromString(string $value): LiteralString {
+    public static function createFromString(string $value): LiteralString
+    {
         return new static($value);
     }
 
@@ -84,16 +84,18 @@ readonly class LiteralString implements ValueObjectInterface
 
     /**
      * @param ValueObjectInterface $object
-     * @return bool
+     *
      * @throws InvalidValueObjectException
+     * @return bool
      */
     public function equals(ValueObjectInterface $object): bool
     {
-        if(!$object instanceof static) {
+        if (! $object instanceof static) {
             throw new InvalidValueObjectException(
-                "Equal checking failed because not a {$this::class}, {$object::class} given",
+                "Equal checking failed because not a " . $this::class . ", " . $object::class . " given",
             );
         }
+
         return $this->value === $object->getValue();
     }
 }
