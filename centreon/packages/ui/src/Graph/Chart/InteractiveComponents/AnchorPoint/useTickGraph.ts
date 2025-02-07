@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ScaleLinear } from 'd3-scale';
 import { useAtomValue } from 'jotai';
@@ -15,6 +15,7 @@ interface AnchorPointResult {
   tickAxisBottom: Date | null;
   tickAxisLeft: string | null;
   tickAxisRight: string | null;
+  guidingLinesRef: MutableRefObject<SVGGElement | null>;
 }
 
 interface Props {
@@ -34,6 +35,7 @@ const useTickGraph = ({
   lines = [],
   baseAxis = 1000
 }: Props): AnchorPointResult => {
+  const guidingLinesRef = useRef<SVGGElement | null>(null);
   const [tickAxisBottom, setTickAxisBottom] = useState<Date | null>(null);
   const [tickAxisLeft, setTickAxisLeft] = useState<string | null>(null);
   const [tickAxisRight, setTickAxisRight] = useState<string | null>(null);
@@ -42,12 +44,22 @@ const useTickGraph = ({
 
   const mousePosition = useAtomValue(mousePositionAtom);
 
+  const paddingLeftString = useMemo(
+    () =>
+      (
+        guidingLinesRef.current?.parentElement?.parentElement?.attributes
+          ?.transform.value || ''
+      ).match(/translate\(([0-9\.]+), ([0-9\.]+)\)/)?.[1] || '0',
+    [
+      guidingLinesRef.current?.parentElement?.parentElement?.attributes
+        ?.transform.value
+    ]
+  );
+
   const positionX = mousePosition
-    ? mousePosition[0] - margin.left - 4
+    ? mousePosition[0] - Number(paddingLeftString) - 1
     : undefined;
-  const positionY = mousePosition
-    ? mousePosition[1] - margin.top + 2
-    : undefined;
+  const positionY = mousePosition ? mousePosition[1] - margin.top : undefined;
 
   useEffect(() => {
     if (!mousePosition) {
@@ -86,7 +98,8 @@ const useTickGraph = ({
     positionY,
     tickAxisBottom,
     tickAxisLeft,
-    tickAxisRight
+    tickAxisRight,
+    guidingLinesRef
   };
 };
 export default useTickGraph;
