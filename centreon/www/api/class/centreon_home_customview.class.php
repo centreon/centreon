@@ -188,7 +188,7 @@ class CentreonHomeCustomview extends CentreonWebService
         require_once _CENTREON_PATH_ . "www/class/centreonWidget/Params/Compare.class.php";
         require_once _CENTREON_PATH_ . "www/class/centreonWidget/Params/Sort.class.php";
         require_once _CENTREON_PATH_ . "www/class/centreonWidget/Params/Date.class.php";
-        $smartyDir = __DIR__ . '/../../../vendor/smarty/smarty/';
+        $smartyDir = __DIR__ . '/../../../vendor/' . SmartyCentreon::PACKAGE_CENTREON_SMARTY_NAME . '/';
         require_once $smartyDir . 'libs/Smarty.class.php';
 
         global $centreon;
