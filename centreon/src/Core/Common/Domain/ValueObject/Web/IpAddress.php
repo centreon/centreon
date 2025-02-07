@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Common\ValueObject\Web;
+namespace Core\Common\Domain\ValueObject\Web;
 
-use Core\Domain\Common\Exception\ValueObjectException;
-use Core\Domain\Common\ValueObject\LiteralString;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Domain\ValueObject\LiteralString;
 
 /**
  * Class
  *
  * @class   IpAddress
- * @package Core\Domain\Common\ValueObject\Web
+ * @package Core\Common\Domain\ValueObject\Web
  */
 final readonly class IpAddress extends LiteralString
 {

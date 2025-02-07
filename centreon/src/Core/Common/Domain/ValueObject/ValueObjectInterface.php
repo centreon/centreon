@@ -21,27 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Common\Exception;
+namespace Core\Common\Domain\ValueObject;
 
-use Throwable;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
- * Class
+ * Interface
  *
- * @class   ValueObjectException
- * @package Core\Domain\Common\Exception
+ * @class   ValueObjectInterface
+ * @package Core\Common\Domain\ValueObject
  */
-class ValueObjectException extends DomainException
+interface ValueObjectInterface
 {
     /**
-     * ValueObjectException constructor
-     *
-     * @param string              $message
-     * @param array<string,mixed> $context
-     * @param Throwable|null      $previous
+     * @return string
      */
-    public function __construct(string $message, array $context = [], Throwable $previous = null)
-    {
-        parent::__construct($message, self::ERROR_CODE_BAD_USAGE, $context, $previous);
-    }
+    public function __toString(): string;
+
+    /**
+     * @param ValueObjectInterface $object
+     *
+     * @throws ValueObjectException
+     * @return bool
+     */
+    public function equals(ValueObjectInterface $object): bool;
+
 }

@@ -21,15 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Common\ValueObject;
+namespace Core\Common\Domain\ValueObject;
 
-use Core\Domain\Common\Exception\ValueObjectException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
  * Class
  *
  * @class   LiteralString
- * @package Core\Domain\Common\ValueObject
+ * @package Core\Common\Domain\ValueObject
  */
 readonly class LiteralString implements ValueObjectInterface
 {

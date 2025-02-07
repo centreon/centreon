@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Domain\Common\ValueObject\Identity;
+namespace Tests\Core\Common\Domain\ValueObject\Identity;
 
-use Core\Domain\Common\Exception\ValueObjectException;
-use Core\Domain\Common\ValueObject\Identity\Email;
-use Core\Domain\Common\ValueObject\Web\IpAddress;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Domain\ValueObject\Identity\Email;
+use Core\Common\Domain\ValueObject\Web\IpAddress;
 
 it('test Email value object is correct', function () {
     $string = "yoyo@toto.fr";

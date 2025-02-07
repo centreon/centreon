@@ -21,15 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Common\Exception;
-
-use Throwable;
+namespace Core\Common\Domain\Exception;
 
 /**
  * Class
  *
  * @class   JsonException
- * @package Core\Domain\Common\Exception
+ * @package Core\Common\Domain\Exception
  */
 class JsonException extends DomainException
 {
@@ -38,9 +36,9 @@ class JsonException extends DomainException
      *
      * @param string              $message
      * @param array<string,mixed> $context
-     * @param Throwable|null      $previous
+     * @param \Throwable|null      $previous
      */
-    public function __construct(string $message, array $context = [], Throwable $previous = null)
+    public function __construct(string $message, array $context = [], \Throwable $previous = null)
     {
         parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
         $this->addContextItem('json_last_error', json_last_error());

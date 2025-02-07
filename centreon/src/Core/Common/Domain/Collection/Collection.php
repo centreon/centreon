@@ -21,15 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Common\Collection;
+namespace Core\Common\Domain\Collection;
 
-use Core\Domain\Common\Exception\CollectionException;
+use Core\Common\Domain\Exception\CollectionException;
 
 /**
  * Class
  *
  * @class      Collection
- * @package    Core\Domain\Common\Collection
+ * @package    Core\Common\Domain\Collection
  * @template   TItem of object
  * @implements CollectionInterface<TItem>
  */
@@ -45,7 +45,9 @@ abstract class Collection implements CollectionInterface
      */
     public function __construct(protected array $items = [])
     {
-        $this->validateItem();
+        foreach ($items as $item) {
+            $this->validateItem($item);
+        }
     }
 
     /**
@@ -147,7 +149,7 @@ abstract class Collection implements CollectionInterface
                 // if failure put the collection back in its original state
                 $this->items = $itemsBackup;
                 throw new CollectionException(
-                    "Collections to merge must be instances of {$this::class}, {$collection::class} given"
+                    "Collections to merge must be instances of " . $this::class . ", " . $collection::class . " given"
                 );
             }
         }
@@ -268,16 +270,19 @@ abstract class Collection implements CollectionInterface
     }
 
     /**
+     * @param TItem $item
+     *
      * @throws CollectionException
      * @return void
      */
-    protected function validateItem(): void
+    protected function validateItem($item): void
     {
         $class = $this->itemClass();
-        foreach ($this->items as $item) {
-            if (! $item instanceof $class) {
-                throw new CollectionException("Item must be an instance of {$class}, {$item::class} given");
-            }
+        var_dump($class);
+        if (! $item instanceof $class) {
+            throw new CollectionException(
+                "Item must be an instance of " . $class . ", " . $item::class . " given"
+            );
         }
     }
 

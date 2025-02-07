@@ -21,18 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Common\Exception;
-
-use Exception;
-use Throwable;
+namespace Core\Common\Domain\Exception;
 
 /**
  * Class
  *
  * @class   DomainException
- * @package Core\Domain\Common\Exception
+ * @package Core\Common\Domain\Exception
  */
-abstract class DomainException extends Exception
+abstract class DomainException extends \Exception
 {
     public const ERROR_CODE_INTERNAL = 0;
     public const ERROR_CODE_REPOSITORY = 1;
@@ -44,9 +41,9 @@ abstract class DomainException extends Exception
      * @param string              $message
      * @param int                 $code
      * @param array<string,mixed> $context
-     * @param Throwable|null      $previous
+     * @param \Throwable|null      $previous
      */
-    public function __construct(string $message, int $code, protected array $context = [], Throwable $previous = null)
+    public function __construct(string $message, int $code, protected array $context = [], \Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
         $this->addExceptionContext();
@@ -106,11 +103,11 @@ abstract class DomainException extends Exception
     }
 
     /**
-     * @param Throwable $throwable
+     * @param \Throwable $throwable
      *
      * @return array<string,mixed>
      */
-    private function getExceptionContext(Throwable $throwable): array
+    private function getExceptionContext(\Throwable $throwable): array
     {
         $exceptionContext = [
             'type' => $throwable::class,

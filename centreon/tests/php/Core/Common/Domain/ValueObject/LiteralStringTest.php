@@ -21,11 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Domain\Common\ValueObject;
+namespace Tests\Core\Common\Domain\ValueObject;
 
-use Core\Domain\Common\Exception\ValueObjectException;
-use Core\Domain\Common\ValueObject\LiteralString;
-use Core\Domain\Common\ValueObject\Web\IpAddress;
+use Core\Common\Domain\ValueObject\LiteralString;
 
 it('test LiteralString value object : correct instanciation', function () {
     $string = "foo";

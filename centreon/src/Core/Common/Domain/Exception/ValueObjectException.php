@@ -21,27 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Common\Exception;
-
-use Throwable;
+namespace Core\Common\Domain\Exception;
 
 /**
  * Class
  *
- * @class   CollectionException
- * @package Core\Domain\Common\Exception
+ * @class   ValueObjectException
+ * @package Core\Common\Domain\Exception
  */
-class CollectionException extends DomainException
+class ValueObjectException extends DomainException
 {
     /**
-     * CollectionException constructor
+     * ValueObjectException constructor
      *
      * @param string              $message
      * @param array<string,mixed> $context
-     * @param Throwable|null      $previous
+     * @param \Throwable|null      $previous
      */
-    public function __construct(string $message, array $context = [], Throwable $previous = null)
+    public function __construct(string $message, array $context = [], \Throwable $previous = null)
     {
-        parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
+        parent::__construct($message, self::ERROR_CODE_BAD_USAGE, $context, $previous);
     }
 }

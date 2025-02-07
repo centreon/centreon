@@ -21,29 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Common\ValueObject;
-
-use Core\Domain\Common\Exception\ValueObjectException;
+namespace Core\Common\Domain\Exception;
 
 /**
- * Interface
+ * Class
  *
- * @class   ValueObjectInterface
- * @package Core\Domain\Common\ValueObject
+ * @class   RepositoryException
+ * @package Core\Common\Domain\Exception
  */
-interface ValueObjectInterface
+class RepositoryException extends DomainException
 {
     /**
-     * @return string
-     */
-    public function __toString(): string;
-
-    /**
-     * @param ValueObjectInterface $object
+     * RepositoryException constructor
      *
-     * @throws ValueObjectException
-     * @return bool
+     * @param string              $message
+     * @param array<string,mixed> $context
+     * @param \Throwable|null      $previous
      */
-    public function equals(ValueObjectInterface $object): bool;
-
+    public function __construct(string $message, array $context = [], \Throwable $previous = null)
+    {
+        parent::__construct($message, self::ERROR_CODE_REPOSITORY, $context, $previous);
+    }
 }

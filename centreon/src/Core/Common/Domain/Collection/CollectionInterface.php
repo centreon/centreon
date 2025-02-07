@@ -21,13 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\Common\Collection;
+namespace Core\Common\Domain\Collection;
 
 /**
  * Interface
  *
  * @class    CollectionInterface
- * @package  Core\Domain\Common\Collection
+ * @package  Core\Common\Domain\Collection
  * @template TItem of object
  * @extends \IteratorAggregate<TItem>
  */
