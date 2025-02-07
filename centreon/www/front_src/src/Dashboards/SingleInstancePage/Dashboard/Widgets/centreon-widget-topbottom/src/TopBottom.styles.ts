@@ -26,14 +26,13 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
     whiteSpace: 'nowrap',
     [theme.containerQueries.up(620)]: {
       maxWidth: '60ch'
-    
     },
-    [theme.containerQueries.between(370,620)]: {
+    [theme.containerQueries.between(370, 620)]: {
       maxWidth: '40ch'
     },
     [theme.containerQueries.down(370)]: {
-maxWidth: '20ch'
-    },
+      maxWidth: '20ch'
+    }
   },
   singleBarContainer: {
     cursor: 'pointer'
@@ -42,12 +41,9 @@ maxWidth: '20ch'
     display: 'flex',
     flexDirection: 'column'
   },
-  containerGraph :{
+  containerGraph: {
     display: 'flex',
-    flexDirection: 'column',
-    width: '100%'
-  },
-  text:{
-    maxWidth: '60ch'
+    flexDirection: 'column'
+    // width: '100%'
   }
 }));

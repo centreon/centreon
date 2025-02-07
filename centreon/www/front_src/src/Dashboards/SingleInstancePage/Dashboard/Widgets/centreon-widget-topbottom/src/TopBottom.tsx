@@ -12,9 +12,12 @@ import {
 } from '../../models';
 import { areResourcesFullfilled } from '../../utils';
 
+import { useRef } from 'react';
+import Label from './Label';
 import MetricTop from './MetricTop';
 import { useTopBottomStyles } from './TopBottom.styles';
 import { TopBottomSettings } from './models';
+import useSingleBarCurrentWidth from './useSingleBarCurrentWidth';
 import useTopBottom from './useTopBottom';
 
 interface TopBottomProps
@@ -52,7 +55,17 @@ const TopBottom = ({
 }: TopBottomProps): JSX.Element => {
   const { classes } = useTopBottomStyles();
 
+  const containerRef = useRef(null);
+  const labelRef = useRef(null);
+
   const areResourcesOk = areResourcesFullfilled(resources);
+
+  const singleBarCurrentWidth = useSingleBarCurrentWidth({
+    containerRef,
+    labelRef
+  });
+
+  console.log({ singleBarCurrentWidth });
 
   const { isLoading, metricsTop, isMetricEmpty } = useTopBottom({
     dashboardId,
@@ -84,49 +97,49 @@ const TopBottom = ({
 
   return (
     <div
-    style={{
-      display: "flex",
-      flexDirection: "row",
-      background: "white",
-      containerType: "inline-size",
-    }}
-  >
-
-     <div className="ContainerText">
-
-      {(metricsTop?.resources || []).map((metricTop, index) => (
-        <MetricTop
-          displayAsRaw={equals('raw', valueFormat)}
-          index={index}
-          isFromPreview={isFromPreview}
-          key={`${metricTop.name}_${metricTop.id}`}
-          metricTop={metricTop}
-          showLabels={topBottomSettings.showLabels}
-          thresholds={threshold}
-          unit={metricsTop?.unit || ''}
-          displayTexto
-        />
-      ))}
-      
+      ref={containerRef}
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        containerType: 'inline-size',
+        overflow:'hidden'
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {(metricsTop?.resources || []).map((metricTop, index) => (
+          <Label
+            ref={labelRef}
+            key={`label_${metricTop.name}_${metricTop.id}`}
+            metricTop={metricTop}
+            index={index}
+          />
+        ))}
       </div>
 
-      <div className="ContainerGraph" style={{ width: "100%" }}>
-      {(metricsTop?.resources || []).map((metricTop, index) => (
-        <MetricTop
-          displayAsRaw={equals('raw', valueFormat)}
-          index={index}
-          isFromPreview={isFromPreview}
-          key={`${metricTop.name}_${metricTop.id}`}
-          metricTop={metricTop}
-          showLabels={topBottomSettings.showLabels}
-          thresholds={threshold}
-          unit={metricsTop?.unit || ''}
-          displayGrafico
-        />
-      ))}
-      
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: singleBarCurrentWidth 
+        }}
+      >
+        {(metricsTop?.resources || []).map((metricTop) => (
+          <MetricTop
+            displayAsRaw={equals('raw', valueFormat)}
+            isFromPreview={isFromPreview}
+            key={`${metricTop.name}_${metricTop.id}`}
+            metricTop={metricTop}
+            showLabels={topBottomSettings.showLabels}
+            thresholds={threshold}
+            unit={metricsTop?.unit || ''}
+          />
+        ))}
       </div>
-
     </div>
   );
 };

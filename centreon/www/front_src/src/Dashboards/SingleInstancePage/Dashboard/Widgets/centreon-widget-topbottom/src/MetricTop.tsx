@@ -1,10 +1,8 @@
-import { inc } from 'ramda';
 import { Link } from 'react-router';
 
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { LineChartData, SingleBar } from '@centreon/ui';
-import { Tooltip } from '@centreon/ui/components';
 
 import { FormThreshold } from '../../models';
 import useThresholds from '../../useThresholds';
@@ -15,7 +13,6 @@ import { Resource } from './models';
 
 interface MetricTopProps {
   displayAsRaw: boolean;
-  index: number;
   isFromPreview?: boolean;
   metricTop: Resource;
   showLabels: boolean;
@@ -25,16 +22,13 @@ interface MetricTopProps {
 
 const MetricTop = ({
   metricTop,
-  index,
   unit,
   thresholds,
   displayAsRaw,
   showLabels,
-  isFromPreview,
-  displayGrafico,
-  displayTexto
+  isFromPreview
 }: MetricTopProps): JSX.Element => {
-  const { classes, cx } = useTopBottomStyles();
+  const { classes } = useTopBottomStyles();
   const formattedData: LineChartData = {
     global: {},
     metrics: [
@@ -66,25 +60,6 @@ const MetricTop = ({
 
   return (
     <>
-      {displayTexto && <Typography className={classes.resourceLabel}>
-        <Tooltip
-          followCursor={false}
-          label={`${metricTop.parentName}_${metricTop.name}`}
-          placement="top"
-        >
-          <Link
-            className={classes.linkToResourcesStatus}
-            data-testid={`link to ${metricTop?.name}`}
-            target="_blank"
-            to={getResourcesUrlForMetricsWidgets(metricTop)}
-          >
-            <strong>
-              #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
-            </strong>
-          </Link>
-        </Tooltip>
-      </Typography>}
-      {displayGrafico && 
       <Box className={classes.singleBarContainer} style={{ height: 50 }}>
         <Link
           className={classes.linkToResourcesStatus}
@@ -101,7 +76,7 @@ const MetricTop = ({
             thresholds={formattedThresholds}
           />
         </Link>
-      </Box>}
+      </Box>
     </>
   );
 };
