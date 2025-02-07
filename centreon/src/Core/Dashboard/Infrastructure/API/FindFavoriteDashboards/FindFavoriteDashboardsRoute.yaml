@@ -1,0 +1,5 @@
+FindFavoriteDashboards:
+  methods: GET
+  path: /configuration/dashboards/favorites
+  controller: 'Core\Dashboard\Infrastructure\API\FindFavoriteDashboards\FindFavoriteDashboardsController'
+  condition: "request.attributes.get('version') >= 24.10"

@@ -28,7 +28,7 @@ const AdditionalConnectorModal = (): JSX.Element => {
       size="large"
       onClose={closeDialog}
     >
-      <Modal.Header>{t(labelHeader)}</Modal.Header>
+      <Modal.Header data-testid="Modal-header">{t(labelHeader)}</Modal.Header>
       <Modal.Body>
         <AdditionalConnectorForm
           connectorId={connector?.id}

@@ -56,6 +56,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'refresh' => $this->globalRefreshToArray($data->refresh),
                 'shares' => $this->formatShares($data->shares),
                 'thumbnail' => $this->thumbnailToOptionalArray($data->thumbnail),
+                'is_favorite' => $data->isFavorite,
             ]);
         } else {
             $this->setResponseStatus($data);

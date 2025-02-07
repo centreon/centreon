@@ -22,8 +22,6 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$centreonLog = CentreonLog::create();
-
 // error specific content
 $versionOfTheUpgrade = 'UPGRADE - 24.10.3: ';
 $errorMessage = '';
@@ -114,7 +112,9 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
 
 /**
  * Updates the display name and description for the connections_count field in the cb_field table.
+ *
  * @param CentreonDB $pearDB
+ *
  * @throws Exception
  */
 $updateConnectionsCountDescription = function (CentreonDB $pearDB) use (&$errorMessage): void {
@@ -129,6 +129,19 @@ $updateConnectionsCountDescription = function (CentreonDB $pearDB) use (&$errorM
     );
 };
 
+// ACC
+$fixNamingOfAccTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table topology';
+    $constraintStatement = $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `topology`
+            SET `topology_name` = 'Additional connector configurations'
+            WHERE `topology_url` = '/configuration/additional-connector-configurations'
+            SQL
+    );
+};
+
+
 try {
     $createAgentConfiguration($pearDB);
     $createDashboardThumbnailTable($pearDB);
@@ -140,20 +153,28 @@ try {
 
     $insertAgentConfigurationTopology($pearDB);
     $updateConnectionsCountDescription($pearDB);
+    $fixNamingOfAccTopology($pearDB);
 
     $pearDB->commit();
 } catch (Exception $e) {
     if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
+        try {
+            $pearDB->rollBack();
+        } catch (PDOException $e) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+                customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
+                exception: $e
+            );
+        }
     }
 
-    $centreonLog->log(
-        CentreonLog::TYPE_UPGRADE,
-        CentreonLog::LEVEL_ERROR,
-        $versionOfTheUpgrade . $errorMessage
-        . ' - Code : ' . (int) $e->getCode()
-        . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString()
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: $versionOfTheUpgrade . $errorMessage,
+        customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
+        exception: $e
     );
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);

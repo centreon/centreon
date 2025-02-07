@@ -4,7 +4,7 @@ import { useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { openFormModalAtom } from '../../atoms';
-import { labelAddAgentConfiguration } from '../../translatedLabels';
+import { labelAdd } from '../../translatedLabels';
 
 const AddButton = (): JSX.Element => {
   const { t } = useTranslation();
@@ -15,7 +15,7 @@ const AddButton = (): JSX.Element => {
 
   return (
     <Button size="small" icon={<Add />} iconVariant="start" onClick={add}>
-      {t(labelAddAgentConfiguration)}
+      {t(labelAdd)}
     </Button>
   );
 };

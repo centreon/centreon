@@ -2,6 +2,9 @@
   "hostGroups": {
     "hostGroup1": {
       "name": "host_group_1"
+    },
+    "hostGroup2": {
+      "name": "host_group_2"
     }
   },
 

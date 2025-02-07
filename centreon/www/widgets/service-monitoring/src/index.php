@@ -372,25 +372,72 @@ if (!$centreon->user->admin) {
         AND acl.service_id = s.service_id
         AND acl.group_id IN (" . $groupList . ") ";
 }
-$orderBy = 'hostname ASC ';
+$orderByClause = 'hostname ASC ';
+
+// Define allowed columns and directions
+$allowedOrderColumns = [
+    'host_id',
+    'hostname',
+    'hostalias',
+    'latency',
+    'execution_time',
+    'h_state',
+    'service_id',
+    'description',
+    's_state',
+    'state_type',
+    'last_hard_state',
+    'output',
+    's_scheduled_downtime_depth',
+    's_acknowledged',
+    's_notify',
+    'perfdata',
+    's_active_checks',
+    's_passive_checks',
+    'h_scheduled_downtime_depth',
+    'h_acknowledged',
+    'h_notify',
+    'h_active_checks',
+    'h_passive_checks',
+    'last_check',
+    'last_state_change',
+    'last_hard_state_change',
+    'check_attempt',
+    'max_check_attempts',
+    'h_action_url',
+    'h_notes_url',
+    's_action_url',
+    's_notes_url',
+    'criticality_id',
+    'criticality_level',
+    'icon_image'
+];
+$allowedDirections = ['ASC', 'DESC'];
 
 if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
-    $aOrder = explode(' ', $preferences['order_by']);
-    if (in_array('last_state_change', $aOrder) || in_array('last_hard_state_change', $aOrder)) {
-        $order = $aOrder[1] == 'DESC' ? 'ASC' : 'DESC';
-        $orderBy = $aOrder[0] . ' ' . $order;
-    } else {
-        $orderBy = $preferences['order_by'];
+    $aOrder = explode(' ', trim($preferences['order_by']));
+    $column = $aOrder[0] ?? '';
+    $direction = isset($aOrder[1]) ? strtoupper($aOrder[1]) : 'ASC';
+    if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+        if (in_array($column, ['last_state_change', 'last_hard_state_change'], true)) {
+            $direction = ($direction === 'DESC') ? 'ASC' : 'DESC';
+        }
+        $orderByClause = $column . ' ' . $direction;
     }
 
-    if (isset($preferences['order_by2']) && trim($preferences['order_by2']) != '') {
-        $aOrder = explode(' ', $preferences['order_by2']);
-        $orderBy .= ', ' . $aOrder[0] . ' ' . $aOrder[1];
+    if (isset($preferences['order_by2']) && trim($preferences['order_by2']) !== '') {
+        $aOrder2 = explode(' ', trim($preferences['order_by2']));
+        $column2 = $aOrder2[0] ?? '';
+        $direction2 = isset($aOrder2[1]) ? strtoupper($aOrder2[1]) : 'ASC';
+
+        if (in_array($column2, $allowedOrderColumns, true) && in_array($direction2, $allowedDirections, true)) {
+            $orderByClause .= ', ' . $column2 . ' ' . $direction2;
+        }
     }
 }
 
-if (trim($orderBy)) {
-    $query .= "ORDER BY " . $orderBy;
+if (trim($orderByClause)) {
+    $query .= "ORDER BY " . $orderByClause;
 }
 
 $num = filter_var($preferences['entries'], FILTER_VALIDATE_INT) ?: 10;

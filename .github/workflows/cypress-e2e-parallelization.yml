@@ -1,3 +1,5 @@
+name: cypress-e2e-test
+
 on:
   workflow_call:
     inputs:
@@ -28,6 +30,9 @@ on:
       stability:
         required: true
         type: string
+      target_stability:
+        required: false
+        type: string
       package_cache_key:
         required: false
         type: string
@@ -51,6 +56,9 @@ on:
         required: false
         type: string # Set as string instead of boolean to avoid mixing types between workflows and actions
         default: 'false'
+      is_nightly:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -64,6 +72,12 @@ on:
         required: false
       artifactory_internal_repo_password:
         required: false
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   cypress-e2e-test-list:
@@ -170,6 +184,7 @@ jobs:
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
           stability: ${{ inputs.stability }}
+          target_stability: ${{ inputs.target_stability }}
           is_cloud: ${{ inputs.is_cloud }}
           artifactory_internal_repo_username: ${{ secrets.artifactory_internal_repo_username }}
           artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}
@@ -185,7 +200,7 @@ jobs:
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
@@ -213,7 +228,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
@@ -221,7 +236,7 @@ jobs:
 
       - name: Upload xray reports
         if: always()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
@@ -309,7 +324,7 @@ jobs:
         type_of_report: [test-results, test-reports, xray-reports]
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact/merge@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
@@ -318,7 +333,26 @@ jobs:
           retention-days: 1
 
       - name: Delete merged artifacts
-        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
+        if: |
+          success() ||
+          ( failure() && matrix.type_of_report == 'test-results' )
+        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
           failOnError: false
+
+  create-jira-nightly-ticket:
+    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report, regroup-artifacts]
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
+      (failure() || cancelled())
+    steps:
+      - name: Create Jira ticket if nightly build failure
+        uses: ./.github/actions/create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: "centreon-web"
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "cypress-e2e"]'

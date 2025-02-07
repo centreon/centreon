@@ -2699,6 +2699,27 @@ CREATE TABLE IF NOT EXISTS `ac_poller_relation` (
     REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `user_profile` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `contact_id` INT(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_profile` (`id`, `contact_id`),
+  CONSTRAINT `fk_user_profile_contact_id`
+    FOREIGN KEY (`contact_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
+  `profile_id` INT UNSIGNED NOT NULL,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  CONSTRAINT `fk_user_profile_favorite_dashboards_profile_id`
+    FOREIGN KEY (`profile_id`)
+    REFERENCES `user_profile` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_profile_favorite_dashboards_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

@@ -55,10 +55,11 @@ Feature: Additional Connector Configuration
     Given a non-admin user is in the Additional Connector Configuration page
     And an additional connector configuration is already created
     When the user adds a second additional connector configuration
-    Then only the free filtered pollers are listed in the Pollers field
-    When the non-admin user fills in all the informations
-    Then the creation form is closed
-    And the new configuration is displayed in the Additional Connector Configuration page
+    Then all the pollers are still listed in the Pollers field
+    When the non-admin user fills in all the informations with the same poller as the first created acc
+    And the non-admin clicks on Save button
+    Then an error message is displayed
+    And the creation form is still open
 
   @TEST_MON-150335
   Scenario: Delete a configuration file with a non-admin user with filters on Pollers

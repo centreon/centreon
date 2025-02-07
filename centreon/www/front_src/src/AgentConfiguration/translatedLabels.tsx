@@ -22,6 +22,7 @@ export const labelAgentConfiguration = 'Agent configuration';
 export const labelPollerConfiguration = 'Poller configuration';
 export const labelRequired = 'Required';
 export const labelAddAgentConfiguration = 'Add poller/agent configuration';
+export const labelAdd = 'Add';
 export const labelOTelServer = 'OTLP receiver';
 export const labelPort = 'Port';
 export const labelSave = 'Save';

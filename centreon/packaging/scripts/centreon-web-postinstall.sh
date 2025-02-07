@@ -19,9 +19,11 @@ updateConfigurationFiles() {
   export HOUR=$(awk 'BEGIN{srand(); print int(rand()*24)}')
   sed -i -E "s/0\s0(.*)centreon\-send\-stats\.php(.*)/$MIN $HOUR\1centreon-send-stats.php\2/" /etc/cron.d/centreon
 
-  # Create HASH secret for Symfony application
-  echo "Updating APP_SECRET in centreon environment file ..."
-  REPLY=($(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")); sed -i "s/%APP_SECRET%/$REPLY/g" /usr/share/centreon/.env*
+  if grep -REq "%APP_SECRET%" /usr/share/centreon/.env*; then
+    # Create HASH secret for Symfony application
+    echo "Updating APP_SECRET in centreon environment files ..."
+    REPLY=($(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")); sed -i "s/%APP_SECRET%/$REPLY/g" /usr/share/centreon/.env*
+  fi
 
   echo "Updating centreon perl configuration files to central mode ..."
   sed -i -e "s/\$instance_mode = \"poller\";/\$instance_mode = \"central\";/g" /etc/centreon/conf.pm
@@ -151,11 +153,18 @@ fixSymfonyCacheRights() {
 fixCentreonCronPermissions() {
   # MON-146883
   # Override permissions for cron scripts
-  chmod 0755 \
-    /usr/share/centreon/cron/outdated-token-removal.php
+  chmod 0755 /usr/share/centreon/cron/outdated-token-removal.php
+  chown -R centreon:centreon /usr/share/centreon/cron/outdated-token-removal.php
 
-  chown -R centreon:centreon \
-    /usr/share/centreon/cron/outdated-token-removal.php
+  # Update log file permissions which has been potentially created by centreon user
+  APP_LOG_FILE="/var/log/centreon/centreon-web.log"
+  if [ -f "$APP_LOG_FILE" ]; then
+    if [ "$1" = "rpm" ]; then
+      chown apache:apache "$APP_LOG_FILE"
+    else
+      chown www-data:www-data "$APP_LOG_FILE"
+    fi
+  fi
 }
 
 package_type="rpm"
@@ -192,7 +201,7 @@ case "$action" in
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
-    fixCentreonCronPermissions
+    fixCentreonCronPermissions $package_type
     ;;
   *)
     # $1 == version being installed

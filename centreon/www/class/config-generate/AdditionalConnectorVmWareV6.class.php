@@ -31,6 +31,8 @@ use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, V
  */
 class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
 {
+    public const CENTREON_SYSTEM_USER = 'centreon';
+
     /**
      * AdditionalConnectorVmWareV6 constructor
      *
@@ -85,10 +87,8 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
             ];
         }
         $this->generate_filename = 'centreon_vmware.json';
-        $directory = $this->backend->generate_path . '/vmware/' . $pollerId;
-        $this->backend->createDirectories([$directory]);
         $this->generateFile($object, false);
-        $this->writeFile($directory);
+        $this->writeFile($this->backend->getPath());
     }
 
     /**
@@ -100,5 +100,33 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     public function generateFromPollerId(int $pollerId): void
     {
         $this->generate($pollerId);
+    }
+
+    /**
+     * Write the file ACC configuration centreon_vmware.json file in the given directory
+     *
+     * @param $dir
+     *
+     * @throws \RuntimeException|\Exception
+     */
+    protected function writeFile($dir)
+    {
+        $fullFile = $dir . '/' . $this->generate_filename;
+        if ($handle = fopen($fullFile, 'w')) {
+            $content = is_array($this->content) ? json_encode($this->content) : $this->content;
+            if (!fwrite($handle, $content)) {
+                throw new \RuntimeException('Cannot write to file "' . $fullFile . '"');
+            }
+            fclose($handle);
+
+            /**
+             * Change VMWare files owner to '660 apache centreon'
+             * RW for centreon group are necessary for Gorgone Daemon.
+             */
+            chmod($fullFile, 0660);
+            chgrp($fullFile, self::CENTREON_SYSTEM_USER);
+        } else {
+            throw new \Exception("Cannot open file " . $fullFile);
+        }
     }
 }

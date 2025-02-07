@@ -1,0 +1,40 @@
+{
+    "default": {
+        "name": "host-dependency-name",
+        "description": "host-dependency-desc",
+        "parent_relationship": 0,
+        "execution_fails_on_ok": 0,
+        "execution_fails_on_down": 1,
+        "execution_fails_on_unreachable": 0,
+        "execution_fails_on_pending": 0,
+        "execution_fails_on_none": 0,
+        "notification_fails_on_none": 0,
+        "notification_fails_on_ok": 0,
+        "notification_fails_on_down": 0,
+        "notification_fails_on_unreachable": 0,
+        "notification_fails_on_pending": 1,
+        "hostNames": ["Centreon-Server"],
+        "dependentHostNames": ["host2"],
+        "dependentServices": ["Centreon-Server - Memory"],
+        "comment": "Comment for creation/duplication!"
+  },
+  "HostDependency1": {
+        "name": "host-dependency-name-changed",
+        "description": "host-dependency-name-changed",
+        "parent_relationship": 0,
+        "execution_fails_on_ok": 1,
+        "execution_fails_on_down": 0,
+        "execution_fails_on_unreachable": 0,
+        "execution_fails_on_pending": 0,
+        "execution_fails_on_none": 0,
+        "notification_fails_on_none": 0,
+        "notification_fails_on_ok": 0,
+        "notification_fails_on_down": 1,
+        "notification_fails_on_unreachable": 0,
+        "notification_fails_on_pending": 0,
+        "hostNames": ["Centreon-Server", "host2"],
+        "dependentHostNames": ["host3"],
+        "dependentServices": ["service_test_ok"],
+        "comment": "comment!"
+  }
+}

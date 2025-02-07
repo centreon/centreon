@@ -63,6 +63,7 @@ export interface ConditionsSearchParameter {
   field: string;
   value?: unknown;
   values?: ConditionValue;
+  operator?: '$and' | '$or';
 }
 
 type SearchPatterns = Array<{ [field: string]: { $rg: string } }>;

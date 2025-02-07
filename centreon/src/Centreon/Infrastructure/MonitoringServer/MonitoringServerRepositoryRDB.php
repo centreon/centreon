@@ -146,6 +146,14 @@ class MonitoringServerRepositoryRDB extends AbstractRepositoryDRB implements Mon
     /**
      * @inheritDoc
      */
+    public function findAllServersWithAccessGroups(array $accessGroups): array
+    {
+        return $this->findServers(searchRequest: null, sortRequest: null, paginationRequest: null, accessGroups: $accessGroups);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findServersWithoutRequestParameters(): array
     {
         return $this->findServers(null, null, null);
