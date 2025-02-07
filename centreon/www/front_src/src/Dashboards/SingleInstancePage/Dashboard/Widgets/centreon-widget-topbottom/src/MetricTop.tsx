@@ -30,9 +30,11 @@ const MetricTop = ({
   thresholds,
   displayAsRaw,
   showLabels,
-  isFromPreview
+  isFromPreview,
+  displayGrafico,
+  displayTexto
 }: MetricTopProps): JSX.Element => {
-  const { classes } = useTopBottomStyles();
+  const { classes, cx } = useTopBottomStyles();
   const formattedData: LineChartData = {
     global: {},
     metrics: [
@@ -64,7 +66,7 @@ const MetricTop = ({
 
   return (
     <>
-      <Typography className={classes.resourceLabel}>
+      {displayTexto && <Typography className={classes.resourceLabel}>
         <Tooltip
           followCursor={false}
           label={`${metricTop.parentName}_${metricTop.name}`}
@@ -81,7 +83,8 @@ const MetricTop = ({
             </strong>
           </Link>
         </Tooltip>
-      </Typography>
+      </Typography>}
+      {displayGrafico && 
       <Box className={classes.singleBarContainer} style={{ height: 50 }}>
         <Link
           className={classes.linkToResourcesStatus}
@@ -98,7 +101,7 @@ const MetricTop = ({
             thresholds={formattedThresholds}
           />
         </Link>
-      </Box>
+      </Box>}
     </>
   );
 };

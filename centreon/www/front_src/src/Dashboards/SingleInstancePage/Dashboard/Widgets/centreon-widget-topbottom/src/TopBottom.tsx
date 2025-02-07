@@ -83,7 +83,17 @@ const TopBottom = ({
   }
 
   return (
-    <div className={classes.container}>
+    <div
+    style={{
+      display: "flex",
+      flexDirection: "row",
+      background: "white",
+      containerType: "inline-size",
+    }}
+  >
+
+     <div className="ContainerText">
+
       {(metricsTop?.resources || []).map((metricTop, index) => (
         <MetricTop
           displayAsRaw={equals('raw', valueFormat)}
@@ -94,8 +104,29 @@ const TopBottom = ({
           showLabels={topBottomSettings.showLabels}
           thresholds={threshold}
           unit={metricsTop?.unit || ''}
+          displayTexto
         />
       ))}
+      
+      </div>
+
+      <div className="ContainerGraph" style={{ width: "100%" }}>
+      {(metricsTop?.resources || []).map((metricTop, index) => (
+        <MetricTop
+          displayAsRaw={equals('raw', valueFormat)}
+          index={index}
+          isFromPreview={isFromPreview}
+          key={`${metricTop.name}_${metricTop.id}`}
+          metricTop={metricTop}
+          showLabels={topBottomSettings.showLabels}
+          thresholds={threshold}
+          unit={metricsTop?.unit || ''}
+          displayGrafico
+        />
+      ))}
+      
+      </div>
+
     </div>
   );
 };
