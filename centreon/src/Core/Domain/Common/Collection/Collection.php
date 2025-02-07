@@ -40,6 +40,7 @@ abstract class Collection implements CollectionInterface
      * Collection constructor
      *
      * @param TItem[] $items Object array to transform in collection.
+     *
      * @throws CollectionException
      */
     public function __construct(protected array $items = [])
@@ -53,11 +54,13 @@ abstract class Collection implements CollectionInterface
     public function clear(): CollectionInterface
     {
         $this->items = [];
+
         return $this;
     }
 
     /**
      * @param TItem $item
+     *
      * @return bool
      */
     public function contains($item): bool
@@ -67,10 +70,11 @@ abstract class Collection implements CollectionInterface
 
     /**
      * @param int|string $key
-     * @return TItem
+     *
      * @throws CollectionException
+     * @return TItem
      */
-    public function get(int|string $key)
+    public function get(int | string $key)
     {
         if (isset($this->items[$key])) {
             return $this->items[$key];
@@ -80,9 +84,10 @@ abstract class Collection implements CollectionInterface
 
     /**
      * @param int|string $key
+     *
      * @return bool
      */
-    public function has(int|string $key): bool
+    public function has(int | string $key): bool
     {
         return isset($this->items[$key]);
     }
@@ -113,8 +118,9 @@ abstract class Collection implements CollectionInterface
 
     /**
      * @param callable $p
-     * @return Collection<TItem>
+     *
      * @throws CollectionException
+     * @return Collection<TItem>
      */
     public function filter(callable $p): CollectionInterface
     {
@@ -125,8 +131,9 @@ abstract class Collection implements CollectionInterface
      * Merge collections with actual collection. Collections have to be the same of actual.
      *
      * @param CollectionInterface<TItem> ...$collections
-     * @return Collection<TItem>
+     *
      * @throws CollectionException
+     * @return Collection<TItem>
      */
     public function mergeWith(CollectionInterface ...$collections): CollectionInterface
     {
@@ -144,6 +151,7 @@ abstract class Collection implements CollectionInterface
                 );
             }
         }
+
         return $this;
     }
 
@@ -159,41 +167,47 @@ abstract class Collection implements CollectionInterface
      * Add new item at the collection, if key exists then adding aborted
      *
      * @param int|string $key
-     * @param TItem $item
-     * @return Collection<TItem>
+     * @param TItem      $item
+     *
      * @throws CollectionException
+     * @return Collection<TItem>
      */
-    public function add(int|string $key, $item): CollectionInterface
+    public function add(int | string $key, $item): CollectionInterface
     {
         if (isset($this->items[$key])) {
             throw new CollectionException("Key {$key} already used in this collection");
         }
         $this->validateItem($item);
         $this->items[$key] = $item;
+
         return $this;
     }
 
     /**
      * @param int|string $key
-     * @param TItem $item
-     * @return Collection<TItem>
+     * @param TItem      $item
+     *
      * @throws CollectionException
+     * @return Collection<TItem>
      */
-    public function put(int|string $key, $item): CollectionInterface
+    public function put(int | string $key, $item): CollectionInterface
     {
         $this->validateItem($item);
         $this->items[$key] = $item;
+
         return $this;
     }
 
     /**
      * @param int|string $key
+     *
      * @return bool
      */
-    public function remove(int|string $key): bool
+    public function remove(int | string $key): bool
     {
         if ($this->has($key)) {
             unset($this->items[$key]);
+
             return true;
         }
 
@@ -219,8 +233,8 @@ abstract class Collection implements CollectionInterface
     }
 
     /**
-     * @return array<string,mixed>[]
      * @throws CollectionException
+     * @return array<string,mixed>[]
      */
     public function jsonSerialize(): array
     {
@@ -232,34 +246,36 @@ abstract class Collection implements CollectionInterface
                 $serializedItems[] = get_object_vars($item);
             }
         }
+
         return $serializedItems;
     }
 
     /**
-     * @return string
      * @throws CollectionException
+     * @return string
      */
     public function toJson(): string
     {
         $json = json_encode($this->jsonSerialize());
-        if (!$json) {
+        if (! $json) {
             throw new CollectionException(
                 "Stringify the collection to json failed",
                 ['serializedCollection' => $this->jsonSerialize()]
             );
         }
+
         return $json;
     }
 
     /**
-     * @return void
      * @throws CollectionException
+     * @return void
      */
     protected function validateItem(): void
     {
         $class = $this->itemClass();
         foreach ($this->items as $item) {
-            if (!$item instanceof $class) {
+            if (! $item instanceof $class) {
                 throw new CollectionException("Item must be an instance of {$class}, {$item::class} given");
             }
         }

@@ -49,21 +49,24 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
 
     /**
      * @param TItem $item
+     *
      * @return bool
      */
     public function contains($item): bool;
 
     /**
      * @param int|string $key
+     *
      * @return TItem
      */
-    public function get(int|string $key);
+    public function get(int | string $key);
 
     /**
      * @param int|string $key
+     *
      * @return bool
      */
-    public function has(int|string $key): bool;
+    public function has(int | string $key): bool;
 
     /**
      * Return an array with the keys of collection
@@ -86,6 +89,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
 
     /**
      * @param callable $p
+     *
      * @return CollectionInterface<TItem>
      */
     public function filter(callable $p): CollectionInterface;
@@ -94,6 +98,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      * Merge collections with actual collection. Collections must to be the same of actual.
      *
      * @param CollectionInterface<TItem> ...$collections
+     *
      * @return CollectionInterface<TItem>
      */
     public function mergeWith(CollectionInterface ...$collections): CollectionInterface;
@@ -101,22 +106,25 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     /**
      * @param int|string $key
      * @param TItem      $item
+     *
      * @return CollectionInterface<TItem>
      */
-    public function add(int|string $key, mixed $item): CollectionInterface;
+    public function add(int | string $key, mixed $item): CollectionInterface;
 
     /**
      * @param int|string $key
      * @param TItem      $item
+     *
      * @return CollectionInterface<TItem>
      */
-    public function put(int|string $key, mixed $item): CollectionInterface;
+    public function put(int | string $key, mixed $item): CollectionInterface;
 
     /**
      * @param int|string $key
+     *
      * @return bool
      */
-    public function remove(int|string $key): bool;
+    public function remove(int | string $key): bool;
 
     /**
      * Return an array of items of collection

@@ -22,7 +22,7 @@ final readonly class Email extends LiteralString
      */
     public function __construct(string $value)
     {
-        if (empty($value) || !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+        if (empty($value) || ! filter_var($value, FILTER_VALIDATE_EMAIL)) {
             throw new ValueObjectException(
                 "Invalid email",
                 [
@@ -42,6 +42,7 @@ final readonly class Email extends LiteralString
     public function getLocalPart(): LiteralString
     {
         $parts = explode('@', $this->value);
+
         return new LiteralString($parts[0]);
     }
 
@@ -53,6 +54,7 @@ final readonly class Email extends LiteralString
     public function getDomainPart(): LiteralString
     {
         $parts = explode('@', $this->value);
+
         return new LiteralString($parts[1]);
     }
 }

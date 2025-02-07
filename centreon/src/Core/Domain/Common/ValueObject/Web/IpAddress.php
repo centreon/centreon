@@ -24,7 +24,7 @@ final readonly class IpAddress extends LiteralString
      */
     public function __construct(string $ip_address)
     {
-        if (!filter_var($ip_address, FILTER_VALIDATE_IP)) {
+        if (! filter_var($ip_address, FILTER_VALIDATE_IP)) {
             throw new ValueObjectException("{$ip_address} is an invalid IP Address");
         }
         parent::__construct($ip_address);

@@ -78,5 +78,3 @@ it('test LiteralString value object : magic method toString', function () {
     $literalString = LiteralString::createFromString("foo");
     expect("$literalString")->toBe("foo");
 });
-
-
