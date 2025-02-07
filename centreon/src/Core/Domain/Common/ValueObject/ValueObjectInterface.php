@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Domain\Common\ValueObject;
 
-use Core\Domain\Common\Exception\InvalidValueObjectException;
+use Core\Domain\Common\Exception\ValueObjectException;
 
 /**
  * Interface
@@ -40,8 +40,9 @@ interface ValueObjectInterface
 
     /**
      * @param ValueObjectInterface $object
+     *
+     * @throws ValueObjectException
      * @return bool
-     * @throws InvalidValueObjectException
      */
     public function equals(ValueObjectInterface $object): bool;
 

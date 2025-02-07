@@ -28,13 +28,13 @@ use Throwable;
 /**
  * Class
  *
- * @class   InvalidValueObjectException
+ * @class   ValueObjectException
  * @package Core\Domain\Common\Exception
  */
-class InvalidValueObjectException extends DomainException
+class ValueObjectException extends DomainException
 {
     /**
-     * InvalidValueObjectException constructor
+     * ValueObjectException constructor
      *
      * @param string              $message
      * @param array<string,mixed> $context

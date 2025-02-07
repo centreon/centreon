@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Domain\Common\ValueObject;
 
-use Core\Domain\Common\Exception\InvalidValueObjectException;
+use Core\Domain\Common\Exception\ValueObjectException;
 
 /**
  * Class
@@ -85,13 +85,13 @@ readonly class LiteralString implements ValueObjectInterface
     /**
      * @param ValueObjectInterface $object
      *
-     * @throws InvalidValueObjectException
+     * @throws ValueObjectException
      * @return bool
      */
     public function equals(ValueObjectInterface $object): bool
     {
         if (! $object instanceof static) {
-            throw new InvalidValueObjectException(
+            throw new ValueObjectException(
                 "Equal checking failed because not a " . $this::class . ", " . $object::class . " given",
             );
         }

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Domain\Common\ValueObject\Identity;
 
-use Core\Domain\Common\Exception\InvalidValueObjectException;
+use Core\Domain\Common\Exception\ValueObjectException;
 use Core\Domain\Common\ValueObject\Identity\Email;
 use Core\Domain\Common\ValueObject\Web\IpAddress;
 
@@ -36,7 +36,7 @@ it('test Email value object is correct', function () {
 it('test Email value object with an incorrect email', function () {
     $string = "yoyo";
     $email = new Email($string);
-})->throws(InvalidValueObjectException::class);
+})->throws(ValueObjectException::class);
 
 it('test Email factory with correct email', function () {
     $string = "yoyo@toto.fr";
@@ -47,7 +47,7 @@ it('test Email factory with correct email', function () {
 it('test Email factory with incorrect email', function () {
     $string = "yoyo";
     $email = Email::createFromString($string);
-})->throws(InvalidValueObjectException::class);
+})->throws(ValueObjectException::class);
 
 it('test Email value object : get value', function () {
     $string = "yoyo@toto.fr";
@@ -65,7 +65,7 @@ it('test Email value object : is empty', function () {
     $string = "";
     $email = Email::createFromString($string);
     expect($email->isEmpty())->toBeFalse();
-})->throws(InvalidValueObjectException::class);
+})->throws(ValueObjectException::class);
 
 it('test Email value object : length', function () {
     $email = Email::createFromString("yoyo@toto.fr");
@@ -94,7 +94,7 @@ it('test Email value object : equal with incorrect value object type', function 
     $email = Email::createFromString("yoyo@toto.fr");
     $ip = new IpAddress("170.0.0.1");
     $email->equals($ip);
-})->throws(InvalidValueObjectException::class);
+})->throws(ValueObjectException::class);
 
 it('test Email value object : magic method toString', function () {
     $email = Email::createFromString("yoyo@toto.fr");

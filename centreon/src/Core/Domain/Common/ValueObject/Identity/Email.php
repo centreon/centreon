@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Domain\Common\ValueObject\Identity;
 
-use Core\Domain\Common\Exception\InvalidValueObjectException;
+use Core\Domain\Common\Exception\ValueObjectException;
 use Core\Domain\Common\ValueObject\LiteralString;
 
 /**
@@ -17,12 +17,13 @@ final readonly class Email extends LiteralString
 {
     /**
      * @param string $value
-     * @throws InvalidValueObjectException
+     *
+     * @throws ValueObjectException
      */
     public function __construct(string $value)
     {
         if (empty($value) || !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidValueObjectException(
+            throw new ValueObjectException(
                 "Invalid email",
                 [
                     'value' => $value,

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Domain\Common\ValueObject;
 
-use Core\Domain\Common\Exception\InvalidValueObjectException;
+use Core\Domain\Common\Exception\ValueObjectException;
 use Core\Domain\Common\ValueObject\LiteralString;
 use Core\Domain\Common\ValueObject\Web\IpAddress;
 
