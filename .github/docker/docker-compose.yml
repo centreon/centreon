@@ -30,6 +30,17 @@ services:
           cpus: '0.25'
           memory: 100M
 
+  poller:
+    env_file:
+      - .env
+    image: "${POLLER_IMAGE}"
+    depends_on:
+      web:
+        condition: service_healthy
+    profiles: ["poller"]
+    environment:
+      MYSQL_HOST: db
+
   glpi:
     env_file:
       - .env
