@@ -34,13 +34,17 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class DashboardVoter extends Voter
 {
     public const DASHBOARD_ACCESS = 'dashboard_access';
+    public const DASHBOARD_ACCESS_EDITOR = 'dashboard_access_editor';
 
     /**
      * {@inheritDoc}
      */
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if ($attribute === self::DASHBOARD_ACCESS) {
+        if (
+            $attribute === self::DASHBOARD_ACCESS
+            || $attribute === self::DASHBOARD_ACCESS_EDITOR
+        ) {
             return $subject === null;
         }
 
@@ -60,6 +64,7 @@ final class DashboardVoter extends Voter
 
         return match ($attribute) {
             self::DASHBOARD_ACCESS => $this->checkUsersRights($user),
+            self::DASHBOARD_ACCESS_EDITOR => $this->checkEditorsRights($user),
             default => throw new \LogicException('Action on dashboard not handled')
         };
     }
@@ -74,6 +79,18 @@ final class DashboardVoter extends Voter
             $user->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_ADMIN)
             || $user->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_CREATOR)
             || $user->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_VIEWER)
+        );
+    }
+
+    /**
+     * @param ContactInterface $user
+     * @return bool
+     */
+    private function checkEditorsRights(ContactInterface $user): bool
+    {
+        return (bool) (
+            $user->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_ADMIN)
+            || $user->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_CREATOR)
         );
     }
 }
