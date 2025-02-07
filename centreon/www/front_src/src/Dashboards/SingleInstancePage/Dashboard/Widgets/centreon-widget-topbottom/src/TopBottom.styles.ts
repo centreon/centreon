@@ -24,9 +24,27 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
     textOverflow: 'ellipsis',
     transform: 'translateY(50%)',
     whiteSpace: 'nowrap',
-    width: '100%'
+    height: 50 ,
+    [theme.containerQueries.up(620)]: {
+      maxWidth: '60ch'
+    },
+    [theme.containerQueries.between(370, 620)]: {
+      maxWidth: '40ch'
+    },
+    [theme.containerQueries.down(370)]: {
+      maxWidth: '20ch'
+    }
   },
   singleBarContainer: {
-    cursor: 'pointer'
+    cursor: 'pointer',
+    height: 50 
+  },
+  containerText: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  containerGraph: {
+    display: 'flex',
+    flexDirection: 'column'
   }
 }));
