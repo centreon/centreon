@@ -7,6 +7,20 @@
       "content": [
         {
           "type": "text",
+          "text": "This ticket was automatically created by the nightly workflow run. Feel free to update it as you need to. If you have any feedback about it, please contact the Delivery team.",
+          "marks": [
+            {
+              "type": "em"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
           "text": "This incident ticket relates to the @MODULE_NAME@ nightly on the @GITHUB_BRANCH@ branch which failed on @DATE@."
         }
       ]
@@ -33,7 +47,7 @@
       "content": [
         {
           "type": "text",
-          "text": "This ticket was created automatically by the nightly workflow run. Feel free to update it as you need to. If you have any feedback to make, please contact the Delivery team."
+          "text": "List of jobs that failed on the @MODULE_NAME@ nightly:"
         }
       ]
     }
