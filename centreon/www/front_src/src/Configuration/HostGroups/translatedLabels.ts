@@ -38,3 +38,9 @@ export const labelDuplicateConfirmationText =
 export const labelHostGroupDuplicated = 'Host group duplicated';
 
 export const labelDuplications = 'Duplications';
+
+export const labelHostGroupDisabled = 'Host group diabled';
+export const labelHostGroupEnabled = 'Host group enabled';
+
+export const labelHostGroupsDisabled = 'Host groups disabled';
+export const labelHostGroupsEnabled = 'Host groups enabled';

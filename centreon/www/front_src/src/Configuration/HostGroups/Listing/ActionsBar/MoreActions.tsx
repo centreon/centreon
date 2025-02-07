@@ -4,33 +4,73 @@ import { useTranslation } from 'react-i18next';
 import { ToggleOffRounded, ToggleOnRounded } from '@mui/icons-material';
 import { Menu } from '@mui/material';
 
-import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
-
-import { labelDisable, labelEnable } from '../../translatedLabels';
-
-import { useAtomValue, useSetAtom } from 'jotai';
 import {
-  hostGroupsToDeleteAtom,
-  hostGroupsToDuplicateAtom,
-  selectedRowsAtom
-} from '../../atoms';
+  ActionsList,
+  ActionsListActionDivider,
+  Method,
+  ResponseError,
+  useMutationQuery,
+  useSnackbar
+} from '@centreon/ui';
+
+import {
+  labelDisable,
+  labelEnable,
+  labelHostGroupsDisabled,
+  labelHostGroupsEnabled
+} from '../../translatedLabels';
+
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  bulkDisableHostGroupEndpoint,
+  bulkEnableHostGroupEndpoint
+} from '../../api/endpoints';
 
 interface Props {
   anchor: HTMLElement | null;
   close: () => void;
+  resetSelectedRows: () => void;
+  selectedRowsIds: Array<number>;
 }
 
-const MoreActions = ({ close, anchor }: Props): JSX.Element => {
+const MoreActions = ({
+  close,
+  anchor,
+  selectedRowsIds,
+  resetSelectedRows
+}: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const selectedRows = useAtomValue(selectedRowsAtom);
+  const { showSuccessMessage } = useSnackbar();
 
-  const seDashboardToDuplicate = useSetAtom(hostGroupsToDuplicateAtom);
-  const seDashboardToDelete = useSetAtom(hostGroupsToDeleteAtom);
+  const queryClient = useQueryClient();
 
-  const openDuplicateModal = (): void => seDashboardToDuplicate(selectedRows);
+  const { mutateAsync: enableHostGroupsRequest } = useMutationQuery({
+    getEndpoint: () => bulkEnableHostGroupEndpoint,
+    method: Method.POST,
+    onSuccess: () => {
+      resetSelectedRows();
+      showSuccessMessage(t(labelHostGroupsEnabled));
+      queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+    }
+  });
 
-  const openDeleteModal = (): void => seDashboardToDelete(selectedRows);
+  const { mutateAsync: disableHostGroupsRequest, isMutating } =
+    useMutationQuery({
+      getEndpoint: () => bulkDisableHostGroupEndpoint,
+      method: Method.POST,
+      onSuccess: () => {
+        resetSelectedRows();
+        showSuccessMessage(t(labelHostGroupsDisabled));
+        queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+      }
+    });
+
+  const enable = (): Promise<object | ResponseError> =>
+    enableHostGroupsRequest({ payload: { ids: selectedRowsIds } });
+
+  const disable = (): Promise<object | ResponseError> =>
+    disableHostGroupsRequest({ payload: { ids: selectedRowsIds } });
 
   return (
     <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
@@ -39,14 +79,16 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
           {
             Icon: ToggleOnRounded,
             label: t(labelEnable),
-            onClick: pipe(openDuplicateModal, close),
-            variant: 'success'
+            onClick: pipe(enable, close),
+            variant: 'success',
+            disable: isMutating
           },
           ActionsListActionDivider.divider,
           {
             Icon: ToggleOffRounded,
             label: t(labelDisable),
-            onClick: pipe(openDeleteModal, close)
+            onClick: pipe(disable, close),
+            disable: isMutating
           }
         ]}
       />

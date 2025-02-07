@@ -12,7 +12,21 @@ export const useStyles = makeStyles()((theme) => ({
   },
   pageHeader: {
     borderBottom: `1px solid ${theme.palette.primary.main}`,
-    fontWeight: theme.typography.fontWeightBold,
-    paddingBottom: theme.spacing(1.5)
+    paddingBottom: theme.spacing(1.5),
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  title: {
+    fontWeight: theme.typography.fontWeightBold
+  },
+  searchBar: {
+    width: 'min(45%,450px)',
+    display: 'flex',
+    justifyContent: 'end',
+
+    [theme.breakpoints.up('md')]: {
+      display: 'none'
+    }
   }
 }));

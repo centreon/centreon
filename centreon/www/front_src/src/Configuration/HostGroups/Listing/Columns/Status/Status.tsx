@@ -5,22 +5,32 @@ import { useTranslation } from 'react-i18next';
 
 import { Switch, Tooltip } from '@mui/material';
 
-import { ComponentColumnProps, Method, useMutationQuery } from '@centreon/ui';
+import {
+  ComponentColumnProps,
+  Method,
+  useMutationQuery,
+  useSnackbar
+} from '@centreon/ui';
 
+import {
+  bulkDisableHostGroupEndpoint,
+  bulkEnableHostGroupEndpoint
+} from '../../../api/endpoints';
 import {
   labelDisabled,
   labelEnableDisable,
-  labelEnabled
+  labelEnabled,
+  labelHostGroupDisabled,
+  labelHostGroupEnabled
 } from '../../../translatedLabels';
-
-import { getHostGroupEndpoint } from '../../../api/endpoints';
 import useStyles from './Status.styles';
 
 const Status = ({ row }: ComponentColumnProps): JSX.Element => {
-  const queryClient = useQueryClient();
-
   const { t } = useTranslation();
   const { classes } = useStyles();
+
+  const queryClient = useQueryClient();
+  const { showSuccessMessage } = useSnackbar();
 
   const [checked, setChecked] = useState(row?.is_activated);
 
@@ -31,10 +41,16 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
   }, [row?.is_activated]);
 
   const { mutateAsync } = useMutationQuery({
-    getEndpoint: () => getHostGroupEndpoint({ id: row.id }),
-    method: Method.PATCH,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] })
+    getEndpoint: () =>
+      checked ? bulkDisableHostGroupEndpoint : bulkEnableHostGroupEndpoint,
+    method: Method.POST,
+    onSuccess: () => {
+      showSuccessMessage(
+        t(checked ? labelHostGroupDisabled : labelHostGroupEnabled)
+      );
+      queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+    },
+    onError: () => setChecked(!checked)
   });
 
   const onClick = (e: React.BaseSyntheticEvent): void => {
@@ -42,7 +58,7 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
     setChecked(value);
 
     mutateAsync({
-      payload: { is_enabled: value }
+      payload: { ids: [row.id] }
     });
   };
 

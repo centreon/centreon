@@ -7,7 +7,7 @@ import { SearchField } from '@centreon/ui';
 import { labelSearch } from '../../../translatedLabels';
 import { filtersAtom } from '../../atom';
 import useLoadData from '../../useLoadData';
-import { useFilterStyles } from '../useActionsStyles';
+import { useFilterStyles } from './Filters.styles';
 
 import PopoverFilter from './PopoverFilter';
 
@@ -33,17 +33,18 @@ const Filters = (): JSX.Element => {
   };
 
   return (
-    <SearchField
-      debounced
-      fullWidth
-      EndAdornment={PopoverFilter}
-      className={classes.filters}
-      dataTestId={labelSearch}
-      placeholder={t(labelSearch)}
-      value={filters.name}
-      onChange={onChange}
-      onKeyDown={onSearch}
-    />
+    <div className={classes.filters}>
+      <SearchField
+        debounced
+        fullWidth
+        EndAdornment={PopoverFilter}
+        dataTestId={labelSearch}
+        placeholder={t(labelSearch)}
+        value={filters.name}
+        onChange={onChange}
+        onKeyDown={onSearch}
+      />
+    </div>
   );
 };
 

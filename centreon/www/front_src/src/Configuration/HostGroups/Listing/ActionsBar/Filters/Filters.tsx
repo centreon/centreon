@@ -15,7 +15,7 @@ import {
 } from '../../../translatedLabels';
 import { filtersAtom } from '../../atom';
 import useLoadData from '../../useLoadData';
-import { useFilterStyles } from '../useActionsStyles';
+import { useFilterStyles } from './Filters.styles';
 
 import {
   Checkbox,

@@ -22,7 +22,6 @@ const Add = ({ openCreateDialog }: Props): JSX.Element => {
       size="medium"
       variant="primary"
       onClick={openCreateDialog}
-      disabled={true}
     >
       {t(labelAdd)}
     </Button>

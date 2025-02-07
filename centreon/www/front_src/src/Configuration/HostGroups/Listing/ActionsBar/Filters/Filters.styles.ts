@@ -1,25 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useActionsStyles = makeStyles()((theme) => ({
-  actions: {
-    display: 'flex',
-    gap: theme.spacing(1),
-    alignItems: 'center',
-    background: 'red'
-  },
-  removeButton: {
-    '& :hover': {
-      color: theme.palette.error.main
-    }
-  },
-  removeIcon: {
-    fontSize: theme.spacing(2.75)
-  },
-  duplicateIcon: {
-    fontSize: theme.spacing(2.25)
-  }
-}));
-
 export const useFilterStyles = makeStyles()((theme) => ({
   additionalFilters: {
     background: theme.palette.background.paper,
@@ -36,10 +16,10 @@ export const useFilterStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
     marginTop: theme.spacing(2)
   },
+
   filters: {
-    alignItems: 'center',
-    display: 'flex',
-    width: '80%'
+    maxWidth: theme.spacing(60),
+    width: '100%'
   },
   statusFilter: {
     display: 'flex',

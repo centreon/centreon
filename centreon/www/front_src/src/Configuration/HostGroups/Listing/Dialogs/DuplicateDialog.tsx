@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
@@ -15,7 +15,7 @@ import { Modal } from '@centreon/ui/components';
 import { equals, isEmpty, pluck } from 'ramda';
 import { useState } from 'react';
 import { duplicateHostGroupEndpoint } from '../../api/endpoints';
-import { hostGroupsToDuplicateAtom } from '../../atoms';
+import { hostGroupsToDuplicateAtom, selectedRowsAtom } from '../../atoms';
 import {
   labelCancel,
   labelDuplicate,
@@ -39,23 +39,28 @@ const DuplicateDialog = (): JSX.Element => {
   const [hostGroupsToDuplicate, setHostGroupsToDuplicate] = useAtom(
     hostGroupsToDuplicateAtom
   );
+  const setSelectedRows = useSetAtom(selectedRowsAtom);
 
   const close = (): void => {
     setHostGroupsToDuplicate([]);
+    setSelectedRows([]);
   };
 
-  const { isMutating, mutateAsync: duplicateHostGroup } = useMutationQuery({
-    getEndpoint: () => duplicateHostGroupEndpoint,
-    method: Method.POST,
-    onSettled: close,
-    onSuccess: () => {
-      showSuccessMessage(t(labelHostGroupDuplicated));
-      queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
-    }
-  });
+  const { isMutating, mutateAsync: duplicateHostGroupsRequest } =
+    useMutationQuery({
+      getEndpoint: () => duplicateHostGroupEndpoint,
+      method: Method.POST,
+      onSettled: close,
+      onSuccess: () => {
+        setHostGroupsToDuplicate([]);
+        setSelectedRows([]);
+        showSuccessMessage(t(labelHostGroupDuplicated));
+        queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+      }
+    });
 
   const confirm = (): void => {
-    duplicateHostGroup({
+    duplicateHostGroupsRequest({
       payload: {
         ids: pluck('id', hostGroupsToDuplicate),
         nb_duplicates: duplicatesCount
