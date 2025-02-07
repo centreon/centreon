@@ -103,10 +103,38 @@ $changeAccNameInTopology = function (CentreonDB $pearDB) use (&$errorMessage): v
     );
 };
 
+// -------------------------------------------- Connectors configurations -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add data to connector table';
+    $pearDB->executeQuery(
+        <<<SQL
+        INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
+        (null,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+        (null, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+        SQL
+    );
+};
+
 try {
     $createAgentInformationTable($pearDBO);
     $addConnectorToTopology($pearDB);
     $changeAccNameInTopology($pearDB);
+
+    // Transactional queries
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
+
+    $insertAccConnectors($pearDB);
+
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
@@ -119,6 +147,10 @@ try {
         ],
         exception: $e
     );
+
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
