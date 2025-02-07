@@ -1,7 +1,7 @@
 import { useActionsStyles } from './Actions.styles';
 import AddHostGroups from './AddAction';
-import Filters from './Filters/SearchBar';
-import MassiveActions from './MassiveActions';
+import Filters from './Filters/SearchBar/SearchBar';
+import MassiveActions from './MassiveActions/MassiveActions';
 
 const ActionsBar = (): JSX.Element => {
   const { classes } = useActionsStyles();
@@ -9,7 +9,7 @@ const ActionsBar = (): JSX.Element => {
   return (
     <div className={classes.actions}>
       <div className={classes.actions}>
-        <AddHostGroups openCreateDialog={() => undefined} />
+        <AddHostGroups />
         <MassiveActions />
       </div>
       <div className={classes.searchBar}>

@@ -13,9 +13,11 @@ import { Actions } from './Actions';
 import Hosts from './Hosts/Hosts';
 import Status from './Status/Status';
 
-const useColumns = (): {
+interface Props {
   columns: Array<Column>;
-} => {
+}
+
+const useColumns = (): Props => {
   const { t } = useTranslation();
 
   const columns = [

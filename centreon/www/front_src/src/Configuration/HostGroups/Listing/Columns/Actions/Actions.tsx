@@ -10,7 +10,7 @@ import { Box } from '@mui/material';
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
 import { labelDelete, labelDuplicate } from '../../../translatedLabels';
-import { useColumnStyles } from '../ColumnsStyles';
+import { useColumnStyles } from '../Columns.styles';
 
 import useActions from './useActions';
 

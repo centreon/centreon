@@ -15,13 +15,12 @@ import {
   pageAtom,
   sortFieldAtom,
   sortOrderAtom
-} from './atom';
-import { List, hostGroupListItem } from './models';
+} from './atoms';
+import { HostGroupListItem, List } from './models';
 
 interface LoadDataState {
-  data?: List<hostGroupListItem>;
+  data?: List<HostGroupListItem>;
   isLoading: boolean;
-  reload?;
 }
 
 const useLoadData = (): LoadDataState => {
@@ -58,9 +57,7 @@ const useLoadData = (): LoadDataState => {
         ])
   ];
 
-  const { data, isFetching, fetchQuery } = useFetchQuery<
-    ListingModel<hostGroupListItem>
-  >({
+  const { data, isFetching } = useFetchQuery<ListingModel<HostGroupListItem>>({
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: hostGroupsListEndpoint,
@@ -81,7 +78,7 @@ const useLoadData = (): LoadDataState => {
     }
   });
 
-  return { data, isLoading: isFetching, reload: fetchQuery };
+  return { data, isLoading: isFetching };
 };
 
 export default useLoadData;

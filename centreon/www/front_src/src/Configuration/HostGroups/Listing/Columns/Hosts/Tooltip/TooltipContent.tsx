@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
 
-import { useTooltipStyles } from '../useTooltipStyles';
+import { useTooltipStyles } from '../Tooltip.styles';
 
 import {
   NoDisabledHostsLabel,

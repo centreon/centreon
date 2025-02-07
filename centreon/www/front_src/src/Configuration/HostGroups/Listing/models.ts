@@ -3,7 +3,12 @@ export type NamedEntity = {
   name: string;
 };
 
-export interface hostGroupListItem extends NamedEntity {}
+export interface HostGroupListItem extends NamedEntity {
+  alias?: string;
+  enabledHostsCount: number;
+  disabledHostsCount: number;
+  iconUrl: string | null;
+}
 
 export type ListMeta = {
   limit: number;

@@ -18,13 +18,13 @@ import {
   labelEnable,
   labelHostGroupsDisabled,
   labelHostGroupsEnabled
-} from '../../translatedLabels';
+} from '../../../translatedLabels';
 
 import { useQueryClient } from '@tanstack/react-query';
 import {
   bulkDisableHostGroupEndpoint,
   bulkEnableHostGroupEndpoint
-} from '../../api/endpoints';
+} from '../../../api/endpoints';
 
 interface Props {
   anchor: HTMLElement | null;

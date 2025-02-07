@@ -1,5 +1,3 @@
-import { useAtom } from 'jotai';
-import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { TextField } from '@centreon/ui';
@@ -12,10 +10,9 @@ import {
   labelName,
   labelSearch,
   labelStatus
-} from '../../../translatedLabels';
-import { filtersAtom } from '../../atom';
-import useLoadData from '../../useLoadData';
-import { useFilterStyles } from './Filters.styles';
+} from '../../../../translatedLabels';
+import { filtersAtom } from '../../../atoms';
+import { useFilterStyles } from '../Filters.styles';
 
 import {
   Checkbox,
@@ -23,33 +20,21 @@ import {
   FormGroup,
   Typography
 } from '@mui/material';
-import { filtersDefaultValue } from '../../utils';
+import { useAtomValue } from 'jotai';
+import {} from 'react';
+import useLoadData from '../../../useLoadData';
+import useFilters from './useFilters';
 
 const Filters = (): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
-  const [filters, setFilters] = useAtom(filtersAtom);
-  const { reload, isLoading } = useLoadData();
+  const filters = useAtomValue(filtersAtom);
 
-  const change =
-    (key) =>
-    (event): void => {
-      setFilters({ ...filters, [key]: event.target.value });
-    };
+  const { isLoading } = useLoadData();
 
-  const changeCheckbox =
-    (key) =>
-    (event): void => {
-      setFilters({ ...filters, [key]: event.target.checked });
-    };
-
-  const isClearDisabled = equals(filters, filtersDefaultValue);
-
-  const reset = (): void => {
-    setFilters(filtersDefaultValue);
-    reload();
-  };
+  const { reset, isClearDisabled, change, changeCheckbox, reload } =
+    useFilters();
 
   return (
     <div className={classes.additionalFilters} data-testid="filters">

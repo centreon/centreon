@@ -3,20 +3,16 @@ import { useState } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { ListingModel, useSnackbar } from '@centreon/ui';
+import { useSnackbar } from '@centreon/ui';
 
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atom';
-import { hostGroupListItem } from './models';
-import useLoadData from './useLoadData';
+import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 import { defaultSelectedColumnIds } from './utils';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
   changeSort: ({ sortOrder, sortField }) => void;
-  data?: ListingModel<hostGroupListItem>;
-  isLoading: boolean;
   page?: number;
   resetColumns: () => void;
   selectColumns: (updatedColumnIds: Array<string>) => void;
@@ -29,6 +25,7 @@ interface UseListing {
 const useListing = (): UseListing => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
+
   const [selectedColumnIds, setSelectedColumnIds] = useState(
     defaultSelectedColumnIds
   );
@@ -61,13 +58,9 @@ const useListing = (): UseListing => {
     setSelectedColumnIds(updatedColumnIds);
   };
 
-  const { isLoading, data } = useLoadData();
-
   return {
     changePage,
     changeSort,
-    data,
-    isLoading,
     page,
     resetColumns,
     selectColumns,

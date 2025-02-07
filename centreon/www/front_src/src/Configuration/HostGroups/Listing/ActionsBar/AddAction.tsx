@@ -6,11 +6,7 @@ import { Button } from '@centreon/ui/components';
 
 import { labelAdd } from '../../translatedLabels';
 
-interface Props {
-  openCreateDialog: () => void;
-}
-
-const Add = ({ openCreateDialog }: Props): JSX.Element => {
+const Add = (): JSX.Element => {
   const { t } = useTranslation();
 
   return (
@@ -21,7 +17,7 @@ const Add = ({ openCreateDialog }: Props): JSX.Element => {
       iconVariant="start"
       size="medium"
       variant="primary"
-      onClick={openCreateDialog}
+      onClick={() => undefined}
     >
       {t(labelAdd)}
     </Button>

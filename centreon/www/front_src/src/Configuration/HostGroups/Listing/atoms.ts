@@ -1,8 +1,8 @@
 import { atom } from 'jotai';
-
 import { filtersDefaultValue } from './utils';
 
-import { FiltersType } from './models';
+import { atomWithReset } from 'jotai/utils';
+import { FiltersType, NamedEntity } from './models';
 
 type SortOrder = 'asc' | 'desc';
 
@@ -14,3 +14,10 @@ export const sortFieldAtom = atom<string>('name');
 export const filtersAtom = atom<FiltersType>(filtersDefaultValue);
 
 export const searchAtom = atom<string>('');
+
+export const selectedRowsAtom = atom([]);
+
+export const hostGroupsToDeleteAtom = atom<Array<NamedEntity>>([]);
+export const hostGroupsToDuplicateAtom = atom<Array<NamedEntity>>([]);
+
+export const tooltipPageAtom = atomWithReset(1);

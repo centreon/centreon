@@ -2,7 +2,12 @@ import { flatten } from 'ramda';
 
 import { useInfiniteScrollListing } from '@centreon/ui';
 import { hostListEndpoint } from '../../../../api/endpoints';
-import { tooltipPageAtom } from '../../../../atoms';
+import { tooltipPageAtom } from '../../../atoms';
+
+interface UseLoadHostsProps {
+  enabled: boolean;
+  hostGroupName: string;
+}
 
 interface UseLoadHostsState {
   elementRef;
@@ -14,7 +19,7 @@ interface UseLoadHostsState {
 export const useLoadHosts = ({
   enabled,
   hostGroupName
-}: { enabled: boolean; hostGroupName: string }): UseLoadHostsState => {
+}: UseLoadHostsProps): UseLoadHostsState => {
   const searchConditions = [
     {
       field: 'group.name',

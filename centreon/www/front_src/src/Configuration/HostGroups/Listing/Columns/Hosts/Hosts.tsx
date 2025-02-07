@@ -1,6 +1,6 @@
 import { ComponentColumnProps } from '@centreon/ui';
+import { useTooltipStyles } from './Tooltip.styles';
 import TooltipContent from './Tooltip/TooltipContent';
-import { useTooltipStyles } from './useTooltipStyles';
 
 import { Tooltip } from '@mui/material';
 
@@ -21,7 +21,7 @@ const Hosts =
         title={<TooltipContent enabled={enabled} hostGroupName={row.name} />}
         arrow
       >
-        <div className={classes.content}>{hostCount} 11</div>
+        <div className={classes.content}>{hostCount}</div>
       </Tooltip>
     );
   };

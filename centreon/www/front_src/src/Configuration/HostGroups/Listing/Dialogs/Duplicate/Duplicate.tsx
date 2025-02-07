@@ -1,72 +1,35 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import {
-  Method,
-  NumberField,
-  useMutationQuery,
-  useSnackbar
-} from '@centreon/ui';
+import { NumberField } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
 
-import { equals, isEmpty, pluck } from 'ramda';
-import { useState } from 'react';
-import { duplicateHostGroupEndpoint } from '../../api/endpoints';
-import { hostGroupsToDuplicateAtom, selectedRowsAtom } from '../../atoms';
+import { equals, isEmpty } from 'ramda';
 import {
   labelCancel,
   labelDuplicate,
   labelDuplicateConfirmationText,
   labelDuplicateConfirmationTitle,
-  labelDuplications,
-  labelHostGroupDuplicated
-} from '../../translatedLabels';
-import { useStyles } from './Dialog.styles';
+  labelDuplications
+} from '../../../translatedLabels';
+import useDuplicate from './useDuplicate';
+
+import { useStyles } from './Duplicate.styles';
 
 const DuplicateDialog = (): JSX.Element => {
   const { classes } = useStyles();
 
   const { t } = useTranslation();
 
-  const { showSuccessMessage } = useSnackbar();
-  const queryClient = useQueryClient();
-
-  const [duplicatesCount, setDuplicatesCount] = useState(1);
-
-  const [hostGroupsToDuplicate, setHostGroupsToDuplicate] = useAtom(
-    hostGroupsToDuplicateAtom
-  );
-  const setSelectedRows = useSetAtom(selectedRowsAtom);
-
-  const close = (): void => {
-    setHostGroupsToDuplicate([]);
-    setSelectedRows([]);
-  };
-
-  const { isMutating, mutateAsync: duplicateHostGroupsRequest } =
-    useMutationQuery({
-      getEndpoint: () => duplicateHostGroupEndpoint,
-      method: Method.POST,
-      onSettled: close,
-      onSuccess: () => {
-        setHostGroupsToDuplicate([]);
-        setSelectedRows([]);
-        showSuccessMessage(t(labelHostGroupDuplicated));
-        queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
-      }
-    });
-
-  const confirm = (): void => {
-    duplicateHostGroupsRequest({
-      payload: {
-        ids: pluck('id', hostGroupsToDuplicate),
-        nb_duplicates: duplicatesCount
-      }
-    });
-  };
+  const {
+    confirm,
+    close,
+    isMutating,
+    duplicatesCount,
+    changeDuplicateCount,
+    hostGroupsToDuplicate
+  } = useDuplicate();
 
   return (
     <Modal open={!isEmpty(hostGroupsToDuplicate)} size="large" onClose={close}>
@@ -102,7 +65,7 @@ const DuplicateDialog = (): JSX.Element => {
             }}
             size="compact"
             type="number"
-            onChange={(inputValue: number) => setDuplicatesCount(inputValue)}
+            onChange={changeDuplicateCount}
           />
         </div>
       </Modal.Body>

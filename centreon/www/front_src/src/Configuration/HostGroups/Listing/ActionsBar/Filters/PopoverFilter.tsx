@@ -8,7 +8,7 @@ import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
 
 import { labelFilters } from '../../../translatedLabels';
 
-import AdditionalFilters from './Filters';
+import AdditionalFilters from './Filters/Filters';
 
 const PopoverFilter = (): JSX.Element => {
   const { t } = useTranslation();

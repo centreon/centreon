@@ -6,46 +6,30 @@ import {
 
 import { IconButton } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
-import { useAtom, useSetAtom } from 'jotai';
-import { isEmpty, map, pick } from 'ramda';
-import { useState } from 'react';
+import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import {
-  hostGroupsToDeleteAtom,
-  hostGroupsToDuplicateAtom,
-  selectedRowsAtom
-} from '../../atoms';
 import {
   labelDelete,
   labelDuplicate,
   labelMoreActions
-} from '../../translatedLabels';
-import { useActionsStyles } from './Actions.styles';
+} from '../../../translatedLabels';
+import { useActionsStyles } from '../Actions.styles';
 import MoreActions from './MoreActions';
+import useMassiveActions from './useMassiveActions';
 
 const MassiveActions = (): JSX.Element => {
   const { t } = useTranslation();
   const { cx, classes } = useActionsStyles();
 
-  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
-  const setHostGroupsToDelete = useSetAtom(hostGroupsToDeleteAtom);
-  const setHostGroupsToDuplicate = useSetAtom(hostGroupsToDuplicateAtom);
-
-  const [moreActionsOpen, setMoreActionsOpen] = useState(null);
-
-  const selectedRowsIds = selectedRows?.map((row) => row.id);
-  const resetSelectedRows = () => setSelectedRows([]);
-
-  const disabled = isEmpty(selectedRowsIds);
-
-  const openMoreActions = (event): void => setMoreActionsOpen(event.target);
-  const closeMoreActions = (): void => setMoreActionsOpen(null);
-
-  const hostGroupEntities = map(pick(['id', 'name']), selectedRows);
-
-  const openDeleteModal = (): void => setHostGroupsToDelete(hostGroupEntities);
-  const openDuplicateModal = (): void =>
-    setHostGroupsToDuplicate(hostGroupEntities);
+  const {
+    openMoreActions,
+    closeMoreActions,
+    resetSelectedRows,
+    openDeleteModal,
+    openDuplicateModal,
+    selectedRowsIds,
+    moreActionsOpen
+  } = useMassiveActions();
 
   return (
     <div className={classes.actions}>
@@ -58,7 +42,7 @@ const MassiveActions = (): JSX.Element => {
           size="medium"
           variant="primary"
           onClick={openDuplicateModal}
-          disabled={disabled}
+          disabled={isEmpty(selectedRowsIds)}
         >
           {t(labelDuplicate)}
         </Button>
@@ -71,7 +55,7 @@ const MassiveActions = (): JSX.Element => {
           size="medium"
           variant="primary"
           onClick={openDeleteModal}
-          disabled={disabled}
+          disabled={isEmpty(selectedRowsIds)}
         >
           {t(labelDelete)}
         </Button>
@@ -81,7 +65,7 @@ const MassiveActions = (): JSX.Element => {
           ariaLabel={t(labelDuplicate)}
           title={t(labelDuplicate)}
           onClick={openDuplicateModal}
-          disabled={disabled}
+          disabled={isEmpty(selectedRowsIds)}
         >
           <ContentCopyIcon className={classes.duplicateIcon} />
         </IconButton>
@@ -90,7 +74,7 @@ const MassiveActions = (): JSX.Element => {
           title={t(labelDelete)}
           onClick={openDeleteModal}
           className={classes.removeButton}
-          disabled={disabled}
+          disabled={isEmpty(selectedRowsIds)}
         >
           <DeleteIcon className={classes.removeIcon} />
         </IconButton>
@@ -100,7 +84,7 @@ const MassiveActions = (): JSX.Element => {
         ariaLabel={t(labelMoreActions)}
         title={t(labelMoreActions)}
         onClick={openMoreActions}
-        disabled={disabled}
+        disabled={isEmpty(selectedRowsIds)}
       >
         <MoreIcon className={classes.duplicateIcon} />
       </IconButton>

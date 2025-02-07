@@ -1,15 +1,20 @@
 import { MemoizedListing } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
-import { selectedRowsAtom } from '../atoms';
 import ActionsBar from './ActionsBar/ActionsBar';
-import useColumns from './Columns/columns';
-import DeleteDialog from './Dialogs/DeleteDialog';
-import DuplicateDialog from './Dialogs/DuplicateDialog';
+import useColumns from './Columns/useColumns';
+import { selectedRowsAtom } from './atoms';
+
+import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useListing from './useListing';
+import useLoadData from './useLoadData';
 
 const Listing = (): JSX.Element => {
+  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
+
   const { columns } = useColumns();
+
+  const { isLoading, data } = useLoadData();
 
   const {
     changePage,
@@ -20,12 +25,8 @@ const Listing = (): JSX.Element => {
     selectColumns,
     sortf,
     sorto,
-    isLoading,
-    data,
     selectedColumnIds
   } = useListing();
-
-  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
   return (
     <>

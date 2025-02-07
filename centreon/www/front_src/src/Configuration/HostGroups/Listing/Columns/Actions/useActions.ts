@@ -1,10 +1,7 @@
 import { useSetAtom } from 'jotai';
 
 import { pick } from 'ramda';
-import {
-  hostGroupsToDeleteAtom,
-  hostGroupsToDuplicateAtom
-} from '../../../atoms';
+import { hostGroupsToDeleteAtom, hostGroupsToDuplicateAtom } from '../../atoms';
 
 interface UseActionsState {
   openDeleteModal: () => void;
