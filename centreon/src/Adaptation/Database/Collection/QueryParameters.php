@@ -25,6 +25,7 @@ namespace Adaptation\Database\Collection;
 
 use Adaptation\Database\ValueObject\QueryParameter;
 use Core\Common\Domain\Collection\Collection;
+use Core\Common\Domain\Exception\CollectionException;
 
 /**
  * Class
@@ -40,5 +41,22 @@ class QueryParameters extends Collection
     protected function itemClass(): string
     {
         return QueryParameter::class;
+    }
+
+    /**
+     * Factory
+     *
+     * @param QueryParameter[] $queryParameters
+     *
+     * @throws CollectionException
+     * @return QueryParameters
+     */
+    public static function create(array $queryParameters): QueryParameters
+    {
+        $queryParametersCollection = new QueryParameters();
+        foreach ($queryParameters as $queryParameter) {
+            $queryParametersCollection->add($queryParameter->name, $queryParameter);
+        }
+        return $queryParametersCollection;
     }
 }
