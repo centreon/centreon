@@ -29,10 +29,10 @@ export const useDialogStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1.5)
   },
   dialogClosed: {
-    transform: 'translate3d(-50%, -200px, 0px)'
+    transform: 'translate3d(-50%, -500px, 0px)'
   },
   listItem: {
-    '&[data-selected="true"],&:hover': {
+    '&[data-global-search-selected="true"],&:hover': {
       '& svg': {
         fill: theme.palette.primary.main
       },

@@ -1,5 +1,6 @@
 import {
   append,
+  equals,
   filter,
   flatten,
   includes,
@@ -25,7 +26,12 @@ export const useSearchPages = (search) => {
               return null;
             }
 
-            return page[property].reduce(reduceAllowedPages(page.label), []);
+            return page[property].reduce(
+              reduceAllowedPages(
+                equals(page.show, undefined) ? parent : page.label
+              ),
+              []
+            );
           }),
           filter(isDefined)
         )(['groups', 'children']) as Array<string>;
@@ -47,6 +53,7 @@ export const useSearchPages = (search) => {
       },
     []
   );
+
   const searchablePages = useMemo(
     (): Array<string> =>
       isNil(menu)

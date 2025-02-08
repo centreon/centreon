@@ -32,7 +32,16 @@ export const useSearchResources = (search) => {
         {
           label: `Configure ${name}`,
           url: links.uris.configuration.replace('/centreon', ''),
-          type: 'configuration'
+          type: 'configuration',
+          resourceDetails: {
+            id,
+            uuid,
+            name,
+            type,
+            parent,
+            resourceId: id,
+            resourcesDetailsEndpoint: links.endpoints.details
+          }
         },
         {
           label: `View "${name}" on Resources Status`,
