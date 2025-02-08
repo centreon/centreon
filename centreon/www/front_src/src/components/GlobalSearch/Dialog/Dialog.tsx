@@ -87,7 +87,8 @@ const Dialog = (): JSX.Element | null => {
   };
 
   const toggleDialog = (event: KeyboardEvent): void => {
-    if (event.ctrlKey && equals(event.key, 'k')) {
+    if ((event.ctrlKey || event.metaKey) && equals(event.key, 'k')) {
+      event.preventDefault();
       setIsDisplayNone(false);
       setTimeout(() => {
         setIsOpen(true);
@@ -266,11 +267,12 @@ const Dialog = (): JSX.Element | null => {
               borderRadius: 1,
               '& ul': { padding: 0 }
             }}
+            ref={listRef}
           >
             {flattenedOptions.map(({ label, url }, idx) => (
               <ListItem
                 key={`history-${url}`}
-                data-global-earch-selected={idx === selectedOptionIndex}
+                data-global-search-selected={idx === selectedOptionIndex}
                 className={classes.listItem}
                 onClick={pressOption(idx)}
                 role="button"
