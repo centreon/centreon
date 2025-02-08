@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Exception;
 
-use Throwable;
-
 /**
  * Class
  *
@@ -34,11 +32,11 @@ use Throwable;
 class ConnectionException extends DatabaseException
 {
     /**
-     * @param Throwable $previous
+     * @param \Throwable $previous
      *
      * @return ConnectionException
      */
-    public static function connectionFailed(Throwable $previous): ConnectionException
+    public static function connectionFailed(\Throwable $previous): ConnectionException
     {
         return new self(
             message: "Error during the initialization of the connection : {$previous->getMessage()}",
@@ -48,11 +46,11 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param Throwable $previous
+     * @param \Throwable $previous
      *
      * @return ConnectionException
      */
-    public static function getNativeConnectionFailed(Throwable $previous): ConnectionException
+    public static function getNativeConnectionFailed(\Throwable $previous): ConnectionException
     {
         return new self(
             "Error while getting the native connection : {$previous->getMessage()}",
@@ -62,11 +60,11 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param Throwable $previous
+     * @param \Throwable $previous
      *
      * @return ConnectionException
      */
-    public static function getDatabaseFailed(Throwable $previous): ConnectionException
+    public static function getDatabaseFailed(\Throwable $previous): ConnectionException
     {
         return new self(
             "Error while getting the database",
@@ -87,11 +85,11 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param Throwable $previous
+     * @param \Throwable $previous
      *
      * @return ConnectionException
      */
-    public static function getLastInsertFailed(Throwable $previous): ConnectionException
+    public static function getLastInsertFailed(\Throwable $previous): ConnectionException
     {
         return new self(
             "Error while retrieving the last auto-incremented id inserted.",
@@ -145,7 +143,7 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param Throwable $previous
+     * @param \Throwable $previous
      * @param string    $query
      * @param array     $queryParams
      * @param array     $queryParamTypes
@@ -153,7 +151,7 @@ class ConnectionException extends DatabaseException
      * @return ConnectionException
      */
     public static function executeQueryFailed(
-        Throwable $previous,
+        \Throwable $previous,
         string $query,
         array $queryParams,
         array $queryParamTypes
@@ -175,11 +173,11 @@ class ConnectionException extends DatabaseException
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
     /**
-     * @param Throwable $previous
+     * @param \Throwable $previous
      *
      * @return ConnectionException
      */
-    public static function setAutoCommitFailed(Throwable $previous): ConnectionException
+    public static function setAutoCommitFailed(\Throwable $previous): ConnectionException
     {
         return new self(
             message: "Error while setting auto-commit option : {$previous->getMessage()}",
@@ -189,11 +187,11 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param Throwable $previous
+     * @param \Throwable $previous
      *
      * @return ConnectionException
      */
-    public static function startTransactionFailed(Throwable $previous): ConnectionException
+    public static function startTransactionFailed(\Throwable $previous): ConnectionException
     {
         return new self(
             message: "Error while starting a transaction : {$previous->getMessage()}",
@@ -203,11 +201,11 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param Throwable|null $previous
+     * @param \Throwable|null $previous
      *
      * @return ConnectionException
      */
-    public static function startNestedTransactionFailed(?Throwable $previous = null): ConnectionException
+    public static function startNestedTransactionFailed(?\Throwable $previous = null): ConnectionException
     {
         return new self(
             message: "Error while starting a nested transaction.",
@@ -217,11 +215,11 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param Throwable $previous
+     * @param \Throwable $previous
      *
      * @return ConnectionException
      */
-    public static function commitTransactionFailed(Throwable $previous): ConnectionException
+    public static function commitTransactionFailed(\Throwable $previous): ConnectionException
     {
         return new self(
             message: "Error while committing the transaction : {$previous->getMessage()}",
@@ -231,11 +229,11 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param Throwable $previous
+     * @param \Throwable $previous
      *
      * @return ConnectionException
      */
-    public static function rollbackTransactionFailed(Throwable $previous): ConnectionException
+    public static function rollbackTransactionFailed(\Throwable $previous): ConnectionException
     {
         return new self(
             message: "Error during the transaction rollback : {$previous->getMessage()}",

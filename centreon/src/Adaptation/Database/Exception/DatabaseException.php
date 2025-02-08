@@ -23,8 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Exception;
 
-use Exception;
-use Throwable;
+use Core\Common\Domain\Exception\DomainException;
 
 /**
  * Class
@@ -32,99 +31,10 @@ use Throwable;
  * @class   DatabaseException
  * @package Adaptation\Database\Exception
  */
-abstract class DatabaseException extends Exception
+abstract class DatabaseException extends DomainException
 {
-    public const ERROR_CODE_BAD_USAGE = 1;
-    public const ERROR_CODE_DATABASE = 2;
-    public const ERROR_CODE_DATABASE_TRANSACTION = 3;
-    public const ERROR_CODE_UNBUFFERED_QUERY = 4;
+    public const ERROR_CODE_DATABASE = 10;
+    public const ERROR_CODE_DATABASE_TRANSACTION = 11;
+    public const ERROR_CODE_UNBUFFERED_QUERY = 12;
 
-    /**
-     * DatabaseException constructor.
-     *
-     * @param string              $message
-     * @param int                 $code
-     * @param array<string,mixed> $context
-     * @param Throwable|null      $previous
-     */
-    public function __construct(string $message, int $code, protected array $context = [], ?Throwable $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-        $this->addExceptionContext();
-    }
-
-    /**
-     * @return array<string,mixed>
-     */
-    public function getContext(): array
-    {
-        return $this->context;
-    }
-
-    /**
-     * @param array<string,mixed> $context
-     *
-     * @return void
-     */
-    public function setContext(array $context): void
-    {
-        $this->context = $context;
-    }
-
-    /**
-     * @param string $name
-     * @param mixed  $value
-     *
-     * @return void
-     */
-    public function addContextItem(string $name, mixed $value): void
-    {
-        $this->context[$name] = $value;
-    }
-
-    /**
-     * @param array<string,mixed> $newContext
-     *
-     * @return void
-     */
-    public function addContext(array $newContext): void
-    {
-        $this->context = array_merge($this->getContext(), $newContext);
-    }
-
-    /**
-     * @return void
-     */
-    private function addExceptionContext(): void
-    {
-        $exceptionContext = $this->getExceptionContext($this);
-        $exceptionContext['previous'] = $this->getExceptionContext($this->getPrevious());
-        $exceptionContext['trace'] = $this->getTraceAsString();
-        $this->addContextItem('exception', $exceptionContext);
-    }
-
-    /**
-     * @param Throwable $throwable
-     *
-     * @return array<string,mixed>
-     */
-    private function getExceptionContext(Throwable $throwable): array
-    {
-        $exceptionContext =  [
-            'type' => $throwable::class,
-            'message' => $throwable->getMessage(),
-            'file' => $throwable->getFile(),
-            'line' => $throwable->getLine(),
-        ];
-
-        if (! empty($throwable->getTrace())) {
-            if (isset($throwable->getTrace()[0]['class'])) {
-                $exceptionContext['class'] = $throwable->getTrace()[0]['class'];
-            }
-            if (isset($throwable->getTrace()[0]['function'])) {
-                $exceptionContext['method'] = $throwable->getTrace()[0]['function'];
-            }
-        }
-        return $exceptionContext;
-    }
 }
