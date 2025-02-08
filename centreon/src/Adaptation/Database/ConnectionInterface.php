@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database;
 
+use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\Enum\ConnectionDriver;
 use Adaptation\Database\Enum\ParameterType;
 use Adaptation\Database\Exception\ConnectionException;
@@ -99,68 +100,52 @@ interface ConnectionInterface
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return int
-     *
      */
-    public function executeStatement(string $query, array $params = [], array $types = []): int;
+    public function executeStatement(string $query, QueryParameters $queryParameters): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be only used for INSERT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return int
-     *
      */
-    public function insert(string $query, array $params = [], array $types = []): int;
+    public function insert(string $query, QueryParameters $queryParameters): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be only used for UPDATE.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return int
-     *
      */
-    public function update(string $query, array $params = [], array $types = []): int;
+    public function update(string $query, QueryParameters $queryParameters): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be only used for DELETE.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return int
-     *
      */
-    public function delete(string $query, array $params = [], array $types = []): int;
+    public function delete(string $query, QueryParameters $queryParameters): int;
 
     // --------------------------------------- FETCH METHODS -----------------------------------------
 
@@ -169,17 +154,13 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
-     *
      */
-    public function fetchAssociative(string $query, array $params = [], array $types = []): false | array;
+    public function fetchAssociative(string $query, QueryParameters $queryParameters): false | array;
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result
@@ -187,17 +168,13 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
-     *
      */
-    public function fetchNumeric(string $query, array $params = [], array $types = []): false | array;
+    public function fetchNumeric(string $query, QueryParameters $queryParameters): false | array;
 
     /**
      * Prepares and executes an SQL query and returns the value of a single column
@@ -205,51 +182,39 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return mixed|false False is returned if no rows are found.
-     *
      */
-    public function fetchOne(string $query, array $params = [], array $types = []): mixed;
+    public function fetchOne(string $query, QueryParameters $queryParameters): mixed;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return array<array<int,mixed>>
-     *
      */
-    public function fetchAllNumeric(string $query, array $params = [], array $types = []): array;
+    public function fetchAllNumeric(string $query, QueryParameters $queryParameters): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of associative arrays.
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return array<array<string,mixed>>
-     *
      */
-    public function fetchAllAssociative(string $query, array $params = [], array $types = []): array;
+    public function fetchAllAssociative(string $query, QueryParameters $queryParameters): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an associative array with the keys
@@ -257,17 +222,13 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return array<int|string,mixed>
-     *
      */
-    public function fetchAllKeyValue(string $query, array $params = [], array $types = []): array;
+    public function fetchAllKeyValue(string $query, QueryParameters $queryParameters): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
@@ -276,34 +237,26 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return array<mixed,array<string,mixed>>
-     *
      */
-    public function fetchAllAssociativeIndexed(string $query, array $params = [], array $types = []): array;
+    public function fetchAllAssociativeIndexed(string $query, QueryParameters $queryParameters): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return list<mixed>
-     *
      */
-    public function fetchFirstColumn(string $query, array $params = [], array $types = []): array;
+    public function fetchFirstColumn(string $query, QueryParameters $queryParameters): array;
 
     // --------------------------------------- ITERATE METHODS -----------------------------------------
 
@@ -312,17 +265,13 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return Traversable<int,list<mixed>>
-     *
      */
-    public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable;
+    public function iterateNumeric(string $query, QueryParameters $queryParameters): Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented
@@ -330,17 +279,13 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return Traversable<int,array<string,mixed>>
-     *
      */
-    public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable;
+    public function iterateAssociative(string $query, QueryParameters $queryParameters): Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys
@@ -348,17 +293,13 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return Traversable<mixed,mixed>
-     *
      */
-    public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable;
+    public function iterateKeyValue(string $query, QueryParameters $queryParameters): Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
@@ -367,34 +308,26 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return Traversable<mixed,array<string,mixed>>
-     *
      */
-    public function iterateAssociativeIndexed(string $query, array $params = [], array $types = []): Traversable;
+    public function iterateAssociativeIndexed(string $query, QueryParameters $queryParameters): Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over the first column values.
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
      * @return Traversable<int,mixed>
-     *
      */
-    public function iterateColumn(string $query, array $params = [], array $types = []): Traversable;
+    public function iterateColumn(string $query, QueryParameters $queryParameters): Traversable;
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
