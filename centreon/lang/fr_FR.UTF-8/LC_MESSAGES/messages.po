@@ -15491,7 +15491,7 @@ msgid "Notification channels"
 msgstr "Canaux de notification"
 
 msgid "Host groups"
-msgstr "Groupes d'hôtes "
+msgstr "Groupes d'hôtes"
 
 msgid "Search service groups"
 msgstr "Rechercher des groupes de service"
@@ -19674,3 +19674,61 @@ msgstr "Configuration d'agent"
 
 msgid "The minimum allowed value is 10"
 msgstr "La valeur minimale autorisée est 10"
+
+
+msgid "Enable/Disable"
+msgstr "Activer / Désactiver"
+
+msgid "Enabled hosts"
+msgstr "Hôtes activés"
+
+msgid "No hosts in this group are currently enabled."
+msgstr "Aucun hôte activé dans ce groupe actuellement."
+
+msgid "No hosts in this group are currently disabled."
+msgstr "Aucun hôte désactivé dans ce groupe actuellement."
+
+msgid "Delete host group"
+msgstr "Supprimer le groupe d'hôtes"
+
+msgid "Delete host groups"
+msgstr "Supprimer des groupe d'hôtes"
+
+msgid "Host group deleted"
+msgstr "Groupe d'hôtes supprimé"
+
+msgid "Duplicate host group"
+msgstr "Dupliquer le groupe d'hôtes"
+
+msgid "Duplicate host groups"
+msgstr "Dupliquer des groupes d'hôtes"
+
+msgid "Host group duplicated"
+msgstr "Groupe d'hôtes dupliqué"
+
+msgid "Duplications"
+msgstr "Duplications"
+
+msgid "Host group disabled"
+msgstr "Groupe d'hôtes désactivé"
+
+msgid "Host group enabled"
+msgstr "Groupe d'hôtes activé"
+
+msgid "Host groups disabled"
+msgstr "Groupes d'hôtes désactivés"
+
+msgid "Host groups enabled"
+msgstr "Groupes d'hôtes activés"
+
+msgid "You are about to delete host group <strong>{{ hostGroupsName }}</strong>. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer le groupe d'hôtes <strong>{{ hostGroupsName }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+msgid "You are about to delete <strong>{{ hostGroupsCount }} host groups.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ hostGroupsCount }} groupes d'hôtes</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
+
+msgid "You are about to duplicate host group <strong>{{ hostGroupsName }}</strong>. Please specify the number of duplications you would like to make."
+msgstr "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ hostGroupsName }}</strong>. Veuillez spécifier le nombre de duplications que vous souhaitez effectuer."
+
+msgid "You are about to duplicate <strong>{{ hostGroupsCount }} host groups.</strong> Please specify the number of duplications you would like to make for each group."
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ hostGroupsCount }} groupes d'hôtes</strong>. Veuillez spécifier le nombre de duplications que vous souhaitez effectuer pour chaque groupe."
