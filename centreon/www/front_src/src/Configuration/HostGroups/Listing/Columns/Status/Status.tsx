@@ -66,6 +66,7 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>
       <Switch
         aria-label={t(labelEnableDisable)}
+        data-tesid={`${labelEnableDisable}_${row.id}`}
         checked={checked}
         className={classes.switch}
         color="success"

@@ -18,6 +18,8 @@ interface UseDeleteState {
   close: () => void;
   isMutating: boolean;
   hostGroupsToDelete: Array<NamedEntity>;
+  hostGroupsCount: number;
+  hostGroupsName: string;
 }
 
 const useDelete = (): UseDeleteState => {
@@ -40,8 +42,8 @@ const useDelete = (): UseDeleteState => {
   const { isMutating, mutateAsync: deleteHostGroup } = useMutationQuery({
     getEndpoint,
     method: equals(hostGroupsToDelete.length, 1) ? Method.DELETE : Method.POST,
-    onError: close,
     onSuccess: () => {
+      close();
       showSuccessMessage(t(labelHostGroupDeleted));
       queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
     }
@@ -51,7 +53,17 @@ const useDelete = (): UseDeleteState => {
     deleteHostGroup({ payload: { ids: pluck('id', hostGroupsToDelete) } });
   };
 
-  return { confirm, close, isMutating, hostGroupsToDelete };
+  const hostGroupsCount = hostGroupsToDelete.length;
+  const hostGroupsName = hostGroupsToDelete[0]?.name;
+
+  return {
+    confirm,
+    close,
+    isMutating,
+    hostGroupsToDelete,
+    hostGroupsCount,
+    hostGroupsName
+  };
 };
 
 export default useDelete;

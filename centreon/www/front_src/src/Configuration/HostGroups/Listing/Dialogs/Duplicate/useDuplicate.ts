@@ -18,6 +18,8 @@ interface UseDuplicateProps {
   duplicatesCount: number;
   changeDuplicateCount: (inputValue: number) => void;
   hostGroupsToDuplicate: Array<NamedEntity>;
+  hostGroupsCount: number;
+  hostGroupsName: string;
 }
 
 const useDuplicate = (): UseDuplicateProps => {
@@ -45,10 +47,10 @@ const useDuplicate = (): UseDuplicateProps => {
     useMutationQuery({
       getEndpoint: () => duplicateHostGroupEndpoint,
       method: Method.POST,
-      onSettled: close,
       onSuccess: () => {
         setHostGroupsToDuplicate([]);
         setSelectedRows([]);
+        close();
         showSuccessMessage(t(labelHostGroupDuplicated));
         queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
       }
@@ -63,13 +65,18 @@ const useDuplicate = (): UseDuplicateProps => {
     });
   };
 
+  const hostGroupsCount = hostGroupsToDuplicate.length;
+  const hostGroupsName = hostGroupsToDuplicate[0]?.name;
+
   return {
     confirm,
     close,
     isMutating,
     duplicatesCount,
     changeDuplicateCount,
-    hostGroupsToDuplicate
+    hostGroupsToDuplicate,
+    hostGroupsCount,
+    hostGroupsName
   };
 };
 

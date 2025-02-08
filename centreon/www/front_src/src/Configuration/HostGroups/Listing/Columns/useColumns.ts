@@ -11,7 +11,7 @@ import {
 } from '../../translatedLabels';
 import { truncateString } from '../utils';
 import { Actions } from './Actions';
-import Hosts from './Hosts/Hosts';
+import Hosts from './Hosts/HostsCount';
 import Name from './Name/Name';
 import Status from './Status/Status';
 

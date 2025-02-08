@@ -15,9 +15,9 @@ export const useColumnStyles = makeStyles()((theme) => ({
     }
   },
   removeIcon: {
-    fontSize: theme.spacing(2.25)
+    fontSize: theme.spacing(2.5)
   },
   duplicateIcon: {
-    fontSize: theme.spacing(2)
+    fontSize: theme.spacing(2.25)
   }
 }));

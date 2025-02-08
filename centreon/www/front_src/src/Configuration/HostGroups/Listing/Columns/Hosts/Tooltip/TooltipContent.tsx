@@ -9,6 +9,7 @@ import {
   labelDisabledHosts,
   labelEnabledHosts
 } from '../../../../translatedLabels';
+import { truncateString } from '../../../utils';
 import { useTooltipStyles } from './TooltipContent.styles';
 import { useLoadHosts } from './useLoadHosts';
 
@@ -63,7 +64,7 @@ const TooltipContent = ({ enabled, hostGroupName }: Props): JSX.Element => {
                       fontWeight: theme.typography.fontWeightRegular
                     }}
                   >
-                    {name}
+                    {truncateString(name, 30)}
                   </Typography>
                 );
               })}

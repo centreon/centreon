@@ -9,27 +9,42 @@ import {} from '../../../api/endpoints';
 import {
   labelCancel,
   labelDelete,
-  labelDeleteConfirmationText,
-  labelDeleteConfirmationTitle
+  labelDeleteHostGroup,
+  labelDeleteHostGroupConfirmation,
+  labelDeleteHostGroups,
+  labelDeleteHostGroupsConfirmation
 } from '../../../translatedLabels';
 import useDelete from './useDelete';
 
 const DeleteDialog = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const { close, confirm, isMutating, hostGroupsToDelete } = useDelete();
+  const {
+    close,
+    confirm,
+    isMutating,
+    hostGroupsToDelete,
+    hostGroupsCount,
+    hostGroupsName
+  } = useDelete();
 
   return (
     <Modal open={!isEmpty(hostGroupsToDelete)} size="large" onClose={close}>
-      <Modal.Header>{t(labelDeleteConfirmationTitle)}</Modal.Header>
+      <Modal.Header>
+        {t(
+          equals(hostGroupsCount, 1)
+            ? labelDeleteHostGroup
+            : labelDeleteHostGroups
+        )}
+      </Modal.Header>
       <Modal.Body>
-        <Typography>
-          {t(labelDeleteConfirmationText, {
-            name: equals(hostGroupsToDelete.length, 1)
-              ? hostGroupsToDelete[0]?.name
-              : hostGroupsToDelete.length
-          })}
-        </Typography>
+        <Typography
+          dangerouslySetInnerHTML={{
+            __html: equals(hostGroupsCount, 1)
+              ? t(labelDeleteHostGroupConfirmation, { hostGroupsName })
+              : t(labelDeleteHostGroupsConfirmation, { hostGroupsCount })
+          }}
+        />
       </Modal.Body>
       <Modal.Actions
         isDanger

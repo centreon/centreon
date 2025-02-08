@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
 import {
-  ContentCopy as ContentCopyIcon,
-  DeleteOutlined as DeleteIcon
+  FileCopy as ContentCopyIcon,
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 
 import { Box } from '@mui/material';
@@ -24,6 +24,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     <Box className={classes.actions}>
       <IconButton
         ariaLabel={t(labelDuplicate)}
+        dataTestid={`${labelDuplicate}_${row.id}`}
         title={t(labelDuplicate)}
         onClick={openDuplicateModal}
       >
@@ -31,6 +32,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       </IconButton>
       <IconButton
         ariaLabel={t(labelDelete)}
+        dataTestid={`${labelDelete}_${row.id}`}
         title={t(labelDelete)}
         onClick={openDeleteModal}
         className={classes.removeButton}

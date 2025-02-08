@@ -18,7 +18,7 @@ export const labelDisable = 'Disable';
 export const labelEnable = 'Enable';
 export const labelCancel = 'Cancel';
 export const labelMoreActions = 'More actions';
-export const labelFilters = 'filters';
+export const labelFilters = 'Filters';
 export const labelClear = 'Clear';
 export const labelStatus = 'Status';
 
@@ -27,15 +27,13 @@ export const NoEnabledHostsLabel =
 export const NoDisabledHostsLabel =
   'No hosts in this group are currently disabled.';
 
-export const labelDeleteConfirmationTitle = 'Delete host group';
-export const labelDeleteConfirmationText =
-  'You are about to delete {{name}} host group. This action cannot be undone. Do you want to delete them?';
-export const labelHostGroupDeleted = 'Host group deleted';
+export const labelDeleteHostGroup = 'Delete host group';
+export const labelDeleteHostGroups = 'Delete host groups';
+export const labelDuplicateHostGroup = 'Duplicate host group';
+export const labelDuplicateHostGroups = 'Duplicate host groups';
 
-export const labelDuplicateConfirmationTitle = 'Duplicate host groups';
-export const labelDuplicateConfirmationText =
-  'You are about to duplicate {{name}} host group. Please specify the number of duplications you would like to make for each group.';
 export const labelHostGroupDuplicated = 'Host group duplicated';
+export const labelHostGroupDeleted = 'Host group deleted';
 
 export const labelDuplications = 'Duplications';
 
@@ -44,3 +42,14 @@ export const labelHostGroupEnabled = 'Host group enabled';
 
 export const labelHostGroupsDisabled = 'Host groups disabled';
 export const labelHostGroupsEnabled = 'Host groups enabled';
+
+export const labelDeleteHostGroupConfirmation =
+  'You are about to delete host group <strong>{{ hostGroupsName }}</strong>. This action cannot be undone. Do you want to delete it?';
+
+export const labelDeleteHostGroupsConfirmation =
+  'You are about to delete <strong>{{ hostGroupsCount }} host groups.</strong> This action cannot be undone. Do you want to delete them?';
+
+export const labelDuplicateHostGroupConfirmation =
+  'You are about to duplicate host group <strong>{{ hostGroupsName }}</strong>. Please specify the number of duplications you would like to make.';
+export const labelDuplicateHostGroupsConfirmation =
+  'You are about to duplicate <strong>{{ hostGroupsCount }} host groups.</strong> Please specify the number of duplications you would like to make for each group.';

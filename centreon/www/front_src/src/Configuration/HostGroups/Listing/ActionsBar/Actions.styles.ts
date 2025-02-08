@@ -15,7 +15,7 @@ export const useActionsStyles = makeStyles()((theme) => ({
     fontSize: theme.spacing(2.75)
   },
   duplicateIcon: {
-    fontSize: theme.spacing(2.25)
+    fontSize: theme.spacing(2.5)
   },
   buttons: {
     [theme.breakpoints.down('lg')]: {

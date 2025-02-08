@@ -1,6 +1,6 @@
 import {
-  ContentCopy as ContentCopyIcon,
-  DeleteOutlined as DeleteIcon,
+  FileCopy as ContentCopyIcon,
+  Delete as DeleteIcon,
   MoreHoriz as MoreIcon
 } from '@mui/icons-material';
 

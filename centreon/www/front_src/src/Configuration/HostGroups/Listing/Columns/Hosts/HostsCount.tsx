@@ -2,7 +2,7 @@ import { ComponentColumnProps } from '@centreon/ui';
 import TooltipContent from './Tooltip/TooltipContent';
 
 import { Tooltip } from '@mui/material';
-import { useHostsStyles } from './Hosts.styles';
+import { useHostsStyles } from './HostsCount.styles';
 
 interface Props {
   enabled: boolean;

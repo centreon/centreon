@@ -88,7 +88,8 @@ const MoreActions = ({
             Icon: ToggleOffRounded,
             label: t(labelDisable),
             onClick: pipe(disable, close),
-            disable: isMutating
+            disable: isMutating,
+            variant: 'error'
           }
         ]}
       />

@@ -9,8 +9,10 @@ import { equals, isEmpty } from 'ramda';
 import {
   labelCancel,
   labelDuplicate,
-  labelDuplicateConfirmationText,
-  labelDuplicateConfirmationTitle,
+  labelDuplicateHostGroup,
+  labelDuplicateHostGroupConfirmation,
+  labelDuplicateHostGroups,
+  labelDuplicateHostGroupsConfirmation,
   labelDuplications
 } from '../../../translatedLabels';
 import useDuplicate from './useDuplicate';
@@ -28,20 +30,28 @@ const DuplicateDialog = (): JSX.Element => {
     isMutating,
     duplicatesCount,
     changeDuplicateCount,
-    hostGroupsToDuplicate
+    hostGroupsToDuplicate,
+    hostGroupsCount,
+    hostGroupsName
   } = useDuplicate();
 
   return (
     <Modal open={!isEmpty(hostGroupsToDuplicate)} size="large" onClose={close}>
-      <Modal.Header>{t(labelDuplicateConfirmationTitle)}</Modal.Header>
+      <Modal.Header>
+        {t(
+          equals(hostGroupsCount, 1)
+            ? labelDuplicateHostGroup
+            : labelDuplicateHostGroups
+        )}
+      </Modal.Header>
       <Modal.Body>
-        <Typography>
-          {t(labelDuplicateConfirmationText, {
-            name: equals(hostGroupsToDuplicate.length, 1)
-              ? hostGroupsToDuplicate[0]?.name
-              : hostGroupsToDuplicate.length
-          })}
-        </Typography>
+        <Typography
+          dangerouslySetInnerHTML={{
+            __html: equals(hostGroupsCount, 1)
+              ? t(labelDuplicateHostGroupConfirmation, { hostGroupsName })
+              : t(labelDuplicateHostGroupsConfirmation, { hostGroupsCount })
+          }}
+        />
 
         <div className={classes.duplicationCount}>
           <Typography className={classes.duplicationCountTitle}>

@@ -5,11 +5,14 @@ import ActionsBar from './ActionsBar/ActionsBar';
 import useColumns from './Columns/useColumns';
 import { selectedRowsAtom } from './atoms';
 
+import { useTheme } from '@mui/material';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useListing from './useListing';
 import useLoadData from './useLoadData';
 
 const Listing = (): JSX.Element => {
+  const theme = useTheme();
+
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
   const { columns } = useColumns();
@@ -28,6 +31,14 @@ const Listing = (): JSX.Element => {
     selectedColumnIds
   } = useListing();
 
+  const rowColorConditions = [
+    {
+      color: theme.palette.action.disabledBackground,
+      condition: ({ is_activated }): boolean => !is_activated,
+      name: 'is_enabled'
+    }
+  ];
+
   return (
     <>
       <MemoizedListing
@@ -37,6 +48,7 @@ const Listing = (): JSX.Element => {
           selectedColumnIds,
           sortable: true
         }}
+        rowColorConditions={rowColorConditions}
         columns={columns}
         currentPage={(page || 1) - 1}
         limit={data?.meta.limit}

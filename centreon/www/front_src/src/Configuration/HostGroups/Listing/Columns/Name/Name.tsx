@@ -1,4 +1,5 @@
 import { ComponentColumnProps } from '@centreon/ui';
+import { truncateString } from '../../utils';
 import { useNameStyles } from './Name.styles';
 
 const Name = ({
@@ -12,7 +13,7 @@ const Name = ({
 
   const name = renderEllipsisTypography?.({
     className: classes.resourceNameText,
-    formattedString: row.name
+    formattedString: truncateString(row.name)
   });
 
   return (
