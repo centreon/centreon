@@ -18377,3 +18377,60 @@ msgstr ""
 
 # msgid "MBI Reporting widgets"
 # msgstr ""
+
+# msgid "Enable/Disable"
+# msgstr ""
+
+# msgid "Enabled hosts"
+# msgstr ""
+
+# msgid "No hosts in this group are currently enabled."
+# msgstr ""
+
+# msgid "No hosts in this group are currently disabled."
+# msgstr ""
+
+# msgid "Delete host group"
+# msgstr ""
+
+# msgid "Delete host groups"
+# msgstr ""
+
+# msgid "Host group deleted"
+# msgstr ""
+
+# msgid "Duplicate host group"
+# msgstr ""
+
+# msgid "Duplicate host groups"
+# msgstr ""
+
+# msgid "Host group duplicated"
+# msgstr ""
+
+# msgid "Duplications"
+# msgstr ""
+
+# msgid "Host group disabled"
+# msgstr ""
+
+# msgid "Host group enabled"
+# msgstr ""
+
+# msgid "Host groups disabled"
+# msgstr ""
+
+# msgid "Host groups enabled"
+# msgstr ""
+
+# msgid "You are about to delete host group <strong>{{ hostGroupsName }}</strong>. This action cannot be undone. Do you want to delete it?"
+# msgstr ""
+
+# msgid "You are about to delete <strong>{{ hostGroupsCount }} host groups.</strong> This action cannot be undone. Do you want to delete them?"
+# msgstr ""
+
+# msgid "You are about to duplicate host group <strong>{{ hostGroupsName }}</strong>. Please specify the number of duplications you would like to make."
+# msgstr ""
+
+# msgid "You are about to duplicate <strong>{{ hostGroupsCount }} host groups.</strong> Please specify the number of duplications you would like to make for each group."
+# msgstr ""
