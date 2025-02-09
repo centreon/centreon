@@ -44,16 +44,18 @@ export const labelHostGroupsDisabled = 'Host groups disabled';
 export const labelHostGroupsEnabled = 'Host groups enabled';
 
 export const labelDeleteHostGroupConfirmation =
-  'You are about to delete host group <strong>{{ hostGroupsName }}</strong>. This action cannot be undone. Do you want to delete it?';
+  'You are about to delete host group <strong>{{ name }}</strong>. This action cannot be undone. Do you want to delete it?';
 
 export const labelDeleteHostGroupsConfirmation =
-  'You are about to delete <strong>{{ hostGroupsCount }} host groups.</strong> This action cannot be undone. Do you want to delete them?';
+  'You are about to delete <strong>{{ count }} host groups.</strong> This action cannot be undone. Do you want to delete them?';
 
 export const labelDuplicateHostGroupConfirmation =
-  'You are about to duplicate host group <strong>{{ hostGroupsName }}</strong>. Please specify the number of duplications you would like to make.';
+  'You are about to duplicate host group <strong>{{ name }}</strong>. Please specify the number of duplications you would like to make.';
 export const labelDuplicateHostGroupsConfirmation =
-  'You are about to duplicate <strong>{{ hostGroupsCount }} host groups.</strong> Please specify the number of duplications you would like to make for each group.';
+  'You are about to duplicate <strong>{{ count }} host groups.</strong> Please specify the number of duplications you would like to make for each group.';
 
-// to be added to the .po files
 export const labelAddHostGroup = 'Add a host group';
 export const labelUpdateHostGroup = 'Edit a host group';
+
+export const labelHostGroupsDuplicated = 'Host groups duplicated';
+export const labelHostGroupsDeleted = 'Host groups deleted';

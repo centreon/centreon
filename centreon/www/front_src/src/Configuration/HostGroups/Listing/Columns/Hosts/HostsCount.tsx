@@ -17,9 +17,7 @@ const Hosts =
   }: ComponentColumnProps): JSX.Element => {
     const { classes } = useHostsStyles({ isHovered });
 
-    const hostCount = enabled
-      ? row.enabled_hosts_count
-      : row.disabled_hosts_count;
+    const hostCount = enabled ? row.enabledHostsCount : row.disabledHostsCount;
 
     const formattedHostCount = renderEllipsisTypography?.({
       className: classes.hostCount,

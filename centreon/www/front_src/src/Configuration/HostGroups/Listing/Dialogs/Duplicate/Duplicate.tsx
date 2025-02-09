@@ -31,25 +31,23 @@ const DuplicateDialog = (): JSX.Element => {
     duplicatesCount,
     changeDuplicateCount,
     hostGroupsToDuplicate,
-    hostGroupsCount,
-    hostGroupsName
+    count,
+    name
   } = useDuplicate();
 
   return (
     <Modal open={!isEmpty(hostGroupsToDuplicate)} size="large" onClose={close}>
       <Modal.Header>
         {t(
-          equals(hostGroupsCount, 1)
-            ? labelDuplicateHostGroup
-            : labelDuplicateHostGroups
+          equals(count, 1) ? labelDuplicateHostGroup : labelDuplicateHostGroups
         )}
       </Modal.Header>
       <Modal.Body>
         <Typography
           dangerouslySetInnerHTML={{
-            __html: equals(hostGroupsCount, 1)
-              ? t(labelDuplicateHostGroupConfirmation, { hostGroupsName })
-              : t(labelDuplicateHostGroupsConfirmation, { hostGroupsCount })
+            __html: equals(count, 1)
+              ? t(labelDuplicateHostGroupConfirmation, { name })
+              : t(labelDuplicateHostGroupsConfirmation, { count })
           }}
         />
 

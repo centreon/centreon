@@ -4,7 +4,7 @@ export const hostListEndpoint = '/configuration/hosts';
 export const getHostGroupEndpoint = ({ id }): string =>
   `/configuration/hosts/groups/${id}`;
 
-export const duplicateHostGroupEndpoint =
+export const bulkDuplicateHostGroupEndpoint =
   '/configuration/hosts/groups/_duplicate';
 
 export const bulkDeleteHostGroupEndpoint =

@@ -35,7 +35,7 @@ const Listing = (): JSX.Element => {
   const rowColorConditions = [
     {
       color: theme.palette.action.disabledBackground,
-      condition: ({ is_activated }): boolean => !is_activated,
+      condition: ({ isActivated }): boolean => !isActivated,
       name: 'is_enabled'
     }
   ];

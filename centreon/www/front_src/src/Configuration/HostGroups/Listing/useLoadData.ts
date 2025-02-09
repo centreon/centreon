@@ -1,14 +1,7 @@
 import { useAtomValue } from 'jotai';
-
-import {
-  ListingModel,
-  buildListingEndpoint,
-  useFetchQuery
-} from '@centreon/ui';
-
-import { hostGroupsListEndpoint } from '../api/endpoints';
-
 import { equals } from 'ramda';
+
+import { useGetAll } from './api';
 import {
   filtersAtom,
   limitAtom,
@@ -30,55 +23,34 @@ const useLoadData = (): LoadDataState => {
   const limit = useAtomValue(limitAtom);
   const filters = useAtomValue(filtersAtom);
 
-  const sort = { [sortField]: sortOrder };
-
   const searchConditions = [
     {
       field: 'name',
-      values: {
-        $rg: filters.name
-      }
+      values: { $rg: filters.name }
     },
     {
       field: 'alias',
-      values: {
-        $rg: filters.alias
-      }
+      values: { $rg: filters.alias }
     },
     ...(equals(filters.enabled, filters.disabled)
       ? []
       : [
           {
             field: 'is_activated',
-            values: {
-              $eq: filters.enabled
-            }
+            values: { $eq: filters.enabled }
           }
         ])
   ];
 
-  const { data, isFetching } = useFetchQuery<ListingModel<HostGroupListItem>>({
-    getEndpoint: () =>
-      buildListingEndpoint({
-        baseEndpoint: hostGroupsListEndpoint,
-        parameters: {
-          limit: limit || 10,
-          page: page || 1,
-          search: {
-            conditions: searchConditions
-          },
-          sort
-        }
-      }),
-    getQueryKey: () => ['listHostGroups', sortField, sortOrder, limit, page],
-    queryOptions: {
-      refetchOnMount: false,
-      staleTime: 0,
-      suspense: false
-    }
+  const { data, isLoading } = useGetAll({
+    sortField,
+    sortOrder,
+    page,
+    limit,
+    searchConditions
   });
 
-  return { data, isLoading: isFetching };
+  return { data, isLoading };
 };
 
 export default useLoadData;

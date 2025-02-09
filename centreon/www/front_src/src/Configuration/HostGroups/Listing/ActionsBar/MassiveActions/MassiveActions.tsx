@@ -24,7 +24,6 @@ const MassiveActions = (): JSX.Element => {
   const {
     openMoreActions,
     closeMoreActions,
-    resetSelectedRows,
     openDeleteModal,
     openDuplicateModal,
     selectedRowsIds,
@@ -89,12 +88,7 @@ const MassiveActions = (): JSX.Element => {
         <MoreIcon className={classes.duplicateIcon} />
       </IconButton>
 
-      <MoreActions
-        anchor={moreActionsOpen}
-        close={closeMoreActions}
-        resetSelectedRows={resetSelectedRows}
-        selectedRowsIds={selectedRowsIds}
-      />
+      <MoreActions anchor={moreActionsOpen} close={closeMoreActions} />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { map, pick } from 'ramda';
 import { useState } from 'react';
 import {
@@ -10,7 +10,7 @@ import {
 const useMassiveActions = () => {
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
 
-  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
+  const selectedRows = useAtomValue(selectedRowsAtom);
   const setHostGroupsToDelete = useSetAtom(hostGroupsToDeleteAtom);
   const setHostGroupsToDuplicate = useSetAtom(hostGroupsToDuplicateAtom);
 
@@ -19,7 +19,6 @@ const useMassiveActions = () => {
 
   const openMoreActions = (event): void => setMoreActionsOpen(event.target);
   const closeMoreActions = (): void => setMoreActionsOpen(null);
-  const resetSelectedRows = (): void => setSelectedRows([]);
 
   const openDeleteModal = (): void => setHostGroupsToDelete(hostGroupEntities);
   const openDuplicateModal = (): void =>
@@ -29,7 +28,6 @@ const useMassiveActions = () => {
     hostGroupEntities,
     openMoreActions,
     closeMoreActions,
-    resetSelectedRows,
     openDeleteModal,
     openDuplicateModal,
     selectedRowsIds,
