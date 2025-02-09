@@ -28,7 +28,8 @@ const Listing = (): JSX.Element => {
     selectColumns,
     sortf,
     sorto,
-    selectedColumnIds
+    selectedColumnIds,
+    openEditModal
   } = useListing();
 
   const rowColorConditions = [
@@ -61,7 +62,7 @@ const Listing = (): JSX.Element => {
         onLimitChange={setLimit}
         onPaginate={changePage}
         onResetColumns={resetColumns}
-        onRowClick={() => undefined}
+        onRowClick={openEditModal}
         onSelectColumns={selectColumns}
         onSort={changeSort}
         selectedRows={selectedRows}

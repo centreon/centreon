@@ -4,10 +4,18 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { Button } from '@centreon/ui/components';
 
+import { useSetAtom } from 'jotai';
+import { dialogStateAtom } from '../../Modal/atoms';
 import { labelAdd } from '../../translatedLabels';
 
 const Add = (): JSX.Element => {
   const { t } = useTranslation();
+
+  const setDialogState = useSetAtom(dialogStateAtom);
+
+  const openCreatetModal = (): void => {
+    setDialogState({ id: null, isOpen: true, variant: 'create' });
+  };
 
   return (
     <Button
@@ -17,7 +25,7 @@ const Add = (): JSX.Element => {
       iconVariant="start"
       size="medium"
       variant="primary"
-      onClick={() => undefined}
+      onClick={openCreatetModal}
     >
       {t(labelAdd)}
     </Button>

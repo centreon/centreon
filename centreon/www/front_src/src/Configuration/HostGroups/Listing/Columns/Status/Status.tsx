@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { Switch, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
 import {
   ComponentColumnProps,
@@ -12,6 +12,7 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { Switch } from '@centreon/ui/components';
 import {
   bulkDisableHostGroupEndpoint,
   bulkEnableHostGroupEndpoint
@@ -69,7 +70,7 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
         data-tesid={`${labelEnableDisable}_${row.id}`}
         checked={checked}
         className={classes.switch}
-        color="success"
+        color="primary"
         size="small"
         onClick={onClick}
       />

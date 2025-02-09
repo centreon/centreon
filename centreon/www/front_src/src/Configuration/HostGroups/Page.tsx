@@ -4,6 +4,7 @@ import { Box, Typography } from '@mui/material';
 
 import Filters from './Listing/ActionsBar/Filters';
 import Listing from './Listing/Listing';
+import Modal from './Modal/Modal';
 import { useStyles } from './Page.styles';
 import { labelHostGroups } from './translatedLabels';
 
@@ -27,6 +28,7 @@ const HostGroups = (): JSX.Element => {
       </Box>
       <Box className={classes.listing}>
         <Listing />
+        <Modal />
       </Box>
     </Box>
   );

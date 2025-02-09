@@ -53,3 +53,7 @@ export const labelDuplicateHostGroupConfirmation =
   'You are about to duplicate host group <strong>{{ hostGroupsName }}</strong>. Please specify the number of duplications you would like to make.';
 export const labelDuplicateHostGroupsConfirmation =
   'You are about to duplicate <strong>{{ hostGroupsCount }} host groups.</strong> Please specify the number of duplications you would like to make for each group.';
+
+// to be added to the .po files
+export const labelAddHostGroup = 'Add a host group';
+export const labelUpdateHostGroup = 'Edit a host group';

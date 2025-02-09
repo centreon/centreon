@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
+import { useNavigate } from 'react-router';
+import { dialogStateAtom } from '../Modal/atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
-
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 import { defaultSelectedColumnIds } from './utils';
 
@@ -20,16 +21,20 @@ interface UseListing {
   setLimit;
   sortf: string;
   sorto: 'asc' | 'desc';
+  openEditModal: (row) => void;
 }
 
 const useListing = (): UseListing => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
 
+  const navigate = useNavigate();
+
   const [selectedColumnIds, setSelectedColumnIds] = useState(
     defaultSelectedColumnIds
   );
 
+  const setDialogState = useSetAtom(dialogStateAtom);
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
@@ -58,6 +63,16 @@ const useListing = (): UseListing => {
     setSelectedColumnIds(updatedColumnIds);
   };
 
+  const openEditModal = (row) => {
+    navigate(`?id=${row.id}`);
+
+    setDialogState({
+      isOpen: true,
+      variant: 'update',
+      id: row.id
+    });
+  };
+
   return {
     changePage,
     changeSort,
@@ -67,7 +82,8 @@ const useListing = (): UseListing => {
     selectedColumnIds,
     setLimit,
     sortf,
-    sorto
+    sorto,
+    openEditModal
   };
 };
 
