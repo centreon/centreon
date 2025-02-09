@@ -4,10 +4,11 @@ export type NamedEntity = {
 };
 
 export interface HostGroupListItem extends NamedEntity {
-  alias?: string;
+  alias: string | null;
   enabledHostsCount: number;
   disabledHostsCount: number;
   iconUrl: string | null;
+  isActivated: boolean;
 }
 
 export type ListMeta = {
