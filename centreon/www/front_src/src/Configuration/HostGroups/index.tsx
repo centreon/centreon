@@ -1,3 +1,3 @@
-import HostGroups from './Page';
+import HostGroups from './HostGroups';
 
 export default HostGroups;
