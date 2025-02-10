@@ -44,7 +44,6 @@ export const useListMetrics = ({
   const { data: servicesMetrics, isFetching: isLoadingMetrics } = useFetchQuery<
     ListingModel<ServiceMetric>
   >({
-    baseEndpoint: 'http://localhost:3000/',
     decoder: serviceMetricsDecoder,
     getEndpoint: () =>
       buildListingEndpoint({

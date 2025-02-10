@@ -319,6 +319,17 @@ resolutionData.forEach(({ height, width }) => {
       cy.contains('20 B').should('be.visible');
       cy.contains('30 B').should('be.visible');
       cy.contains('40 B').should('be.visible');
+
+      
+      cy.makeSnapshotWithCustomResolution({
+        resolution: { height, width },
+        title: `${width}px`
+      });
     });
+
+    // it(`maintain a fixed 24px space between resource name and bar chart when screen resolution is ${width}px`,()=>{
+    //   initializeComponent({ viewport: [width, height],fixturePath:'' });
+
+    // })
   });
 });

@@ -158,7 +158,6 @@ const Resources = ({
                 />
               ) : (
                 <MultiConnectedAutocompleteField
-                  baseEndpoint="http://localhost:3000/"
                   exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{

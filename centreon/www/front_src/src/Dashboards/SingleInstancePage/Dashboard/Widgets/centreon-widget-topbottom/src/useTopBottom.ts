@@ -67,7 +67,6 @@ const useTopBottom = ({
   const formattedMetricName = encodeURIComponent(metricName);
 
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
-    baseEndpoint: 'http://localhost:3000/',
     decoder: metricsTopDecoder,
     getEndpoint: () =>
       getWidgetEndpoint({
