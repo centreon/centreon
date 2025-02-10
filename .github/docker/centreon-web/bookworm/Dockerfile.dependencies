@@ -109,17 +109,6 @@ apt-get install -y \
   php8.2-curl \
   php8.2-zip
 
-###################
-# install plugins #
-###################
-
-apt install -y centreon-plugin-Operatingsystems-Linux-Snmp centreon-nrpe4-daemon centreon-plugin-operatingsystems-linux-local
-systemctl restart centreon-nrpe4.service
-systemctl enable centreon-nrpe4.service
-usermod -a -G systemd-journal centreon-engine
-systemctl restart centreon-nrpe4.service
-apt install -y centreon-pack-operatingsystems-linux-nrpe4 nagios-nrpe-plugin
-
 apt-get clean
 
 EOF
@@ -145,3 +134,14 @@ apt-get install -y \
 apt-get clean
 
 EOF
+
+###################
+# install plugins #
+###################
+
+RUN apt install -y centreon-plugin-Operatingsystems-Linux-Snmp centreon-nrpe4-daemon centreon-plugin-operatingsystems-linux-local
+RUN systemctl restart centreon-nrpe4.service
+RUN systemctl enable centreon-nrpe4.service
+RUN usermod -a -G systemd-journal centreon-engine
+RUN systemctl restart centreon-nrpe4.service
+RUN apt install -y centreon-pack-operatingsystems-linux-nrpe4 nagios-nrpe-plugin
