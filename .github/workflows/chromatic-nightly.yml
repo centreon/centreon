@@ -10,7 +10,7 @@ env:
 
 jobs:
   publish-snapshots:
-    if: ${{ github.event_name == 'schedule' && github.ref_name == 'develop' }}
+    if: ${{ github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
 
     steps:

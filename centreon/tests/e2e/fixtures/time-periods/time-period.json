@@ -1,0 +1,64 @@
+{
+    "default": {
+        "name": "timeperiod-name-default",
+        "alias": "timeperiod-alias",
+        "days": [
+          {
+            "day": 1,
+            "time_range": "00:00-12:00"
+          },
+          {
+            "day": 2,
+            "time_range": "00:00-24:00"
+          },
+          {
+            "day": 3,
+            "time_range": "00:00-12:00"
+          },
+          {
+            "day": 4,
+            "time_range": "00:00-24:00"
+          },{
+            "day": 5,
+            "time_range": "00:00-12:00"
+          },{
+            "day": 6,
+            "time_range": "00:00-24:00"
+          },{
+            "day": 7,
+            "time_range": "00:00-12:00"
+          }
+        ],
+        "templates": [],
+        "exceptions": []
+      },
+    "time_period1": {
+        "name": "timeperiod-name-updated",
+        "alias": "timeperiod-alias-updated",
+        "days": [
+          {
+            "day": 1,
+            "time_range": "00:00-12:00"
+          },
+          {
+            "day": 2,
+            "time_range": "00:00-24:00"
+          },
+          {
+            "day": 4,
+            "time_range": "00:00-24:00"
+          },{
+            "day": 5,
+            "time_range": "00:00-12:00"
+          },{
+            "day": 6,
+            "time_range": "00:00-24:00"
+          },{
+            "day": 7,
+            "time_range": "00:00-12:00"
+          }
+        ],
+        "templates": [],
+        "exceptions": []
+    }
+}
