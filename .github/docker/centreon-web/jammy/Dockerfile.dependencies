@@ -129,7 +129,7 @@ EOF
 # install plugins #
 ###################
 
-RUN apt install -y centreon-plugin-Operatingsystems-Linux-Snmp centreon-nrpe4-daemon centreon-plugin-operatingsystems-linux-local
+RUN apt install -y centreon-plugin-operatingsystems-linux-snmp centreon-nrpe4-daemon centreon-plugin-operatingsystems-linux-local
 RUN systemctl restart centreon-nrpe4.service
 RUN systemctl enable centreon-nrpe4.service
 RUN usermod -a -G systemd-journal centreon-engine
