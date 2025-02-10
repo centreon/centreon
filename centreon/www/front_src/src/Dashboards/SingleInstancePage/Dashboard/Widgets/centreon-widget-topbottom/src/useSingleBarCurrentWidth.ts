@@ -13,14 +13,14 @@ const useSingleBarCurrentWidth = ({ containerRef, labelRef }) => {
 
     observer.observe(element);
 
-    return () => observer.disconnect();
+    return () => observer.disconnect()
   };
 
   useEffect(() => {
     if (!containerRef?.current) {
       return;
     }
-    getElementCurrentWidth({
+    return getElementCurrentWidth({
       element: containerRef.current,
       setWidth: setCurrentContainerWidth
     });
@@ -31,7 +31,7 @@ const useSingleBarCurrentWidth = ({ containerRef, labelRef }) => {
       return;
     }
 
-    getElementCurrentWidth({
+    return getElementCurrentWidth({
       element: labelRef.current,
       setWidth: setCurrentLabelWidth
     });
@@ -41,7 +41,7 @@ const useSingleBarCurrentWidth = ({ containerRef, labelRef }) => {
     if (!currentContainerWidth || !currentLabelWidth) {
       return '100%';
     }
-    return currentContainerWidth - currentLabelWidth;
+    return (currentContainerWidth - currentLabelWidth)-24;
   };
 
   return getSingleBarWidth();
