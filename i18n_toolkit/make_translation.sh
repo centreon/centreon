@@ -141,7 +141,7 @@ if [ "$PROJECT" = "centreon" ]; then
     echo -n " - 0K"
     echo
     echo -n "Generate messages.pot file including all strings to translate"
-    $XGETTEXT -from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/messages.pot > /dev/null 2>&1
+    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/messages.pot > /dev/null 2>&1
     echo -n " - 0K"
     echo
 
@@ -158,7 +158,7 @@ if [ "$PROJECT" = "centreon" ]; then
     echo -n " - 0K"
     echo
     echo -n "Generate help.pot file including all strings to translate"
-    $XGETTEXT -from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/help.pot > /dev/null 2>&1
+    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/help.pot > /dev/null 2>&1
     echo -n " - 0K"
     echo
 
