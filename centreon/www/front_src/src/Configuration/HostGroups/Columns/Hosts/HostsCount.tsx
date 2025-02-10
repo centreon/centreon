@@ -32,7 +32,7 @@ const Hosts =
         title={<TooltipContent enabled={enabled} hostGroupName={row.name} />}
         arrow
       >
-        <div className={classes.content}>{formattedHostCount} 10</div>
+        <div className={classes.content}>{formattedHostCount}</div>
       </Tooltip>
     );
   };
