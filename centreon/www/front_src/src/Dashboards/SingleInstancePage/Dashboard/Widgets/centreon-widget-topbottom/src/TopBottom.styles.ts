@@ -22,9 +22,7 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
     cursor: 'pointer',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    transform: 'translateY(50%)',
     whiteSpace: 'nowrap',
-    height: 50 ,
     [theme.containerQueries.up(620)]: {
       maxWidth: '60ch'
     },
@@ -37,7 +35,7 @@ export const useTopBottomStyles = makeStyles()((theme) => ({
   },
   singleBarContainer: {
     cursor: 'pointer',
-    height: 50 
+    height: 50
   },
   containerText: {
     display: 'flex',

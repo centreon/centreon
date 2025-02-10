@@ -65,8 +65,6 @@ const TopBottom = ({
     labelRef
   });
 
-  console.log({ singleBarCurrentWidth });
-
   const { isLoading, metricsTop, isMetricEmpty } = useTopBottom({
     dashboardId,
     globalRefreshInterval,
@@ -102,13 +100,13 @@ const TopBottom = ({
         display: 'flex',
         flexDirection: 'row',
         containerType: 'inline-size',
-        overflow:'hidden'
+        overflow: 'hidden'
       }}
     >
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: 'column'
         }}
       >
         {(metricsTop?.resources || []).map((metricTop, index) => (
@@ -125,7 +123,7 @@ const TopBottom = ({
         style={{
           display: 'flex',
           flexDirection: 'column',
-          width: singleBarCurrentWidth 
+          width: singleBarCurrentWidth
         }}
       >
         {(metricsTop?.resources || []).map((metricTop) => (

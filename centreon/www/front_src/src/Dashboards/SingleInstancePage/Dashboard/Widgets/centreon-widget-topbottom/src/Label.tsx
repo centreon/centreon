@@ -12,24 +12,33 @@ const Label = forwardRef(({ metricTop, index }, ref) => {
   const { classes } = useTopBottomStyles();
 
   return (
-    <Typography className={classes.resourceLabel} ref={ref}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'end',
+        height: 50,
+        marginRight: 24
+      }}
+    >
       <Tooltip
         followCursor={false}
         label={`${metricTop.parentName}_${metricTop.name}`}
         placement="top"
       >
-        <Link
-          className={classes.linkToResourcesStatus}
-          data-testid={`link to ${metricTop?.name}`}
-          target="_blank"
-          to={getResourcesUrlForMetricsWidgets(metricTop)}
-        >
-          <strong>
-            #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
-          </strong>
-        </Link>
+        <Typography className={classes.resourceLabel} ref={ref}>
+          <Link
+            className={classes.linkToResourcesStatus}
+            data-testid={`link to ${metricTop?.name}`}
+            target="_blank"
+            to={getResourcesUrlForMetricsWidgets(metricTop)}
+          >
+            <strong>
+              #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
+            </strong>
+          </Link>
+        </Typography>
       </Tooltip>
-    </Typography>
+    </div>
   );
 });
 

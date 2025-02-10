@@ -41,7 +41,7 @@ const useSingleBarCurrentWidth = ({ containerRef, labelRef }) => {
     if (!currentContainerWidth || !currentLabelWidth) {
       return '100%';
     }
-    return (currentContainerWidth - currentLabelWidth);
+    return currentContainerWidth - currentLabelWidth;
   };
 
   return getSingleBarWidth();
