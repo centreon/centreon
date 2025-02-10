@@ -1,6 +1,14 @@
-import { useEffect, useState } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 
-const useSingleBarCurrentWidth = ({ containerRef, labelRef }) => {
+interface Props {
+  containerRef: RefObject<HTMLDivElement | null>;
+  labelRef: RefObject<HTMLParagraphElement | null>;
+}
+
+const useSingleBarCurrentWidth = ({
+  containerRef,
+  labelRef
+}: Props): string | number => {
   const [currentContainerWidth, setCurrentContainerWidth] = useState();
   const [currentLabelWidth, setCurrentLabelWidth] = useState();
 
@@ -13,7 +21,7 @@ const useSingleBarCurrentWidth = ({ containerRef, labelRef }) => {
 
     observer.observe(element);
 
-    return () => observer.disconnect()
+    return () => observer.disconnect();
   };
 
   useEffect(() => {
@@ -41,7 +49,7 @@ const useSingleBarCurrentWidth = ({ containerRef, labelRef }) => {
     if (!currentContainerWidth || !currentLabelWidth) {
       return '100%';
     }
-    return (currentContainerWidth - currentLabelWidth)-24;
+    return currentContainerWidth - currentLabelWidth - 24;
   };
 
   return getSingleBarWidth();

@@ -14,6 +14,7 @@ import { areResourcesFullfilled } from '../../utils';
 
 import { useRef } from 'react';
 import Label from './Label';
+import MetricContainer from './MetricContainer';
 import MetricTop from './MetricTop';
 import { useTopBottomStyles } from './TopBottom.styles';
 import { TopBottomSettings } from './models';
@@ -53,18 +54,15 @@ const TopBottom = ({
   playlistHash,
   widgetPrefixQuery
 }: TopBottomProps): JSX.Element => {
-  const { classes } = useTopBottomStyles();
-
-  const containerRef = useRef(null);
-  const labelRef = useRef(null);
+  const { classes } = useTopBottomStyles({});
+  const containerRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLParagraphElement>(null);
 
   const areResourcesOk = areResourcesFullfilled(resources);
-
   const singleBarCurrentWidth = useSingleBarCurrentWidth({
     containerRef,
     labelRef
   });
-
   const { isLoading, metricsTop, isMetricEmpty } = useTopBottom({
     dashboardId,
     globalRefreshInterval,
@@ -94,21 +92,8 @@ const TopBottom = ({
   }
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        containerType: 'inline-size',
-        overflow: 'hidden'
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
+    <div ref={containerRef} className={classes.topBottomContainer}>
+      <div className={classes.labelContainer}>
         {(metricsTop?.resources || []).map((metricTop, index) => (
           <Label
             ref={labelRef}
@@ -119,13 +104,7 @@ const TopBottom = ({
         ))}
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: singleBarCurrentWidth
-        }}
-      >
+      <MetricContainer singleBarCurrentWidth={singleBarCurrentWidth}>
         {(metricsTop?.resources || []).map((metricTop) => (
           <MetricTop
             displayAsRaw={equals('raw', valueFormat)}
@@ -137,7 +116,7 @@ const TopBottom = ({
             unit={metricsTop?.unit || ''}
           />
         ))}
-      </div>
+      </MetricContainer>
     </div>
   );
 };
