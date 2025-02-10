@@ -650,6 +650,7 @@ if (!$is_admin) {
             AND (acl.service_id IS NULL OR acl.service_id = logs.service_id)
         )
     ";
+    $whereClauses[] = 'acl.group_id IN (' .  $access->getAccessGroupsString() . ')';
 }
 
 $whereClause = "WHERE " . implode(' AND ', $whereClauses);
