@@ -53,7 +53,7 @@ When('the user clicks on Add', () => {
 });
 
 Then('a pop-up menu with the form is displayed', () => {
-  cy.contains('Create additional connector configuration').should('be.visible');
+  cy.contains('Create additional configuration').should('be.visible');
 });
 
 When('the user fills in all the informations', () => {
@@ -231,7 +231,7 @@ When('the user confirms the the cancellation', () => {
 });
 
 Then('the creation form is closed', () => {
-  cy.contains('Create additional connector configuration').should('not.exist');
+  cy.contains('Create additional configuration').should('not.exist');
 });
 
 Then('the additional connector configuration has not been created', () => {
