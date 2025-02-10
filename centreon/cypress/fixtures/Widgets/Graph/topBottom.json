@@ -50,7 +50,7 @@
       "min": 0,
       "uuid": "h1-s4",
       "name": "Ping_4",
-      "parent_name": "Centreon_server",
+      "parent_name": "Centreon_server_200_chars_Centreon_serverCentreon_serverCentreon_serverCentreon_serverCentreon_serverCentreon_serverCentreon_serverCentreon_serverCentreon_serverCentreon_serverCentreon_serverCentreon_serverC",
       "warning_high_threshold": 80,
       "warning_low_threshold": null
     }

@@ -17,6 +17,7 @@ interface Props {
   data?: Data;
   isPublic?: boolean;
   topBottomSettings?: TopBottomSettings;
+  viewport?: [number, number];
 }
 
 const defaultSettings = {
@@ -76,6 +77,12 @@ const metaServiceData: Data = {
   ]
 };
 
+const resolutionData = [
+  { height: 590, width: 1024 },
+  { height: 590, width: 600 },
+  { height: 590, width: 350 }
+];
+
 const defaultThreshold: FormThreshold = {
   criticalType: 'default',
   customCritical: 0,
@@ -90,12 +97,13 @@ const linkToResourcePing1 =
 const initializeComponent = ({
   topBottomSettings = defaultSettings,
   isPublic = false,
-  data = widgetData
+  data = widgetData,
+  viewport = [1280, 800]
 }: Props): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
 
-  cy.viewport('macbook-13');
+  cy.viewport(...viewport);
 
   cy.fixture('Widgets/Graph/topBottom.json').then((topBottom) => {
     cy.interceptAPIRequest({
@@ -210,7 +218,7 @@ describe('TopBottom', () => {
     cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
     cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
     cy.contains('#3 Centreon_server_Ping_3').should('be.visible');
-    cy.contains('#4 Centreon_server_Ping_4').should('be.visible');
+    cy.contains('#4 Centreon_server_200_chars_').should('be.visible');
 
     cy.contains('10 B').should('be.visible');
     cy.contains('20 B').should('be.visible');
@@ -248,7 +256,7 @@ describe('TopBottom', () => {
     cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
     cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
     cy.contains('#3 Centreon_server_Ping_3').should('be.visible');
-    cy.contains('#4 Centreon_server_Ping_4').should('be.visible');
+    cy.contains('#4 Centreon_server_200_chars_').should('be.visible');
 
     cy.contains('10 B').should('not.exist');
     cy.contains('20 B').should('not.exist');
@@ -288,6 +296,29 @@ describe('TopBottom', () => {
         '{"$and":[{"metaservice.id":{"$in":[1]}}]}'
       );
       expect(searchParameters.get('metrics_names')).to.equal(null);
+    });
+  });
+});
+
+resolutionData.forEach(({ height, width }) => {
+  describe('Responsiveness topBottom', () => {
+    beforeEach(() => {
+      cy.viewport(width, height);
+
+      initializeComponent({ viewport: [width, height] });
+    });
+
+    it(`adapt the resource name area without exceeding the longest name when screen resolution is ${width}px`, () => {
+      cy.waitForRequest('@getTop');
+      cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
+      cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
+      cy.contains('#3 Centreon_server_Ping_3').should('be.visible');
+      cy.contains('#4 Centreon_server_200_chars_').should('be.visible');
+
+      cy.contains('10 B').should('be.visible');
+      cy.contains('20 B').should('be.visible');
+      cy.contains('30 B').should('be.visible');
+      cy.contains('40 B').should('be.visible');
     });
   });
 });
