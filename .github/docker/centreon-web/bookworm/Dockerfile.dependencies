@@ -144,4 +144,4 @@ RUN systemctl restart centreon-nrpe4.service
 RUN systemctl enable centreon-nrpe4.service
 RUN usermod -a -G systemd-journal centreon-engine
 RUN systemctl restart centreon-nrpe4.service
-RUN apt install -y centreon-pack-operatingsystems-linux-nrpe4 nagios-nrpe-plugin
+RUN apt install -y nagios-nrpe-plugin
