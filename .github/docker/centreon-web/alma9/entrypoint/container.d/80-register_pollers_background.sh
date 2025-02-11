@@ -1,14 +1,31 @@
 #!/bin/sh
 
-while true ; do
-  sleep 10
+POLL_INTERVAL=10
+MYSQL_TIMEOUT=5
+RELOAD_WAIT=60
 
-  SQL_RESULT=$(timeout 5 mysql -h${MYSQL_HOST} -uroot -p"${MYSQL_ROOT_PASSWORD}" centreon -e "SELECT id FROM nagios_server WHERE name NOT IN (SELECT name from centreon_storage.instances)")
-  if [[ "$SQL_RESULT" == *"id"* ]] ; then
-    echo "Restarting gorgoned to register new pollers."
-    systemctl reload gorgoned
-    sleep 60
-  else
-    echo "No new pollers to register."
+while true ; do
+  sleep "$POLL_INTERVAL"
+  SQL_RESULT=$(timeout "$MYSQL_TIMEOUT" mysql -h"${MYSQL_HOST}" -uroot -p"${MYSQL_ROOT_PASSWORD}" centreon -e "SELECT id FROM nagios_server WHERE name NOT IN (SELECT name from centreon_storage.instances)" 2>&1)
+  if [ $? -eq 124 ]; then
+    echo "MySQL query timed out"
+    continue
+  elif [ $? -ne 0 ]; then
+    echo "MySQL query failed: $SQL_RESULT"
+    sleep "$POLL_INTERVAL"
+    continue
   fi
+  case "$SQL_RESULT" in
+    *id*)
+      echo "Restarting gorgoned to register new pollers."
+      if ! systemctl reload gorgoned; then
+        echo "Failed to reload gorgoned"
+        continue
+      fi
+      sleep "$RELOAD_WAIT"
+      ;;
+    *)
+      echo "No new pollers to register."
+      ;;
+  esac
 done
