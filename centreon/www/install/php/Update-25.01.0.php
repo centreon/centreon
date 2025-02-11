@@ -86,12 +86,12 @@ $updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
         <<<'SQL'
             UPDATE `dashboard_panel`
             SET `layout_x` = `layout_x` * 2,
-                `layout_width` = `layout_width` * 2 
+                `layout_width` = `layout_width` * 2
             SQL
     );
 };
 
-// -------------------------------------------- Resource Status -------------------------------------------- //      
+// -------------------------------------------- Resource Status -------------------------------------------- //
 
 /**
  * @param CentreonDB $pearDBO
