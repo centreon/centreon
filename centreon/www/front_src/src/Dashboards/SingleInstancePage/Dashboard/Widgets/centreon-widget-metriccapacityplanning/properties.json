@@ -222,7 +222,7 @@
             "target": "options",
             "method": "includes",
             "when": "options.displayType",
-            "matches": ["bar", "bar-stacked"]
+            "matches": ["bar"]
           }
         },
         "lineStyleMode": {

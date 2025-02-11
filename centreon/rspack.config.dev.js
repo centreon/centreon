@@ -22,8 +22,6 @@ const output = isDevelopmentMode
 const getModuleDirectoryPath = (moduleName) =>
   `${__dirname}/www/modules/${moduleName}/static`;
 
-const getWidgetsDirectoryPath = () => `${__dirname}/www/widgets`;
-
 const modules = [
   {
     getDirectoryPath: getModuleDirectoryPath,
@@ -51,12 +49,12 @@ const modules = [
     name: 'centreon-anomaly-detection'
   },
   {
-    getDirectoryPath: getWidgetsDirectoryPath,
-    name: ''
+    getDirectoryPath: getModuleDirectoryPath,
+    name: 'centreon-cloud-extensions'
   },
   {
     getDirectoryPath: getModuleDirectoryPath,
-    name: 'centreon-cloud-extensions'
+    name: 'centreon-bi-server'
   }
 ];
 
