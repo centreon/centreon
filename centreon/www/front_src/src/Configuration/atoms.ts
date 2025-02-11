@@ -4,7 +4,7 @@ import { Configuration } from './models';
 export const configurationAtom = atom<Configuration | null>({
   resourceType: null,
   api: { endpoints: null },
-  filtersInitialValues: null,
+  filtersInitialValues: {},
   defaultSelectedColumnIds: []
 });
 

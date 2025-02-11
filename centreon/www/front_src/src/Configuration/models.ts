@@ -46,6 +46,6 @@ export interface Configuration {
   resourceType: ResourceType | null;
   api: APIType | null;
   filtersConfiguration?: Array<FilterConfiguration>;
-  filtersInitialValues;
+  filtersInitialValues: object;
   defaultSelectedColumnIds: Array<string>;
 }

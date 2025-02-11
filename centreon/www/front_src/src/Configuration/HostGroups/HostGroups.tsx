@@ -3,8 +3,11 @@ import { useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import ConfigurationBase from '../ConfigurationBase';
 import { configurationAtom, filtersAtom } from '../atoms';
+
+import ConfigurationBase from '../ConfigurationBase';
+import Form from './Form/Form';
+
 import {
   Endpoints,
   FieldType,
@@ -12,6 +15,8 @@ import {
   ResourceType
 } from '../models';
 import useColumns from './Columns/useColumns';
+
+import { hostGroupsDecoderListDecoder } from './api/decoders';
 import {
   bulkDeleteHostGroupEndpoint,
   bulkDisableHostGroupEndpoint,
@@ -21,9 +26,6 @@ import {
   hostGroupsListEndpoint
 } from './api/endpoints';
 
-import Form from './Form/Form';
-
-import { hostGroupsDecoderListDecoder } from './api/decoders';
 import { labelAlias, labelName, labelStatus } from './translatedLabels';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
@@ -87,8 +89,8 @@ const HostGroups = () => {
       configuration?.api?.endpoints &&
       configuration?.resourceType &&
       configuration?.filtersConfiguration &&
-      configuration?.filtersInitialValues &&
       !isEmpty(configuration?.defaultSelectedColumnIds) &&
+      !isEmpty(configuration?.filtersInitialValues) &&
       !isEmpty(filters),
     [configuration, filters]
   );
