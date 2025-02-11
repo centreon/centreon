@@ -63,6 +63,10 @@ docker compose --profile poller --profile vault -f .github/docker/docker-compose
 * centreon-poller: poller with gorgoned, centreon-engine (with cbmod)
 * hashicorp vault
 
+> [!NOTE]
+> Running containers can be listed with the following command: `docker ps`
+> Container terminal can be launched with the following command: `docker exec -ti <container_id> bash`
+
 
 ## :hand: Stop services
 
