@@ -1,5 +1,6 @@
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
+import { isEmpty, not } from 'ramda';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfigurationBase from '../ConfigurationBase';
 import { configurationAtom, filtersAtom } from '../atoms';
@@ -18,8 +19,6 @@ import {
   getHostGroupEndpoint,
   hostGroupsListEndpoint
 } from './api/endpoints';
-
-import { isEmpty, not } from 'ramda';
 import { labelAlias, labelName, labelStatus } from './translatedLabels';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
@@ -30,55 +29,63 @@ const HostGroups = () => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
 
-  const hostGroupsendpoints: Endpoints = {
-    getAll: hostGroupsListEndpoint,
-    getOne: getHostGroupEndpoint,
-    deleleteOne: getHostGroupEndpoint,
-    delete: bulkDeleteHostGroupEndpoint,
-    duplicate: bulkDuplicateHostGroupEndpoint,
-    disable: bulkDisableHostGroupEndpoint,
-    enable: bulkEnableHostGroupEndpoint
-  };
+  const hostGroupsEndpoints: Endpoints = useMemo(
+    () => ({
+      getAll: hostGroupsListEndpoint,
+      getOne: getHostGroupEndpoint,
+      deleteOne: getHostGroupEndpoint,
+      delete: bulkDeleteHostGroupEndpoint,
+      duplicate: bulkDuplicateHostGroupEndpoint,
+      disable: bulkDisableHostGroupEndpoint,
+      enable: bulkEnableHostGroupEndpoint
+    }),
+    []
+  );
 
-  const filtersConfiguration: Array<FilterConfiguration> = [
-    {
-      name: t(labelName),
-      fieldName: 'name',
-      fieldType: FieldType.Text
-    },
-    {
-      name: t(labelAlias),
-      fieldName: 'alias',
-      fieldType: FieldType.Text
-    },
-    {
-      name: t(labelStatus),
-      fieldType: FieldType.Status
-    }
-  ];
+  const filtersConfiguration: Array<FilterConfiguration> = useMemo(
+    () => [
+      {
+        name: t(labelName),
+        fieldName: 'name',
+        fieldType: FieldType.Text
+      },
+      {
+        name: t(labelAlias),
+        fieldName: 'alias',
+        fieldType: FieldType.Text
+      },
+      {
+        name: t(labelStatus),
+        fieldType: FieldType.Status
+      }
+    ],
+    [t]
+  );
 
   useEffect(() => {
     setConfiguration({
       resourceType: ResourceType.HostGroup,
-      endpoints: hostGroupsendpoints,
+      endpoints: hostGroupsEndpoints,
       filtersConfiguration,
       filtersInitialValues,
       defaultSelectedColumnIds
     });
 
     setFilters(filtersInitialValues);
-  }, []);
+  }, [setConfiguration, setFilters, hostGroupsEndpoints, filtersConfiguration]);
 
-  if (
-    not(
+  const isConfigurationValid = useMemo(
+    () =>
       configuration?.endpoints &&
-        configuration?.resourceType &&
-        configuration?.filtersConfiguration &&
-        configuration?.filtersInitialValues &&
-        !isEmpty(configuration?.defaultSelectedColumnIds) &&
-        !isEmpty(filters)
-    )
-  ) {
+      configuration?.resourceType &&
+      configuration?.filtersConfiguration &&
+      configuration?.filtersInitialValues &&
+      !isEmpty(configuration?.defaultSelectedColumnIds) &&
+      !isEmpty(filters),
+    [configuration, filters]
+  );
+
+  if (not(isConfigurationValid)) {
     return;
   }
 

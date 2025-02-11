@@ -10,10 +10,10 @@ interface UseDeleteProps {
 }
 
 const useDelete = (): UseDeleteProps => {
-  const configuration = useAtomValue(configurationAtom);
-
-  const endpoint = configuration?.endpoints?.deleleteOne;
   const queryClient = useQueryClient();
+
+  const configuration = useAtomValue(configurationAtom);
+  const endpoint = configuration?.endpoints?.deleteOne;
 
   const { isMutating, mutateAsync } = useMutationQuery({
     getEndpoint: endpoint,

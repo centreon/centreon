@@ -10,7 +10,7 @@ export enum ResourceType {
 export interface Endpoints {
   getAll: string;
   getOne: ({ id }) => string;
-  deleleteOne: ({ id }) => string;
+  deleteOne: ({ id }) => string;
   delete: string;
   duplicate: string;
   enable: string;
