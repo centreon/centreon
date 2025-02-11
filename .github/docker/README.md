@@ -64,7 +64,7 @@ docker compose --profile poller --profile vault -f .github/docker/docker-compose
 * hashicorp vault
 
 
-## Additional services using profiles
+## :hand: Stop services
 
 Services can be stopped with the following command:
 
