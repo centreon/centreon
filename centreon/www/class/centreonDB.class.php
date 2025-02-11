@@ -1027,11 +1027,19 @@ class CentreonDB extends PDO implements ConnectionInterface
 
     /**
      * Checks that the connection instance allows the use of unbuffered queries.
+     *
+     * @throws ConnectionException
      */
     public function allowUnbufferedQuery(): void
     {
-        // PDO is allowed to buffer the queries so return void
-        return;
+        $currentDriverName = $this->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if (! in_array($currentDriverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY)) {
+            $this->writeDbLog(
+                message: "Unbuffered queries are not allowed with this driver",
+                customContext: ['driver_name' => $currentDriverName]
+            );
+            throw ConnectionException::allowUnbufferedQueryFailed(parent::class, $currentDriverName);
+        }
     }
 
     /**
@@ -1042,6 +1050,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      */
     public function startUnbufferedQuery(): void
     {
+        $this->allowUnbufferedQuery();
         if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
             $this->writeDbLog(message: "Error while starting an unbuffered query");
             throw ConnectionException::startUnbufferedQueryFailed();
@@ -1628,6 +1637,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 query: $stmt->queryString,
                 previous: $e
             );
+
             return '';
         }
     }
@@ -1993,7 +2003,7 @@ class CentreonDB extends PDO implements ConnectionInterface
 
     /**
      * @param \PDOStatement $pdoStatement
-     * @param int          $column
+     * @param int           $column
      *
      * @throws CentreonDbException
      *

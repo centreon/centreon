@@ -698,6 +698,23 @@ class ConnectionException extends DatabaseException
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 
     /**
+     * @param string $nativeConnectionClass
+     * @param string $currentDriverName
+     *
+     * @return ConnectionException
+     */
+    public static function allowUnbufferedQueryFailed(
+        string $nativeConnectionClass,
+        string $currentDriverName
+    ): ConnectionException {
+        return new self(
+            message: "Unbuffered queries not allowed for native connection class '{$nativeConnectionClass}' with this driver : {$currentDriverName}.",
+            code: self::ERROR_CODE_UNBUFFERED_QUERY,
+            context: ['native_connection_class' => $nativeConnectionClass, 'current_driver_name' => $currentDriverName]
+        );
+    }
+
+    /**
      * @return ConnectionException
      */
     public static function startUnbufferedQueryFailed(): ConnectionException
