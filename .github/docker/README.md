@@ -22,6 +22,8 @@ This can be overrided with environment variable `MYSQL_IMAGE` using one of the f
 * Preferred: Export environment variable directly in your terminal (ex: `export MYSQL_IMAGE=bitnami/mysql:8.1`)
 * Alternative: Add a new line to environment file `.github/docker/.env` with MYSQL_IMAGE value (ex: `MYSQL_IMAGE=bitnami/mysql:8.1`)
 
+> [!WARNING]
+> `export` command is not available on windows, You may need to use a tool like `cross-env` or directly configure windows environment variables
 
 ## :toolbox: Custom centreon web image
 
