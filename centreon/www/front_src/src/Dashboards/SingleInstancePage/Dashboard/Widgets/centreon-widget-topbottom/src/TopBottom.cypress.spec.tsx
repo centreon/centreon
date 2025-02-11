@@ -18,6 +18,7 @@ interface Props {
   isPublic?: boolean;
   topBottomSettings?: TopBottomSettings;
   viewport?: [number, number];
+  topMetricsPath?: string;
 }
 
 const defaultSettings = {
@@ -77,6 +78,17 @@ const metaServiceData: Data = {
   ]
 };
 
+const getTopMetrics = (fixturePath) => {
+  cy.fixture(fixturePath).then((topBottom) => {
+    cy.interceptAPIRequest({
+      alias: 'getTop',
+      method: Method.GET,
+      path: `${metricsTopEndpoint}**`,
+      response: topBottom
+    });
+  });
+};
+
 const resolutionData = [
   { height: 590, width: 1024 },
   { height: 590, width: 600 },
@@ -98,6 +110,7 @@ const initializeComponent = ({
   topBottomSettings = defaultSettings,
   isPublic = false,
   data = widgetData,
+  topMetricsPath = 'Widgets/Graph/topBottom.json',
   viewport = [1280, 800]
 }: Props): void => {
   const store = createStore();
@@ -105,24 +118,17 @@ const initializeComponent = ({
 
   cy.viewport(...viewport);
 
-  cy.fixture('Widgets/Graph/topBottom.json').then((topBottom) => {
-    cy.interceptAPIRequest({
-      alias: 'getTop',
-      method: Method.GET,
-      path: `${metricsTopEndpoint}**`,
-      response: topBottom
-    });
+  getTopMetrics(topMetricsPath);
 
-    cy.interceptAPIRequest({
-      alias: 'getPublicWidget',
-      method: Method.GET,
-      path: `./api/latest${getPublicWidgetEndpoint({
-        dashboardId: 1,
-        playlistHash: 'hash',
-        widgetId: '1'
-      })}`,
-      response: data
-    });
+  cy.interceptAPIRequest({
+    alias: 'getPublicWidget',
+    method: Method.GET,
+    path: `./api/latest${getPublicWidgetEndpoint({
+      dashboardId: 1,
+      playlistHash: 'hash',
+      widgetId: '1'
+    })}`,
+    response: data
   });
 
   cy.mount({
@@ -218,7 +224,7 @@ describe('TopBottom', () => {
     cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
     cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
     cy.contains('#3 Centreon_server_Ping_3').should('be.visible');
-    cy.contains('#4 Centreon_server_200_chars_').should('be.visible');
+    cy.contains('#4 Centreon_server_Ping_4').should('be.visible');
 
     cy.contains('10 B').should('be.visible');
     cy.contains('20 B').should('be.visible');
@@ -256,7 +262,7 @@ describe('TopBottom', () => {
     cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
     cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
     cy.contains('#3 Centreon_server_Ping_3').should('be.visible');
-    cy.contains('#4 Centreon_server_200_chars_').should('be.visible');
+    cy.contains('#4 Centreon_server_Ping_4').should('be.visible');
 
     cy.contains('10 B').should('not.exist');
     cy.contains('20 B').should('not.exist');
@@ -304,32 +310,41 @@ resolutionData.forEach(({ height, width }) => {
   describe('Responsiveness topBottom', () => {
     beforeEach(() => {
       cy.viewport(width, height);
-
-      initializeComponent({ viewport: [width, height] });
     });
 
     it(`adapt the resource name area without exceeding the longest name when screen resolution is ${width}px`, () => {
+      initializeComponent({
+        viewport: [width, height],
+        topMetricsPath: 'Widgets/Graph/topMetricsWithLongRSname.json'
+      });
       cy.waitForRequest('@getTop');
       cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
       cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
-      cy.contains('#3 Centreon_server_Ping_3').should('be.visible');
-      cy.contains('#4 Centreon_server_200_chars_').should('be.visible');
+      cy.contains('#3 Centreon_server_exmaple_200_chars_').should('be.visible');
 
       cy.contains('10 B').should('be.visible');
       cy.contains('20 B').should('be.visible');
-      cy.contains('30 B').should('be.visible');
       cy.contains('40 B').should('be.visible');
 
-      
       cy.makeSnapshotWithCustomResolution({
         resolution: { height, width },
         title: `${width}px`
       });
     });
 
-    // it(`maintain a fixed 24px space between resource name and bar chart when screen resolution is ${width}px`,()=>{
-    //   initializeComponent({ viewport: [width, height],fixturePath:'' });
+    it(`maintain a fixed 24px space between resource name and bar chart when screen resolution is ${width}px`, () => {
+      initializeComponent({
+        viewport: [width, height],
+        topMetricsPath: 'Widgets/Graph/topMetricsWithUniqueRS.json'
+      });
+      cy.waitForRequest('@getTop');
+      cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
+      cy.contains('10 B').should('be.visible');
 
-    // })
+      cy.makeSnapshotWithCustomResolution({
+        resolution: { height, width },
+        title: `${width}px`
+      });
+    });
   });
 });
