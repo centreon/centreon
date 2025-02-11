@@ -1,6 +1,6 @@
 
 
-## Prerequisites
+## :memo: Prerequisites
 
 * docker
 * docker compose >= 2
@@ -12,6 +12,8 @@ Run following command from repository root directory:
 ```bash
 docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
+
+Centreon web should be accessible at `http://localhost:4000/centreon`
 
 ## :toolbox: Custom database image
 
@@ -39,15 +41,15 @@ This can be overrided with environment variable `WEB_IMAGE` using one of the fol
 Docker compose has a useful feature which is called `profile`.
 It allows to run additional services (containers) by specifying profiles which are declared in `docker-compose.yml`.
 Currently, following profiles exist:
-* poller: register automatically a poller to centreon web image (:danger: EXPERIMENTAL)
-* glpi: must be used with `centreon-open-tickets` image to link glpi automatically in open-tickets providers
-* vault: register automatically hashicorp vault and migrate credentials
-* openid: run a docker image of keycloak (centreon configuration must be done manually)
-* saml: run a docker image of keycloak (centreon configuration must be done manually)
-* openldap: run a docker image of openldap (centreon ldap configuration must be enabled manually)
-* squid-simple: run a docker image of squid without authentication (centreon configuration must be done manually)
-* squid-basic-auth: run a docker image of squid with authentication (centreon configuration must be done manually)
-* mediawiki: run a docker image of mediawiki (centreon configuration must be done manually)
+* `poller`: register automatically a poller to centreon web image (:danger: EXPERIMENTAL)
+* `glpi`: must be used with `centreon-open-tickets` image to link glpi automatically in open-tickets providers
+* `vault`: register automatically hashicorp vault and migrate credentials
+* `openid`: run a docker image of keycloak (centreon configuration must be done manually)
+* `saml`: run a docker image of keycloak (centreon configuration must be done manually)
+* `openldap`: run a docker image of openldap (centreon ldap configuration must be enabled manually)
+* `squid-simple`: run a docker image of squid without authentication (centreon configuration must be done manually)
+* `squid-basic-auth`: run a docker image of squid with authentication (centreon configuration must be done manually)
+* `mediawiki`: run a docker image of mediawiki (centreon configuration must be done manually)
 
 Multiple profiles can be specified in a single command:
 
