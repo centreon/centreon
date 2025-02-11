@@ -7,16 +7,6 @@ export enum ResourceType {
   ServiceGroup = 'service group'
 }
 
-export interface Endpoints {
-  getAll: string;
-  getOne: ({ id }) => string;
-  deleteOne: ({ id }) => string;
-  delete: string;
-  duplicate: string;
-  enable: string;
-  disable: string;
-}
-
 export interface ConfigurationBase {
   resourceType: ResourceType;
   Form: JSX.Element;
@@ -28,8 +18,18 @@ export enum FieldType {
   Status = 'status'
 }
 
+export interface Endpoints {
+  getAll: string;
+  getOne: ({ id }) => string;
+  deleteOne: ({ id }) => string;
+  delete: string;
+  duplicate: string;
+  enable: string;
+  disable: string;
+}
+
 interface APIType {
-  endpoints: Endpoints;
+  endpoints: Endpoints | null;
   decoders?: {
     geOne?;
     getAll?;
@@ -45,7 +45,6 @@ export interface FilterConfiguration {
 export interface Configuration {
   resourceType: ResourceType | null;
   api: APIType | null;
-  endpoints: Endpoints | null;
   filtersConfiguration?: Array<FilterConfiguration>;
   filtersInitialValues;
   defaultSelectedColumnIds: Array<string>;
