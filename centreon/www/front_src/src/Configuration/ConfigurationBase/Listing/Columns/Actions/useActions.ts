@@ -1,7 +1,7 @@
 import { useSetAtom } from 'jotai';
 
 import { pick } from 'ramda';
-import { hostGroupsToDeleteAtom, hostGroupsToDuplicateAtom } from '../../atoms';
+import { resourcesToDeleteAtom, resourcesToDuplicateAtom } from '../../atoms';
 
 interface UseActionsState {
   openDeleteModal: () => void;
@@ -9,13 +9,14 @@ interface UseActionsState {
 }
 
 const useActions = (row): UseActionsState => {
-  const setHostGroupsToDelete = useSetAtom(hostGroupsToDeleteAtom);
-  const setHostGroupsToDuplicate = useSetAtom(hostGroupsToDuplicateAtom);
+  const setResourcesToDelete = useSetAtom(resourcesToDeleteAtom);
+  const setResourcesToDuplicate = useSetAtom(resourcesToDuplicateAtom);
+
   const hostGroupEntity = pick(['id', 'name'], row);
 
-  const openDeleteModal = (): void => setHostGroupsToDelete([hostGroupEntity]);
+  const openDeleteModal = (): void => setResourcesToDelete([hostGroupEntity]);
   const openDuplicateModal = (): void =>
-    setHostGroupsToDuplicate([hostGroupEntity]);
+    setResourcesToDuplicate([hostGroupEntity]);
 
   return {
     openDeleteModal,

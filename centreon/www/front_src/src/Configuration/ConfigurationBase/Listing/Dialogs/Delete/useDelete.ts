@@ -8,7 +8,7 @@ import { equals, isEmpty, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { configurationAtom } from '../../../../atoms';
-import { hostGroupsToDeleteAtom, selectedRowsAtom } from '../../atoms';
+import { resourcesToDeleteAtom, selectedRowsAtom } from '../../atoms';
 
 import {
   useDeleteOne as useDeleteOneRequest,
@@ -26,8 +26,6 @@ interface UseDeleteState {
   confirm: () => void;
   close: () => void;
   isMutating: boolean;
-  count: number;
-  name: string;
   isOpened: boolean;
   headerContent: string;
   bodyContent: string;
@@ -37,28 +35,28 @@ const useDelete = (): UseDeleteState => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
-  const [hostGroupsToDelete, setHostGroupsToDelete] = useAtom(
-    hostGroupsToDeleteAtom
+  const [resourcesToDelete, setResourcesToDelete] = useAtom(
+    resourcesToDeleteAtom
   );
 
   const setSelectedRows = useSetAtom(selectedRowsAtom);
   const configuration = useAtomValue(configurationAtom);
 
-  const name = hostGroupsToDelete[0]?.name;
-  const count = hostGroupsToDelete.length;
-  const ids = pluck('id', hostGroupsToDelete);
+  const name = resourcesToDelete[0]?.name;
+  const count = resourcesToDelete.length;
+  const ids = pluck('id', resourcesToDelete);
 
   const resourceType = configuration?.resourceType as string;
   const labelResourceType = pluralize(resourceType, count);
 
   const isOpened = useMemo(
-    () => !isEmpty(hostGroupsToDelete),
-    [hostGroupsToDelete]
+    () => !isEmpty(resourcesToDelete),
+    [resourcesToDelete]
   );
 
   const resetSelections = (): void => {
     setSelectedRows([]);
-    setHostGroupsToDelete([]);
+    setResourcesToDelete([]);
   };
 
   const { deleteMutation, isMutating } = useDeleteRequest();
@@ -97,8 +95,6 @@ const useDelete = (): UseDeleteState => {
     confirm,
     close: resetSelections,
     isMutating: isMutating || isMutatingOne,
-    count,
-    name,
     isOpened,
     headerContent,
     bodyContent

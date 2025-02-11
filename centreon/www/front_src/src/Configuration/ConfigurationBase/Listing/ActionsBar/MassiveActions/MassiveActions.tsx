@@ -1,21 +1,25 @@
+import { isEmpty } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import {
-  ContentCopyOutlined as ContentCopyIcon,
   DeleteOutlineOutlined as DeleteIcon,
+  ContentCopyOutlined as DuplicateIcon,
   MoreHoriz as MoreIcon
 } from '@mui/icons-material';
 
 import { IconButton } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
-import { isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
+
+import MoreActions from './MoreActions';
+import useMassiveActions from './useMassiveActions';
+
 import {
   labelDelete,
   labelDuplicate,
   labelMoreActions
 } from '../../../translatedLabels';
+
 import { useActionsStyles } from '../Actions.styles';
-import MoreActions from './MoreActions';
-import useMassiveActions from './useMassiveActions';
 
 const MassiveActions = (): JSX.Element => {
   const { t } = useTranslation();
@@ -36,7 +40,7 @@ const MassiveActions = (): JSX.Element => {
         <Button
           aria-label={t(labelDuplicate)}
           data-testid="add-host-group"
-          icon={<ContentCopyIcon className={classes.duplicateIcon} />}
+          icon={<DuplicateIcon className={classes.duplicateIcon} />}
           iconVariant="start"
           size="medium"
           variant="secondary"
@@ -67,7 +71,7 @@ const MassiveActions = (): JSX.Element => {
           onClick={openDuplicateModal}
           disabled={isEmpty(selectedRowsIds)}
         >
-          <ContentCopyIcon className={classes.duplicateIcon} />
+          <DuplicateIcon className={classes.duplicateIcon} />
         </IconButton>
         <IconButton
           ariaLabel={t(labelDelete)}

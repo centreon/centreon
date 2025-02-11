@@ -1,23 +1,25 @@
+import { capitalize } from '@mui/material';
+import pluralize from 'pluralize';
+
 import { ResponseError, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+
+import { configurationAtom } from '../../../../atoms';
 import { useDisable, useEnable } from '../../../api';
+import { selectedRowsAtom } from '../../atoms';
+
 import {
   labelResourceDisabled,
   labelResourceEnabled
 } from '../../../translatedLabels';
-import { selectedRowsAtom } from '../../atoms';
 
 interface UseChangeStatus {
   isMutating: boolean;
   enable: () => void;
   disable: () => void;
 }
-
-import { capitalize } from '@mui/material';
-import pluralize from 'pluralize';
-import { configurationAtom } from '../../../../atoms';
 
 const useChangeStatus = (): UseChangeStatus => {
   const { t } = useTranslation();

@@ -1,9 +1,13 @@
 import { atom } from 'jotai';
 
 import { atomWithReset } from 'jotai/utils';
-import { NamedEntity } from './models';
 
 type SortOrder = 'asc' | 'desc';
+
+interface NamedEntity {
+  id: number;
+  name: number;
+}
 
 export const limitAtom = atom<number | undefined>(10);
 export const pageAtom = atom<number | undefined>(undefined);
@@ -14,7 +18,7 @@ export const searchAtom = atom<string>('');
 
 export const selectedRowsAtom = atom([]);
 
-export const hostGroupsToDeleteAtom = atom<Array<NamedEntity>>([]);
-export const hostGroupsToDuplicateAtom = atom<Array<NamedEntity>>([]);
+export const resourcesToDeleteAtom = atom<Array<NamedEntity>>([]);
+export const resourcesToDuplicateAtom = atom<Array<NamedEntity>>([]);
 
 export const tooltipPageAtom = atomWithReset(1);

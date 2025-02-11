@@ -8,7 +8,7 @@ import { equals, isEmpty, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { configurationAtom } from '../../../../atoms';
-import { hostGroupsToDuplicateAtom, selectedRowsAtom } from '../../atoms';
+import { resourcesToDuplicateAtom, selectedRowsAtom } from '../../atoms';
 
 import { useDuplicate as useDuplicateRequest } from '../../../api';
 import {
@@ -34,26 +34,26 @@ const useDuplicate = (): UseDuplicateProps => {
   const { showSuccessMessage } = useSnackbar();
 
   const [duplicatesCount, setDuplicatesCount] = useState(1);
-  const [hostGroupsToDuplicate, setHostGroupsToDuplicate] = useAtom(
-    hostGroupsToDuplicateAtom
+  const [resourcesToDuplicate, setResourcesToDuplicate] = useAtom(
+    resourcesToDuplicateAtom
   );
   const configuration = useAtomValue(configurationAtom);
   const setSelectedRows = useSetAtom(selectedRowsAtom);
 
-  const name = hostGroupsToDuplicate[0]?.name;
-  const count = hostGroupsToDuplicate.length;
+  const name = resourcesToDuplicate[0]?.name;
+  const count = resourcesToDuplicate.length;
 
   const resourceType = configuration?.resourceType as string;
   const labelResourceType = pluralize(resourceType, count);
 
   const isOpened = useMemo(
-    () => !isEmpty(hostGroupsToDuplicate),
-    [hostGroupsToDuplicate]
+    () => !isEmpty(resourcesToDuplicate),
+    [resourcesToDuplicate]
   );
 
   const resetSelections = (): void => {
     setSelectedRows([]);
-    setHostGroupsToDuplicate([]);
+    setResourcesToDuplicate([]);
   };
 
   const changeDuplicateCount = (inputValue: number) =>
@@ -63,10 +63,10 @@ const useDuplicate = (): UseDuplicateProps => {
 
   const payload = useMemo(
     () => ({
-      ids: pluck('id', hostGroupsToDuplicate),
+      ids: pluck('id', resourcesToDuplicate),
       nbDuplicates: duplicatesCount
     }),
-    [hostGroupsToDuplicate, duplicatesCount]
+    [resourcesToDuplicate, duplicatesCount]
   );
 
   const handleApiResponse = (response) => {
