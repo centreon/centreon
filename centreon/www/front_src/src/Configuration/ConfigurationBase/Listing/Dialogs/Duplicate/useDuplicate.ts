@@ -1,17 +1,22 @@
-import { useAtom, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
+import { useMemo, useState } from 'react';
 
 import { ResponseError, useSnackbar } from '@centreon/ui';
-import { useState } from 'react';
-import { hostGroupsToDuplicateAtom, selectedRowsAtom } from '../../atoms';
-import { NamedEntity } from '../../models';
-
-import { pluck } from 'ramda';
-import { labelResourceDuplicated } from '../../../translatedLabels';
-import { useDuplicate as useDuplicateRequest } from '../../api';
-
 import { capitalize } from '@mui/material';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
+import { equals, isEmpty, pluck } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import { configurationAtom } from '../../../../atoms';
+import { hostGroupsToDuplicateAtom, selectedRowsAtom } from '../../atoms';
+
+import {
+  labelDuplicateResource,
+  labelDuplicateResourceConfirmation,
+  labelDuplicateResourcesConfirmation,
+  labelResourceDuplicated
+} from '../../../translatedLabels';
+import { useDuplicate as useDuplicateRequest } from '../../api';
 
 interface UseDuplicateProps {
   confirm: () => void;
@@ -19,12 +24,12 @@ interface UseDuplicateProps {
   isMutating: boolean;
   duplicatesCount: number;
   changeDuplicateCount: (inputValue: number) => void;
-  hostGroupsToDuplicate: Array<NamedEntity>;
-  count: number;
-  name: string;
+  isOpened: boolean;
+  bodyContent: string;
+  headerContent: string;
 }
 
-const useDuplicate = ({ resourceType }): UseDuplicateProps => {
+const useDuplicate = (): UseDuplicateProps => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
@@ -32,37 +37,67 @@ const useDuplicate = ({ resourceType }): UseDuplicateProps => {
   const [hostGroupsToDuplicate, setHostGroupsToDuplicate] = useAtom(
     hostGroupsToDuplicateAtom
   );
+  const configuration = useAtomValue(configurationAtom);
   const setSelectedRows = useSetAtom(selectedRowsAtom);
 
-  const { duplicateMutation, isMutating } = useDuplicateRequest();
-
-  const count = hostGroupsToDuplicate.length;
   const name = hostGroupsToDuplicate[0]?.name;
+  const count = hostGroupsToDuplicate.length;
 
-  const labelResourceType = pluralize(capitalize(resourceType), count);
+  const resourceType = configuration?.resourceType as string;
+  const labelResourceType = pluralize(resourceType, count);
+
+  const isOpened = useMemo(
+    () => !isEmpty(hostGroupsToDuplicate),
+    [hostGroupsToDuplicate]
+  );
+
+  const resetSelections = (): void => {
+    setSelectedRows([]);
+    setHostGroupsToDuplicate([]);
+  };
 
   const changeDuplicateCount = (inputValue: number) =>
     setDuplicatesCount(inputValue);
 
-  const resetSelections = (): void => {
-    setHostGroupsToDuplicate([]);
-    setSelectedRows([]);
+  const { duplicateMutation, isMutating } = useDuplicateRequest();
+
+  const payload = useMemo(
+    () => ({
+      ids: pluck('id', hostGroupsToDuplicate),
+      nbDuplicates: duplicatesCount
+    }),
+    [hostGroupsToDuplicate, duplicatesCount]
+  );
+
+  const handleApiResponse = (response) => {
+    const { isError } = response as ResponseError;
+
+    if (isError) {
+      return;
+    }
+
+    resetSelections();
+    showSuccessMessage(
+      t(labelResourceDuplicated(capitalize(labelResourceType)))
+    );
   };
 
   const confirm = (): void => {
-    duplicateMutation({
-      ids: pluck('id', hostGroupsToDuplicate),
-      nbDuplicates: duplicatesCount
-    }).then((response) => {
-      const { isError } = response as ResponseError;
-      if (isError) {
-        return;
-      }
-
-      resetSelections();
-      showSuccessMessage(t(labelResourceDuplicated(labelResourceType)));
-    });
+    duplicateMutation(payload).then(handleApiResponse);
   };
+
+  const bodyContent = useMemo(
+    () =>
+      equals(count, 1)
+        ? t(labelDuplicateResourceConfirmation(labelResourceType), { name })
+        : t(labelDuplicateResourcesConfirmation(labelResourceType), { count }),
+    [name, count, labelResourceType]
+  );
+
+  const headerContent = useMemo(
+    () => t(labelDuplicateResource(labelResourceType)),
+    [labelResourceType]
+  );
 
   return {
     confirm,
@@ -70,9 +105,9 @@ const useDuplicate = ({ resourceType }): UseDuplicateProps => {
     isMutating,
     duplicatesCount,
     changeDuplicateCount,
-    hostGroupsToDuplicate,
-    count,
-    name
+    isOpened,
+    bodyContent,
+    headerContent
   };
 };
 

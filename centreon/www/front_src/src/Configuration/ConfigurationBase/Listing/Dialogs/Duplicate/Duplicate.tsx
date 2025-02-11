@@ -1,35 +1,20 @@
-import { useTranslation } from 'react-i18next';
-
-import { Typography } from '@mui/material';
-
 import { NumberField } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
+import { Typography } from '@mui/material';
+import {} from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { equals, isEmpty } from 'ramda';
 import {
   labelCancel,
   labelDuplicate,
-  labelDuplicateResource,
-  labelDuplicateResourceConfirmation,
-  labelDuplicateResourcesConfirmation,
   labelDuplications
 } from '../../../translatedLabels';
-import useDuplicate from './useDuplicate';
-
 import { useStyles } from './Duplicate.styles';
-
-import { useAtomValue } from 'jotai';
-import pluralize from 'pluralize';
-import { configurationAtom } from '../../../../atoms';
+import useDuplicate from './useDuplicate';
 
 const DuplicateDialog = (): JSX.Element => {
   const { classes } = useStyles();
-
   const { t } = useTranslation();
-
-  const configuration = useAtomValue(configurationAtom);
-
-  const resourceType = configuration?.resourceType as string;
 
   const {
     confirm,
@@ -37,32 +22,17 @@ const DuplicateDialog = (): JSX.Element => {
     isMutating,
     duplicatesCount,
     changeDuplicateCount,
-    hostGroupsToDuplicate,
-    count,
-    name
-  } = useDuplicate({ resourceType });
-
-  const labelResourceType = pluralize(resourceType, count);
+    isOpened,
+    bodyContent,
+    headerContent
+  } = useDuplicate();
 
   return (
-    <Modal open={!isEmpty(hostGroupsToDuplicate)} size="large" onClose={close}>
-      <Modal.Header>
-        {t(labelDuplicateResource(labelResourceType))}
-      </Modal.Header>
+    <Modal open={isOpened} size="large" onClose={close}>
+      <Modal.Header>{headerContent}</Modal.Header>
       <Modal.Body>
-        <Typography
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-          dangerouslySetInnerHTML={{
-            __html: equals(count, 1)
-              ? t(labelDuplicateResourceConfirmation(labelResourceType), {
-                  name
-                })
-              : t(labelDuplicateResourcesConfirmation(labelResourceType), {
-                  count
-                })
-          }}
-        />
-
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> */}
+        <Typography dangerouslySetInnerHTML={{ __html: bodyContent }} />
         <div className={classes.duplicationCount}>
           <Typography className={classes.duplicationCountTitle}>
             {t(labelDuplications)}
