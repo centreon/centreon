@@ -2,11 +2,11 @@ import { ResponseError, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useDisable, useEnable } from '../../../api';
 import {
   labelResourceDisabled,
   labelResourceEnabled
 } from '../../../translatedLabels';
-import { useDisable, useEnable } from '../../api';
 import { selectedRowsAtom } from '../../atoms';
 
 interface UseChangeStatus {

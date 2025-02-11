@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
-import { useGetAll } from './api';
+import { useGetAll } from '../api';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 import { HostGroupListItem, List } from './models';
 

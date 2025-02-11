@@ -1,6 +1,6 @@
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
-import { configurationAtom } from '../../../atoms';
+import { configurationAtom } from '../../atoms';
 
 interface UseGetAllProps {
   sortField: string;

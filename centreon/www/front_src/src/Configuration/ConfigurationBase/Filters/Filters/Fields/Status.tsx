@@ -4,7 +4,7 @@ import {
   labelDisabled,
   labelEnabled,
   labelStatus
-} from '../../../../../translatedLabels';
+} from '../../../translatedLabels';
 
 import {
   Checkbox,

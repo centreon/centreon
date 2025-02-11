@@ -10,13 +10,13 @@ import { useTranslation } from 'react-i18next';
 import { configurationAtom } from '../../../../atoms';
 import { hostGroupsToDuplicateAtom, selectedRowsAtom } from '../../atoms';
 
+import { useDuplicate as useDuplicateRequest } from '../../../api';
 import {
   labelDuplicateResource,
   labelDuplicateResourceConfirmation,
   labelDuplicateResourcesConfirmation,
   labelResourceDuplicated
 } from '../../../translatedLabels';
-import { useDuplicate as useDuplicateRequest } from '../../api';
 
 interface UseDuplicateProps {
   confirm: () => void;

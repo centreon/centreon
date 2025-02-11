@@ -6,7 +6,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 
 import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
 
-import { labelFilters } from '../../../translatedLabels';
+import { labelFilters } from '../translatedLabels';
 
 import Filters from './Filters/Filters';
 

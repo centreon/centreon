@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ResponseError, useSnackbar } from '@centreon/ui';
+import { useDisable, useEnable } from '../../../api';
 import {
   labelResourceDisabled,
   labelResourceEnabled
 } from '../../../translatedLabels';
-import { useDisable, useEnable } from '../../api';
 
 import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../../../../atoms';

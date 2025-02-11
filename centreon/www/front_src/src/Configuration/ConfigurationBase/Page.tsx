@@ -2,8 +2,9 @@ import { usePluralizedTranslation } from '@centreon/ui';
 import { Box, Typography, capitalize } from '@mui/material';
 import { ConfigurationBase } from '../models';
 import { Listing } from './Listing';
-import Filters from './Listing/ActionsBar/Filters';
 import { Modal } from './Modal';
+
+import Filters from './Filters';
 import { useStyles } from './Page.styles';
 
 const Page = ({

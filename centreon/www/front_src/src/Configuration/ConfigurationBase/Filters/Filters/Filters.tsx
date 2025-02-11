@@ -1,13 +1,13 @@
 import { Button } from '@centreon/ui/components';
 import { useTranslation } from 'react-i18next';
-import { labelClear, labelSearch } from '../../../../translatedLabels';
+import { labelClear, labelSearch } from '../../translatedLabels';
 import { useFilterStyles } from '../Filters.styles';
 
-import useLoadData from '../../../useLoadData';
 import useFilters from './useFilters';
 
 import { equals } from 'ramda';
-import { FieldType } from '../../../../../models';
+import { FieldType } from '../../../models';
+import useLoadData from '../../Listing/useLoadData';
 import Status from './Fields/Status';
 import Text from './Fields/Text';
 

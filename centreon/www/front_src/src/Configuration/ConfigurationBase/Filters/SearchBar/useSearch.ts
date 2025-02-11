@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
-import { filtersAtom } from '../../../../../atoms';
+import { filtersAtom } from '../../../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
 

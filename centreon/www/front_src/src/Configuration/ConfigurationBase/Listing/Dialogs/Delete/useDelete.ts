@@ -13,7 +13,7 @@ import { hostGroupsToDeleteAtom, selectedRowsAtom } from '../../atoms';
 import {
   useDeleteOne as useDeleteOneRequest,
   useDelete as useDeleteRequest
-} from '../../api';
+} from '../../../api';
 
 import {
   labelDeleteResource,

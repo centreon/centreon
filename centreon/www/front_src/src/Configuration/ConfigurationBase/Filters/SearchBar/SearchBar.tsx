@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { SearchField } from '@centreon/ui';
 
-import { labelSearch } from '../../../../translatedLabels';
+import { labelSearch } from '../../translatedLabels';
 import { useFilterStyles } from '../Filters.styles';
 import PopoverFilter from '../PopoverFilter';
 import useSearch from './useSearch';
