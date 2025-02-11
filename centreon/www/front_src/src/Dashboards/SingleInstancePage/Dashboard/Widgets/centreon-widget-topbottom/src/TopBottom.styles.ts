@@ -14,8 +14,9 @@ export const useTopBottomStyles = makeStyles<Params>()(
     tooltipContainer: {
       display: 'flex',
       alignItems: 'end',
-      height: 50,
-      marginRight: 24
+      height: theme.spacing(6.25),
+      marginRight: theme.spacing(3),
+      marginTop:theme.spacing(1)
     },
     linkToResourcesStatus: {
       '&:hover': {
@@ -46,7 +47,8 @@ export const useTopBottomStyles = makeStyles<Params>()(
     },
     singleBarContainer: {
       cursor: 'pointer',
-      height: 50
+      height: theme.spacing(6.25),
+      marginTop:theme.spacing(1)
     },
     labelContainer: {
       display: 'flex',
