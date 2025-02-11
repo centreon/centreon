@@ -278,7 +278,6 @@ abstract class Collection implements CollectionInterface
     protected function validateItem($item): void
     {
         $class = $this->itemClass();
-        var_dump($class);
         if (! $item instanceof $class) {
             throw new CollectionException(
                 "Item must be an instance of " . $class . ", " . $item::class . " given"
