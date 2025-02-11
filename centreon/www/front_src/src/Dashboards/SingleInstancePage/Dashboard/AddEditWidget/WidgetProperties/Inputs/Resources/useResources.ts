@@ -237,9 +237,10 @@ const useResources = ({
     resourceType: WidgetResourceType
   ): boolean | undefined => {
     return (
-      widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleResourceSelection &&
-      equals(resourceType, WidgetResourceType.service)
+      (widgetProperties?.singleMetricSelection &&
+        widgetProperties?.singleResourceSelection &&
+        equals(resourceType, WidgetResourceType.service)) ||
+      equals(restrictedResourceTypes?.length, 1)
     );
   };
 
