@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Collection;
 
+use Adaptation\Database\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\ValueObject\QueryParameter;
 use Core\Common\Domain\Collection\Collection;
 use Core\Common\Domain\Exception\CollectionException;
@@ -55,8 +56,65 @@ class QueryParameters extends Collection
     {
         $queryParametersCollection = new QueryParameters();
         foreach ($queryParameters as $queryParameter) {
+            $queryParametersCollection->validateItem($queryParameter);
             $queryParametersCollection->add($queryParameter->name, $queryParameter);
         }
         return $queryParametersCollection;
     }
+
+    /**
+     * @throws CollectionException
+     * @return QueryParameters
+     */
+    public function getIntQueryParameters(): QueryParameters
+    {
+        return $this->filter(function (QueryParameter $queryParameter) {
+            return $queryParameter->type === QueryParameterTypeEnum::INT;
+        });
+    }
+
+    /**
+     * @throws CollectionException
+     * @return QueryParameters
+     */
+    public function getStringQueryParameters(): QueryParameters
+    {
+        return $this->filter(function (QueryParameter $queryParameter) {
+            return $queryParameter->type === QueryParameterTypeEnum::STRING;
+        });
+    }
+
+    /**
+     * @throws CollectionException
+     * @return QueryParameters
+     */
+    public function getBoolQueryParameters(): QueryParameters
+    {
+        return $this->filter(function (QueryParameter $queryParameter) {
+            return $queryParameter->type === QueryParameterTypeEnum::BOOL;
+        });
+    }
+
+    /**
+     * @throws CollectionException
+     * @return QueryParameters
+     */
+    public function getNullQueryParameters(): QueryParameters
+    {
+        return $this->filter(function (QueryParameter $queryParameter) {
+            return $queryParameter->type === QueryParameterTypeEnum::NULL;
+        });
+    }
+
+    /**
+     * @throws CollectionException
+     * @return QueryParameters
+     */
+    public function getLargeObjectQueryParameters(): QueryParameters
+    {
+        return $this->filter(function (QueryParameter $queryParameter) {
+            return $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT;
+        });
+    }
+
 }

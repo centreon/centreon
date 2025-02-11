@@ -30,7 +30,7 @@ namespace Adaptation\Database\Enum;
  * @package Adaptation\Database\Enum
  * @todo    to complete with others database drivers like mysqli, pdo_pgsql, pdo_sqlite,...
  */
-enum ConnectionDriver: string
+enum ConnectionDriverEnum: string
 {
     case DRIVER_MYSQL = 'pdo_mysql';
 }

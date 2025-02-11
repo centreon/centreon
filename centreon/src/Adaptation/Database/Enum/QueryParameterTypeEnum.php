@@ -29,7 +29,7 @@ namespace Adaptation\Database\Enum;
  * @class   ParameterType
  * @package Adaptation\Database
  */
-enum ParameterType: int
+enum QueryParameterTypeEnum: int
 {
     /**
      * Represents the SQL NULL data type.

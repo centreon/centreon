@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Model;
 
-use Adaptation\Database\Enum\ConnectionDriver;
+use Adaptation\Database\Enum\ConnectionDriverEnum;
 
 /**
  * Class
@@ -36,28 +36,28 @@ final readonly class ConnectionConfig
     /**
      * ConnectionConfig constructor
      *
-     * @param string           $host
-     * @param string           $user
-     * @param string           $password
-     * @param string           $databaseName
-     * @param ConnectionDriver $driver
-     * @param string           $charset
-     * @param int              $port
+     * @param string               $host
+     * @param string               $user
+     * @param string               $password
+     * @param string               $databaseName
+     * @param ConnectionDriverEnum $driver
+     * @param string               $charset
+     * @param int                  $port
      */
     public function __construct(
         private string $host,
         private string $user,
         private string $password,
         private string $databaseName,
-        private ConnectionDriver $driver,
+        private ConnectionDriverEnum $driver,
         private string $charset = '',
         private int $port = 0
     ) {}
 
     /**
-     * @return ConnectionDriver
+     * @return ConnectionDriverEnum
      */
-    public function getDriver(): ConnectionDriver
+    public function getDriver(): ConnectionDriverEnum
     {
         return $this->driver;
     }

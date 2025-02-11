@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\ValueObject;
 
-use Adaptation\Database\Enum\ParameterType;
+use Adaptation\Database\Enum\QueryParameterTypeEnum;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\ValueObject\ValueObjectInterface;
 
@@ -41,16 +41,16 @@ class QueryParameter implements ValueObjectInterface
      *
      * Example: new QueryParameter('name', 'value', ParameterType::STRING);
      *
-     * @param string        $name
-     * @param mixed         $value
-     * @param ParameterType $type
+     * @param string                      $name
+     * @param mixed                       $value
+     * @param QueryParameterTypeEnum|null $type
      *
      * @throws ValueObjectException
      */
     private function __construct(
         public string $name,
         public mixed $value,
-        public ParameterType $type
+        public ?QueryParameterTypeEnum $type = null
     ) {
         if (empty($name)) {
             throw new ValueObjectException('Name of QueryParameter cannot be empty');
@@ -58,10 +58,26 @@ class QueryParameter implements ValueObjectInterface
         if (is_object($value)) {
             throw new ValueObjectException('Value of QueryParameter cannot be an object');
         }
+        if ($type === QueryParameterTypeEnum::LARGE_OBJECT && !is_string($value) && !is_resource($value)) {
+            throw new ValueObjectException('Value of QueryParameter with type LARGE_OBJECT must be a string or a resource');
+        }
     }
 
     /**
-     * Example : QueryParameter::integer('name', 1);
+     * @param string                      $name
+     * @param mixed                       $value
+     * @param QueryParameterTypeEnum|null $type
+     *
+     * @throws ValueObjectException
+     * @return QueryParameter
+     */
+    public static function create(string $name, mixed $value, ?QueryParameterTypeEnum $type = null): QueryParameter
+    {
+        return new static($name, $value, $type);
+    }
+
+    /**
+     * Example : QueryParameter::int('name', 1);
      *
      * @param string $name
      * @param int    $value
@@ -69,9 +85,9 @@ class QueryParameter implements ValueObjectInterface
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function integer(string $name, int $value): QueryParameter
+    public static function int(string $name, int $value): QueryParameter
     {
-        return new static($name, $value, ParameterType::INT);
+        return static::create($name, $value, QueryParameterTypeEnum::INT);
     }
 
     /**
@@ -85,11 +101,11 @@ class QueryParameter implements ValueObjectInterface
      */
     public static function string(string $name, string $value): QueryParameter
     {
-        return new static($name, $value, ParameterType::STRING);
+        return static::create($name, $value, QueryParameterTypeEnum::STRING);
     }
 
     /**
-     * Example : QueryParameter::boolean('name', true);
+     * Example : QueryParameter::bool('name', true);
      *
      * @param string $name
      * @param bool   $value
@@ -97,22 +113,22 @@ class QueryParameter implements ValueObjectInterface
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function boolean(string $name, bool $value): QueryParameter
+    public static function bool(string $name, bool $value): QueryParameter
     {
-        return new static($name, $value, ParameterType::BOOL);
+        return static::create($name, $value, QueryParameterTypeEnum::BOOL);
     }
 
     /**
-     * Example : QueryParameter::nullable('name');
+     * Example : QueryParameter::null('name');
      *
      * @param string $name
      *
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function nullable(string $name): QueryParameter
+    public static function null(string $name): QueryParameter
     {
-        return new static($name, null, ParameterType::NULL);
+        return static::create($name, null, QueryParameterTypeEnum::NULL);
     }
 
     /**
@@ -126,10 +142,7 @@ class QueryParameter implements ValueObjectInterface
      */
     public static function largeObject(string $name, mixed $value): QueryParameter
     {
-        if (! is_string($value) && ! is_resource($value)) {
-            throw new ValueObjectException('Value of a Large Object QueryParameter cannot be a ' . gettype($value));
-        }
-        return new static($name, $value, ParameterType::LARGE_OBJECT);
+        return static::create($name, $value, QueryParameterTypeEnum::LARGE_OBJECT);
     }
 
     /**
@@ -155,5 +168,29 @@ class QueryParameter implements ValueObjectInterface
         }
 
         return "$this" === "$object";
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return QueryParameterTypeEnum|null
+     */
+    public function getType(): ?QueryParameterTypeEnum
+    {
+        return $this->type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValue(): mixed
+    {
+        return $this->value;
     }
 }
