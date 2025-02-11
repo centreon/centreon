@@ -51,6 +51,7 @@ const DuplicateDialog = (): JSX.Element => {
       </Modal.Header>
       <Modal.Body>
         <Typography
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
           dangerouslySetInnerHTML={{
             __html: equals(count, 1)
               ? t(labelDuplicateResourceConfirmation(labelResourceType), {

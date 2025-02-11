@@ -34,6 +34,7 @@ const DeleteDialog = (): JSX.Element => {
       <Modal.Header>{t(labelDeleteResource(labelResourceType))}</Modal.Header>
       <Modal.Body>
         <Typography
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
           dangerouslySetInnerHTML={{
             __html: equals(count, 1)
               ? t(labelDeleteResourceConfirmation(labelResourceType), { name })
