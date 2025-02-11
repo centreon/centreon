@@ -4,16 +4,16 @@ import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../../../atoms';
 
-interface UseDeleteProps {
+interface UseDeleteOneProps {
   deleteOneMutation: ({ id }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
 
-const useDelete = (): UseDeleteProps => {
+const useDeleteOne = (): UseDeleteOneProps => {
   const queryClient = useQueryClient();
 
   const configuration = useAtomValue(configurationAtom);
-  const endpoint = configuration?.endpoints?.deleteOne;
+  const endpoint = configuration?.api?.endpoints?.deleteOne;
 
   const { isMutating, mutateAsync } = useMutationQuery({
     getEndpoint: endpoint,
@@ -37,4 +37,4 @@ const useDelete = (): UseDeleteProps => {
   };
 };
 
-export default useDelete;
+export default useDeleteOne;

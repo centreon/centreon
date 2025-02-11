@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
+import { useTheme } from '@mui/material';
 import { useNavigate } from 'react-router';
 import { configurationAtom } from '../../atoms';
 import { dialogStateAtom } from '../Modal/atoms';
@@ -22,10 +23,12 @@ interface UseListing {
   sortf: string;
   sorto: 'asc' | 'desc';
   openEditModal: (row) => void;
+  rowColorConditions;
 }
 
 const useListing = (): UseListing => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { showWarningMessage } = useSnackbar();
   const navigate = useNavigate();
 
@@ -75,6 +78,14 @@ const useListing = (): UseListing => {
     });
   };
 
+  const rowColorConditions = [
+    {
+      color: theme.palette.action.disabledBackground,
+      condition: ({ isActivated }): boolean => !isActivated,
+      name: 'is_enabled'
+    }
+  ];
+
   return {
     changePage,
     changeSort,
@@ -85,7 +96,8 @@ const useListing = (): UseListing => {
     setLimit,
     sortf,
     sorto,
-    openEditModal
+    openEditModal,
+    rowColorConditions
   };
 };
 

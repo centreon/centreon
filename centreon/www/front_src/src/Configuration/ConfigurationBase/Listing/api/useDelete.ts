@@ -12,7 +12,7 @@ interface UseDeleteProps {
 const useDelete = (): UseDeleteProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.endpoints?.delete;
+  const endpoint = configuration?.api?.endpoints?.delete;
 
   const queryClient = useQueryClient();
 

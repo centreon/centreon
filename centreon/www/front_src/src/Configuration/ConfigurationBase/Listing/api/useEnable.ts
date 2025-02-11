@@ -4,15 +4,15 @@ import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../../../atoms';
 
-interface UseDuplicateProps {
+interface UseEnableProps {
   enableMutation: ({ ids }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
 
-const useEnable = (): UseDuplicateProps => {
+const useEnable = (): UseEnableProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.endpoints?.enable;
+  const endpoint = configuration?.api?.endpoints?.enable;
 
   const queryClient = useQueryClient();
 

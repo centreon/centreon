@@ -1,6 +1,7 @@
+import { useEffect, useMemo } from 'react';
+
 import { useAtom } from 'jotai';
 import { isEmpty, not } from 'ramda';
-import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfigurationBase from '../ConfigurationBase';
 import { configurationAtom, filtersAtom } from '../atoms';
@@ -19,6 +20,10 @@ import {
   getHostGroupEndpoint,
   hostGroupsListEndpoint
 } from './api/endpoints';
+
+import Form from './Form/Form';
+
+import { hostGroupsDecoderListDecoder } from './api/decoders';
 import { labelAlias, labelName, labelStatus } from './translatedLabels';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
@@ -65,7 +70,10 @@ const HostGroups = () => {
   useEffect(() => {
     setConfiguration({
       resourceType: ResourceType.HostGroup,
-      endpoints: hostGroupsEndpoints,
+      api: {
+        endpoints: hostGroupsEndpoints,
+        decoders: { getAll: hostGroupsDecoderListDecoder }
+      },
       filtersConfiguration,
       filtersInitialValues,
       defaultSelectedColumnIds
@@ -76,7 +84,7 @@ const HostGroups = () => {
 
   const isConfigurationValid = useMemo(
     () =>
-      configuration?.endpoints &&
+      configuration?.api?.endpoints &&
       configuration?.resourceType &&
       configuration?.filtersConfiguration &&
       configuration?.filtersInitialValues &&
@@ -93,7 +101,7 @@ const HostGroups = () => {
     <ConfigurationBase
       columns={columns}
       resourceType={ResourceType.HostGroup}
-      Form={<div />}
+      Form={<Form />}
     />
   );
 };

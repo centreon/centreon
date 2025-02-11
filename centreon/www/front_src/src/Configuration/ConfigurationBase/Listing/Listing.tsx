@@ -3,10 +3,8 @@ import { Column, MemoizedListing } from '@centreon/ui';
 import { useAtom } from 'jotai';
 import ActionsBar from './ActionsBar/ActionsBar';
 import useColumns from './Columns/useColumns';
-import { selectedRowsAtom } from './atoms';
-
-import { useTheme } from '@mui/material';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
+import { selectedRowsAtom } from './atoms';
 import useListing from './useListing';
 import useLoadData from './useLoadData';
 
@@ -15,8 +13,6 @@ interface Props {
 }
 
 const Listing = ({ columns }: Props): JSX.Element => {
-  const theme = useTheme();
-
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
   const { staticColumns } = useColumns();
@@ -33,16 +29,9 @@ const Listing = ({ columns }: Props): JSX.Element => {
     sortf,
     sorto,
     selectedColumnIds,
-    openEditModal
+    openEditModal,
+    rowColorConditions
   } = useListing();
-
-  const rowColorConditions = [
-    {
-      color: theme.palette.action.disabledBackground,
-      condition: ({ isActivated }): boolean => !isActivated,
-      name: 'is_enabled'
-    }
-  ];
 
   return (
     <>

@@ -28,6 +28,14 @@ export enum FieldType {
   Status = 'status'
 }
 
+interface APIType {
+  endpoints: Endpoints;
+  decoders?: {
+    geOne?;
+    getAll?;
+  };
+}
+
 export interface FilterConfiguration {
   name: string;
   fieldName?: string;
@@ -36,6 +44,7 @@ export interface FilterConfiguration {
 
 export interface Configuration {
   resourceType: ResourceType | null;
+  api: APIType | null;
   endpoints: Endpoints | null;
   filtersConfiguration?: Array<FilterConfiguration>;
   filtersInitialValues;

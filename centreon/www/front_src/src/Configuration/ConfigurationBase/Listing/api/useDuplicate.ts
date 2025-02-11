@@ -12,7 +12,7 @@ interface UseDuplicateProps {
 const useDuplicate = (): UseDuplicateProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.endpoints?.duplicate;
+  const endpoint = configuration?.api?.endpoints?.duplicate;
 
   const queryClient = useQueryClient();
 

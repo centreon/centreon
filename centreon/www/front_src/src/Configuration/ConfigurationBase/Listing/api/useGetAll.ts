@@ -1,14 +1,8 @@
-import {
-  ListingModel,
-  buildListingEndpoint,
-  useFetchQuery
-} from '@centreon/ui';
+import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../../../atoms';
-import { HostGroupListItem } from '../models';
-import { hostGroupsDecoderListDecoder } from './decoders';
 
-interface UseLoadHostGroupsApiProps {
+interface UseGetAllProps {
   sortField: string;
   sortOrder: string;
   page?: number;
@@ -16,21 +10,22 @@ interface UseLoadHostGroupsApiProps {
   searchConditions: Array<unknown>;
 }
 
-const useLoadHostGroupsApi = ({
+const useGetAll = ({
   sortField,
   sortOrder,
   page,
   limit,
   searchConditions
-}: UseLoadHostGroupsApiProps) => {
+}: UseGetAllProps) => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.endpoints?.getAll;
+  const endpoint = configuration?.api?.endpoints?.getAll;
+  const decoder = configuration?.api?.decoders?.getAll;
 
   const sort = { [sortField]: sortOrder };
 
-  const { data, isFetching } = useFetchQuery<ListingModel<HostGroupListItem>>({
-    decoder: hostGroupsDecoderListDecoder,
+  const { data, isFetching } = useFetchQuery({
+    decoder,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: endpoint,
@@ -52,4 +47,4 @@ const useLoadHostGroupsApi = ({
   return { data, isLoading: isFetching };
 };
 
-export default useLoadHostGroupsApi;
+export default useGetAll;
