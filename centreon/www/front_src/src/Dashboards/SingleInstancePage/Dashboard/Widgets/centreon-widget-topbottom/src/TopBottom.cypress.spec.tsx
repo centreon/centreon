@@ -328,7 +328,7 @@ resolutionData.forEach(({ height, width }) => {
 
       cy.makeSnapshotWithCustomResolution({
         resolution: { height, width },
-        title: `${width}px`
+        title: `adapt the resource name area without exceeding the longest name when screen resolution is ${width}px`
       });
     });
 
@@ -343,7 +343,7 @@ resolutionData.forEach(({ height, width }) => {
 
       cy.makeSnapshotWithCustomResolution({
         resolution: { height, width },
-        title: `${width}px`
+        title: `maintain a fixed 24px space between resource name and bar chart when screen resolution is${width}px`
       });
     });
   });
