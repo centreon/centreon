@@ -222,7 +222,7 @@ const useListing = ({
   };
 
   useEffect(() => {
-    if (!hasMetaService) {
+    if (!hasMetaService || !isFromPreview) {
       return;
     }
 
