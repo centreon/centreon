@@ -10,10 +10,6 @@ while true ; do
   if [ $? -eq 124 ]; then
     echo "MySQL query timed out"
     continue
-  elif [ $? -ne 0 ]; then
-    echo "MySQL query failed: $SQL_RESULT"
-    sleep "$POLL_INTERVAL"
-    continue
   fi
   case "$SQL_RESULT" in
     *id*)
