@@ -33,6 +33,7 @@ use Core\Common\Domain\Exception\CollectionException;
  *
  * @class   QueryParameters
  * @package Adaptation\Database\Collection
+ * @extends Collection<QueryParameter>
  */
 class QueryParameters extends Collection
 {

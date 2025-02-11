@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database;
 
+use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Enum\QueryParameterTypeEnum;
@@ -89,7 +90,7 @@ interface ConnectionInterface
     // ----------------------------------------- CUD METHODS ------------------------------------------
 
     /**
-     * To execute all queries except the queries getting results.
+     * To execute all queries except the queries getting results (SELECT).
      *
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
@@ -122,6 +123,20 @@ interface ConnectionInterface
     public function insert(string $query, QueryParameters $queryParameters): int;
 
     /**
+     * Executes an SQL statement with the given parameters and returns the number of affected rows for multiple inserts.
+     *
+     * Could be only used for INSERT.
+     *
+     * @param string                $tableName
+     * @param array                 $columns
+     * @param BatchInsertParameters $batchInsertParameters
+     *
+     * @throws ConnectionException
+     * @return int
+     */
+    public function batchInsert(string $tableName, array $columns, BatchInsertParameters $batchInsertParameters): int;
+
+    /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be only used for UPDATE.
@@ -150,19 +165,6 @@ interface ConnectionInterface
     // --------------------------------------- FETCH METHODS -----------------------------------------
 
     /**
-     * Prepares and executes an SQL query and returns the first row of the result as an associative array.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
-     *
-     * @throws ConnectionException
-     * @return array<string, mixed>|false False is returned if no rows are found.
-     */
-    public function fetchAssociative(string $query, QueryParameters $queryParameters): false | array;
-
-    /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as a numerically indexed array.
      *
@@ -177,6 +179,19 @@ interface ConnectionInterface
     public function fetchNumeric(string $query, QueryParameters $queryParameters): false | array;
 
     /**
+     * Prepares and executes an SQL query and returns the first row of the result as an associative array.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     *
+     * @throws ConnectionException
+     * @return array<string, mixed>|false False is returned if no rows are found.
+     */
+    public function fetchAssociative(string $query, QueryParameters $queryParameters): false | array;
+
+    /**
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
@@ -189,6 +204,20 @@ interface ConnectionInterface
      * @return mixed|false False is returned if no rows are found.
      */
     public function fetchOne(string $query, QueryParameters $queryParameters): mixed;
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of the column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     * @param int             $column
+     *
+     * @throws ConnectionException
+     * @return list<mixed>
+     */
+    public function fetchByColumn(string $query, QueryParameters $queryParameters, int $column = 0): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
@@ -215,6 +244,21 @@ interface ConnectionInterface
      * @return array<array<string,mixed>>
      */
     public function fetchAllAssociative(string $query, QueryParameters $queryParameters): array;
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of associative arrays with the name of the
+     * column as key.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     * @param int             $column
+     *
+     * @throws ConnectionException
+     * @return list<mixed>
+     */
+    public function fetchAllByColumn(string $query, QueryParameters $queryParameters, int $column = 0): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an associative array with the keys
@@ -244,19 +288,6 @@ interface ConnectionInterface
      * @return array<mixed,array<string,mixed>>
      */
     public function fetchAllAssociativeIndexed(string $query, QueryParameters $queryParameters): array;
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an array of the first column values.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
-     *
-     * @throws ConnectionException
-     * @return list<mixed>
-     */
-    public function fetchFirstColumn(string $query, QueryParameters $queryParameters): array;
 
     // --------------------------------------- ITERATE METHODS -----------------------------------------
 
@@ -288,6 +319,20 @@ interface ConnectionInterface
     public function iterateAssociative(string $query, QueryParameters $queryParameters): Traversable;
 
     /**
+     * Prepares and executes an SQL query and returns the result as an iterator over the column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     * @param int             $column
+     *
+     * @throws ConnectionException
+     * @return Traversable<int,list<mixed>>
+     */
+    public function iterateByColumn(string $query, QueryParameters $queryParameters, int $column = 0): Traversable;
+
+    /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys
      * mapped to the first column and the values mapped to the second column.
      *
@@ -316,47 +361,7 @@ interface ConnectionInterface
      */
     public function iterateAssociativeIndexed(string $query, QueryParameters $queryParameters): Traversable;
 
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over the first column values.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
-     *
-     * @throws ConnectionException
-     * @return Traversable<int,mixed>
-     */
-    public function iterateColumn(string $query, QueryParameters $queryParameters): Traversable;
-
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
-
-    /**
-     * Returns the current auto-commit mode for this connection.
-     *
-     * @return bool True if auto-commit mode is currently enabled for this connection, false otherwise.
-     *
-     * @see setAutoCommit
-     */
-    public function isAutoCommit(): bool;
-
-    /**
-     * Sets auto-commit mode for this connection.
-     *
-     * If a connection is in auto-commit mode, then all its SQL statements will be executed and committed as individual
-     * transactions. Otherwise, its SQL statements are grouped into transactions that are terminated by a call to either
-     * the method commit or the method rollback. By default, new connections are in auto-commit mode.
-     *
-     * NOTE: If this method is called during a transaction and the auto-commit mode is changed, the transaction is
-     * committed. If this method is called and the auto-commit mode is not changed, the call is a no-op.
-     *
-     * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
-     *
-     * @throws ConnectionException
-     * @return void
-     *
-     */
-    public function setAutoCommit(bool $autoCommit): void;
 
     /**
      * Checks whether a transaction is currently active.
@@ -369,12 +374,6 @@ interface ConnectionInterface
      * Opens a new transaction. This must be closed by calling one of the following methods:
      * {@see commit} or {@see rollBack}
      *
-     * Note that it is possible to create nested transactions, but that data will only be written to the database when
-     * the level 1 transaction is committed.
-     *
-     * Similarly, if a rollback occurs in a nested transaction, the level 1 transaction will also be rolled back and
-     * no data will be updated.
-     *
      * @throws ConnectionException
      * @return void
      *
@@ -385,19 +384,19 @@ interface ConnectionInterface
      * To validate a transaction.
      *
      * @throws ConnectionException
-     * @return void
+     * @return bool
      *
      */
-    public function commit(): void;
+    public function commit(): bool;
 
     /**
      * To cancel a transaction.
      *
      * @throws ConnectionException
-     * @return void
+     * @return bool
      *
      */
-    public function rollBack(): void;
+    public function rollBack(): bool;
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,10 @@
  *
  */
 
+use Adaptation\Database\Collection\BatchInsertParameters;
+use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ConnectionInterface;
+use Adaptation\Database\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Exception\ConnectionException;
 
 // file centreon.config.php may not exist in test environment
@@ -148,10 +151,9 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
         } catch (Exception $e) {
             $this->writeDbLog(
-                "Unable to connect to database : {$e->getMessage()}",
-                ['dsn_mysql' => $this->dbConfig->getMysqlDsn()],
-                exception: $e,
-                level: CentreonLog::LEVEL_CRITICAL
+                message: "Unable to connect to database : {$e->getMessage()}",
+                customContext: ['dsn_mysql' => $this->dbConfig->getMysqlDsn()],
+                previous: $e,
             );
             if (PHP_SAPI !== "cli") {
                 $this->displayConnectionErrorPage(
@@ -226,6 +228,10 @@ class CentreonDB extends PDO implements ConnectionInterface
         try {
             return (string) $this->lastInsertId();
         } catch (Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to get last insert id",
+                previous: $e,
+            );
             throw ConnectionException::getLastInsertFailed($e);
         }
     }
@@ -238,10 +244,16 @@ class CentreonDB extends PDO implements ConnectionInterface
     public function isConnected(): bool
     {
         try {
-            $this->executeQuery('SELECT 1');
+            $this->executeSelectQuery('SELECT 1');
 
             return true;
-        } catch (CentreonDbException $e) {
+        } catch (ConnectionException $e) {
+            $this->writeDbLog(
+                message: "Unable to execute select query",
+                query: 'SELECT 1',
+                previous: $e,
+            );
+
             return false;
         }
     }
@@ -261,37 +273,74 @@ class CentreonDB extends PDO implements ConnectionInterface
     // --------------------------------------- CUD METHODS -----------------------------------------
 
     /**
+     * To execute all queries except the queries getting results (SELECT).
+     *
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
-     * Could be only used for DELETE.
+     * Could be used for:
+     *  - DML statements: INSERT, UPDATE, DELETE
+     *  - DDL statements: CREATE, DROP, ALTER, etc.
+     *  - DCL statements: GRANT, REVOKE, etc.
+     *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
+     *  - Other statements that don't yield a row set.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return int
      */
-    public function delete(string $query, array $bindParams, bool $withParamType = false): int
+    public function executeStatement(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            $this->validateQueryString($query, 'DELETE', true);
-            $stmt = $this->prepareQuery($query);
-            $this->executePreparedQuery($stmt, $bindParams, $withParamType);
+            if (empty($query)) {
+                throw ConnectionException::notEmptyQuery();
+            }
 
-            return $stmt->rowCount();
-        } catch (CentreonDbException $e) {
-            $this->logAndCreateException(
-                "Error while deleting data : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            if (str_starts_with($query, 'SELECT')) {
+                throw ConnectionException::executeStatementBadFormat(
+                    "Cannot use it with a SELECT query",
+                    $query
+                );
+            }
+
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+
+            try {
+                $pdoStatement = $this->prepareQuery($query);
+            } catch (CentreonDbException $e) {
+                throw ConnectionException::executeStatementFailed($e, $query, $queryParameters);
+            }
+
+            if (! is_null($queryParameters)) {
+                foreach ($queryParameters->getIterator() as $queryParameter) {
+                    $pdoStatement->bindValue(
+                        $queryParameter->getName(),
+                        $queryParameter->getValue(),
+                        ($queryParameter->getType() !== null) ?
+                            $queryParameter->getType()->getValue() : QueryParameterTypeEnum::STRING
+                    );
+                }
+            }
+
+            $pdoStatement->execute();
+
+            return $pdoStatement->rowCount();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to execute statement",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::executeStatementFailed($e, $query, $queryParameters);
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->logger],
+            ]);
         }
     }
 
@@ -300,134 +349,92 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used for INSERT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return int
      */
-    public function insert(string $query, array $bindParams, bool $withParamType = false): int
+    public function insert(string $query, QueryParameters $queryParameters): int
     {
         try {
-            $this->validateQueryString($query, 'INSERT INTO', true);
-            $stmt = $this->prepareQuery($query);
-            $this->executePreparedQuery($stmt, $bindParams, $withParamType);
+            if (! str_starts_with($query, 'INSERT INTO ')
+                || ! str_starts_with($query, 'insert into ')
+            ) {
+                throw ConnectionException::insertQueryBadFormat($query);
+            }
 
-            return $stmt->rowCount();
-        } catch (CentreonDbException $e) {
-            $this->logAndCreateException(
-                "Error while inserting data : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            return $this->executeStatement($query, $queryParameters);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to execute insert query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::insertQueryFailed($e, $query, $queryParameters);
         }
     }
 
     /**
-     * Executes an SQL statement with the given parameters and returns the number of affected rows.
+     * Executes an SQL statement with the given parameters and returns the number of affected rows for multiple inserts.
      *
      * Could be only used for several INSERT.
      *
      * This method supports PDO binding types.
      *
-     * @param string $tableName
-     * @param array  $columns
-     * @param array  $bindParams    An array of arrays of bind parameters wth the same length as $columns. The keys must
-     *                              be the same as the columns.
-     * @param bool   $withParamType If true, $bindParams must have an array of arrays like
-     *                              ['column => ['value', PDO::PARAM_*]]
+     * @param string                $tableName
+     * @param array                 $columns
+     * @param BatchInsertParameters $batchInsertParameters
      *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return int
      */
-    public function iterateInsert(
-        string $tableName,
-        array $columns,
-        array $bindParams,
-        bool $withParamType = false
-    ): int {
+    public function batchInsert(string $tableName, array $columns, BatchInsertParameters $batchInsertParameters): int
+    {
         try {
             if (empty($tableName)) {
-                throw new CentreonDbException(
-                    'Table name must not be empty',
-                    ['table_name' => $tableName]
-                );
+                throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
             }
             if (empty($columns)) {
-                throw new CentreonDbException(
-                    'Columns must not be empty',
-                    ['columns' => $columns]
-                );
+                throw ConnectionException::batchInsertQueryBadUsage('Columns must not be empty');
             }
-            if (empty($bindParams)) {
-                throw new CentreonDbException(
-                    'Bind parameters must not be empty',
-                    ['bind_params' => $bindParams]
-                );
+            if ($batchInsertParameters->isEmpty()) {
+                throw ConnectionException::batchInsertQueryBadUsage('Batch insert parameters must not be empty');
             }
-            $bindParamsToExecute = [];
-            $query = "INSERT INTO $tableName (" . implode(', ', $columns) . ") VALUES";
-            for ($i = 0, $iMax = count($bindParams); $i < $iMax; $i++) {
-                if (! is_array($bindParams[$i])) {
-                    throw new CentreonDbException(
-                        '$bindParams must be an array of arrays',
-                        ['bin_params_in_error' => $bindParams[$i], 'bind_params' => $bindParams]
-                    );
-                }
-                if (count($columns) !== count($bindParams[$i])) {
-                    throw new CentreonDbException(
-                        'Columns and bind parameters must have the same length',
-                        ['columns' => $columns, 'bin_params_in_error' => $bindParams[$i], 'bind_params' => $bindParams]
-                    );
-                }
-                if ($i > 0) {
-                    $query .= ',';
-                }
-                $query .= '(:' . implode('_' . $i . ', :', $columns) . '_' . $i . ')';
-                foreach ($columns as $column) {
-                    if (! isset($bindParams[$i][$column])) {
-                        throw new CentreonDbException(
-                            "Column $column is not set in bindParams",
-                            ['column' => $column, 'bind_params_in_error' => $bindParams[$i]]
-                        );
-                    }
-                    if (! $withParamType) {
-                        $bindParamsToExecute[$column . '_' . $i] = $bindParams[$i][$column];
-                    } else {
-                        if (! is_array($bindParams[$i][$column]) || count($bindParams[$i][$column]) !== 2) {
-                            throw new CentreonDbException(
-                                "Column $column is not set correctly in bindParams, it must be an array with value and type",
-                                ['column' => $column, 'bind_params_in_error' => $bindParams[$i]]
-                            );
-                        }
-                        $bindParamsToExecute[$column . '_' . $i] = [
-                            $bindParams[$i][$column][0],
-                            $bindParams[$i][$column][1]
-                        ];
-                    }
-                }
-            }
-            $stmt = $this->prepareQuery($query);
-            $this->executePreparedQuery($stmt, $bindParamsToExecute, $withParamType);
 
-            return $stmt->rowCount();
+            $query = "INSERT INTO $tableName (" . implode(', ', $columns) . ") VALUES";
+
+            $valuesInsert = [];
+            $queryParametersToInsert = new QueryParameters([]);
+
+            foreach ($batchInsertParameters->getIterator() as $queryParameters) {
+                if ($queryParameters->empty()) {
+                    throw ConnectionException::batchInsertQueryBadUsage('Query parameters must not be empty');
+                }
+                if (count($columns) !== $queryParameters->length()) {
+                    throw ConnectionException::batchInsertQueryBadUsage(
+                        'Columns and query parameters must have the same length'
+                    );
+                }
+                $valuesInsert[] = '(' . implode(', ', array_fill(0, $queryParameters->length(), '?')) . ')';
+                $queryParametersToInsert = $queryParametersToInsert->mergeWith($queryParameters);
+            }
+            $query .= implode(', ', $valuesInsert);
+
+            return $this->executeStatement($query, $queryParametersToInsert);
         } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while iterating insert datas : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
+            $this->writeDbLog(
+                message: "Unable to execute batch insert query",
+                customContext: [
+                    'table_name' => $tableName,
+                    'columns' => $columns,
+                    'batch_insert_parameters' => $batchInsertParameters
                 ],
-                $query ?? '',
-                $e
+                query: $query ?? '',
+                previous: $e,
             );
+            throw ConnectionException::batchInsertQueryFailed($e, $tableName, $columns, $batchInsertParameters);
         }
     }
 
@@ -436,73 +443,66 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used for UPDATE.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return int
      */
-    public function update(string $query, array $bindParams, bool $withParamType = false): int
+    public function update(string $query, QueryParameters $queryParameters): int
     {
         try {
-            $this->validateQueryString($query, 'UPDATE', true);
-            $stmt = $this->prepareQuery($query);
-            $this->executePreparedQuery($stmt, $bindParams, $withParamType);
+            if (! str_starts_with($query, 'UPDATE ')
+                || ! str_starts_with($query, 'update ')
+            ) {
+                throw ConnectionException::updateQueryBadFormat($query);
+            }
 
-            return $stmt->rowCount();
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while updating data : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            return $this->executeStatement($query, $queryParameters);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to execute update query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::updateQueryFailed($e, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Executes an SQL statement with the given parameters and returns the number of affected rows.
+     *
+     * Could be only used for DELETE.
+     *
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     *
+     * @throws ConnectionException
+     * @return int
+     */
+    public function delete(string $query, QueryParameters $queryParameters): int
+    {
+        try {
+            if (! str_starts_with($query, 'DELETE ')
+                || ! str_starts_with($query, 'delete ')
+            ) {
+                throw ConnectionException::deleteQueryBadFormat($query);
+            }
+
+            return $this->executeStatement($query, $queryParameters);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to execute insert query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::deleteQueryFailed($e, $query, $queryParameters);
         }
     }
 
     // --------------------------------------- FETCH METHODS -----------------------------------------
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result as an associative array.
-     *
-     * Could be only used with SELECT.
-     *
-     * This method supports PDO binding types.
-     *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
-     * @return array<string, mixed>|false False is returned if no rows are found.
-     *
-     */
-    public function fetchAssociative(string $query, array $bindParams = [], bool $withParamType = false): false | array
-    {
-        try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_ASSOC);
-
-            return $this->fetch($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAssociative() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
-            );
-        }
-    }
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result
@@ -510,81 +510,120 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
-     *
      */
-    public function fetchNumeric(string $query, array $bindParams = [], bool $withParamType = false): false | array
+    public function fetchNumeric(string $query, QueryParameters $queryParameters): false | array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_NUM);
 
             return $this->fetch($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchNumeric() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch numeric query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchNumericQueryFailed($e, $query, $queryParameters);
         }
     }
 
     /**
-     * Prepares and executes an SQL query and returns the first row of the result as a value of a single column.
+     * Prepares and executes an SQL query and returns the first row of the result as an associative array.
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     * @param int    $column
-     *
-     * @throws CentreonDbException
-     * @return array|bool
+     * @throws ConnectionException
+     * @return array<string, mixed>|false False is returned if no rows are found.
      */
-    public function fetchByColumn(
-        string $query,
-        array $bindParams = [],
-        int $column = 0,
-        bool $withParamType = false
-    ): mixed {
+    public function fetchAssociative(string $query, QueryParameters $queryParameters): false | array
+    {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_COLUMN,
-                [$column]
-            );
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_ASSOC);
 
             return $this->fetch($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchByColumn() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                    'column' => $column,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch associative query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAssociativeQueryFailed($e, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the value of a single column
+     * of the first row of the result.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     *
+     * @throws ConnectionException
+     * @return mixed|false False is returned if no rows are found.
+     */
+    public function fetchOne(string $query, QueryParameters $queryParameters): mixed
+    {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->prepareQuery($query);
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_COLUMN);
+
+            return $this->fetch($pdoStatement)[0] ?? false;
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch one query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::fetchOneQueryFailed($e, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of the column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     * @param int             $column
+     *
+     * @throws ConnectionException
+     * @return list<mixed>
+     */
+    public function fetchByColumn(string $query, QueryParameters $queryParameters, int $column = 0): array
+    {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->prepareQuery($query);
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
+
+            return $this->fetchAll($pdoStatement);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch by column query",
+                customContext: ['query_parameters' => $queryParameters, 'column' => $column],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::fetchByColumnQueryFailed($e, $query, $queryParameters, $column);
         }
     }
 
@@ -593,34 +632,28 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return array<array<int,mixed>>
-     *
      */
-    public function fetchAllNumeric(string $query, array $bindParams = [], bool $withParamType = false): array
+    public function fetchAllNumeric(string $query, QueryParameters $queryParameters): array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_NUM);
 
             return $this->fetchAll($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllNumeric() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all numeric query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAllNumericQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -629,34 +662,28 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return array<array<string,mixed>>
-     *
      */
-    public function fetchAllAssociative(string $query, array $bindParams = [], bool $withParamType = false): array
+    public function fetchAllAssociative(string $query, QueryParameters $queryParameters): array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_ASSOC);
 
             return $this->fetchAll($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllAssociative() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all associative query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAllAssociativeQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -666,46 +693,29 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     * @param int             $column
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     * @param int    $column
-     *
-     * @throws CentreonDbException
-     * @return array<array<string,mixed>>
-     *
+     * @throws ConnectionException
+     * @return list<mixed>
      */
-    public function fetchAllByColumn(
-        string $query,
-        array $bindParams = [],
-        int $column = 0,
-        bool $withParamType = false
-    ): array {
+    public function fetchAllByColumn(string $query, QueryParameters $queryParameters, int $column = 0): array
+    {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_COLUMN,
-                [$column]
-            );
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
 
             return $this->fetchAll($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllByColumn() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                    'column' => $column,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all by column query",
+                customContext: ['query_parameters' => $queryParameters, 'column' => $column],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAllByColumnQueryFailed($e, $query, $queryParameters, $column);
         }
     }
 
@@ -715,39 +725,28 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return array<int|string,mixed>
-     *
      */
-    public function fetchAllKeyValue(string $query, array $bindParams = [], bool $withParamType = false): array
+    public function fetchAllKeyValue(string $query, QueryParameters $queryParameters): array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_KEY_PAIR
-            );
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_KEY_PAIR);
 
             return $this->fetchAll($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllKeyValue() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all key value query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAllKeyValueQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -758,95 +757,65 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return array<mixed,array<string,mixed>>
-     *
      */
-    public function fetchAllAssociativeIndexed(
-        string $query,
-        array $bindParams = [],
-        bool $withParamType = false
-    ): array {
+    public function fetchAllAssociativeIndexed(string $query, QueryParameters $queryParameters): array
+    {
         try {
+            $this->validateSelectQuery($query);
             $data = [];
-            foreach ($this->fetchAllAssociative($query, $bindParams, $withParamType) as $row) {
+            foreach ($this->fetchAllAssociative($query, $queryParameters) as $row) {
                 $data[array_shift($row)] = $row;
             }
 
             return $data;
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllAssociativeIndexed() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all associative indexed query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
-        }
-    }
-
-    /**
-     * Prefer to use fetchNumeric() or fetchAssociative() instead of this method.
-     *
-     * @param PDOStatement $pdoStatement
-     *
-     * @throws CentreonDbException
-     *
-     * @return mixed
-     *
-     * @see fetchNumeric(), fetchAssociative()
-     */
-    public function fetch(PDOStatement $pdoStatement): mixed
-    {
-        try {
-            return $pdoStatement->fetch();
-        } catch (Throwable $e) {
-            $this->closeQuery($pdoStatement);
-            $this->logAndCreateException(
-                "Error while fetching the row : {$e->getMessage()}",
-                [],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * Prefer to use fetchAllNumeric() or fetchAllAssociative() instead of this method.
-     *
-     * @param PDOStatement $pdoStatement
-     *
-     * @throws CentreonDbException
-     *
-     * @return array
-     *
-     * @see fetchAllNumeric(), fetchAllAssociative()
-     */
-    public function fetchAll(PDOStatement $pdoStatement): array
-    {
-        try {
-            return $pdoStatement->fetchAll();
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching all the rows : {$e->getMessage()}",
-                [],
-                $pdoStatement->queryString,
-                $e
-            );
-        } finally {
-            $this->closeQuery($pdoStatement);
+            throw ConnectionException::fetchAllAssociativeIndexedQueryFailed($e, $query, $queryParameters);
         }
     }
 
     // --------------------------------------- ITERATE METHODS -----------------------------------------
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
+     */
+    public function iterateNumeric(string $query, QueryParameters $queryParameters): \Traversable
+    {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->prepareQuery($query);
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_NUM);
+            while (($row = $this->fetch($pdoStatement)) !== false) {
+                yield $row;
+            }
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate numeric query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::iterateNumericQueryFailed($e, $query, $queryParameters);
+        }
+    }
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented
@@ -854,72 +823,29 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
-     * @return Traversable<int,array<string,mixed>>
-     *
+     * @throws ConnectionException
+     * @return \Traversable<int,array<string,mixed>>
      */
-    public function iterateAssociative(string $query, array $bindParams = [], bool $withParamType = false): Traversable
+    public function iterateAssociative(string $query, QueryParameters $queryParameters): \Traversable
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_ASSOC);
             while (($row = $this->fetch($pdoStatement)) !== false) {
                 yield $row;
             }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateAssociative() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate associative query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
-     *
-     * Could be only used with SELECT.
-     *
-     * This method supports PDO binding types.
-     *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
-     * @return Traversable<int,list<mixed>>
-     *
-     */
-    public function iterateNumeric(string $query, array $bindParams = [], bool $withParamType = false): Traversable
-    {
-        try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_NUM);
-            while (($row = $this->fetch($pdoStatement)) !== false) {
-                yield $row;
-            }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateNumeric() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
-            );
+            throw ConnectionException::iterateAssociativeQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -928,47 +854,30 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
+     * @param int             $column
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param int    $column
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
-     * @return Traversable<int,list<mixed>>
-     *
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
      */
-    public function iterateByColumn(
-        string $query,
-        array $bindParams = [],
-        int $column = 0,
-        bool $withParamType = false
-    ): Traversable {
+    public function iterateByColumn(string $query, QueryParameters $queryParameters, int $column = 0): \Traversable
+    {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_COLUMN,
-                [$column]
-            );
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
             while (($row = $this->fetch($pdoStatement)) !== false) {
                 yield $row;
             }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateByColumn() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                    'column' => $column,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate by column query",
+                customContext: ['query_parameters' => $queryParameters, 'column' => $column],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::iterateByColumnQueryFailed($e, $query, $queryParameters, $column);
         }
     }
 
@@ -978,40 +887,29 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
-     * @return Traversable<mixed,mixed>
-     *
+     * @throws ConnectionException
+     * @return \Traversable<mixed,mixed>
      */
-    public function iterateKeyValue(string $query, array $bindParams = [], bool $withParamType = false): Traversable
+    public function iterateKeyValue(string $query, QueryParameters $queryParameters): \Traversable
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_KEY_PAIR
-            );
+            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_KEY_PAIR);
             while (($row = $this->fetch($pdoStatement)) !== false) {
                 yield $row;
             }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateByColumn() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate key value query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::iterateKeyValueQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -1022,456 +920,36 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string          $query
+     * @param QueryParameters $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @throws CentreonDbException
-     * @return Traversable<mixed,array<string,mixed>>
-     *
+     * @throws ConnectionException
+     * @return \Traversable<mixed,array<string,mixed>>
      */
-    public function iterateAssociativeIndexed(
-        string $query,
-        array $bindParams = [],
-        bool $withParamType = false
-    ): Traversable {
+    public function iterateAssociativeIndexed(string $query, QueryParameters $queryParameters): \Traversable
+    {
         try {
-            foreach ($this->iterateAssociative($query, $bindParams, $withParamType) as $row) {
+            $this->validateSelectQuery($query);
+            foreach ($this->iterateAssociative($query, $queryParameters) as $row) {
                 yield [array_shift($row) => $row];
             }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateAssociativeIndexed() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate associative indexed query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::iterateAssociativeIndexedQueryFailed($e, $query, $queryParameters);
         }
-    }
-
-    // --------------------------------------- DDL METHODS -----------------------------------------
-
-    /**
-     * Only for DDL queries (ALTER TABLE, CREATE TABLE, DROP TABLE, CREATE DATABASE, and TRUNCATE TABLE...)
-     *
-     * @param string $query
-     *
-     * @throws CentreonDbException
-     * @return bool
-     */
-    public function updateDatabase(string $query): bool
-    {
-        try {
-            if (empty($query)) {
-                throw new CentreonDbException(
-                    'Query must not be empty',
-                    ['query' => $query]
-                );
-            }
-            $standardQueryStarts = ['SELECT ', 'UPDATE ', 'DELETE ', 'INSERT INTO '];
-            foreach ($standardQueryStarts as $standardQueryStart) {
-                if (
-                    str_starts_with($query, strtolower($standardQueryStart))
-                    || str_starts_with($query, strtoupper($standardQueryStart))
-                ) {
-                    throw new CentreonDbException(
-                        'Query must not to start by SELECT, UPDATE, DELETE or INSERT INTO, this method is only for DDL queries',
-                        ['query' => $query]
-                    );
-                }
-            }
-
-            return $this->exec($query) !== false;
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while updating the database: {$e->getMessage()}",
-                [],
-                $query,
-                $e
-            );
-        }
-    }
-
-    // --------------------------------------- BASE METHODS -----------------------------------------
-
-    /**
-     * @param string $query
-     * @param array  $options
-     *
-     * @throws CentreonDbException
-     * @return PDOStatement|bool
-     */
-    public function prepareQuery(string $query, array $options = []): PDOStatement | bool
-    {
-        try {
-            if (empty($query)) {
-                throw new CentreonDbException(
-                    'Error while preparing query, query must not be empty',
-                    [
-                        'query' => $query,
-                    ]
-                );
-            }
-
-            // here we don't want to use CentreonDbStatement, instead used PDOStatement
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
-
-            return parent::prepare($query, $options);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while preparing the query: {$e->getMessage()}",
-                ['options' => $options],
-                $query,
-                $e
-            );
-        } finally {
-            // here we restart CentreonDbStatement for the other requests
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
-                CentreonDBStatement::class,
-                [$this->logger],
-            ]);
-        }
-    }
-
-    /**
-     * Prepared query.
-     *
-     * Not for DDL queries
-     *
-     * @param PDOStatement $pdoStatement
-     * @param array        $bindParams    It's optional only for SELECT queries
-     * @param bool         $withParamType When $withParamType is true, $bindParams must have an array as value like
-     *                                    ['value', PDO::PARAM_*]
-     *                                    Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
-     * @param int          $fetchMode     Only for the SELECT queries
-     * @param array        $fetchModeArgs
-     *
-     * @throws CentreonDbException
-     * @return bool|PDOStatement If the query is a CUD query, it returns a boolean, if it's a SELECT query, it returns
-     *                           a PDOStatement
-     *
-     */
-    public function executePreparedQuery(
-        PDOStatement $pdoStatement,
-        array $bindParams = [],
-        bool $withParamType = false,
-        int $fetchMode = PDO::FETCH_ASSOC,
-        array $fetchModeArgs = []
-    ): bool | PDOStatement {
-        try {
-            // here we don't want to use CentreonDbStatement, instead used PDOStatement
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
-
-            $isCUD = (
-                str_starts_with($pdoStatement->queryString, 'INSERT INTO ')
-                || str_starts_with($pdoStatement->queryString, 'insert into ')
-                || str_starts_with($pdoStatement->queryString, 'UPDATE ')
-                || str_starts_with($pdoStatement->queryString, 'update ')
-                || str_starts_with($pdoStatement->queryString, 'DELETE ')
-                || str_starts_with($pdoStatement->queryString, 'delete ')
-            );
-
-            if (! $isCUD) {
-                $this->validateQueryString($pdoStatement->queryString, 'SELECT', true);
-            }
-
-            if (($withParamType && $bindParams === []) || ($isCUD && $bindParams === [])) {
-                throw new CentreonDbException(
-                    "Binding parameters are empty",
-                    ['bind_params' => $bindParams]
-                );
-            }
-
-            if ($withParamType) {
-                foreach ($bindParams as $paramName => $bindParam) {
-                    if (is_array($bindParam) && $bindParam !== [] && count($bindParam) === 2) {
-                        $paramValue = $bindParam[0];
-                        $paramType = $bindParam[1];
-                        if (
-                            ! in_array(
-                                $paramType,
-                                [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
-                                true
-                            )
-                        ) {
-                            throw new CentreonDbException(
-                                "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
-                                ['bind_param' => $bindParam]
-                            );
-                        }
-                        $this->makeBindValue($pdoStatement, $paramName, $paramValue, $paramType);
-                    } else {
-                        throw new CentreonDbException(
-                            "Incorrect format for bindParam values, it must to be an array like ['value', PDO::PARAM_*]",
-                            ['bind_params' => $bindParams]
-                        );
-                    }
-                }
-            }
-
-            if ($isCUD) {
-                return ($withParamType) ? $pdoStatement->execute() : $pdoStatement->execute($bindParams);
-            } else {
-                ($withParamType) ? $pdoStatement->execute() : $pdoStatement->execute($bindParams);
-                $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs);
-
-                return $pdoStatement;
-            }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while executing the prepared query: {$e->getMessage()}",
-                ['bind_params' => $bindParams],
-                $pdoStatement->queryString,
-                $e
-            );
-        } finally {
-            // here we restart CentreonDbStatement for the other requests
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
-                CentreonDBStatement::class,
-                [$this->logger],
-            ]);
-        }
-    }
-
-    /**
-     * @param PDOStatement $pdoStatement
-     * @param array|null   $bindParams
-     *
-     * @throws CentreonDbException
-     * @return bool (no signature for this method because of a bug with tests with \Centreon\Test\Mock\CentreonDb::execute())
-     */
-    public function execute(PDOStatement $pdoStatement, ?array $bindParams = null)
-    {
-        try {
-            if ($bindParams === []) {
-                throw new CentreonDbException(
-                    "To execute the query, bindParams must to be an array filled or null, empty array given",
-                    ['bind_params' => $bindParams]
-                );
-            }
-
-            return $pdoStatement->execute($bindParams);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while executing the query: {$e->getMessage()}",
-                ['bind_params' => $bindParams],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * Without prepared query, only for SELECT queries.
-     *
-     * Not used for DDL queries.
-     *
-     * This method does not support PDO binding types.
-     *
-     * @param       $query
-     * @param int   $fetchMode
-     * @param array $fetchModeArgs
-     *
-     * @throws CentreonDbException
-     * @return PDOStatement|bool
-     *
-     */
-    public function executeQuery(
-        $query,
-        int $fetchMode = PDO::FETCH_ASSOC,
-        array $fetchModeArgs = []
-    ): PDOStatement | false {
-        try {
-            if (empty($query)) {
-                throw new CentreonDbException(
-                    'Error while executing query, query must not be empty',
-                    [
-                        'query' => $query,
-                    ]
-                );
-            }
-
-            // here we don't want to use CentreonDbStatement, instead used PDOStatement
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
-            $stmt = $this->prepare($query);
-            $stmt->execute();
-            $stmt->setFetchMode($fetchMode, ...$fetchModeArgs);
-
-            return $stmt;
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while executing the query: {$e->getMessage()}",
-                [
-                    'fetch_mode' => $fetchMode,
-                    'fetch_mode_args' => $fetchModeArgs,
-                ],
-                $query,
-                $e
-            );
-        } finally {
-            // here we restart CentreonDbStatement for the other requests
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
-                CentreonDBStatement::class,
-                [$this->logger],
-            ]);
-        }
-    }
-
-    /**
-     *  Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
-     *
-     * @param PDOStatement $pdoStatement
-     * @param int|string   $paramName
-     * @param mixed        $value
-     * @param int          $type
-     *
-     * @throws CentreonDbException
-     * @return bool
-     */
-    public function makeBindValue(
-        PDOStatement $pdoStatement,
-        int | string $paramName,
-        mixed $value,
-        int $type = PDO::PARAM_STR
-    ): bool {
-        try {
-            if (empty($paramName)) {
-                throw new CentreonDbException(
-                    "paramName must to be filled, empty given",
-                    ['param_name' => $paramName]
-                );
-            }
-            if (
-                ! in_array(
-                    $type,
-                    [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
-                    true
-                )
-            ) {
-                throw new CentreonDbException(
-                    "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
-                    ['param_name' => $paramName]
-                );
-            }
-
-            return $pdoStatement->bindValue($paramName, $value, $type);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while binding value for param {$paramName} : {$e->getMessage()}",
-                [
-                    'param_name' => $paramName,
-                    'param_value' => $value,
-                    'param_type' => $type
-                ],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * @param PDOStatement $pdoStatement
-     * @param int|string   $paramName
-     * @param mixed        $var
-     * @param int          $type
-     * @param int          $maxLength
-     *
-     * @throws CentreonDbException
-     * @return bool
-     */
-    public function makeBindParam(
-        PDOStatement $pdoStatement,
-        int | string $paramName,
-        mixed &$var,
-        int $type = PDO::PARAM_STR,
-        int $maxLength = 0
-    ): bool {
-        try {
-            if (empty($paramName)) {
-                throw new CentreonDbException(
-                    "paramName must to be filled, empty given",
-                    ['param_name' => $paramName]
-                );
-            }
-            if (
-                ! in_array(
-                    $type,
-                    [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
-                    true
-                )
-            ) {
-                throw new CentreonDbException(
-                    "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
-                    ['param_name' => $paramName]
-                );
-            }
-
-            return $pdoStatement->bindParam($paramName, $var, $type, $maxLength);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while binding param {$paramName} : {$e->getMessage()}",
-                [
-                    'param_name' => $paramName,
-                    'param_var' => $var,
-                    'param_type' => $type,
-                    'param_max_length' => $maxLength
-                ],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * @param PDOStatement $pdoStatement
-     *
-     * @throws CentreonDbException
-     * @return bool
-     */
-    public function closeQuery(PDOStatement $pdoStatement): bool
-    {
-        try {
-            return $pdoStatement->closeCursor();
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while closing the PDOStatement cursor: {$e->getMessage()}",
-                [],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * @param string $string
-     * @param int    $type
-     *
-     * @throws CentreonDbException
-     * @return string
-     *
-     * @deprecated Use {@see quote()} instead
-     */
-    public function escapeString(string $string, int $type = PDO::PARAM_STR): string
-    {
-        $quotedString = parent::quote($string, $type);
-        if ($quotedString === false) {
-            throw new CentreonDbException("Error while quoting the string: {$string}");
-        }
-
-        return $quotedString;
     }
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
     /**
-     * Check if a transaction is active or not.
+     * Checks whether a transaction is currently active.
      *
-     * @return bool
+     * @return bool TRUE if a transaction is currently active, FALSE otherwise.
      */
     public function isTransactionActive(): bool
     {
@@ -1482,7 +960,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * Opens a new transaction. This must be closed by calling one of the following methods:
      * {@see commit} or {@see rollBack}
      *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return void
      *
      */
@@ -1490,70 +968,85 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->beginTransaction();
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while starting a transaction: {$e->getMessage()}", [], '', $e);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to start transaction",
+                previous: $e,
+            );
+            throw ConnectionException::startTransactionFailed($e);
         }
     }
 
     /**
      * To validate a transaction.
      *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return bool
-     *
      */
     public function commit(): bool
     {
         try {
             if (! parent::commit()) {
-                throw new CentreonDbException("Error while committing a transaction");
+                throw ConnectionException::commitTransactionFailed();
             }
 
             return true;
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while committing a transaction", [], '', $e);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to commit transaction",
+                previous: $e,
+            );
+            throw ConnectionException::commitTransactionFailed($e);
         }
     }
 
     /**
      * To cancel a transaction.
      *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return bool
-     *
      */
     public function rollBack(): bool
     {
         try {
             if (! parent::rollBack()) {
-                throw new CentreonDbException("Error while rolling back a transaction");
+                throw ConnectionException::rollbackTransactionFailed();
             }
 
             return true;
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while rolling back a transaction", [], '', $e);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to rollback transaction",
+                previous: $e,
+            );
+            throw ConnectionException::rollbackTransactionFailed($e);
         }
     }
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 
     /**
+     * Checks that the connection instance allows the use of unbuffered queries.
+     */
+    public function allowUnbufferedQuery(): void
+    {
+        // PDO is allowed to buffer the queries so return void
+        return;
+    }
+
+    /**
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return void
-     *
      */
     public function startUnbufferedQuery(): void
     {
-        try {
-            if (! $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
-                throw new CentreonDbException("Error while starting an unbuffered query");
-            }
-            $this->isBufferedQueryActive = false;
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while starting an unbuffered query", [], '', $e);
+        if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
+            $this->writeDbLog(message: "Error while starting an unbuffered query");
+            throw ConnectionException::startUnbufferedQueryFailed();
         }
+        $this->isBufferedQueryActive = false;
     }
 
     /**
@@ -1569,24 +1062,311 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      * To close an unbuffered query.
      *
-     * @throws CentreonDbException
+     * @throws ConnectionException
      * @return void
      *
      */
     public function stopUnbufferedQuery(): void
     {
+        if (! $this->isUnbufferedQueryActive()) {
+            $this->writeDbLog(
+                message: "Error while stopping an unbuffered query, no unbuffered query is currently active"
+            );
+            throw ConnectionException::stopUnbufferedQueryFailed(
+                "Error while stopping an unbuffered query, no unbuffered query is currently active"
+            );
+        }
+        if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
+            $this->writeDbLog(message: "Error while stopping an unbuffered query");
+            throw ConnectionException::stopUnbufferedQueryFailed("Error while stopping an unbuffered query");
+        }
+        $this->isBufferedQueryActive = true;
+    }
+
+    // --------------------------------------- BASE METHODS -----------------------------------------
+
+    /**
+     * @param string $query
+     * @param array  $options
+     *
+     * @throws CentreonDbException
+     * @return \PDOStatement|bool
+     */
+    public function prepareQuery(string $query, array $options = []): \PDOStatement | bool
+    {
         try {
-            if (! $this->isUnbufferedQueryActive()) {
+            if (empty($query)) {
                 throw new CentreonDbException(
-                    "Error while stopping an unbuffered query, no unbuffered query is currently active"
+                    'Error while preparing query, query must not be empty',
+                    ['query' => $query]
                 );
             }
-            if (! $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
-                throw new CentreonDbException("Error while stopping an unbuffered query");
+
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+
+            return parent::prepare($query, $options);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while preparing query",
+                query: $query,
+                previous: $e,
+            );
+            throw new CentreonDbException(
+                message: "Error while preparing the query: {$e->getMessage()}",
+                options: ['query' => $query],
+                previous: $e
+            );
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->logger],
+            ]);
+        }
+    }
+
+    /**
+     * Prefer to use fetchNumeric() or fetchAssociative() instead of this method.
+     *
+     * @param \PDOStatement $pdoStatement
+     *
+     * @throws CentreonDbException
+     *
+     * @return mixed
+     *
+     * @see fetchNumeric(), fetchAssociative()
+     */
+    public function fetch(\PDOStatement $pdoStatement): mixed
+    {
+        try {
+            return $pdoStatement->fetch();
+        } catch (\Throwable $e) {
+            $this->closeQuery($pdoStatement);
+            $this->writeDbLog(
+                message: "Error while fetching the row : {$e->getMessage()}",
+                query: $pdoStatement->queryString,
+                previous: $e,
+            );
+            throw new CentreonDbException(
+                message: "Error while fetching the row : {$e->getMessage()}",
+                options: ['query' => $pdoStatement->queryString],
+                previous: $e
+            );
+        }
+    }
+
+    /**
+     * Prefer to use fetchAllNumeric() or fetchAllAssociative() instead of this method.
+     *
+     * @param \PDOStatement $pdoStatement
+     *
+     * @throws CentreonDbException
+     *
+     * @return array
+     *
+     * @see fetchAllNumeric(), fetchAllAssociative()
+     */
+    public function fetchAll(\PDOStatement $pdoStatement): array
+    {
+        try {
+            return $pdoStatement->fetchAll();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while fetching all the rows : {$e->getMessage()}",
+                query: $pdoStatement->queryString,
+                previous: $e,
+            );
+            throw new CentreonDbException(
+                message: "Error while fetching all the rows : {$e->getMessage()}",
+                options: ['query' => $pdoStatement->queryString],
+                previous: $e
+            );
+        } finally {
+            $this->closeQuery($pdoStatement);
+        }
+    }
+
+    /**
+     * @param \PDOStatement $pdoStatement
+     * @param array|null    $bindParams
+     *
+     * @throws CentreonDbException
+     * @return bool (no signature for this method because of a bug with tests with \Centreon\Test\Mock\CentreonDb::execute())
+     */
+    public function execute(\PDOStatement $pdoStatement, ?array $bindParams = null)
+    {
+        try {
+            if ($bindParams === []) {
+                throw new CentreonDbException(
+                    "To execute the query, bindParams must to be an array filled or null, empty array given",
+                    ['bind_params' => $bindParams]
+                );
             }
-            $this->isBufferedQueryActive = true;
+
+            return $pdoStatement->execute($bindParams);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while executing the query : {$e->getMessage()}",
+                customContext: ['bind_params' => $bindParams],
+                query: $pdoStatement->queryString,
+                previous: $e,
+            );
+            throw new CentreonDbException(
+                message: "Error while executing the query : {$e->getMessage()}",
+                options: ['query' => $pdoStatement->queryString, 'bind_params' => $bindParams],
+                previous: $e
+            );
+        }
+    }
+
+    /**
+     *  Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
+     *
+     * @param \PDOStatement $pdoStatement
+     * @param int|string    $paramName
+     * @param mixed         $value
+     * @param int           $type
+     *
+     * @throws CentreonDbException
+     * @return bool
+     */
+    public function makeBindValue(
+        \PDOStatement $pdoStatement,
+        int | string $paramName,
+        mixed $value,
+        int $type = \PDO::PARAM_STR
+    ): bool {
+        try {
+            if (empty($paramName)) {
+                throw new CentreonDbException(
+                    "paramName must to be filled, empty given",
+                    ['param_name' => $paramName]
+                );
+            }
+            if (
+                ! in_array(
+                    $type,
+                    [\PDO::PARAM_STR, \PDO::PARAM_BOOL, \PDO::PARAM_INT, \PDO::PARAM_NULL],
+                    true
+                )
+            ) {
+                throw new CentreonDbException(
+                    "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
+                    ['param_name' => $paramName]
+                );
+            }
+
+            return $pdoStatement->bindValue($paramName, $value, $type);
         } catch (Throwable $e) {
-            $this->logAndCreateException("Error while stopping an unbuffered query", [], '', $e);
+            $this->writeDbLog(
+                message: "Error while binding value for param {$paramName} : {$e->getMessage()}",
+                customContext: [
+                    'param_name' => $paramName,
+                    'param_value' => $value,
+                    'param_type' => $type
+                ],
+                query: $pdoStatement->queryString,
+                previous: $e,
+            );
+            throw new CentreonDbException(
+                message: "Error while binding value for param {$paramName} : {$e->getMessage()}",
+                options: [
+                    'query' => $pdoStatement->queryString,
+                    'param_name' => $paramName,
+                    'param_value' => $value,
+                    'param_type' => $type
+                ],
+                previous: $e
+            );
+        }
+    }
+
+    /**
+     * @param \PDOStatement $pdoStatement
+     * @param int|string    $paramName
+     * @param mixed         $var
+     * @param int           $type
+     * @param int           $maxLength
+     *
+     * @throws CentreonDbException
+     * @return bool
+     */
+    public function makeBindParam(
+        \PDOStatement $pdoStatement,
+        int | string $paramName,
+        mixed &$var,
+        int $type = \PDO::PARAM_STR,
+        int $maxLength = 0
+    ): bool {
+        try {
+            if (empty($paramName)) {
+                throw new CentreonDbException(
+                    "paramName must to be filled, empty given",
+                    ['param_name' => $paramName]
+                );
+            }
+            if (
+                ! in_array(
+                    $type,
+                    [\PDO::PARAM_STR, \PDO::PARAM_BOOL, \PDO::PARAM_INT, \PDO::PARAM_NULL],
+                    true
+                )
+            ) {
+                throw new CentreonDbException(
+                    "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
+                    ['param_name' => $paramName]
+                );
+            }
+
+            return $pdoStatement->bindParam($paramName, $var, $type, $maxLength);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while binding param {$paramName} : {$e->getMessage()}",
+                customContext: [
+                    'param_name' => $paramName,
+                    'param_var' => $var,
+                    'param_type' => $type,
+                    'param_max_length' => $maxLength
+                ],
+                query: $pdoStatement->queryString,
+                previous: $e,
+            );
+            throw new CentreonDbException(
+                message: "Error while binding param {$paramName} : {$e->getMessage()}",
+                options: [
+                    'query' => $pdoStatement->queryString,
+                    'param_name' => $paramName,
+                    'param_var' => $var,
+                    'param_type' => $type,
+                    'param_max_length' => $maxLength
+                ],
+                previous: $e
+            );
+        }
+    }
+
+    /**
+     * @param PDOStatement $pdoStatement
+     *
+     * @throws CentreonDbException
+     * @return bool
+     */
+    public function closeQuery(PDOStatement $pdoStatement): bool
+    {
+        try {
+            return $pdoStatement->closeCursor();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while closing the PDOStatement cursor: {$e->getMessage()}",
+                query: $pdoStatement->queryString,
+                previous: $e,
+            );
+            throw new CentreonDbException(
+                message: "Error while closing the PDOStatement cursor: {$e->getMessage()}",
+                options: ['query' => $pdoStatement->queryString],
+                previous: $e
+            );
         }
     }
 
@@ -1736,13 +1516,13 @@ class CentreonDB extends PDO implements ConnectionInterface
             return 0; // column to add
         } catch (PDOException $e) {
             $this->writeDbLog(
-                'Error while checking if the column exists',
-                [
+                message: 'Error while checking if the column exists',
+                customContext: [
                     'table' => $table,
                     'column' => $column,
                 ],
                 query: $stmt->queryString,
-                exception: $e
+                previous: $e
             );
 
             return -1;
@@ -1840,49 +1620,104 @@ class CentreonDB extends PDO implements ConnectionInterface
             throw new PDOException("Unable to get column type");
         } catch (PDOException $e) {
             $this->writeDbLog(
-                'Error while checking if the column exists',
-                [
+                message: 'Error while checking if the column exists',
+                customContext: [
                     'table' => $tableName,
                     'column' => $columnName,
                 ],
                 query: $stmt->queryString,
-                exception: $e
+                previous: $e
             );
+            return '';
         }
     }
 
     // --------------------------------------- PRIVATE METHODS -----------------------------------------
 
     /**
-     * To easily log and create a CentreonDbException.
+     * To execute all queries starting with SELECT.
      *
-     * @param string         $message
-     * @param array          $context
-     * @param string         $query
-     * @param Throwable|null $exception
+     * Only for SELECT queries.
      *
-     * @throws CentreonDbException
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param int                  $fetchMode
+     * @param array                $fetchModeArgs
+     *
+     * @throws ConnectionException
+     * @return PDOStatement|false
+     */
+    private function executeSelectQuery(
+        string $query,
+        ?QueryParameters $queryParameters = null,
+        int $fetchMode = PDO::FETCH_ASSOC,
+        array $fetchModeArgs = []
+    ): PDOStatement | false {
+        try {
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+
+            try {
+                $pdoStatement = $this->prepareQuery($query);
+            } catch (CentreonDbException $e) {
+                throw ConnectionException::executeStatementFailed(
+                    $e,
+                    $query,
+                    ['query' => $query, 'infos' => $e->getOptions()]
+                );
+            }
+
+            foreach ($queryParameters->getIterator() as $queryParameter) {
+                $pdoStatement->bindValue(
+                    $queryParameter->getName(),
+                    $queryParameter->getValue(),
+                    ($queryParameter->getType() !== null) ?
+                        $queryParameter->getType()->getValue() : QueryParameterTypeEnum::STRING
+                );
+            }
+
+            $pdoStatement->execute();
+            $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs);
+
+            return $pdoStatement;
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while executing the select query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::selectQueryFailed(
+                previous: $e,
+                query: $query,
+                context: [
+                    'query' => $query,
+                    'query_parameters' => $queryParameters,
+                ]
+            );
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->logger],
+            ]);
+        }
+    }
+
+    /**
+     * @param string $query
+     *
+     * @throws ConnectionException
      * @return void
      */
-    private function logAndCreateException(
-        string $message,
-        array $context = [],
-        string $query = '',
-        ?Throwable $exception = null
-    ): void {
-        $this->writeDbLog(
-            $message,
-            $context,
-            query: $query,
-            exception: $exception
-        );
-        $exceptionOptions = array_merge(['query' => $query], $context);
-        if ($exception instanceof PDOException) {
-            $exceptionOptions['pdo_error_code'] = $exception->getCode();
-            $exceptionOptions['pdo_error_infos'] = $exception->errorInfo;
+    private function validateSelectQuery(string $query): void
+    {
+        if (empty($query)) {
+            throw ConnectionException::notEmptyQuery();
         }
-
-        throw new CentreonDbException($message, $exceptionOptions, $exception);
+        if (! str_starts_with($query, 'SELECT')) {
+            throw ConnectionException::selectQueryBadFormat($query);
+        }
     }
 
     /**
@@ -1891,60 +1726,273 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param string         $message
      * @param array          $customContext
      * @param string         $query
-     * @param Throwable|null $exception
-     * @param string         $level
+     * @param Throwable|null $previous
      */
     private function writeDbLog(
         string $message,
         array $customContext = [],
         string $query = '',
-        ?Throwable $exception = null,
-        string $level = CentreonLog::LEVEL_ERROR
+        ?Throwable $previous = null
     ): void {
+        // prepare context of the database exception
+        if ($previous instanceof CentreonDbException) {
+            $dbExceptionContext = $previous->getOptions();
+        } elseif ($previous instanceof ConnectionException) {
+            $dbExceptionContext = $previous->getContext();
+        } elseif ($previous instanceof PDOException) {
+            $dbExceptionContext = ['pdo_error' => $previous->errorInfo];
+        } else {
+            $dbExceptionContext = [];
+        }
+        if (isset($dbExceptionContext['query'])) {
+            unset($dbExceptionContext['query']);
+        }
+
+        // prepare default context
         $defaultContext = ['db_name' => $this->dbConfig->dbName];
         if (! empty($query)) {
             $defaultContext['query'] = $query;
         }
-        if ($exception instanceof PDOException) {
-            $defaultContext['pdo_error_infos'] = $exception->errorInfo;
-            $defaultContext['pdo_error_code'] = $exception->getCode();
-        }
-        $context = array_merge($defaultContext, $customContext);
-        $this->logger->log(CentreonLog::TYPE_SQL, $level, "[CentreonDb] $message", $context, $exception);
-    }
 
-    /**
-     * Validate a SELECT query
-     *
-     * @param string $query
-     * @param string $queryKeyword
-     * @param bool   $checkEmptyQuery
-     *
-     * @throws CentreonDbException
-     */
-    private function validateQueryString(string $query, string $queryKeyword, bool $checkEmptyQuery): void
-    {
-        if ($checkEmptyQuery && empty($query)) {
-            throw new CentreonDbException(
-                'Query must not be empty',
-                ['query' => $query]
-            );
-        }
-        if (
-            ! str_starts_with($query, mb_strtoupper($queryKeyword) . ' ')
-            && ! str_starts_with($query, mb_strtolower($queryKeyword) . ' ')
-        ) {
-            throw new CentreonDbException(
-                'The query must to start by ' . mb_strtoupper($queryKeyword),
-                ['query' => $query]
-            );
-        }
+        $context = array_merge($defaultContext, $customContext, ['db_exception_context' => $dbExceptionContext]);
+
+        $this->logger->log(
+            CentreonLog::TYPE_SQL,
+            CentreonLog::LEVEL_CRITICAL,
+            "[CentreonDb] $message",
+            $context,
+            $previous
+        );
     }
 
     //******************************************** DEPRECATED METHODS ***********************************************//
 
     /**
+     * @param string $string
+     * @param int    $type
+     *
+     * @throws CentreonDbException
+     * @return string
+     *
+     * @deprecated Use {@see quote()} instead
+     */
+    public function escapeString(string $string, int $type = PDO::PARAM_STR): string
+    {
+        $quotedString = parent::quote($string, $type);
+        if ($quotedString === false) {
+            $this->writeDbLog(
+                message: "Error while quoting the string",
+                customContext: ['string' => $string],
+            );
+            throw new CentreonDbException("Error while quoting the string: {$string}");
+        }
+
+        return $quotedString;
+    }
+
+    /**
+     * Without prepared query, only for SELECT queries.
+     *
+     * Not used for DDL queries.
+     *
+     * This method does not support PDO binding types.
+     *
+     * @param       $query
+     * @param int   $fetchMode
+     * @param array $fetchModeArgs
+     *
+     * @throws CentreonDbException
+     * @return PDOStatement|bool
+     *
+     * @deprecated Instead use {@see CentreonDB::fetch***(), CentreonDB::iterate***()}
+     */
+    public function executeQuery(
+        $query,
+        int $fetchMode = PDO::FETCH_ASSOC,
+        array $fetchModeArgs = []
+    ): PDOStatement | false {
+        try {
+            if (empty($query)) {
+                throw new CentreonDbException(
+                    'Error while executing query, query must not be empty',
+                    [
+                        'query' => $query,
+                    ]
+                );
+            }
+
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
+            $stmt = $this->prepare($query);
+            $stmt->execute();
+            $stmt->setFetchMode($fetchMode, ...$fetchModeArgs);
+
+            return $stmt;
+        } catch (Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while executing the query: {$e->getMessage()}",
+                customContext: [
+                    'fetch_mode' => $fetchMode,
+                    'fetch_mode_args' => $fetchModeArgs,
+                ],
+                query: $query,
+                previous: $e,
+            );
+            throw new CentreonDbException(
+                message: "Error while executing the query: {$e->getMessage()}",
+                options: [
+                    'query' => $query,
+                    'fetch_mode' => $fetchMode,
+                    'fetch_mode_args' => $fetchModeArgs,
+                ],
+                previous: $e
+            );
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->logger],
+            ]);
+        }
+    }
+
+
+    /**
+     * When $withParamType is true, $bindParams must have an array as value like ['value', PDO::PARAM_*]
+     * Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
+     *
      * @param PDOStatement $pdoStatement
+     * @param array        $bindParams
+     * @param bool         $withParamType
+     *
+     * @throws CentreonDbException
+     *
+     * @return bool
+     *
+     * @deprecated Instead use {@see CentreonDB::insert(), CentreonDB::update(), CentreonDB::delete(), CentreonDB::fetch***(), CentreonDB::iterate***()}
+     */
+    public function executePreparedQuery(
+        PDOStatement $pdoStatement,
+        array $bindParams,
+        bool $withParamType = false
+    ): bool {
+        try {
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
+
+            if ($bindParams === []) {
+                throw new CentreonDbException(
+                    "Binding parameters are empty",
+                    ['bind_params' => $bindParams]
+                );
+            }
+
+            if (! $withParamType) {
+                return $pdoStatement->execute($bindParams);
+            }
+
+            foreach ($bindParams as $paramName => $bindParam) {
+                if (is_array($bindParam) && $bindParam !== [] && count($bindParam) === 2) {
+                    $paramValue = $bindParam[0];
+                    $paramType = $bindParam[1];
+                    if (
+                        ! in_array(
+                            $paramType,
+                            [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
+                            true
+                        )
+                    ) {
+                        throw new CentreonDbException(
+                            "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
+                            ['bind_param' => $bindParam]
+                        );
+                    }
+                    $this->makeBindValue($pdoStatement, $paramName, $paramValue, $paramType);
+                } else {
+                    throw new CentreonDbException(
+                        "Incorrect format for bindParam values, it must to be an array like ['value', PDO::PARAM_*]",
+                        ['bind_params' => $bindParams]
+                    );
+                }
+            }
+
+            return $pdoStatement->execute();
+        } catch (\Throwable $e) {
+            $message = "Error while executing the prepared query: {$e->getMessage()}";
+            $this->writeDbLog(
+                message: $message,
+                customContext: ['bind_params' => $bindParams, 'with_param_type' => $withParamType],
+                query: $pdoStatement->queryString,
+                previous: $e
+            );
+            throw new CentreonDbException(
+                message: $message,
+                options: [
+                    'query' => $pdoStatement->queryString,
+                    'bind_params' => $bindParams,
+                    'with_param_type' => $withParamType
+                ],
+                previous: $e
+            );
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->logger],
+            ]);
+        }
+    }
+
+    /**
+     * Only for DDL queries (ALTER TABLE, CREATE TABLE, DROP TABLE, CREATE DATABASE, and TRUNCATE TABLE...)
+     *
+     * @param string $query
+     *
+     * @throws CentreonDbException
+     * @return bool
+     *
+     * @deprecated Instead use {@see CentreonDB::executeStatement()}
+     * @see        CentreonDB::executeStatement()
+     */
+    public function updateDatabase(string $query): bool
+    {
+        try {
+            if (empty($query)) {
+                throw new CentreonDbException(
+                    'Query must not be empty',
+                    ['query' => $query]
+                );
+            }
+            $standardQueryStarts = ['SELECT ', 'UPDATE ', 'DELETE ', 'INSERT INTO '];
+            foreach ($standardQueryStarts as $standardQueryStart) {
+                if (
+                    str_starts_with($query, strtolower($standardQueryStart))
+                    || str_starts_with($query, strtoupper($standardQueryStart))
+                ) {
+                    throw new CentreonDbException(
+                        'Query must not to start by SELECT, UPDATE, DELETE or INSERT INTO, this method is only for DDL queries',
+                        ['query' => $query]
+                    );
+                }
+            }
+
+            return $this->exec($query) !== false;
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while updating the database: {$e->getMessage()}",
+                query: $query,
+                previous: $e
+            );
+            throw new CentreonDbException(
+                message: "Error while updating the database: {$e->getMessage()}",
+                options: ['query' => $query,],
+                previous: $e
+            );
+        }
+    }
+
+    /**
+     * @param \PDOStatement $pdoStatement
      * @param int          $column
      *
      * @throws CentreonDbException
@@ -1954,16 +2002,16 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated Instead use {@see CentreonDB::fetchByColumn()}
      * @see        CentreonDB::fetchByColumn()
      */
-    public function fetchColumn(PDOStatement $pdoStatement, int $column = 0): mixed
+    public function fetchColumn(\PDOStatement $pdoStatement, int $column = 0): mixed
     {
         try {
             return $pdoStatement->fetchColumn($column);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $this->closeQuery($pdoStatement);
             $message = "Error while fetching all the rows by column: {$e->getMessage()}";
-            $this->writeDbLog($message, ['column' => $column], query: $pdoStatement->queryString, exception: $e);
+            $this->writeDbLog($message, ['column' => $column], query: $pdoStatement->queryString, previous: $e);
             $options = ['query' => $pdoStatement->queryString];
-            if ($e instanceof PDOException) {
+            if ($e instanceof \PDOException) {
                 $options['pdo_error_code'] = $e->getCode();
                 $options['pdo_error_infos'] = $e->errorInfo;
             }
@@ -1987,7 +2035,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     public function executeQueryFetchColumn(string $query, int $column = 0): array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoSth = $this->executeQuery($query, PDO::FETCH_COLUMN, [$column]);
 
             return $this->fetchAll($pdoSth);
@@ -2017,7 +2065,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     public function executeQueryFetchAll(string $query): array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
+            $this->validateSelectQuery($query);
             $pdoSth = $this->executeQuery($query);
 
             return $this->fetchAll($pdoSth);
@@ -2103,7 +2151,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                     'Error while using CentreonDb::query',
                     ['bind_params' => $parameters],
                     query: $queryString,
-                    exception: $e
+                    previous: $e
                 );
             }
             throw $e;
@@ -2142,7 +2190,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $this->writeDbLog(
                 'Error while using CentreonDb::getAll',
                 query: $query_string,
-                exception: $e
+                previous: $e
             );
             throw new PDOException($e->getMessage(), hexdec($e->getCode()));
         }
