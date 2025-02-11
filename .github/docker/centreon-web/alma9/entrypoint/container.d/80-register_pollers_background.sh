@@ -2,7 +2,7 @@
 
 POLL_INTERVAL=10
 MYSQL_TIMEOUT=5
-RELOAD_WAIT=60
+RESTART_WAIT=60
 
 while true ; do
   sleep "$POLL_INTERVAL"
@@ -18,7 +18,7 @@ while true ; do
         echo "Failed to restart gorgoned"
         continue
       fi
-      sleep "$RELOAD_WAIT"
+      sleep "$RESTART_WAIT"
       ;;
     *)
       echo "No new pollers to register."
