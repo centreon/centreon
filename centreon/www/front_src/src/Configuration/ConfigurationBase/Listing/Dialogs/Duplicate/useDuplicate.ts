@@ -6,12 +6,12 @@ import { useState } from 'react';
 import { hostGroupsToDuplicateAtom, selectedRowsAtom } from '../../atoms';
 import { NamedEntity } from '../../models';
 
-import { equals, pluck } from 'ramda';
-import {
-  labelResourceDuplicated,
-  labelResourcesDuplicated
-} from '../../../translatedLabels';
+import { pluck } from 'ramda';
+import { labelResourceDuplicated } from '../../../translatedLabels';
 import { useDuplicate as useDuplicateRequest } from '../../api';
+
+import { capitalize } from '@mui/material';
+import pluralize from 'pluralize';
 
 interface UseDuplicateProps {
   confirm: () => void;
@@ -39,6 +39,8 @@ const useDuplicate = ({ resourceType }): UseDuplicateProps => {
   const count = hostGroupsToDuplicate.length;
   const name = hostGroupsToDuplicate[0]?.name;
 
+  const labelResourceType = pluralize(capitalize(resourceType), count);
+
   const changeDuplicateCount = (inputValue: number) =>
     setDuplicatesCount(inputValue);
 
@@ -58,12 +60,7 @@ const useDuplicate = ({ resourceType }): UseDuplicateProps => {
       }
 
       resetSelections();
-      showSuccessMessage(
-        t(
-          equals(count, 1) ? labelResourceDuplicated : labelResourcesDuplicated,
-          { resourceType }
-        )
-      );
+      showSuccessMessage(t(labelResourceDuplicated(labelResourceType)));
     });
   };
 

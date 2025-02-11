@@ -1,10 +1,10 @@
 import { ResponseError, useSnackbar } from '@centreon/ui';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
-  labelHostGroupsDisabled,
-  labelHostGroupsEnabled
+  labelResourceDisabled,
+  labelResourceEnabled
 } from '../../../translatedLabels';
 import { useDisable, useEnable } from '../../api';
 import { selectedRowsAtom } from '../../atoms';
@@ -15,15 +15,30 @@ interface UseChangeStatus {
   disable: () => void;
 }
 
+import { capitalize } from '@mui/material';
+import pluralize from 'pluralize';
+import { configurationAtom } from '../../../../atoms';
+
 const useChangeStatus = (): UseChangeStatus => {
   const { t } = useTranslation();
 
   const { showSuccessMessage } = useSnackbar();
 
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
-  const resetSelectedRows = (): void => setSelectedRows([]);
+  const configuration = useAtomValue(configurationAtom);
+
+  const resourceType = configuration?.resourceType;
 
   const selectedRowsIds = selectedRows?.map((row) => row.id);
+
+  const count = selectedRowsIds.length;
+
+  const labelResourceType = pluralize(
+    capitalize(resourceType as string),
+    count
+  );
+
+  const resetSelectedRows = (): void => setSelectedRows([]);
 
   const { enableMutation, isMutating: isEnableMutating } = useEnable();
   const { disableMutation, isMutating: isDisableMutating } = useDisable();
@@ -36,7 +51,8 @@ const useChangeStatus = (): UseChangeStatus => {
       }
 
       resetSelectedRows();
-      showSuccessMessage(t(labelHostGroupsEnabled));
+
+      showSuccessMessage(t(labelResourceEnabled(labelResourceType)));
     });
   };
 
@@ -48,7 +64,8 @@ const useChangeStatus = (): UseChangeStatus => {
       }
 
       resetSelectedRows();
-      showSuccessMessage(t(labelHostGroupsDisabled));
+
+      showSuccessMessage(t(labelResourceDisabled(labelResourceType)));
     });
   };
 

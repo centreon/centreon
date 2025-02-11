@@ -1,6 +1,5 @@
-import { useTranslation } from 'react-i18next';
-
-import { Box, Typography } from '@mui/material';
+import { usePluralizedTranslation } from '@centreon/ui';
+import { Box, Typography, capitalize } from '@mui/material';
 import { ConfigurationBase } from '../models';
 import { Listing } from './Listing';
 import Filters from './Listing/ActionsBar/Filters';
@@ -13,17 +12,23 @@ const Page = ({
   resourceType
 }: ConfigurationBase): JSX.Element => {
   const { classes } = useStyles();
-  const { t } = useTranslation();
+
+  const { pluralizedT } = usePluralizedTranslation();
+
+  const labelTitle = pluralizedT({
+    label: capitalize(resourceType),
+    count: 10
+  });
 
   return (
     <Box className={classes.page}>
       <Box className={classes.pageHeader}>
         <Typography
-          area-label={t(resourceType)}
+          area-label={labelTitle}
           className={classes.title}
           variant="h5"
         >
-          {t(resourceType)}
+          {labelTitle}
         </Typography>
         <Box className={classes.searchBar}>
           <Filters />

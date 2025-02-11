@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ResponseError, useSnackbar } from '@centreon/ui';
@@ -10,6 +10,8 @@ import { useDisable, useEnable } from '../../api';
 
 import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../../../../atoms';
+
+import { capitalize } from '@mui/material';
 
 interface Props {
   change: (e: React.BaseSyntheticEvent) => void;
@@ -25,7 +27,17 @@ const useStatus = ({ row }): Props => {
   const configuration = useAtomValue(configurationAtom);
   const resourceType = configuration?.resourceType;
 
-  const [checked, setChecked] = useState(row?.isActivated);
+  const isActivated = row.isActivated;
+
+  const [checked, setChecked] = useState(isActivated);
+
+  const labelResourceType = capitalize(resourceType as string);
+
+  useEffect(() => {
+    if (isActivated !== checked) {
+      setChecked(isActivated);
+    }
+  }, [isActivated]);
 
   const { enableMutation, isMutating: isEnableMutating } = useEnable();
   const { disableMutation, isMutating: isDisableMutating } = useDisable();
@@ -43,7 +55,7 @@ const useStatus = ({ row }): Props => {
           return;
         }
 
-        showSuccessMessage(t(labelResourceDisabled, { resourceType }));
+        showSuccessMessage(t(labelResourceDisabled(labelResourceType)));
       });
 
       return;
@@ -57,7 +69,7 @@ const useStatus = ({ row }): Props => {
         return;
       }
 
-      showSuccessMessage(t(labelResourceEnabled, { resourceType }));
+      showSuccessMessage(t(labelResourceEnabled(labelResourceType)));
     });
   };
 

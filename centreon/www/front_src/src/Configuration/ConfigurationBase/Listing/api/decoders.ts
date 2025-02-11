@@ -1,20 +1,28 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
-import { HostGroupListItem } from '../models';
+import { HostGroupListItem, IconType } from '../models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
   name: JsonDecoder.string
 };
 
+const iconDecoder = JsonDecoder.object<IconType>(
+  {
+    ...namedEntityDecoder,
+    url: JsonDecoder.optional(JsonDecoder.string)
+  },
+  'Icon'
+);
+
 const hostGroupsDecoder = JsonDecoder.object<HostGroupListItem>(
   {
     ...namedEntityDecoder,
     alias: JsonDecoder.nullable(JsonDecoder.string),
-    enabledHostsCount: JsonDecoder.optional(JsonDecoder.number), // to be changed
-    disabledHostsCount: JsonDecoder.optional(JsonDecoder.number), // to be changed
-    iconUrl: JsonDecoder.optional(JsonDecoder.string), // // to be changed
+    enabledHostsCount: JsonDecoder.optional(JsonDecoder.number),
+    disabledHostsCount: JsonDecoder.optional(JsonDecoder.number),
+    icon: JsonDecoder.optional(iconDecoder),
     isActivated: JsonDecoder.boolean
   },
   'Host group',

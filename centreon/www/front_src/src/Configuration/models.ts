@@ -1,10 +1,10 @@
 import { Column } from '@centreon/ui';
 
 export enum ResourceType {
-  Host = 'Host',
-  Service = 'Service',
-  HostGroup = 'Host group',
-  ServiceGroup = 'Service group'
+  Host = 'host',
+  Service = 'service',
+  HostGroup = 'host group',
+  ServiceGroup = 'service group'
 }
 
 export interface Endpoints {
@@ -23,7 +23,21 @@ export interface ConfigurationBase {
   columns: Array<Column>;
 }
 
+export enum FieldType {
+  Text = 'text',
+  Status = 'status'
+}
+
+export interface FilterConfiguration {
+  name: string;
+  fieldName?: string;
+  fieldType: FieldType;
+}
+
 export interface Configuration {
   resourceType: ResourceType | null;
   endpoints: Endpoints | null;
+  filtersConfiguration?: Array<FilterConfiguration>;
+  filtersInitialValues;
+  defaultSelectedColumnIds: Array<string>;
 }

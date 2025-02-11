@@ -43,7 +43,7 @@ const FormModal = ({ Form }: Props): JSX.Element => {
     >
       <div className={classes.modal}>
         <Modal.Header data-testid="Modal-header">
-          {t(labelHeader, { resourceType })}
+          {t(labelHeader(resourceType))}
         </Modal.Header>
 
         <Modal.Body>{Form}</Modal.Body>

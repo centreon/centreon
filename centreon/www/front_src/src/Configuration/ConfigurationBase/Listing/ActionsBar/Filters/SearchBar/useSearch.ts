@@ -1,14 +1,13 @@
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
-import { filtersAtom } from '../../../atoms';
+import { filtersAtom } from '../../../../../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { FiltersType } from '../../../models';
 
 interface UseSearch {
   onChange: (event) => void;
   onSearch: (event) => void;
-  filters: FiltersType;
+  filters;
 }
 
 const useSearch = (): UseSearch => {

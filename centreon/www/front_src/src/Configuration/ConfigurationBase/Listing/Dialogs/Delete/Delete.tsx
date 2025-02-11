@@ -9,12 +9,12 @@ import {
   labelDelete,
   labelDeleteResource,
   labelDeleteResourceConfirmation,
-  labelDeleteResources,
   labelDeleteResourcesConfirmation
 } from '../../../translatedLabels';
 import useDelete from './useDelete';
 
 import { useAtomValue } from 'jotai';
+import pluralize from 'pluralize';
 import { configurationAtom } from '../../../../atoms';
 
 const DeleteDialog = (): JSX.Element => {
@@ -22,24 +22,24 @@ const DeleteDialog = (): JSX.Element => {
 
   const configuration = useAtomValue(configurationAtom);
 
-  const resourceType = configuration?.resourceType?.toLowerCase();
+  const resourceType = configuration?.resourceType as string;
 
   const { close, confirm, isMutating, hostGroupsToDelete, count, name } =
     useDelete({ resourceType });
 
+  const labelResourceType = pluralize(resourceType, count);
+
   return (
     <Modal open={!isEmpty(hostGroupsToDelete)} size="large" onClose={close}>
-      <Modal.Header>
-        {t(equals(count, 1) ? labelDeleteResource : labelDeleteResources, {
-          resourceType
-        })}
-      </Modal.Header>
+      <Modal.Header>{t(labelDeleteResource(labelResourceType))}</Modal.Header>
       <Modal.Body>
         <Typography
           dangerouslySetInnerHTML={{
             __html: equals(count, 1)
-              ? t(labelDeleteResourceConfirmation, { resourceType, name })
-              : t(labelDeleteResourcesConfirmation, { resourceType, count })
+              ? t(labelDeleteResourceConfirmation(labelResourceType), { name })
+              : t(labelDeleteResourcesConfirmation(labelResourceType), {
+                  count
+                })
           }}
         />
       </Modal.Body>

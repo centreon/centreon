@@ -3,11 +3,16 @@ export type NamedEntity = {
   name: string;
 };
 
+export interface IconType {
+  id: number;
+  name: string;
+  url: string;
+}
 export interface HostGroupListItem extends NamedEntity {
   alias: string | null;
-  enabledHostsCount?: number; // to be changed
-  disabledHostsCount?: number; // to be changed
-  iconUrl?: string | null; // to be changed
+  enabledHostsCount: number;
+  disabledHostsCount: number;
+  icon: IconType | null;
   isActivated: boolean;
 }
 
@@ -20,10 +25,3 @@ export type List<TEntity> = {
   meta: ListMeta;
   result: Array<TEntity>;
 };
-
-export interface FiltersType {
-  name: string;
-  alias: string;
-  enabled: boolean;
-  disabled: boolean;
-}

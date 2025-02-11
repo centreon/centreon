@@ -19736,7 +19736,7 @@ msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôte
 msgid "Add a host group"
 msgstr "Ajouter un groupe d'hôtes"
 
-msgid "Edit a host group"
+msgid "Modify a host group"
 msgstr "Modifier un groupe d'hôtes"
 
 msgid "Host groups duplicated"

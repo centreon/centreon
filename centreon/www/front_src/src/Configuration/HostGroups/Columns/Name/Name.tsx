@@ -9,7 +9,7 @@ const Name = ({
 }: ComponentColumnProps): JSX.Element => {
   const { classes } = useNameStyles({ isHovered });
 
-  const icon = row.icon_url;
+  const icon = row?.icon?.url;
 
   const name = renderEllipsisTypography?.({
     className: classes.resourceNameText,

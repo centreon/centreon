@@ -11,7 +11,6 @@ import {
   labelDuplicate,
   labelDuplicateResource,
   labelDuplicateResourceConfirmation,
-  labelDuplicateResources,
   labelDuplicateResourcesConfirmation,
   labelDuplications
 } from '../../../translatedLabels';
@@ -20,6 +19,7 @@ import useDuplicate from './useDuplicate';
 import { useStyles } from './Duplicate.styles';
 
 import { useAtomValue } from 'jotai';
+import pluralize from 'pluralize';
 import { configurationAtom } from '../../../../atoms';
 
 const DuplicateDialog = (): JSX.Element => {
@@ -29,7 +29,7 @@ const DuplicateDialog = (): JSX.Element => {
 
   const configuration = useAtomValue(configurationAtom);
 
-  const resourceType = configuration?.resourceType?.toLowerCase();
+  const resourceType = configuration?.resourceType as string;
 
   const {
     confirm,
@@ -42,20 +42,23 @@ const DuplicateDialog = (): JSX.Element => {
     name
   } = useDuplicate({ resourceType });
 
+  const labelResourceType = pluralize(resourceType, count);
+
   return (
     <Modal open={!isEmpty(hostGroupsToDuplicate)} size="large" onClose={close}>
       <Modal.Header>
-        {t(
-          equals(count, 1) ? labelDuplicateResource : labelDuplicateResources,
-          { resourceType }
-        )}
+        {t(labelDuplicateResource(labelResourceType))}
       </Modal.Header>
       <Modal.Body>
         <Typography
           dangerouslySetInnerHTML={{
             __html: equals(count, 1)
-              ? t(labelDuplicateResourceConfirmation, { resourceType, name })
-              : t(labelDuplicateResourcesConfirmation, { resourceType, count })
+              ? t(labelDuplicateResourceConfirmation(labelResourceType), {
+                  name
+                })
+              : t(labelDuplicateResourcesConfirmation(labelResourceType), {
+                  count
+                })
           }}
         />
 

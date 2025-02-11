@@ -17977,7 +17977,7 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Add a host group"
 # msgstr ""
 
-# msgid "Edit a host group"
+# msgid "Modify a host group"
 # msgstr ""
 
 # msgid "Host groups duplicated"

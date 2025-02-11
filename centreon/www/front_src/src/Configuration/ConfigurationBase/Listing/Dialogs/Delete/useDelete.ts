@@ -1,4 +1,6 @@
 import { useAtom, useSetAtom } from 'jotai';
+import pluralize from 'pluralize';
+
 import { useTranslation } from 'react-i18next';
 
 import { ResponseError, useSnackbar } from '@centreon/ui';
@@ -7,10 +9,8 @@ import { equals, pluck } from 'ramda';
 import { hostGroupsToDeleteAtom, selectedRowsAtom } from '../../atoms';
 import { NamedEntity } from '../../models';
 
-import {
-  labelResourceDeleted,
-  labelResourcesDeleted
-} from '../../../translatedLabels';
+import { capitalize } from '@mui/material';
+import { labelResourceDeleted } from '../../../translatedLabels';
 import {
   useDeleteOne as useDeleteOneRequest,
   useDelete as useDeleteRequest
@@ -27,6 +27,7 @@ interface UseDeleteState {
 
 const useDelete = ({ resourceType }): UseDeleteState => {
   const { t } = useTranslation();
+
   const { showSuccessMessage } = useSnackbar();
 
   const { deleteMutation, isMutating } = useDeleteRequest();
@@ -42,6 +43,8 @@ const useDelete = ({ resourceType }): UseDeleteState => {
   const count = hostGroupsToDelete.length;
   const ids = pluck('id', hostGroupsToDelete);
 
+  const labelResourceType = pluralize(capitalize(resourceType), count);
+
   const resetSelections = (): void => {
     setHostGroupsToDelete([]);
     setSelectedRows([]);
@@ -56,7 +59,7 @@ const useDelete = ({ resourceType }): UseDeleteState => {
           }
 
           resetSelections();
-          showSuccessMessage(t(labelResourceDeleted, { resourceType }));
+          showSuccessMessage(t(labelResourceDeleted(labelResourceType)));
         })
       : deleteMutation({ ids }).then((response) => {
           const { isError } = response as ResponseError;
@@ -65,7 +68,7 @@ const useDelete = ({ resourceType }): UseDeleteState => {
           }
 
           resetSelections();
-          showSuccessMessage(t(labelResourcesDeleted, { resourceType }));
+          showSuccessMessage(t(labelResourceDeleted(labelResourceType)));
         });
   };
 

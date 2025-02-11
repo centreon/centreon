@@ -8,7 +8,7 @@ import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
 
 import { labelFilters } from '../../../translatedLabels';
 
-import AdditionalFilters from './Filters/Filters';
+import Filters from './Filters/Filters';
 
 const PopoverFilter = (): JSX.Element => {
   const { t } = useTranslation();
@@ -23,7 +23,7 @@ const PopoverFilter = (): JSX.Element => {
         popperPlacement="bottom-end"
         title={t(labelFilters)}
       >
-        {(): JSX.Element => <AdditionalFilters />}
+        {(): JSX.Element => <Filters />}
       </PopoverMenu>
     </Suspense>
   );

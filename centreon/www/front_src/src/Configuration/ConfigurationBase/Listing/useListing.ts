@@ -1,15 +1,15 @@
 import { useState } from 'react';
 
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
 import { useNavigate } from 'react-router';
+import { configurationAtom } from '../../atoms';
 import { dialogStateAtom } from '../Modal/atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
-import { defaultSelectedColumnIds } from './utils';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
@@ -27,8 +27,10 @@ interface UseListing {
 const useListing = (): UseListing => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
-
   const navigate = useNavigate();
+
+  const configuration = useAtomValue(configurationAtom);
+  const defaultSelectedColumnIds = configuration?.defaultSelectedColumnIds;
 
   const [selectedColumnIds, setSelectedColumnIds] = useState(
     defaultSelectedColumnIds
