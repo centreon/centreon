@@ -27,7 +27,6 @@ use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Exception\ConnectionException;
-use Traversable;
 
 /**
  * Interface
@@ -99,13 +98,17 @@ interface ConnectionInterface
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return int
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
-    public function executeStatement(string $query, QueryParameters $queryParameters): int;
+    public function executeStatement(string $query, ?QueryParameters $queryParameters = null): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
@@ -117,13 +120,16 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return int
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->insert('INSERT INTO table (id) VALUES (:id)', $queryParameters);
      */
     public function insert(string $query, QueryParameters $queryParameters): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows for multiple inserts.
      *
-     * Could be only used for INSERT.
+     * Could be only used for several INSERT.
      *
      * @param string                $tableName
      * @param array                 $columns
@@ -131,6 +137,13 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return int
+     *
+     * @example $batchInsertParameters = BatchInsertParameters::create([
+     *              QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]),
+     *              QueryParameters::create([QueryParameter::int('id', 2), QueryParameter::string('name', 'Jean')]),
+     *          ]);
+     *          $nbAffectedRows = $db->batchInsert('table', ['id', 'name'], $batchInsertParameters);
+     *          // $nbAffectedRows = 2
      */
     public function batchInsert(string $tableName, array $columns, BatchInsertParameters $batchInsertParameters): int;
 
@@ -144,6 +157,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return int
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->update('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
     public function update(string $query, QueryParameters $queryParameters): int;
 
@@ -157,6 +174,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return int
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+     *          $nbAffectedRows = $db->delete('DELETE FROM table WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
     public function delete(string $query, QueryParameters $queryParameters): int;
 
@@ -173,6 +194,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+     *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
+     *          // $result = [0 => 1, 1 => 'John', 2 => 'Doe']
      */
     public function fetchNumeric(string $query, QueryParameters $queryParameters): false | array;
 
@@ -186,6 +211,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+     *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
+     *          // $result = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
      */
     public function fetchAssociative(string $query, QueryParameters $queryParameters): false | array;
 
@@ -200,6 +229,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return mixed|false False is returned if no rows are found.
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
+     *          $result = $db->fetchOne('SELECT name FROM table WHERE name = :name', $queryParameters);
+     *          // $result = 'John'
      */
     public function fetchOne(string $query, QueryParameters $queryParameters): mixed;
 
@@ -214,6 +247,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return list<mixed>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchByColumn('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = ['John', 'Jean']
      */
     public function fetchByColumn(string $query, QueryParameters $queryParameters, int $column = 0): array;
 
@@ -227,6 +264,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return array<array<int,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [[0 => 1, 1 => 'John', 2 => 'Doe'], [0 => 2, 1 => 'Jean', 2 => 'Dupont']]
      */
     public function fetchAllNumeric(string $query, QueryParameters $queryParameters): array;
 
@@ -240,6 +281,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return array<array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [['id' => 1, 'name' => 'John', 'surname' => 'Doe'], ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']]
      */
     public function fetchAllAssociative(string $query, QueryParameters $queryParameters): array;
 
@@ -255,6 +300,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return list<mixed>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllByColumn('SELECT * FROM table WHERE active = :active', $queryParameters, 1);
+     *          // $result = ['John', 'Jean']
      */
     public function fetchAllByColumn(string $query, QueryParameters $queryParameters, int $column = 0): array;
 
@@ -269,6 +318,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return array<int|string,mixed>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
+     *          // $result = ['John' => 'Doe', 'Jean' => 'Dupont']
      */
     public function fetchAllKeyValue(string $query, QueryParameters $queryParameters): array;
 
@@ -284,6 +337,10 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return array<mixed,array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [1 => ['name' => 'John', 'surname' => 'Doe'], 2 => ['name' => 'Jean', 'surname' => 'Dupont']]
      */
     public function fetchAllAssociativeIndexed(string $query, QueryParameters $queryParameters): array;
 
@@ -298,9 +355,16 @@ interface ConnectionInterface
      * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
-     * @return Traversable<int,list<mixed>>
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = [0 => 1, 1 => 'John', 2 => 'Doe']
+     *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
+     *          }
      */
-    public function iterateNumeric(string $query, QueryParameters $queryParameters): Traversable;
+    public function iterateNumeric(string $query, QueryParameters $queryParameters): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented
@@ -312,9 +376,16 @@ interface ConnectionInterface
      * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
-     * @return Traversable<int,array<string,mixed>>
+     * @return \Traversable<int,array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
+     *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
+     *          }
      */
-    public function iterateAssociative(string $query, QueryParameters $queryParameters): Traversable;
+    public function iterateAssociative(string $query, QueryParameters $queryParameters): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over the column values.
@@ -326,9 +397,16 @@ interface ConnectionInterface
      * @param int             $column
      *
      * @throws ConnectionException
-     * @return Traversable<int,list<mixed>>
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateByColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $value) {
+     *              // $value = 'John'
+     *              // $value = 'Jean'
+     *          }
      */
-    public function iterateByColumn(string $query, QueryParameters $queryParameters, int $column = 0): Traversable;
+    public function iterateByColumn(string $query, QueryParameters $queryParameters, int $column = 0): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys
@@ -340,9 +418,16 @@ interface ConnectionInterface
      * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
-     * @return Traversable<mixed,mixed>
+     * @return \Traversable<mixed,mixed>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $key => $value) {
+     *              // $key = 'John', $value = 'Doe'
+     *              // $key = 'Jean', $value = 'Dupont'
+     *          }
      */
-    public function iterateKeyValue(string $query, QueryParameters $queryParameters): Traversable;
+    public function iterateKeyValue(string $query, QueryParameters $queryParameters): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
@@ -355,9 +440,16 @@ interface ConnectionInterface
      * @param QueryParameters $queryParameters
      *
      * @throws ConnectionException
-     * @return Traversable<mixed,array<string,mixed>>
+     * @return \Traversable<mixed,array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $key => $row) {
+     *              // $key = 1, $row = ['name' => 'John', 'surname' => 'Doe']
+     *              // $key = 2, $row = ['name' => 'Jean', 'surname' => 'Dupont']
+     *          }
      */
-    public function iterateAssociativeIndexed(string $query, QueryParameters $queryParameters): Traversable;
+    public function iterateAssociativeIndexed(string $query, QueryParameters $queryParameters): \Traversable;
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
