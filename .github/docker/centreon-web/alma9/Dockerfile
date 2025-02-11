@@ -32,7 +32,6 @@ systemctl stop cbd
 systemctl stop httpd
 systemctl stop php-fpm
 systemctl stop snmpd
-systemctl stop nrpe
 
 dnf clean all
 

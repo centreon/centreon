@@ -38,7 +38,6 @@ systemctl stop cbd
 systemctl stop apache2
 systemctl stop php8.2-fpm
 systemctl stop snmpd
-systemctl stop centreon-nrpe4.service
 
 apt-get clean
 
