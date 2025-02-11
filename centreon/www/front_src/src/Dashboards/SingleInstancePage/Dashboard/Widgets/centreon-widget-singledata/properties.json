@@ -15,5 +15,5 @@
   },
   "singleMetricSelection": true,
   "moduleName": "centreon-widget-singledata",
-  "widgetType": "Real time widgets"
+  "widgetType": "realtime"
 }

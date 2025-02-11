@@ -3,5 +3,5 @@
   "description": "This is the description of the text widget",
   "options": {},
   "moduleName": "centreon-widget-text",
-  "widgetType": "Generic widgets"
+  "widgetType": "generic"
 }
