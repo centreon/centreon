@@ -16,6 +16,8 @@ on:
       - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
+      - "!centreon-ha/veracode.json"
+      - "!centreon-ha/.veracode-exclusions"
   push:
     branches:
       - dev-[2-9][0-9].[0-9][0-9].x
@@ -24,6 +26,8 @@ on:
       - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
+      - "!centreon-ha/veracode.json"
+      - "!centreon-ha/.veracode-exclusions"
 
 env:
   module: ha
