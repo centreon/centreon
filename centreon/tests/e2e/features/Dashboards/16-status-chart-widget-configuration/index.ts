@@ -530,7 +530,8 @@ Given('the dashboard administrator adds more than 20 hosts', () => {
     rootItemNumber: 1
   });
   cy.waitForElementToBeVisible('[data-testid="CloseIcon"]');
-  cy.getByTestId({ testId: 'CloseIcon' }).click();
+
+  cy.getByTestId({ testId: 'Clear filter' }).click({force:true});
   cy.exportConfig();
   cy.waitUntil(
     () => {

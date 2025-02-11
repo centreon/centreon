@@ -976,42 +976,21 @@ $tpl->assign('time_unit', ' * ' . $centreon->optGen['interval_length'] . ' ' . _
 $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        if (null !== $hostTplId = insertHostInAPI()) {
+        if (null !== $hostTplId = insertHostInAPI($formData)) {
             $hostObj->setValue($hostTplId);
             $o = null;
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        /*
-         * Before saving, we check if a password macro has changed its name to be able to give it the right password
-         * instead of wildcards (PASSWORD_REPLACEMENT_VALUE).
-         */
-        if (isset($_REQUEST['macroInput'])) {
-            foreach ($_REQUEST['macroInput'] as $index => $macroName) {
-                if (array_key_exists('macroOriginalName_' . $index, $_REQUEST)) {
-                    $originalMacroName = $_REQUEST['macroOriginalName_' . $index];
-                    if ($_REQUEST['macroValue'][$index] === PASSWORD_REPLACEMENT_VALUE) {
-                        /*
-                        * The password has not been changed along with the name, so its value is equal to the wildcard.
-                        * We will therefore recover the password stored for its original name.
-                        */
-                        foreach ($macroArray as $indexMacro => $macroDetails) {
-                            if ($macroDetails['macroInput_#index#'] === $originalMacroName) {
-                                $_REQUEST['macroValue'][$index] = $macroPasswords[$indexMacro]['password'];
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+        if (false !== updateHostInAPI((int) $hostObj->getValue(), $formData)) {
+            $o = null;
+            $valid = true;
         }
-        updateHostInDB($hostObj->getValue());
-        $o = null;
-        $valid = true;
     } elseif ($form->getSubmitValue('submitMC')) {
         foreach (array_keys($select) as $hostTemplateIdToUpdate) {
-            updateHostInDB($hostTemplateIdToUpdate, true);
+            updateHostInDB_MC($hostTemplateIdToUpdate);
         }
         $o = null;
         $valid = true;
