@@ -33,7 +33,7 @@ This can be overrided with environment variable `WEB_IMAGE` using one of the fol
 * Alternative: Add a new line to environment file `.github/docker/.env` with WEB_IMAGE value (ex: `docker.centreon.com/centreon/centreon-web-alma9:MON-XXX`)
 
 > [!NOTE]
-> To get an image of centreon-web on other operating system, web workflow needs to be run on a pull request which has label `system`
+> To get an image of centreon-web on other operating system, web workflow needs to be run on a pull request which has label `system`<br/>
 > Then, following image can be used: `export WEB_IMAGE=docker.centreon.com/centreon/centreon-web-bookworm:MON-XXX`
 
 
@@ -53,6 +53,9 @@ Currently, following profiles exist:
 * `squid-basic-auth`: run a docker image of squid with authentication (centreon configuration must be done manually)
 * `mediawiki`: run a docker image of mediawiki (centreon configuration must be done manually)
 
+> [!NOTE]
+> docker image for `poller` service (`centreon-poller-alma9`) is built on centreon-collect repository<br/>
+
 Multiple profiles can be specified in a single command:
 
 ```bash
@@ -60,14 +63,14 @@ docker compose --profile poller --profile vault -f .github/docker/docker-compose
 ```
 
 4 containers will be instanciated:
-* centreon-web: central server with apache, php-fpm, gorgoned, centreon-engine, centreon-broker
-* database: MariaDB by default
-* centreon-poller: poller with gorgoned, centreon-engine (with cbmod)
-* hashicorp vault
+* **centreon-web**: central server with apache, php-fpm, gorgoned, centreon-engine, centreon-broker
+* **database**: MariaDB by default
+* **centreon-poller**: poller with gorgoned, centreon-engine (with cbmod)
+* **hashicorp vault**
 
 > [!NOTE]
-> Running containers can be listed with the following command: `docker ps`
-> Container terminal can be launched with the following command: `docker exec -ti <container_id> bash`
+> Running containers can be listed with the following command: `docker ps`<br/>
+> Container terminal can be launched with the following command: `docker exec -ti <container_id> bash`<br/>
 > Container logs can be displayed with the following command: `docker logs <container_id>`
 
 

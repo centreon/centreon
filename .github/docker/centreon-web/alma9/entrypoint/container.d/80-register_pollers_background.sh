@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set +x
+
 POLL_INTERVAL=10
 MYSQL_TIMEOUT=5
 RESTART_WAIT=60
