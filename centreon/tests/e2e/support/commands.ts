@@ -11,6 +11,7 @@ import '../features/Ldaps/commands';
 import '../features/Logs/commands';
 import '../features/Services-configuration/commands';
 import '../features/Notifications/commands';
+import '../features/Resources-status/commands';
 import '../features/Commands/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
