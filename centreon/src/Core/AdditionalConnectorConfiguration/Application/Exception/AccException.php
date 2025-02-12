@@ -31,27 +31,27 @@ class AccException extends \Exception
 
     public static function addAcc(): self
     {
-        return new self(_('Error while adding an additional connector configuration'));
+        return new self(_('Error while adding an additional configuration'));
     }
 
     public static function updateAcc(): self
     {
-        return new self(_('Error while updating an additional connector configuration'));
+        return new self(_('Error while updating an additional configuration'));
     }
 
     public static function deleteAcc(): self
     {
-        return new self(_('Error while deleting an additional connector configuration'));
+        return new self(_('Error while deleting an additional configuration'));
     }
 
     public static function findAccs(): self
     {
-        return new self(_('Error while searching for additional connector configurations'));
+        return new self(_('Error while searching for additional configurations'));
     }
 
     public static function accessNotAllowed(): self
     {
-        return new self(_('You are not allowed to access additional connector configurations'));
+        return new self(_('You are not allowed to access additional configurations'));
     }
 
     public static function unsufficientRights(): self
@@ -87,7 +87,7 @@ class AccException extends \Exception
     {
         return new self(
             sprintf(
-                _("An additional connector configuration of type '%s' is already associated with poller ID(s) '%s'"),
+                _("An additional configuration of type '%s' is already associated with poller ID(s) '%s'"),
                 $type->value,
                 implode(',', $invalidPollers)
             ),
@@ -119,13 +119,13 @@ class AccException extends \Exception
 
     public static function errorWhileRetrievingObject(): self
     {
-        return new self(_('Error while retrieving an additional connector configuration'));
+        return new self(_('Error while retrieving an additional configuration'));
     }
 
     public static function nameAlreadyExists(string $name): self
     {
         return new self(
-            sprintf( _("The additional connector configuration name '%s' already exists"), $name),
+            sprintf( _("The additional configuration name '%s' already exists"), $name),
             self::CODE_CONFLICT
         );
     }
