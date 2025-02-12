@@ -19,14 +19,12 @@
  */
 
 require_once __DIR__ . '/../../../bootstrap.php';
-require_once __DIR__ . '/../../class/centreonLog.class.php';
-
-$centreonLog = CentreonLog::create();
 
 $versionOfTheUpgrade = 'UPGRADE - 25.03.0: ';
 $errorMessage = '';
 
 // -------------------------------------------- CEIP Agent Information -------------------------------------------- //
+
 /**
  * @param CentreonDB $pearDBO
  *
@@ -47,12 +45,99 @@ $createAgentInformationTable = function (CentreonDB $pearDBO) use (&$errorMessag
     );
 };
 
+// -------------------------------------------- Additional Configurations -------------------------------------------- //
+
+/**
+ * @param centreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ */
+$addConnectorToTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve data from topology table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `topology`
+            WHERE `topology_name` = 'Connectors'
+                AND `topology_parent` = 6
+                AND `topology_page` = 620
+        SQL
+    );
+    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
+
+    $errorMessage = 'Unable to insert into topology';
+    if (! $topologyAlreadyExists) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                INSERT INTO `topology` (
+                    `topology_name`,
+                    `topology_parent`,
+                    `topology_page`,
+                    `topology_order`,
+                    `topology_group`,
+                    `topology_show`
+                )
+                VALUES ('Connectors', 6, 620, 92, 1, '1')
+            SQL
+        );
+    }
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$changeAccNameInTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table topology';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `topology`
+            SET `topology_name` = 'Additional Configurations',
+                `topology_parent` = 620,
+                `topology_page` = 62002
+            WHERE `topology_url` = '/configuration/additional-connector-configurations'
+        SQL
+    );
+};
+
+// -------------------------------------------- Connectors configurations -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add data to connector table';
+    $pearDB->executeQuery(
+        <<<SQL
+        INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
+        (null,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+        (null, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+        SQL
+    );
+};
+
 try {
     $createAgentInformationTable($pearDBO);
+    $addConnectorToTopology($pearDB);
+    $changeAccNameInTopology($pearDB);
+
+    // Transactional queries
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
+
+    $insertAccConnectors($pearDB);
+
 } catch (CentreonDbException $e) {
-    $centreonLog->log(
+    CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        level: CentreonLog::LEVEL_ERROR,
         message: $versionOfTheUpgrade . $errorMessage
             . ' - Code : ' . (int) $e->getCode()
             . ' - Error : ' . $e->getMessage(),
@@ -62,6 +147,10 @@ try {
         ],
         exception: $e
     );
+
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
