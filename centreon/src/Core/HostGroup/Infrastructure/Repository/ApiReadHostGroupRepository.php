@@ -31,6 +31,7 @@ use Core\Common\Infrastructure\Repository\ApiResponseTrait;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupNamesById;
+use Core\HostGroup\Domain\Model\HostsCountById;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -186,6 +187,22 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
      * @inheritDoc
      */
     public function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostsCountByIds(array $hostGroupIds): HostsCountById
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): HostsCountById
     {
         throw RepositoryException::notYetImplemented();
     }

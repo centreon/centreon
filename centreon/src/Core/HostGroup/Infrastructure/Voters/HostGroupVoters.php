@@ -34,13 +34,14 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class HostGroupVoters extends Voter
 {
     public const HOSTGROUP_DELETE = 'hostgroup_delete';
+    public const HOSTGROUP_LIST = 'hostgroup_list';
 
     /**
      * @inheritDoc
      */
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $attribute === self::HOSTGROUP_DELETE;
+        return in_array($attribute, [self::HOSTGROUP_DELETE, self::HOSTGROUP_LIST], true);
     }
 
     /**
@@ -55,7 +56,8 @@ final class HostGroupVoters extends Voter
         }
 
         return match ($attribute) {
-            self::HOSTGROUP_DELETE => $this->checkUserRights($user),
+            self::HOSTGROUP_DELETE => $this->checkUserWriteRights($user),
+            self::HOSTGROUP_LIST => $this->checkUserReadRights($user),
             default => false,
         };
     }
@@ -67,8 +69,21 @@ final class HostGroupVoters extends Voter
      *
      * @return bool
      */
-    private function checkUserRights(ContactInterface $user): bool
+    private function checkUserWriteRights(ContactInterface $user): bool
     {
         return $user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE);
+    }
+
+    /**
+     * Check that user has rights to perform read operations on services.
+     *
+     * @param ContactInterface $user
+     *
+     * @return bool
+     */
+    private function checkUserReadRights(ContactInterface $user): bool
+    {
+        return $user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE)
+            || $user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ);
     }
 }

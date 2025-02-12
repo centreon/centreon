@@ -26,6 +26,7 @@ namespace Core\HostGroup\Application\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupNamesById;
+use Core\HostGroup\Domain\Model\HostsCountById;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostGroupRepositoryInterface
@@ -185,4 +186,19 @@ interface ReadHostGroupRepositoryInterface
      * @return bool
      */
     public function hasAccessToAllHostGroups(array $accessGroupIds): bool;
+
+    /**
+     * @param int[] $hostGroupIds
+     *
+     * @return HostsCountById
+     */
+    public function findHostsCountByIds(array $hostGroupIds): HostsCountById;
+
+    /**
+     * @param int[] $hostGroupIds
+     * @param int[] $accessGroupIds
+     *
+     * @return HostsCountById
+     */
+    public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): HostsCountById;
 }
