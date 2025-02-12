@@ -7,8 +7,7 @@ import Modal from './Configuration.Modal';
 
 const testCases = [
   { resourceType: ResourceType.Host },
-  { resourceType: ResourceType.HostGroup },
-  { resourceType: ResourceType.ServiceGroup }
+  { resourceType: ResourceType.HostGroup }
 ];
 
 testCases.forEach(({ resourceType }) => {

@@ -28,6 +28,7 @@ const Status = ({ change, filters }): JSX.Element => {
         <FormControlLabel
           control={
             <Checkbox
+              data-testid={labelEnabled}
               checked={filters.enabled}
               name={t(labelEnabled)}
               onChange={change('enabled')}
@@ -38,6 +39,7 @@ const Status = ({ change, filters }): JSX.Element => {
         <FormControlLabel
           control={
             <Checkbox
+              data-testid={labelDisabled}
               checked={filters.disabled}
               name={t(labelDisabled)}
               onChange={change('disabled')}
