@@ -13,13 +13,6 @@ for file in $(find "$BASEDIR" -maxdepth 1 -type f -printf '%f\n' | sort); do
       if . "$BASEDIR/$file" > /tmp/bg_${file}.log & then
         pid=$!
         echo $pid >> /tmp/background_pids
-        # Wait briefly and check if process is still running
-        sleep 1
-        if ! kill -0 $pid 2>/dev/null; then
-          echo "Error: Background script $file failed to start"
-          cat /tmp/bg_${file}.log
-          exit 1
-        fi
       else
         echo "Error starting background script $file"
         exit 1
