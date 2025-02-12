@@ -9,8 +9,6 @@ import Axes from '../Axes';
 import Grids from '../Grids';
 import { Line, TimeValue } from '../timeSeries/models';
 
-import { extraMargin } from './useComputeBaseChartDimensions';
-
 interface Props {
   allUnits: Array<string>;
   axis?: ChartAxis;
@@ -27,6 +25,8 @@ interface Props {
   svgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
   xScale;
+  maxAxisCharacters?: number;
+  hasSecondUnit?: boolean;
 }
 
 const ChartSvgWrapper = ({
@@ -44,7 +44,9 @@ const ChartSvgWrapper = ({
   axis,
   children,
   orientation = 'horizontal',
-  allUnits
+  allUnits,
+  maxAxisCharacters = 0,
+  hasSecondUnit
 }: Props): JSX.Element => {
   const isHorizontal = equals(orientation, 'horizontal');
 
@@ -55,7 +57,13 @@ const ChartSvgWrapper = ({
       ref={svgRef}
       width="100%"
     >
-      <Group.Group left={margin.left + extraMargin / 2} top={margin.top}>
+      <Group.Group
+        left={
+          maxAxisCharacters * 5 +
+          (hasSecondUnit ? margin.top * 0.8 : margin.top * 0.6)
+        }
+        top={margin.top}
+      >
         {showGridLines && (
           <Grids
             gridLinesType={gridLinesType}

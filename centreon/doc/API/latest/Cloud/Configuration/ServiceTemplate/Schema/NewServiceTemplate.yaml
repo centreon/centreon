@@ -14,6 +14,33 @@ properties:
     minimum: 1
     nullable: true
     example: null
+  check_command_id:
+    type: integer
+    description: "Check command ID."
+    minimum: 1
+    nullable: true
+    example: null
+  check_command_args:
+    type: array
+    items:
+      type: string
+      description: "Arguments of the check command."
+    example: ["80", "90"]
+  event_handler_enabled:
+    type: integer
+    description: |
+      Indicates whether the event handler is enabled or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+    example: 2
+  event_handler_command_id:
+    type: integer
+    description: "Event handler command ID."
+    minimum: 1
+    nullable: true
+    example: 1
   check_timeperiod_id:
     type: integer
     description: "Time period ID of the check command."

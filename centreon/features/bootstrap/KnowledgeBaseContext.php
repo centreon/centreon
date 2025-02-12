@@ -27,7 +27,7 @@ class KnowledgeBaseContext extends CentreonContext
         $this->launchCentreonWebContainer('docker_compose_web', ['mediawiki']);
         $this->container->waitForAvailableUrl(
             'http://' . $this->container->getHost() . ':' .
-            $this->container->getPort(80, 'mediawiki') . '/index.php/Main_Page'
+                $this->container->getPort(80, 'mediawiki') . '/index.php/Main_Page'
         );
         $this->iAmLoggedIn();
 
@@ -121,7 +121,7 @@ class KnowledgeBaseContext extends CentreonContext
         if (!strstr($currenturl, $checkurl)) {
             throw new Exception(
                 'Redirected to wrong page: ' . $currenturl .
-                ', should have contain ' . $checkurl . '.'
+                    ', should have contain ' . $checkurl . '.'
             );
         }
 
@@ -161,7 +161,7 @@ class KnowledgeBaseContext extends CentreonContext
         if (!strstr($currenturl, $checkurl)) {
             throw new Exception(
                 'Redirected to wrong page: ' . $currenturl .
-                ', should have contain ' . $checkurl . '.'
+                    ', should have contain ' . $checkurl . '.'
             );
         }
 
@@ -200,8 +200,7 @@ class KnowledgeBaseContext extends CentreonContext
         if (!strstr(
             $originalValue,
             './include/configuration/configKnowledge/proxy/proxy.php?host_name=$HOSTNAME$'
-        )
-        ) {
+        )) {
             throw new Exception('Bad url');
         }
     }
@@ -213,7 +212,7 @@ class KnowledgeBaseContext extends CentreonContext
     {
         /* check url config */
         $this->visit('/main.php?p=60201');
-        $this->assertFind('css', '.list_one:nth-child(8) td:nth-child(3) a')->click();
+        $this->assertFind('css', '.list_two:nth-child(9) td:nth-child(3) a')->click();
         $this->assertFind('css', '#c5 a:nth-child(1)')->click();
         $fieldValue = $this->assertFind('css', 'input[name="esi_notes_url"]');
         $originalValue = $fieldValue->getValue();
@@ -221,9 +220,8 @@ class KnowledgeBaseContext extends CentreonContext
         if (!strstr(
             $originalValue,
             './include/configuration/configKnowledge/proxy/proxy.php?' .
-            'host_name=$HOSTNAME$&service_description=$SERVICEDESC$'
-        )
-        ) {
+                'host_name=$HOSTNAME$&service_description=$SERVICEDESC$'
+        )) {
             throw new Exception('Bad url');
         }
     }

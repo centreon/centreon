@@ -70,4 +70,16 @@ interface WriteHostGroupRepositoryInterface
      * @throws \Throwable
      */
     public function unlinkFromHost(int $hostId, array $groupIds): void;
+
+    /**
+     * Duplicate a host group.
+     *
+     * @param int $hostGroupId
+     * @param int $duplicateIndex The index to append to the duplicated host group name
+     *
+     * @throws \Throwable
+     *
+     * @return int The new host group ID
+     */
+    public function duplicate(int $hostGroupId, int $duplicateIndex): int;
 }

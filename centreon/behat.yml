@@ -27,10 +27,6 @@ default:
       paths: [ "%paths.base%/features/KnowledgeBase.feature" ]
       contexts: [ KnowledgeBaseContext ]
 
-    disable_fields_on_blocked_objects:
-      paths: [ "%paths.base%/features/DisableFieldsOnBlockedObjects.feature" ]
-      contexts: [ DisableFieldsOnBlockedObjectsContext ]
-
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
@@ -91,21 +87,9 @@ default:
       paths: [ "%paths.base%/features/RestApi.feature" ]
       contexts: [ RestApiContext ]
 
-    ldap_manual_import:
-      paths: [ "%paths.base%/features/LdapManualImport.feature" ]
-      contexts: [ LdapManualImportContext ]
-
     connector_configuration:
       paths: [ "%paths.base%/features/ConnectorConfiguration.feature" ]
       contexts: [ ConnectorConfigurationContext ]
-
-    vendor_configuration:
-      paths: [ "%paths.base%/features/VendorConfiguration.feature" ]
-      contexts: [ VendorConfigurationContext ]
-
-    test_proxy_configuration:
-      paths: [ "%paths.base%/features/TestProxyConfiguration.feature" ]
-      contexts: [ TestProxyConfigurationContext ]
 
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]
