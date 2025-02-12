@@ -26,7 +26,6 @@ namespace Core\Common\Infrastructure\Normalizer;
 use Core\Domain\Common\GeoCoords;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 final readonly class GeoCoordsNormalizer implements NormalizerInterface
 {
