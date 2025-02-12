@@ -18,7 +18,7 @@ interface SubmitResult {
 }
 
 const stepWaitingTime = 250;
-const pollingCheckTimeout = 200000;
+const pollingCheckTimeout = 60000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
 const waitToExport = 5000;
 
