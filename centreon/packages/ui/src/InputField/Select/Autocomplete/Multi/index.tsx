@@ -30,35 +30,31 @@ export interface Props
       'multiple'
     > {
   disableSortedOptions?: boolean;
-  TagsProps?: {
-    tagsClassName?: string;
-  };
+  customRenderTags?: Function;
 }
 
 const MultiAutocompleteField = ({
   value,
   options,
   disableSortedOptions = false,
-  TagsProps,
+  customRenderTags,
   ...props
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const renderTags = (renderedValue, getTagProps): JSX.Element =>
-    <div className={TagsProps?.tagsClassName}>
-      {renderedValue.map((option, index) => (
-        <Chip
-          classes={{
-            deleteIcon: classes.deleteIcon,
-            root: classes.tag
-          }}
-          key={option.id}
-          label={option.name}
-          size="medium"
-          {...getTagProps({ index })}
-        />
-      ))}
-    </div>;
+  const renderTags = (renderedValue, getTagProps): Array<JSX.Element> =>
+    renderedValue.map((option, index) => (
+      <Chip
+        classes={{
+          deleteIcon: classes.deleteIcon,
+          root: classes.tag
+        }}
+        key={option.id}
+        label={option.name}
+        size="medium"
+        {...getTagProps({ index })}
+      />
+    ));
 
   const getLimitTagsText = (more): JSX.Element => <Option>{`+${more}`}</Option>;
 
@@ -89,7 +85,10 @@ const MultiAutocompleteField = ({
           <Option checkboxSelected={selected}>{option.name}</Option>
         </li>
       )}
-      renderTags={renderTags}
+      renderTags={(renderedValue, getTagProps) => customRenderTags
+        ? customRenderTags(renderTags(renderedValue, getTagProps))
+        : renderTags(renderedValue, getTagProps)
+      }
       value={value}
       {...props}
     />
