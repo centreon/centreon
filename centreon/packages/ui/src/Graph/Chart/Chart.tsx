@@ -296,20 +296,13 @@ const Chart = ({
                     yScalesPerUnit={yScalesPerUnit}
                   />
                   <Lines
-                    areaTransparency={lineStyle?.areaTransparency}
-                    curve={lineStyle?.curve || 'linear'}
-                    dashLength={lineStyle?.dashLength}
-                    dashOffset={lineStyle?.dashOffset}
+                    lineStyle={lineStyle}
                     displayAnchor={displayAnchor}
                     displayedLines={linesDisplayedAsLine}
-                    dotOffset={lineStyle?.dotOffset}
                     graphSvgRef={graphSvgRef}
                     height={graphHeight - margin.top}
-                    lineWidth={lineStyle?.lineWidth}
                     scale={axis?.scale}
                     scaleLogarithmicBase={axis?.scaleLogarithmicBase}
-                    showArea={lineStyle?.showArea}
-                    showPoints={lineStyle?.showPoints}
                     timeSeries={timeSeries}
                     width={graphWidth}
                     xScale={xScale}

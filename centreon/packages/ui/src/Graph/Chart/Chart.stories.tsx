@@ -22,6 +22,7 @@ import dataLastDayThreshold from '../mockedData/lastDayThreshold.json';
 import dataLastDayWithLotOfUnits from '../mockedData/lastDayWithLotOfUnits.json';
 import dataLastMonth from '../mockedData/lastMonth.json';
 import dataLastWeek from '../mockedData/lastWeek.json';
+import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
@@ -536,7 +537,7 @@ export const customLinesAndBars: Story = {
   render: (args) => (
     <WrapperChart
       {...args}
-      data={dataPingServiceLinesBars as unknown as LineChartData}
+      data={dataPingService as unknown as LineChartData}
     />
   )
 };
@@ -565,7 +566,7 @@ export const linesAndBars: Story = {
   render: (args) => (
     <WrapperChart
       {...args}
-      data={dataPingServiceLinesBars as unknown as LineChartData}
+      data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
     />
   )
 };
