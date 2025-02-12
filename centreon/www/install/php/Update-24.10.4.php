@@ -145,6 +145,7 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     }
 };
 
+<<<<<<< HEAD
 // -------------------------------------------- CEIP Agent Information -------------------------------------------- //
 /**
  * @param CentreonDB $pearDBO
@@ -170,6 +171,11 @@ try {
     // DDL statements for real time database
     $addColumnToResourcesTable($pearDBO);
     $createAgentInformationTable($pearDBO);
+=======
+try {
+    // DDL statements for real time database
+    $addColumnToResourcesTable($pearDBO);
+>>>>>>> 24.10.x
 
     // DDL statements for configuration database
     $addAllContactsColumnToAclGroups($pearDB);
