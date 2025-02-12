@@ -317,13 +317,13 @@ class CentreonDB extends PDO implements ConnectionInterface
                 throw ConnectionException::executeStatementFailed($e, $query, $queryParameters);
             }
 
-            if (! is_null($queryParameters)) {
+            if (! is_null($queryParameters) && ! $queryParameters->isEmpty()) {
                 foreach ($queryParameters->getIterator() as $queryParameter) {
                     $pdoStatement->bindValue(
                         $queryParameter->getName(),
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null) ?
-                            $queryParameter->getType()->getValue() : QueryParameterTypeEnum::STRING
+                            $queryParameter->getType()->value : QueryParameterTypeEnum::STRING
                     );
                 }
             }
@@ -366,7 +366,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             if (! str_starts_with($query, 'INSERT INTO ')
-                || ! str_starts_with($query, 'insert into ')
+                && ! str_starts_with($query, 'insert into ')
             ) {
                 throw ConnectionException::insertQueryBadFormat($query);
             }
@@ -421,7 +421,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $queryParametersToInsert = new QueryParameters([]);
 
             foreach ($batchInsertParameters->getIterator() as $queryParameters) {
-                if ($queryParameters->empty()) {
+                if ($queryParameters->isEmpty()) {
                     throw ConnectionException::batchInsertQueryBadUsage('Query parameters must not be empty');
                 }
                 if (count($columns) !== $queryParameters->length()) {
@@ -469,7 +469,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             if (! str_starts_with($query, 'UPDATE ')
-                || ! str_starts_with($query, 'update ')
+                && ! str_starts_with($query, 'update ')
             ) {
                 throw ConnectionException::updateQueryBadFormat($query);
             }
@@ -505,7 +505,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             if (! str_starts_with($query, 'DELETE ')
-                || ! str_starts_with($query, 'delete ')
+                && ! str_starts_with($query, 'delete ')
             ) {
                 throw ConnectionException::deleteQueryBadFormat($query);
             }
@@ -523,6 +523,79 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     // --------------------------------------- FETCH METHODS -----------------------------------------
+
+    /**
+     * To execute all queries starting with SELECT.
+     *
+     * Only for SELECT queries.
+     *
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param int                  $fetchMode
+     * @param array                $fetchModeArgs
+     *
+     * @throws ConnectionException
+     * @return PDOStatement|false
+     */
+    public function executeSelectQuery(
+        string $query,
+        ?QueryParameters $queryParameters = null,
+        int $fetchMode = \PDO::FETCH_ASSOC,
+        array $fetchModeArgs = []
+    ): PDOStatement | false {
+        try {
+            $this->validateSelectQuery($query);
+
+            // here we don't want to use CentreonDbStatement, instead used PDOStatement
+            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
+
+            try {
+                $pdoStatement = $this->prepareQuery($query);
+            } catch (CentreonDbException $e) {
+                throw ConnectionException::selectQueryFailed(
+                    previous: $e,
+                    query: $query,
+                    queryParameters: $queryParameters,
+                    context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
+                );
+            }
+
+            if (! is_null($queryParameters) && ! $queryParameters->isEmpty()) {
+                foreach ($queryParameters->getIterator() as $queryParameter) {
+                    $pdoStatement->bindValue(
+                        $queryParameter->getName(),
+                        $queryParameter->getValue(),
+                        ($queryParameter->getType() !== null) ?
+                            $queryParameter->getType()->value : QueryParameterTypeEnum::STRING
+                    );
+                }
+            }
+
+            $pdoStatement->execute();
+            $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs);
+
+            return $pdoStatement;
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while executing the select query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::selectQueryFailed(
+                previous: $e,
+                query: $query,
+                queryParameters: $queryParameters,
+                context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
+            );
+        } finally {
+            // here we restart CentreonDbStatement for the other requests
+            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [
+                CentreonDBStatement::class,
+                [$this->logger],
+            ]);
+        }
+    }
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result
@@ -1734,76 +1807,6 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     // --------------------------------------- PRIVATE METHODS -----------------------------------------
-
-    /**
-     * To execute all queries starting with SELECT.
-     *
-     * Only for SELECT queries.
-     *
-     * @param string               $query
-     * @param QueryParameters|null $queryParameters
-     * @param int                  $fetchMode
-     * @param array                $fetchModeArgs
-     *
-     * @throws ConnectionException
-     * @return PDOStatement|false
-     */
-    private function executeSelectQuery(
-        string $query,
-        ?QueryParameters $queryParameters = null,
-        int $fetchMode = PDO::FETCH_ASSOC,
-        array $fetchModeArgs = []
-    ): PDOStatement | false {
-        try {
-            // here we don't want to use CentreonDbStatement, instead used PDOStatement
-            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [\PDOStatement::class]);
-
-            try {
-                $pdoStatement = $this->prepareQuery($query);
-            } catch (CentreonDbException $e) {
-                throw ConnectionException::executeStatementFailed(
-                    $e,
-                    $query,
-                    ['query' => $query, 'infos' => $e->getOptions()]
-                );
-            }
-
-            foreach ($queryParameters->getIterator() as $queryParameter) {
-                $pdoStatement->bindValue(
-                    $queryParameter->getName(),
-                    $queryParameter->getValue(),
-                    ($queryParameter->getType() !== null) ?
-                        $queryParameter->getType()->getValue() : QueryParameterTypeEnum::STRING
-                );
-            }
-
-            $pdoStatement->execute();
-            $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs);
-
-            return $pdoStatement;
-        } catch (\Throwable $e) {
-            $this->writeDbLog(
-                message: "Error while executing the select query",
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $e,
-            );
-            throw ConnectionException::selectQueryFailed(
-                previous: $e,
-                query: $query,
-                context: [
-                    'query' => $query,
-                    'query_parameters' => $queryParameters,
-                ]
-            );
-        } finally {
-            // here we restart CentreonDbStatement for the other requests
-            $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [
-                CentreonDBStatement::class,
-                [$this->logger],
-            ]);
-        }
-    }
 
     /**
      * @param string $query

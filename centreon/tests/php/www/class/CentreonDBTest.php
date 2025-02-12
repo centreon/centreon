@@ -23,6 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\www\class;
 
+use Adaptation\Database\Collection\BatchInsertParameters;
+use Adaptation\Database\Collection\QueryParameters;
+use Adaptation\Database\Exception\ConnectionException;
+use Adaptation\Database\ValueObject\QueryParameter;
 use CentreonDB;
 use CentreonDbConfig;
 use CentreonDbException;
@@ -89,39 +93,1426 @@ function hasConnectionDb(CentreonDbConfig $dbConfig): bool
 
 if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
-        'connect to centreon database with CentreonDB constructor',
+        'test CentreonDB : connect to centreon database with CentreonDB constructor',
         function () use ($dbConfigCentreon): void {
             $db = new CentreonDB(dbLabel: CentreonDB::LABEL_DB_CONFIGURATION, dbConfig: $dbConfigCentreon);
             expect($db)->toBeInstanceOf(CentreonDB::class);
-            $dbName = $db->executeQuery("select database()")->fetchColumn();
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
             expect($dbName)->toBe('centreon')
                 ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
     );
 
     it(
-        'connect to centreon database with CentreonDB::connectToCentreonDb factory',
+        'test CentreonDB : connect to centreon database with CentreonDB::connectToCentreonDb factory',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             expect($db)->toBeInstanceOf(CentreonDB::class);
-            $dbName = $db->executeQuery("select database()")->fetchColumn();
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
             expect($dbName)->toBe('centreon')
                 ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
     );
 
-    it('check if the database connection is active', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        expect($db->isConnected())->toBeTrue();
-    });
-
-    it('get the database name of the current connection', function () use ($dbConfigCentreon): void {
+    it('test CentreonDB : get the database name of the current connection', function () use ($dbConfigCentreon): void {
         $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
         $dbName = $db->getDatabaseName();
         expect($dbName)->toBe('centreon');
     });
 
-    // ---------------------------------------- prepareQuery ----------------------------------------------
+    it('test CentreonDB : get native connection', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $pdo = $db->getNativeConnection();
+        expect($pdo)->toBeInstanceOf(PDO::class);
+    });
+
+    it('test CentreonDB : get last insert id', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $insert = $db->exec(
+            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
+        );
+        expect($insert)->toBeInt()->toBe(1);
+        $lastInsertId = $db->getLastInsertId();
+        expect($lastInsertId)->toBeString()->toBe('110');
+        // clean up the database
+        $delete = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+        expect($delete)->toBeInt()->toBe(1);
+    });
+
+    it('test CentreonDB : is connected', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        expect($db->isConnected())->toBeTrue();
+    });
+
+    it('test CentreonDB : quote string', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $quotedString = $db->quote("foo");
+        expect($quotedString)->toBeString()->toBe("'foo'");
+    });
+
+    // --------------------------------------- CUD METHODS -----------------------------------------
+
+    // -- executeStatement()
+
+    it(
+        'test CentreonDB : execute statement with a correct query without query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $inserted = $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
+            );
+            expect($inserted)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            // clean up the database
+            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            expect($deleted)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : execute statement with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::int('id', 110),
+                    QueryParameter::string('name', 'foo_name'),
+                    QueryParameter::string('alias', 'foo_alias')
+                ]
+            );
+            $inserted = $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                $queryParameters
+            );
+            expect($inserted)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            // clean up the database
+            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            expect($deleted)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : execute statement with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                QueryParameters::create([])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : execute statement with a SELECT query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->executeStatement("SELECT * FROM contact");
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : execute statement with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->executeStatement("");
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : execute statement with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->executeStatement("foo");
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : execute statement with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::int('id', 110),
+                    QueryParameter::string('name', 'foo_name')
+                ]
+            );
+            $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                $queryParameters
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- insert()
+
+    it(
+        'test CentreonDB : insert with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::int('id', 110),
+                    QueryParameter::string('name', 'foo_name'),
+                    QueryParameter::string('alias', 'foo_alias')
+                ]
+            );
+            $inserted = $db->insert(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                $queryParameters
+            );
+            expect($inserted)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            // clean up the database
+            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            expect($deleted)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : insert with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->insert(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                QueryParameters::create([])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : insert with a SELECT query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->insert(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('contact_id', 110)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : insert with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->insert("", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : insert with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->insert("foo", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : insert with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::int('id', 110),
+                    QueryParameter::string('name', 'foo_name')
+                ]
+            );
+            $db->insert(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                $queryParameters
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- batchInsert()
+
+    it(
+        'test CentreonDB : batch insert with a correct query with batch query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $batchQueryParameters = BatchInsertParameters::create([
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 110),
+                    QueryParameter::string('contact_name', 'foo_name'),
+                    QueryParameter::string('contact_alias', 'foo_alias')
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 111),
+                    QueryParameter::string('contact_name', 'bar_name'),
+                    QueryParameter::string('contact_alias', 'bar_alias')
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 112),
+                    QueryParameter::string('contact_name', 'baz_name'),
+                    QueryParameter::string('contact_alias', 'baz_alias')
+                ])
+            ]);
+            $inserted = $db->batchInsert(
+                'contact',
+                ['contact_id', 'contact_name', 'contact_alias'],
+                $batchQueryParameters
+            );
+            expect($inserted)->toBeInt()->toBe(3)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            // clean up the database
+            $deleted = $db->exec("DELETE FROM contact WHERE contact_id IN (110,111,112)");
+            expect($deleted)->toBeInt()->toBe(3)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : batch insert with a correct query with empty batch query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->batchInsert(
+                'contact',
+                ['contact_id', 'contact_name', 'contact_alias'],
+                BatchInsertParameters::create([])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : batch insert with an incorrect batch query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $batchQueryParameters = BatchInsertParameters::create([
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 110),
+                    QueryParameter::string('contact_name', 'foo_name')
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 111),
+                    QueryParameter::string('contact_name', 'bar_name')
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 112),
+                    QueryParameter::string('contact_name', 'baz_name')
+                ])
+            ]);
+            $db->batchInsert(
+                'contact',
+                ['contact_id', 'contact_name', 'contact_alias'],
+                $batchQueryParameters
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- update()
+
+    it(
+        'test CentreonDB : update with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $inserted = $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
+            );
+            expect($inserted)->toBeInt()->toBe(1);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::string('name', 'bar_name'),
+                    QueryParameter::string('alias', 'bar_alias'),
+                    QueryParameter::int('id', 110)
+                ]
+            );
+            $updated = $db->update(
+                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
+                $queryParameters
+            );
+            expect($updated)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            // clean up the database
+            $delete = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            expect($delete)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : update with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->update(
+                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : update with a SELECT query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->update(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('contact_id', 110)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : update with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->update("", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : update with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->update("foo", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : update with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::string('name', 'bar_name'),
+                    QueryParameter::string('alias', 'bar_alias')
+                ]
+            );
+            $db->update(
+                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
+                $queryParameters
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- delete()
+
+    it(
+        'test CentreonDB : delete with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $inserted = $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
+            );
+            expect($inserted)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            $queryParameters = QueryParameters::create([QueryParameter::int('id', 110)]);
+            $deleted = $db->delete("DELETE FROM contact WHERE contact_id = :id", $queryParameters);
+            expect($deleted)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : delete with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->delete("DELETE FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : delete with a SELECT query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->delete(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('contact_id', 110)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : delete with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->delete("", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : delete with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->delete("foo", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : delete with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::string('name', 'foo_name'),
+                    QueryParameter::string('alias', 'foo_alias')
+                ]
+            );
+            $db->delete(
+                "DELETE FROM contact WHERE contact_id = :id AND contact_name = :name AND contact_alias = :alias",
+                $queryParameters
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // ---------------------------------------- FETCH METHODS ----------------------------------------------
+
+    // -- executeSelectQuery()
+
+    it(
+        'test CentreonDB : execute select query with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+            $pdoSth = $db->executeSelectQuery(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                $queryParameters
+            );
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : execute select query with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->executeSelectQuery("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : execute select query with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->executeSelectQuery(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : execute select query with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->executeSelectQuery("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : execute select query with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->executeSelectQuery("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : execute select query with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->executeSelectQuery(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetch()
+
+    it(
+        'execute fetch with a correct query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepare("select * from contact");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $pdoSth->execute();
+            $contact = $db->fetch($pdoSth);
+            expect($contact)->toBeArray()
+                ->and($contact['contact_id'])->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    // -- fetchAll()
+
+    it(
+        'execute fetchAll a correct query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepare("select * from contact");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $pdoSth->execute();
+            $contact = $db->fetchAll($pdoSth);
+            expect($contact)->toBeArray()
+                ->and($contact[0]['contact_id'])->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    // -- fetchNumeric()
+
+    it(
+        'test CentreonDB : fetchNumeric with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contact = $db->fetchNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0])->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchNumeric with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchNumeric("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchNumeric with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchNumeric(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchNumeric with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchNumeric with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchNumeric("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchNumeric with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAssociative()
+
+    it(
+        'test CentreonDB : fetchAssociative with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contact = $db->fetchAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact['contact_id'])->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchAssociative with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAssociative("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAssociative with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAssociative(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAssociative with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAssociative with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAssociative("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchAssociative with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchByColumn()
+
+    it(
+        'test CentreonDB : fetchByColumn with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contactId = $db->fetchByColumn(
+                "SELECT contact_id FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contactId)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchByColumn with a correct query with query parameters and another column',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contact = $db->fetchByColumn(
+                "SELECT contact_id FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)]),
+                3
+            );
+            expect($contact)->toBeInt()->toBe('alias')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchByColumn with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchByColumn("SELECT contact_id FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchByColumn with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchByColumn(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchByColumn with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchByColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchByColumn with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchByColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchByColumn with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchByColumn(
+                "SELECT contact_id FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllNumeric()
+
+    it(
+        'test CentreonDB : fetchAllNumeric with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contact = $db->fetchAllNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0][0])->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchAllNumeric with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllNumeric("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllNumeric with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllNumeric(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllNumeric with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllNumeric with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllNumeric("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchAllNumeric with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllAssociative()
+
+    it(
+        'test CentreonDB : fetchAllAssociative with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contact = $db->fetchAllAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0]['contact_id'])->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchAllAssociative with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllAssociative("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllAssociative with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllAssociative(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllAssociative with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllAssociative with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllAssociative("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchAllAssociative with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllByColumn()
+
+    it(
+        'test CentreonDB : fetchAllByColumn with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contact = $db->fetchAllByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0])->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchAllByColumn with a correct query with query parameters and a column',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contact = $db->fetchAllByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)]),
+                3
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0])->toBe('alias')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchAllByColumn with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllByColumn("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllByColumn with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllByColumn(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllByColumn with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllByColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllByColumn with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllByColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchAllByColumn with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllKeyValue()
+
+    it(
+        'test CentreonDB : fetchAllKeyValue with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contact = $db->fetchAllKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0])->toBeArray()->toBe(['1' => 'admin'])
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchAllKeyValue with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllKeyValue(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllKeyValue with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllKeyValue("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllKeyValue with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllKeyValue("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchAllKeyValue with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllAssociativeIndexed()
+
+    it(
+        'test CentreonDB : fetchAllAssociativeIndexed with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contact = $db->fetchAllAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0][1])->toBeArray()->toBe(['contact_name' => 'admin admin', 'contact_alias' => 'admin'])
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : fetchAllAssociativeIndexed with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllAssociativeIndexed with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllAssociativeIndexed(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchAllAssociativeIndexed with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->fetchAllAssociativeIndexed("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchAllAssociativeIndexed with an incorrect query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllAssociativeIndexed("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchAllAssociativeIndexed with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->fetchAllAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // ---------------------------------------- ITERATE METHODS ----------------------------------------------
+
+    // -- iterateNumeric()
+
+    it(
+        'test CentreonDB : iterateNumeric with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contacts = $db->iterateNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeArray()->and($contact[0])->toBe(1)
+                    ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            }
+        }
+    );
+
+    it(
+        'test CentreonDB : iterateNumeric with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateNumeric("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateNumeric with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateNumeric(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateNumeric with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateNumeric with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateNumeric("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : iterateNumeric with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateAssociative()
+
+    it(
+        'test CentreonDB : iterateAssociative with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contacts = $db->iterateAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeArray()->and($contact['contact_id'])->toBe(1)
+                    ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            }
+        }
+    );
+
+    it(
+        'test CentreonDB : iterateAssociative with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateAssociative("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateAssociative with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateAssociative(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateAssociative with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateAssociative with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateAssociative("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : iterateAssociative with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateByColumn()
+
+    it(
+        'test CentreonDB : iterateByColumn with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateByColumn(
+                "SELECT contact_id FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($db as $contactId) {
+                expect($contactId)->toBeInt()->toBe(1)
+                    ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            }
+        }
+    );
+
+    it(
+        'test CentreonDB : iterateByColumn with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateByColumn("SELECT contact_id FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateByColumn with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateByColumn(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateByColumn with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateByColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateByColumn with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateByColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : iterateByColumn with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateByColumn(
+                "SELECT contact_id FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateKeyValue()
+
+    it(
+        'test CentreonDB : iterateKeyValue with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contacts = $db->iterateKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contactId => $contactAlias) {
+                expect($contactId)->toBeInt()->toBe(1)
+                    ->and($contactAlias)->toBeString()->toBe('admin')
+                    ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            }
+        }
+    );
+
+    it(
+        'test CentreonDB : iterateKeyValue with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateKeyValue(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateKeyValue with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateKeyValue("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateKeyValue with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateKeyValue("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : iterateKeyValue with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateAssociativeIndexed()
+
+    it(
+        'test CentreonDB : iterateAssociativeIndexed with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contactId => $contact) {
+                expect($contactId)->toBeInt()->toBe(1)
+                    ->and($contact)->toBeArray()->toHaveKey('contact_name', 'admin admin')
+                    ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            }
+        }
+    );
+
+    it(
+        'test CentreonDB : iterateAssociativeIndexed with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateAssociativeIndexed with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateAssociativeIndexed(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : iterateAssociativeIndexed with an empty query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->iterateAssociativeIndexed("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : iterateAssociativeIndexed with an incorrect query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateAssociativeIndexed("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : iterateAssociativeIndexed with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->iterateAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(ConnectionException::class);
+
+    // ----------------------------------------- TRANSACTIONS -----------------------------------------
+
+    it('test CentreonDB : execute startTransaction with success', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->startTransaction();
+        expect($db->isTransactionActive())->toBeTrue();
+    });
+
+    it('test CentreonDB : execute commit with success', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->startTransaction();
+        $response = $db->commit();
+        expect($response)->toBeTrue()
+            ->and($db->isTransactionActive())->toBeFalse();
+    });
+
+    it('test CentreonDB : execute rollback with success', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->startTransaction();
+        $response = $db->rollback();
+        expect($response)->toBeTrue()
+            ->and($db->isTransactionActive())->toBeFalse();
+    });
+
+    // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
+
+    it('test CentreonDB : allow unbuffered query with success', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->allowUnbufferedQuery();
+    });
+
+    it('test CentreonDB : allow unbuffered query with error', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->setAttribute(PDO::ATTR_DRIVER_NAME, 'foo');
+        $db->allowUnbufferedQuery();
+    })->throws(CentreonDbException::class);
+
+    it('test CentreonDB : execute unbufferedQuery with correct query', function () use ($dbConfigCentreon): void {
+        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+        $db->startUnbufferedQuery();
+        expect($db->isUnbufferedQueryActive())->toBeTrue()
+            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class)
+            ->and($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+        $contact = $db->executeSelectQuery("SELECT * FROM contact WHERE contact_id = 1");
+        expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
+            ->and($db->isUnbufferedQueryActive())->toBeTrue()
+            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class)
+            ->and($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+        $db->stopUnbufferedQuery();
+        expect($db->isUnbufferedQueryActive())->toBeFalse()
+            ->and($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
+    });
+
+    it(
+        'test CentreonDB : stop unbuffered query without start unbuffered query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+            $db->stopUnbufferedQuery();
+        }
+    )->throws(CentreonDbException::class);
+
+    // ---------------------------------------- BASE METHOD ----------------------------------------------
+
+    // -- prepareQuery
 
     it(
         'prepare query with a correct prepared query',
@@ -138,6 +1529,182 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $db->prepareQuery("");
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(CentreonDbException::class);
+
+    // -- execute
+
+    it(
+        'execute execute with correct query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $successExecute = $db->execute($pdoSth, ['contact_id' => 1]);
+            expect($successExecute)->toBeTrue()
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    // -- makeBindValue
+
+    it(
+        'execute makeBindValue with success',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $successBind = $db->makeBindValue($pdoSth, 'contact_id', 1, PDO::PARAM_INT);
+            expect($successBind)->toBeTrue();
+            $successExecute = $db->execute($pdoSth);
+            expect($successExecute)->toBeTrue()
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'execute makeBindValue with an empty param name',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $db->makeBindValue($pdoSth, '', 1, PDO::PARAM_INT);
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(CentreonDbException::class);
+
+    it(
+        'execute makeBindValue with a type that doesnt exist',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $db->makeBindValue($pdoSth, 'contact_id', 1, 999999);
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(CentreonDbException::class);
+
+    // -- makeBindParam
+
+    it(
+        'execute makeBindParam with success',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $contactID = 1;
+            $successBind = $db->makeBindParam($pdoSth, 'contact_id', $contactID, PDO::PARAM_INT);
+            expect($successBind)->toBeTrue();
+            $successExecute = $db->execute($pdoSth);
+            expect($successExecute)->toBeTrue()
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'execute makeBindParam with an empty param name',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $contactID = 1;
+            $db->makeBindParam($pdoSth, '', $contactID, PDO::PARAM_INT);
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(CentreonDbException::class);
+
+    it(
+        'execute makeBindParam with a type that doesnt exist',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $contactID = 1;
+            $db->makeBindParam($pdoSth, 'contact_id', $contactID, 9999999);
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(CentreonDbException::class);
+
+    // -- closeQuery
+
+    it(
+        'execute closeQuery with success',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
+            $pdoSth->execute(['contact_id' => 1]);
+            $successClose = $db->closeQuery($pdoSth);
+            expect($successClose)->toBeTrue();
+        }
+    );
+
+    // ====================================== DEPRECATED METHODS ===========================================
+
+    // ---------------------------------------- executeQuery ----------------------------------------------
+
+    it(
+        'execute executeQuery with a correct query with associative fetch mode',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_ASSOC);
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $contact = $pdoSth->fetch();
+            expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'execute executeQuery with a correct query with numeric fetch mode',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_NUM);
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $contact = $pdoSth->fetch();
+            expect($contact)->toBeArray()->toHaveKey(0, 1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'execute executeQuery with a correct query with column fetch mode',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_COLUMN, [0]);
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $contact = $pdoSth->fetch();
+            expect($contact)->toBeInt()->toBe(1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'execute executeQuery with a correct query with object fetch mode',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_OBJ);
+            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
+            $contact = $pdoSth->fetch();
+            expect($contact)->toBeObject()->toHaveProperty('contact_id', 1)
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'execute executeQuery with an incorrect query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->executeQuery("foo");
+            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    )->throws(CentreonDbException::class);
+
+    it(
+        'execute executeQuery with an empty query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db->executeQuery("");
             expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
     )->throws(CentreonDbException::class);
@@ -223,1951 +1790,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(CentreonDbException::class);
 
-    // ---------------------------------------- FETCH METHODS ----------------------------------------------
-
-    it(
-        'execute fetch with a correct query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("select * from contact");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $db->fetch($pdoSth);
-            expect($contact)->toBeArray()
-                ->and($contact['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAll a correct query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("select * from contact");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $db->fetchAll($pdoSth);
-            expect($contact)->toBeArray()
-                ->and($contact[0]['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAssociative with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contact = $db->fetchAssociative("select * from contact where contact_id = 1");
-            expect($contact)->toBeArray()
-                ->and($contact['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAssociative with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contact = $db->fetchAssociative("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contact)->toBeArray()
-                ->and($contact['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAssociative with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contact = $db->fetchAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contact)->toBeArray()
-                ->and($contact['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAssociative with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAssociative(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAssociative with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAssociative with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAssociative with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAssociative("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAssociative with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAssociative(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAssociative with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAssociative("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchNumeric with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contact = $db->fetchNumeric("select * from contact where contact_id = 1");
-            expect($contact)->toBeArray()
-                ->and($contact[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchNumeric with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contact = $db->fetchNumeric("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contact)->toBeArray()
-                ->and($contact[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchNumeric with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contact = $db->fetchNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contact)->toBeArray()
-                ->and($contact[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchNumeric with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchNumeric(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchNumeric with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchNumeric with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchNumeric with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchNumeric("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchNumeric with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchNumeric(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchNumeric with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchNumeric("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchByColumn with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contact = $db->fetchByColumn("select * from contact where contact_id = 1");
-            expect($contact)->toBeInt()
-                ->and($contact)->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchByColumn with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contact = $db->fetchByColumn("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contact)->toBeInt()
-                ->and($contact)->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchByColumn with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contact = $db->fetchByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                withParamType: true
-            );
-            expect($contact)->toBeInt()
-                ->and($contact)->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchByColumn with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchByColumn(
-                "select * from contact where contact_id = :id",
-                [],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchByColumn with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchByColumn with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchByColumn with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchByColumn("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchByColumn with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchByColumn(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchByColumn with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchByColumn("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociative with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociative("select * from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts[0]['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociative with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociative("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts[0]['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociative with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts[0]['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociative with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociative(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociative with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociative with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociative with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociative("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociative with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociative(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociative with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociative("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllNumeric with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllNumeric("select * from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts[0][0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllNumeric with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllNumeric("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts[0][0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllNumeric with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts[0][0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllNumeric with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllNumeric(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllNumeric with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllNumeric with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllNumeric with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllNumeric("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllNumeric with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllNumeric(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllNumeric with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllNumeric("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllByColumn with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllByColumn("select * from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllByColumn with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllByColumn("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllByColumn with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                withParamType: true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllByColumn with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllByColumn(
-                "select * from contact where contact_id = :id",
-                [],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllByColumn with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllByColumn with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllByColumn with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllByColumn("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllByColumn with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllByColumn(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllByColumn with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllByColumn("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllKeyValue with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllKeyValue("select contact_id, contact_alias from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveCount(1)->toHaveKey(1)
-                ->and($contacts[1])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllKeyValue with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllKeyValue("select contact_id, contact_alias from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveCount(1)->toHaveKey(1)
-                ->and($contacts[1])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllKeyValue with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveCount(1)->toHaveKey(1)
-                ->and($contacts[1])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllKeyValue with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllKeyValue with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllKeyValue with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllKeyValue with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllKeyValue("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllKeyValue with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllKeyValue(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllKeyValue with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllKeyValue("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociativeIndexed("select * from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveKey(1)
-                ->and($contacts[1])->toBeArray()->toHaveKey('contact_alias')
-                ->and($contacts[1]['contact_alias'])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociativeIndexed("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveKey(1)
-                ->and($contacts[1])->toBeArray()->toHaveKey('contact_alias')
-                ->and($contacts[1]['contact_alias'])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveKey(1)
-                ->and($contacts[1])->toBeArray()->toHaveKey('contact_alias')
-                ->and($contacts[1]['contact_alias'])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    // ---------------------------------------- CUD METHODS ----------------------------------------------
-
-    it('execute insert with correct query without type', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $response = $db->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-            ['id' => 100, 'name' => 'foo_name', 'alias' => 'foo_alias']
-        );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-    });
-
-    it('execute insert with correct query with type', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $response = $db->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-            [
-                'id' => [1000, PDO::PARAM_INT],
-                'name' => ['foo_name', PDO::PARAM_STR],
-                'alias' => ['foo_alias', PDO::PARAM_STR]
-            ],
-            true
-        );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-    });
-
-    it(
-        'execute insert with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(1, 'name', 'alias')",
-                []
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute insert with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(1, 'name', 'alias')",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute insert with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 1, 'name' => 'name', 'alias' => 'alias'],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute insert with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => [1], 'name' => ['name'], 'alias' => ['alias']],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute insert with incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES",
-                ['id' => 1, 'name' => 'name', 'alias' => 'alias']
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute insert with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->insert("", ['id' => 1, 'name' => 'name', 'alias' => 'alias']);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it('execute update with correct query without type', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $response = $db->update(
-            "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-            ['id' => 100, 'name' => 'foo_name2', 'alias' => 'foo_alias2']
-        );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        $response = $db->fetchAssociative("SELECT * FROM contact WHERE contact_id = :id", ['id' => 100]);
-        expect($response)->toBeArray()
-            ->and($response['contact_name'])->toBe('foo_name2')
-            ->and($response['contact_alias'])->toBe('foo_alias2');
-    });
-
-    it('execute update with correct query with type', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $response = $db->update(
-            "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-            [
-                'id' => [1000, PDO::PARAM_INT],
-                'name' => ['foo_name2', PDO::PARAM_STR],
-                'alias' => ['foo_alias2', PDO::PARAM_STR]
-            ],
-            true
-        );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        $response = $db->fetchAssociative(
-            "SELECT * FROM contact WHERE contact_id = :id",
-            ['id' => [1000, PDO::PARAM_INT]],
-            true
-        );
-        expect($response)->toBeArray()
-            ->and($response['contact_name'])->toBe('foo_name2')
-            ->and($response['contact_alias'])->toBe('foo_alias2');
-    });
-
-    it(
-        'execute update with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->update(
-                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-                []
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute update with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->update(
-                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute update with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->update(
-                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-                ['id' => 1, 'name' => 'name', 'alias' => 'alias'],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute update with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->update(
-                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-                ['id' => [1], 'name' => ['name'], 'alias' => ['alias']],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute update with incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->update("UPDATE contact SET ", ['id' => 1, 'name' => 'name', 'alias' => 'alias']);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute update with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->update("", ['id' => 1, 'name' => 'name', 'alias' => 'alias']);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it('execute delete with correct query without type', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $response = $db->delete("DELETE FROM contact WHERE contact_id = :id", ['id' => 100]);
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        $response = $db->fetchAssociative("SELECT * FROM contact WHERE contact_id = :id", ['id' => 100]);
-        expect($response)->toBeFalse();
-    });
-
-    it('execute delete with correct query with type', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $response = $db->delete(
-            "DELETE FROM contact WHERE contact_id = :id",
-            ['id' => [1000, PDO::PARAM_INT]],
-            true
-        );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        $response = $db->fetchAssociative(
-            "SELECT * FROM contact WHERE contact_id = :id",
-            ['id' => [1000, PDO::PARAM_INT]],
-            true
-        );
-        expect($response)->toBeFalse();
-    });
-
-    it(
-        'execute delete with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id = :id", []);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute delete with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id = :id", [], true);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute delete with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id = :id", ['id' => 1], true);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute delete with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id = :id", ['id' => [1]], true);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute delete with incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id =", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute delete with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->delete("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it('execute several insert with correct query without type', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $response = $db->iterateInsert(
-            "contact",
-            ['contact_id', 'contact_name', 'contact_alias'],
-            [
-                ['contact_id' => 101, 'contact_name' => 'foo_name1', 'contact_alias' => 'foo_alias1'],
-                ['contact_id' => 102, 'contact_name' => 'foo_name2', 'contact_alias' => 'foo_alias2'],
-                ['contact_id' => 103, 'contact_name' => 'foo_name3', 'contact_alias' => 'foo_alias3']
-            ]
-        );
-        expect($response)->toBeInt()->toBe(3)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        $response = $db->fetchAllAssociative(
-            "SELECT contact_id FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-            ['id1' => 101, 'id2' => 102, 'id3' => 103]
-        );
-        expect($response)->toBeArray()
-            ->and($response[0]['contact_id'])->toBe(101)
-            ->and($response[1]['contact_id'])->toBe(102)
-            ->and($response[2]['contact_id'])->toBe(103);
-        $db->delete(
-            "DELETE FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-            ['id1' => 101, 'id2' => 102, 'id3' => 103]
-        );
-        expect(
-            $db->fetchAllAssociative(
-                "SELECT * FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-                ['id1' => 101, 'id2' => 102, 'id3' => 103]
-            )
-        )->toBeArray()->toBeEmpty();
-    });
-
-    it('execute several insert with correct query with type', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $response = $db->iterateInsert(
-            "contact",
-            ['contact_id', 'contact_name', 'contact_alias'],
-            [
-                [
-                    'contact_id' => [101, PDO::PARAM_INT],
-                    'contact_name' => ['foo_name1', PDO::PARAM_STR],
-                    'contact_alias' => ['foo_alias1', PDO::PARAM_STR]
-                ],
-                [
-                    'contact_id' => [102, PDO::PARAM_INT],
-                    'contact_name' => ['foo_name2', PDO::PARAM_STR],
-                    'contact_alias' => ['foo_alias2', PDO::PARAM_STR]
-                ],
-                [
-                    'contact_id' => [103, PDO::PARAM_INT],
-                    'contact_name' => ['foo_name3', PDO::PARAM_STR],
-                    'contact_alias' => ['foo_alias3', PDO::PARAM_STR]
-                ]
-            ],
-            true
-        );
-        expect($response)->toBeInt()->toBe(3)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        $response = $db->fetchAllAssociative(
-            "SELECT contact_id FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-            ['id1' => [101, PDO::PARAM_INT], 'id2' => [102, PDO::PARAM_INT], 'id3' => [103, PDO::PARAM_INT]],
-            true
-        );
-        expect($response)->toBeArray()
-            ->and($response[0]['contact_id'])->toBe(101)
-            ->and($response[1]['contact_id'])->toBe(102)
-            ->and($response[2]['contact_id'])->toBe(103);
-        $db->delete(
-            "DELETE FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-            ['id1' => [101, PDO::PARAM_INT], 'id2' => [102, PDO::PARAM_INT], 'id3' => [103, PDO::PARAM_INT]],
-            true
-        );
-        expect(
-            $db->fetchAllAssociative(
-                "SELECT * FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-                ['id1' => [101, PDO::PARAM_INT], 'id2' => [102, PDO::PARAM_INT], 'id3' => [103, PDO::PARAM_INT]],
-                true
-            )
-        )->toBeArray()->toBeEmpty();
-    });
-
-    it(
-        'execute iterateInsert with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->iterateInsert("contact", ['contact_id', 'contact_name', 'contact_alias'], []);
-            expect($response)->toBeInt()->toBe(0)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateInsert with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->iterateInsert("contact", ['contact_id', 'contact_name', 'contact_alias'], [], true);
-            expect($response)->toBeInt()->toBe(0)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateInsert with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->iterateInsert(
-                "contact",
-                ['contact_id', 'contact_name', 'contact_alias'],
-                [
-                    ['contact_id' => 101, 'contact_name' => 'foo_name1', 'contact_alias' => 'foo_alias1']
-                ],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateInsert with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->iterateInsert(
-                "contact",
-                ['contact_id', 'contact_name', 'contact_alias'],
-                [
-                    [
-                        'contact_id' => [101],
-                        'contact_name' => ['foo_name1'],
-                        'contact_alias' => ['foo_alias1']
-                    ]
-                ],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateInsert with empty table',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->iterateInsert("", ['contact_id', 'contact_name', 'contact_alias'], [
-                ['contact_id' => 101, 'contact_name' => 'foo_name1', 'contact_alias' => 'foo_alias1']
-            ]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateInsert with empty columns',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->iterateInsert("contact", [], [
-                ['contact_id' => 101, 'contact_name' => 'foo_name1', 'contact_alias' => 'foo_alias1']
-            ]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    // ---------------------------------------- ITERATE METHODS ----------------------------------------------
-
-    it(
-        'execute iterateAssociative with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociative("select * from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact['contact_id'])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociative with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociative("select * from contact where contact_id = :id", ['id' => 1]);
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact['contact_id'])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociative with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact['contact_id'])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociative with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociative with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociative with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociative with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociative("select * from", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociative with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {
-            }
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociative with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociative("", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateNumeric with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateNumeric("select * from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact[0])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateNumeric with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateNumeric("select * from contact where contact_id = :id", ['id' => 1]);
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact[0])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateNumeric with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact[0])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateNumeric with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateNumeric(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateNumeric with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateNumeric with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateNumeric with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateNumeric("select * from", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateNumeric with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateNumeric(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateNumeric with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateNumeric("", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateByColumn with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateByColumn("select * from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeInt()->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateByColumn with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateByColumn("select * from contact where contact_id = :id", ['id' => 1]);
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeInt()->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateByColumn with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                withParamType: true
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeInt()->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateByColumn with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "select * from contact where contact_id = :id",
-                withParamType: true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateByColumn with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                withParamType: true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateByColumn with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                withParamType: true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateByColumn with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateByColumn("select * from", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateByColumn with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateByColumn with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateByColumn("", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateKeyValue with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue("select contact_id, contact_alias from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveCount(1)
-                    ->and($contact)->toHaveKey(1)
-                    ->and($contact[1])->toBeString()->toBe('admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateKeyValue with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => 1]
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveCount(1)
-                    ->and($contact)->toHaveKey(1)
-                    ->and($contact[1])->toBeString()->toBe('admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateKeyValue with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveCount(1)
-                    ->and($contact)->toHaveKey(1)
-                    ->and($contact[1])->toBeString()->toBe('admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateKeyValue with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                [],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateKeyValue with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateKeyValue with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateKeyValue with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue("select contact_id, contact_alias from", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateKeyValue with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateKeyValue with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue("", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed("select * from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveKey(1)
-                    ->and($contact[1])->toBeArray()->toHaveKey('contact_alias', 'admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociativeIndexed with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed("select * from contact where contact_id = :id", ['id' => 1]);
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveKey(1)
-                    ->and($contact[1])->toBeArray()->toHaveKey('contact_alias', 'admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociativeIndexed with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveKey(1)
-                    ->and($contact[1])->toBeArray()->toHaveKey('contact_alias', 'admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociativeIndexed with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed("select * from", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed("", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
     // ---------------------------------------- DDL METHODS ----------------------------------------------
 
     it('execute updateDatabase with correct query', function () use ($dbConfigCentreon): void {
@@ -2204,242 +1826,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         expect($response)->toBeFalse();
     })->throws(CentreonDbException::class);
 
-    // ----------------------------------------- TRANSACTIONS -----------------------------------------
-
-    it('execute startTransaction with success', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $db->startTransaction();
-        expect($db->isTransactionActive())->toBeTrue();
-    });
-
-    it('execute commit with success', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $db->startTransaction();
-        $response = $db->commit();
-        expect($response)->toBeTrue()
-            ->and($db->isTransactionActive())->toBeFalse();
-    });
-
-    it('execute rollback with success', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $db->startTransaction();
-        $response = $db->rollback();
-        expect($response)->toBeTrue()
-            ->and($db->isTransactionActive())->toBeFalse();
-    });
-
-    // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
-
-    it('execute unbufferedQuery with correct query', function () use ($dbConfigCentreon): void {
-        $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-        $db->startUnbufferedQuery();
-        $stmt = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1");
-        expect($stmt)->toBeInstanceOf(PDOStatement::class);
-        $contact = $stmt->fetch();
-        expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
-            ->and($db->isUnbufferedQueryActive())->toBeTrue()
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class)
-            ->and($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
-        $db->stopUnbufferedQuery();
-        expect($db->isUnbufferedQueryActive())->toBeFalse()
-            ->and($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
-    });
-
-    it(
-        'stop unbuffered query without start unbuffered query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-            $db->stopUnbufferedQuery();
-        }
-    )->throws(CentreonDbException::class);
-
-    // ---------------------------------------- execute ----------------------------------------------
-
-    it(
-        'execute execute with correct query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $successExecute = $db->execute($pdoSth, ['contact_id' => 1]);
-            expect($successExecute)->toBeTrue()
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    // ---------------------------------------- executeQuery ----------------------------------------------
-
-    it(
-        'execute executeQuery with a correct query with associative fetch mode',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_ASSOC);
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $pdoSth->fetch();
-            expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute executeQuery with a correct query with numeric fetch mode',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_NUM);
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $pdoSth->fetch();
-            expect($contact)->toBeArray()->toHaveKey(0, 1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute executeQuery with a correct query with column fetch mode',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_COLUMN, [0]);
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $pdoSth->fetch();
-            expect($contact)->toBeInt()->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute executeQuery with a correct query with object fetch mode',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_OBJ);
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $pdoSth->fetch();
-            expect($contact)->toBeObject()->toHaveProperty('contact_id', 1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute executeQuery with an incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->executeQuery("foo");
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute executeQuery with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $db->executeQuery("");
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    // ---------------------------------------- makeBindValue ----------------------------------------------
-
-    it(
-        'execute makeBindValue with success',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $successBind = $db->makeBindValue($pdoSth, 'contact_id', 1, PDO::PARAM_INT);
-            expect($successBind)->toBeTrue();
-            $successExecute = $db->execute($pdoSth);
-            expect($successExecute)->toBeTrue()
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute makeBindValue with an empty param name',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->makeBindValue($pdoSth, '', 1, PDO::PARAM_INT);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute makeBindValue with a type that doesnt exist',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->makeBindValue($pdoSth, 'contact_id', 1, 999999);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    // ---------------------------------------- makeBindParam ----------------------------------------------
-
-    it(
-        'execute makeBindParam with success',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contactID = 1;
-            $successBind = $db->makeBindParam($pdoSth, 'contact_id', $contactID, PDO::PARAM_INT);
-            expect($successBind)->toBeTrue();
-            $successExecute = $db->execute($pdoSth);
-            expect($successExecute)->toBeTrue()
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
-        'execute makeBindParam with an empty param name',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contactID = 1;
-            $db->makeBindParam($pdoSth, '', $contactID, PDO::PARAM_INT);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'execute makeBindParam with a type that doesnt exist',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contactID = 1;
-            $db->makeBindParam($pdoSth, 'contact_id', $contactID, 9999999);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    )->throws(CentreonDbException::class);
-
-    // ---------------------------------------- OTHER METHODS ----------------------------------------------
-
-    it(
-        'execute closeQuery with success',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            $pdoSth->execute(['contact_id' => 1]);
-            $successClose = $db->closeQuery($pdoSth);
-            expect($successClose)->toBeTrue();
-        }
-    );
-
-    it(
-        'execute escapeString with success',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $escapedString = $db->escapeString('foo');
-            expect($escapedString)->toBeString()->toBe('\'foo\'');
-            $escapedString = $db->escapeString('1');
-            expect($escapedString)->toBeString()->toBe('\'1\'');
-        }
-    );
-
-    // ---------------------------------------- DEPRECATED METHODS ----------------------------------------------
+    // ---------------------------------------- executeQueryFetchAll ----------------------------------------------
 
     it(
         'execute executeQueryFetchAll query with a correct query',
@@ -2459,6 +1846,8 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
     )->throws(CentreonDbException::class);
+
+    // -------------------------------------- executeQueryFetchColumn ---------------------------------------------
 
     it(
         'execute executeQueryFetchColumn query with a correct query',
@@ -2493,6 +1882,8 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(CentreonDbException::class);
 
+    // ---------------------------------------- fetchColumn ----------------------------------------------
+
     it(
         'execute fetchColumn a correct query',
         function () use ($dbConfigCentreon): void {
@@ -2516,6 +1907,19 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
     )->throws(CentreonDbException::class);
+
+    // ---------------------------------------- escapeString ----------------------------------------------
+
+    it(
+        'execute escapeString with success',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $escapedString = $db->escapeString('foo');
+            expect($escapedString)->toBeString()->toBe('\'foo\'');
+            $escapedString = $db->escapeString('1');
+            expect($escapedString)->toBeString()->toBe('\'1\'');
+        }
+    );
 } else {
     it('no centreon database available for testing the CentreonDB connector, so these tests were ignored');
 }

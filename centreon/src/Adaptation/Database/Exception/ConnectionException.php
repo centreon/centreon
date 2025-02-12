@@ -298,18 +298,21 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable $previous
-     * @param string     $query
-     * @param array      $context
+     * @param \Throwable           $previous
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param array                $context
      *
      * @return ConnectionException
      */
     public static function selectQueryFailed(
         \Throwable $previous,
         string $query,
+        QueryParameters $queryParameters = null,
         array $context = []
     ): ConnectionException {
         $context['query'] = $query;
+        $context['query_parameters'] = $queryParameters;
 
         return new self(
             message: "Error while executing the select query : {$previous->getMessage()}",
