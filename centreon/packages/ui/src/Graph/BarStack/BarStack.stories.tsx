@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import ResponsiveBarStack from './ResponsiveBarStack';
+import ResponsiveBarStack from './BarStack';
 import { BarType } from './models';
 
 import { BarStack } from '.';
@@ -47,11 +47,19 @@ const TooltipContent = ({ label, color, value }: BarType): JSX.Element => {
 };
 
 const Template = (args): JSX.Element => {
-  return <ResponsiveBarStack height={300} width={500} {...args} />;
+  return (
+    <div style={{ width: '400px', height: '400px' }}>
+      <ResponsiveBarStack {...args} />
+    </div>
+  );
 };
 
 const SmallTemplate = (args): JSX.Element => {
-  return <ResponsiveBarStack height={120} width={120} {...args} />;
+  return (
+    <div style={{ width: '150px', height: '90px' }}>
+      <ResponsiveBarStack {...args} />
+    </div>
+  );
 };
 
 export const Vertical: Story = {
@@ -111,7 +119,8 @@ export const Horizontal: Story = {
     data,
     displayValues: true,
     title: 'hosts',
-    variant: 'horizontal'
+    variant: 'horizontal',
+    legendDirection: 'row'
   },
   render: Template
 };

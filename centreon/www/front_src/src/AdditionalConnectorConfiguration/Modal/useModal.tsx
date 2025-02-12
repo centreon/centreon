@@ -65,16 +65,21 @@ const useAdditionalConnectorModal = (): UseConnectorConfig => {
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => requestData.endpoint,
     method: requestData.method,
-    onSettled: () => setDialogState({ ...dialogState, isOpen: false }),
     onSuccess: () => {
       showSuccessMessage(t(requestData.labelOnSuccess));
+      setDialogState({ ...dialogState, isOpen: false });
       queryClient.invalidateQueries({ queryKey: ['listConnectors'] });
       queryClient.resetQueries({ queryKey: ['getOnACC'] });
     }
   });
 
-  const submit = (values: AdditionalConnectorConfiguration): void => {
-    mutateAsync({ payload: adaptFormDataToApiPayload(values) });
+  const submit = (
+    values: AdditionalConnectorConfiguration,
+    { setSubmitting }
+  ): void => {
+    mutateAsync({ payload: adaptFormDataToApiPayload(values) }).finally(() => {
+      setSubmitting(false);
+    });
   };
 
   return {

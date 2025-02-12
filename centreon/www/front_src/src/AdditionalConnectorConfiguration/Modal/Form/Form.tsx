@@ -18,6 +18,7 @@ import useFormInputs from './useFormInputs';
 import useValidationSchema from './useValidationSchema';
 
 import { FormActions, FormActionsProps } from '@centreon/ui/components';
+import CloseModalConfirmation from '../CloseModalConfirmation';
 
 export type AdditionalConnectorFormProps = {
   connectorId?: number;
@@ -70,11 +71,14 @@ const AdditionalConnector = ({
     setIsDirty(dirty);
 
     return (
-      <FormActions<AdditionalConnectorConfiguration>
-        labels={actionsLabels}
-        variant={variant}
-        onCancel={onCancel}
-      />
+      <>
+        <FormActions<AdditionalConnectorConfiguration>
+          labels={actionsLabels}
+          variant={variant}
+          onCancel={onCancel}
+        />
+        <CloseModalConfirmation />
+      </>
     );
   };
 
