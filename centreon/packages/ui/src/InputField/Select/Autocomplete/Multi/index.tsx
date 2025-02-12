@@ -9,10 +9,6 @@ import { SelectEntry } from '../..';
 import Option from '../../Option';
 
 const useStyles = makeStyles()((theme) => ({
-  checkbox: {
-    marginRight: theme.spacing(1),
-    padding: 0
-  },
   deleteIcon: {
     height: theme.spacing(1.5),
     width: theme.spacing(1.5)
@@ -34,29 +30,35 @@ export interface Props
       'multiple'
     > {
   disableSortedOptions?: boolean;
+  TagsProps?: {
+    tagsClassName?: string;
+  };
 }
 
 const MultiAutocompleteField = ({
   value,
   options,
   disableSortedOptions = false,
+  TagsProps,
   ...props
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const renderTags = (renderedValue, getTagProps): Array<JSX.Element> =>
-    renderedValue.map((option, index) => (
-      <Chip
-        classes={{
-          deleteIcon: classes.deleteIcon,
-          root: classes.tag
-        }}
-        key={option.id}
-        label={option.name}
-        size="medium"
-        {...getTagProps({ index })}
-      />
-    ));
+  const renderTags = (renderedValue, getTagProps): JSX.Element =>
+    <div className={TagsProps?.tagsClassName}>
+      {renderedValue.map((option, index) => (
+        <Chip
+          classes={{
+            deleteIcon: classes.deleteIcon,
+            root: classes.tag
+          }}
+          key={option.id}
+          label={option.name}
+          size="medium"
+          {...getTagProps({ index })}
+        />
+      ))}
+    </div>;
 
   const getLimitTagsText = (more): JSX.Element => <Option>{`+${more}`}</Option>;
 
