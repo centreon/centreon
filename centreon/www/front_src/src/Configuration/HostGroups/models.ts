@@ -3,16 +3,10 @@ export type NamedEntity = {
   name: string;
 };
 
-export interface IconType {
-  id: number;
-  name: string;
-  url: string;
-}
 export interface HostGroupListItem extends NamedEntity {
   alias: string | null;
   enabledHostsCount: number;
   disabledHostsCount: number;
-  icon: IconType | null;
   isActivated: boolean;
 }
 

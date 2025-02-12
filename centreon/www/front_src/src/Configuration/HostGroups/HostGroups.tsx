@@ -66,7 +66,7 @@ const HostGroups = () => {
         fieldType: FieldType.Status
       }
     ],
-    [t]
+    []
   );
 
   useEffect(() => {

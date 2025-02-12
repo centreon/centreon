@@ -1,14 +1,10 @@
 import { Suspense } from 'react';
 
-import { useTranslation } from 'react-i18next';
-
-import TuneIcon from '@mui/icons-material/Tune';
-
 import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
-
-import { labelFilters } from '../translatedLabels';
-
-import Filters from './Filters/Filters';
+import TuneIcon from '@mui/icons-material/Tune';
+import { useTranslation } from 'react-i18next';
+import { labelFilters } from '../../translatedLabels';
+import Filters from './Filters';
 
 const PopoverFilter = (): JSX.Element => {
   const { t } = useTranslation();

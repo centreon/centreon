@@ -20,7 +20,7 @@ const Add = (): JSX.Element => {
   return (
     <Button
       aria-label={t(labelAdd)}
-      data-testid="add-host-group"
+      data-testid="add-resource"
       icon={<AddIcon />}
       iconVariant="start"
       size="medium"

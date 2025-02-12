@@ -16,7 +16,6 @@ export const useFilterStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
     marginTop: theme.spacing(2)
   },
-
   filters: {
     maxWidth: theme.spacing(60),
     width: '100%'

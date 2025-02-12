@@ -1,3 +1,3 @@
-import Filters from './SearchBar/SearchBar';
+import Filters from './SearchBar';
 
 export default Filters;

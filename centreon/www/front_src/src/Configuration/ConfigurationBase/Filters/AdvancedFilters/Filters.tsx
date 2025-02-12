@@ -28,7 +28,7 @@ const Filters = (): JSX.Element => {
   } = useFilters();
 
   return (
-    <div className={classes.additionalFilters} data-testid="filters">
+    <div className={classes.additionalFilters} data-testid="advanced-filters">
       {filtersConfiguration?.map((filter) => {
         if (equals(filter.fieldType, FieldType.Status))
           return (

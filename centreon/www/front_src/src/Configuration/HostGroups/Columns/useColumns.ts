@@ -9,7 +9,6 @@ import {
 } from '../translatedLabels';
 import { truncateString } from '../utils';
 import Hosts from './Hosts/HostsCount';
-import Name from './Name/Name';
 
 interface Props {
   columns: Array<Column>;
@@ -21,12 +20,12 @@ const useColumns = (): Props => {
   const columns = [
     {
       disablePadding: false,
-      Component: Name,
+      getFormattedString: ({ name }) => truncateString(name),
       id: 'name',
       label: t(labelName),
       sortField: 'name',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.string
     },
     {
       disablePadding: false,

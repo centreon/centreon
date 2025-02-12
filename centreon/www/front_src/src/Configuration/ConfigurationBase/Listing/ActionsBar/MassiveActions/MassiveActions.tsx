@@ -39,7 +39,7 @@ const MassiveActions = (): JSX.Element => {
       <div className={cx(classes.actions, classes.buttons)}>
         <Button
           aria-label={t(labelDuplicate)}
-          data-testid="add-host-group"
+          data-testid={labelDuplicate}
           icon={<DuplicateIcon className={classes.duplicateIcon} />}
           iconVariant="start"
           size="medium"
@@ -52,7 +52,7 @@ const MassiveActions = (): JSX.Element => {
 
         <Button
           aria-label={t(labelDelete)}
-          data-testid="add-host-group"
+          data-testid={labelDelete}
           icon={<DeleteIcon className={classes.removeIcon} />}
           iconVariant="start"
           size="medium"
