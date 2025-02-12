@@ -68,6 +68,7 @@ docker compose --profile poller --profile vault -f .github/docker/docker-compose
 > [!NOTE]
 > Running containers can be listed with the following command: `docker ps`
 > Container terminal can be launched with the following command: `docker exec -ti <container_id> bash`
+> Container logs can be displayed with the following command: `docker logs <container_id>`
 
 
 ## :hand: Stop services
