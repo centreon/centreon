@@ -1,6 +1,7 @@
 import { filter, propEq } from 'ramda';
 import {
   labelAlias,
+  labelClear,
   labelDisabled,
   labelFilters,
   labelName,
@@ -11,7 +12,7 @@ import { filtersConfiguration } from './utils';
 
 export default (resourceType) => {
   describe('Filters', () => {
-    it.only('send a listing request with name filter when the search bar filled and enter key triggerd', () => {
+    it('sends a listing request with name filter when the search bar is filled and enter key is triggered', () => {
       initialize({ resourceType });
 
       cy.waitForRequest('@getAll');
@@ -30,16 +31,17 @@ export default (resourceType) => {
         });
       });
 
-      cy.matchImageSnapshot();
+      cy.matchImageSnapshot(
+        `${resourceType}: sends a listing request with name filter when the search bar is filled and enter key is triggered`
+      );
     });
 
-    it.only('send a listing request when filds are filled and the search button was clicked', () => {
+    it('sends a listing request when fields are filled and the search button is clicked', () => {
       initialize({ resourceType });
 
       cy.waitForRequest('@getAll');
 
       cy.get(`[data-testid="${labelFilters}"]`).eq(1).click();
-
       cy.get('[data-testid="advanced-filters"]').should('be.visible');
 
       cy.get(`[data-testid="${labelName}"]`)
@@ -67,10 +69,44 @@ export default (resourceType) => {
         });
       });
 
-      cy.matchImageSnapshot();
+      cy.matchImageSnapshot(
+        `${resourceType}: sends a listing request when fields are filled and the search button is clicked`
+      );
     });
 
-    it.only('advance filters icon must not be visible if only the name filed is filterable', () => {
+    it('clears all applied filters and sends a listing request with empty search parameters when the clear button is clicked', () => {
+      initialize({ resourceType });
+
+      cy.waitForRequest('@getAll');
+
+      cy.get(`[data-testid="${labelFilters}"]`).eq(1).click();
+      cy.get('[data-testid="advanced-filters"]').should('be.visible');
+
+      cy.get(`[data-testid="${labelName}"]`)
+        .eq(1)
+        .clear()
+        .type(`${resourceType} 1`);
+      cy.get(`[data-testid="${labelAlias}"]`)
+        .eq(1)
+        .clear()
+        .type(`${resourceType} alias 1`);
+
+      cy.findByTestId(labelDisabled).click();
+
+      cy.findByTestId(labelClear).click();
+
+      cy.waitForRequest('@getAll').then(({ request }) => {
+        expect(
+          JSON.parse(request.url.searchParams.get('search'))
+        ).to.deep.equal({ $and: [] });
+      });
+
+      cy.matchImageSnapshot(
+        `${resourceType}: clears all applied filters and sends a listing request with empty search parameters when the clear button is clicked`
+      );
+    });
+
+    it('hides the advanced filters icon when only the name field is filterable', () => {
       const onlyNameFilter = filter(
         propEq('name', 'fieldName'),
         filtersConfiguration
@@ -83,7 +119,9 @@ export default (resourceType) => {
 
       cy.get(`[data-testid="${labelFilters}"]`).should('not.exist');
 
-      cy.matchImageSnapshot();
+      cy.matchImageSnapshot(
+        `${resourceType}: hides the advanced filters icon when only the name field is filterable'`
+      );
     });
   });
 };
