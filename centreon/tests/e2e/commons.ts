@@ -188,6 +188,7 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
 
 		cy.log("Service count in database", foundServiceCount);
 		cy.log("Service database check step count", servicesFoundStepCount);
+		cy.log("Need", services.length, "services");
 
 		if (foundServiceCount >= services.length) {
 			servicesFoundStepCount = 0;
