@@ -133,7 +133,8 @@ interface ConnectionInterface
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
-     *          $nbAffectedRows = $db->insert('INSERT INTO table (id) VALUES (:id)', $queryParameters);
+     *          $nbAffectedRows = $db->insert('INSERT INTO table (id, name) VALUES (:id, :name)', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
     public function insert(string $query, ?QueryParameters $queryParameters = null): int;
 
