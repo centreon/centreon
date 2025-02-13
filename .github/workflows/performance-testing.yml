@@ -39,19 +39,19 @@ jobs:
         working-directory: centreon/tests/performanceTesting
 
     env:
-      DATABASE_URL: mysql://centreon:centreon@127.0.0.1:22222/centreon
-      CENTREON_API_URL: http://localhost:4000
-      LOGIN: admin
-      PASSWORD: Centreon!2021
-      API_BASE_URL: http://localhost:4000/centreon/api/index.php
-      NUMBER_OF_USERS: 100
-      NUMBER_OF_HOSTS: 10
-      NUMBER_OF_SERVICES: 10
-      NUMBER_OF_HOSTGROUPS: 30
-      NUMBER_OF_METASERVICES: 3
-      NUMBER_OF_SERVICES_CATEGORIS: 2
-      NUMBER_OF_SERVICE_GROUPS: 2
-      LOCAL_RUN: true
+    #   DATABASE_URL: mysql://centreon:centreon@127.0.0.1:22222/centreon
+    #   CENTREON_API_URL: http://localhost:4000
+    #   LOGIN: admin
+    #   PASSWORD: Centreon!2021
+    #   API_BASE_URL: http://localhost:4000/centreon/api/index.php
+    #   NUMBER_OF_USERS: 100
+    #   NUMBER_OF_HOSTS: 10
+    #   NUMBER_OF_SERVICES: 10
+    #   NUMBER_OF_HOSTGROUPS: 30
+    #   NUMBER_OF_METASERVICES: 3
+    #   NUMBER_OF_SERVICES_CATEGORIS: 2
+    #   NUMBER_OF_SERVICE_GROUPS: 2
+    #   LOCAL_RUN: true
       IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
       CONTAINER_NAME: ${{ inputs.container_name }}
