@@ -111,7 +111,12 @@ jobs:
       - name: Install JMeter
         run: |
           sudo apt update
-          sudo apt install -y jmeter
+          sudo apt install -y openjdk-11-jdk wget
+          wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.5.tgz
+          tar -xvzf apache-jmeter-5.5.tgz
+          sudo mv apache-jmeter-5.5 /opt/
+          sudo ln -s /opt/apache-jmeter-5.5/bin/jmeter /usr/local/bin/jmeter
+
 
       - name: Create JMeter Results Directory
         run: mkdir -p jmeterFolder/jmeter_results
