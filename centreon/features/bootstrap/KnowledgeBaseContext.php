@@ -212,7 +212,7 @@ class KnowledgeBaseContext extends CentreonContext
     {
         /* check url config */
         $this->visit('/main.php?p=60201');
-        $this->assertFind('css', '.list_one:nth-child(9) td:nth-child(3) a')->click();
+        $this->assertFind('css', '.list_one:nth-child(8) td:nth-child(3) a')->click();
         $this->assertFind('css', '#c5 a:nth-child(1)')->click();
         $fieldValue = $this->assertFind('css', 'input[name="esi_notes_url"]');
         $originalValue = $fieldValue->getValue();
