@@ -138,7 +138,7 @@ jobs:
         with:
           testFilePath: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/test.jmx"
           outputReportsFolder: "centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
-          args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf"
+          args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf -d"
         env:
           JMETER_HOME: "/usr/share/jmeter"
           JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
