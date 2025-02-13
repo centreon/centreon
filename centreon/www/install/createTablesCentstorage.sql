@@ -330,6 +330,8 @@ CREATE TABLE `resources` (
   `output` text DEFAULT NULL,
   `enabled` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0=resource disabled, 1=resource enabled',
   `icon_id` bigint(20) unsigned DEFAULT NULL,
+  `flapping` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0=false, 1=true',
+  `percent_state_change` float DEFAULT NULL,
   PRIMARY KEY (`resource_id`),
   UNIQUE KEY `resources_id_parent_id_type_uindex` (`id`,`parent_id`,`type`),
   KEY `resources_severities_severity_id_fk` (`severity_id`),
@@ -353,6 +355,13 @@ CREATE TABLE `resources_tags` (
   KEY `resources_tags_tag_id_fk` (`tag_id`),
   CONSTRAINT `resources_tags_resources_resource_id_fk` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`resource_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `resources_tags_tag_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `agent_information` (
+  `poller_id` bigint(20) unsigned NOT NULL,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `infos` JSON NOT NULL,
+  PRIMARY KEY (`poller_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

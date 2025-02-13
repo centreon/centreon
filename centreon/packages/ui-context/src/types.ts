@@ -140,3 +140,8 @@ export interface PlatformVersions {
   web: Version;
   widgets: Record<string, Version | null>;
 }
+
+export interface UserPermissions {
+  top_counter: boolean;
+  poller_statistics: boolean;
+}

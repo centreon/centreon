@@ -9,5 +9,6 @@
       "required": true
     }
   },
-  "moduleName": "centreon-widget-input"
+  "moduleName": "centreon-widget-input",
+  "widgetType": "Generic widgets"
 }

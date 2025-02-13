@@ -157,11 +157,8 @@ if (!isset($path)) {
     $path = null;
 }
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl, "./include/common/");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path, "./include/common/");
 
 $page_max = ceil($rows / $limit);
 if ($num >= $page_max && $rows) {

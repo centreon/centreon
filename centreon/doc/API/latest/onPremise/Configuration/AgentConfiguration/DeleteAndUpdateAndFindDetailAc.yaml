@@ -49,6 +49,7 @@ get:
     - $ref: 'QueryParameter/AgentConfigurationId.yaml'
   responses:
     '200':
+      description: "Configuration retrieved successfully"
       content:
         application/json:
           schema:
@@ -60,3 +61,4 @@ get:
     '404':
       $ref: '../../Common/Response/NotFound.yaml'
     '500':
+      $ref: "../../../Common/Response/InternalServerError.yaml"

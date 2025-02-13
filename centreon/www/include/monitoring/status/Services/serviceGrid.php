@@ -65,11 +65,8 @@ $aTypeAffichageLevel1 = ["svcOV" => _("Details"), "svcSum" => _("Summary")];
 
 $aTypeAffichageLevel2 = ["" => _("All"), "pb" => _("Problems"), "ack_1" => _("Acknowledge"), "ack_0" => _("Not Acknowledged")];
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($svc_path, $tpl, "/templates/");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($svc_path, '/templates/');
 
 $tpl->assign("p", $p);
 $tpl->assign('o', $o);
