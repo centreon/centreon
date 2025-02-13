@@ -2,7 +2,7 @@ name: Performance Testing
 
 on:
   pull_request:
-  workflow_call:  # Permet d'exécuter depuis un autre workflow
+  workflow_call:
     inputs:
       image_name:
         required: true
@@ -49,18 +49,18 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # Récupère le code source
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4.2.0
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install Dependencies
-        run: npm ci  # Installation des dépendances en mode clean
+        run: npm ci
 
       - name: Login to Docker Registry
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v3
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
@@ -68,7 +68,7 @@ jobs:
 
       - name: Restore Standard Slim Image from Cache
         id: cache-docker-slim
-        uses: actions/cache/restore@v4.2.0
+        uses: actions/cache/restore@v4
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -78,7 +78,7 @@ jobs:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
       - name: Load Standard Slim Image
-        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+        if: steps.cache-docker-slim.outputs.cache-hit == 'true'
         run: |
           docker load --input /tmp/cache/docker-image/centreon-web-slim-alma9.tar
           docker tag docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979
@@ -88,43 +88,45 @@ jobs:
             WEB_IMAGE: 'docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979'
             MYSQL_IMAGE: 'bitnami/mariadb:10.11'
         run: |
-            # Démarrer les services Docker avec docker-compose
             docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
 
-            # Vérifier si un script de configuration est nécessaire et l'exécuter
             if [[ -f "../../../.github/docker/setup.sh" ]]; then
-            echo "Running setup.sh ..."
-            bash -ex "../../../.github/docker/setup.sh"
+                echo "Running setup.sh ..."
+                bash -ex "../../../.github/docker/setup.sh"
             fi
 
-            # Exécuter un script de configuration supplémentaire pour le service web si nécessaire
             if [[ -f "../../../.github/docker/setup-web.sh" ]]; then
-            echo "Running setup-web.sh ..."
-            docker compose -f ../../../.github/docker/docker-compose.yml cp ../../../.github/docker/setup-web.sh web:/tmp/setup-web.sh
-            docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
+                echo "Running setup-web.sh ..."
+                docker compose -f ../../../.github/docker/docker-compose.yml cp ../../../.github/docker/setup-web.sh web:/tmp/setup-web.sh
+                docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
             fi
         shell: bash
 
+      - name: Adding Hosts
+        run: node addingHosts.mjs
 
-      - name: Adding hosts<
-        run: node addingHosts.mjs  # Exécute ton script
-
-
-      - name: Adding users
-        run: node AddingUsers.mjs  # Exécute ton script
+      - name: Adding Users
+        run: node AddingUsers.mjs
 
       - name: Create JMeter Results Directory
-        run: mkdir -p ./github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+        run: mkdir -p jmeterFolder/jmeter_results
+
+      - name: Check if JMeter Test Plan Exists
+        run: |
+          if [[ ! -f "jmeterFolder/test.jmx" ]]; then
+            echo "❌ ERREUR : Le fichier de test JMeter n'existe pas !"
+            exit 1
+          fi
 
       - name: Run Performance Testing with JMeter
         uses: rbhadti94/apache-jmeter-action@v0.7.0
         with:
-          testFilePath: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/test.jmx"
-          outputReportsFolder: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
-          args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf"
+          testFilePath: "jmeterFolder/test.jmx"
+          outputReportsFolder: "jmeterFolder/jmeter_results"
+          args: "-n -t jmeterFolder/test.jmx -l jmeterFolder/results.jtl -e -o jmeterFolder/jmeter_results --loglevel DEBUG"
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
-          path: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
+          path: "jmeterFolder/jmeter_results"
