@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
-import { Column, ColumnType } from '@centreon/ui';
+import { Column, ColumnType, truncate } from '@centreon/ui';
 import {
   labelAlias,
   labelDisabledHosts,
   labelEnabledHosts,
   labelName
 } from '../translatedLabels';
-import { truncateString } from '../utils';
 import Hosts from './Hosts/HostsCount';
 
 interface Props {
@@ -20,7 +19,7 @@ const useColumns = (): Props => {
   const columns = [
     {
       disablePadding: false,
-      getFormattedString: ({ name }) => truncateString(name),
+      getFormattedString: ({ name }) => truncate(name, 50),
       id: 'name',
       label: t(labelName),
       sortField: 'name',
@@ -29,7 +28,7 @@ const useColumns = (): Props => {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ alias }) => truncateString(alias),
+      getFormattedString: ({ alias }) => truncate(alias, 50),
       id: 'alias',
       label: t(labelAlias),
       sortField: 'alias',
