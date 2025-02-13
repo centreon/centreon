@@ -63,6 +63,21 @@ on:
       stability:
         required: true
         type: string
+    secrets:
+      registry_username:
+        required: true
+      registry_password:
+        required: true
+      client_id:
+        required: true
+      client_secret:
+        required: true
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   performance-test:
