@@ -103,8 +103,8 @@ jobs:
 
       - name: Start Centreon Web and Database Containers
         env:
-            WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-            MYSQL_IMAGE: ${{ inputs.database_image }}
+            WEB_IMAGE: 'docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979'
+            MYSQL_IMAGE: 'bitnami/mariadb:10.11'
         run: |
             # Démarrer les services Docker avec docker-compose
             docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
