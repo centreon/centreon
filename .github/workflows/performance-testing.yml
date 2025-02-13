@@ -62,12 +62,14 @@ jobs:
 
 
     steps:
-      - name: Vérifier la présence du fichier .jmx
-        run: |
-          ls -la /github/workspace/
+
 
       - name: Checkout Repository
         uses: actions/checkout@v4  # Récupère le code source
+
+      - name: Vérifier la présence du fichier .jmx
+        run: |
+          ls -la /github/workspace/
 
       - name: Setup Node.js
         uses: actions/setup-node@v4.2.0
