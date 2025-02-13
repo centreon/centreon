@@ -2,6 +2,10 @@ import { equals, flatten } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
+import {
+  WidgetResourceType,
+  hostGroupParameter
+} from '../../../../AddEditWidget/models';
 import { Resource } from '../../../models';
 
 export const serviceStatusesEndpoint = '/monitoring/services/status';
@@ -23,9 +27,15 @@ export const buildResourcesEndpoint = ({
 
   const formattedResources = resources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
+      const resourceTypeName = equals(
+        resource.resourceType,
+        WidgetResourceType.hostGroup
+      )
+        ? hostGroupParameter
+        : resource.resourceType;
       return {
         ...resource,
-        resourceType: `${resource.resourceType.replace('-', '_')}.name`
+        resourceType: `${resourceTypeName.replace('-', '_')}.name`
       };
     }
 

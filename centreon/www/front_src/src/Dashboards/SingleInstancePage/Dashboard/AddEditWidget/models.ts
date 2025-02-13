@@ -97,6 +97,8 @@ export interface ServiceMetric extends NamedEntity {
   uuid: string;
 }
 
+export const hostGroupParameter = 'host-group';
+
 export enum WidgetResourceType {
   host = 'host',
   hostCategory = 'host-category',
