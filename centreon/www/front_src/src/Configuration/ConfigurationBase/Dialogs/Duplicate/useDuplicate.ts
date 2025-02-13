@@ -7,16 +7,19 @@ import pluralize from 'pluralize';
 import { equals, isEmpty, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { configurationAtom } from '../../../../atoms';
-import { resourcesToDuplicateAtom, selectedRowsAtom } from '../../atoms';
+import { configurationAtom } from '../../../atoms';
+import {
+  resourcesToDuplicateAtom,
+  selectedRowsAtom
+} from '../../Listing/atoms';
 
-import { useDuplicate as useDuplicateRequest } from '../../../api';
+import { useDuplicate as useDuplicateRequest } from '../../api';
 import {
   labelDuplicateResource,
   labelDuplicateResourceConfirmation,
   labelDuplicateResourcesConfirmation,
   labelResourceDuplicated
-} from '../../../translatedLabels';
+} from '../../translatedLabels';
 
 interface UseDuplicateProps {
   confirm: () => void;

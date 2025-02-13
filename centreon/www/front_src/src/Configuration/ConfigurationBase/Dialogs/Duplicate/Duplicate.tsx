@@ -8,7 +8,7 @@ import {
   labelCancel,
   labelDuplicate,
   labelDuplications
-} from '../../../translatedLabels';
+} from '../../translatedLabels';
 import { useStyles } from './Duplicate.styles';
 import useDuplicate from './useDuplicate';
 

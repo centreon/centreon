@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 
-import { labelCancel, labelDelete } from '../../../translatedLabels';
+import { labelCancel, labelDelete } from '../../translatedLabels';
 
 import useDelete from './useDelete';
 

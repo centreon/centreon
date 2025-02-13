@@ -7,20 +7,20 @@ import pluralize from 'pluralize';
 import { equals, isEmpty, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { configurationAtom } from '../../../../atoms';
-import { resourcesToDeleteAtom, selectedRowsAtom } from '../../atoms';
+import { configurationAtom } from '../../../atoms';
+import { resourcesToDeleteAtom, selectedRowsAtom } from '../../Listing/atoms';
 
 import {
   useDeleteOne as useDeleteOneRequest,
   useDelete as useDeleteRequest
-} from '../../../api';
+} from '../../api';
 
 import {
   labelDeleteResource,
   labelDeleteResourceConfirmation,
   labelDeleteResourcesConfirmation,
   labelResourceDeleted
-} from '../../../translatedLabels';
+} from '../../translatedLabels';
 
 interface UseDeleteState {
   confirm: () => void;
