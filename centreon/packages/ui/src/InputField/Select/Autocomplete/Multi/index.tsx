@@ -29,8 +29,8 @@ export interface Props
       UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
       'multiple'
     > {
+  customRenderTags?: (tags: React.ReactNode) => React.ReactNode;
   disableSortedOptions?: boolean;
-  customRenderTags?: Function;
 }
 
 const MultiAutocompleteField = ({
@@ -42,7 +42,7 @@ const MultiAutocompleteField = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const renderTags = (renderedValue, getTagProps): Array<JSX.Element> =>
+  const renderTags = (renderedValue, getTagProps): React.ReactNode =>
     renderedValue.map((option, index) => (
       <Chip
         classes={{
@@ -85,9 +85,10 @@ const MultiAutocompleteField = ({
           <Option checkboxSelected={selected}>{option.name}</Option>
         </li>
       )}
-      renderTags={(renderedValue, getTagProps) => customRenderTags
-        ? customRenderTags(renderTags(renderedValue, getTagProps))
-        : renderTags(renderedValue, getTagProps)
+      renderTags={(renderedValue, getTagProps): React.ReactNode =>
+        customRenderTags
+          ? customRenderTags(renderTags(renderedValue, getTagProps))
+          : renderTags(renderedValue, getTagProps)
       }
       value={value}
       {...props}
