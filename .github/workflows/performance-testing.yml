@@ -130,6 +130,9 @@ jobs:
       - name: Adding users
         run: node AddingUsers.mjs  # Exécute ton script
 
+      - name: Create JMeter Results Directory
+        run: mkdir -p ./github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+
       - name: Run Performance Testing with JMeter
         uses: rbhadti94/apache-jmeter-action@v0.7.0
         with:
