@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,48 +34,6 @@ use Adaptation\Database\Collection\QueryParameters;
  */
 class ConnectionException extends DatabaseException
 {
-    /**
-     * @param \Throwable $previous
-     *
-     * @return ConnectionException
-     */
-    public static function connectionFailed(\Throwable $previous): ConnectionException
-    {
-        return new self(
-            message: "Error during the initialization of the connection : {$previous->getMessage()}",
-            code: self::ERROR_CODE_DATABASE,
-            previous: $previous
-        );
-    }
-
-    /**
-     * @param \Throwable $previous
-     *
-     * @return ConnectionException
-     */
-    public static function getNativeConnectionFailed(\Throwable $previous): ConnectionException
-    {
-        return new self(
-            "Error while getting the native connection : {$previous->getMessage()}",
-            code: self::ERROR_CODE_DATABASE,
-            previous: $previous
-        );
-    }
-
-    /**
-     * @param \Throwable $previous
-     *
-     * @return ConnectionException
-     */
-    public static function getDatabaseFailed(\Throwable $previous): ConnectionException
-    {
-        return new self(
-            "Error while getting the database",
-            code: self::ERROR_CODE_DATABASE,
-            previous: $previous
-        );
-    }
-
     /**
      * @return ConnectionException
      */
