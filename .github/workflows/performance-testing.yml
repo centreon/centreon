@@ -137,7 +137,7 @@ jobs:
         uses: rbhadti94/apache-jmeter-action@v0.7.0
         with:
           testFilePath: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/test.jmx"
-          outputReportsFolder: "./github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"  # Répertoire pour les résultats
+          outputReportsFolder: "centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
           args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf"
         env:
           JMETER_HOME: "/usr/share/jmeter"
