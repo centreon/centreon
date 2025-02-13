@@ -24,6 +24,7 @@ use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ConnectionInterface;
 use Adaptation\Database\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Exception\ConnectionException;
+use Adaptation\Database\ValueObject\QueryParameter;
 
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
@@ -320,7 +321,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             if (! is_null($queryParameters) && ! $queryParameters->isEmpty()) {
                 foreach ($queryParameters->getIterator() as $queryParameter) {
                     $pdoStatement->bindValue(
-                        $queryParameter->getName(),
+                        ":{$queryParameter->getName()}",
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null) ?
                             $queryParameter->getType()->value : QueryParameterTypeEnum::STRING
@@ -388,6 +389,8 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used for several INSERT.
      *
+     * $batchInsertParameters is a collection of QueryParameters, each QueryParameters is a collection of QueryParameter
+     *
      * @param string                $tableName
      * @param array                 $columns
      * @param BatchInsertParameters $batchInsertParameters
@@ -420,6 +423,19 @@ class CentreonDB extends PDO implements ConnectionInterface
             $valuesInsert = [];
             $queryParametersToInsert = new QueryParameters([]);
 
+            $indexQueryParameterToInsert = 1;
+
+            /*
+             * $batchInsertParameters is a collection of QueryParameters, each QueryParameters is a collection of QueryParameter
+             * We need to iterate over the QueryParameters to build the final query.
+             * Then, for each QueryParameters, we need to iterate over the QueryParameter to build :
+             *  - to check if the query parameters are not empty (queryParameters)
+             *  - to check if the columns and query parameters have the same length (columns, queryParameters)
+             *  - to rename the parameter name to avoid conflicts with a suffix (indexQueryParameterToInsert)
+             *  - the values block of the query (valuesInsert)
+             *  - the query parameters to insert (queryParametersToInsert)
+             */
+
             foreach ($batchInsertParameters->getIterator() as $queryParameters) {
                 if ($queryParameters->isEmpty()) {
                     throw ConnectionException::batchInsertQueryBadUsage('Query parameters must not be empty');
@@ -429,9 +445,33 @@ class CentreonDB extends PDO implements ConnectionInterface
                         'Columns and query parameters must have the same length'
                     );
                 }
-                $valuesInsert[] = '(' . implode(', ', array_fill(0, $queryParameters->length(), '?')) . ')';
-                $queryParametersToInsert = $queryParametersToInsert->mergeWith($queryParameters);
+
+                $valuesInsertItem = '';
+
+                foreach ($queryParameters->getIterator() as $queryParameter) {
+                    if (! empty($valuesInsertItem)) {
+                        $valuesInsertItem .= ', ';
+                    }
+                    $parameterName = "{$queryParameter->getName()}_{$indexQueryParameterToInsert}";
+                    $queryParameterToInsert = QueryParameter::create(
+                        $parameterName,
+                        $queryParameter->getValue(),
+                        $queryParameter->getType()
+                    );
+                    $valuesInsertItem .= ":$parameterName";
+                    $queryParametersToInsert->add($queryParameterToInsert->getName(), $queryParameterToInsert);
+                }
+
+                $valuesInsert[] = "({$valuesInsertItem})";
+                $indexQueryParameterToInsert++;
             }
+
+            if (count($valuesInsert) === $queryParametersToInsert->length()) {
+                throw ConnectionException::batchInsertQueryBadUsage(
+                    'Error while building the final query : values block and query parameters have not the same length'
+                );
+            }
+
             $query .= implode(', ', $valuesInsert);
 
             return $this->executeStatement($query, $queryParametersToInsert);
@@ -446,7 +486,13 @@ class CentreonDB extends PDO implements ConnectionInterface
                 query: $query ?? '',
                 previous: $e,
             );
-            throw ConnectionException::batchInsertQueryFailed($e, $tableName, $columns, $batchInsertParameters);
+            throw ConnectionException::batchInsertQueryFailed(
+                previous: $e,
+                tableName: $tableName,
+                columns: $columns,
+                batchInsertParameters: $batchInsertParameters,
+                query: $query ?? ''
+            );
         }
     }
 
@@ -617,8 +663,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
 
             return $this->fetch($pdoStatement);
         } catch (\Throwable $e) {
@@ -651,8 +696,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
 
             return $this->fetch($pdoStatement);
         } catch (\Throwable $e) {
@@ -686,8 +730,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_COLUMN);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
 
             return $this->fetch($pdoStatement)[0] ?? false;
         } catch (\Throwable $e) {
@@ -721,8 +764,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
 
             return $this->fetchAll($pdoStatement);
         } catch (\Throwable $e) {
@@ -755,8 +797,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
 
             return $this->fetchAll($pdoStatement);
         } catch (\Throwable $e) {
@@ -789,8 +830,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
 
             return $this->fetchAll($pdoStatement);
         } catch (\Throwable $e) {
@@ -825,8 +865,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
 
             return $this->fetchAll($pdoStatement);
         } catch (\Throwable $e) {
@@ -860,8 +899,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_KEY_PAIR);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
 
             return $this->fetchAll($pdoStatement);
         } catch (\Throwable $e) {
@@ -937,8 +975,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
             while (($row = $this->fetch($pdoStatement)) !== false) {
                 yield $row;
             }
@@ -976,8 +1013,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
             while (($row = $this->fetch($pdoStatement)) !== false) {
                 yield $row;
             }
@@ -1015,8 +1051,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
             while (($row = $this->fetch($pdoStatement)) !== false) {
                 yield $row;
             }
@@ -1054,8 +1089,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executeSelectQuery($pdoStatement, $queryParameters, \PDO::FETCH_KEY_PAIR);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
             while (($row = $this->fetch($pdoStatement)) !== false) {
                 yield $row;
             }
@@ -1095,7 +1129,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         try {
             $this->validateSelectQuery($query);
             foreach ($this->iterateAssociative($query, $queryParameters) as $row) {
-                yield [array_shift($row) => $row];
+                yield array_shift($row) => $row;
             }
         } catch (\Throwable $e) {
             $this->writeDbLog(
@@ -1194,7 +1228,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * @throws ConnectionException
      */
-    public function allowUnbufferedQuery(): void
+    public function allowUnbufferedQuery(): bool
     {
         $currentDriverName = $this->getAttribute(PDO::ATTR_DRIVER_NAME);
         if (! in_array($currentDriverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY)) {
@@ -1204,6 +1238,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
             throw ConnectionException::allowUnbufferedQueryFailed(parent::class, $currentDriverName);
         }
+        return true;
     }
 
     /**
@@ -1819,7 +1854,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         if (empty($query)) {
             throw ConnectionException::notEmptyQuery();
         }
-        if (! str_starts_with($query, 'SELECT')) {
+        if (! str_starts_with($query, 'SELECT') && ! str_starts_with($query, 'select')) {
             throw ConnectionException::selectQueryBadFormat($query);
         }
     }
