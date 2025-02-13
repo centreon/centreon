@@ -2,41 +2,6 @@ name: Performance Testing
 
 on:
   pull_request:
-  workflow_dispatch:  # Permet d'exécuter manuellement le workflow
-    inputs:
-      image_name:
-        description: "Nom de l'image"
-        required: true
-        type: string
-      os:
-        description: "Système d'exploitation"
-        required: true
-        type: string
-      container_name:
-        description: "Nom du conteneur"
-        required: true
-        type: string
-      centreon_url:
-        description: "URL de Centreon"
-        required: true
-        type: string
-      centreon_image:
-        description: "Image Docker Centreon"
-        required: true
-        type: string
-      database_image:
-        description: "Image Docker de la base de données"
-        required: true
-        type: string
-      major_version:
-        description: "Version majeure de Centreon"
-        required: true
-        type: string
-      stability:
-        description: "Stabilité de l'environnement"
-        required: true
-        type: string
-
   workflow_call:  # Permet d'exécuter depuis un autre workflow
     inputs:
       image_name:
@@ -63,21 +28,6 @@ on:
       stability:
         required: true
         type: string
-    secrets:
-      registry_username:
-        required: true
-      registry_password:
-        required: true
-      client_id:
-        required: true
-      client_secret:
-        required: true
-      jira_base_url:
-        required: true
-      jira_user_email:
-        required: true
-      jira_api_token:
-        required: true
 
 jobs:
   performance-test:
@@ -120,17 +70,13 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci  # Installation des dépendances en mode clean
-        env:
-          CYPRESS_INSTALL_BINARY: "0"
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Login to Docker Registry
         uses: docker/login-action@v3.3.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.registry_username }}
-          password: ${{ secrets.registry_password }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
       - name: Restore Standard Slim Image from Cache
         id: cache-docker-slim
