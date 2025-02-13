@@ -82,7 +82,7 @@ jobs:
 
       - name: Vérifier la présence du fichier .jmx
         run: |
-           ls -la /github/workspace/centreon/tests/performanceTesting/
+           ls -la performanceTesting/
 
       - name: Print environment variables
         run: |
