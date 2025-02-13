@@ -178,7 +178,10 @@ class CentreonCeip extends CentreonWebService
         // Get Instance information
         $instanceInformation = $this->getServerType();
 
-        $accountInformation = [
+        // Get LACCESS
+        $laccess = $this->getLaccess();
+
+        $accountInformation =  [
             'id' => $this->uuid,
             'name' => $licenseInfo['companyName'],
             'serverType' => $instanceInformation['type'],
@@ -197,6 +200,10 @@ class CentreonCeip extends CentreonWebService
         }
         if (isset($licenseInfo['fingerprint'])) {
             $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
+        }
+
+        if (!empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
+            $accountInformation['LACCESS'] = $laccess;
         }
 
         return $accountInformation;
@@ -228,6 +235,7 @@ class CentreonCeip extends CentreonWebService
                     $licenseInformation[$module] = $licenseObject->getData();
                     $licenseClientName = $licenseInformation[$module]['client']['name'];
                     $hostsLimitation = $licenseInformation[$module]['licensing']['hosts'];
+                    $licenseMode = $licenseInformation[$module]['platform']['mode'] ?? null;
                     $licenseStart = DateTime::createFromFormat(
                         'Y-m-d',
                         $licenseInformation[$module]['licensing']['start']
@@ -275,6 +283,10 @@ class CentreonCeip extends CentreonWebService
             $licenseInformation['fingerprint'] = $fingerprint;
         }
 
+        if (isset($licenseMode)) {
+            $licenseInformation['mode'] = $licenseMode;
+        }
+
         return $licenseInformation;
     }
 
@@ -319,6 +331,49 @@ class CentreonCeip extends CentreonWebService
             return true;
         } else {
             return false;
+        }
+    }
+
+
+    /**
+     * Get LACCESS to complete the connection between Pendo and Salesforce.
+     *
+     * @return string LACCESS value from options table.
+     *
+     * @throws PDOException
+     *
+     */
+    private function getLaccess(): string
+    {
+        $sql = "SELECT `value` FROM `options` WHERE `key` = 'LACCESS' LIMIT 1";
+
+        return (string) $this->sqlFetchValue($sql);
+    }
+
+    /**
+     * Helper to retrieve the first value of a SQL query.
+     *
+     * @param string $sql
+     * @param array{string, mixed, int} ...$binds List of [':field', $value, \PDO::PARAM_STR]
+     *
+     * @return string|float|int|null
+     */
+    private function sqlFetchValue(string $sql, array ...$binds): string|float|int|null
+    {
+        try {
+            $statement = $this->pearDB?->prepare($sql) ?: null;
+            foreach ($binds as $args) {
+                $statement?->bindValue(...$args);
+            }
+            $statement?->execute();
+            $row = $statement?->fetch(PDO::FETCH_NUM);
+            $value = is_array($row) && isset($row[0]) ? $row[0] : null;
+
+            return is_string($value) || is_int($value) || is_float($value) ? $value : null;
+        } catch (PDOException $exception) {
+            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+
+            return null;
         }
     }
 }
