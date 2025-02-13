@@ -58,6 +58,8 @@ jobs:
       CENTREON_URL: ${{ inputs.centreon_url }}
       WEB_IMAGE: ${{ inputs.centreon_image }}
       DATABASE_IMAGE: ${{ inputs.database_image }}
+      CSV_FILE_PATH: users.csv
+
 
     steps:
       - name: Checkout Repository
@@ -126,3 +128,18 @@ jobs:
 
       - name: Run Performance Testing Script
         run: node addingHosts.mjs  # Exécute ton script
+
+
+      - name: Adding users
+        run: node AddingUsers.mjs.mjs  # Exécute ton script
+
+      - name: Run Performance Testing with JMeter
+        uses: rbhadti94/apache-jmeter-action@v0.7.0
+        with:
+          testFilePath: "./jmeterFolder/test.jmx"  # Chemin vers ton fichier .jmx
+          outputReportsFolder: "./jmeter_results"  # Répertoire pour les résultats
+          args: "--loglevel INFO -JMyProperty=Value --jmeterlogconf=log.conf"
+        env:
+          JMETER_HOME: "/usr/share/jmeter"
+          JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
+          CSV_FILE_PATH: ${{ env.CSV_FILE_PATH }}
