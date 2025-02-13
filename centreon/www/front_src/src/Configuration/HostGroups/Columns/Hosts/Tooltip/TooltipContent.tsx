@@ -10,9 +10,9 @@ import {
   labelNoEnabledHosts
 } from '../../../translatedLabels';
 
+import { truncate } from '@centreon/ui';
 import { useMemo } from 'react';
 import { NamedEntity } from '../../../models';
-import { truncateString } from '../../../utils';
 import { useTooltipStyles } from './TooltipContent.styles';
 import { useLoadHosts } from './useLoadHosts';
 
@@ -69,7 +69,7 @@ const TooltipBody = ({
               fontWeight: theme.typography.fontWeightRegular
             }}
           >
-            {truncateString(name, 30)}
+            {truncate(name, 30)}
           </Typography>
         );
       })}
