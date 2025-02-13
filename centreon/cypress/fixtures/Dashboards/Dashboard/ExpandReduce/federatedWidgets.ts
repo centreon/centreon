@@ -1211,7 +1211,7 @@
                     "requireResourceType": true,
                     "singleResourceType": true,
                     "restrictedResourceTypes": [
-                        "host-group",
+                        "hostgroup",
                         "service-group"
                     ]
                 }
