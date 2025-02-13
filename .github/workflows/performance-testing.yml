@@ -69,7 +69,7 @@ jobs:
 
       - name: Vérifier la présence du fichier .jmx
         run: |
-          ls -la /github/workspace/
+          pwd && ls -la
 
       - name: Setup Node.js
         uses: actions/setup-node@v4.2.0
