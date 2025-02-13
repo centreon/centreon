@@ -146,8 +146,8 @@ jobs:
       - name: Upload JMeter log as artifact
         uses: actions/upload-artifact@v2
         with:
-            name: jmeter-log
-            path: centreon/tests/performanceTesting/jmeterFolder/jmeter_log.log
+          name: jmeter-log
+          path: centreon/tests/performanceTesting/jmeterFolder/jmeter_log.log
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
