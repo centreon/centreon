@@ -121,7 +121,7 @@ jobs:
           jmeter -n \
             -t jmeterFolder/test.jmx \
             -l jmeterFolder/jmeter_results/results.jtl \
-            -e -o jmeterFolder/jmeter_results \
+            -o jmeterFolder/jmeter_results/reports \
             --loglevel DEBUG
 
       - name: Upload JMeter Results
