@@ -109,4 +109,46 @@ final readonly class ConnectionConfig
     {
         return $this->driver;
     }
+
+    /**
+     * @return string
+     */
+    public function getMysqlDsn(): string
+    {
+        return sprintf(
+            "mysql:dbname=%s;host=%s;port=%s",
+            $this->getDatabaseName(),
+            $this->getHost(),
+            $this->getPort()
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getOracleDsn(): string
+    {
+        return sprintf(
+            "oci:dbname=//%s:%s/%s",
+            $this->getHost(),
+            $this->getPort(),
+            $this->getDatabaseName()
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getPgsqlDsn(): string
+    {
+        return sprintf(
+            "pgsql:host=%s;port=%s;dbname=%s;user=%s;password=%s",
+            $this->getHost(),
+            $this->getPort(),
+            $this->getDatabaseName(),
+            $this->getUser(),
+            $this->getPassword(),
+        );
+    }
+
 }

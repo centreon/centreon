@@ -27,6 +27,7 @@ use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Exception\ConnectionException;
+use Adaptation\Database\Model\ConnectionConfig;
 
 /**
  * Interface
@@ -42,6 +43,16 @@ interface ConnectionInterface
     public const DRIVER_ALLOWED_UNBUFFERED_QUERY = [
         ConnectionDriverEnum::DRIVER_MYSQL->value,
     ];
+
+    /**
+     * Factory
+     *
+     * @param ConnectionConfig $connectionConfig
+     *
+     * @throws ConnectionException
+     * @return ConnectionInterface
+     */
+    public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface;
 
     /**
      * Return the database name if it exists.
@@ -115,8 +126,8 @@ interface ConnectionInterface
      *
      * Could be only used for INSERT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return int
@@ -124,7 +135,7 @@ interface ConnectionInterface
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->insert('INSERT INTO table (id) VALUES (:id)', $queryParameters);
      */
-    public function insert(string $query, QueryParameters $queryParameters): int;
+    public function insert(string $query, ?QueryParameters $queryParameters = null): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows for multiple inserts.
@@ -152,8 +163,8 @@ interface ConnectionInterface
      *
      * Could be only used for UPDATE.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return int
@@ -162,15 +173,15 @@ interface ConnectionInterface
      *          $nbAffectedRows = $db->update('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
      *          // $nbAffectedRows = 1
      */
-    public function update(string $query, QueryParameters $queryParameters): int;
+    public function update(string $query, ?QueryParameters $queryParameters = null): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be only used for DELETE.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return int
@@ -179,7 +190,7 @@ interface ConnectionInterface
      *          $nbAffectedRows = $db->delete('DELETE FROM table WHERE id = :id', $queryParameters);
      *          // $nbAffectedRows = 1
      */
-    public function delete(string $query, QueryParameters $queryParameters): int;
+    public function delete(string $query, ?QueryParameters $queryParameters = null): int;
 
     // --------------------------------------- FETCH METHODS -----------------------------------------
 
@@ -189,8 +200,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
@@ -199,15 +210,15 @@ interface ConnectionInterface
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = [0 => 1, 1 => 'John', 2 => 'Doe']
      */
-    public function fetchNumeric(string $query, QueryParameters $queryParameters): false | array;
+    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false | array;
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result as an associative array.
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
@@ -216,7 +227,7 @@ interface ConnectionInterface
      *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
      */
-    public function fetchAssociative(string $query, QueryParameters $queryParameters): false | array;
+    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false | array;
 
     /**
      * Prepares and executes an SQL query and returns the value of a single column
@@ -224,8 +235,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return mixed|false False is returned if no rows are found.
@@ -234,16 +245,16 @@ interface ConnectionInterface
      *          $result = $db->fetchOne('SELECT name FROM table WHERE name = :name', $queryParameters);
      *          // $result = 'John'
      */
-    public function fetchOne(string $query, QueryParameters $queryParameters): mixed;
+    public function fetchOne(string $query, ?QueryParameters $queryParameters = null): mixed;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of the column values.
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
-     * @param int             $column
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param int                  $column
      *
      * @throws ConnectionException
      * @return list<mixed>
@@ -252,15 +263,15 @@ interface ConnectionInterface
      *          $result = $db->fetchByColumn('SELECT * FROM table WHERE active = :active', $queryParameters);
      *          // $result = ['John', 'Jean']
      */
-    public function fetchByColumn(string $query, QueryParameters $queryParameters, int $column = 0): array;
+    public function fetchByColumn(string $query, ?QueryParameters $queryParameters = null, int $column = 0): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return array<array<int,mixed>>
@@ -269,15 +280,15 @@ interface ConnectionInterface
      *          $result = $db->fetchAllNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
      *          // $result = [[0 => 1, 1 => 'John', 2 => 'Doe'], [0 => 2, 1 => 'Jean', 2 => 'Dupont']]
      */
-    public function fetchAllNumeric(string $query, QueryParameters $queryParameters): array;
+    public function fetchAllNumeric(string $query, ?QueryParameters $queryParameters = null): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of associative arrays.
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return array<array<string,mixed>>
@@ -286,7 +297,7 @@ interface ConnectionInterface
      *          $result = $db->fetchAllAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
      *          // $result = [['id' => 1, 'name' => 'John', 'surname' => 'Doe'], ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']]
      */
-    public function fetchAllAssociative(string $query, QueryParameters $queryParameters): array;
+    public function fetchAllAssociative(string $query, ?QueryParameters $queryParameters = null): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of associative arrays with the name of the
@@ -294,9 +305,9 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
-     * @param int             $column
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param int                  $column
      *
      * @throws ConnectionException
      * @return list<mixed>
@@ -305,7 +316,7 @@ interface ConnectionInterface
      *          $result = $db->fetchAllByColumn('SELECT * FROM table WHERE active = :active', $queryParameters, 1);
      *          // $result = ['John', 'Jean']
      */
-    public function fetchAllByColumn(string $query, QueryParameters $queryParameters, int $column = 0): array;
+    public function fetchAllByColumn(string $query, ?QueryParameters $queryParameters = null, int $column = 0): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an associative array with the keys
@@ -313,8 +324,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return array<int|string,mixed>
@@ -323,7 +334,7 @@ interface ConnectionInterface
      *          $result = $db->fetchAllKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
      *          // $result = ['John' => 'Doe', 'Jean' => 'Dupont']
      */
-    public function fetchAllKeyValue(string $query, QueryParameters $queryParameters): array;
+    public function fetchAllKeyValue(string $query, ?QueryParameters $queryParameters = null): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
@@ -332,8 +343,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return array<mixed,array<string,mixed>>
@@ -342,7 +353,7 @@ interface ConnectionInterface
      *          $result = $db->fetchAllAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
      *          // $result = [1 => ['name' => 'John', 'surname' => 'Doe'], 2 => ['name' => 'Jean', 'surname' => 'Dupont']]
      */
-    public function fetchAllAssociativeIndexed(string $query, QueryParameters $queryParameters): array;
+    public function fetchAllAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): array;
 
     // --------------------------------------- ITERATE METHODS -----------------------------------------
 
@@ -351,8 +362,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return \Traversable<int,list<mixed>>
@@ -364,7 +375,7 @@ interface ConnectionInterface
      *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
      *          }
      */
-    public function iterateNumeric(string $query, QueryParameters $queryParameters): \Traversable;
+    public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented
@@ -372,8 +383,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return \Traversable<int,array<string,mixed>>
@@ -385,16 +396,16 @@ interface ConnectionInterface
      *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
      *          }
      */
-    public function iterateAssociative(string $query, QueryParameters $queryParameters): \Traversable;
+    public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over the column values.
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
-     * @param int             $column
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param int                  $column
      *
      * @throws ConnectionException
      * @return \Traversable<int,list<mixed>>
@@ -406,7 +417,11 @@ interface ConnectionInterface
      *              // $value = 'Jean'
      *          }
      */
-    public function iterateByColumn(string $query, QueryParameters $queryParameters, int $column = 0): \Traversable;
+    public function iterateByColumn(
+        string $query,
+        ?QueryParameters $queryParameters = null,
+        int $column = 0
+    ): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys
@@ -414,8 +429,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return \Traversable<mixed,mixed>
@@ -427,7 +442,7 @@ interface ConnectionInterface
      *              // $key = 'Jean', $value = 'Dupont'
      *          }
      */
-    public function iterateKeyValue(string $query, QueryParameters $queryParameters): \Traversable;
+    public function iterateKeyValue(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
@@ -436,8 +451,8 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string          $query
-     * @param QueryParameters $queryParameters
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
      * @return \Traversable<mixed,array<string,mixed>>
@@ -449,7 +464,7 @@ interface ConnectionInterface
      *              // $key = 2, $row = ['name' => 'Jean', 'surname' => 'Dupont']
      *          }
      */
-    public function iterateAssociativeIndexed(string $query, QueryParameters $queryParameters): \Traversable;
+    public function iterateAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 

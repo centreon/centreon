@@ -34,6 +34,49 @@ use Adaptation\Database\Collection\QueryParameters;
  */
 class ConnectionException extends DatabaseException
 {
+
+    /**
+     * @return self
+     */
+    public static function notImplemented()
+    {
+        return new self(
+            message: "Not implemented",
+            code: self::ERROR_CODE_BAD_USAGE
+        );
+    }
+
+    /**
+     * @param string $message
+     * @param array  $context
+     *
+     * @return ConnectionException
+     */
+    public static function connectionBadUsage(string $message, array $context = []): ConnectionException
+    {
+        return new self(
+            message: "Bad usage of connection : {$message}",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: $context
+        );
+
+    }
+
+    /**
+     * @param \Throwable|null $previous
+     *
+     * @return ConnectionException
+     */
+    public static function connectionFailed(?\Throwable $previous = null): ConnectionException
+    {
+        $message = "Error while connecting to the database";
+        if (! is_null($previous) && $previous->getMessage() !== '') {
+            $message .= " : {$previous->getMessage()}";
+        }
+
+        return new self($message, self::ERROR_CODE_DATABASE, [], $previous);
+    }
+
     /**
      * @return ConnectionException
      */
@@ -169,8 +212,7 @@ class ConnectionException extends DatabaseException
         array $columns,
         BatchInsertParameters $batchInsertParameters,
         string $query = ''
-    ): ConnectionException
-    {
+    ): ConnectionException {
         return new self(
             message: "Error while executing the batch insert query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
@@ -714,6 +756,24 @@ class ConnectionException extends DatabaseException
         return new self(
             message: "Stopping unbuffered queries failed : {$message}",
             code: self::ERROR_CODE_UNBUFFERED_QUERY
+        );
+    }
+
+    // ------------------------------------- BASE METHODS -----------------------------------------
+
+    /**
+     * @param \Throwable $previous
+     * @param string     $query
+     *
+     * @return ConnectionException
+     */
+    public static function closeQueryFailed(\Throwable $previous, string $query): ConnectionException
+    {
+        return new self(
+            message: "Error while closing the query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: ['query' => $query],
+            previous: $previous
         );
     }
 
