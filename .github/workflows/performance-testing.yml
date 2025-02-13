@@ -108,25 +108,24 @@ jobs:
       - name: Adding Users
         run: node AddingUsers.mjs
 
+      - name: Install JMeter
+        run: |
+          sudo apt update
+          sudo apt install -y jmeter
+
       - name: Create JMeter Results Directory
         run: mkdir -p jmeterFolder/jmeter_results
 
-      - name: Check if JMeter Test Plan Exists
-        run: |
-          if [[ ! -f "jmeterFolder/test.jmx" ]]; then
-            echo "❌ ERREUR : Le fichier de test JMeter n'existe pas !"
-            exit 1
-          fi
-
       - name: Run Performance Testing with JMeter
-        uses: rbhadti94/apache-jmeter-action@v0.7.0
-        with:
-          testFilePath: "jmeterFolder/test.jmx"
-          outputReportsFolder: "jmeterFolder/jmeter_results"
-          args: "-n -t jmeterFolder/test.jmx -l jmeterFolder/results.jtl -e -o jmeterFolder/jmeter_results --loglevel DEBUG"
+        run: |
+          jmeter -n \
+            -t jmeterFolder/test.jmx \
+            -l jmeterFolder/jmeter_results/results.jtl \
+            -e -o jmeterFolder/jmeter_results \
+            --loglevel DEBUG
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
-          path: "jmeterFolder/jmeter_results"
+          path: jmeterFolder/jmeter_results
