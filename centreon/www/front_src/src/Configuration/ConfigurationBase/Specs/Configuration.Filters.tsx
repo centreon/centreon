@@ -87,6 +87,7 @@ export default (resourceType: ResourceType) => {
         .eq(1)
         .clear()
         .type(`${resourceType} 1`);
+
       cy.get(`[data-testid="${labelAlias}"]`)
         .eq(1)
         .clear()

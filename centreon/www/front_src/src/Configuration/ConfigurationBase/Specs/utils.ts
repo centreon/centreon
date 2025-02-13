@@ -39,10 +39,10 @@ export const getEndpoints = (resourceType): Endpoints => ({
   getAll: `/configuration/${resourceType}`,
   getOne: ({ id }) => `/configuration/${resourceType}/${id}`,
   deleteOne: ({ id }) => `/configuration/${resourceType}/${id}`,
-  delete: `/configuration/${resourceType}`,
-  duplicate: `/configuration/${resourceType}`,
-  enable: `/configuration/${resourceType}`,
-  disable: `/configuration/${resourceType}`
+  delete: `/configuration/${resourceType}/_delete`,
+  duplicate: `/configuration/${resourceType}/_duplicate`,
+  enable: `/configuration/${resourceType}/_enable`,
+  disable: `/configuration/${resourceType}/_disable`
 });
 
 export const columns = [
@@ -89,3 +89,15 @@ export const filtersInitialValues = {
   enabled: false,
   disabled: false
 };
+
+export const getLabelDeleteOne = (type, name) =>
+  `You are about to delete ${type} ${name}. This action cannot be undone. Do you want to delete it?`;
+
+export const getLabelDeleteMany = (type, count) =>
+  `You are about to delete ${count} ${type}. This action cannot be undone. Do you want to delete them?`;
+
+export const getLabelDuplicateOne = (type, name) =>
+  `You are about to duplicate ${type} ${name}. Please specify the number of duplications you would like to make.`;
+
+export const getLabelDuplicateMany = (type, count) =>
+  `You are about to duplicate ${count} ${type}. Please specify the number of duplications you would like to make for each group.`;
