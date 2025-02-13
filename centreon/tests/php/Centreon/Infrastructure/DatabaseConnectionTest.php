@@ -23,12 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Infrastructure;
 
+use Adaptation\Database\Collection\BatchInsertParameters;
+use Adaptation\Database\Collection\QueryParameters;
+use Adaptation\Database\Exception\ConnectionException;
+use Adaptation\Database\Model\ConnectionConfig;
+use Adaptation\Database\ValueObject\QueryParameter;
 use Centreon\Domain\Log\Logger;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\DatabaseConnectionConfig;
-use Centreon\Infrastructure\DatabaseConnectionException;
-use PDO;
-use PDOStatement;
 
 /**
  * @param string $nameEnvVar
@@ -50,37 +51,39 @@ $dbConfigCentreon = null;
 $dbConfigCentreonStorage = null;
 
 if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
-    $dbConfigCentreon = new DatabaseConnectionConfig(
-        dbHost: $dbHost,
-        dbUser: $dbUser,
-        dbPassword: $dbPassword,
-        dbName: 'centreon',
-        dbPort: 3306
+    $dbConfigCentreon = new ConnectionConfig(
+        host: $dbHost,
+        user: $dbUser,
+        password: $dbPassword,
+        databaseName: 'centreon',
+        port: 3306
     );
-    $dbConfigCentreonStorage = new DatabaseConnectionConfig(
-        dbHost: $dbHost,
-        dbUser: $dbUser,
-        dbPassword: $dbPassword,
-        dbName: 'centreon_storage',
-        dbPort: 3306
+    $dbConfigCentreonStorage = new ConnectionConfig(
+        host: $dbHost,
+        user: $dbUser,
+        password: $dbPassword,
+        databaseName: 'centreon_storage',
+        port: 3306
     );
 }
 
 /**
- * @param DatabaseConnectionConfig $dbConfig
+ * @param ConnectionConfig $connectionConfig
  *
  * @return bool
  */
-function hasConnectionDb(DatabaseConnectionConfig $dbConfig): bool
+function hasConnectionDb(ConnectionConfig $connectionConfig): bool
 {
     try {
-        new PDO (
-            $dbConfig->getMysqlDsn(),
-            $dbConfig->dbUser, $dbConfig->dbPassword, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        new \PDO (
+            $connectionConfig->getMysqlDsn(),
+            $connectionConfig->getUser(),
+            $connectionConfig->getPassword(),
+            [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
         );
 
         return true;
-    } catch (\PDOException $e) {
+    } catch (\PDOException $exception) {
         return false;
     }
 }
@@ -89,2141 +92,1419 @@ function hasConnectionDb(DatabaseConnectionConfig $dbConfig): bool
 
 if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
-        'connect to centreon database with DatabaseConnexion constructor',
+        'test DatabaseConnection : DatabaseConnection constructor',
         function () use ($dbConfigCentreon): void {
             $db = new DatabaseConnection(
                 new Logger(),
-                $dbConfigCentreon->dbHost,
-                $dbConfigCentreon->dbName,
-                $dbConfigCentreon->dbUser,
-                $dbConfigCentreon->dbPassword,
-                $dbConfigCentreon->dbPort
+                $dbConfigCentreon->getHost(),
+                $dbConfigCentreon->getUser(),
+                $dbConfigCentreon->getPassword(),
+                $dbConfigCentreon->getDatabaseName(),
+                $dbConfigCentreon->getPort()
             );
             expect($db)->toBeInstanceOf(DatabaseConnection::class);
-            $dbName = $db->executeQuery("select database()")->fetchColumn();
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
             expect($dbName)->toBe('centreon')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+                ->and($db->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
         }
     );
 
     it(
-        'connect to centreon database with DatabaseConnection::connect factory',
+        'test DatabaseConnection : DatabaseConnection constructor with ConnectionConfig',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $db = new DatabaseConnection(
+                logger: new Logger(),
+                connectionConfig: new ConnectionConfig(
+                    host: $dbConfigCentreon->getHost(),
+                    user: $dbConfigCentreon->getUser(),
+                    password: $dbConfigCentreon->getPassword(),
+                    databaseName: $dbConfigCentreon->getDatabaseName(),
+                    port: $dbConfigCentreon->getPort()
+                )
+            );
             expect($db)->toBeInstanceOf(DatabaseConnection::class);
-            $dbName = $db->executeQuery("select database()")->fetchColumn();
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
             expect($dbName)->toBe('centreon')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+                ->and($db->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
         }
     );
 
-    it('check if the database connection is active', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
+    it(
+        'test DatabaseConnection : DatabaseConnection::createFromConfig factory must return exception "Not implemented"',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            expect($db)->toBeInstanceOf(DatabaseConnection::class);
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
+            expect($dbName)->toBe('centreon')
+                ->and($db->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : DatabaseConnection constructor without host',
+        function () use ($dbConfigCentreon): void {
+            $db = new DatabaseConnection(
+                new Logger(),
+                '',
+                $dbConfigCentreon->getUser(),
+                $dbConfigCentreon->getPassword(),
+                $dbConfigCentreon->getDatabaseName(),
+                $dbConfigCentreon->getPort()
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : DatabaseConnection constructor without user',
+        function () use ($dbConfigCentreon): void {
+            $db = new DatabaseConnection(
+                new Logger(),
+                $dbConfigCentreon->getHost(),
+                '',
+                $dbConfigCentreon->getPassword(),
+                $dbConfigCentreon->getDatabaseName(),
+                $dbConfigCentreon->getPort()
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : DatabaseConnection constructor without password',
+        function () use ($dbConfigCentreon): void {
+            $db = new DatabaseConnection(
+                new Logger(),
+                $dbConfigCentreon->getHost(),
+                $dbConfigCentreon->getUser(),
+                '',
+                $dbConfigCentreon->getDatabaseName(),
+                $dbConfigCentreon->getPort()
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : DatabaseConnection constructor without database name',
+        function () use ($dbConfigCentreon): void {
+            $db = new DatabaseConnection(
+                new Logger(),
+                $dbConfigCentreon->getHost(),
+                $dbConfigCentreon->getUser(),
+                $dbConfigCentreon->getPassword(),
+                '',
+                $dbConfigCentreon->getPort()
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : switch to database',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->switchToDb('centreon_storage');
+            expect($db->getDatabaseName())->toBe('centreon_storage');
+            $db->switchToDb('centreon');
+            expect($db->getDatabaseName())->toBe('centreon');
+        }
+    );
+    it(
+        'test DatabaseConnection : get the database name of the current connection',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $dbName = $db->getDatabaseName();
+            expect($dbName)->toBe('centreon');
+        }
+    );
+
+    it('test DatabaseConnection : get native connection', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $pdo = $db->getNativeConnection();
+        expect($pdo)->toBeInstanceOf(\PDO::class);
+    });
+
+    it('test DatabaseConnection : get last insert id', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $insert = $db->exec(
+            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
+        );
+        expect($insert)->toBeInt()->toBe(1);
+        $lastInsertId = $db->getLastInsertId();
+        expect($lastInsertId)->toBeString()->toBe('110');
+        // clean up the database
+        $delete = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+        expect($delete)->toBeInt()->toBe(1);
+    });
+
+    it('test DatabaseConnection : is connected', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         expect($db->isConnected())->toBeTrue();
     });
 
-    it('get the database name of the current connection', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $dbName = $db->getCurrentDatabaseName();
-        expect($dbName)->toBe('centreon');
+    it('test DatabaseConnection : quote string', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $quotedString = $db->quote("foo");
+        expect($quotedString)->toBeString()->toBe("'foo'");
     });
 
-    // ---------------------------------------- prepareQuery ----------------------------------------------
+    // --------------------------------------- CUD METHODS -----------------------------------------
+
+    // -- executeStatement()
 
     it(
-        'prepare query with a correct prepared query',
+        'test DatabaseConnection : execute statement with a correct query without query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $inserted = $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
+            );
+            expect($inserted)->toBeInt()->toBe(1);
+            // clean up the database
+            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            expect($deleted)->toBeInt()->toBe(1);
         }
     );
 
     it(
-        'prepare query with an empty prepared query',
+        'test DatabaseConnection : execute statement with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->prepareQuery("");
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    // ---------------------------------------- executePreparedQuery ----------------------------------------------
-
-    it(
-        'execute executePreparedQuery with a correct prepared query ',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $result = $db->executePreparedQuery($pdoSth, ['contact_id' => 1]);
-            expect($result)->toBeInstanceOf(PDOStatement::class)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute executePreparedQuery with an empty array for $bindParams',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->executePreparedQuery($pdoSth, []);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute executePreparedQuery with an incorrect prepared query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("foo");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->executePreparedQuery($pdoSth, ['contact_id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute executePreparedQuery with typing binding params with a correct prepared query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $result = $db->executePreparedQuery($pdoSth, ['contact_id' => [1, PDO::PARAM_INT]], true);
-            expect($result)->toBeInstanceOf(PDOStatement::class)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::int('id', 110),
+                    QueryParameter::string('name', 'foo_name'),
+                    QueryParameter::string('alias', 'foo_alias')
+                ]
+            );
+            $inserted = $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                $queryParameters
+            );
+            expect($inserted)->toBeInt()->toBe(1);
+            // clean up the database
+            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            expect($deleted)->toBeInt()->toBe(1);
         }
     );
 
     it(
-        'execute executePreparedQuery with typing binding params with an unexpected type of param',
+        'test DatabaseConnection : execute statement with a correct query with empty query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->executePreparedQuery($pdoSth, ['contact_id' => [1, 'foo']], true);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                QueryParameters::create([])
+            );
         }
-    )->throws(DatabaseConnectionException::class);
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : execute statement with a SELECT query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->executeStatement("SELECT * FROM contact");
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : execute statement with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->executeStatement("");
+    })->throws(ConnectionException::class);
 
     it(
-        'execute executePreparedQuery with typing binding params with no array for the value of $bindParams',
+        'test DatabaseConnection : execute statement with an incorrect query',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->executePreparedQuery($pdoSth, ['contact_id' => 1], true);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->executeStatement("foo");
         }
-    )->throws(DatabaseConnectionException::class);
+    )->throws(ConnectionException::class);
 
     it(
-        'execute executePreparedQuery with typing binding params with no type for the value of $bindParams',
+        'test DatabaseConnection : execute statement with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->executePreparedQuery($pdoSth, ['contact_id' => [1]], true);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::int('id', 110),
+                    QueryParameter::string('name', 'foo_name')
+                ]
+            );
+            $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                $queryParameters
+            );
         }
-    )->throws(DatabaseConnectionException::class);
+    )->throws(ConnectionException::class);
+
+    // -- insert()
+
+    it(
+        'test DatabaseConnection : insert with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::int('id', 110),
+                    QueryParameter::string('name', 'foo_name'),
+                    QueryParameter::string('alias', 'foo_alias')
+                ]
+            );
+            $inserted = $db->insert(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                $queryParameters
+            );
+            expect($inserted)->toBeInt()->toBe(1);
+            // clean up the database
+            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            expect($deleted)->toBeInt()->toBe(1);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : insert with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->insert(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                QueryParameters::create([])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : insert with a SELECT query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->insert(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('contact_id', 110)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : insert with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->insert("", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : insert with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->insert("foo", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : insert with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::int('id', 110),
+                    QueryParameter::string('name', 'foo_name')
+                ]
+            );
+            $db->insert(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                $queryParameters
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    // -- batchInsert()
+
+    it(
+        'test DatabaseConnection : batch insert with a correct query with batch query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $batchQueryParameters = BatchInsertParameters::create([
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 110),
+                    QueryParameter::string('contact_name', 'foo_name'),
+                    QueryParameter::string('contact_alias', 'foo_alias')
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 111),
+                    QueryParameter::string('contact_name', 'bar_name'),
+                    QueryParameter::string('contact_alias', 'bar_alias')
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 112),
+                    QueryParameter::string('contact_name', 'baz_name'),
+                    QueryParameter::string('contact_alias', 'baz_alias')
+                ])
+            ]);
+            $inserted = $db->batchInsert(
+                'contact',
+                ['contact_id', 'contact_name', 'contact_alias'],
+                $batchQueryParameters
+            );
+            expect($inserted)->toBeInt()->toBe(3);
+            // clean up the database
+            $deleted = $db->exec("DELETE FROM contact WHERE contact_id IN (110,111,112)");
+            expect($deleted)->toBeInt()->toBe(3);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : batch insert with a correct query with empty batch query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->batchInsert(
+                'contact',
+                ['contact_id', 'contact_name', 'contact_alias'],
+                BatchInsertParameters::create([])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : batch insert with an incorrect batch query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $batchQueryParameters = BatchInsertParameters::create([
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 110),
+                    QueryParameter::string('contact_name', 'foo_name')
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 111),
+                    QueryParameter::string('contact_name', 'bar_name')
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', 112),
+                    QueryParameter::string('contact_name', 'baz_name')
+                ])
+            ]);
+            $db->batchInsert(
+                'contact',
+                ['contact_id', 'contact_name', 'contact_alias'],
+                $batchQueryParameters
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    // -- update()
+
+    it(
+        'test DatabaseConnection : update with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $inserted = $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
+            );
+            expect($inserted)->toBeInt()->toBe(1);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::string('name', 'bar_name'),
+                    QueryParameter::string('alias', 'bar_alias'),
+                    QueryParameter::int('id', 110)
+                ]
+            );
+            $updated = $db->update(
+                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
+                $queryParameters
+            );
+            expect($updated)->toBeInt()->toBe(1);
+            // clean up the database
+            $delete = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            expect($delete)->toBeInt()->toBe(1);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : update with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->update(
+                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : update with a SELECT query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->update(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('contact_id', 110)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : update with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->update("", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : update with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->update("foo", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : update with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::string('name', 'bar_name'),
+                    QueryParameter::string('alias', 'bar_alias')
+                ]
+            );
+            $db->update(
+                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
+                $queryParameters
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    // -- delete()
+
+    it(
+        'test DatabaseConnection : delete with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $inserted = $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
+            );
+            expect($inserted)->toBeInt()->toBe(1);
+            $queryParameters = QueryParameters::create([QueryParameter::int('id', 110)]);
+            $deleted = $db->delete("DELETE FROM contact WHERE contact_id = :id", $queryParameters);
+            expect($deleted)->toBeInt()->toBe(1);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : delete with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->delete("DELETE FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : delete with a SELECT query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->delete(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('contact_id', 110)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : delete with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->delete("", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : delete with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->delete("foo", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : delete with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::string('name', 'foo_name'),
+                    QueryParameter::string('alias', 'foo_alias')
+                ]
+            );
+            $db->delete(
+                "DELETE FROM contact WHERE contact_id = :id AND contact_name = :name AND contact_alias = :alias",
+                $queryParameters
+            );
+        }
+    )->throws(ConnectionException::class);
 
     // ---------------------------------------- FETCH METHODS ----------------------------------------------
 
-    it(
-        'execute fetch with a correct query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("select * from contact");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $db->fetch($pdoSth);
-            expect($contact)->toBeArray()
-                ->and($contact['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
+    // -- fetchNumeric()
 
     it(
-        'execute fetchAll a correct query',
+        'test DatabaseConnection : fetchNumeric with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("select * from contact");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $db->fetchAll($pdoSth);
-            expect($contact)->toBeArray()
-                ->and($contact[0]['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAssociative with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contact = $db->fetchAssociative("select * from contact where contact_id = 1");
-            expect($contact)->toBeArray()
-                ->and($contact['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAssociative with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contact = $db->fetchAssociative("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contact)->toBeArray()
-                ->and($contact['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAssociative with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contact = $db->fetchAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contact)->toBeArray()
-                ->and($contact['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAssociative with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAssociative(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAssociative with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAssociative with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAssociative with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAssociative("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAssociative with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAssociative(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAssociative with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAssociative("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchNumeric with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contact = $db->fetchNumeric("select * from contact where contact_id = 1");
-            expect($contact)->toBeArray()
-                ->and($contact[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchNumeric with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contact = $db->fetchNumeric("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contact)->toBeArray()
-                ->and($contact[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchNumeric with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contact = $db->fetchNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
             );
             expect($contact)->toBeArray()
-                ->and($contact[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+                ->and($contact[0])->toBe(1);
         }
     );
 
     it(
-        'execute fetchNumeric with correct query with type without binding parameters',
+        'test DatabaseConnection : fetchNumeric with a correct query with empty query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchNumeric(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchNumeric("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
         }
-    )->throws(DatabaseConnectionException::class);
+    )->throws(ConnectionException::class);
 
-    it(
-        'execute fetchNumeric with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchNumeric with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchNumeric with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchNumeric("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchNumeric with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchNumeric(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchNumeric with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchNumeric("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchByColumn with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contact = $db->fetchByColumn("select * from contact where contact_id = 1");
-            expect($contact)->toBeInt()
-                ->and($contact)->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchByColumn with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contact = $db->fetchByColumn("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contact)->toBeInt()
-                ->and($contact)->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchByColumn with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contact = $db->fetchByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                withParamType: true
-            );
-            expect($contact)->toBeInt()
-                ->and($contact)->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchByColumn with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchByColumn(
-                "select * from contact where contact_id = :id",
-                [],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchByColumn with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchByColumn with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchByColumn with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchByColumn("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchByColumn with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchByColumn(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchByColumn with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchByColumn("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociative with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociative("select * from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts[0]['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociative with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociative("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts[0]['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociative with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts[0]['contact_id'])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociative with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociative(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociative with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociative with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociative with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociative("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociative with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociative(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociative with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociative("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllNumeric with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllNumeric("select * from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts[0][0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllNumeric with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllNumeric("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts[0][0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllNumeric with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts[0][0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllNumeric with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllNumeric(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllNumeric with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllNumeric with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllNumeric with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllNumeric("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllNumeric with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllNumeric(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllNumeric with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllNumeric("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllByColumn with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllByColumn("select * from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllByColumn with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllByColumn("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllByColumn with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                withParamType: true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts[0])->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllByColumn with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllByColumn(
-                "select * from contact where contact_id = :id",
-                [],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllByColumn with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllByColumn with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                withParamType: true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllByColumn with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllByColumn("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllByColumn with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllByColumn(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllByColumn with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllByColumn("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllKeyValue with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllKeyValue("select contact_id, contact_alias from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveCount(1)->toHaveKey(1)
-                ->and($contacts[1])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllKeyValue with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllKeyValue("select contact_id, contact_alias from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveCount(1)->toHaveKey(1)
-                ->and($contacts[1])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllKeyValue with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveCount(1)->toHaveKey(1)
-                ->and($contacts[1])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllKeyValue with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllKeyValue with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllKeyValue with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllKeyValue with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllKeyValue("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllKeyValue with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllKeyValue(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllKeyValue with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllKeyValue("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociativeIndexed("select * from contact where contact_id = 1");
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveKey(1)
-                ->and($contacts[1])->toBeArray()->toHaveKey('contact_alias')
-                ->and($contacts[1]['contact_alias'])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociativeIndexed("select * from contact where contact_id = :id", ['id' => 1]);
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveKey(1)
-                ->and($contacts[1])->toBeArray()->toHaveKey('contact_alias')
-                ->and($contacts[1]['contact_alias'])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->fetchAllAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            expect($contacts)->toBeArray()
-                ->and($contacts)->toHaveKey(1)
-                ->and($contacts[1])->toBeArray()->toHaveKey('contact_alias')
-                ->and($contacts[1]['contact_alias'])->toBeString()->toBe('admin')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed("select * from", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute fetchAllAssociativeIndexed with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->fetchAllAssociativeIndexed("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    // ---------------------------------------- CUD METHODS ----------------------------------------------
-
-    it('execute insert with correct query without type', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-            ['id' => 100, 'name' => 'foo_name', 'alias' => 'foo_alias']
-        );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-    });
-
-    it('execute insert with correct query with type', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-            [
-                'id' => [1000, PDO::PARAM_INT],
-                'name' => ['foo_name', PDO::PARAM_STR],
-                'alias' => ['foo_alias', PDO::PARAM_STR]
-            ],
-            true
-        );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-    });
-
-    it(
-        'execute insert with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(1, 'name', 'alias')",
-                []
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute insert with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(1, 'name', 'alias')",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute insert with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 1, 'name' => 'name', 'alias' => 'alias'],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute insert with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => [1], 'name' => ['name'], 'alias' => ['alias']],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute insert with incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES",
-                ['id' => 1, 'name' => 'name', 'alias' => 'alias']
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute insert with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->insert("", ['id' => 1, 'name' => 'name', 'alias' => 'alias']);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it('execute update with correct query without type', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->update(
-            "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-            ['id' => 100, 'name' => 'foo_name2', 'alias' => 'foo_alias2']
-        );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        $response = $db->fetchAssociative("SELECT * FROM contact WHERE contact_id = :id", ['id' => 100]);
-        expect($response)->toBeArray()
-            ->and($response['contact_name'])->toBe('foo_name2')
-            ->and($response['contact_alias'])->toBe('foo_alias2');
-    });
-
-    it('execute update with correct query with type', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->update(
-            "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-            [
-                'id' => [1000, PDO::PARAM_INT],
-                'name' => ['foo_name2', PDO::PARAM_STR],
-                'alias' => ['foo_alias2', PDO::PARAM_STR]
-            ],
-            true
-        );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        $response = $db->fetchAssociative(
-            "SELECT * FROM contact WHERE contact_id = :id",
-            ['id' => [1000, PDO::PARAM_INT]],
-            true
-        );
-        expect($response)->toBeArray()
-            ->and($response['contact_name'])->toBe('foo_name2')
-            ->and($response['contact_alias'])->toBe('foo_alias2');
-    });
-
-    it(
-        'execute update with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->update(
-                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-                []
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute update with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->update(
-                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-                [],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute update with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->update(
-                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-                ['id' => 1, 'name' => 'name', 'alias' => 'alias'],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute update with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->update(
-                "UPDATE contact SET contact_name = :name, contact_alias = :alias WHERE contact_id = :id",
-                ['id' => [1], 'name' => ['name'], 'alias' => ['alias']],
-                true
-            );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute update with incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->update("UPDATE contact SET ", ['id' => 1, 'name' => 'name', 'alias' => 'alias']);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute update with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->update("", ['id' => 1, 'name' => 'name', 'alias' => 'alias']);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it('execute delete with correct query without type', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->delete("DELETE FROM contact WHERE contact_id = :id", ['id' => 100]);
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        $response = $db->fetchAssociative("SELECT * FROM contact WHERE contact_id = :id", ['id' => 100]);
-        expect($response)->toBeFalse();
-    });
-
-    it('execute delete with correct query with type', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->delete(
+    it('test DatabaseConnection : fetchNumeric with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchNumeric(
             "DELETE FROM contact WHERE contact_id = :id",
-            ['id' => [1000, PDO::PARAM_INT]],
-            true
+            QueryParameters::create([QueryParameter::int('id', 1)])
         );
-        expect($response)->toBeInt()->toBe(1)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        $response = $db->fetchAssociative(
-            "SELECT * FROM contact WHERE contact_id = :id",
-            ['id' => [1000, PDO::PARAM_INT]],
-            true
-        );
-        expect($response)->toBeFalse();
-    });
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchNumeric with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchNumeric with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchNumeric("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
 
     it(
-        'execute delete with correct query without type without binding parameters',
+        'test DatabaseConnection : fetchNumeric with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id = :id", []);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute delete with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id = :id", [], true);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute delete with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id = :id", ['id' => 1], true);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute delete with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id = :id", ['id' => [1]], true);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute delete with incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->delete("DELETE FROM contact WHERE contact_id =", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute delete with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->delete("", ['id' => 1]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it('execute several insert with correct query without type', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->iterateInsert(
-            "contact",
-            ['contact_id', 'contact_name', 'contact_alias'],
-            [
-                ['contact_id' => 101, 'contact_name' => 'foo_name1', 'contact_alias' => 'foo_alias1'],
-                ['contact_id' => 102, 'contact_name' => 'foo_name2', 'contact_alias' => 'foo_alias2'],
-                ['contact_id' => 103, 'contact_name' => 'foo_name3', 'contact_alias' => 'foo_alias3']
-            ]
-        );
-        expect($response)->toBeInt()->toBe(3)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        $response = $db->fetchAllAssociative(
-            "SELECT contact_id FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-            ['id1' => 101, 'id2' => 102, 'id3' => 103]
-        );
-        expect($response)->toBeArray()
-            ->and($response[0]['contact_id'])->toBe(101)
-            ->and($response[1]['contact_id'])->toBe(102)
-            ->and($response[2]['contact_id'])->toBe(103);
-        $db->delete(
-            "DELETE FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-            ['id1' => 101, 'id2' => 102, 'id3' => 103]
-        );
-        expect(
-            $db->fetchAllAssociative(
-                "SELECT * FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-                ['id1' => 101, 'id2' => 102, 'id3' => 103]
-            )
-        )->toBeArray()->toBeEmpty();
-    });
-
-    it('execute several insert with correct query with type', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->iterateInsert(
-            "contact",
-            ['contact_id', 'contact_name', 'contact_alias'],
-            [
-                [
-                    'contact_id' => [101, PDO::PARAM_INT],
-                    'contact_name' => ['foo_name1', PDO::PARAM_STR],
-                    'contact_alias' => ['foo_alias1', PDO::PARAM_STR]
-                ],
-                [
-                    'contact_id' => [102, PDO::PARAM_INT],
-                    'contact_name' => ['foo_name2', PDO::PARAM_STR],
-                    'contact_alias' => ['foo_alias2', PDO::PARAM_STR]
-                ],
-                [
-                    'contact_id' => [103, PDO::PARAM_INT],
-                    'contact_name' => ['foo_name3', PDO::PARAM_STR],
-                    'contact_alias' => ['foo_alias3', PDO::PARAM_STR]
-                ]
-            ],
-            true
-        );
-        expect($response)->toBeInt()->toBe(3)
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        $response = $db->fetchAllAssociative(
-            "SELECT contact_id FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-            ['id1' => [101, PDO::PARAM_INT], 'id2' => [102, PDO::PARAM_INT], 'id3' => [103, PDO::PARAM_INT]],
-            true
-        );
-        expect($response)->toBeArray()
-            ->and($response[0]['contact_id'])->toBe(101)
-            ->and($response[1]['contact_id'])->toBe(102)
-            ->and($response[2]['contact_id'])->toBe(103);
-        $db->delete(
-            "DELETE FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-            ['id1' => [101, PDO::PARAM_INT], 'id2' => [102, PDO::PARAM_INT], 'id3' => [103, PDO::PARAM_INT]],
-            true
-        );
-        expect(
-            $db->fetchAllAssociative(
-                "SELECT * FROM contact WHERE contact_id IN (:id1, :id2, :id3)",
-                ['id1' => [101, PDO::PARAM_INT], 'id2' => [102, PDO::PARAM_INT], 'id3' => [103, PDO::PARAM_INT]],
-                true
-            )
-        )->toBeArray()->toBeEmpty();
-    });
-
-    it(
-        'execute iterateInsert with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $response = $db->iterateInsert("contact", ['contact_id', 'contact_name', 'contact_alias'], []);
-            expect($response)->toBeInt()->toBe(0)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateInsert with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $response = $db->iterateInsert("contact", ['contact_id', 'contact_name', 'contact_alias'], [], true);
-            expect($response)->toBeInt()->toBe(0)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateInsert with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->iterateInsert(
-                "contact",
-                ['contact_id', 'contact_name', 'contact_alias'],
-                [
-                    ['contact_id' => 101, 'contact_name' => 'foo_name1', 'contact_alias' => 'foo_alias1']
-                ],
-                true
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
             );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
         }
-    )->throws(DatabaseConnectionException::class);
+    )->throws(ConnectionException::class);
+
+    // -- fetchAssociative()
 
     it(
-        'execute iterateInsert with correct query with type without type in binding parameters values',
+        'test DatabaseConnection : fetchAssociative with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->iterateInsert(
-                "contact",
-                ['contact_id', 'contact_name', 'contact_alias'],
-                [
-                    [
-                        'contact_id' => [101],
-                        'contact_name' => ['foo_name1'],
-                        'contact_alias' => ['foo_alias1']
-                    ]
-                ],
-                true
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
             );
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            expect($contact)->toBeArray()
+                ->and($contact['contact_id'])->toBe(1);
         }
-    )->throws(DatabaseConnectionException::class);
+    );
 
     it(
-        'execute iterateInsert with empty table',
+        'test DatabaseConnection : fetchAssociative with a correct query with empty query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->iterateInsert("", ['contact_id', 'contact_name', 'contact_alias'], [
-                ['contact_id' => 101, 'contact_name' => 'foo_name1', 'contact_alias' => 'foo_alias1']
-            ]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAssociative("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
         }
-    )->throws(DatabaseConnectionException::class);
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAssociative with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAssociative(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAssociative with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAssociative with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAssociative("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
 
     it(
-        'execute iterateInsert with empty columns',
+        'test DatabaseConnection : fetchAssociative with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->iterateInsert("contact", [], [
-                ['contact_id' => 101, 'contact_name' => 'foo_name1', 'contact_alias' => 'foo_alias1']
-            ]);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
         }
-    )->throws(DatabaseConnectionException::class);
+    )->throws(ConnectionException::class);
+
+    // -- fetchByColumn()
+
+    it(
+        'test DatabaseConnection : fetchByColumn with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0])->toBeInt()->toBe(1);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : fetchByColumn with a correct query with query parameters and another column',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)]),
+                4 // alias column
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0])->toBeString()->toBe('admin');
+        }
+    );
+
+    it(
+        'test DatabaseConnection : fetchByColumn with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchByColumn("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchByColumn with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchByColumn(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchByColumn with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchByColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchByColumn with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchByColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchByColumn with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllNumeric()
+
+    it(
+        'test DatabaseConnection : fetchAllNumeric with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchAllNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0][0])->toBe(1);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : fetchAllNumeric with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllNumeric("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllNumeric with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllNumeric(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllNumeric with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllNumeric with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllNumeric("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchAllNumeric with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllAssociative()
+
+    it(
+        'test DatabaseConnection : fetchAllAssociative with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchAllAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0]['contact_id'])->toBe(1);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : fetchAllAssociative with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllAssociative("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllAssociative with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllAssociative(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllAssociative with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchAllAssociative with an incorrect query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllAssociative("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchAllAssociative with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllByColumn()
+
+    it(
+        'test DatabaseConnection : fetchAllByColumn with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchAllByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0])->toBe(1);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : fetchAllByColumn with a correct query with query parameters and a column',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchAllByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)]),
+                4 // alias column
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[0])->toBe('admin');
+        }
+    );
+
+    it(
+        'test DatabaseConnection : fetchAllByColumn with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllByColumn("SELECT * FROM contact WHERE contact_id = :id", QueryParameters::create([]));
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllByColumn with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllByColumn(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllByColumn with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllByColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllByColumn with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllByColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchAllByColumn with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllKeyValue()
+
+    it(
+        'test DatabaseConnection : fetchAllKeyValue with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchAllKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact)->toBeArray()->toBe(['1' => 'admin']);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : fetchAllKeyValue with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllKeyValue(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllKeyValue with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllKeyValue("", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : fetchAllKeyValue with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchAllKeyValue("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchAllKeyValue with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchAllAssociativeIndexed()
+
+    it(
+        'test DatabaseConnection : fetchAllAssociativeIndexed with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchAllAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact[1])->toBeArray()->toBe(['contact_name' => 'admin admin', 'contact_alias' => 'admin']);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : fetchAllAssociativeIndexed with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchAllAssociativeIndexed with a CUD query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllAssociativeIndexed(
+                "DELETE FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchAllAssociativeIndexed with an empty query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllAssociativeIndexed("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchAllAssociativeIndexed with an incorrect query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllAssociativeIndexed("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : fetchAllAssociativeIndexed with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchAllAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+        }
+    )->throws(ConnectionException::class);
 
     // ---------------------------------------- ITERATE METHODS ----------------------------------------------
 
-    it(
-        'execute iterateAssociative with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociative("select * from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact['contact_id'])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
+    // -- iterateNumeric()
 
     it(
-        'execute iterateAssociative with correct query without type',
+        'test DatabaseConnection : iterateNumeric with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociative("select * from contact where contact_id = :id", ['id' => 1]);
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact['contact_id'])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociative with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact['contact_id'])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociative with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociative with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociative with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociative with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociative("select * from", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociative with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {
-            }
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociative with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociative("", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateNumeric with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateNumeric("select * from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact[0])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateNumeric with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateNumeric("select * from contact where contact_id = :id", ['id' => 1]);
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact[0])->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateNumeric with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
             );
             foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()
-                    ->and($contact[0])->toBe(1);
+                expect($contact)->toBeArray()->and($contact[0])->toBe(1);
             }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
         }
     );
 
     it(
-        'execute iterateNumeric with correct query with type without binding parameters',
+        'test DatabaseConnection : iterateNumeric with a correct query with empty query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateNumeric(
-                "select * from contact where contact_id = :id",
-                [],
-                true
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
             );
             foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
             }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
         }
-    )->throws(DatabaseConnectionException::class);
+    )->throws(ConnectionException::class);
 
-    it(
-        'execute iterateNumeric with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateNumeric with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateNumeric(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateNumeric with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateNumeric("select * from", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateNumeric with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateNumeric(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateNumeric with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateNumeric("", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateByColumn with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateByColumn("select * from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeInt()->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateByColumn with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateByColumn("select * from contact where contact_id = :id", ['id' => 1]);
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeInt()->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateByColumn with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                withParamType: true
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeInt()->toBe(1);
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateByColumn with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "select * from contact where contact_id = :id",
-                withParamType: true
-            );
-            foreach ($contacts as $contact) {}
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateByColumn with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                withParamType: true
-            );
-            foreach ($contacts as $contact) {}
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateByColumn with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                withParamType: true
-            );
-            foreach ($contacts as $contact) {}
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateByColumn with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateByColumn("select * from", ['id' => 1]);
-            foreach ($contacts as $contact) {}
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateByColumn with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateByColumn(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {}
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateByColumn with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateByColumn("", ['id' => 1]);
-            foreach ($contacts as $contact) {}
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateKeyValue with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue("select contact_id, contact_alias from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveCount(1)
-                    ->and($contact)->toHaveKey(1)
-                    ->and($contact[1])->toBeString()->toBe('admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateKeyValue with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => 1]
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveCount(1)
-                    ->and($contact)->toHaveKey(1)
-                    ->and($contact[1])->toBeString()->toBe('admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateKeyValue with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveCount(1)
-                    ->and($contact)->toHaveKey(1)
-                    ->and($contact[1])->toBeString()->toBe('admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateKeyValue with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                [],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateKeyValue with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateKeyValue with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "select contact_id, contact_alias from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateKeyValue with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue("select contact_id, contact_alias from", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateKeyValue with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateKeyValue with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue("", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with correct query without type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed("select * from contact where contact_id = 1");
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveKey(1)
-                    ->and($contact[1])->toBeArray()->toHaveKey('contact_alias', 'admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociativeIndexed with correct query without type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed("select * from contact where contact_id = :id", ['id' => 1]);
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveKey(1)
-                    ->and($contact[1])->toBeArray()->toHaveKey('contact_alias', 'admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociativeIndexed with correct query with type',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => [1, PDO::PARAM_INT]],
-                true
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toHaveKey(1)
-                    ->and($contact[1])->toBeArray()->toHaveKey('contact_alias', 'admin');
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute iterateAssociativeIndexed with correct query with type without binding parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                [],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with correct query with type with only the value in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => 1],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with correct query with type without type in binding parameters values',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "select * from contact where contact_id = :id",
-                ['id' => [1]],
-                true
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with incorrect SELECT query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed("select * from", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with INSERT/UPDATE/DELETE query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
-                ['id' => 110, 'name' => 'foo_name', 'alias' => 'foo_alias']
-            );
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute iterateAssociativeIndexed with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $contacts = $db->iterateAssociativeIndexed("", ['id' => 1]);
-            foreach ($contacts as $contact) {
-            }
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-
-    // ---------------------------------------- DDL METHODS ----------------------------------------------
-
-    it('execute updateDatabase with correct query', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->updateDatabase(
-            "CREATE TABLE IF NOT EXISTS test_table (id INT PRIMARY KEY, name VARCHAR(255))"
+    it('test DatabaseConnection : iterateNumeric with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateNumeric(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
         );
-        expect($response)->toBeTrue();
-        $stmt = $db->query("SHOW TABLES LIKE 'test_table'");
-        $response = $stmt->fetch();
-        expect($response)->toBeArray()->toHaveCount(1);
-        $response = $db->updateDatabase("DROP TABLE test_table");
-        expect($response)->toBeTrue();
-        $stmt = $db->query("SHOW TABLES LIKE 'test_table'");
-        $response = $stmt->fetch();
-        expect($response)->toBeFalse();
-    });
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
 
-    it('execute updateDatabase with incorrect query', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->updateDatabase("CREATE TABLE IF NOT EXISTS test_table");
-        expect($response)->toBeFalse();
-    })->throws(DatabaseConnectionException::class);
+    it('test DatabaseConnection : iterateNumeric with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
 
-    it('execute updateDatabase with an empty query', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->updateDatabase("");
-        expect($response)->toBeFalse();
-    })->throws(DatabaseConnectionException::class);
+    it('test DatabaseConnection : iterateNumeric with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateNumeric("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
 
-    it('execute updateDatabase with a no DDL query', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $response = $db->updateDatabase("SELECT * FROM contact");
-        expect($response)->toBeFalse();
-    })->throws(DatabaseConnectionException::class);
+    it(
+        'test DatabaseConnection : iterateNumeric with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateAssociative()
+
+    it(
+        'test DatabaseConnection : iterateAssociative with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeArray()->and($contact['contact_id'])->toBe(1);
+            }
+        }
+    );
+
+    it(
+        'test DatabaseConnection : iterateAssociative with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateAssociative with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateAssociative(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateAssociative with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociative with an incorrect query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociative("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociative with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateByColumn()
+
+    it(
+        'test DatabaseConnection : iterateByColumn with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateByColumn(
+                "SELECT contact_id FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeInt()->toBe(1);
+            }
+        }
+    );
+
+    it(
+        'test DatabaseConnection : iterateByColumn with a correct query with query parameters and another column',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)]),
+                4 // alias column
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeString()->toBe('admin');
+            }
+        }
+    );
+
+    it(
+        'test DatabaseConnection : iterateByColumn with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateByColumn with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateByColumn(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateByColumn with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateByColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateByColumn with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateByColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateByColumn with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateByColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateKeyValue()
+
+    it(
+        'test DatabaseConnection : iterateKeyValue with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeArray()->toBe(['1' => 'admin']);
+            }
+        }
+    );
+
+    it(
+        'test DatabaseConnection : iterateKeyValue with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateKeyValue(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateKeyValue with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateKeyValue("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateKeyValue with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateKeyValue("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateKeyValue with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateAssociativeIndexed()
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contactId => $contact) {
+                expect($contactId)->toBeInt()->toBe(1)
+                    ->and($contact)->toBeArray()->toHaveKey('contact_name', 'admin admin');
+            }
+        }
+    );
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with a correct query with empty query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with a CUD query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed(
+                "DELETE FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with an empty query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed("", QueryParameters::create([QueryParameter::int('id', 1)]));
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with an incorrect query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
-    it('execute startTransaction with success', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
+    it('test DatabaseConnection : execute startTransaction with success', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
         expect($db->isTransactionActive())->toBeTrue();
     });
 
-    it('execute commit with success', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
+    it('test DatabaseConnection : execute commit with success', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
         $response = $db->commit();
         expect($response)->toBeTrue()
             ->and($db->isTransactionActive())->toBeFalse();
     });
 
-    it('execute rollback with success', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
+    it('test DatabaseConnection : execute rollback with success', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
         $response = $db->rollback();
         expect($response)->toBeTrue()
@@ -2232,227 +1513,53 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 
-    it('execute unbufferedQuery with correct query', function () use ($dbConfigCentreon): void {
-        $db = DatabaseConnection::connect($dbConfigCentreon);
-        $db->startUnbufferedQuery();
-        var_dump($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY));
-        $stmt = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1");
-        expect($stmt)->toBeInstanceOf(PDOStatement::class);
-        $contact = $stmt->fetch();
-        expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
-            ->and($db->isUnbufferedQueryActive())->toBeTrue()
-            ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class)
-            ->and($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
-        $db->stopUnbufferedQuery();
-        expect($db->isUnbufferedQueryActive())->toBeFalse()
-            ->and($db->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
+    it('test DatabaseConnection : allow unbuffered query with success', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        expect($db->allowUnbufferedQuery())->toBeTrue();
     });
 
     it(
-        'stop unbuffered query without start unbuffered query',
+        'test DatabaseConnection : execute unbufferedQuery with correct query',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->startUnbufferedQuery();
+            expect($db->isUnbufferedQueryActive())->toBeTrue()
+                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+            $pdoStmt = $db->prepare("SELECT * FROM contact WHERE contact_id = 1");
+            $pdoStmt->execute();
+            $contact = $pdoStmt->fetch(\PDO::FETCH_ASSOC);
+            expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
+                ->and($db->isUnbufferedQueryActive())->toBeTrue()
+                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+            $db->stopUnbufferedQuery();
+            expect($db->isUnbufferedQueryActive())->toBeFalse()
+                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
+        }
+    );
+
+    it(
+        'test DatabaseConnection : stop unbuffered query without start unbuffered query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+
             $db->stopUnbufferedQuery();
         }
-    )->throws(DatabaseConnectionException::class);
+    )->throws(ConnectionException::class);
 
-    // ---------------------------------------- execute ----------------------------------------------
+    // ---------------------------------------- BASE METHOD ----------------------------------------------
 
-    it(
-        'execute execute with correct query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $successExecute = $db->execute($pdoSth, ['contact_id' => 1]);
-            expect($successExecute)->toBeTrue()
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
+    // -- closeQuery
 
     it(
-        'execute execute with an empty array for params',
+        'test DatabaseConnection : execute closeQuery with success',
         function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->execute($pdoSth, []);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    // ---------------------------------------- executeQuery ----------------------------------------------
-
-    it(
-        'execute executeQuery with a correct query with associative fetch mode',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_ASSOC);
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $pdoSth->fetch();
-            expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute executeQuery with a correct query with numeric fetch mode',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_NUM);
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $pdoSth->fetch();
-            expect($contact)->toBeArray()->toHaveKey(0, 1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute executeQuery with a correct query with column fetch mode',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_COLUMN, [0]);
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $pdoSth->fetch();
-            expect($contact)->toBeInt()->toBe(1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute executeQuery with a correct query with object fetch mode',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->executeQuery("SELECT * FROM contact WHERE contact_id = 1", PDO::FETCH_OBJ);
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contact = $pdoSth->fetch();
-            expect($contact)->toBeObject()->toHaveProperty('contact_id', 1)
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute executeQuery with an incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->executeQuery("foo");
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute executeQuery with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $db->executeQuery("");
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    // ---------------------------------------- makeBindValue ----------------------------------------------
-
-    it(
-        'execute makeBindValue with success',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $successBind = $db->makeBindValue($pdoSth, 'contact_id', 1, PDO::PARAM_INT);
-            expect($successBind)->toBeTrue();
-            $successExecute = $db->execute($pdoSth);
-            expect($successExecute)->toBeTrue()
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute makeBindValue with an empty param name',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->makeBindValue($pdoSth, '', 1, PDO::PARAM_INT);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute makeBindValue with a type that doesnt exist',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $db->makeBindValue($pdoSth, 'contact_id', 1, 999999);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    // ---------------------------------------- makeBindParam ----------------------------------------------
-
-    it(
-        'execute makeBindParam with success',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contactID = 1;
-            $successBind = $db->makeBindParam($pdoSth, 'contact_id', $contactID, PDO::PARAM_INT);
-            expect($successBind)->toBeTrue();
-            $successExecute = $db->execute($pdoSth);
-            expect($successExecute)->toBeTrue()
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    );
-
-    it(
-        'execute makeBindParam with an empty param name',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contactID = 1;
-            $db->makeBindParam($pdoSth, '', $contactID, PDO::PARAM_INT);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    it(
-        'execute makeBindParam with a type that doesnt exist',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
-            expect($pdoSth)->toBeInstanceOf(PDOStatement::class);
-            $contactID = 1;
-            $db->makeBindParam($pdoSth, 'contact_id', $contactID, 9999999);
-            expect($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(PDOStatement::class);
-        }
-    )->throws(DatabaseConnectionException::class);
-
-    // ---------------------------------------- OTHER METHODS ----------------------------------------------
-
-    it(
-        'execute closeQuery with success',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $pdoSth = $db->prepare("select * from contact where contact_id = :contact_id");
             $pdoSth->execute(['contact_id' => 1]);
             $successClose = $db->closeQuery($pdoSth);
             expect($successClose)->toBeTrue();
         }
     );
-
-    it(
-        'execute escapeString with success',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::connect($dbConfigCentreon);
-            $escapedString = $db->escapeString('foo');
-            expect($escapedString)->toBeString()->toBe('\'foo\'');
-            $escapedString = $db->escapeString('1');
-            expect($escapedString)->toBeString()->toBe('\'1\'');
-        }
-    );
-
 } else {
     it('no centreon database available for testing the DatabaseConnection connector, so these tests were ignored');
 }

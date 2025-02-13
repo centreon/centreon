@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,27 +18,30 @@
  * For more information : contact@centreon.com
  *
  */
-
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure;
 
+use Adaptation\Database\Collection\BatchInsertParameters;
+use Adaptation\Database\Collection\QueryParameters;
+use Adaptation\Database\ConnectionInterface;
+use Adaptation\Database\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Exception\ConnectionException;
+use Adaptation\Database\Model\ConnectionConfig;
+use Adaptation\Database\ValueObject\QueryParameter;
 use Centreon\Domain\Log\Logger;
-use PDO;
-use PDOException;
-use PDOStatement;
 use Psr\Log\LoggerInterface;
-use Throwable;
-use Traversable;
+use Psr\Log\LogLevel;
 
 /**
  * This class extend the PDO class and can be used to create a database
  * connection.
  * This class is used by all database repositories.
  *
+ * @class   DatabaseConnection
  * @package Centreon\Infrastructure
  */
-class DatabaseConnection extends PDO
+class DatabaseConnection extends \PDO implements ConnectionInterface
 {
     /**
      * @var string Name of the configuration table
@@ -51,6 +54,11 @@ class DatabaseConnection extends PDO
     private string $storageDbName;
 
     /**
+     * @var ConnectionConfig
+     */
+    private ConnectionConfig $connectionConfig;
+
+    /**
      * By default, the queries are buffered.
      *
      * @var bool
@@ -58,68 +66,99 @@ class DatabaseConnection extends PDO
     private bool $isBufferedQueryActive = true;
 
     /**
-     * Initialize the PDO connection
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
+    /**
+     * DatabaseConnection constructor.
      *
-     * @param LoggerInterface $logger
-     * @param string          $host
-     * @param string          $basename
-     * @param string          $login
-     * @param string          $password
-     * @param int             $port
+     * @param LoggerInterface       $logger
+     * @param string                $host
+     * @param string                $basename
+     * @param string                $login
+     * @param string                $password
+     * @param int                   $port
+     * @param ConnectionConfig|null $connectionConfig
      *
-     * @throws DatabaseConnectionException
+     * @throws ConnectionException
      */
     public function __construct(
-        private readonly LoggerInterface $logger,
-        string $host,
-        private readonly string $basename,
-        string $login,
-        string $password,
-        int $port = 3306
+        LoggerInterface $logger,
+        string $host = '',
+        string $basename = '',
+        string $login = '',
+        string $password = '',
+        int $port = 3306,
+        ConnectionConfig $connectionConfig = null
     ) {
         try {
-            $dsn = "mysql:dbname={$basename};host={$host};port={$port}";
-            $options = [
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-            ];
-            parent::__construct($dsn, $login, $password, $options);
-        } catch (PDOException $e) {
-            $this->logAndCreateException(
-                "Unable to connect to database",
-                ['trace' => $e->getTraceAsString()],
-                $dsn,
-                $e
+            if (is_null($connectionConfig)) {
+                if (empty($host) || empty($login) || empty($password) || empty($basename)) {
+                    throw ConnectionException::connectionBadUsage(
+                        'Host, login, password and database name must not be empty',
+                        [
+                            'host' => $host,
+                            'login' => $login,
+                            'password' => $password,
+                            'basename' => $basename,
+                        ]
+                    );
+                }
+                $this->connectionConfig = new ConnectionConfig(
+                    host: $host,
+                    user: $login,
+                    password: $password,
+                    databaseName: $basename,
+                    port: $port
+                );
+            } else {
+                $this->connectionConfig = $connectionConfig;
+            }
+
+            parent::__construct(
+                $this->connectionConfig->getMysqlDsn(),
+                $this->connectionConfig->getUser(),
+                $this->connectionConfig->getPassword(),
+                [
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+                ]
             );
+        } catch (\PDOException $exception) {
+            if ($exception->getCode() === 2002) {
+                $this->writeDbLog(
+                    message: "Unable to connect to database",
+                    previous: $exception,
+                );
+                throw ConnectionException::connectionFailed($exception);
+            }
         }
+        $this->logger = $logger;
     }
 
     /**
-     * Factory to connect to the database
+     * Factory
      *
-     * @param DatabaseConnectionConfig $connectionConfig
+     * @param ConnectionConfig $connectionConfig
      *
+     * @throws ConnectionException
      * @return DatabaseConnection
-     *
-     * @throws DatabaseConnectionException
      */
-    public static function connect(DatabaseConnectionConfig $connectionConfig): self
+    public static function createFromConfig(ConnectionConfig $connectionConfig): DatabaseConnection
     {
-        return new self(
-            new Logger(),
-            $connectionConfig->dbHost,
-            $connectionConfig->dbName,
-            $connectionConfig->dbUser,
-            $connectionConfig->dbPassword,
-            $connectionConfig->dbPort
-        );
+        try {
+            return new self(logger: new Logger(), connectionConfig: $connectionConfig);
+        } catch (\Throwable $e) {
+            throw ConnectionException::connectionFailed($e);
+        }
     }
 
     /**
      * @return string
      */
-    public function getCentreonDbName()
+    public function getCentreonDbName(): string
     {
         return $this->centreonDbName;
     }
@@ -135,7 +174,7 @@ class DatabaseConnection extends PDO
     /**
      * @return string
      */
-    public function getStorageDbName()
+    public function getStorageDbName(): string
     {
         return $this->storageDbName;
     }
@@ -152,91 +191,159 @@ class DatabaseConnection extends PDO
      * switch connection to another database
      *
      * @param string $dbName
+     *
+     * @throws ConnectionException
      */
     public function switchToDb(string $dbName): void
     {
-        $this->query('use ' . $dbName);
+        $this->executeStatement('use ' . $dbName);
     }
 
     /**
+     * Return the database name if it exists.
+     *
+     * @throws ConnectionException
+     * @return string|null
+     */
+    public function getDatabaseName(): ?string
+    {
+        try {
+            return $this->fetchByColumn('SELECT DATABASE()')[0] ?? null;
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to get database name",
+                previous: $e,
+            );
+            throw ConnectionException::getDatabaseNameFailed();
+        }
+    }
+
+    /**
+     * To get the used native connection by DBAL (PDO, mysqli, ...).
+     *
+     * @return object
+     */
+    public function getNativeConnection(): object
+    {
+        return $this;
+    }
+
+    /***
+     * Returns the ID of the last inserted row.
+     * If the underlying driver does not support identity columns, an exception is thrown.
+     *
+     * @throws ConnectionException
      * @return string
      */
-    public function getCurrentDatabaseName(): string
+    public function getLastInsertId(): string
     {
-        return $this->basename;
+        try {
+            return (string) $this->lastInsertId();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to get last insert id",
+                previous: $e,
+            );
+            throw ConnectionException::getLastInsertFailed($e);
+        }
     }
 
     /**
-     * To know if the connection is established
+     * Check if a connection with the database exist.
      *
      * @return bool
      */
     public function isConnected(): bool
     {
         try {
-            $this->executeQuery('SELECT 1');
+            $this->executeSelectQuery('SELECT 1');
 
             return true;
-        } catch (DatabaseConnectionException $e) {
+        } catch (ConnectionException $e) {
+            $this->writeDbLog(
+                message: "Unable to execute select query",
+                query: 'SELECT 1',
+                previous: $e,
+            );
+
             return false;
         }
     }
 
-    /***
-     * Returns the ID of the last inserted row.
+    /**
+     * The usage of this method is discouraged. Use prepared statements.
+     *
+     * @param string $value
      *
      * @return string
-     *
-     * @throws DatabaseConnectionException
      */
-    public function getLastInsertId(): string
+    public function quoteString(string $value): string
     {
-        try {
-            return (string) $this->lastInsertId();
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while getting last insert ID : {$e->getMessage()}",
-                [],
-                '',
-                $e
-            );
-        }
+        return parent::quote($value);
     }
 
     // --------------------------------------- CUD METHODS -----------------------------------------
 
     /**
+     * To execute all queries except the queries getting results (SELECT).
+     *
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
-     * Could be only used for DELETE.
+     * Could be used for:
+     *  - DML statements: INSERT, UPDATE, DELETE, etc.
+     *  - DDL statements: CREATE, DROP, ALTER, etc.
+     *  - DCL statements: GRANT, REVOKE, etc.
+     *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
+     *  - Other statements that don't yield a row set.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
+     * @throws ConnectionException
      * @return int
-     * @throws DatabaseConnectionException
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
-    public function delete(string $query, array $bindParams, bool $withParamType = false): int
+    public function executeStatement(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            $this->validateQueryString($query, 'DELETE', true);
-            $stmt = $this->prepareQuery($query);
-            $this->executePreparedQuery($stmt, $bindParams, $withParamType);
+            if (empty($query)) {
+                throw ConnectionException::notEmptyQuery();
+            }
 
-            return $stmt->rowCount();
-        } catch (DatabaseConnectionException $e) {
-            $this->logAndCreateException(
-                "Error while deleting data : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            if (str_starts_with($query, 'SELECT') || str_starts_with($query, 'select')) {
+                throw ConnectionException::executeStatementBadFormat(
+                    "Cannot use it with a SELECT query",
+                    $query
+                );
+            }
+
+            $pdoStatement = $this->prepare($query);
+
+            if (! is_null($queryParameters) && ! $queryParameters->isEmpty()) {
+                foreach ($queryParameters->getIterator() as $queryParameter) {
+                    $pdoStatement->bindValue(
+                        ":{$queryParameter->getName()}",
+                        $queryParameter->getValue(),
+                        ($queryParameter->getType() !== null) ?
+                            $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
+                    );
+                }
+            }
+
+            $pdoStatement->execute();
+
+            return $pdoStatement->rowCount();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to execute statement",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::executeStatementFailed($e, $query, $queryParameters);
         }
     }
 
@@ -245,140 +352,144 @@ class DatabaseConnection extends PDO
      *
      * Could be only used for INSERT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
+     * @throws ConnectionException
      * @return int
-     * @throws DatabaseConnectionException
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->insert('INSERT INTO table (id) VALUES (:id)', $queryParameters);
      */
-    public function insert(string $query, array $bindParams, bool $withParamType = false): int
+    public function insert(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            $this->validateQueryString($query, 'INSERT INTO', true);
-            $stmt = $this->prepareQuery($query);
-            $this->executePreparedQuery($stmt, $bindParams, $withParamType);
+            if (! str_starts_with($query, 'INSERT INTO ')
+                && ! str_starts_with($query, 'insert into ')
+            ) {
+                throw ConnectionException::insertQueryBadFormat($query);
+            }
 
-            return $stmt->rowCount();
-        } catch (DatabaseConnectionException $e) {
-            $this->logAndCreateException(
-                "Error while inserting data : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            return $this->executeStatement($query, $queryParameters);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to execute insert query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::insertQueryFailed($e, $query, $queryParameters);
         }
     }
 
     /**
-     * Executes an SQL statement with the given parameters and returns the number of affected rows.
+     * Executes an SQL statement with the given parameters and returns the number of affected rows for multiple inserts.
      *
      * Could be only used for several INSERT.
      *
-     * This method supports PDO binding types.
+     * $batchInsertParameters is a collection of QueryParameters, each QueryParameters is a collection of QueryParameter
      *
-     * @param string $tableName
-     * @param array  $columns
-     * @param array  $bindParams    An array of arrays of bind parameters wth the same length as $columns. The keys must
-     *                              be the same as the columns.
-     * @param bool   $withParamType If true, $bindParams must have an array of arrays like
-     *                              ['column => ['value', PDO::PARAM_*]]
+     * @param string                $tableName
+     * @param array                 $columns
+     * @param BatchInsertParameters $batchInsertParameters
      *
+     * @throws ConnectionException
      * @return int
-     * @throws DatabaseConnectionException
+     *
+     * @example $batchInsertParameters = BatchInsertParameters::create([
+     *              QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]),
+     *              QueryParameters::create([QueryParameter::int('id', 2), QueryParameter::string('name', 'Jean')]),
+     *          ]);
+     *          $nbAffectedRows = $db->batchInsert('table', ['id', 'name'], $batchInsertParameters);
+     *          // $nbAffectedRows = 2
      */
-    public function iterateInsert(
-        string $tableName,
-        array $columns,
-        array $bindParams,
-        bool $withParamType = false
-    ): int {
+    public function batchInsert(string $tableName, array $columns, BatchInsertParameters $batchInsertParameters): int
+    {
         try {
             if (empty($tableName)) {
-                throw new DatabaseConnectionException(
-                    'Table name must not be empty',
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['table_name' => $tableName]
-                );
+                throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
             }
             if (empty($columns)) {
-                throw new DatabaseConnectionException(
-                    'Columns must not be empty',
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['columns' => $columns]
-                );
+                throw ConnectionException::batchInsertQueryBadUsage('Columns must not be empty');
             }
-            if (empty($bindParams)) {
-                throw new DatabaseConnectionException(
-                    'Bind parameters must not be empty',
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['bind_params' => $bindParams]
-                );
+            if ($batchInsertParameters->isEmpty()) {
+                throw ConnectionException::batchInsertQueryBadUsage('Batch insert parameters must not be empty');
             }
-            $bindParamsToExecute = [];
-            $query = "INSERT INTO $tableName (" . implode(', ', $columns) . ") VALUES";
-            for ($i = 0, $iMax = count($bindParams); $i < $iMax; $i++) {
-                if (! is_array($bindParams[$i])) {
-                    throw new DatabaseConnectionException(
-                        '$bindParams must be an array of arrays',
-                        DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                        ['bin_params_in_error' => $bindParams[$i], 'bind_params' => $bindParams]
-                    );
-                }
-                if (count($columns) !== count($bindParams[$i])) {
-                    throw new DatabaseConnectionException(
-                        'Columns and bind parameters must have the same length',
-                        DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                        ['columns' => $columns, 'bin_params_in_error' => $bindParams[$i], 'bind_params' => $bindParams]
-                    );
-                }
-                if ($i > 0) {
-                    $query .= ',';
-                }
-                $query .= '(:' . implode('_' . $i . ', :', $columns) . '_' . $i . ')';
-                foreach ($columns as $column) {
-                    if (! isset($bindParams[$i][$column])) {
-                        throw new DatabaseConnectionException(
-                            "Column $column is not set in bindParams",
-                            DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                            ['column' => $column, 'bind_params_in_error' => $bindParams[$i]]
-                        );
-                    }
-                    if (! $withParamType) {
-                        $bindParamsToExecute[$column . '_' . $i] = $bindParams[$i][$column];
-                    } else {
-                        if (! is_array($bindParams[$i][$column]) || count($bindParams[$i][$column]) !== 2) {
-                            throw new DatabaseConnectionException(
-                                "Column $column is not set correctly in bindParams, it must be an array with value and type",
-                                DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                                ['column' => $column, 'bind_params_in_error' => $bindParams[$i]]
-                            );
-                        }
-                        $bindParamsToExecute[$column . '_' . $i] = [
-                            $bindParams[$i][$column][0],
-                            $bindParams[$i][$column][1]
-                        ];
-                    }
-                }
-            }
-            $stmt = $this->prepareQuery($query);
-            $this->executePreparedQuery($stmt, $bindParamsToExecute, $withParamType);
 
-            return $stmt->rowCount();
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while iterating insert datas : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
+            $query = "INSERT INTO $tableName (" . implode(', ', $columns) . ") VALUES";
+
+            $valuesInsert = [];
+            $queryParametersToInsert = new QueryParameters([]);
+
+            $indexQueryParameterToInsert = 1;
+
+            /*
+             * $batchInsertParameters is a collection of QueryParameters, each QueryParameters is a collection of QueryParameter
+             * We need to iterate over the QueryParameters to build the final query.
+             * Then, for each QueryParameters, we need to iterate over the QueryParameter to build :
+             *  - to check if the query parameters are not empty (queryParameters)
+             *  - to check if the columns and query parameters have the same length (columns, queryParameters)
+             *  - to rename the parameter name to avoid conflicts with a suffix (indexQueryParameterToInsert)
+             *  - the values block of the query (valuesInsert)
+             *  - the query parameters to insert (queryParametersToInsert)
+             */
+
+            foreach ($batchInsertParameters->getIterator() as $queryParameters) {
+                if ($queryParameters->isEmpty()) {
+                    throw ConnectionException::batchInsertQueryBadUsage('Query parameters must not be empty');
+                }
+                if (count($columns) !== $queryParameters->length()) {
+                    throw ConnectionException::batchInsertQueryBadUsage(
+                        'Columns and query parameters must have the same length'
+                    );
+                }
+
+                $valuesInsertItem = '';
+
+                foreach ($queryParameters->getIterator() as $queryParameter) {
+                    if (! empty($valuesInsertItem)) {
+                        $valuesInsertItem .= ', ';
+                    }
+                    $parameterName = "{$queryParameter->getName()}_{$indexQueryParameterToInsert}";
+                    $queryParameterToInsert = QueryParameter::create(
+                        $parameterName,
+                        $queryParameter->getValue(),
+                        $queryParameter->getType()
+                    );
+                    $valuesInsertItem .= ":$parameterName";
+                    $queryParametersToInsert->add($queryParameterToInsert->getName(), $queryParameterToInsert);
+                }
+
+                $valuesInsert[] = "({$valuesInsertItem})";
+                $indexQueryParameterToInsert++;
+            }
+
+            if (count($valuesInsert) === $queryParametersToInsert->length()) {
+                throw ConnectionException::batchInsertQueryBadUsage(
+                    'Error while building the final query : values block and query parameters have not the same length'
+                );
+            }
+
+            $query .= implode(', ', $valuesInsert);
+
+            return $this->executeStatement($query, $queryParametersToInsert);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to execute batch insert query",
+                customContext: [
+                    'table_name' => $tableName,
+                    'columns' => $columns,
+                    'batch_insert_parameters' => $batchInsertParameters
                 ],
-                $query ?? '',
-                $e
+                query: $query ?? '',
+                previous: $e,
+            );
+            throw ConnectionException::batchInsertQueryFailed(
+                previous: $e,
+                tableName: $tableName,
+                columns: $columns,
+                batchInsertParameters: $batchInsertParameters,
+                query: $query ?? ''
             );
         }
     }
@@ -388,73 +499,74 @@ class DatabaseConnection extends PDO
      *
      * Could be only used for UPDATE.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
+     * @throws ConnectionException
      * @return int
-     * @throws DatabaseConnectionException
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->update('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
-    public function update(string $query, array $bindParams, bool $withParamType = false): int
+    public function update(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            $this->validateQueryString($query, 'UPDATE', true);
-            $stmt = $this->prepareQuery($query);
-            $this->executePreparedQuery($stmt, $bindParams, $withParamType);
+            if (! str_starts_with($query, 'UPDATE ')
+                && ! str_starts_with($query, 'update ')
+            ) {
+                throw ConnectionException::updateQueryBadFormat($query);
+            }
 
-            return $stmt->rowCount();
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while updating data : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            return $this->executeStatement($query, $queryParameters);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to execute update query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::updateQueryFailed($e, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Executes an SQL statement with the given parameters and returns the number of affected rows.
+     *
+     * Could be only used for DELETE.
+     *
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return int
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+     *          $nbAffectedRows = $db->delete('DELETE FROM table WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
+     */
+    public function delete(string $query, ?QueryParameters $queryParameters = null): int
+    {
+        try {
+            if (! str_starts_with($query, 'DELETE ')
+                && ! str_starts_with($query, 'delete ')
+            ) {
+                throw ConnectionException::deleteQueryBadFormat($query);
+            }
+
+            return $this->executeStatement($query, $queryParameters);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to execute insert query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::deleteQueryFailed($e, $query, $queryParameters);
         }
     }
 
     // --------------------------------------- FETCH METHODS -----------------------------------------
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result as an associative array.
-     *
-     * Could be only used with SELECT.
-     *
-     * This method supports PDO binding types.
-     *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @return array<string, mixed>|false False is returned if no rows are found.
-     *
-     * @throws DatabaseConnectionException
-     */
-    public function fetchAssociative(string $query, array $bindParams = [], bool $withParamType = false): false | array
-    {
-        try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_ASSOC);
-
-            return $this->fetch($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAssociative() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
-            );
-        }
-    }
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result
@@ -462,81 +574,132 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
+     * @throws ConnectionException
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+     *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
+     *          // $result = [0 => 1, 1 => 'John', 2 => 'Doe']
      */
-    public function fetchNumeric(string $query, array $bindParams = [], bool $withParamType = false): false | array
+    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false | array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_NUM);
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
 
-            return $this->fetch($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchNumeric() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            return $pdoStatement->fetch();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch numeric query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchNumericQueryFailed($e, $query, $queryParameters);
         }
     }
 
     /**
-     * Prepares and executes an SQL query and returns the first row of the result as a value of a single column.
+     * Prepares and executes an SQL query and returns the first row of the result as an associative array.
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     * @param int    $column
+     * @throws ConnectionException
+     * @return array<string, mixed>|false False is returned if no rows are found.
      *
-     * @return array|bool
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+     *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
+     *          // $result = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
      */
-    public function fetchByColumn(
-        string $query,
-        array $bindParams = [],
-        int $column = 0,
-        bool $withParamType = false
-    ): mixed {
+    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false | array
+    {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_COLUMN,
-                [$column]
-            );
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
 
-            return $this->fetch($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchByColumn() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                    'column' => $column,
-                ],
-                $query,
-                $e
+            return $pdoStatement->fetch();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch associative query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAssociativeQueryFailed($e, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the value of a single column
+     * of the first row of the result.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return mixed|false False is returned if no rows are found.
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
+     *          $result = $db->fetchOne('SELECT name FROM table WHERE name = :name', $queryParameters);
+     *          // $result = 'John'
+     */
+    public function fetchOne(string $query, ?QueryParameters $queryParameters = null): mixed
+    {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
+
+            return $pdoStatement->fetch()[0] ?? false;
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch one query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::fetchOneQueryFailed($e, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of the column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param int                  $column
+     *
+     * @throws ConnectionException
+     * @return list<mixed>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchByColumn('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = ['John', 'Jean']
+     */
+    public function fetchByColumn(string $query, ?QueryParameters $queryParameters = null, int $column = 0): array
+    {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
+
+            return $pdoStatement->fetchAll();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch by column query",
+                customContext: ['query_parameters' => $queryParameters, 'column' => $column],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::fetchByColumnQueryFailed($e, $query, $queryParameters, $column);
         }
     }
 
@@ -545,34 +708,31 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
+     * @throws ConnectionException
      * @return array<array<int,mixed>>
      *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [[0 => 1, 1 => 'John', 2 => 'Doe'], [0 => 2, 1 => 'Jean', 2 => 'Dupont']]
      */
-    public function fetchAllNumeric(string $query, array $bindParams = [], bool $withParamType = false): array
+    public function fetchAllNumeric(string $query, ?QueryParameters $queryParameters = null): array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_NUM);
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
 
-            return $this->fetchAll($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllNumeric() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            return $pdoStatement->fetchAll();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all numeric query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAllNumericQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -581,34 +741,31 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
+     * @throws ConnectionException
      * @return array<array<string,mixed>>
      *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [['id' => 1, 'name' => 'John', 'surname' => 'Doe'], ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']]
      */
-    public function fetchAllAssociative(string $query, array $bindParams = [], bool $withParamType = false): array
+    public function fetchAllAssociative(string $query, ?QueryParameters $queryParameters = null): array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_ASSOC);
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
 
-            return $this->fetchAll($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllAssociative() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            return $pdoStatement->fetchAll();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all associative query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAllAssociativeQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -618,46 +775,32 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param int                  $column
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     * @param int    $column
+     * @throws ConnectionException
+     * @return list<mixed>
      *
-     * @return array<array<string,mixed>>
-     *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllByColumn('SELECT * FROM table WHERE active = :active', $queryParameters, 1);
+     *          // $result = ['John', 'Jean']
      */
-    public function fetchAllByColumn(
-        string $query,
-        array $bindParams = [],
-        int $column = 0,
-        bool $withParamType = false
-    ): array {
+    public function fetchAllByColumn(string $query, ?QueryParameters $queryParameters = null, int $column = 0): array
+    {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_COLUMN,
-                [$column]
-            );
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
 
-            return $this->fetchAll($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllByColumn() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                    'column' => $column,
-                ],
-                $query,
-                $e
+            return $pdoStatement->fetchAll();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all by column query",
+                customContext: ['query_parameters' => $queryParameters, 'column' => $column],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAllByColumnQueryFailed($e, $query, $queryParameters, $column);
         }
     }
 
@@ -667,39 +810,31 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
+     * @throws ConnectionException
      * @return array<int|string,mixed>
      *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
+     *          // $result = ['John' => 'Doe', 'Jean' => 'Dupont']
      */
-    public function fetchAllKeyValue(string $query, array $bindParams = [], bool $withParamType = false): array
+    public function fetchAllKeyValue(string $query, ?QueryParameters $queryParameters = null): array
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_KEY_PAIR
-            );
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
 
-            return $this->fetchAll($pdoStatement);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllKeyValue() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+            return $pdoStatement->fetchAll();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all key value query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::fetchAllKeyValueQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -710,95 +845,75 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
+     * @throws ConnectionException
      * @return array<mixed,array<string,mixed>>
      *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [1 => ['name' => 'John', 'surname' => 'Doe'], 2 => ['name' => 'Jean', 'surname' => 'Dupont']]
      */
-    public function fetchAllAssociativeIndexed(
-        string $query,
-        array $bindParams = [],
-        bool $withParamType = false
-    ): array {
+    public function fetchAllAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): array
+    {
         try {
+            $this->validateSelectQuery($query);
             $data = [];
-            foreach ($this->fetchAllAssociative($query, $bindParams, $withParamType) as $row) {
+            foreach ($this->fetchAllAssociative($query, $queryParameters) as $row) {
                 $data[array_shift($row)] = $row;
             }
 
             return $data;
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with fetchAllAssociativeIndexed() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to fetch all associative indexed query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
-        }
-    }
-
-    /**
-     * Prefer to use fetchNumeric() or fetchAssociative() instead of this method.
-     *
-     * @param PDOStatement $pdoStatement
-     *
-     * @return mixed
-     *
-     * @throws DatabaseConnectionException
-     *
-     * @see fetchNumeric(), fetchAssociative()
-     */
-    public function fetch(PDOStatement $pdoStatement): mixed
-    {
-        try {
-            return $pdoStatement->fetch();
-        } catch (Throwable $e) {
-            $this->closeQuery($pdoStatement);
-            $this->logAndCreateException(
-                "Error while fetching the row : {$e->getMessage()}",
-                [],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * Prefer to use fetchAllNumeric() or fetchAllAssociative() instead of this method.
-     *
-     * @param PDOStatement $pdoStatement
-     *
-     * @return array
-     *
-     * @throws DatabaseConnectionException
-     *
-     * @see fetchAllNumeric(), fetchAllAssociative()
-     */
-    public function fetchAll(PDOStatement $pdoStatement): array
-    {
-        try {
-            return $pdoStatement->fetchAll();
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching all the rows : {$e->getMessage()}",
-                [],
-                $pdoStatement->queryString,
-                $e
-            );
-        } finally {
-            $this->closeQuery($pdoStatement);
+            throw ConnectionException::fetchAllAssociativeIndexedQueryFailed($e, $query, $queryParameters);
         }
     }
 
     // --------------------------------------- ITERATE METHODS -----------------------------------------
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = [0 => 1, 1 => 'John', 2 => 'Doe']
+     *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
+     *          }
+     */
+    public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
+            while (($row = $pdoStatement->fetch()) !== false) {
+                yield $row;
+            }
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate numeric query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::iterateNumericQueryFailed($e, $query, $queryParameters);
+        }
+    }
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented
@@ -806,66 +921,35 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
+     * @throws ConnectionException
+     * @return \Traversable<int,array<string,mixed>>
      *
-     * @return Traversable<int,array<string,mixed>>
-     *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
+     *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
+     *          }
      */
-    public function iterateAssociative(string $query, array $bindParams = [], bool $withParamType = false): Traversable
+    public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): \Traversable
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_ASSOC);
-            while (($row = $this->fetch($pdoStatement)) !== false) {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
+            while (($row = $pdoStatement->fetch()) !== false) {
                 yield $row;
             }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateAssociative() : {$e->getMessage()}",
-                ['bind_params' => $bindParams, 'with_param_type' => $withParamType],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate associative query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
-     *
-     * Could be only used with SELECT.
-     *
-     * This method supports PDO binding types.
-     *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
-     *
-     * @return Traversable<int,list<mixed>>
-     *
-     * @throws DatabaseConnectionException
-     */
-    public function iterateNumeric(string $query, array $bindParams = [], bool $withParamType = false): Traversable
-    {
-        try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery($pdoStatement, $bindParams, $withParamType, PDO::FETCH_NUM);
-            while (($row = $this->fetch($pdoStatement)) !== false) {
-                yield $row;
-            }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateNumeric() : {$e->getMessage()}",
-                ['bind_params' => $bindParams, 'with_param_type' => $withParamType],
-                $query,
-                $e
-            );
+            throw ConnectionException::iterateAssociativeQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -874,47 +958,39 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param int                  $column
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param int    $column
-     * @param bool   $withParamType
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
      *
-     * @return Traversable<int,list<mixed>>
-     *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateByColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $value) {
+     *              // $value = 'John'
+     *              // $value = 'Jean'
+     *          }
      */
     public function iterateByColumn(
         string $query,
-        array $bindParams = [],
-        int $column = 0,
-        bool $withParamType = false
-    ): Traversable {
+        ?QueryParameters $queryParameters = null,
+        int $column = 0
+    ): \Traversable {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_COLUMN,
-                [$column]
-            );
-            while (($row = $this->fetch($pdoStatement)) !== false) {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
+            while (($row = $pdoStatement->fetch()) !== false) {
                 yield $row;
             }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateByColumn() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType,
-                    'column' => $column,
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate by column query",
+                customContext: ['query_parameters' => $queryParameters, 'column' => $column],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::iterateByColumnQueryFailed($e, $query, $queryParameters, $column);
         }
     }
 
@@ -924,40 +1000,35 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
+     * @throws ConnectionException
+     * @return \Traversable<mixed,mixed>
      *
-     * @return Traversable<mixed,mixed>
-     *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $key => $value) {
+     *              // $key = 'John', $value = 'Doe'
+     *              // $key = 'Jean', $value = 'Dupont'
+     *          }
      */
-    public function iterateKeyValue(string $query, array $bindParams = [], bool $withParamType = false): Traversable
+    public function iterateKeyValue(string $query, ?QueryParameters $queryParameters = null): \Traversable
     {
         try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $pdoStatement = $this->prepareQuery($query);
-            $pdoStatement = $this->executePreparedQuery(
-                $pdoStatement,
-                $bindParams,
-                $withParamType,
-                PDO::FETCH_KEY_PAIR
-            );
-            while (($row = $this->fetch($pdoStatement)) !== false) {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
+            while (($row = $pdoStatement->fetch()) !== false) {
                 yield $row;
             }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateByColumn() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType
-                ],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate key value query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::iterateKeyValueQueryFailed($e, $query, $queryParameters);
         }
     }
 
@@ -968,431 +1039,43 @@ class DatabaseConnection extends PDO
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types.
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string $query
-     * @param array  $bindParams
-     * @param bool   $withParamType
+     * @throws ConnectionException
+     * @return \Traversable<mixed,array<string,mixed>>
      *
-     * @return Traversable<mixed,array<string,mixed>>
-     *
-     * @throws DatabaseConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $key => $row) {
+     *              // $key = 1, $row = ['name' => 'John', 'surname' => 'Doe']
+     *              // $key = 2, $row = ['name' => 'Jean', 'surname' => 'Dupont']
+     *          }
      */
-    public function iterateAssociativeIndexed(
-        string $query,
-        array $bindParams = [],
-        bool $withParamType = false
-    ): Traversable {
-        try {
-            foreach ($this->iterateAssociative($query, $bindParams, $withParamType) as $row) {
-                yield [array_shift($row) => $row];
-            }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while fetching data with iterateAssociativeIndexed() : {$e->getMessage()}",
-                [
-                    'bind_params' => $bindParams,
-                    'with_param_type' => $withParamType
-                ],
-                $query,
-                $e
-            );
-        }
-    }
-
-    // --------------------------------------- DDL METHODS -----------------------------------------
-
-    /**
-     * Only for DDL queries (ALTER TABLE, CREATE TABLE, DROP TABLE, CREATE DATABASE, and TRUNCATE TABLE...)
-     *
-     * @param string $query
-     *
-     * @return bool
-     * @throws DatabaseConnectionException
-     */
-    public function updateDatabase(string $query): bool
+    public function iterateAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): \Traversable
     {
         try {
-            if (empty($query)) {
-                throw new DatabaseConnectionException(
-                    'Query must not be empty',
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['query' => $query]
-                );
+            $this->validateSelectQuery($query);
+            foreach ($this->iterateAssociative($query, $queryParameters) as $row) {
+                yield array_shift($row) => $row;
             }
-            $standardQueryStarts = ['SELECT ', 'UPDATE ', 'DELETE ', 'INSERT INTO '];
-            foreach ($standardQueryStarts as $standardQueryStart) {
-                if (
-                    str_starts_with($query, strtolower($standardQueryStart))
-                    || str_starts_with($query, strtoupper($standardQueryStart))
-                ) {
-                    throw new DatabaseConnectionException(
-                        'Query must not to start by SELECT, UPDATE, DELETE or INSERT INTO, this method is only for DDL queries',
-                        DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                        ['query' => $query]
-                    );
-                }
-            }
-
-            return $this->exec($query) !== false;
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while updating the database: {$e->getMessage()}", [], $query, $e);
-        }
-    }
-
-    // --------------------------------------- BASE METHODS -----------------------------------------
-
-    /**
-     * @param string $query
-     * @param array  $options
-     *
-     * @return PDOStatement|false Returns a PDOStatement object, or false on failure.
-     * @throws DatabaseConnectionException
-     */
-    public function prepareQuery(string $query, array $options = []): PDOStatement | false
-    {
-        try {
-            if (empty($query)) {
-                throw new DatabaseConnectionException(
-                    'Error while preparing query, query must not be empty',
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['query' => $query]
-                );
-            }
-
-            return parent::prepare($query, $options);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while preparing the query: {$e->getMessage()}",
-                ['options' => $options],
-                $query,
-                $e
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to iterate associative indexed query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
             );
+            throw ConnectionException::iterateAssociativeIndexedQueryFailed($e, $query, $queryParameters);
         }
-    }
-
-    /**
-     * Prepared query.
-     *
-     * Not for DDL queries
-     *
-     * @param PDOStatement $pdoStatement
-     * @param array        $bindParams    It's optional only for SELECT queries
-     * @param bool         $withParamType When $withParamType is true, $bindParams must have an array as value like
-     *                                    ['value', PDO::PARAM_*]
-     *                                    Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
-     * @param int          $fetchMode     Only for the SELECT queries
-     * @param array        $fetchModeArgs
-     *
-     * @return bool|PDOStatement If the query is a CUD query, it returns a boolean, if it's a SELECT query, it returns
-     *                           a PDOStatement
-     *
-     * @throws DatabaseConnectionException
-     */
-    public function executePreparedQuery(
-        PDOStatement $pdoStatement,
-        array $bindParams = [],
-        bool $withParamType = false,
-        int $fetchMode = PDO::FETCH_ASSOC,
-        array $fetchModeArgs = []
-    ): bool | PDOStatement {
-        try {
-            $isCUD = (
-                str_starts_with($pdoStatement->queryString, 'INSERT INTO ')
-                || str_starts_with($pdoStatement->queryString, 'insert into ')
-                || str_starts_with($pdoStatement->queryString, 'UPDATE ')
-                || str_starts_with($pdoStatement->queryString, 'update ')
-                || str_starts_with($pdoStatement->queryString, 'DELETE ')
-                || str_starts_with($pdoStatement->queryString, 'delete ')
-            );
-
-            if (! $isCUD) {
-                $this->validateQueryString($pdoStatement->queryString, 'SELECT', true);
-            }
-
-            if (($withParamType && $bindParams === []) || ($isCUD && $bindParams === [])) {
-                throw new DatabaseConnectionException(
-                    "Binding parameters are empty",
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['bind_params' => $bindParams]
-                );
-            }
-
-            if ($withParamType) {
-                foreach ($bindParams as $paramName => $bindParam) {
-                    if (is_array($bindParam) && $bindParam !== [] && count($bindParam) === 2) {
-                        $paramValue = $bindParam[0];
-                        $paramType = $bindParam[1];
-                        if (
-                            ! in_array(
-                                $paramType,
-                                [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
-                                true
-                            )
-                        ) {
-                            throw new DatabaseConnectionException(
-                                "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
-                                DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                                ['bind_param' => $bindParam]
-                            );
-                        }
-                        $this->makeBindValue($pdoStatement, $paramName, $paramValue, $paramType);
-                    } else {
-                        throw new DatabaseConnectionException(
-                            "Incorrect format for bindParam values, it must to be an array like ['value', PDO::PARAM_*]",
-                            DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                            ['bind_param' => $bindParam]
-                        );
-                    }
-                }
-            }
-
-            if ($isCUD) {
-                return ($withParamType) ? $pdoStatement->execute() : $pdoStatement->execute($bindParams);
-            } else {
-                ($withParamType) ? $pdoStatement->execute() : $pdoStatement->execute($bindParams);
-                $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs);
-
-                return $pdoStatement;
-            }
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while executing the prepared query: {$e->getMessage()}",
-                ['bind_params' => $bindParams],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * @param PDOStatement $pdoStatement
-     * @param array|null   $bindParams
-     *
-     * @return bool (no signature for this method because of a bug with tests with \Centreon\Test\Mock\CentreonDb::execute())
-     * @throws DatabaseConnectionException
-     */
-    public function execute(PDOStatement $pdoStatement, ?array $bindParams = null): bool
-    {
-        try {
-            if ($bindParams === []) {
-                throw new DatabaseConnectionException(
-                    "To execute the query, bindParams must to be an array filled or null, empty array given",
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['bind_params' => $bindParams]
-                );
-            }
-
-            return $pdoStatement->execute($bindParams);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while executing the query: {$e->getMessage()}",
-                ['bind_params' => $bindParams],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * Without prepared query, only for SELECT queries.
-     *
-     * Not used for DDL queries.
-     *
-     * This method does not support PDO binding types.
-     *
-     * @param       $query
-     * @param int   $fetchMode
-     * @param array $fetchModeArgs
-     *
-     * @return PDOStatement|bool
-     *
-     * @throws DatabaseConnectionException
-     */
-    public function executeQuery(
-        $query,
-        int $fetchMode = PDO::FETCH_ASSOC,
-        array $fetchModeArgs = []
-    ): PDOStatement | false {
-        try {
-            $this->validateQueryString($query, 'SELECT', true);
-            $stmt = $this->prepare($query);
-            $stmt->execute();
-            $stmt->setFetchMode($fetchMode, ...$fetchModeArgs);
-
-            return $stmt;
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while executing the query: {$e->getMessage()}",
-                ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs],
-                $query,
-                $e
-            );
-        }
-    }
-
-    /**
-     *  Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
-     *
-     * @param PDOStatement $pdoStatement
-     * @param int|string   $paramName
-     * @param mixed        $value
-     * @param int          $type
-     *
-     * @return bool
-     * @throws DatabaseConnectionException
-     */
-    public function makeBindValue(
-        PDOStatement $pdoStatement,
-        int | string $paramName,
-        mixed $value,
-        int $type = PDO::PARAM_STR
-    ): bool {
-        try {
-            if (empty($paramName)) {
-                throw new DatabaseConnectionException(
-                    "paramName must to be filled, empty given",
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['param_name' => $paramName]
-                );
-            }
-            if (
-                ! in_array(
-                    $type,
-                    [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
-                    true
-                )
-            ) {
-                throw new DatabaseConnectionException(
-                    "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['param_name' => $paramName]
-                );
-            }
-
-            return $pdoStatement->bindValue($paramName, $value, $type);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while binding value for param {$paramName} : {$e->getMessage()}",
-                [
-                    'param_name' => $paramName,
-                    'param_value' => $value,
-                    'param_type' => $type
-                ],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * @param PDOStatement $pdoStatement
-     * @param int|string   $paramName
-     * @param mixed        $var
-     * @param int          $type
-     * @param int          $maxLength
-     *
-     * @return bool
-     * @throws DatabaseConnectionException
-     */
-    public function makeBindParam(
-        PDOStatement $pdoStatement,
-        int | string $paramName,
-        mixed &$var,
-        int $type = PDO::PARAM_STR,
-        int $maxLength = 0
-    ): bool {
-        try {
-            if (empty($paramName)) {
-                throw new DatabaseConnectionException(
-                    "paramName must to be filled, empty given",
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['param_name' => $paramName]
-                );
-            }
-            if (
-                ! in_array(
-                    $type,
-                    [PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL],
-                    true
-                )
-            ) {
-                throw new DatabaseConnectionException(
-                    "Error for the param type, it's not an integer or a value of PDO::PARAM_*",
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                    ['param_name' => $paramName]
-                );
-            }
-
-            return $pdoStatement->bindParam($paramName, $var, $type, $maxLength);
-        } catch (Throwable $e) {
-            $this->logAndCreateException(
-                "Error while binding param {$paramName} : {$e->getMessage()}",
-                [
-                    'param_name' => $paramName,
-                    'param_var' => $var,
-                    'param_type' => $type,
-                    'param_max_length' => $maxLength
-                ],
-                $pdoStatement->queryString,
-                $e
-            );
-        }
-    }
-
-    /**
-     * @param PDOStatement $pdoStatement
-     *
-     * @return bool
-     * @throws DatabaseConnectionException
-     */
-    public function closeQuery(PDOStatement $pdoStatement): bool
-    {
-        try {
-            return $pdoStatement->closeCursor();
-        } catch (Throwable $e) {
-            $message = "Error while closing the PDOStatement cursor: {$e->getMessage()}";
-            $this->writeDbLog($message, query: $pdoStatement->queryString, exception: $e);
-            $exceptionOptions = ['query' => $pdoStatement->queryString,];
-            if ($e instanceof PDOException) {
-                $exceptionOptions['pdo_error_code'] = $e->getCode();
-                $exceptionOptions['pdo_error_infos'] = $e->errorInfo;
-            }
-            throw new DatabaseConnectionException(
-                $message,
-                DatabaseConnectionException::ERROR_CODE_DATABASE,
-                $exceptionOptions,
-                $e
-            );
-        }
-    }
-
-    /**
-     * @param string $string
-     * @param int    $type
-     *
-     * @return string
-     * @throws DatabaseConnectionException
-     */
-    public function escapeString(string $string, int $type = PDO::PARAM_STR): string
-    {
-        $quotedString = parent::quote($string, $type);
-        if ($quotedString === false) {
-            throw new DatabaseConnectionException(
-                "Error while quoting the string: {$string}",
-                DatabaseConnectionException::ERROR_CODE_DATABASE
-            );
-        }
-
-        return $quotedString;
     }
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
     /**
-     * Check if a transaction is active or not.
+     * Checks whether a transaction is currently active.
      *
-     * @return bool
+     * @return bool TRUE if a transaction is currently active, FALSE otherwise.
      */
     public function isTransactionActive(): bool
     {
@@ -1403,87 +1086,104 @@ class DatabaseConnection extends PDO
      * Opens a new transaction. This must be closed by calling one of the following methods:
      * {@see commit} or {@see rollBack}
      *
+     * @throws ConnectionException
      * @return void
      *
-     * @throws DatabaseConnectionException
      */
     public function startTransaction(): void
     {
         try {
             $this->beginTransaction();
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while starting a transaction: {$e->getMessage()}", [], '', $e);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to start transaction",
+                previous: $e,
+            );
+            throw ConnectionException::startTransactionFailed($e);
         }
     }
 
     /**
      * To validate a transaction.
      *
+     * @throws ConnectionException
      * @return bool
-     *
-     * @throws DatabaseConnectionException
      */
     public function commit(): bool
     {
         try {
             if (! parent::commit()) {
-                throw new DatabaseConnectionException(
-                    "Error while committing a transaction",
-                    DatabaseConnectionException::ERROR_CODE_DATABASE
-                );
+                throw ConnectionException::commitTransactionFailed();
             }
 
             return true;
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while committing a transaction", [], '', $e);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to commit transaction",
+                previous: $e,
+            );
+            throw ConnectionException::commitTransactionFailed($e);
         }
     }
 
     /**
      * To cancel a transaction.
      *
+     * @throws ConnectionException
      * @return bool
-     *
-     * @throws DatabaseConnectionException
      */
     public function rollBack(): bool
     {
         try {
             if (! parent::rollBack()) {
-                throw new DatabaseConnectionException(
-                    "Error while rolling back a transaction",
-                    DatabaseConnectionException::ERROR_CODE_DATABASE
-                );
+                throw ConnectionException::rollbackTransactionFailed();
             }
 
             return true;
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while rolling back a transaction", [], '', $e);
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Unable to rollback transaction",
+                previous: $e,
+            );
+            throw ConnectionException::rollbackTransactionFailed($e);
         }
     }
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 
     /**
+     * Checks that the connection instance allows the use of unbuffered queries.
+     *
+     * @throws ConnectionException
+     */
+    public function allowUnbufferedQuery(): bool
+    {
+        $currentDriverName = $this->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        if (! in_array($currentDriverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY)) {
+            $this->writeDbLog(
+                message: "Unbuffered queries are not allowed with this driver",
+                customContext: ['driver_name' => $currentDriverName]
+            );
+            throw ConnectionException::allowUnbufferedQueryFailed(parent::class, $currentDriverName);
+        }
+
+        return true;
+    }
+
+    /**
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
+     * @throws ConnectionException
      * @return void
-     *
-     * @throws DatabaseConnectionException
      */
     public function startUnbufferedQuery(): void
     {
-        try {
-            if (! $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
-                throw new DatabaseConnectionException(
-                    "Error while starting an unbuffered query",
-                    DatabaseConnectionException::ERROR_CODE_DATABASE
-                );
-            }
-            $this->isBufferedQueryActive = false;
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while starting an unbuffered query", [], '', $e);
+        $this->allowUnbufferedQuery();
+        if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
+            $this->writeDbLog(message: "Error while starting an unbuffered query");
+            throw ConnectionException::startUnbufferedQueryFailed();
         }
+        $this->isBufferedQueryActive = false;
     }
 
     /**
@@ -1499,140 +1199,172 @@ class DatabaseConnection extends PDO
     /**
      * To close an unbuffered query.
      *
+     * @throws ConnectionException
      * @return void
      *
-     * @throws DatabaseConnectionException
      */
     public function stopUnbufferedQuery(): void
     {
+        if (! $this->isUnbufferedQueryActive()) {
+            $this->writeDbLog(
+                message: "Error while stopping an unbuffered query, no unbuffered query is currently active"
+            );
+            throw ConnectionException::stopUnbufferedQueryFailed(
+                "Error while stopping an unbuffered query, no unbuffered query is currently active"
+            );
+        }
+        if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
+            $this->writeDbLog(message: "Error while stopping an unbuffered query");
+            throw ConnectionException::stopUnbufferedQueryFailed("Error while stopping an unbuffered query");
+        }
+        $this->isBufferedQueryActive = true;
+    }
+
+    // --------------------------------------- BASE METHODS -----------------------------------------
+
+    /**
+     * @param \PDOStatement $pdoStatement
+     *
+     * @throws ConnectionException
+     * @return bool
+     */
+    public function closeQuery(\PDOStatement $pdoStatement): bool
+    {
         try {
-            if (! $this->isUnbufferedQueryActive()) {
-                throw new DatabaseConnectionException(
-                    "Error while stopping an unbuffered query, no unbuffered query is currently active",
-                    DatabaseConnectionException::ERROR_CODE_BAD_USAGE
-                );
-            }
-            if (! $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
-                throw new DatabaseConnectionException(
-                    "Error while stopping an unbuffered query",
-                    DatabaseConnectionException::ERROR_CODE_DATABASE
-                );
-            }
-            $this->isBufferedQueryActive = true;
-        } catch (Throwable $e) {
-            $this->logAndCreateException("Error while stopping an unbuffered query", [], '', $e);
+            return $pdoStatement->closeCursor();
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while closing the \PDOStatement cursor: {$e->getMessage()}",
+                query: $pdoStatement->queryString,
+                previous: $e,
+            );
+            throw ConnectionException::closeQueryFailed($e, $pdoStatement->queryString);
         }
     }
 
     // --------------------------------------- PRIVATE METHODS -----------------------------------------
 
     /**
-     * To easily log and create a DatabaseConnectionException.
+     * To execute all queries starting with SELECT.
      *
-     * @param string         $message
-     * @param array          $context
-     * @param string         $query
-     * @param Throwable|null $exception
+     * Only for SELECT queries.
      *
-     * @return void
-     * @throws DatabaseConnectionException
+     * @param string               $query
+     * @param QueryParameters|null $queryParameters
+     * @param int                  $fetchMode
+     * @param array                $fetchModeArgs
+     *
+     * @throws ConnectionException
+     * @return \PDOStatement|false
      */
-    private function logAndCreateException(
-        string $message,
-        array $context = [],
-        string $query = '',
-        ?Throwable $exception = null
-    ): void {
-        $code = DatabaseConnectionException::ERROR_CODE_DATABASE;
-        $this->writeDbLog(
-            $message,
-            $context,
-            query: $query,
-            exception: $exception
-        );
-        $exceptionOptions = array_merge(['query' => $query], $context);
-        if ($exception instanceof PDOException) {
-            $exceptionOptions['pdo_error_code'] = $exception->getCode();
-            $exceptionOptions['pdo_error_infos'] = $exception->errorInfo;
-        } elseif ($exception instanceof DatabaseConnectionException) {
-            $code = $exception->getCode();
-        }
+    private function executeSelectQuery(
+        string $query,
+        ?QueryParameters $queryParameters = null,
+        int $fetchMode = \PDO::FETCH_ASSOC,
+        array $fetchModeArgs = []
+    ): \PDOStatement | false {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->prepare($query);
 
-        throw new DatabaseConnectionException($message, $code, $exceptionOptions, $exception);
+            if (! is_null($queryParameters) && ! $queryParameters->isEmpty()) {
+                foreach ($queryParameters->getIterator() as $queryParameter) {
+                    $pdoStatement->bindValue(
+                        $queryParameter->getName(),
+                        $queryParameter->getValue(),
+                        ($queryParameter->getType() !== null) ?
+                            $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
+                    );
+                }
+            }
+
+            $pdoStatement->execute();
+            $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs);
+
+            return $pdoStatement;
+        } catch (\Throwable $e) {
+            $this->writeDbLog(
+                message: "Error while executing the select query",
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $e,
+            );
+            throw ConnectionException::selectQueryFailed(
+                previous: $e,
+                query: $query,
+                queryParameters: $queryParameters,
+                context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
+            );
+        }
+    }
+
+    /**
+     * @param string $query
+     *
+     * @throws ConnectionException
+     * @return void
+     */
+    private function validateSelectQuery(string $query): void
+    {
+        if (empty($query)) {
+            throw ConnectionException::notEmptyQuery();
+        }
+        if (! str_starts_with($query, 'SELECT') && ! str_starts_with($query, 'select')) {
+            throw ConnectionException::selectQueryBadFormat($query);
+        }
     }
 
     /**
      * Write SQL errors messages
      *
-     * @param string         $message
-     * @param array          $customContext
-     * @param string         $query
-     * @param Throwable|null $exception
+     * @param string          $message
+     * @param array           $customContext
+     * @param string          $query
+     * @param \Throwable|null $previous
      */
     private function writeDbLog(
         string $message,
         array $customContext = [],
         string $query = '',
-        ?Throwable $exception = null
+        ?\Throwable $previous = null
     ): void {
-        // context for the logger
-        $defaultContext = ['db_name' => $this->getCurrentDatabaseName()];
+        // prepare context of the database exception
+        if ($previous instanceof ConnectionException) {
+            $dbExceptionContext = $previous->getContext();
+        } elseif ($previous instanceof \PDOException) {
+            $dbExceptionContext = [
+                'exception_type' => \PDOException::class,
+                'file' => $previous->getFile(),
+                'line' => $previous->getLine(),
+                'code' => $previous->getCode(),
+                'message' => $previous->getMessage(),
+                'pdo_error_info' => $previous->errorInfo
+            ];
+        } else {
+            $dbExceptionContext = [];
+        }
+        if (isset($dbExceptionContext['query'])) {
+            unset($dbExceptionContext['query']);
+        }
+
+        // prepare default context
+        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseName()];
         if (! empty($query)) {
             $defaultContext['query'] = $query;
         }
-        if ($exception instanceof PDOException) {
-            $defaultContext['pdo_error_infos'] = $exception->errorInfo;
-            $defaultContext['pdo_error_code'] = $exception->getCode();
-        }
-        $context = array_merge($defaultContext, $customContext);
-        // if the logger only has a context to log
-        if ($exception === null) {
-            $this->logger->error("[DatabaseConnection] $message", ['context' => $context]);
 
-            return;
-        }
-        // if the logger has an exception to log
-        $exceptionInfos = [
-            'exception_type' => $exception::class,
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'code' => $exception->getCode(),
-            'message' => $exception->getMessage()
-        ];
-        $this->logger->error(
-            "[DatabaseConnection] $message",
-            ['context' => $context, 'exception' => $exceptionInfos]
+        $context = array_merge(
+            ["default" => $defaultContext],
+            ["custom" => $customContext],
+            ['exception' => $dbExceptionContext]
         );
-    }
 
-    /**
-     * Validate a SELECT query
-     *
-     * @param string $query
-     * @param string $queryKeyword
-     * @param bool   $checkEmptyQuery
-     *
-     * @throws DatabaseConnectionException
-     */
-    private function validateQueryString(string $query, string $queryKeyword, bool $checkEmptyQuery): void
-    {
-        if ($checkEmptyQuery && empty($query)) {
-            throw new DatabaseConnectionException(
-                'Query must not be empty',
-                DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                ['query' => $query]
-            );
-        }
-        if (
-            ! str_starts_with($query, mb_strtoupper($queryKeyword) . ' ')
-            && ! str_starts_with($query, mb_strtolower($queryKeyword) . ' ')
-        ) {
-            throw new DatabaseConnectionException(
-                'The query must to start by ' . mb_strtoupper($queryKeyword),
-                DatabaseConnectionException::ERROR_CODE_BAD_USAGE,
-                ['query' => $query]
-            );
-        }
+        $this->logger->log(
+            LogLevel::CRITICAL,
+            "[DatabaseConnection] $message",
+            $context,
+            $previous
+        );
     }
 
 }
