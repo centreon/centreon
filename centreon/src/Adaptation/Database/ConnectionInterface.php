@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -466,7 +466,6 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return void
-     *
      */
     public function startTransaction(): void;
 
@@ -475,7 +474,6 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return bool
-     *
      */
     public function commit(): bool;
 
@@ -484,7 +482,6 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return bool
-     *
      */
     public function rollBack(): bool;
 
@@ -494,15 +491,15 @@ interface ConnectionInterface
      * Checks that the connection instance allows the use of unbuffered queries.
      *
      * @throws ConnectionException
+     * @return bool
      */
-    public function allowUnbufferedQuery(): void;
+    public function allowUnbufferedQuery(): bool;
 
     /**
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
      * @throws ConnectionException
      * @return void
-     *
      */
     public function startUnbufferedQuery(): void;
 
@@ -518,7 +515,6 @@ interface ConnectionInterface
      *
      * @throws ConnectionException
      * @return void
-     *
      */
     public function stopUnbufferedQuery(): void;
 }
