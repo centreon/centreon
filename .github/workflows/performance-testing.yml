@@ -143,6 +143,10 @@ jobs:
           JMETER_HOME: "/usr/share/jmeter"
           JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
 
+      - name: Check if jmeter_log.log exists
+        run: |
+            ls -l /github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_log.log
+
       - name: Upload JMeter log as artifact
         uses: actions/upload-artifact@v4
         with:

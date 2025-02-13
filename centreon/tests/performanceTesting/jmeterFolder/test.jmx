@@ -22,7 +22,7 @@
       <hashTree>
         <!-- Utiliser un CSVDataSet pour charger les utilisateurs à partir du fichier CSV -->
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read Users from CSV">
-          <stringProp name="filename">users.csv</stringProp>  <!-- Utilisation de la variable d'environnement CSV_FILE_PATH -->
+          <stringProp name="filename">/github/workspace/centreon/tests/performanceTesting/users.csv</stringProp>  <!-- Utilisation de la variable d'environnement CSV_FILE_PATH -->
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
           <boolProp name="ignoreFirstLine">true</boolProp>
