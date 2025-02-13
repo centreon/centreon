@@ -136,7 +136,7 @@ jobs:
       - name: Run Performance Testing with JMeter
         uses: rbhadti94/apache-jmeter-action@v0.7.0
         with:
-          testFilePath: "./jmeterFolder/test.jmx"  # Chemin vers ton fichier .jmx
+          testFilePath: "/jmeterFolder/test.jmx"  # Chemin vers ton fichier .jmx
           outputReportsFolder: "./jmeter_results"  # Répertoire pour les résultats
           args: "--loglevel INFO -JMyProperty=Value --jmeterlogconf=log.conf"
         env:
