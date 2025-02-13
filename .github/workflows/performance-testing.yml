@@ -80,6 +80,10 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
+      - name: Vérifier la présence du fichier .jmx
+        run: |
+         ls -la /github/workspace/jmeterFolder/test.jmx
+
       - name: Print environment variables
         run: |
             echo "WEB_IMAGE: $WEB_IMAGE"
