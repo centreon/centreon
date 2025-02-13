@@ -60,10 +60,7 @@ jobs:
       DATABASE_IMAGE: ${{ inputs.database_image }}
       CSV_FILE_PATH: users.csv
 
-
     steps:
-
-
       - name: Checkout Repository
         uses: actions/checkout@v4  # Récupère le code source
 
@@ -85,14 +82,6 @@ jobs:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-
-
-
-      - name: Print environment variables
-        run: |
-            echo "WEB_IMAGE: $WEB_IMAGE"
-            echo "MYSQL_IMAGE: $MYSQL_IMAGE"
-            echo "GLPI_IMAGE: $GLPI_IMAGE"
 
       - name: Restore Standard Slim Image from Cache
         id: cache-docker-slim
@@ -145,8 +134,8 @@ jobs:
         uses: rbhadti94/apache-jmeter-action@v0.7.0
         with:
           testFilePath: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/test.jmx"
-          outputReportsFolder: "./jmeter_results"  # Répertoire pour les résultats
-          args: "--loglevel INFO -JMyProperty=Value --jmeterlogconf=log.conf"
+          outputReportsFolder: "./github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"  # Répertoire pour les résultats
+          args: "-l jmeter_results/test.jtl --loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf"
         env:
           JMETER_HOME: "/usr/share/jmeter"
           JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
