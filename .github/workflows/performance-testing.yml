@@ -104,7 +104,7 @@ jobs:
       - name: Start Centreon Web and Database Containers
         env:
             WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-            MYSQL_IMAGE: ${{ env.DATABASE_IMAGE }}
+            MYSQL_IMAGE: ${{ inputs.database_image }}
         run: |
             # Démarrer les services Docker avec docker-compose
             docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
