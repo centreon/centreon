@@ -300,25 +300,6 @@ interface ConnectionInterface
     public function fetchAllAssociative(string $query, ?QueryParameters $queryParameters = null): array;
 
     /**
-     * Prepares and executes an SQL query and returns the result as an array of associative arrays with the name of the
-     * column as key.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string               $query
-     * @param QueryParameters|null $queryParameters
-     * @param int                  $column
-     *
-     * @throws ConnectionException
-     * @return list<mixed>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->fetchAllByColumn('SELECT * FROM table WHERE active = :active', $queryParameters, 1);
-     *          // $result = ['John', 'Jean']
-     */
-    public function fetchAllByColumn(string $query, ?QueryParameters $queryParameters = null, int $column = 0): array;
-
-    /**
      * Prepares and executes an SQL query and returns the result as an associative array with the keys
      * mapped to the first column and the values mapped to the second column.
      *
