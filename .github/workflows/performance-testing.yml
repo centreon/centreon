@@ -148,4 +148,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
-          path: "./github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
+          path: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
