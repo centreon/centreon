@@ -49,18 +49,10 @@ final readonly class ConnectionConfig
         private string $user,
         private string $password,
         private string $databaseName,
-        private ConnectionDriverEnum $driver,
+        private int $port = 0,
         private string $charset = '',
-        private int $port = 0
+        private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_MYSQL
     ) {}
-
-    /**
-     * @return ConnectionDriverEnum
-     */
-    public function getDriver(): ConnectionDriverEnum
-    {
-        return $this->driver;
-    }
 
     /**
      * @return string
@@ -89,14 +81,6 @@ final readonly class ConnectionConfig
     /**
      * @return string
      */
-    public function getCharset(): string
-    {
-        return $this->charset;
-    }
-
-    /**
-     * @return string
-     */
     public function getDatabaseName(): string
     {
         return $this->databaseName;
@@ -108,5 +92,21 @@ final readonly class ConnectionConfig
     public function getPort(): int
     {
         return $this->port;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCharset(): string
+    {
+        return $this->charset;
+    }
+
+    /**
+     * @return ConnectionDriverEnum
+     */
+    public function getDriver(): ConnectionDriverEnum
+    {
+        return $this->driver;
     }
 }
