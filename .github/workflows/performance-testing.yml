@@ -135,8 +135,14 @@ jobs:
         with:
           testFilePath: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/test.jmx"
           outputReportsFolder: "./github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"  # Répertoire pour les résultats
-          args: "-l jmeter_results/test.jtl --loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf"
+          args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf"
         env:
           JMETER_HOME: "/usr/share/jmeter"
           JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
           CSV_FILE_PATH: ${{ env.CSV_FILE_PATH }}
+
+      - name: Upload JMeter Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-results
+          path: "./github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
