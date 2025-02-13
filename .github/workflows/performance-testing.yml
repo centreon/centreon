@@ -80,8 +80,8 @@ jobs:
       - name: Load Standard Slim Image
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
-          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker load --input /tmp/cache/docker-image/centreon-web-slim-alma9.tar
+          docker tag docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979
 
       - name: Start Centreon Web and Database Containers
         env:
@@ -121,7 +121,7 @@ jobs:
         with:
           testFilePath: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/test.jmx"
           outputReportsFolder: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
-          args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf -d"
+          args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf"
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
