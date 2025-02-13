@@ -130,7 +130,9 @@ const useGraphQuery = ({
         parameters: {
           search: {
             lists: resources.map((resource) => ({
-              field: resourceTypeQueryParameter[resource.resourceType],
+              field: equals(resource.resourceType, 'hostgroup')
+                ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                : resourceTypeQueryParameter[resource.resourceType],
               values: equals(resource.resourceType, 'service')
                 ? pluck('name', resource.resources)
                 : pluck('id', resource.resources)
@@ -138,6 +140,8 @@ const useGraphQuery = ({
           }
         }
       });
+
+      console.log({ endpoint, r: resources });
 
       return `${endpoint}&start=${startAndEnd.start}&end=${startAndEnd.end}&${formattedDefinedMetrics}`;
     },

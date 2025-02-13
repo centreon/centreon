@@ -17,6 +17,7 @@ import {
 } from '../../models';
 import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
+import { WidgetResourceType } from '../../../AddEditWidget/models';
 import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';
@@ -77,7 +78,9 @@ const useTopBottom = ({
             limit: topBottomSettings.numberOfValues,
             search: {
               lists: resources.map((resource) => ({
-                field: resourceTypeQueryParameter[resource.resourceType],
+                field: equals(resource.resourceType, 'hostgroup')
+                  ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                  : resourceTypeQueryParameter[resource.resourceType],
                 values: equals(resource.resourceType, 'service')
                   ? pluck('name', resource.resources)
                   : pluck('id', resource.resources)

@@ -33,7 +33,7 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       name
     }) => {
       const formattedResources = data?.resources?.map((item) => {
-        if (equals(item.resourceType, WidgetResourceType.hostGroup)) {
+        if (equals(item?.resourceType, WidgetResourceType.hostGroup)) {
           return { ...item, resourceType: 'hostgroup' };
         }
         return item;
