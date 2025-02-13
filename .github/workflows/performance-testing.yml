@@ -78,6 +78,12 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
+      - name: Print environment variables
+        run: |
+            echo "WEB_IMAGE: $WEB_IMAGE"
+            echo "MYSQL_IMAGE: $MYSQL_IMAGE"
+            echo "GLPI_IMAGE: $GLPI_IMAGE"
+
       - name: Restore Standard Slim Image from Cache
         id: cache-docker-slim
         uses: actions/cache/restore@v4.2.0
