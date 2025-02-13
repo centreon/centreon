@@ -12,8 +12,7 @@ const Filters = (): JSX.Element => {
   const { classes } = useFilterStyles();
   const { t } = useTranslation();
 
-  const { filters, onChange, onSearch, areAdvancedFiltersVisible } =
-    useSearch();
+  const { filters, onChange, areAdvancedFiltersVisible } = useSearch();
 
   return (
     <div className={classes.filters}>
@@ -25,7 +24,6 @@ const Filters = (): JSX.Element => {
         placeholder={t(labelSearch)}
         value={filters.name}
         onChange={onChange}
-        onKeyDown={onSearch}
       />
     </div>
   );

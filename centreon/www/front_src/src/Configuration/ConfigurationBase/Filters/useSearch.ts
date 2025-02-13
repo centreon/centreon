@@ -1,12 +1,13 @@
+import debounce from '@mui/utils/debounce';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, pluck } from 'ramda';
 import { configurationAtom, filtersAtom } from '../../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 
 interface UseSearch {
   onChange: (event) => void;
-  onSearch: (event) => void;
   filters;
   areAdvancedFiltersVisible: boolean;
 }
@@ -23,17 +24,16 @@ const useSearch = (): UseSearch => {
     queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
   };
 
-  const onChange = (event): void => {
-    setFilters({ ...filters, name: event.target.value });
-  };
+  const searchDebounced = useRef(
+    debounce<(debouncedSearch: string) => void>((): void => {
+      reload();
+    }, 500)
+  );
 
-  const onSearch = (event): void => {
-    const enterKeyPressed = equals(event.key, 'Enter');
-    if (!enterKeyPressed) {
-      return;
-    }
+  const onChange = ({ target }): void => {
+    setFilters({ ...filters, name: target.value });
 
-    reload();
+    searchDebounced.current(target.value);
   };
 
   const areAdvancedFiltersVisible = !equals(
@@ -41,7 +41,7 @@ const useSearch = (): UseSearch => {
     ['name']
   );
 
-  return { onChange, onSearch, filters, areAdvancedFiltersVisible };
+  return { onChange, areAdvancedFiltersVisible, filters };
 };
 
 export default useSearch;
