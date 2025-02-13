@@ -1,5 +1,9 @@
 import { filter, propEq } from 'ramda';
 import { ResourceType } from '../../models';
+
+import initialize from './initialize';
+import { filtersConfiguration } from './utils';
+
 import {
   labelAlias,
   labelClear,
@@ -8,12 +12,10 @@ import {
   labelName,
   labelSearch
 } from '../translatedLabels';
-import initialize from './initialize';
-import { filtersConfiguration } from './utils';
 
 export default (resourceType: ResourceType) => {
   describe('Filters', () => {
-    it('sends a listing request with name filter when the search bar is filled and enter key is triggered', () => {
+    it('sends a listing request with the name filter when the search bar is manually updated, debounced by 500ms', () => {
       initialize({ resourceType });
 
       cy.waitForRequest('@getAll');
@@ -21,8 +23,9 @@ export default (resourceType: ResourceType) => {
       cy.findAllByPlaceholderText(labelSearch)
         .eq(1)
         .clear()
-        .type(`${resourceType} 1`)
-        .type('{enter}');
+        .type(`${resourceType} 1`);
+
+      cy.wait(500);
 
       cy.waitForRequest('@getAll').then(({ request }) => {
         expect(
