@@ -1,17 +1,25 @@
 import { equals, find, isEmpty, isNil, propEq, reject, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
+import {
+  MultiConnectedAutocompleteField,
+  type SelectEntry
+} from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
 import { labelHost, labelService } from '../../../translatedLabels';
-import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
-import { ChangedCriteriaParams, DeactivateProps, SectionType } from '../model';
+import type { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
+import { serviceNamesEndpoint } from '../../api/endpoint';
+import {
+  type ChangedCriteriaParams,
+  type DeactivateProps,
+  SectionType
+} from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
 
-import useSectionsData from './sections/useSections';
 import { useStyles } from './sections/sections.style';
+import useSectionsData from './sections/useSections';
 
 interface Props {
   changeCriteria: (data: ChangedCriteriaParams) => void;
@@ -122,6 +130,9 @@ const SelectInput = ({
 
   const getEndpoint = ({ search, page }): string => {
     return buildResourcesEndpoint({
+      endpoint: equals(resourceType, SectionType.service)
+        ? serviceNamesEndpoint
+        : undefined,
       limit: 10,
       page,
       resourceTypes: [resourceType],
