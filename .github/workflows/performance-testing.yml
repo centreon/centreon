@@ -1,6 +1,7 @@
 name: Performance Testing
 
 on:
+  pull_request:
   workflow_dispatch:  # Permet d'exécuter manuellement le workflow
     inputs:
       image_name:
