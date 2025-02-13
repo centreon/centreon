@@ -58,7 +58,7 @@ jobs:
       CENTREON_URL: ${{ inputs.centreon_url }}
       WEB_IMAGE: ${{ inputs.centreon_image }}
       DATABASE_IMAGE: ${{ inputs.database_image }}
-      CSV_FILE_PATH: users.csv
+      CSV_FILE_PATH: "/github/workspace/centreon/tests/performanceTesting/users.csv"
 
     steps:
       - name: Checkout Repository
