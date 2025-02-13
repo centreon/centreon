@@ -62,6 +62,10 @@ jobs:
 
 
     steps:
+      - name: Vérifier la présence du fichier .jmx
+        run: |
+          ls -la /github/workspace/
+
       - name: Checkout Repository
         uses: actions/checkout@v4  # Récupère le code source
 
@@ -80,9 +84,7 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
-      - name: Vérifier la présence du fichier .jmx
-        run: |
-           ls -la performanceTesting/
+
 
       - name: Print environment variables
         run: |
