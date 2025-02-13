@@ -43,22 +43,6 @@ const checkResourcesDetails = (name, statu, firstIndex, secondIndex) => {
 		.should("have.text", "Performance data");
 };
 
-const setPassiveResource = (url_string) => {
-	const payload = {
-		passive_check_enabled: 1,
-	};
-	cy.request({
-		body: payload,
-		headers: {
-			"Content-Type": "application/json",
-		},
-		method: "PATCH",
-		url: url_string,
-	}).then((response) => {
-		expect(response.status).to.eq(204);
-	});
-};
-
 before(() => {
 	cy.startContainers();
 	cy.addHost({
@@ -107,10 +91,10 @@ Given("an admin user is logged in a Centreon server", () => {
 });
 
 Given(
-	"one passive service has been configured using arguments status and output exists",
-	() => {
-		setPassiveResource("/centreon/api/latest/configuration/services/31");
-	},
+  'one passive service has been configured using arguments status and output exists',
+  () => {
+    cy.setPassiveResource('/centreon/api/latest/configuration/services/31');
+  }
 );
 
 When("the user submits some results to this service", () => {
@@ -158,10 +142,10 @@ Then(
 );
 
 Given(
-	"one passive host has been configured using arguments status and output exists",
-	() => {
-		setPassiveResource("/centreon/api/latest/configuration/hosts/15");
-	},
+  'one passive host has been configured using arguments status and output exists',
+  () => {
+    cy.setPassiveResource('/centreon/api/latest/configuration/hosts/15');
+  }
 );
 
 When("the user submits some results to this host", () => {
