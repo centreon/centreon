@@ -102,7 +102,6 @@ jobs:
         uses: actions/setup-node@v4.2.0
         with:
           node-version: 20
-          cache: npm  # Utilisation de npm au lieu de pnpm
 
       - name: Install Dependencies
         run: npm ci  # Installation des dépendances en mode clean
