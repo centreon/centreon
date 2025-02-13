@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Exception;
 
+use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
 
 /**
@@ -196,15 +197,31 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable $previous
+     * @param \Throwable            $previous
+     * @param string                $tableName
+     * @param array                 $columns
+     * @param BatchInsertParameters $batchInsertParameters
+     * @param string                $query
      *
      * @return ConnectionException
      */
-    public static function batchInsertQueryFailed(\Throwable $previous): ConnectionException
+    public static function batchInsertQueryFailed(
+        \Throwable $previous,
+        string $tableName,
+        array $columns,
+        BatchInsertParameters $batchInsertParameters,
+        string $query = ''
+    ): ConnectionException
     {
         return new self(
             message: "Error while executing the batch insert query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
+            context: [
+                'table_name' => $tableName,
+                'columns' => $columns,
+                'query' => $query,
+                'batch_insert_parameters' => $batchInsertParameters
+            ],
             previous: $previous
         );
     }
