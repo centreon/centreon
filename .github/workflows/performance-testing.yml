@@ -82,7 +82,7 @@ jobs:
 
       - name: Vérifier la présence du fichier .jmx
         run: |
-         ls -la /github/workspace/jmeterFolder/test.jmx
+           ls -la /github/workspace/centreon/tests/performanceTesting/
 
       - name: Print environment variables
         run: |
