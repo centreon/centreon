@@ -46,7 +46,6 @@ export const useListMetrics = ({
   resources,
   selectedMetrics = []
 }: Props): UseListMetricsState => {
-  console.log('listMetrics????',resources)
   const { data: servicesMetrics, isFetching: isLoadingMetrics } = useFetchQuery<
     ListingModel<ServiceMetric>
   >({
