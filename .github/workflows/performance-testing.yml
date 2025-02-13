@@ -51,10 +51,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4  # Récupère le code source
 
-      - name: Vérifier la présence du fichier .jmx
-        run: |
-          ls -la jmeterFolder
-
       - name: Setup Node.js
         uses: actions/setup-node@v4.2.0
         with:
@@ -110,7 +106,7 @@ jobs:
         shell: bash
 
 
-      - name: Run Performance Testing Script
+      - name: Adding hosts<
         run: node addingHosts.mjs  # Exécute ton script
 
 
@@ -126,9 +122,6 @@ jobs:
           testFilePath: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/test.jmx"
           outputReportsFolder: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
           args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf -d"
-        env:
-          JMETER_HOME: "/usr/share/jmeter"
-          JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
