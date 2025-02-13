@@ -89,7 +89,7 @@ describe('Host groups configuration', () => {
     initialize({});
   });
 
-  it('renders the Host group page with the ConfigurationBase layout ', () => {
+  it('renders the Host group page with the ConfigurationBase layout', () => {
     initialize({});
 
     cy.waitForRequest('@getAllHostGroups');
@@ -100,7 +100,7 @@ describe('Host groups configuration', () => {
   });
 
   ['name', 'alias'].forEach((column) => {
-    it(`${column} column should be sortable`, () => {
+    it(`sorts the ${column} column when clicked`, () => {
       initialize({});
 
       cy.waitForRequest('@getAllHostGroups');
@@ -117,7 +117,7 @@ describe('Host groups configuration', () => {
     });
   });
 
-  it(`truncate the name and alias fields when it's more than 50 chars`, () => {
+  it('truncates the name and alias fields when their length exceeds 50 characters', () => {
     initialize({});
 
     cy.contains(`${'hostGroup0'.repeat(5)}...`).should('be.visible');
@@ -127,7 +127,7 @@ describe('Host groups configuration', () => {
   ['enabled host groups', 'disabled host groups'].forEach((column, i) => {
     const isEnabledHost = equals(i, 0);
 
-    it(`list all hosts of the host group when the ${column} column was hoverd`, () => {
+    it(`displays all hosts of the host group when hovering over the ${column} column`, () => {
       initialize({});
 
       cy.waitForRequest('@getAllHostGroups');
@@ -142,7 +142,7 @@ describe('Host groups configuration', () => {
       cy.matchImageSnapshot();
     });
 
-    it(`display 'Not found' message when the ${column} column was hoverd`, () => {
+    it(`displays a 'Not found' message when hovering over the ${column} column with no hosts`, () => {
       initialize({ isEmptyHostGroup: true });
 
       cy.waitForRequest('@getAllHostGroups');
@@ -170,5 +170,7 @@ describe('Host groups configuration', () => {
 
     cy.contains(labelName).should('be.visible');
     cy.contains(labelAlias).should('be.visible');
+
+    cy.matchImageSnapshot();
   });
 });
