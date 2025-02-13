@@ -97,9 +97,23 @@ jobs:
 
       - name: Start Centreon Web and Database Containers
         env:
-          MYSQL_IMAGE: ${{ env.DATABASE_IMAGE }}
+            MYSQL_IMAGE: ${{ env.DATABASE_IMAGE }}
         run: |
-          docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
+            # Démarrer les services Docker avec docker-compose
+            docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
 
+            # Vérifier si un script de configuration est nécessaire et l'exécuter
+            if [[ -f "../../../.github/docker/setup.sh" ]]; then
+            echo "Running setup.sh ..."
+            bash -ex "../../../.github/docker/setup.sh"
+            fi
+
+            # Exécuter un script de configuration supplémentaire pour le service web si nécessaire
+            if [[ -f "../../../.github/docker/setup-web.sh" ]]; then
+            echo "Running setup-web.sh ..."
+            docker compose -f ../../../.github/docker/docker-compose.yml cp ../../../.github/docker/setup-web.sh web:/tmp/setup-web.sh
+            docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
+            fi
+        shell: bash
       - name: Run Performance Testing Script
         run: node addingHosts.mjs  # Exécute ton script
