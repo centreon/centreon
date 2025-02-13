@@ -104,7 +104,10 @@ const Resources = ({
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
-          {value.map((resource, index) => (
+          {value.map((resource, index) =>{
+           const resourceTypeSelectedOptionId = equals(resource.resourceType,'hostgroup')?WidgetResourceType.hostGroup:resource.resourceType
+          
+          return (
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
               deleteButtonHidden={
@@ -126,7 +129,7 @@ const Resources = ({
                 }
                 label={t(labelSelectResourceType) as string}
                 options={getResourceTypeOptions(index, resource)}
-                selectedOptionId={resource.resourceType}
+                selectedOptionId={resourceTypeSelectedOptionId}
                 onChange={changeResourceType(index)}
               />
               {singleResourceSelection ? (
@@ -189,7 +192,9 @@ const Resources = ({
                 />
               )}
             </ItemComposition.Item>
-          ))}
+          )}
+          
+          )}
         </ItemComposition>
         {error && <FormHelperText error>{t(error)}</FormHelperText>}
       </div>
