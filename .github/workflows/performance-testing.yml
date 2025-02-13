@@ -85,7 +85,7 @@ jobs:
         timeout-minutes: 6
         with:
           path: /tmp/cache/docker-image
-          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-develop
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
@@ -93,7 +93,7 @@ jobs:
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
           docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:develop
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Start Centreon Web and Database Containers
         env:
@@ -115,5 +115,7 @@ jobs:
             docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
             fi
         shell: bash
+
+
       - name: Run Performance Testing Script
         run: node addingHosts.mjs  # Exécute ton script
