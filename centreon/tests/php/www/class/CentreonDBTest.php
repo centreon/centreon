@@ -25,7 +25,6 @@ namespace Tests\www\class;
 
 use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Exception\ConnectionException;
 use Adaptation\Database\ValueObject\QueryParameter;
 use CentreonDB;
