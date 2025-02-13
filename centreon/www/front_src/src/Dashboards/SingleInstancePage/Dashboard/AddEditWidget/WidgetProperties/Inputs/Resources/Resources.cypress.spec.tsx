@@ -217,7 +217,7 @@ describe('Resources', () => {
 
   it('displays only the restricted resource types when the propety is defined', () => {
     initialize({
-      restrictedResourceTypes: ['host-group', 'host', 'service-category']
+      restrictedResourceTypes: ['hostgroup', 'host', 'service-category']
     });
 
     cy.findByTestId(labelResourceType).parent().click();
