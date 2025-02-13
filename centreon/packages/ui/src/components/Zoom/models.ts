@@ -26,5 +26,3 @@ export interface ChildrenProps extends ZoomState, Dimension, ZoomInterface {
 export interface ZoomChildren {
   children: (args: ChildrenProps) => JSX.Element;
 }
-
-
