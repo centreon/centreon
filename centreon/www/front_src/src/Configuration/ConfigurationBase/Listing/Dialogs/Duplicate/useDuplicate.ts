@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { ResponseError, useSnackbar } from '@centreon/ui';
+import { ResponseError, truncate, useSnackbar } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
@@ -40,7 +40,7 @@ const useDuplicate = (): UseDuplicateProps => {
   const configuration = useAtomValue(configurationAtom);
   const setSelectedRows = useSetAtom(selectedRowsAtom);
 
-  const name = resourcesToDuplicate[0]?.name;
+  const name = truncate(resourcesToDuplicate[0]?.name, 40);
   const count = resourcesToDuplicate.length;
 
   const resourceType = configuration?.resourceType as string;

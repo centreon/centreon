@@ -1,4 +1,5 @@
 import { filter, propEq } from 'ramda';
+import { ResourceType } from '../../models';
 import {
   labelAlias,
   labelClear,
@@ -10,7 +11,7 @@ import {
 import initialize from './initialize';
 import { filtersConfiguration } from './utils';
 
-export default (resourceType) => {
+export default (resourceType: ResourceType) => {
   describe('Filters', () => {
     it('sends a listing request with name filter when the search bar is filled and enter key is triggered', () => {
       initialize({ resourceType });

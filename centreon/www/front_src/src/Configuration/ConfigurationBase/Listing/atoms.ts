@@ -6,7 +6,7 @@ type SortOrder = 'asc' | 'desc';
 
 interface NamedEntity {
   id: number;
-  name: number;
+  name: string;
 }
 
 export const limitAtom = atom<number | undefined>(10);

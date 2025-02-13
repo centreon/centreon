@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { ResponseError, useSnackbar } from '@centreon/ui';
+import { ResponseError, truncate, useSnackbar } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
@@ -42,7 +42,7 @@ const useDelete = (): UseDeleteState => {
   const setSelectedRows = useSetAtom(selectedRowsAtom);
   const configuration = useAtomValue(configurationAtom);
 
-  const name = resourcesToDelete[0]?.name;
+  const name = truncate(resourcesToDelete[0]?.name, 40);
   const count = resourcesToDelete.length;
   const ids = pluck('id', resourcesToDelete);
 
@@ -80,11 +80,15 @@ const useDelete = (): UseDeleteState => {
       : deleteMutation({ ids }).then(handleApiResponse);
   };
 
-  const bodyContent = equals(count, 1)
-    ? t(labelDeleteResourceConfirmation(labelResourceType), { name })
-    : t(labelDeleteResourcesConfirmation(labelResourceType), {
-        count
-      });
+  const bodyContent = useMemo(
+    () =>
+      equals(count, 1)
+        ? t(labelDeleteResourceConfirmation(labelResourceType), { name })
+        : t(labelDeleteResourcesConfirmation(labelResourceType), {
+            count
+          }),
+    [labelResourceType, name, count]
+  );
 
   const headerContent = useMemo(
     () => t(labelDeleteResource(labelResourceType)),

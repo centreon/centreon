@@ -1,10 +1,3 @@
-export const filtersInitialValues = {
-  name: '',
-  alias: '',
-  enabled: false,
-  disabled: false
-};
-
 export const defaultSelectedColumnIds = [
   'name',
   'alias',
@@ -14,6 +7,9 @@ export const defaultSelectedColumnIds = [
   'is_activated'
 ];
 
-export const truncateString = (str: string, maxLength = 50): string => {
-  return str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
+export const filtersInitialValues = {
+  name: '',
+  alias: '',
+  enabled: false,
+  disabled: false
 };

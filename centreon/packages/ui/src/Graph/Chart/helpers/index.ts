@@ -38,9 +38,7 @@ export const getXAxisTickFormat = (graphInterval: GraphInterval): string => {
   return gte(numberDays, 2) ? dateFormat : timeFormat;
 };
 
-export const truncate = (content?: string): string => {
-  const maxLength = 180;
-
+export const truncate = (content?: string, maxLength = 180): string => {
   if (isNil(content)) {
     return '';
   }
