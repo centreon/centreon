@@ -100,7 +100,7 @@ export interface ServiceMetric extends NamedEntity {
 export enum WidgetResourceType {
   host = 'host',
   hostCategory = 'host-category',
-  hostGroup = 'host-group',
+  hostGroup = 'hostgroup',
   metaService = 'meta-service',
   service = 'service',
   serviceCategory = 'service-category',
