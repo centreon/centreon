@@ -142,7 +142,12 @@ jobs:
         env:
           JMETER_HOME: "/usr/share/jmeter"
           JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
-          CSV_FILE_PATH: ${{ env.CSV_FILE_PATH }}
+
+      - name: Upload JMeter log as artifact
+        uses: actions/upload-artifact@v2
+        with:
+            name: jmeter-log
+            path: centreon/tests/performanceTesting/jmeterFolder/jmeter_log.log
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
