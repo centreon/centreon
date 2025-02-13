@@ -28,9 +28,12 @@ namespace Adaptation\Database\Enum;
  *
  * @class   ConnectionDriver
  * @package Adaptation\Database\Enum
- * @todo    to complete with others database drivers like mysqli, pdo_pgsql, pdo_sqlite,...
  */
 enum ConnectionDriverEnum: string
 {
-    case DRIVER_MYSQL = 'pdo_mysql';
+    case DRIVER_MYSQL = 'mysql';
+    case DRIVER_POSTGRESQL = 'pgsql';
+    case DRIVER_SQLITE = 'sqlite';
+    case DRIVER_ORACLE = 'oci';
+    case DRIVER_MICROSOFT_SQL_SERVER = 'sqlsrv';
 }
