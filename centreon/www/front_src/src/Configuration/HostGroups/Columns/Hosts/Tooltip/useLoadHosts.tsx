@@ -3,6 +3,7 @@ import { flatten } from 'ramda';
 import { useInfiniteScrollListing } from '@centreon/ui';
 import { hostListEndpoint } from '../../../api/endpoints';
 import { tooltipPageAtom } from '../../../atoms';
+import { NamedEntity } from '../../../models';
 
 interface UseLoadHostsProps {
   enabled: boolean;
@@ -11,7 +12,7 @@ interface UseLoadHostsProps {
 
 interface UseLoadHostsState {
   elementRef;
-  elements;
+  elements: Array<NamedEntity>;
   isLoading: boolean;
   total?: number;
 }
@@ -35,20 +36,21 @@ export const useLoadHosts = ({
     }
   ];
 
-  const { elementRef, elements, isLoading, total } = useInfiniteScrollListing({
-    enabled: true,
-    endpoint: hostListEndpoint,
-    limit: 10,
-    pageAtom: tooltipPageAtom,
-    parameters: {
-      search: {
-        conditions: flatten(searchConditions)
+  const { elementRef, elements, isLoading, total } =
+    useInfiniteScrollListing<NamedEntity>({
+      enabled: true,
+      endpoint: hostListEndpoint,
+      limit: 10,
+      pageAtom: tooltipPageAtom,
+      parameters: {
+        search: {
+          conditions: flatten(searchConditions)
+        },
+        sort: { status: 'DESC' }
       },
-      sort: { status: 'DESC' }
-    },
-    queryKeyName: `hosts_${hostGroupName}_${enabled}`,
-    suspense: false
-  });
+      queryKeyName: `hosts_${hostGroupName}_${enabled}`,
+      suspense: false
+    });
 
   return {
     elementRef,

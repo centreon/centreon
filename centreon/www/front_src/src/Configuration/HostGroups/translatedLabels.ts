@@ -8,7 +8,7 @@ export const labelEnabled = 'Enabled';
 
 export const labelEnabledHosts = 'Enabled hosts';
 export const labelDisabledHosts = 'Disabled hosts';
-export const NoEnabledHostsLabel =
+export const labelNoEnabledHosts =
   'No hosts in this group are currently enabled.';
-export const NoDisabledHostsLabel =
+export const labelNoDisabledHosts =
   'No hosts in this group are currently disabled.';

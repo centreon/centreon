@@ -16,6 +16,7 @@ export const useTooltipStyles = makeStyles()((theme) => ({
   },
   listContainer: {
     maxHeight: theme.spacing(25),
+    minHeight: theme.spacing(10),
     overflowY: 'auto',
     padding: theme.spacing(0, 1, 1),
     textAlign: 'start'
