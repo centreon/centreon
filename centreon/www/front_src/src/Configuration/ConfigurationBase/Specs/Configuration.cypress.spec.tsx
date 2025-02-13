@@ -11,7 +11,7 @@ const testCases = [
 ];
 
 testCases.forEach(({ resourceType }) => {
-  describe(`Configuration ( resource type: ${resourceType} )`, () => {
+  describe(`Configuration: ${resourceType}: `, () => {
     Layout(resourceType);
     Filters(resourceType);
     Actions(resourceType);

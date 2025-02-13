@@ -39,7 +39,9 @@ export default (resourceType) => {
           getLabelDeleteOne(resourceType, `${resourceType.replace(' ', '_')} 1`)
         );
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: displays the confirmation dialog when the inline delete button is clicked`
+        );
       });
 
       it('enables the massive delete button when selecting resources', () => {
@@ -69,8 +71,11 @@ export default (resourceType) => {
 
         cy.contains(getLabelDeleteMany(pluralize(resourceType), 3));
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: displays the confirmation dialog when the massive delete button is clicked`
+        );
       });
+
       it('sends a delete request for a single resource and displays a success message', () => {
         cy.waitForRequest('@getAll');
 
@@ -83,8 +88,11 @@ export default (resourceType) => {
 
         cy.contains(labelResourceDeleted(capitalize(resourceType)));
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: sends a delete request for a single resource and displays a success message`
+        );
       });
+
       it('sends a delete request for multiple resources and displays a success message', () => {
         cy.waitForRequest('@getAll');
 
@@ -106,7 +114,9 @@ export default (resourceType) => {
 
         cy.contains(labelResourceDeleted(pluralize(capitalize(resourceType))));
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: sends a delete request for multiple resources and displays a success message`
+        );
       });
     });
     describe('duplicate', () => {
@@ -126,7 +136,9 @@ export default (resourceType) => {
 
         cy.contains(labelDuplications);
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: displays the confirmation dialog when the inline duplicate button is clicked`
+        );
       });
 
       it('enables the massive duplicate button when selecting resources', () => {
@@ -160,7 +172,9 @@ export default (resourceType) => {
 
         cy.contains(labelDuplications);
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: displays the confirmation dialog when the massive duplicate button is clicked`
+        );
       });
 
       it('sends a duplicate request for a single resource and displays a success message', () => {
@@ -180,7 +194,9 @@ export default (resourceType) => {
 
         cy.contains(labelResourceDuplicated(capitalize(resourceType)));
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: sends a duplicate request for a single resource and displays a success message`
+        );
       });
 
       it('sends a duplicate request for multiple resources and displays a success message', () => {
@@ -206,7 +222,9 @@ export default (resourceType) => {
           labelResourceDuplicated(pluralize(capitalize(resourceType)))
         );
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: sends a duplicate request for multiple resources and displays a success message`
+        );
       });
 
       it('sends a duplicate request for multiple resources with a custom number of duplications and displays a success message', () => {
@@ -237,7 +255,9 @@ export default (resourceType) => {
           labelResourceDuplicated(pluralize(capitalize(resourceType)))
         );
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: sends a duplicate request for multiple resources with a custom number of duplications and displays a success message`
+        );
       });
     });
 
@@ -256,7 +276,9 @@ export default (resourceType) => {
 
         cy.contains(labelResourceEnabled(capitalize(resourceType)));
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: sends an Enable request for a single resource and displays a success message`
+        );
       });
 
       it('enables the more actions button when selecting resources', () => {
@@ -291,7 +313,9 @@ export default (resourceType) => {
 
         cy.contains(labelResourceEnabled(pluralize(capitalize(resourceType))));
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: sends an enable request for multiple resources and displays a success message`
+        );
       });
     });
 
@@ -310,7 +334,9 @@ export default (resourceType) => {
 
         cy.contains(labelResourceDisabled(capitalize(resourceType)));
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: sends a disable request for a single resource and displays a success message`
+        );
       });
 
       it('sends a disbale request for multiple resources and displays a success message', () => {
@@ -333,7 +359,9 @@ export default (resourceType) => {
 
         cy.contains(labelResourceDisabled(pluralize(capitalize(resourceType))));
 
-        cy.makeSnapshot();
+        cy.makeSnapshot(
+          `${resourceType}: sends a disbale request for multiple resources and displays a success message`
+        );
       });
     });
   });

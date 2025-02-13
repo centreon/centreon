@@ -119,6 +119,8 @@ export default (resourceType: ResourceType) => {
         filters: onlyNameFilter
       });
 
+      cy.waitForRequest('@getAll');
+
       cy.get(`[data-testid="${labelFilters}"]`).should('not.exist');
 
       cy.matchImageSnapshot(

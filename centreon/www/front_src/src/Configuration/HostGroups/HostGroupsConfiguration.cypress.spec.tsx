@@ -84,11 +84,7 @@ const initialize = ({ isEmptyHostGroup = false }): void => {
   });
 };
 
-describe('Host groups configuration', () => {
-  beforeEach(() => {
-    initialize({});
-  });
-
+describe('Host groups configuration: ', () => {
   it('renders the Host group page with the ConfigurationBase layout', () => {
     initialize({});
 
@@ -160,6 +156,8 @@ describe('Host groups configuration', () => {
   });
 
   it('displays and interacts with filters', () => {
+    initialize({});
+
     cy.waitForRequest('@getAllHostGroups');
 
     cy.get('[data-testid="search-bar"]').should('be.visible');
