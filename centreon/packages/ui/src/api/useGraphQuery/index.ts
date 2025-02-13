@@ -141,8 +141,6 @@ const useGraphQuery = ({
         }
       });
 
-      console.log({ endpoint, r: resources });
-
       return `${endpoint}&start=${startAndEnd.start}&end=${startAndEnd.end}&${formattedDefinedMetrics}`;
     },
     getQueryKey: () => [
