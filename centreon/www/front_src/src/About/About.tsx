@@ -43,7 +43,6 @@ const useStyles = makeStyles()((theme) => ({
 
 const About = (): JSX.Element => {
   const { classes } = useStyles();
-
   const { t } = useTranslation();
 
   const platformVersion = useAtomValue(platformVersionsAtom);
