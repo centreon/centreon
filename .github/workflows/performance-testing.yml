@@ -141,30 +141,6 @@ jobs:
           done
           echo "Tests completed!"
 
-      - name: Generate HTML Report from JMeter .jtl file
-        run: |
-          echo "Looking for JTL files..."
-          ls -la $GITHUB_WORKSPACE/jmeter_results
-
-          # Récupérer le premier fichier JTL trouvé
-          JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
-          echo "Found JTL file: $JTL_FILE"
-
-          # Vérifier si le fichier existe avant d'exécuter le script
-          if [ ! -f "$JTL_FILE" ]; then
-              echo "Error: No JTL file found!"
-              exit 1
-          fi
-
-          # Appeler le script Node.js pour générer le rapport HTML
-          node generateReport.mjs "$JTL_FILE" "$GITHUB_WORKSPACE/generated_report.html"
-
-      - name: Add Generated Report to GitHub Summary
-        run: |
-            echo "<h2>JMeter Detailed Report</h2>" >> $GITHUB_STEP_SUMMARY
-            echo "<p>See the full report <a href='$GITHUB_WORKSPACE/generated_report.html' target='_blank'>here</a>.</p>" >> $GITHUB_STEP_SUMMARY
-
-
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
         with:
@@ -177,7 +153,7 @@ jobs:
           name: jmeter-html-reports
           path: centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
 
-      - name: Display HTML Report in GitHub Summary
+      - name: Display JMeter Test Results in GitHub Summary
         run: |
           echo "Looking for JTL files..."
           ls -la $GITHUB_WORKSPACE/jmeter_results
@@ -195,12 +171,36 @@ jobs:
           # Ajouter le rapport dans le résumé GitHub
           echo "<h2>JMeter Test Results</h2>" >> $GITHUB_STEP_SUMMARY
           echo "<table style='width:100%; border-collapse: collapse; border: 1px solid #ddd; text-align: left;'>" >> $GITHUB_STEP_SUMMARY
-          echo "<thead><tr><th>Timestamp</th><th>Elapsed</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency</th><th>URL</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
+          echo "<thead><tr><th>Timestamp</th><th>Elapsed (ms)</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency (ms)</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
           echo "<tbody>" >> $GITHUB_STEP_SUMMARY
 
-          # Lire le fichier .jtl et générer les lignes HTML
-          while IFS=, read -r timestamp elapsed label responseCode responseMessage threadName success bytes latency url; do
-            echo "<tr><td>$timestamp</td><td>$elapsed</td><td>$label</td><td>$responseCode</td><td>$responseMessage</td><td>$threadName</td><td>$success</td><td>$bytes</td><td>$latency</td><td><a href='$url' target='_blank'>Link</a></td></tr>" >> $GITHUB_STEP_SUMMARY
-          done < "$JTL_FILE"
+          # Lire le fichier .jtl et générer les lignes HTML (ignorer la première ligne si c'est un en-tête)
+          tail -n +2 "$JTL_FILE" | while IFS=, read -r timestamp elapsed label responseCode responseMessage threadName dataType success failureMessage bytes latency; do
+            # Définir une icône pour le succès
+            if [ "$success" == "true" ]; then
+              success_icon="🟢"
+            else
+              success_icon="🔴"
+            fi
+
+            # Définir une icône pour le code de réponse
+            if [ "$responseCode" -ge 200 ] && [ "$responseCode" -lt 300 ]; then
+              response_icon="✅"
+            else
+              response_icon="⚠️"
+            fi
+
+            echo "<tr>
+                    <td>$timestamp</td>
+                    <td>$elapsed</td>
+                    <td>$label</td>
+                    <td>$response_icon $responseCode</td>
+                    <td>$responseMessage</td>
+                    <td>$threadName</td>
+                    <td>$success_icon</td>
+                    <td>$bytes</td>
+                    <td>$latency</td>
+                  </tr>" >> $GITHUB_STEP_SUMMARY
+          done
 
           echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
