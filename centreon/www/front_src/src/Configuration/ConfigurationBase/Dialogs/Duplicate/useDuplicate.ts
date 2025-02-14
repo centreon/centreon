@@ -43,7 +43,10 @@ const useDuplicate = (): UseDuplicateProps => {
   const configuration = useAtomValue(configurationAtom);
   const setSelectedRows = useSetAtom(selectedRowsAtom);
 
-  const name = truncate(resourcesToDuplicate[0]?.name, 40);
+  const name = truncate({
+    content: resourcesToDuplicate[0]?.name,
+    maxLength: 40
+  });
   const count = resourcesToDuplicate.length;
 
   const resourceType = configuration?.resourceType as string;

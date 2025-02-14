@@ -19,7 +19,8 @@ const useColumns = (): Props => {
   const columns = [
     {
       disablePadding: false,
-      getFormattedString: ({ name }) => truncate(name, 50),
+      getFormattedString: ({ name }) =>
+        truncate({ content: name, maxLength: 50 }),
       id: 'name',
       label: t(labelName),
       sortField: 'name',
@@ -28,7 +29,8 @@ const useColumns = (): Props => {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ alias }) => truncate(alias, 50),
+      getFormattedString: ({ alias }) =>
+        truncate({ content: alias, maxLength: 50 }),
       id: 'alias',
       label: t(labelAlias),
       sortField: 'alias',

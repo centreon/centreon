@@ -42,7 +42,7 @@ const useDelete = (): UseDeleteState => {
   const setSelectedRows = useSetAtom(selectedRowsAtom);
   const configuration = useAtomValue(configurationAtom);
 
-  const name = truncate(resourcesToDelete[0]?.name, 40);
+  const name = truncate({ content: resourcesToDelete[0]?.name, maxLength: 40 });
   const count = resourcesToDelete.length;
   const ids = pluck('id', resourcesToDelete);
 

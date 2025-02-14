@@ -69,7 +69,7 @@ const TooltipBody = ({
               fontWeight: theme.typography.fontWeightRegular
             }}
           >
-            {truncate(name, 30)}
+            {truncate({ content: name, maxLength: 30 })}
           </Typography>
         );
       })}
