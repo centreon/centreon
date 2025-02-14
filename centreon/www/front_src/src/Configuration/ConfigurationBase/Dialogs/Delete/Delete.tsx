@@ -6,6 +6,7 @@ import { Modal } from '@centreon/ui/components';
 
 import { labelCancel, labelDelete } from '../../translatedLabels';
 
+import { sanitizedHTML } from '@centreon/ui';
 import useDelete from './useDelete';
 
 const DeleteDialog = (): JSX.Element => {
@@ -18,12 +19,9 @@ const DeleteDialog = (): JSX.Element => {
     <Modal open={isOpened} size="large" onClose={close}>
       <Modal.Header>{headerContent}</Modal.Header>
       <Modal.Body>
-        <Typography
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-          dangerouslySetInnerHTML={{
-            __html: bodyContent
-          }}
-        />
+        <Typography>
+          {sanitizedHTML({ initialContent: bodyContent })}
+        </Typography>
       </Modal.Body>
       <Modal.Actions
         isDanger

@@ -1,4 +1,4 @@
-import { NumberField } from '@centreon/ui';
+import { NumberField, sanitizedHTML } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
 import { Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -30,8 +30,9 @@ const DuplicateDialog = (): JSX.Element => {
     <Modal open={isOpened} size="large" onClose={close}>
       <Modal.Header>{headerContent}</Modal.Header>
       <Modal.Body>
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> */}
-        <Typography dangerouslySetInnerHTML={{ __html: bodyContent }} />
+        <Typography>
+          {sanitizedHTML({ initialContent: bodyContent })}
+        </Typography>
         <div className={classes.duplicationCount}>
           <Typography className={classes.duplicationCountTitle}>
             {t(labelDuplications)}

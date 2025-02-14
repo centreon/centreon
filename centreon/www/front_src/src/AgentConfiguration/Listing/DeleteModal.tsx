@@ -1,16 +1,18 @@
-import { SelectEntry } from '@centreon/ui';
+import { SelectEntry, sanitizedHTML } from '@centreon/ui';
 import { Button, Modal } from '@centreon/ui/components';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { itemToDeleteAtom } from '../atoms';
 import { useDeletePollerAgent } from '../hooks/useDeletePollerAgent';
 import {
   labelCancel,
   labelDelete,
   labelDeleteAgent,
-  labelDeletePoller
+  labelDeleteAgentConfirmation,
+  labelDeletePoller,
+  labelDeletePollerConfirmation
 } from '../translatedLabels';
 
 const DeleteModal = (): JSX.Element => {
@@ -54,21 +56,11 @@ const DeleteModal = (): JSX.Element => {
       </Modal.Header>
       <Modal.Body>
         <Typography>
-          {hasPoller ? (
-            <Trans t={t}>
-              You are going to delete the configuration for the{' '}
-              <strong>{{ poller }}</strong> poller from the{' '}
-              <strong>{{ agent }}</strong> agent configuration. All
-              configuration parameters for this poller will be deleted. This
-              action cannot be undone.
-            </Trans>
-          ) : (
-            <Trans t={t}>
-              You are going to delete the <strong>{{ agent }}</strong> agent
-              configuration. All configuration parameters for this agent will be
-              deleted. This action cannot be undone.
-            </Trans>
-          )}
+          {sanitizedHTML({
+            initialContent: hasPoller
+              ? t(labelDeletePollerConfirmation, { poller, agent })
+              : t(labelDeleteAgentConfirmation, { agent })
+          })}
         </Typography>
       </Modal.Body>
       <Box
