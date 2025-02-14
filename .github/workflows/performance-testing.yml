@@ -146,44 +146,16 @@ jobs:
 
       - name: Run JMX Scripts
         run: |
-          # Localiser le répertoire d'installation de JMeter
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
           cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
 
-          # Créer le répertoire des résultats de tests
           mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results  # Créer le dossier de résultats
-
-          # Exporter GITHUB_WORKSPACE (même si ce n'est peut-être pas nécessaire)
-          export GITHUB_WORKSPACE=$GITHUB_WORKSPACE
-
-          # Vérifier les tests à exécuter
-          echo "Tests to be executed:"
-          for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
-              echo "  - $i"
-          done
-
-          # Exécuter chaque test JMeter
           for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
               echo "Running test: $i"
-
-              # Ajouter un chemin relatif pour le fichier de log et les résultats
-              RESULT_FILE="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl"
-              LOG_FILE="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_log.log"
-
-              # Vérifier que le répertoire existe et est accessible
-              if [ ! -d "$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results" ]; then
-                echo "Error: Directory for results does not exist!"
-                exit 1
-              fi
-
-              # Exécuter le test JMeter
-              ./jmeter -n -t "$i" \
-                -l "$RESULT_FILE" \
-                --loglevel DEBUG \
-                -j "$LOG_FILE"
+              ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/jmeter_results/results_$(basename "$i" .jmx).jtl
           done
-
           echo "Tests completed!"
+
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
         with:
