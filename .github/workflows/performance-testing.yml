@@ -176,8 +176,15 @@ jobs:
 
           # Lire le fichier .jtl et générer les lignes HTML correctement
           awk -F',' 'NR>1 {
-              success_icon = ($7 == "true") ? "🟢" : "🔴";
-              printf "<tr><td>%s</td><td>%s</td><td>%s</td><td>✅ %s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n", $1, $2, $3, $4, $5, $6, success_icon, $8, $9;
+              # Vérifier si la colonne Success contient "true"
+              success_icon = ($7 ~ /true/) ? "🟢" : "🔴";
+
+              # Récupérer uniquement la valeur correcte de Latency (colonne 9)
+              split($9, latency_values, ",");
+              latency = latency_values[1];  # Prendre la première valeur
+
+              # Générer la ligne HTML
+              printf "<tr><td>%s</td><td>%s</td><td>%s</td><td>✅ %s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n", $1, $2, $3, $4, $5, $6, success_icon, $8, latency;
           }' "$JTL_FILE" >> $GITHUB_STEP_SUMMARY
 
           echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
