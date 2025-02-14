@@ -143,8 +143,21 @@ jobs:
 
       - name: Generate HTML Report from JMeter .jtl file
         run: |
+          echo "Looking for JTL files..."
+          ls -la $GITHUB_WORKSPACE/jmeter_results
+
+          # Récupérer le premier fichier JTL trouvé
+          JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
+          echo "Found JTL file: $JTL_FILE"
+
+          # Vérifier si le fichier existe avant d'exécuter le script
+          if [ ! -f "$JTL_FILE" ]; then
+              echo "Error: No JTL file found!"
+              exit 1
+          fi
+
           # Appeler le script Node.js pour générer le rapport HTML
-          node generateReport.mjs $GITHUB_WORKSPACE/jmeter_results/results_1.jtl $GITHUB_WORKSPACE/generated_report.html
+          node generateReport.mjs "$JTL_FILE" "$GITHUB_WORKSPACE/generated_report.html"
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
