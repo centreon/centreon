@@ -114,7 +114,11 @@ export const getListingQueryParameters = ({
 }: GetListingQueryParametersProps): ListingParameters => {
   const formattedResources = resources.map((item) => {
     if (equals(item.resourceType, 'hostgroup')) {
-      return { ...item, resourceType: WidgetResourceType.hostGroup };
+      return {
+        ...item,
+        resourceType: WidgetResourceType.hostGroup,
+        name: WidgetResourceType.hostGroup
+      };
     }
     return item;
   });
@@ -194,7 +198,11 @@ export const buildCondensedViewEndpoint = ({
 }: BuildResourcesEndpointProps): string => {
   const formattedResources = resources.map((item) => {
     if (equals(item.resourceType, 'hostgroup')) {
-      return { ...item, resourceType: WidgetResourceType.hostGroup };
+      return {
+        ...item,
+        resourceType: WidgetResourceType.hostGroup,
+        name: WidgetResourceType.hostGroup
+      };
     }
     return item;
   });
