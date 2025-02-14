@@ -111,21 +111,39 @@ jobs:
       - name: Adding users
         run: node AddingUsers.mjs  # Exécute ton script
 
-      - name: Create JMeter Results Directory
-        run: mkdir -p /jmeter_results
+      - name: Debug GitHub Workspace
+        run: |
+            echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+            ls -la $GITHUB_WORKSPACE
 
-      - name: Run Performance Testing with JMeter
-        uses: rbhadti94/apache-jmeter-action@v0.7.0
-        with:
-          testFilePath: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/test.jmx"
-          outputReportsFolder: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
-          args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf"
+      - name: Install JMeter
+        run: |
+          java -version
+          wget -q https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.4.1.zip
+          unzip -q apache-jmeter-5.4.1.zip
+          rm apache-jmeter-5.4.1.zip  # Nettoyage pour éviter d'occuper trop d'espace
+          echo "JMeter installed successfully!"
 
-      - name: Debug - List JMeter Results Folder
-        run: ls -R jmeterFolder/jmeter_results || echo "No files found!"
+      - name: Install JMeter Plugins
+        run: |
+          cd $GITHUB_WORKSPACE/apache-jmeter-5.4.1
+          wget -q --no-check-certificate https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
+          unzip -o jpgc-dummy-0.4.zip
+          rm jpgc-dummy-0.4.zip  # Nettoyage après installation
+          echo "Plugins installed successfully!"
+
+      - name: Run JMX Scripts
+        run: |
+          cd $GITHUB_WORKSPACE/apache-jmeter-5.4.1/bin
+          mkdir -p $GITHUB_WORKSPACE/jmeter_results  # Créer le dossier de résultats
+          for i in $GITHUB_WORKSPACE/*.jmx; do
+              echo "Running test: $i"
+              ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/jmeter_results/results_$(basename "$i" .jmx).jtl
+          done
+          echo "Tests completed!"
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
-          path: /github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+          path: jmeter_results
