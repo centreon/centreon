@@ -140,14 +140,15 @@ const Chart = ({
     [displayedLines]
   );
 
-  const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
-    hasSecondUnit: Boolean(secondUnit),
-    height,
-    legendDisplay: legend?.display,
-    legendHeight: legend?.height,
-    legendPlacement: legend?.placement,
-    width
-  });
+  const { legendRef, graphWidth, graphHeight, titleRef } =
+    useComputeBaseChartDimensions({
+      hasSecondUnit: Boolean(secondUnit),
+      height,
+      legendDisplay: legend?.display,
+      legendHeight: legend?.height,
+      legendPlacement: legend?.placement,
+      width
+    });
 
   const xScale = useMemo(
     () =>
@@ -262,6 +263,7 @@ const Chart = ({
           lines={linesGraph}
           setLines={setLinesGraph}
           title={title}
+          titleRef={titleRef}
         >
           <GraphValueTooltip
             baseAxis={baseAxis}

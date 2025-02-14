@@ -77,13 +77,14 @@ const ResponsiveBarChart = ({
   const [firstUnit, secondUnit] = getUnits(displayedLines);
   const allUnits = getUnits(lines);
 
-  const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
-    hasSecondUnit: Boolean(secondUnit),
-    height,
-    legendDisplay: legend?.display,
-    legendPlacement: legend?.placement,
-    width
-  });
+  const { legendRef, graphWidth, graphHeight, titleRef } =
+    useComputeBaseChartDimensions({
+      hasSecondUnit: Boolean(secondUnit),
+      height,
+      legendDisplay: legend?.display,
+      legendPlacement: legend?.placement,
+      width
+    });
 
   const thresholdValues = flatten([
     pluck('value', thresholds?.warning || []),
@@ -181,6 +182,7 @@ const ResponsiveBarChart = ({
       lines={linesGraph}
       setLines={setLinesGraph}
       title={title}
+      titleRef={titleRef}
     >
       <Tooltip
         classes={{
