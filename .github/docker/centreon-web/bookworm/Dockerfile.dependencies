@@ -131,6 +131,12 @@ apt-get install -y \
   centreon-broker-cbd \
   centreon-connector
 
+###################
+# install plugins #
+###################
+
+apt install -y centreon-plugin-operatingsystems-linux-snmp
+
 apt-get clean
 
 EOF
