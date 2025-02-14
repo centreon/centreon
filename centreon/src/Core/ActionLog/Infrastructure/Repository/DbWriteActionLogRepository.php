@@ -109,7 +109,7 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
 
     /**
      * @param ActionLog $actionLog
-     * @param array $details
+     * @param array<string,mixed> $details
      *
      * @throws ConnectionException
      * @throws RepositoryException
@@ -119,6 +119,10 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
     {
         if ($details === []) {
             return;
+        }
+
+        if ($actionLog->getId() === null) {
+            throw new RepositoryException('Action log id is required to add details');
         }
 
         $aleadyInTransction = $this->db->isTransactionActive();
@@ -150,7 +154,7 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
             }
 
             if (! $aleadyInTransction) {
-                $this->db->commit();
+                $this->db->commitTransaction();
             }
         } catch (\Throwable $ex) {
             $this->error(
@@ -166,22 +170,32 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
 
             if (! $aleadyInTransction) {
                 try {
-                    $this->db->rollBack();
-                } catch (ConnectionException $e) {
+                    $this->db->rollBackTransaction();
+                } catch (ConnectionException $rollbackException) {
                     $this->error(
-                        "Rollback failed : {$e->getMessage()}",
+                        "Rollback failed for action logs: {$rollbackException->getMessage()}",
                         [
                             'action_log' => $actionLog,
                             'exception' => [
-                                'message' => $e->getMessage(),
-                                'trace' => $e->getTraceAsString(),
+                                'message' => $rollbackException->getMessage(),
+                                'trace' => $rollbackException->getTraceAsString(),
                             ],
                         ]
+                    );
+
+                    throw new RepositoryException(
+                        "Rollback failed for action logs: {$rollbackException->getMessage()}",
+                        ['action_log' => $actionLog],
+                        $rollbackException
                     );
                 }
             }
 
-            throw new RepositoryException($ex->getMessage(), ['action_log' => $actionLog], $ex);
+            throw new RepositoryException(
+                "Add action log failed : {$ex->getMessage()}",
+                ['action_log' => $actionLog],
+                $ex
+            );
         }
     }
 }

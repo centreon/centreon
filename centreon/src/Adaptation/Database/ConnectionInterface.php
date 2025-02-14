@@ -144,7 +144,7 @@ interface ConnectionInterface
      * Could be only used for several INSERT.
      *
      * @param string $tableName
-     * @param array $columns
+     * @param array<string> $columns
      * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
@@ -205,7 +205,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return array<string, mixed>|false False is returned if no rows are found.
+     * @return array<string, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
@@ -222,7 +222,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return array<string, mixed>|false False is returned if no rows are found.
+     * @return array<string, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
@@ -240,7 +240,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return mixed|false False is returned if no rows are found.
+     * @return mixed|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
      *          $result = $db->fetchOne('SELECT name FROM table WHERE name = :name', $queryParameters);
@@ -453,7 +453,7 @@ interface ConnectionInterface
     /**
      * Checks whether a transaction is currently active.
      *
-     * @return bool TRUE if a transaction is currently active, FALSE otherwise.
+     * @return bool TRUE if a transaction is currently active, FALSE otherwise
      */
     public function isTransactionActive(): bool;
 

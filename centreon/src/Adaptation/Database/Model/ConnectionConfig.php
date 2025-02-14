@@ -116,7 +116,7 @@ final readonly class ConnectionConfig
     public function getMysqlDsn(): string
     {
         return sprintf(
-            "mysql:dbname=%s;host=%s;port=%s",
+            'mysql:dbname=%s;host=%s;port=%s',
             $this->getDatabaseName(),
             $this->getHost(),
             $this->getPort()
@@ -129,7 +129,7 @@ final readonly class ConnectionConfig
     public function getOracleDsn(): string
     {
         return sprintf(
-            "oci:dbname=//%s:%s/%s",
+            'oci:dbname=//%s:%s/%s',
             $this->getHost(),
             $this->getPort(),
             $this->getDatabaseName()
@@ -142,7 +142,7 @@ final readonly class ConnectionConfig
     public function getPgsqlDsn(): string
     {
         return sprintf(
-            "pgsql:host=%s;port=%s;dbname=%s;user=%s;password=%s",
+            'pgsql:host=%s;port=%s;dbname=%s;user=%s;password=%s',
             $this->getHost(),
             $this->getPort(),
             $this->getDatabaseName(),
@@ -150,5 +150,4 @@ final readonly class ConnectionConfig
             $this->getPassword(),
         );
     }
-
 }

@@ -34,21 +34,20 @@ use Adaptation\Database\Collection\QueryParameters;
  */
 class ConnectionException extends DatabaseException
 {
-
     /**
      * @return self
      */
     public static function notImplemented(): self
     {
         return new self(
-            message: "Not implemented",
+            message: 'Not implemented',
             code: self::ERROR_CODE_BAD_USAGE
         );
     }
 
     /**
      * @param string $message
-     * @param array $context
+     * @param array<string,mixed> $context
      *
      * @return ConnectionException
      */
@@ -68,8 +67,8 @@ class ConnectionException extends DatabaseException
      */
     public static function connectionFailed(?\Throwable $previous = null): self
     {
-        $message = "Error while connecting to the database";
-        if (! is_null($previous) && $previous->getMessage() !== '') {
+        $message = 'Error while connecting to the database';
+        if (! is_null($previous) && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -82,7 +81,7 @@ class ConnectionException extends DatabaseException
     public static function getDatabaseNameFailed(): self
     {
         return new self(
-            "Error while getting the database name",
+            'Error while getting the database name',
             code: self::ERROR_CODE_DATABASE
         );
     }
@@ -95,7 +94,7 @@ class ConnectionException extends DatabaseException
     public static function getLastInsertFailed(\Throwable $previous): self
     {
         return new self(
-            "Error while retrieving the last auto-incremented id inserted.",
+            'Error while retrieving the last auto-incremented id inserted.',
             code: self::ERROR_CODE_DATABASE,
             previous: $previous
         );
@@ -109,7 +108,7 @@ class ConnectionException extends DatabaseException
     public static function notEmptyQuery(): self
     {
         return new self(
-            message: "The query is empty",
+            message: 'The query is empty',
             code: self::ERROR_CODE_BAD_USAGE
         );
     }
@@ -199,7 +198,7 @@ class ConnectionException extends DatabaseException
     /**
      * @param \Throwable $previous
      * @param string $tableName
-     * @param array $columns
+     * @param array<string> $columns
      * @param BatchInsertParameters $batchInsertParameters
      * @param string $query
      *
@@ -219,7 +218,7 @@ class ConnectionException extends DatabaseException
                 'table_name' => $tableName,
                 'columns' => $columns,
                 'query' => $query,
-                'batch_insert_parameters' => $batchInsertParameters
+                'batch_insert_parameters' => $batchInsertParameters,
             ],
             previous: $previous
         );
@@ -317,14 +316,14 @@ class ConnectionException extends DatabaseException
      * @param \Throwable $previous
      * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param array $context
+     * @param array<string,mixed> $context
      *
      * @return ConnectionException
      */
     public static function selectQueryFailed(
         \Throwable $previous,
         string $query,
-        QueryParameters $queryParameters = null,
+        ?QueryParameters $queryParameters = null,
         array $context = []
     ): self {
         $context['query'] = $query;
@@ -689,8 +688,8 @@ class ConnectionException extends DatabaseException
      */
     public static function commitTransactionFailed(?\Throwable $previous = null): self
     {
-        $message = "Error during the transaction commit";
-        if (! is_null($previous) && $previous->getMessage() !== '') {
+        $message = 'Error during the transaction commit';
+        if (! is_null($previous) && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -708,8 +707,8 @@ class ConnectionException extends DatabaseException
      */
     public static function rollbackTransactionFailed(?\Throwable $previous = null): self
     {
-        $message = "Error during the transaction rollback";
-        if ($previous->getMessage() !== '') {
+        $message = 'Error during the transaction rollback';
+        if (! is_null($previous) && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
 
@@ -745,7 +744,7 @@ class ConnectionException extends DatabaseException
     public static function startUnbufferedQueryFailed(): self
     {
         return new self(
-            message: "Starting unbuffered queries failed.",
+            message: 'Starting unbuffered queries failed.',
             code: self::ERROR_CODE_UNBUFFERED_QUERY
         );
     }
@@ -781,5 +780,4 @@ class ConnectionException extends DatabaseException
             previous: $previous
         );
     }
-
 }

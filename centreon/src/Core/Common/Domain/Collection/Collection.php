@@ -42,7 +42,7 @@ abstract class Collection implements CollectionInterface
      *
      * @throws CollectionException
      */
-    public function __construct(protected array $items = [])
+    final public function __construct(protected array $items = [])
     {
         foreach ($items as $item) {
             $this->validateItem($item);
@@ -119,14 +119,14 @@ abstract class Collection implements CollectionInterface
     }
 
     /**
-     * @param callable $p
+     * @param callable $callable
      *
      * @throws CollectionException
      * @return Collection<TItem>
      */
-    public function filter(callable $p): CollectionInterface
+    public function filter(callable $callable): CollectionInterface
     {
-        return new static(array_filter($this->items, $p));
+        return new static(array_filter($this->items, $callable));
     }
 
     /**
@@ -150,7 +150,7 @@ abstract class Collection implements CollectionInterface
                 $this->items = $itemsBackup;
 
                 throw new CollectionException(
-                    'Collections to merge must be instances of ' . $this::class . ', ' . $collection::class . ' given'
+                    sprintf('Collections to merge must be instances of %s, %s given', $this::class, $collection::class)
                 );
             }
         }
@@ -261,7 +261,6 @@ abstract class Collection implements CollectionInterface
     {
         $json = json_encode($this->jsonSerialize());
         if (! $json) {
-
             throw new CollectionException(
                 'Stringify the collection to json failed',
                 ['serializedCollection' => $this->jsonSerialize()]
@@ -281,9 +280,8 @@ abstract class Collection implements CollectionInterface
     {
         $class = $this->itemClass();
         if (! $item instanceof $class) {
-
             throw new CollectionException(
-                'Item must be an instance of ' . $class . ', ' . $item::class . ' given'
+                sprintf('Item must be an instance of %s, %s given', $class, $item::class)
             );
         }
     }

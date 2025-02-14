@@ -88,11 +88,11 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     public function length(): int;
 
     /**
-     * @param callable $p
+     * @param callable $callable
      *
      * @return CollectionInterface<TItem>
      */
-    public function filter(callable $p): self;
+    public function filter(callable $callable): self;
 
     /**
      * Merge collections with actual collection. Collections must to be the same of actual.

@@ -33,70 +33,59 @@ it('test IpAddress value object : correct instanciation', function () {
     expect($IpAddress->getValue())->toBe($string);
 });
 
-it('test Email value object with an incorrect email', function () {
+it('test IpAddress value object with an incorrect email', function () {
     $string = "yoyo";
     $IpAddress = new IpAddress($string);
 })->throws(ValueObjectException::class);
 
-it('test IpAddress value object : create from factory', function () {
-    $string = "170.0.0.1";
-    $IpAddress = IpAddress::createFromString($string);
-    expect($IpAddress->getValue())->toBe($string);
-});
-
-it('test Email factory with incorrect email', function () {
-    $string = "yoyo";
-    $IpAddress = IpAddress::createFromString($string);
-})->throws(ValueObjectException::class);
-
 it('test IpAddress value object : get value', function () {
     $string = "170.0.0.1";
-    $IpAddress = IpAddress::createFromString($string);
+    $IpAddress = new IpAddress($string);
     expect($IpAddress->getValue())->toBe($string);
 });
 
 it('test IpAddress value object : is not empty', function () {
     $string = "170.0.0.1";
-    $IpAddress = IpAddress::createFromString($string);
+    $IpAddress = new IpAddress($string);
     expect($IpAddress->isEmpty())->toBeFalse();
 });
 
 it('test IpAddress value object : is empty', function () {
     $string = "";
-    $IpAddress = IpAddress::createFromString($string);
+    $IpAddress = new IpAddress($string);
     expect($IpAddress->isEmpty())->toBeFalse();
 })->throws(ValueObjectException::class);
 
 it('test IpAddress value object : length', function () {
-    $IpAddress = IpAddress::createFromString("170.0.0.1");
-    expect($IpAddress->getLength())->toBe(9);
+    $IpAddress = new IpAddress("170.0.0.1");
+    expect($IpAddress->length())->toBe(9);
 });
 
 it('test IpAddress value object : equal', function () {
-    $IpAddress1 = IpAddress::createFromString("170.0.0.1");
-    $IpAddress2 = IpAddress::createFromString("170.0.0.1");
+    $IpAddress1 = new IpAddress("170.0.0.1");
+    $IpAddress2 = new IpAddress("170.0.0.1");
     expect($IpAddress1->equals($IpAddress2))->toBeTrue();
 });
 
 it('test IpAddress value object : not equal', function () {
-    $IpAddress1 = IpAddress::createFromString("170.0.0.1");
-    $IpAddress2 = IpAddress::createFromString("170.0.0.2");
+    $IpAddress1 = new IpAddress("170.0.0.1");
+    $IpAddress2 = new IpAddress("170.0.0.2");
     expect($IpAddress1->equals($IpAddress2))->toBeFalse();
 });
 
 it('test IpAddress value object : equal with incorrect type', function () {
-    $IpAddress1 = IpAddress::createFromString("170.0.0.1");
+    $IpAddress1 = new IpAddress("170.0.0.1");
     $IpAddress2 = new \DateTime();
     $IpAddress1->equals($IpAddress2);
 })->throws(\TypeError::class);
 
 it('test IpAddress value object : equal with incorrect value object type', function () {
-    $IpAddress1 = IpAddress::createFromString("170.0.0.1");
+    $IpAddress1 = new IpAddress("170.0.0.1");
     $IpAddress2 = new Email("yoyo@toto.fr");
     $IpAddress1->equals($IpAddress2);
 })->throws(ValueObjectException::class);
 
 it('test IpAddress value object : magic method toString', function () {
-    $IpAddress = IpAddress::createFromString("170.0.0.1");
+    $IpAddress = new IpAddress("170.0.0.1");
     expect("$IpAddress")->toBe("170.0.0.1");
 });

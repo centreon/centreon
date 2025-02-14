@@ -36,14 +36,6 @@ use Core\Common\Domain\Exception\CollectionException;
 class BatchInsertParameters extends Collection
 {
     /**
-     * @return class-string<QueryParameters>
-     */
-    protected function itemClass(): string
-    {
-        return QueryParameters::class;
-    }
-
-    /**
      * Factory
      *
      * @param QueryParameters[] $batchInsertParameters
@@ -53,7 +45,7 @@ class BatchInsertParameters extends Collection
      */
     public static function create(array $batchInsertParameters): self
     {
-        $batchInsertParametersCollection = new BatchInsertParameters();
+        $batchInsertParametersCollection = new self();
         $index = 1;
         foreach ($batchInsertParameters as $queryParametersCollection) {
             $batchInsertParametersCollection->validateItem($queryParametersCollection);
@@ -64,4 +56,11 @@ class BatchInsertParameters extends Collection
         return $batchInsertParametersCollection;
     }
 
+    /**
+     * @return class-string<QueryParameters>
+     */
+    protected function itemClass(): string
+    {
+        return QueryParameters::class;
+    }
 }

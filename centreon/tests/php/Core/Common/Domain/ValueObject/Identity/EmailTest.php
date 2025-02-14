@@ -38,75 +38,64 @@ it('test Email value object with an incorrect email', function () {
     $email = new Email($string);
 })->throws(ValueObjectException::class);
 
-it('test Email factory with correct email', function () {
-    $string = "yoyo@toto.fr";
-    $email = Email::createFromString($string);
-    expect($email->getValue())->toBe($string);
-});
-
-it('test Email factory with incorrect email', function () {
-    $string = "yoyo";
-    $email = Email::createFromString($string);
-})->throws(ValueObjectException::class);
-
 it('test Email value object : get value', function () {
     $string = "yoyo@toto.fr";
-    $email = Email::createFromString($string);
+    $email = new Email($string);
     expect($email->getValue())->toBe($string);
 });
 
 it('test Email value object : is not empty', function () {
     $string = "yoyo@toto.fr";
-    $email = Email::createFromString($string);
+    $email = new Email($string);
     expect($email->isEmpty())->toBeFalse();
 });
 
 it('test Email value object : is empty', function () {
     $string = "";
-    $email = Email::createFromString($string);
+    $email = new Email($string);
     expect($email->isEmpty())->toBeFalse();
 })->throws(ValueObjectException::class);
 
 it('test Email value object : length', function () {
-    $email = Email::createFromString("yoyo@toto.fr");
-    expect($email->getLength())->toBe(12);
+    $email = new Email("yoyo@toto.fr");
+    expect($email->length())->toBe(12);
 });
 
 it('test Email value object : equal', function () {
-    $email1 = Email::createFromString("yoyo@toto.fr");
-    $email2 = Email::createFromString("yoyo@toto.fr");
+    $email1 = new Email("yoyo@toto.fr");
+    $email2 = new Email("yoyo@toto.fr");
     expect($email1->equals($email2))->toBeTrue();
 });
 
 it('test Email value object : not equal', function () {
-    $email1 = Email::createFromString("yoyo@toto.fr");
-    $email2 = Email::createFromString("yoyo@toto.com");
+    $email1 = new Email("yoyo@toto.fr");
+    $email2 = new Email("yoyo@toto.com");
     expect($email1->equals($email2))->toBeFalse();
 });
 
 it('test Email value object : equal with incorrect type', function () {
-    $email = Email::createFromString("yoyo@toto.fr");
+    $email = new Email("yoyo@toto.fr");
     $dateTime = new \DateTime();
     $email->equals($dateTime);
 })->throws(\TypeError::class);
 
 it('test Email value object : equal with incorrect value object type', function () {
-    $email = Email::createFromString("yoyo@toto.fr");
+    $email = new Email("yoyo@toto.fr");
     $ip = new IpAddress("170.0.0.1");
     $email->equals($ip);
 })->throws(ValueObjectException::class);
 
 it('test Email value object : magic method toString', function () {
-    $email = Email::createFromString("yoyo@toto.fr");
+    $email = new Email("yoyo@toto.fr");
     expect("$email")->toBe("yoyo@toto.fr");
 });
 
 it('test Email value object : get local part', function () {
-    $email = Email::createFromString("yoyo@toto.fr");
+    $email = new Email("yoyo@toto.fr");
     expect($email->getLocalPart()->getValue())->toBe("yoyo");
 });
 
 it('test Email value object : get domain part', function () {
-    $email = Email::createFromString("yoyo@toto.fr");
+    $email = new Email("yoyo@toto.fr");
     expect($email->getDomainPart()->getValue())->toBe("toto.fr");
 });

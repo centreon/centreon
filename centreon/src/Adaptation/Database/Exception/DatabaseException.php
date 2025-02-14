@@ -36,5 +36,4 @@ abstract class DatabaseException extends DomainException
     public const ERROR_CODE_DATABASE = 10;
     public const ERROR_CODE_DATABASE_TRANSACTION = 11;
     public const ERROR_CODE_UNBUFFERED_QUERY = 12;
-
 }

@@ -31,48 +31,97 @@ it('test LiteralString value object : correct instanciation', function () {
     expect($literalString->getValue())->toBe($string);
 });
 
-it('test LiteralString value object : create from factory', function () {
-    $string = "foo";
-    $literalString = LiteralString::createFromString($string);
-    expect($literalString->getValue())->toBe($string);
-});
-
 it('test LiteralString value object : get value', function () {
     $string = "foo";
-    $literalString = LiteralString::createFromString($string);
+    $literalString = new LiteralString($string);
     expect($literalString->getValue())->toBe($string);
 });
 
 it('test LiteralString value object : is empty', function () {
     $string = "";
-    $literalString = LiteralString::createFromString($string);
+    $literalString = new LiteralString($string);
     expect($literalString->isEmpty())->toBeTrue();
 });
 
 it('test LiteralString value object : length', function () {
-    $literalString = LiteralString::createFromString("foo");
-    expect($literalString->getLength())->toBe(3);
+    $literalString = new LiteralString("foo");
+    expect($literalString->length())->toBe(3);
+});
+
+it('test LiteralString value object : to uppercase', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->toUpperCase())->toBe("FOO");
+});
+
+it('test LiteralString value object : to lowercase', function () {
+    $literalString = new LiteralString("FOO");
+    expect($literalString->toLowerCase())->toBe("foo");
+});
+
+it('test LiteralString value object : trim', function () {
+    $literalString = new LiteralString(" foo ");
+    expect($literalString->trim())->toBe("foo");
+});
+
+it('test LiteralString value object : starts with', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->startsWith("f"))->toBeTrue();
+});
+
+it('test LiteralString value object : not starts with', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->startsWith("bar"))->toBeFalse();
+});
+
+it('test LiteralString value object : ends with', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->endsWith("o"))->toBeTrue();
+});
+
+it('test LiteralString value object : not ends with', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->endsWith("bar"))->toBeFalse();
+});
+
+it('test LiteralString value object : replace', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->replace("foo", "bar"))->toBe("bar");
+});
+
+it('test LiteralString value object : contains', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->contains("o"))->toBeTrue();
+});
+
+it('test LiteralString value object : not contains', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->contains("bar"))->toBeFalse();
+});
+
+it('test LiteralString value object : append', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->append("bar"))->toBe("foobar");
 });
 
 it('test LiteralString value object : equal', function () {
-    $literalString1 = LiteralString::createFromString("foo");
-    $literalString2 = LiteralString::createFromString("foo");
+    $literalString1 = new LiteralString("foo");
+    $literalString2 = new LiteralString("foo");
     expect($literalString1->equals($literalString2))->toBeTrue();
 });
 
 it('test LiteralString value object : not equal', function () {
-    $literalString1 = LiteralString::createFromString("foo");
-    $literalString2 = LiteralString::createFromString("bar");
+    $literalString1 = new LiteralString("foo");
+    $literalString2 = new LiteralString("bar");
     expect($literalString1->equals($literalString2))->toBeFalse();
 });
 
 it('test LiteralString value object : equal with incorrect type', function () {
-    $literalString1 = LiteralString::createFromString("foo");
+    $literalString1 = new LiteralString("foo");
     $dateTime = new \DateTime();
     $literalString1->equals($dateTime);
 })->throws(\TypeError::class);
 
 it('test LiteralString value object : magic method toString', function () {
-    $literalString = LiteralString::createFromString("foo");
+    $literalString = new LiteralString("foo");
     expect("$literalString")->toBe("foo");
 });

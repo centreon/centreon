@@ -31,7 +31,6 @@ use Adaptation\Database\Model\ConnectionConfig;
 use Adaptation\Database\ValueObject\QueryParameter;
 use Centreon\Domain\Log\Logger;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 
 /**
  * This class extend the PDO class and can be used to create a database
@@ -43,19 +42,13 @@ use Psr\Log\LogLevel;
  */
 class DatabaseConnection extends \PDO implements ConnectionInterface
 {
-    /**
-     * @var string Name of the configuration table
-     */
+    /** @var string Name of the configuration table */
     private string $centreonDbName;
 
-    /**
-     * @var string Name of the storage table
-     */
+    /** @var string Name of the storage table */
     private string $storageDbName;
 
-    /**
-     * @var ConnectionConfig
-     */
+    /** @var ConnectionConfig */
     private ConnectionConfig $connectionConfig;
 
     /**
@@ -65,9 +58,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      */
     private bool $isBufferedQueryActive = true;
 
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     private LoggerInterface $logger;
 
     /**
@@ -90,7 +81,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         string $login = '',
         string $password = '',
         int $port = 3306,
-        ConnectionConfig $connectionConfig = null
+        ?ConnectionConfig $connectionConfig = null
     ) {
         try {
             if (is_null($connectionConfig)) {
@@ -123,13 +114,13 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 [
                     \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
                 ]
             );
         } catch (\PDOException $exception) {
             if ($exception->getCode() === 2002) {
                 $this->writeDbLog(
-                    message: "Unable to connect to database",
+                    message: 'Unable to connect to database',
                     previous: $exception,
                 );
 
@@ -147,12 +138,12 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @throws ConnectionException
      * @return DatabaseConnection
      */
-    public static function createFromConfig(ConnectionConfig $connectionConfig): DatabaseConnection
+    public static function createFromConfig(ConnectionConfig $connectionConfig): self
     {
         try {
             return new self(logger: new Logger(), connectionConfig: $connectionConfig);
-        } catch (\Throwable $e) {
-            throw ConnectionException::connectionFailed($e);
+        } catch (\Throwable $exception) {
+            throw ConnectionException::connectionFailed($exception);
         }
     }
 
@@ -210,10 +201,10 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             return $this->fetchByColumn('SELECT DATABASE()')[0] ?? null;
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to get database name",
-                previous: $e,
+                message: 'Unable to get database name',
+                previous: $exception,
             );
 
             throw ConnectionException::getDatabaseNameFailed();
@@ -241,13 +232,13 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             return (string) $this->lastInsertId();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to get last insert id",
-                previous: $e,
+                message: 'Unable to get last insert id',
+                previous: $exception,
             );
 
-            throw ConnectionException::getLastInsertFailed($e);
+            throw ConnectionException::getLastInsertFailed($exception);
         }
     }
 
@@ -262,11 +253,11 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $this->executeSelectQuery('SELECT 1');
 
             return true;
-        } catch (ConnectionException $e) {
+        } catch (ConnectionException $exception) {
             $this->writeDbLog(
-                message: "Unable to execute select query",
+                message: 'Unable to execute select query',
                 query: 'SELECT 1',
-                previous: $e,
+                previous: $exception,
             );
 
             return false;
@@ -318,7 +309,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
 
             if (str_starts_with($query, 'SELECT') || str_starts_with($query, 'select')) {
                 throw ConnectionException::executeStatementBadFormat(
-                    "Cannot use it with a SELECT query",
+                    'Cannot use it with a SELECT query',
                     $query
                 );
             }
@@ -330,8 +321,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                     $pdoStatement->bindValue(
                         ":{$queryParameter->getName()}",
                         $queryParameter->getValue(),
-                        ($queryParameter->getType() !== null) ?
-                            $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
+                        ($queryParameter->getType() !== null)
+                            ? $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
                     );
                 }
             }
@@ -339,15 +330,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $pdoStatement->execute();
 
             return $pdoStatement->rowCount();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to execute statement",
+                message: 'Unable to execute statement',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::executeStatementFailed($e, $query, $queryParameters);
+            throw ConnectionException::executeStatementFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -376,15 +367,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             }
 
             return $this->executeStatement($query, $queryParameters);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to execute insert query",
+                message: 'Unable to execute insert query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::insertQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::insertQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -396,7 +387,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * $batchInsertParameters is a collection of QueryParameters, each QueryParameters is a collection of QueryParameter
      *
      * @param string $tableName
-     * @param array $columns
+     * @param array<string> $columns
      * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
@@ -422,7 +413,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 throw ConnectionException::batchInsertQueryBadUsage('Batch insert parameters must not be empty');
             }
 
-            $query = "INSERT INTO $tableName (" . implode(', ', $columns) . ") VALUES";
+            $query = "INSERT INTO {$tableName} (" . implode(', ', $columns) . ') VALUES';
 
             $valuesInsert = [];
             $queryParametersToInsert = new QueryParameters([]);
@@ -462,7 +453,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         $queryParameter->getValue(),
                         $queryParameter->getType()
                     );
-                    $valuesInsertItem .= ":$parameterName";
+                    $valuesInsertItem .= ":{$parameterName}";
                     $queryParametersToInsert->add($queryParameterToInsert->getName(), $queryParameterToInsert);
                 }
 
@@ -479,20 +470,20 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $query .= implode(', ', $valuesInsert);
 
             return $this->executeStatement($query, $queryParametersToInsert);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to execute batch insert query",
+                message: 'Unable to execute batch insert query',
                 customContext: [
                     'table_name' => $tableName,
                     'columns' => $columns,
-                    'batch_insert_parameters' => $batchInsertParameters
+                    'batch_insert_parameters' => $batchInsertParameters,
                 ],
                 query: $query ?? '',
-                previous: $e,
+                previous: $exception,
             );
 
             throw ConnectionException::batchInsertQueryFailed(
-                previous: $e,
+                previous: $exception,
                 tableName: $tableName,
                 columns: $columns,
                 batchInsertParameters: $batchInsertParameters,
@@ -526,15 +517,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             }
 
             return $this->executeStatement($query, $queryParameters);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to execute update query",
+                message: 'Unable to execute update query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::updateQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::updateQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -563,15 +554,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             }
 
             return $this->executeStatement($query, $queryParameters);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to execute insert query",
+                message: 'Unable to execute insert query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::deleteQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::deleteQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -587,7 +578,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return array<string, mixed>|false False is returned if no rows are found.
+     * @return array<string, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
@@ -600,15 +591,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
 
             return $pdoStatement->fetch();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to fetch numeric query",
+                message: 'Unable to fetch numeric query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::fetchNumericQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::fetchNumericQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -621,7 +612,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return array<string, mixed>|false False is returned if no rows are found.
+     * @return array<string, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
@@ -634,15 +625,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
 
             return $pdoStatement->fetch();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to fetch associative query",
+                message: 'Unable to fetch associative query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::fetchAssociativeQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::fetchAssociativeQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -656,7 +647,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return mixed|false False is returned if no rows are found.
+     * @return mixed|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
      *          $result = $db->fetchOne('SELECT name FROM table WHERE name = :name', $queryParameters);
@@ -669,15 +660,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
 
             return $pdoStatement->fetch()[0] ?? false;
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to fetch one query",
+                message: 'Unable to fetch one query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::fetchOneQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::fetchOneQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -704,15 +695,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
 
             return $pdoStatement->fetchAll();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to fetch by column query",
+                message: 'Unable to fetch by column query',
                 customContext: ['query_parameters' => $queryParameters, 'column' => $column],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::fetchByColumnQueryFailed($e, $query, $column, $queryParameters);
+            throw ConnectionException::fetchByColumnQueryFailed($exception, $query, $column, $queryParameters);
         }
     }
 
@@ -738,15 +729,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
 
             return $pdoStatement->fetchAll();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to fetch all numeric query",
+                message: 'Unable to fetch all numeric query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::fetchAllNumericQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::fetchAllNumericQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -772,15 +763,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
 
             return $pdoStatement->fetchAll();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to fetch all associative query",
+                message: 'Unable to fetch all associative query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::fetchAllAssociativeQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::fetchAllAssociativeQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -807,15 +798,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
 
             return $pdoStatement->fetchAll();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to fetch all key value query",
+                message: 'Unable to fetch all key value query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::fetchAllKeyValueQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::fetchAllKeyValueQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -846,15 +837,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             }
 
             return $data;
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to fetch all associative indexed query",
+                message: 'Unable to fetch all associative indexed query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::fetchAllAssociativeIndexedQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::fetchAllAssociativeIndexedQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -886,15 +877,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             while (($row = $pdoStatement->fetch()) !== false) {
                 yield $row;
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to iterate numeric query",
+                message: 'Unable to iterate numeric query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::iterateNumericQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::iterateNumericQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -925,15 +916,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             while (($row = $pdoStatement->fetch()) !== false) {
                 yield $row;
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to iterate associative query",
+                message: 'Unable to iterate associative query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::iterateAssociativeQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::iterateAssociativeQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -967,15 +958,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             while (($row = $pdoStatement->fetch()) !== false) {
                 yield $row;
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to iterate by column query",
+                message: 'Unable to iterate by column query',
                 customContext: ['query_parameters' => $queryParameters, 'column' => $column],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::iterateByColumnQueryFailed($e, $query, $column, $queryParameters);
+            throw ConnectionException::iterateByColumnQueryFailed($exception, $query, $column, $queryParameters);
         }
     }
 
@@ -1006,15 +997,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             while (($row = $pdoStatement->fetch()) !== false) {
                 yield $row;
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to iterate key value query",
+                message: 'Unable to iterate key value query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::iterateKeyValueQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::iterateKeyValueQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -1045,15 +1036,15 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             foreach ($this->iterateAssociative($query, $queryParameters) as $row) {
                 yield array_shift($row) => $row;
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to iterate associative indexed query",
+                message: 'Unable to iterate associative indexed query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::iterateAssociativeIndexedQueryFailed($e, $query, $queryParameters);
+            throw ConnectionException::iterateAssociativeIndexedQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -1062,7 +1053,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     /**
      * Checks whether a transaction is currently active.
      *
-     * @return bool TRUE if a transaction is currently active, FALSE otherwise.
+     * @return bool TRUE if a transaction is currently active, FALSE otherwise
      */
     public function isTransactionActive(): bool
     {
@@ -1075,19 +1066,18 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * @throws ConnectionException
      * @return void
-     *
      */
     public function startTransaction(): void
     {
         try {
             $this->beginTransaction();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to start transaction",
-                previous: $e,
+                message: 'Unable to start transaction',
+                previous: $exception,
             );
 
-            throw ConnectionException::startTransactionFailed($e);
+            throw ConnectionException::startTransactionFailed($exception);
         }
     }
 
@@ -1105,13 +1095,13 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             }
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to commit transaction",
-                previous: $e,
+                message: 'Unable to commit transaction',
+                previous: $exception,
             );
 
-            throw ConnectionException::commitTransactionFailed($e);
+            throw ConnectionException::commitTransactionFailed($exception);
         }
     }
 
@@ -1129,13 +1119,13 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             }
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Unable to rollback transaction",
-                previous: $e,
+                message: 'Unable to rollback transaction',
+                previous: $exception,
             );
 
-            throw ConnectionException::rollbackTransactionFailed($e);
+            throw ConnectionException::rollbackTransactionFailed($exception);
         }
     }
 
@@ -1149,9 +1139,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     public function allowUnbufferedQuery(): bool
     {
         $currentDriverName = $this->getAttribute(\PDO::ATTR_DRIVER_NAME);
-        if (! in_array($currentDriverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY)) {
+        if (! in_array($currentDriverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
             $this->writeDbLog(
-                message: "Unbuffered queries are not allowed with this driver",
+                message: 'Unbuffered queries are not allowed with this driver',
                 customContext: ['driver_name' => $currentDriverName]
             );
 
@@ -1171,7 +1161,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         $this->allowUnbufferedQuery();
         if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
-            $this->writeDbLog(message: "Error while starting an unbuffered query");
+            $this->writeDbLog(message: 'Error while starting an unbuffered query');
 
             throw ConnectionException::startUnbufferedQueryFailed();
         }
@@ -1193,23 +1183,22 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * @throws ConnectionException
      * @return void
-     *
      */
     public function stopUnbufferedQuery(): void
     {
         if (! $this->isUnbufferedQueryActive()) {
             $this->writeDbLog(
-                message: "Error while stopping an unbuffered query, no unbuffered query is currently active"
+                message: 'Error while stopping an unbuffered query, no unbuffered query is currently active'
             );
 
             throw ConnectionException::stopUnbufferedQueryFailed(
-                "Error while stopping an unbuffered query, no unbuffered query is currently active"
+                'Error while stopping an unbuffered query, no unbuffered query is currently active'
             );
         }
         if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
-            $this->writeDbLog(message: "Error while stopping an unbuffered query");
+            $this->writeDbLog(message: 'Error while stopping an unbuffered query');
 
-            throw ConnectionException::stopUnbufferedQueryFailed("Error while stopping an unbuffered query");
+            throw ConnectionException::stopUnbufferedQueryFailed('Error while stopping an unbuffered query');
         }
         $this->isBufferedQueryActive = true;
     }
@@ -1226,14 +1215,14 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             return $pdoStatement->closeCursor();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Error while closing the \PDOStatement cursor: {$e->getMessage()}",
+                message: "Error while closing the \PDOStatement cursor: {$exception->getMessage()}",
                 query: $pdoStatement->queryString,
-                previous: $e,
+                previous: $exception,
             );
 
-            throw ConnectionException::closeQueryFailed($e, $pdoStatement->queryString);
+            throw ConnectionException::closeQueryFailed($exception, $pdoStatement->queryString);
         }
     }
 
@@ -1247,17 +1236,17 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param string $query
      * @param QueryParameters|null $queryParameters
      * @param int $fetchMode
-     * @param array $fetchModeArgs
+     * @param array<mixed> $fetchModeArgs
      *
      * @throws ConnectionException
-     * @return \PDOStatement|false
+     * @return \PDOStatement
      */
     private function executeSelectQuery(
         string $query,
         ?QueryParameters $queryParameters = null,
         int $fetchMode = \PDO::FETCH_ASSOC,
         array $fetchModeArgs = []
-    ): \PDOStatement|false {
+    ): \PDOStatement {
         try {
             $this->validateSelectQuery($query);
             $pdoStatement = $this->prepare($query);
@@ -1267,26 +1256,33 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                     $pdoStatement->bindValue(
                         $queryParameter->getName(),
                         $queryParameter->getValue(),
-                        ($queryParameter->getType() !== null) ?
-                            $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
+                        ($queryParameter->getType() !== null)
+                            ? $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
                     );
                 }
             }
 
             $pdoStatement->execute();
-            $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs);
+
+            if (false === $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs)) {
+                throw new ConnectionException(
+                    message: 'Error while setting the fetch mode',
+                    code: ConnectionException::ERROR_CODE_INTERNAL,
+                    context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
+                );
+            }
 
             return $pdoStatement;
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->writeDbLog(
-                message: "Error while executing the select query",
+                message: 'Error while executing the select query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
-                previous: $e,
+                previous: $exception,
             );
 
             throw ConnectionException::selectQueryFailed(
-                previous: $e,
+                previous: $exception,
                 query: $query,
                 queryParameters: $queryParameters,
                 context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
@@ -1314,7 +1310,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * Write SQL errors messages
      *
      * @param string $message
-     * @param array $customContext
+     * @param array<string,mixed> $customContext
      * @param string $query
      * @param \Throwable|null $previous
      */
@@ -1334,7 +1330,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 'line' => $previous->getLine(),
                 'code' => $previous->getCode(),
                 'message' => $previous->getMessage(),
-                'pdo_error_info' => $previous->errorInfo
+                'pdo_error_info' => $previous->errorInfo,
             ];
         } else {
             $dbExceptionContext = [];
@@ -1350,15 +1346,14 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         }
 
         $context = array_merge(
-            ["default" => $defaultContext],
-            ["custom" => $customContext],
+            ['default' => $defaultContext],
+            ['custom' => $customContext],
             ['exception' => $dbExceptionContext]
         );
 
         $this->logger->critical(
-            "[DatabaseConnection] $message",
+            "[DatabaseConnection] {$message}",
             $context
         );
     }
-
 }

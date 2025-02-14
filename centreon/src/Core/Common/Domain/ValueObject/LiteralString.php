@@ -49,16 +49,6 @@ readonly class LiteralString implements ValueObjectInterface
     }
 
     /**
-     * @param string $value
-     *
-     * @return LiteralString
-     */
-    public static function createFromString(string $value): self
-    {
-        return new static($value);
-    }
-
-    /**
      * @return string
      */
     public function getValue(): string
@@ -77,9 +67,84 @@ readonly class LiteralString implements ValueObjectInterface
     /**
      * @return int
      */
-    public function getLength(): int
+    public function length(): int
     {
         return mb_strlen($this->value);
+    }
+
+    /**
+     * @return string
+     */
+    public function toUpperCase(): string
+    {
+        return mb_strtoupper($this->value);
+    }
+
+    /**
+     * @return string
+     */
+    public function toLowerCase(): string
+    {
+        return mb_strtolower($this->value);
+    }
+
+    /**
+     * @param string $needle
+     *
+     * @return bool
+     */
+    public function contains(string $needle): bool
+    {
+        return str_contains($this->value, $needle);
+    }
+
+    /**
+     * @param string $needle
+     *
+     * @return bool
+     */
+    public function startsWith(string $needle): bool
+    {
+        return str_starts_with($this->value, $needle);
+    }
+
+    /**
+     * @param string $needle
+     *
+     * @return bool
+     */
+    public function endsWith(string $needle): bool
+    {
+        return str_ends_with($this->value, $needle);
+    }
+
+    /**
+     * @param string $search
+     * @param string $replace
+     *
+     * @return string
+     */
+    public function replace(string $search, string $replace): string
+    {
+        return str_replace($search, $replace, $this->value);
+    }
+
+    /**
+     * @return string
+     */
+    public function trim(): string
+    {
+        return trim($this->value);
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    public function append(string $value): string
+    {
+        return $this->value . $value;
     }
 
     /**

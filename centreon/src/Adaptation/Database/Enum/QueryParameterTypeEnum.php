@@ -35,18 +35,22 @@ enum QueryParameterTypeEnum: int
      * Represents the SQL NULL data type.
      */
     case NULL = 0;
+
     /**
      * Represents the SQL INTEGER data type.
      */
     case INT = 1;
+
     /**
      * Represents the SQL CHAR, VARCHAR, or other string data type.
      */
     case STRING = 2;
+
     /**
      * Represents the SQL large object data type.
      */
     case LARGE_OBJECT = 3;
+
     /**
      * Represents a boolean data type.
      */

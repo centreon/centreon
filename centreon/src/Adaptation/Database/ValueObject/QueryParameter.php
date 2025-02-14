@@ -33,9 +33,8 @@ use Core\Common\Domain\ValueObject\ValueObjectInterface;
  * @class   QueryParameter
  * @package Adaptation\Database\ValueObject
  */
-class QueryParameter implements ValueObjectInterface
+final readonly class QueryParameter implements ValueObjectInterface
 {
-
     /**
      * QueryParameter constructor
      *
@@ -60,9 +59,25 @@ class QueryParameter implements ValueObjectInterface
         }
         if ($type === QueryParameterTypeEnum::LARGE_OBJECT && ! is_string($value) && ! is_resource($value)) {
             throw new ValueObjectException(
-                'Value of QueryParameter with type LARGE_OBJECT must be a string or a resource'
+                sprintf(
+                    'Value of QueryParameter with type LARGE_OBJECT must be a string or a resource, %s given',
+                    gettype($value)
+                )
             );
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return sprintf(
+            '{name:"%s",value:"%s",type:"%s"}',
+            $this->name,
+            $this->value,
+            (! is_null($this->type)) ? $this->type->value : 'null'
+        );
     }
 
     /**
@@ -80,29 +95,39 @@ class QueryParameter implements ValueObjectInterface
 
     /**
      * Example : QueryParameter::int('name', 1);
+     * Null value is not allowed for this type.
      *
      * @param string $name
-     * @param int $value
+     * @param int|null $value
      *
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function int(string $name, int $value): self
+    public static function int(string $name, ?int $value): self
     {
+        if ($value === null) {
+            return self::null($name);
+        }
+
         return self::create($name, $value, QueryParameterTypeEnum::INT);
     }
 
     /**
      * Example : QueryParameter::string('name', 'value');
+     * Null value is not allowed for this type.
      *
      * @param string $name
-     * @param string $value
+     * @param string|null $value
      *
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function string(string $name, string $value): self
+    public static function string(string $name, ?string $value): self
     {
+        if ($value === null) {
+            return self::null($name);
+        }
+
         return self::create($name, $value, QueryParameterTypeEnum::STRING);
     }
 
@@ -148,14 +173,6 @@ class QueryParameter implements ValueObjectInterface
     }
 
     /**
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return '{name:"' . $this->name . '",value:"' . $this->value . '",type:"' . $this->type->value . '"}';
-    }
-
-    /**
      * @param QueryParameter $object
      *
      * @throws ValueObjectException
@@ -163,13 +180,17 @@ class QueryParameter implements ValueObjectInterface
      */
     public function equals(ValueObjectInterface $object): bool
     {
-        if (! $object instanceof QueryParameter) {
+        if (! $object instanceof self) {
             throw new ValueObjectException(
-                "Equal checking failed because not a " . $this::class . ", " . $object::class . " given",
+                sprintf(
+                    'Expected object of type %s, %s given',
+                    $this::class,
+                    $object::class
+                )
             );
         }
 
-        return "$this" === "$object";
+        return "{$this}" === "{$object}";
     }
 
     /**

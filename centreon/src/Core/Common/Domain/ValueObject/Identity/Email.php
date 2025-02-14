@@ -16,22 +16,19 @@ use Core\Common\Domain\ValueObject\LiteralString;
 final readonly class Email extends LiteralString
 {
     /**
-     * @param string $value
+     * Email constructor
+     *
+     * @param string $email
      *
      * @throws ValueObjectException
      */
-    public function __construct(string $value)
+    public function __construct(string $email)
     {
-        if (empty($value) || ! filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            throw new ValueObjectException(
-                'Invalid email',
-                [
-                    'value' => $value,
-                ]
-            );
+        if (empty($email) || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new ValueObjectException('Invalid email', ['email' => $email]);
         }
 
-        parent::__construct($value);
+        parent::__construct($email);
     }
 
     /**

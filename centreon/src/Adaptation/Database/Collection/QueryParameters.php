@@ -38,14 +38,6 @@ use Core\Common\Domain\Exception\CollectionException;
 class QueryParameters extends Collection
 {
     /**
-     * @return class-string<QueryParameter>
-     */
-    protected function itemClass(): string
-    {
-        return QueryParameter::class;
-    }
-
-    /**
      * Factory
      *
      * @param QueryParameter[] $queryParameters
@@ -55,7 +47,7 @@ class QueryParameters extends Collection
      */
     public static function create(array $queryParameters): self
     {
-        $queryParametersCollection = new QueryParameters();
+        $queryParametersCollection = new self();
         foreach ($queryParameters as $queryParameter) {
             $queryParametersCollection->validateItem($queryParameter);
             $queryParametersCollection->add($queryParameter->name, $queryParameter);
@@ -66,57 +58,54 @@ class QueryParameters extends Collection
 
     /**
      * @throws CollectionException
-     * @return QueryParameters
+     * @return Collection<QueryParameter>
      */
-    public function getIntQueryParameters(): self
+    public function getIntQueryParameters(): Collection
     {
-        return $this->filter(function (QueryParameter $queryParameter) {
-            return $queryParameter->type === QueryParameterTypeEnum::INT;
-        });
+        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::INT);
     }
 
     /**
      * @throws CollectionException
-     * @return QueryParameters
+     * @return Collection<QueryParameter>
      */
-    public function getStringQueryParameters(): self
+    public function getStringQueryParameters(): Collection
     {
-        return $this->filter(function (QueryParameter $queryParameter) {
-            return $queryParameter->type === QueryParameterTypeEnum::STRING;
-        });
+        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::STRING);
     }
 
     /**
      * @throws CollectionException
-     * @return QueryParameters
+     * @return Collection<QueryParameter>
      */
-    public function getBoolQueryParameters(): self
+    public function getBoolQueryParameters(): Collection
     {
-        return $this->filter(function (QueryParameter $queryParameter) {
-            return $queryParameter->type === QueryParameterTypeEnum::BOOL;
-        });
+        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::BOOL);
     }
 
     /**
      * @throws CollectionException
-     * @return QueryParameters
+     * @return Collection<QueryParameter>
      */
-    public function getNullQueryParameters(): self
+    public function getNullQueryParameters(): Collection
     {
-        return $this->filter(function (QueryParameter $queryParameter) {
-            return $queryParameter->type === QueryParameterTypeEnum::NULL;
-        });
+        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::NULL);
     }
 
     /**
      * @throws CollectionException
-     * @return QueryParameters
+     * @return Collection<QueryParameter>
      */
-    public function getLargeObjectQueryParameters(): self
+    public function getLargeObjectQueryParameters(): Collection
     {
-        return $this->filter(function (QueryParameter $queryParameter) {
-            return $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT;
-        });
+        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT);
     }
 
+    /**
+     * @return class-string<QueryParameter>
+     */
+    protected function itemClass(): string
+    {
+        return QueryParameter::class;
+    }
 }
