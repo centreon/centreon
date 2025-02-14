@@ -156,8 +156,26 @@ jobs:
           done
           echo "Tests completed!"
 
+      - name: Install jmeter-reports
+        run: |
+          echo "Installing jmeter-reports..."
+          npm install -g jmeter-reports
+
+      - name: Generate JMeter Reports
+        run: |
+          echo "Generating JMeter reports..."
+          mkdir -p $GITHUB_WORKSPACE/jmeter_reports
+          jmeter-reports --results-dir=$GITHUB_WORKSPACE/jmeter_results --report-dir=$GITHUB_WORKSPACE/jmeter_reports
+          echo "Reports generated!"
+
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
         with:
           name: jmeter-results
           path: jmeter_results
+
+      - name: Upload JMeter Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-reports
+          path: jmeter_reports
