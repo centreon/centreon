@@ -574,7 +574,7 @@ describe('Line chart', () => {
         .and('equals', '5 8');
     });
 
-    it('displays only one line with custom style when pprops are set', () => {
+    it('displays only one line with custom style when props are set', () => {
       initialize({
         lineStyle: [
           {
@@ -595,6 +595,8 @@ describe('Line chart', () => {
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 4');
       cy.get('circle[cx="32.5"]').should('be.visible');
+
+      cy.makeSnapshot();
     });
   });
 });
