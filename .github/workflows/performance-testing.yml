@@ -2,7 +2,7 @@ name: Performance Testing
 
 on:
   pull_request:
-  workflow_call:  # Permet d'exécuter depuis un autre workflow
+  workflow_call:
     inputs:
       image_name:
         required: true
@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # Récupère le code source
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4.2.0
@@ -57,7 +57,7 @@ jobs:
           node-version: 20
 
       - name: Install Dependencies
-        run: npm ci  # Installation des dépendances en mode clean
+        run: npm ci
 
       - name: Login to Docker Registry
         uses: docker/login-action@v3.3.0
@@ -66,38 +66,16 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
-      - name: Restore Standard Slim Image from Cache
-        id: cache-docker-slim
-        uses: actions/cache/restore@v4.2.0
-        continue-on-error: true
-        timeout-minutes: 6
-        with:
-          path: /tmp/cache/docker-image
-          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
-
-      - name: Load Standard Slim Image
-        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
-        run: |
-          docker load --input /tmp/cache/docker-image/centreon-web-slim-alma9.tar
-          docker tag docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979
-
       - name: Start Centreon Web and Database Containers
         env:
           WEB_IMAGE: 'docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979'
           MYSQL_IMAGE: 'bitnami/mariadb:10.11'
         run: |
-            # Démarrer les services Docker avec docker-compose
             docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
-
-            # Vérifier si un script de configuration est nécessaire et l'exécuter
             if [[ -f "../../../.github/docker/setup.sh" ]]; then
             echo "Running setup.sh ..."
             bash -ex "../../../.github/docker/setup.sh"
             fi
-
-            # Exécuter un script de configuration supplémentaire pour le service web si nécessaire
             if [[ -f "../../../.github/docker/setup-web.sh" ]]; then
             echo "Running setup-web.sh ..."
             docker compose -f ../../../.github/docker/docker-compose.yml cp ../../../.github/docker/setup-web.sh web:/tmp/setup-web.sh
@@ -106,67 +84,47 @@ jobs:
         shell: bash
 
       - name: Adding hosts
-        run: node addingHosts.mjs  # Exécute ton script
+        run: node addingHosts.mjs
 
       - name: Adding users
-        run: node AddingUsers.mjs  # Exécute ton script
-
-      - name: Debug GitHub Workspace
-        run: |
-            echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-            ls -la $GITHUB_WORKSPACE
+        run: node AddingUsers.mjs
 
       - name: Install JMeter
         run: |
           java -version
           echo "Finding latest JMeter version..."
           JMETER_VERSION=$(curl -s https://downloads.apache.org/jmeter/binaries/ | grep -oP 'apache-jmeter-\d+\.\d+\.\d+\.zip' | sort -V | tail -n 1 | sed 's/apache-jmeter-\(.*\).zip/\1/')
-
           echo "Latest JMeter version: $JMETER_VERSION"
-
           echo "Downloading JMeter..."
           wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip || { echo "Download failed!"; exit 1; }
-
           echo "Unzipping JMeter..."
           unzip -q jmeter.zip || { echo "Unzip failed!"; exit 1; }
-
           rm jmeter.zip
           echo "JMeter installed successfully!"
-
-
-      - name: Install JMeter Plugins
-        run: |
-          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/)
-          cd $JMETER_DIR || { echo "JMeter directory not found!"; exit 1; }
-
-          wget -q --no-check-certificate https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
-          unzip -o jpgc-dummy-0.4.zip
-          rm jpgc-dummy-0.4.zip  # Nettoyage après installation
-          echo "Plugins installed successfully!"
 
       - name: Run JMX Scripts
         run: |
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
           cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
 
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results  # Créer le dossier de résultats
+          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
           for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
               echo "Running test: $i"
               ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/jmeter_results/results_$(basename "$i" .jmx).jtl
           done
           echo "Tests completed!"
 
-      - name: Install jmeter-reports
+      - name: Install performance-results-parser
         run: |
-          echo "Installing jmeter-reports..."
-          npm install -g jmeter-reports
+          echo "Installing performance-results-parser..."
+          npm install -g performance-results-parser
 
-      - name: Generate JMeter Reports
+      - name: Parse JMeter Results
         run: |
-          echo "Generating JMeter reports..."
-          mkdir -p $GITHUB_WORKSPACE/jmeter_reports
-          jmeter-reports --results-dir=$GITHUB_WORKSPACE/jmeter_results --report-dir=$GITHUB_WORKSPACE/jmeter_reports
-          echo "Reports generated!"
+          echo "Parsing JMeter results..."
+          mkdir -p $GITHUB_WORKSPACE/jmeter_parsed_results
+          performance-results-parser -r $GITHUB_WORKSPACE/jmeter_results -o $GITHUB_WORKSPACE/jmeter_parsed_results
+          echo "Parsing completed!"
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
@@ -174,8 +132,8 @@ jobs:
           name: jmeter-results
           path: jmeter_results
 
-      - name: Upload JMeter Reports
+      - name: Upload Parsed JMeter Results
         uses: actions/upload-artifact@v4
         with:
-          name: jmeter-reports
-          path: jmeter_reports
+          name: parsed-jmeter-results
+          path: jmeter_parsed_results
