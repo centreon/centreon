@@ -114,16 +114,16 @@ jobs:
           done
           echo "Tests completed!"
 
-      - name: Install performance-results-parser
+      - name: Verify performance-results-parser installation
         run: |
-          echo "Installing performance-results-parser..."
-          npm install -g performance-results-parser
+          which performance-results-parser || echo "performance-results-parser not found"
+          npx performance-results-parser --version || echo "npx: performance-results-parser not found"
 
       - name: Parse JMeter Results
         run: |
           echo "Parsing JMeter results..."
           mkdir -p $GITHUB_WORKSPACE/jmeter_parsed_results
-          performance-results-parser -r $GITHUB_WORKSPACE/jmeter_results -o $GITHUB_WORKSPACE/jmeter_parsed_results
+          npx performance-results-parser -r $GITHUB_WORKSPACE/jmeter_results -o $GITHUB_WORKSPACE/jmeter_parsed_results
           echo "Parsing completed!"
 
       - name: Upload JMeter Results
