@@ -38,7 +38,7 @@ class RepositoryException extends DomainException
      * @param array<string,mixed> $context
      * @param \Throwable|null $previous
      */
-    public function __construct(string $message, array $context = [], \Throwable $previous = null)
+    public function __construct(string $message, array $context = [], ?\Throwable $previous = null)
     {
         parent::__construct($message, self::ERROR_CODE_REPOSITORY, $context, $previous);
     }

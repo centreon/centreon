@@ -43,7 +43,7 @@ abstract class DomainException extends \Exception
      * @param array<string,mixed> $context
      * @param \Throwable|null $previous
      */
-    public function __construct(string $message, int $code, protected array $context = [], \Throwable $previous = null)
+    public function __construct(string $message, int $code, protected array $context = [], ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
         $this->addExceptionContext();
