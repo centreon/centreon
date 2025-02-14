@@ -51,17 +51,24 @@ When('the user creates a command', () => {
     .eq(0)
     .click();
   cy.wait('@getCommandsPage');
+  cy.exportConfig();
 });
 
 Then('the command is displayed in the list', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
-  cy.reload();
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${data.check.name}")`
+  );
   cy.getIframeBody().contains(data.check.name).should('exist');
 });
 
 When('the user changes the properties of a command', () => {
   cy.visit('/centreon/main.php?p=60802&type=2');
-  cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${data.check.name}")`
+  );
   cy.getIframeBody().contains(data.check.name).click();
   cy.updateCommands(data.miscellaneous);
   cy.getIframeBody()
@@ -69,11 +76,17 @@ When('the user changes the properties of a command', () => {
     .eq(0)
     .click();
   cy.wait('@getCommandsPage');
+  cy.exportConfig();
 });
 
 Then('the properties are updated', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.reload();
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${data.miscellaneous.name}")`
+  );
   cy.getIframeBody().contains(data.miscellaneous.name).should('exist');
   cy.getIframeBody().contains(data.miscellaneous.name).click();
   cy.checkValuesOfCommands(data.miscellaneous.name, data.miscellaneous);
@@ -83,6 +96,7 @@ When('the user duplicates a command', () => {
   cy.visit('/centreon/main.php?p=60802&type=3');
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.getIframeBody().find('[alt="Duplicate"]').eq(1).click();
+  cy.exportConfig();
 });
 
 Then('the new command has the same properties', () => {
@@ -96,16 +110,19 @@ Then('the new command has the same properties', () => {
 
 When('the user deletes a command', () => {
   cy.visit('/centreon/main.php?p=60802&type=3');
-  cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${data.miscellaneous.name}")`
+  );
   cy.getIframeBody()
     .contains('a', `${data.miscellaneous.name}`)
     .parents('tr')
     .find('[alt="Delete"]')
     .click();
+  cy.exportConfig();
 });
 
 Then('the deleted command is not displayed in the list', () => {
-  cy.reload();
   cy.getIframeBody().should('not.have.text', data.miscellaneous.name);
 });
 
