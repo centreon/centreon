@@ -136,7 +136,9 @@ jobs:
 
       - name: Install JMeter Plugins
         run: |
-          cd $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-5.4.1
+          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/)
+          cd $JMETER_DIR || { echo "JMeter directory not found!"; exit 1; }
+
           wget -q --no-check-certificate https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
           unzip -o jpgc-dummy-0.4.zip
           rm jpgc-dummy-0.4.zip  # Nettoyage après installation
