@@ -14,6 +14,7 @@ import {
   buildListingEndpoint
 } from '@centreon/ui';
 
+import { WidgetResourceType } from '../../../../AddEditWidget/models';
 import { Resource } from '../../../models';
 import { formatBAStatus, formatStatus } from '../../../utils';
 
@@ -68,7 +69,14 @@ export const getListingCustomQueryParameters = ({
   states,
   resources
 }: GetCustomQueryParametersProps): Array<QueryParameter> => {
-  const resourcesToApplyToCustomParameters = resources.filter(
+  const formattedResources = resources.map((item) => {
+    if (equals(item.resourceType, 'hostgroup')) {
+      return { ...item, resourceType: WidgetResourceType.hostGroup };
+    }
+    return item;
+  });
+
+  const resourcesToApplyToCustomParameters = formattedResources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
   );
 
@@ -104,7 +112,13 @@ export const getListingQueryParameters = ({
   limit,
   page
 }: GetListingQueryParametersProps): ListingParameters => {
-  const resourcesToApplyToSearchParameters = resources.filter(
+  const formattedResources = resources.map((item) => {
+    if (equals(item.resourceType, 'hostgroup')) {
+      return { ...item, resourceType: WidgetResourceType.hostGroup };
+    }
+    return item;
+  });
+  const resourcesToApplyToSearchParameters = formattedResources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
   );
 
@@ -178,7 +192,14 @@ export const buildCondensedViewEndpoint = ({
   baseEndpoint,
   statuses
 }: BuildResourcesEndpointProps): string => {
-  const formattedResources = resources.map((resource) => {
+  const formattedResources = resources.map((item) => {
+    if (equals(item.resourceType, 'hostgroup')) {
+      return { ...item, resourceType: WidgetResourceType.hostGroup };
+    }
+    return item;
+  });
+
+  const resourcesToApply = formattedResources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
       return {
         ...resource,
@@ -189,7 +210,7 @@ export const buildCondensedViewEndpoint = ({
     return { ...resource, resourceType: 'name' };
   });
 
-  const searchConditions = formattedResources.map(
+  const searchConditions = resourcesToApply.map(
     ({ resourceType, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({
         field: resourceType,
