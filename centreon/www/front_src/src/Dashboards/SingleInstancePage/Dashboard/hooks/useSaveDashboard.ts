@@ -13,8 +13,8 @@ import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
-import { isEmpty, isNil } from 'ramda';
-import { getFormattedResources } from '../utils';
+import { equals, isEmpty, isNil } from 'ramda';
+import { WidgetResourceType } from '../AddEditWidget/models';
 import { routerParams } from './useDashboardDetails';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
@@ -32,7 +32,12 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       data,
       name
     }) => {
-      const formattedResources = getFormattedResources(data?.resources);
+      const formattedResources = data?.resources?.map((item) => {
+        if (equals(item?.resourceType, WidgetResourceType.hostGroup)) {
+          return { ...item, resourceType: 'hostgroup' };
+        }
+        return item;
+      });
 
       return {
         id: Number(i),
