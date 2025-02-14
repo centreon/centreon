@@ -28,7 +28,6 @@ $finder = Finder::create()
     ->in([
         __DIR__ . '/src/Core',
         __DIR__ . '/src/Adaptation',
-        __DIR__ . '/src/Centreon/Infrastructure/DatabaseConnection.php',
     ]);
 
 /**
