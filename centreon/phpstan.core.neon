@@ -33,7 +33,6 @@ parameters:
     paths:
         - src/Core
         - src/Adaptation
-        - src/Centreon/Infrastructure/DatabaseConnection.php
     ignoreErrors:
         - # Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.
             reportUnmatched: false
