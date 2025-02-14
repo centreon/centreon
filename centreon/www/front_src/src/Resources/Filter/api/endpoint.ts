@@ -14,6 +14,7 @@ const serviceGroupsEndpoint = `${monitoringEndpoint}/servicegroups`;
 const monitoringServersEndpoint = `${baseEndpoint}/monitoring/servers`;
 const hostSeveritiesEndpoint = `${monitoringEndpoint}/severities/host`;
 const serviceSeveritiesEndpoint = `${monitoringEndpoint}/severities/service`;
+const serviceNamesEndpoint = `${monitoringEndpoint}/services/names`;
 
 const buildHostsEndpoint = (parameters: ListingParameters): string => {
   return buildListingEndpoint({
@@ -96,5 +97,6 @@ export {
   buildHostServeritiesEndpoint,
   buildServiceSeveritiesEndpoint,
   buildHostsEndpoint,
-  buildServicesEndpoint
+  buildServicesEndpoint,
+  serviceNamesEndpoint
 };

@@ -33,6 +33,7 @@ import {
   labelUp
 } from '../translatedLabels';
 
+import { serviceNamesEndpoint } from './api/endpoint';
 import {
   informationLabel,
   labelShowMoreFilters
@@ -266,7 +267,7 @@ const initializeRequests = (): void => {
   setupIntercept({
     alias: 'GetResourcesByServiceType',
     fixtureFile: 'resources/filter/resourcesByServiceType.json',
-    path: `${resourcesEndpoint}**`,
+    path: `${serviceNamesEndpoint}**`,
     query: {
       name: 'types',
       value: '["service"]'
