@@ -8,6 +8,8 @@ import {
 } from '../../../../Resources/Listing/columns';
 import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
 import { Visualization } from '../../../../Resources/models';
+import { WidgetResourceType } from '../AddEditWidget/models';
+import { Resource } from '../Widgets/models';
 import {
   labelBusinessActivity,
   labelResourcesStatus
@@ -23,6 +25,14 @@ interface UseLinkToResourceStatus {
   getPageType: (data) => string | null;
 }
 
+const getFormattedResources = (array: Array<Resource>) => {
+  return array.map((item) => {
+    if (equals(item.resourceType, 'hostgroup')) {
+      return { ...item, resourceType: WidgetResourceType.hostGroup };
+    }
+    return item;
+  });
+};
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
@@ -38,19 +48,25 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     }
 
     const resources = data[resourcesInputKey];
+
     // TO FIX when Resources Status will handle BA/BV properly
-    const resourceTypes = pluck('resourceType', resources);
+    const resourceTypes = pluck(
+      'resourceType',
+      getFormattedResources(resources)
+    );
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
 
     if (hasOnlyBA) {
-      return `/main.php?p=20701&o=d&ba_id=${resources[0].resources[0].id}`;
+      return `/main.php?p=20701&o=d&ba_id=${getFormattedResources(resources)[0].resources[0].id}`;
     }
 
     if (data?.resources && isNil(data?.metrics)) {
       const { statuses } = options;
 
+      const formattedResources = getFormattedResources(data.resources);
+
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
-        resources: data.resources,
+        resources: formattedResources,
         states: options?.states || [],
         statuses,
         type:
