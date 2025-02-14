@@ -43,11 +43,11 @@ class QueryParameters extends Collection
      * @param QueryParameter[] $queryParameters
      *
      * @throws CollectionException
-     * @return QueryParameters
+     * @return Collection<QueryParameter>
      */
-    public static function create(array $queryParameters): self
+    public static function create(array $queryParameters): Collection
     {
-        $queryParametersCollection = new self();
+        $queryParametersCollection = new static();
         foreach ($queryParameters as $queryParameter) {
             $queryParametersCollection->validateItem($queryParameter);
             $queryParametersCollection->add($queryParameter->name, $queryParameter);

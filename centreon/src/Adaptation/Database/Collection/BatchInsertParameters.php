@@ -41,16 +41,21 @@ class BatchInsertParameters extends Collection
      * @param QueryParameters[] $batchInsertParameters
      *
      * @throws CollectionException
-     * @return BatchInsertParameters
+     * @return Collection<QueryParameters>
      */
-    public static function create(array $batchInsertParameters): self
+    public static function create(array $batchInsertParameters): Collection
     {
-        $batchInsertParametersCollection = new self();
+        $batchInsertParametersCollection = new static();
         $index = 1;
+        $lastLength = 0;
         foreach ($batchInsertParameters as $queryParametersCollection) {
             $batchInsertParametersCollection->validateItem($queryParametersCollection);
+            if ($index > 1 && $lastLength !== $queryParametersCollection->length()) {
+                throw new CollectionException('All QueryParameters must have the same length');
+            }
             $batchInsertParametersCollection->add("batch_insert_param_{$index}", $queryParametersCollection);
             $index++;
+            $lastLength = $queryParametersCollection->length();
         }
 
         return $batchInsertParametersCollection;
