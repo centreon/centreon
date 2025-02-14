@@ -38,7 +38,7 @@ class ConnectionException extends DatabaseException
     /**
      * @return self
      */
-    public static function notImplemented()
+    public static function notImplemented(): self
     {
         return new self(
             message: "Not implemented",
@@ -52,7 +52,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function connectionBadUsage(string $message, array $context = []): ConnectionException
+    public static function connectionBadUsage(string $message, array $context = []): self
     {
         return new self(
             message: "Bad usage of connection : {$message}",
@@ -66,7 +66,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function connectionFailed(?\Throwable $previous = null): ConnectionException
+    public static function connectionFailed(?\Throwable $previous = null): self
     {
         $message = "Error while connecting to the database";
         if (! is_null($previous) && $previous->getMessage() !== '') {
@@ -79,7 +79,7 @@ class ConnectionException extends DatabaseException
     /**
      * @return ConnectionException
      */
-    public static function getDatabaseNameFailed(): ConnectionException
+    public static function getDatabaseNameFailed(): self
     {
         return new self(
             "Error while getting the database name",
@@ -92,7 +92,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function getLastInsertFailed(\Throwable $previous): ConnectionException
+    public static function getLastInsertFailed(\Throwable $previous): self
     {
         return new self(
             "Error while retrieving the last auto-incremented id inserted.",
@@ -106,7 +106,7 @@ class ConnectionException extends DatabaseException
     /**
      * @return ConnectionException
      */
-    public static function notEmptyQuery(): ConnectionException
+    public static function notEmptyQuery(): self
     {
         return new self(
             message: "The query is empty",
@@ -114,7 +114,7 @@ class ConnectionException extends DatabaseException
         );
     }
 
-    public static function executeStatementBadFormat(string $message, string $query): ConnectionException
+    public static function executeStatementBadFormat(string $message, string $query): self
     {
         return new self(
             message: "Query format is not correct to use executeStatement : {$message}",
@@ -128,13 +128,13 @@ class ConnectionException extends DatabaseException
      * @param string $query
      * @param QueryParameters|null $queryParameters
      *
-     * @return ConnectionException
+     * @return self
      */
     public static function executeStatementFailed(
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -151,7 +151,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function insertQueryBadFormat(string $query): ConnectionException
+    public static function insertQueryBadFormat(string $query): self
     {
         return new self(
             message: "The query need to start by 'INSERT INTO '",
@@ -171,7 +171,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -188,7 +188,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function batchInsertQueryBadUsage(string $message): ConnectionException
+    public static function batchInsertQueryBadUsage(string $message): self
     {
         return new self(
             message: "Bad usage of batch insert query : {$message}",
@@ -211,7 +211,7 @@ class ConnectionException extends DatabaseException
         array $columns,
         BatchInsertParameters $batchInsertParameters,
         string $query = ''
-    ): ConnectionException {
+    ): self {
         return new self(
             message: "Error while executing the batch insert query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
@@ -230,7 +230,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function updateQueryBadFormat(string $query): ConnectionException
+    public static function updateQueryBadFormat(string $query): self
     {
         return new self(
             message: "The query need to start by 'UPDATE '",
@@ -250,7 +250,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -267,7 +267,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function deleteQueryBadFormat(string $query): ConnectionException
+    public static function deleteQueryBadFormat(string $query): self
     {
         return new self(
             message: "The query need to start by 'DELETE '",
@@ -287,7 +287,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -304,7 +304,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function selectQueryBadFormat(string $query): ConnectionException
+    public static function selectQueryBadFormat(string $query): self
     {
         return new self(
             message: "The query need to start by 'SELECT '",
@@ -326,7 +326,7 @@ class ConnectionException extends DatabaseException
         string $query,
         QueryParameters $queryParameters = null,
         array $context = []
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -349,7 +349,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -372,7 +372,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -395,7 +395,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -418,7 +418,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -441,7 +441,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -464,7 +464,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -487,7 +487,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -510,7 +510,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -533,7 +533,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -556,7 +556,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -579,7 +579,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -602,7 +602,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -625,7 +625,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -648,7 +648,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null
-    ): ConnectionException {
+    ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
 
@@ -667,7 +667,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function startTransactionFailed(\Throwable $previous): ConnectionException
+    public static function startTransactionFailed(\Throwable $previous): self
     {
         return new self(
             message: "Error while starting a transaction : {$previous->getMessage()}",
@@ -681,7 +681,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function commitTransactionFailed(?\Throwable $previous = null): ConnectionException
+    public static function commitTransactionFailed(?\Throwable $previous = null): self
     {
         $message = "Error during the transaction commit";
         if (! is_null($previous) && $previous->getMessage() !== '') {
@@ -700,7 +700,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function rollbackTransactionFailed(?\Throwable $previous = null): ConnectionException
+    public static function rollbackTransactionFailed(?\Throwable $previous = null): self
     {
         $message = "Error during the transaction rollback";
         if ($previous->getMessage() !== '') {
@@ -725,7 +725,7 @@ class ConnectionException extends DatabaseException
     public static function allowUnbufferedQueryFailed(
         string $nativeConnectionClass,
         string $currentDriverName
-    ): ConnectionException {
+    ): self {
         return new self(
             message: "Unbuffered queries not allowed for native connection class '{$nativeConnectionClass}' with this driver : {$currentDriverName}.",
             code: self::ERROR_CODE_UNBUFFERED_QUERY,
@@ -736,7 +736,7 @@ class ConnectionException extends DatabaseException
     /**
      * @return ConnectionException
      */
-    public static function startUnbufferedQueryFailed(): ConnectionException
+    public static function startUnbufferedQueryFailed(): self
     {
         return new self(
             message: "Starting unbuffered queries failed.",
@@ -751,7 +751,7 @@ class ConnectionException extends DatabaseException
      */
     public static function stopUnbufferedQueryFailed(
         string $message
-    ): ConnectionException {
+    ): self {
         return new self(
             message: "Stopping unbuffered queries failed : {$message}",
             code: self::ERROR_CODE_UNBUFFERED_QUERY
@@ -766,7 +766,7 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function closeQueryFailed(\Throwable $previous, string $query): ConnectionException
+    public static function closeQueryFailed(\Throwable $previous, string $query): self
     {
         return new self(
             message: "Error while closing the query : {$previous->getMessage()}",

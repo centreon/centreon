@@ -601,7 +601,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = [0 => 1, 1 => 'John', 2 => 'Doe']
      */
-    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false | array
+    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false|array
     {
         try {
             $this->validateSelectQuery($query);
@@ -634,7 +634,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
      */
-    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false | array
+    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false|array
     {
         try {
             $this->validateSelectQuery($query);
@@ -1511,7 +1511,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         ?QueryParameters $queryParameters = null,
         int $fetchMode = \PDO::FETCH_ASSOC,
         array $fetchModeArgs = []
-    ): PDOStatement | false {
+    ): PDOStatement|false {
         try {
             $this->validateSelectQuery($query);
 
@@ -1641,7 +1641,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated Use {@see ConnectionInterface} methods instead
      * @see        ConnectionInterface
      */
-    public function prepareQuery(string $query, array $options = []): \PDOStatement | bool
+    public function prepareQuery(string $query, array $options = []): \PDOStatement|bool
     {
         try {
             if (empty($query)) {
@@ -1691,7 +1691,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      */
     public function makeBindValue(
         \PDOStatement $pdoStatement,
-        int | string $paramName,
+        int|string $paramName,
         mixed $value,
         int $type = \PDO::PARAM_STR
     ): bool {
@@ -1755,7 +1755,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      */
     public function makeBindParam(
         \PDOStatement $pdoStatement,
-        int | string $paramName,
+        int|string $paramName,
         mixed &$var,
         int $type = \PDO::PARAM_STR,
         int $maxLength = 0
@@ -1950,7 +1950,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         $query,
         int $fetchMode = PDO::FETCH_ASSOC,
         array $fetchModeArgs = []
-    ): PDOStatement | false {
+    ): PDOStatement|false {
         try {
             if (empty($query)) {
                 throw new CentreonDbException(
@@ -2267,7 +2267,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * #[\ReturnTypeWillChange] to fix the change of the method's signature and avoid a fatal error
      */
     #[ReturnTypeWillChange]
-    public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement | false
+    public function query($queryString, $parameters = null, ...$parametersArgs): CentreonDBStatement|false
     {
         if (! is_null($parameters) && ! is_array($parameters)) {
             $parameters = [$parameters];

@@ -585,7 +585,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = [0 => 1, 1 => 'John', 2 => 'Doe']
      */
-    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false | array
+    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false|array
     {
         try {
             $this->validateSelectQuery($query);
@@ -618,7 +618,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
      */
-    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false | array
+    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false|array
     {
         try {
             $this->validateSelectQuery($query);
@@ -1228,7 +1228,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         ?QueryParameters $queryParameters = null,
         int $fetchMode = \PDO::FETCH_ASSOC,
         array $fetchModeArgs = []
-    ): \PDOStatement | false {
+    ): \PDOStatement|false {
         try {
             $this->validateSelectQuery($query);
             $pdoStatement = $this->prepare($query);

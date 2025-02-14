@@ -39,7 +39,7 @@ abstract class Collection implements CollectionInterface
     /**
      * Collection constructor
      *
-     * @param TItem[] $items Object array to transform in collection.
+     * @param TItem[] $items Object array to transform in collection
      *
      * @throws CollectionException
      */
@@ -67,7 +67,7 @@ abstract class Collection implements CollectionInterface
      */
     public function contains($item): bool
     {
-        return in_array($item, $this->items);
+        return in_array($item, $this->items, true);
     }
 
     /**
@@ -76,12 +76,12 @@ abstract class Collection implements CollectionInterface
      * @throws CollectionException
      * @return TItem
      */
-    public function get(int | string $key)
+    public function get(int|string $key)
     {
         if (isset($this->items[$key])) {
             return $this->items[$key];
         }
-        throw new CollectionException("Key $key not found in the collection");
+        throw new CollectionException("Key {$key} not found in the collection");
     }
 
     /**
@@ -89,7 +89,7 @@ abstract class Collection implements CollectionInterface
      *
      * @return bool
      */
-    public function has(int | string $key): bool
+    public function has(int|string $key): bool
     {
         return isset($this->items[$key]);
     }
@@ -141,13 +141,14 @@ abstract class Collection implements CollectionInterface
     {
         $itemsBackup = $this->items;
         foreach ($collections as $collection) {
-            if (get_class($collection) === get_class($this)) {
+            if ($collection::class === static::class) {
                 foreach ($collection->all() as $key => $item) {
                     $this->put($key, $item);
                 }
             } else {
                 // if failure put the collection back in its original state
                 $this->items = $itemsBackup;
+
                 throw new CollectionException(
                     "Collections to merge must be instances of " . $this::class . ", " . $collection::class . " given"
                 );
@@ -174,7 +175,7 @@ abstract class Collection implements CollectionInterface
      * @throws CollectionException
      * @return Collection<TItem>
      */
-    public function add(int | string $key, $item): CollectionInterface
+    public function add(int|string $key, $item): CollectionInterface
     {
         if (isset($this->items[$key])) {
             throw new CollectionException("Key {$key} already used in this collection");
@@ -192,7 +193,7 @@ abstract class Collection implements CollectionInterface
      * @throws CollectionException
      * @return Collection<TItem>
      */
-    public function put(int | string $key, $item): CollectionInterface
+    public function put(int|string $key, $item): CollectionInterface
     {
         $this->validateItem($item);
         $this->items[$key] = $item;
@@ -205,7 +206,7 @@ abstract class Collection implements CollectionInterface
      *
      * @return bool
      */
-    public function remove(int | string $key): bool
+    public function remove(int|string $key): bool
     {
         if ($this->has($key)) {
             unset($this->items[$key]);
@@ -261,7 +262,7 @@ abstract class Collection implements CollectionInterface
         $json = json_encode($this->jsonSerialize());
         if (! $json) {
             throw new CollectionException(
-                "Stringify the collection to json failed",
+                'Stringify the collection to json failed',
                 ['serializedCollection' => $this->jsonSerialize()]
             );
         }
@@ -280,7 +281,7 @@ abstract class Collection implements CollectionInterface
         $class = $this->itemClass();
         if (! $item instanceof $class) {
             throw new CollectionException(
-                "Item must be an instance of " . $class . ", " . $item::class . " given"
+                'Item must be an instance of ' . $class . ', ' . $item::class . ' given'
             );
         }
     }

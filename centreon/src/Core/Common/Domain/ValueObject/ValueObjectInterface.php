@@ -44,6 +44,6 @@ interface ValueObjectInterface
      * @throws ValueObjectException
      * @return bool
      */
-    public function equals(ValueObjectInterface $object): bool;
+    public function equals(self $object): bool;
 
 }

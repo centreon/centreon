@@ -24,7 +24,7 @@ final readonly class Email extends LiteralString
     {
         if (empty($value) || ! filter_var($value, FILTER_VALIDATE_EMAIL)) {
             throw new ValueObjectException(
-                "Invalid email",
+                'Invalid email',
                 [
                     'value' => $value,
                 ]

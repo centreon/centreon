@@ -41,11 +41,19 @@ readonly class LiteralString implements ValueObjectInterface
     public function __construct(protected string $value) {}
 
     /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->value;
+    }
+
+    /**
      * @param string $value
      *
      * @return LiteralString
      */
-    public static function createFromString(string $value): LiteralString
+    public static function createFromString(string $value): self
     {
         return new static($value);
     }
@@ -71,15 +79,7 @@ readonly class LiteralString implements ValueObjectInterface
      */
     public function getLength(): int
     {
-        return strlen($this->value);
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return $this->value;
+        return mb_strlen($this->value);
     }
 
     /**
@@ -92,7 +92,7 @@ readonly class LiteralString implements ValueObjectInterface
     {
         if (! $object instanceof static) {
             throw new ValueObjectException(
-                "Equal checking failed because not a " . $this::class . ", " . $object::class . " given",
+                'Equal checking failed because not a ' . $this::class . ', ' . $object::class . ' given',
             );
         }
 

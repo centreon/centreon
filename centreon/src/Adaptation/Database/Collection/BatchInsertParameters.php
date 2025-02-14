@@ -51,7 +51,7 @@ class BatchInsertParameters extends Collection
      * @throws CollectionException
      * @return BatchInsertParameters
      */
-    public static function create(array $batchInsertParameters): BatchInsertParameters
+    public static function create(array $batchInsertParameters): self
     {
         $batchInsertParametersCollection = new BatchInsertParameters();
         $index = 1;

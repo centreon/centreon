@@ -52,7 +52,7 @@ interface ConnectionInterface
      * @throws ConnectionException
      * @return ConnectionInterface
      */
-    public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface;
+    public static function createFromConfig(ConnectionConfig $connectionConfig): self;
 
     /**
      * Return the database name if it exists.
@@ -211,7 +211,7 @@ interface ConnectionInterface
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = [0 => 1, 1 => 'John', 2 => 'Doe']
      */
-    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false | array;
+    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false|array;
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result as an associative array.
@@ -228,7 +228,7 @@ interface ConnectionInterface
      *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
      */
-    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false | array;
+    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false|array;
 
     /**
      * Prepares and executes an SQL query and returns the value of a single column

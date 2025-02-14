@@ -98,17 +98,18 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                     'action_log' => $actionLog,
                     'exception' => [
                         'message' => $ex->getMessage(),
-                        'trace' => $ex->getTraceAsString()
-                    ]
+                        'trace' => $ex->getTraceAsString(),
+                    ],
                 ]
             );
+
             throw new RepositoryException($ex->getMessage(), ['action_log' => $actionLog], $ex);
         }
     }
 
     /**
      * @param ActionLog $actionLog
-     * @param array     $details
+     * @param array $details
      *
      * @throws ConnectionException
      * @throws RepositoryException
@@ -158,8 +159,8 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                     'action_log' => $actionLog,
                     'exception' => [
                         'message' => $ex->getMessage(),
-                        'trace' => $ex->getTraceAsString()
-                    ]
+                        'trace' => $ex->getTraceAsString(),
+                    ],
                 ]
             );
 
@@ -173,8 +174,8 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                             'action_log' => $actionLog,
                             'exception' => [
                                 'message' => $e->getMessage(),
-                                'trace' => $e->getTraceAsString()
-                            ]
+                                'trace' => $e->getTraceAsString(),
+                            ],
                         ]
                     );
                 }

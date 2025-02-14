@@ -45,7 +45,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      *
      * @return CollectionInterface<TItem>
      */
-    public function clear(): CollectionInterface;
+    public function clear(): self;
 
     /**
      * @param TItem $item
@@ -59,14 +59,14 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      *
      * @return TItem
      */
-    public function get(int | string $key);
+    public function get(int|string $key);
 
     /**
      * @param int|string $key
      *
      * @return bool
      */
-    public function has(int | string $key): bool;
+    public function has(int|string $key): bool;
 
     /**
      * Return an array with the keys of collection
@@ -92,7 +92,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      *
      * @return CollectionInterface<TItem>
      */
-    public function filter(callable $p): CollectionInterface;
+    public function filter(callable $p): self;
 
     /**
      * Merge collections with actual collection. Collections must to be the same of actual.
@@ -101,7 +101,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      *
      * @return CollectionInterface<TItem>
      */
-    public function mergeWith(CollectionInterface ...$collections): CollectionInterface;
+    public function mergeWith(self ...$collections): self;
 
     /**
      * @param int|string $key
@@ -109,7 +109,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      *
      * @return CollectionInterface<TItem>
      */
-    public function add(int | string $key, mixed $item): CollectionInterface;
+    public function add(int|string $key, mixed $item): self;
 
     /**
      * @param int|string $key
@@ -117,14 +117,14 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      *
      * @return CollectionInterface<TItem>
      */
-    public function put(int | string $key, mixed $item): CollectionInterface;
+    public function put(int|string $key, mixed $item): self;
 
     /**
      * @param int|string $key
      *
      * @return bool
      */
-    public function remove(int | string $key): bool;
+    public function remove(int|string $key): bool;
 
     /**
      * Return an array of items of collection

@@ -73,7 +73,7 @@ class QueryParameter implements ValueObjectInterface
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function create(string $name, mixed $value, ?QueryParameterTypeEnum $type = null): QueryParameter
+    public static function create(string $name, mixed $value, ?QueryParameterTypeEnum $type = null): self
     {
         return new static($name, $value, $type);
     }
@@ -87,7 +87,7 @@ class QueryParameter implements ValueObjectInterface
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function int(string $name, int $value): QueryParameter
+    public static function int(string $name, int $value): self
     {
         return static::create($name, $value, QueryParameterTypeEnum::INT);
     }
@@ -101,7 +101,7 @@ class QueryParameter implements ValueObjectInterface
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function string(string $name, string $value): QueryParameter
+    public static function string(string $name, string $value): self
     {
         return static::create($name, $value, QueryParameterTypeEnum::STRING);
     }
@@ -115,7 +115,7 @@ class QueryParameter implements ValueObjectInterface
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function bool(string $name, bool $value): QueryParameter
+    public static function bool(string $name, bool $value): self
     {
         return static::create($name, $value, QueryParameterTypeEnum::BOOL);
     }
@@ -128,7 +128,7 @@ class QueryParameter implements ValueObjectInterface
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function null(string $name): QueryParameter
+    public static function null(string $name): self
     {
         return static::create($name, null, QueryParameterTypeEnum::NULL);
     }
@@ -142,7 +142,7 @@ class QueryParameter implements ValueObjectInterface
      * @throws ValueObjectException
      * @return QueryParameter
      */
-    public static function largeObject(string $name, mixed $value): QueryParameter
+    public static function largeObject(string $name, mixed $value): self
     {
         return static::create($name, $value, QueryParameterTypeEnum::LARGE_OBJECT);
     }

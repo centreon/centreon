@@ -53,7 +53,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return QueryParameters
      */
-    public static function create(array $queryParameters): QueryParameters
+    public static function create(array $queryParameters): self
     {
         $queryParametersCollection = new QueryParameters();
         foreach ($queryParameters as $queryParameter) {
@@ -68,7 +68,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return QueryParameters
      */
-    public function getIntQueryParameters(): QueryParameters
+    public function getIntQueryParameters(): self
     {
         return $this->filter(function (QueryParameter $queryParameter) {
             return $queryParameter->type === QueryParameterTypeEnum::INT;
@@ -79,7 +79,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return QueryParameters
      */
-    public function getStringQueryParameters(): QueryParameters
+    public function getStringQueryParameters(): self
     {
         return $this->filter(function (QueryParameter $queryParameter) {
             return $queryParameter->type === QueryParameterTypeEnum::STRING;
@@ -90,7 +90,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return QueryParameters
      */
-    public function getBoolQueryParameters(): QueryParameters
+    public function getBoolQueryParameters(): self
     {
         return $this->filter(function (QueryParameter $queryParameter) {
             return $queryParameter->type === QueryParameterTypeEnum::BOOL;
@@ -101,7 +101,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return QueryParameters
      */
-    public function getNullQueryParameters(): QueryParameters
+    public function getNullQueryParameters(): self
     {
         return $this->filter(function (QueryParameter $queryParameter) {
             return $queryParameter->type === QueryParameterTypeEnum::NULL;
@@ -112,7 +112,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return QueryParameters
      */
-    public function getLargeObjectQueryParameters(): QueryParameters
+    public function getLargeObjectQueryParameters(): self
     {
         return $this->filter(function (QueryParameter $queryParameter) {
             return $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT;
