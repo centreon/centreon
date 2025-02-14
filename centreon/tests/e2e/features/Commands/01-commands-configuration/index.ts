@@ -42,8 +42,11 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user creates a command', () => {
-  // Go to the "Configuration > Commands > Checks"
-  cy.visit('/centreon/main.php?p=60802&type=2');
+  cy.navigateTo({
+    page: 'Checks',
+    rootItemNumber: 3,
+    subMenu: 'Commands'
+  });
   // Wait for the "Command" search field to be charged on the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   // Click on the "ADD" button
@@ -70,8 +73,11 @@ Then('the command is displayed in the list', () => {
 });
 
 When('the user changes the properties of a command', () => {
-  // Go to the "Configuration > Commands > Checks"
-  cy.visit('/centreon/main.php?p=60802&type=2');
+  cy.navigateTo({
+    page: 'Checks',
+    rootItemNumber: 3,
+    subMenu: 'Commands'
+  });
   cy.waitForElementInIframe(
     '#main-content',
     `a:contains("${data.check.name}")`
@@ -105,8 +111,11 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a command', () => {
-  // Go to "Configuration > Commands > Miscellaneous"
-  cy.visit('/centreon/main.php?p=60802&type=3');
+  cy.navigateTo({
+    page: 'Miscellaneous',
+    rootItemNumber: 3,
+    subMenu: 'Commands'
+  });
   // Wait for the "Command" search field to be charged on the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   // Click on the "Duplicate" icon to duplicate the command
