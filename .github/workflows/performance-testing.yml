@@ -112,7 +112,7 @@ jobs:
         run: node AddingUsers.mjs  # Exécute ton script
 
       - name: Create JMeter Results Directory
-        run: mkdir -p ./github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+        run: mkdir -p /jmeter_results
 
       - name: Run Performance Testing with JMeter
         uses: rbhadti94/apache-jmeter-action@v0.7.0
@@ -120,6 +120,9 @@ jobs:
           testFilePath: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/test.jmx"
           outputReportsFolder: "/github/workspace/centreon/tests/performanceTesting/jmeterFolder/jmeter_results"
           args: "--loglevel DEBUG -JMyProperty=Value --jmeterlogconf=log.conf"
+
+      - name: Debug - List JMeter Results Folder
+        run: ls -R jmeterFolder/jmeter_results || echo "No files found!"
 
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
