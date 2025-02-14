@@ -147,8 +147,8 @@ jobs:
       - name: Run JMX Scripts
         run: |
           cd $GITHUB_WORKSPACE/apache-jmeter-5.4.1/bin
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeter_results  # Créer le dossier de résultats
-          for i in $GITHUB_WORKSPACE/*.jmx; do
+          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results  # Créer le dossier de résultats
+          for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
               echo "Running test: $i"
               ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/jmeter_results/results_$(basename "$i" .jmx).jtl
           done
