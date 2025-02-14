@@ -48,7 +48,7 @@ class ConnectionException extends DatabaseException
 
     /**
      * @param string $message
-     * @param array  $context
+     * @param array $context
      *
      * @return ConnectionException
      */
@@ -59,7 +59,6 @@ class ConnectionException extends DatabaseException
             code: self::ERROR_CODE_BAD_USAGE,
             context: $context
         );
-
     }
 
     /**
@@ -125,8 +124,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -162,8 +161,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -198,11 +197,11 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable            $previous
-     * @param string                $tableName
-     * @param array                 $columns
+     * @param \Throwable $previous
+     * @param string $tableName
+     * @param array $columns
      * @param BatchInsertParameters $batchInsertParameters
-     * @param string                $query
+     * @param string $query
      *
      * @return ConnectionException
      */
@@ -241,8 +240,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -278,8 +277,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -315,10 +314,10 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param array                $context
+     * @param array $context
      *
      * @return ConnectionException
      */
@@ -340,8 +339,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -363,8 +362,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -386,8 +385,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -409,8 +408,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -432,8 +431,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -455,8 +454,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -478,8 +477,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -501,8 +500,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -524,8 +523,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -547,8 +546,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -570,8 +569,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -593,8 +592,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -616,8 +615,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -639,8 +638,8 @@ class ConnectionException extends DatabaseException
     }
 
     /**
-     * @param \Throwable           $previous
-     * @param string               $query
+     * @param \Throwable $previous
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -763,7 +762,7 @@ class ConnectionException extends DatabaseException
 
     /**
      * @param \Throwable $previous
-     * @param string     $query
+     * @param string $query
      *
      * @return ConnectionException
      */

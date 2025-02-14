@@ -98,8 +98,8 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      * Constructor
      *
-     * @param string                $dbLabel LABEL_DB_* constants
-     * @param int                   $retry
+     * @param string $dbLabel LABEL_DB_* constants
+     * @param int $retry
      * @param CentreonDbConfig|null $dbConfig
      *
      * @throws Exception
@@ -303,7 +303,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -368,7 +368,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used for INSERT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -406,8 +406,8 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * $batchInsertParameters is a collection of QueryParameters, each QueryParameters is a collection of QueryParameter
      *
-     * @param string                $tableName
-     * @param array                 $columns
+     * @param string $tableName
+     * @param array $columns
      * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
@@ -516,7 +516,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used for UPDATE.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -552,7 +552,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used for DELETE.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -591,7 +591,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -624,7 +624,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -658,7 +658,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -691,9 +691,9 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int                  $column
+     * @param int $column
      *
      * @throws ConnectionException
      * @return list<mixed>
@@ -725,7 +725,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -758,7 +758,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -792,7 +792,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -827,7 +827,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -865,7 +865,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -903,7 +903,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -940,9 +940,9 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int                  $column
+     * @param int $column
      *
      * @throws ConnectionException
      * @return \Traversable<int,list<mixed>>
@@ -982,7 +982,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -1021,7 +1021,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -1338,7 +1338,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * As 'ALTER TABLE IF NOT EXIST' queries are supported only by mariaDB (no more by mysql),
      * This method check if a column was already added in a previous upgrade script.
      *
-     * @param string|null $table  - the table on which we'll search the column
+     * @param string|null $table - the table on which we'll search the column
      * @param string|null $column - the column name to be checked
      *
      * @return int
@@ -1498,10 +1498,10 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * Only for SELECT queries.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int                  $fetchMode
-     * @param array                $fetchModeArgs
+     * @param int $fetchMode
+     * @param array $fetchModeArgs
      *
      * @throws ConnectionException
      * @return PDOStatement|false
@@ -1576,9 +1576,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      * Write SQL errors messages
      *
-     * @param string          $message
-     * @param array           $customContext
-     * @param string          $query
+     * @param string $message
+     * @param array $customContext
+     * @param string $query
      * @param \Throwable|null $previous
      */
     private function writeDbLog(
@@ -1633,7 +1633,7 @@ class CentreonDB extends PDO implements ConnectionInterface
 
     /**
      * @param string $query
-     * @param array  $options
+     * @param array $options
      *
      * @throws CentreonDbException
      * @return \PDOStatement|bool
@@ -1679,9 +1679,9 @@ class CentreonDB extends PDO implements ConnectionInterface
      *  Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
      *
      * @param \PDOStatement $pdoStatement
-     * @param int|string    $paramName
-     * @param mixed         $value
-     * @param int           $type
+     * @param int|string $paramName
+     * @param mixed $value
+     * @param int $type
      *
      * @throws CentreonDbException
      * @return bool
@@ -1742,10 +1742,10 @@ class CentreonDB extends PDO implements ConnectionInterface
 
     /**
      * @param \PDOStatement $pdoStatement
-     * @param int|string    $paramName
-     * @param mixed         $var
-     * @param int           $type
-     * @param int           $maxLength
+     * @param int|string $paramName
+     * @param mixed $var
+     * @param int $type
+     * @param int $maxLength
      *
      * @throws CentreonDbException
      * @return bool
@@ -1872,7 +1872,7 @@ class CentreonDB extends PDO implements ConnectionInterface
 
     /**
      * @param \PDOStatement $pdoStatement
-     * @param array|null    $bindParams
+     * @param array|null $bindParams
      *
      * @throws CentreonDbException
      * @return bool (no signature for this method because of a bug with tests with \Centreon\Test\Mock\CentreonDb::execute())
@@ -1908,7 +1908,7 @@ class CentreonDB extends PDO implements ConnectionInterface
 
     /**
      * @param string $string
-     * @param int    $type
+     * @param int $type
      *
      * @throws CentreonDbException
      * @return string
@@ -1937,7 +1937,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * This method does not support PDO binding types.
      *
      * @param       $query
-     * @param int   $fetchMode
+     * @param int $fetchMode
      * @param array $fetchModeArgs
      *
      * @throws CentreonDbException
@@ -2002,8 +2002,8 @@ class CentreonDB extends PDO implements ConnectionInterface
      * Allowed types : PDO::PARAM_STR, PDO::PARAM_BOOL, PDO::PARAM_INT, PDO::PARAM_NULL
      *
      * @param PDOStatement $pdoStatement
-     * @param array        $bindParams
-     * @param bool         $withParamType
+     * @param array $bindParams
+     * @param bool $withParamType
      *
      * @throws CentreonDbException
      *
@@ -2134,7 +2134,7 @@ class CentreonDB extends PDO implements ConnectionInterface
 
     /**
      * @param \PDOStatement $pdoStatement
-     * @param int           $column
+     * @param int $column
      *
      * @throws CentreonDbException
      *
@@ -2164,7 +2164,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * Without prepared query
      *
      * @param string $query
-     * @param int    $column
+     * @param int $column
      *
      * @throws CentreonDbException
      *
@@ -2236,7 +2236,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @access     public
      *
      * @param string $str
-     * @param bool   $htmlSpecialChars | htmlspecialchars() is used when true
+     * @param bool $htmlSpecialChars | htmlspecialchars() is used when true
      *
      * @return string
      *
@@ -2255,9 +2255,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      * Query
      *
-     * @param string     $queryString
+     * @param string $queryString
      * @param null|mixed $parameters
-     * @param mixed      ...$parametersArgs
+     * @param mixed ...$parametersArgs
      *
      * @throws PDOException
      * @return CentreonDBStatement|false
@@ -2309,7 +2309,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * @access     public
      *
-     * @param string       $query_string query
+     * @param string $query_string query
      * @param array<mixed> $placeHolders
      *
      * @throws PDOException

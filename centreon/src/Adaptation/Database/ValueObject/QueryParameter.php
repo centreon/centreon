@@ -41,8 +41,8 @@ class QueryParameter implements ValueObjectInterface
      *
      * Example: new QueryParameter('name', 'value', ParameterType::STRING);
      *
-     * @param string                      $name
-     * @param mixed                       $value
+     * @param string $name
+     * @param mixed $value
      * @param QueryParameterTypeEnum|null $type
      *
      * @throws ValueObjectException
@@ -58,14 +58,16 @@ class QueryParameter implements ValueObjectInterface
         if (is_object($value)) {
             throw new ValueObjectException('Value of QueryParameter cannot be an object');
         }
-        if ($type === QueryParameterTypeEnum::LARGE_OBJECT && !is_string($value) && !is_resource($value)) {
-            throw new ValueObjectException('Value of QueryParameter with type LARGE_OBJECT must be a string or a resource');
+        if ($type === QueryParameterTypeEnum::LARGE_OBJECT && ! is_string($value) && ! is_resource($value)) {
+            throw new ValueObjectException(
+                'Value of QueryParameter with type LARGE_OBJECT must be a string or a resource'
+            );
         }
     }
 
     /**
-     * @param string                      $name
-     * @param mixed                       $value
+     * @param string $name
+     * @param mixed $value
      * @param QueryParameterTypeEnum|null $type
      *
      * @throws ValueObjectException
@@ -80,7 +82,7 @@ class QueryParameter implements ValueObjectInterface
      * Example : QueryParameter::int('name', 1);
      *
      * @param string $name
-     * @param int    $value
+     * @param int $value
      *
      * @throws ValueObjectException
      * @return QueryParameter
@@ -108,7 +110,7 @@ class QueryParameter implements ValueObjectInterface
      * Example : QueryParameter::bool('name', true);
      *
      * @param string $name
-     * @param bool   $value
+     * @param bool $value
      *
      * @throws ValueObjectException
      * @return QueryParameter

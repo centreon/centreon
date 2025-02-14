@@ -109,7 +109,7 @@ interface ConnectionInterface
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -126,7 +126,7 @@ interface ConnectionInterface
      *
      * Could be only used for INSERT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -143,8 +143,8 @@ interface ConnectionInterface
      *
      * Could be only used for several INSERT.
      *
-     * @param string                $tableName
-     * @param array                 $columns
+     * @param string $tableName
+     * @param array $columns
      * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
@@ -164,7 +164,7 @@ interface ConnectionInterface
      *
      * Could be only used for UPDATE.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -181,7 +181,7 @@ interface ConnectionInterface
      *
      * Could be only used for DELETE.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -201,7 +201,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -218,7 +218,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -236,7 +236,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -253,9 +253,9 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int                  $column
+     * @param int $column
      *
      * @throws ConnectionException
      * @return list<mixed>
@@ -271,7 +271,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -288,7 +288,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -306,7 +306,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -325,7 +325,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -344,7 +344,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -365,7 +365,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -385,9 +385,9 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int                  $column
+     * @param int $column
      *
      * @throws ConnectionException
      * @return \Traversable<int,list<mixed>>
@@ -411,7 +411,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -433,7 +433,7 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException

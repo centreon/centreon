@@ -73,12 +73,12 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     /**
      * DatabaseConnection constructor.
      *
-     * @param LoggerInterface       $logger
-     * @param string                $host
-     * @param string                $basename
-     * @param string                $login
-     * @param string                $password
-     * @param int                   $port
+     * @param LoggerInterface $logger
+     * @param string $host
+     * @param string $basename
+     * @param string $login
+     * @param string $password
+     * @param int $port
      * @param ConnectionConfig|null $connectionConfig
      *
      * @throws ConnectionException
@@ -296,7 +296,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -352,7 +352,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used for INSERT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -390,8 +390,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * $batchInsertParameters is a collection of QueryParameters, each QueryParameters is a collection of QueryParameter
      *
-     * @param string                $tableName
-     * @param array                 $columns
+     * @param string $tableName
+     * @param array $columns
      * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
@@ -500,7 +500,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used for UPDATE.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -536,7 +536,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used for DELETE.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -575,7 +575,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -608,7 +608,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -642,7 +642,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -675,9 +675,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int                  $column
+     * @param int $column
      *
      * @throws ConnectionException
      * @return list<mixed>
@@ -709,7 +709,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -742,7 +742,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -776,7 +776,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -811,7 +811,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -849,7 +849,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -887,7 +887,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -924,9 +924,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int                  $column
+     * @param int $column
      *
      * @throws ConnectionException
      * @return \Traversable<int,list<mixed>>
@@ -966,7 +966,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -1005,7 +1005,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
@@ -1215,10 +1215,10 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * Only for SELECT queries.
      *
-     * @param string               $query
+     * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int                  $fetchMode
-     * @param array                $fetchModeArgs
+     * @param int $fetchMode
+     * @param array $fetchModeArgs
      *
      * @throws ConnectionException
      * @return \PDOStatement|false
@@ -1283,9 +1283,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     /**
      * Write SQL errors messages
      *
-     * @param string          $message
-     * @param array           $customContext
-     * @param string          $query
+     * @param string $message
+     * @param array $customContext
+     * @param string $query
      * @param \Throwable|null $previous
      */
     private function writeDbLog(

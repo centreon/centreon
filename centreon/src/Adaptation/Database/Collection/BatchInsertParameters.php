@@ -60,6 +60,7 @@ class BatchInsertParameters extends Collection
             $batchInsertParametersCollection->add("batch_insert_param_{$index}", $queryParametersCollection);
             $index++;
         }
+
         return $batchInsertParametersCollection;
     }
 

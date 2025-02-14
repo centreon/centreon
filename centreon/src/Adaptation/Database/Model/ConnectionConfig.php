@@ -36,13 +36,13 @@ final readonly class ConnectionConfig
     /**
      * ConnectionConfig constructor
      *
-     * @param string               $host
-     * @param string               $user
-     * @param string               $password
-     * @param string               $databaseName
+     * @param string $host
+     * @param string $user
+     * @param string $password
+     * @param string $databaseName
      * @param ConnectionDriverEnum $driver
-     * @param string               $charset
-     * @param int                  $port
+     * @param string $charset
+     * @param int $port
      */
     public function __construct(
         private string $host,

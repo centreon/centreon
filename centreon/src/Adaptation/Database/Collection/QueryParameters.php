@@ -60,6 +60,7 @@ class QueryParameters extends Collection
             $queryParametersCollection->validateItem($queryParameter);
             $queryParametersCollection->add($queryParameter->name, $queryParameter);
         }
+
         return $queryParametersCollection;
     }
 
