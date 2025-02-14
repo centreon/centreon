@@ -22,7 +22,7 @@
       <hashTree>
         <!-- Utiliser un CSVDataSet pour charger les utilisateurs à partir du fichier CSV -->
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read Users from CSV">
-          <stringProp name="filename">${__P(GITHUB_WORKSPACE)}/centreon/tests/performanceTesting/users.csv</stringProp>
+          <stringProp name="filename">${__env(GITHUB_WORKSPACE)}/centreon/tests/performanceTesting/jmeterFolder/users.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
           <boolProp name="ignoreFirstLine">true</boolProp>
