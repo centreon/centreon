@@ -146,7 +146,9 @@ jobs:
 
       - name: Run JMX Scripts
         run: |
-          cd $GITHUB_WORKSPACE/apache-jmeter-5.4.1/bin
+          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
+          cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
+
           mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results  # Créer le dossier de résultats
           for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
               echo "Running test: $i"
