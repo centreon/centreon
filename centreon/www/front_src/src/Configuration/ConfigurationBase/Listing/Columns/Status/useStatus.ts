@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ResponseError, useSnackbar } from '@centreon/ui';
+import { capitalize } from '@mui/material';
 import { useDisable, useEnable } from '../../../api';
+
+import { configurationAtom } from '../../../../atoms';
+
 import {
   labelResourceDisabled,
   labelResourceEnabled
 } from '../../../translatedLabels';
-
-import { useAtomValue } from 'jotai';
-import { configurationAtom } from '../../../../atoms';
-
-import { capitalize } from '@mui/material';
 
 interface Props {
   change: (e: React.BaseSyntheticEvent) => void;
@@ -42,35 +42,34 @@ const useStatus = ({ row }): Props => {
   const { enableMutation, isMutating: isEnableMutating } = useEnable();
   const { disableMutation, isMutating: isDisableMutating } = useDisable();
 
+  const labelSuccessMessage = checked
+    ? t(labelResourceDisabled(labelResourceType))
+    : t(labelResourceEnabled(labelResourceType));
+
+  const handleApiResponse = (response) => {
+    const { isError } = response as ResponseError;
+    if (isError) {
+      setChecked(checked);
+
+      return;
+    }
+
+    showSuccessMessage(labelSuccessMessage);
+  };
+
+  const payload = useMemo(() => ({ ids: [row.id] }), [row]);
+
   const change = (e: React.BaseSyntheticEvent): void => {
     const value = e.target.checked;
     setChecked(value);
 
     if (checked) {
-      disableMutation({ ids: [row.id] }).then((response) => {
-        const { isError } = response as ResponseError;
-        if (isError) {
-          setChecked(checked);
-
-          return;
-        }
-
-        showSuccessMessage(t(labelResourceDisabled(labelResourceType)));
-      });
+      disableMutation(payload).then(handleApiResponse);
 
       return;
     }
 
-    enableMutation({ ids: [row.id] }).then((response) => {
-      const { isError } = response as ResponseError;
-      if (isError) {
-        setChecked(checked);
-
-        return;
-      }
-
-      showSuccessMessage(t(labelResourceEnabled(labelResourceType)));
-    });
+    enableMutation(payload).then(handleApiResponse);
   };
 
   return {

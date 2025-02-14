@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next';
 
+import { ComponentColumnProps } from '@centreon/ui';
+import { Switch } from '@centreon/ui/components';
 import { Tooltip } from '@mui/material';
 
-import { ComponentColumnProps } from '@centreon/ui';
+import useStyles from './Status.styles';
+import useStatus from './useStatus';
 
-import { Switch } from '@centreon/ui/components';
 import {
   labelDisabled,
   labelEnableDisable,
   labelEnabled
 } from '../../../translatedLabels';
-import useStyles from './Status.styles';
-import useStatus from './useStatus';
 
 const Status = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
