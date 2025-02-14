@@ -38,22 +38,11 @@ use Core\Common\Domain\Exception\CollectionException;
 class QueryParameters extends Collection
 {
     /**
-     * Factory
-     *
-     * @param QueryParameter[] $queryParameters
-     *
-     * @throws CollectionException
-     * @return Collection<QueryParameter>
+     * @return class-string<QueryParameter>
      */
-    public static function create(array $queryParameters): Collection
+    protected function itemClass(): string
     {
-        $queryParametersCollection = new static();
-        foreach ($queryParameters as $queryParameter) {
-            $queryParametersCollection->validateItem($queryParameter);
-            $queryParametersCollection->add($queryParameter->name, $queryParameter);
-        }
-
-        return $queryParametersCollection;
+        return QueryParameter::class;
     }
 
     /**
@@ -99,13 +88,5 @@ class QueryParameters extends Collection
     public function getLargeObjectQueryParameters(): Collection
     {
         return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT);
-    }
-
-    /**
-     * @return class-string<QueryParameter>
-     */
-    protected function itemClass(): string
-    {
-        return QueryParameter::class;
     }
 }

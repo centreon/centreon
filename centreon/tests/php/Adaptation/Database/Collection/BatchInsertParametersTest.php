@@ -23,12 +23,24 @@ declare(strict_types=1);
 use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ValueObject\QueryParameter;
-use Core\Common\Domain\Collection\Collection;
 use Core\Common\Domain\Exception\CollectionException;
 
-beforeEach(function () {
-    $this->batchInsertParameters = new BatchInsertParameters();
+it('test batch insert parameters collection : add a query parameters with a good type', function () {
+    $queryParameters = new BatchInsertParameters();
+    $batchInsertParam1 = QueryParameters::create([
+        QueryParameter::int('contact_id', 110),
+        QueryParameter::string('contact_name', 'foo_name'),
+        QueryParameter::string('contact_alias', 'foo_alias')
+    ]);
+    $queryParameters->add('batch_insert_param_1', $batchInsertParam1);
+    expect($queryParameters->length())->toBe(1)
+        ->and($queryParameters->get('batch_insert_param_1'))->toBe($batchInsertParam1);
 });
+
+it('test batch insert parameters collection : add a query parameters with a bad type', function () {
+    $queryParameters = new BatchInsertParameters();
+    $queryParameters->add('batch_insert_param_1', new stdClass());
+})->throws(CollectionException::class);
 
 it('test batch insert parameters collection : create with good type', function () {
     $batchInsertParam1 = QueryParameters::create([
@@ -47,9 +59,9 @@ it('test batch insert parameters collection : create with good type', function (
         QueryParameter::string('contact_alias', 'baz_alias')
     ]);
     $batchQueryParameters = BatchInsertParameters::create([
-        $batchInsertParam1,
-        $batchInsertParam2,
-        $batchInsertParam3
+        'batch_insert_param_1' => $batchInsertParam1,
+        'batch_insert_param_2' => $batchInsertParam2,
+        'batch_insert_param_3' => $batchInsertParam3
     ]);
     expect($batchQueryParameters->length())->toBe(3)
         ->and($batchQueryParameters->get('batch_insert_param_1'))->toBe($batchInsertParam1)
@@ -62,21 +74,5 @@ it('test batch insert parameters collection : create with bad type', function ()
         new stdClass(),
         new stdClass(),
         new stdClass()
-    ]);
-})->throws(CollectionException::class);
-
-it('test batch insert parameters collection : create with different length', function () {
-    $batchInsertParam1 = QueryParameters::create([
-        QueryParameter::int('contact_id', 110),
-        QueryParameter::string('contact_name', 'foo_name'),
-        QueryParameter::string('contact_alias', 'foo_alias')
-    ]);
-    $batchInsertParam2 = QueryParameters::create([
-        QueryParameter::int('contact_id', 111),
-        QueryParameter::string('contact_name', 'bar_name')
-    ]);
-    BatchInsertParameters::create([
-        $batchInsertParam1,
-        $batchInsertParam2
     ]);
 })->throws(CollectionException::class);

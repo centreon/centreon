@@ -36,23 +36,46 @@ use Core\Common\Domain\Exception\CollectionException;
 abstract class Collection implements CollectionInterface
 {
     /**
+     * @var array<string|int,TItem> $items
+     */
+    protected array $items;
+
+    /**
      * Collection constructor
      *
-     * @param TItem[] $items Object array to transform in collection
+     * @param array<string|int,TItem> $items
      *
      * @throws CollectionException
+     *
+     * @example $collection = new Collection(['key1' => new Item(), 'key2' => new Item()]);
+     *          $collection = new Collection([0 => new Item(), 1 => new Item()]);
      */
-    final public function __construct(protected array $items = [])
+    final public function __construct(array $items = [])
     {
         foreach ($items as $item) {
             $this->validateItem($item);
         }
+        $this->items = $items;
     }
 
     /**
-     * @return Collection<TItem>
+     * @param array<string|int,TItem> $items
+     *
+     * @throws CollectionException
+     * @return static
+     *
+     * @example $collection = Collection::create(['key1' => new Item(), 'key2' => new Item()]);
+     *          $collection = Collection::create([0 => new Item(), 1 => new Item()]);
      */
-    public function clear(): CollectionInterface
+    final public static function create(array $items): static
+    {
+        return new static($items);
+    }
+
+    /**
+     * @return static
+     */
+    public function clear(): static
     {
         $this->items = [];
 
@@ -122,9 +145,9 @@ abstract class Collection implements CollectionInterface
      * @param callable $callable
      *
      * @throws CollectionException
-     * @return Collection<TItem>
+     * @return static
      */
-    public function filter(callable $callable): CollectionInterface
+    public function filter(callable $callable): static
     {
         return new static(array_filter($this->items, $callable));
     }
@@ -135,9 +158,9 @@ abstract class Collection implements CollectionInterface
      * @param CollectionInterface<TItem> ...$collections
      *
      * @throws CollectionException
-     * @return Collection<TItem>
+     * @return static
      */
-    public function mergeWith(CollectionInterface ...$collections): CollectionInterface
+    public function mergeWith(CollectionInterface ...$collections): static
     {
         $itemsBackup = $this->items;
         foreach ($collections as $collection) {

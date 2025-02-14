@@ -21,7 +21,6 @@
 
 declare(strict_types=1);
 
-
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
@@ -42,30 +41,33 @@ it('test query parameters collection : add a query parameter with a bad type', f
 
 it('test query parameters collection : create with good type', function () {
     $param = [
-        QueryParameter::string('name_string', 'value'),
-        QueryParameter::int('name_int', 1)
+        'name_string' => QueryParameter::string('name_string', 'value'),
+        'name_int' => QueryParameter::int('name_int', 1)
     ];
     $queryParameters = QueryParameters::create($param);
     expect($queryParameters->length())->toBe(2)
-        ->and($queryParameters->get('name_string'))->toBe($param[0])
-        ->and($queryParameters->get('name_int'))->toBe($param[1]);
+        ->and($queryParameters->get('name_string'))->toBe($param['name_string'])
+        ->and($queryParameters->get('name_int'))->toBe($param['name_int']);
 });
 
 it('test query parameters collection : create with bad type', function () {
     $param = [
-        QueryParameter::string('name_string', 'value'),
-        new stdClass()
+        'name_string' => QueryParameter::string('name_string', 'value'),
+        'name_int' => new stdClass()
     ];
     QueryParameters::create($param);
 })->throws(CollectionException::class);
 
 it('test query parameters collection : get query parameters with int type', function () {
     $param = [
-        QueryParameter::string('name_string', 'value'),
-        QueryParameter::int('name_int', 1),
-        QueryParameter::null('name_null'),
-        QueryParameter::bool('name_bool', true),
-        QueryParameter::largeObject('name_large_object', 'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'),
+        'name_string' => QueryParameter::string('name_string', 'value'),
+        'name_int' => QueryParameter::int('name_int', 1),
+        'name_null' => QueryParameter::null('name_null'),
+        'name_bool' => QueryParameter::bool('name_bool', true),
+        'name_large_object' => QueryParameter::largeObject(
+            'name_large_object',
+            'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
+        ),
     ];
     $queryParameters = QueryParameters::create($param);
     expect($queryParameters->getIntQueryParameters()->length())->toBe(1)
@@ -74,11 +76,14 @@ it('test query parameters collection : get query parameters with int type', func
 
 it('test query parameters collection : get query parameters with string type', function () {
     $param = [
-        QueryParameter::string('name_string', 'value'),
-        QueryParameter::int('name_int', 1),
-        QueryParameter::null('name_null'),
-        QueryParameter::bool('name_bool', true),
-        QueryParameter::largeObject('name_large_object', 'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'),
+        'name_string' => QueryParameter::string('name_string', 'value'),
+        'name_int' => QueryParameter::int('name_int', 1),
+        'name_null' => QueryParameter::null('name_null'),
+        'name_bool' => QueryParameter::bool('name_bool', true),
+        'name_large_object' => QueryParameter::largeObject(
+            'name_large_object',
+            'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
+        ),
     ];
     $queryParameters = QueryParameters::create($param);
     expect($queryParameters->getStringQueryParameters()->length())->toBe(1)
@@ -87,11 +92,14 @@ it('test query parameters collection : get query parameters with string type', f
 
 it('test query parameters collection : get query parameters with bool type', function () {
     $param = [
-        QueryParameter::string('name_string', 'value'),
-        QueryParameter::int('name_int', 1),
-        QueryParameter::null('name_null'),
-        QueryParameter::bool('name_bool', true),
-        QueryParameter::largeObject('name_large_object', 'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'),
+        'name_string' => QueryParameter::string('name_string', 'value'),
+        'name_int' => QueryParameter::int('name_int', 1),
+        'name_null' => QueryParameter::null('name_null'),
+        'name_bool' => QueryParameter::bool('name_bool', true),
+        'name_large_object' => QueryParameter::largeObject(
+            'name_large_object',
+            'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
+        ),
     ];
     $queryParameters = QueryParameters::create($param);
     expect($queryParameters->getBoolQueryParameters()->length())->toBe(1)
@@ -100,11 +108,14 @@ it('test query parameters collection : get query parameters with bool type', fun
 
 it('test query parameters collection : get query parameters with null type', function () {
     $param = [
-        QueryParameter::string('name_string', 'value'),
-        QueryParameter::int('name_int', 1),
-        QueryParameter::null('name_null'),
-        QueryParameter::bool('name_bool', true),
-        QueryParameter::largeObject('name_large_object', 'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'),
+        'name_string' => QueryParameter::string('name_string', 'value'),
+        'name_int' => QueryParameter::int('name_int', 1),
+        'name_null' => QueryParameter::null('name_null'),
+        'name_bool' => QueryParameter::bool('name_bool', true),
+        'name_large_object' => QueryParameter::largeObject(
+            'name_large_object',
+            'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
+        ),
     ];
     $queryParameters = QueryParameters::create($param);
     expect($queryParameters->getNullQueryParameters()->length())->toBe(1)
@@ -113,11 +124,14 @@ it('test query parameters collection : get query parameters with null type', fun
 
 it('test query parameters collection : get query parameters with large object type', function () {
     $param = [
-        QueryParameter::string('name_string', 'value'),
-        QueryParameter::int('name_int', 1),
-        QueryParameter::null('name_null'),
-        QueryParameter::bool('name_bool', true),
-        QueryParameter::largeObject('name_large_object', 'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'),
+        'name_string' => QueryParameter::string('name_string', 'value'),
+        'name_int' => QueryParameter::int('name_int', 1),
+        'name_null' => QueryParameter::null('name_null'),
+        'name_bool' => QueryParameter::bool('name_bool', true),
+        'name_large_object' => QueryParameter::largeObject(
+            'name_large_object',
+            'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
+        ),
     ];
     $queryParameters = QueryParameters::create($param);
     expect($queryParameters->getLargeObjectQueryParameters()->length())->toBe(1)
