@@ -26,7 +26,7 @@ namespace Adaptation\Database\Enum;
 /**
  * Enum
  *
- * @class   ConnectionDriver
+ * @class   ConnectionDriverEnum
  * @package Adaptation\Database\Enum
  */
 enum ConnectionDriverEnum: string

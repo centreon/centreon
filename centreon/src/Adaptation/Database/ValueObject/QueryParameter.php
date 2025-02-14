@@ -38,7 +38,7 @@ final readonly class QueryParameter implements ValueObjectInterface
     /**
      * QueryParameter constructor
      *
-     * Example: new QueryParameter('name', 'value', ParameterType::STRING);
+     * Example: new QueryParameter('name', 'value', QueryParameterTypeEnum::STRING);
      *
      * @param string $name
      * @param mixed $value

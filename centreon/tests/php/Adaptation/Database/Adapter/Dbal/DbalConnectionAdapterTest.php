@@ -22,8 +22,8 @@
 use Adaptation\Database\Adapter\Dbal\DbalConnectionAdapter;
 use Adaptation\Database\Adapter\Dbal\DbalExpressionBuilderAdapter;
 use Adaptation\Database\Adapter\Dbal\DbalQueryBuilderAdapter;
-use Adaptation\Database\Enum\ConnectionDriver;
-use Adaptation\Database\Enum\ParameterType;
+use Adaptation\Database\Enum\ConnectionDriverEnum;
+use Adaptation\Database\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Exception\ConnectionException;
 use Adaptation\Database\Model\ConnectionConfig;
 use Doctrine\DBAL\Connection;
@@ -132,7 +132,7 @@ it('test DbalConnectionAdapter : executeStatement without errors with prepared p
         $this->dbalConnectionAdapterTest->executeStatement(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeInt()
@@ -187,7 +187,7 @@ it('test DbalConnectionAdapter : insert without errors with prepared parameters 
         $this->dbalConnectionAdapterTest->insert(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeInt()
@@ -242,7 +242,7 @@ it('test DbalConnectionAdapter : update without errors with prepared parameters 
         $this->dbalConnectionAdapterTest->update(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeInt()
@@ -297,7 +297,7 @@ it('test DbalConnectionAdapter : delete without errors with prepared parameters 
         $this->dbalConnectionAdapterTest->delete(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeInt()
@@ -347,7 +347,7 @@ it('test DbalConnectionAdapter : fetchAssociative without errors with prepared p
         $this->dbalConnectionAdapterTest->fetchAssociative(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeArray()
@@ -397,7 +397,7 @@ it('test DbalConnectionAdapter : fetchNumeric without errors with prepared param
         $this->dbalConnectionAdapterTest->fetchNumeric(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeArray()
@@ -447,7 +447,7 @@ it('test DbalConnectionAdapter : fetchOne without errors with prepared parameter
         $this->dbalConnectionAdapterTest->fetchOne(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeString()
@@ -497,7 +497,7 @@ it('test DbalConnectionAdapter : fetchAllNumeric without errors with prepared pa
         $this->dbalConnectionAdapterTest->fetchAllNumeric(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeArray()
@@ -553,7 +553,7 @@ it('test DbalConnectionAdapter : fetchAllAssociative without errors with prepare
         $this->dbalConnectionAdapterTest->fetchAllAssociative(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeArray()
@@ -603,7 +603,7 @@ it('test DbalConnectionAdapter : fetchAllKeyValue without errors with prepared p
         $this->dbalConnectionAdapterTest->fetchAllKeyValue(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeArray()
@@ -656,7 +656,7 @@ it(
             $this->dbalConnectionAdapterTest->fetchAllAssociativeIndexed(
                 $query,
                 ['int' => 1, 'string' => 'bar'],
-                ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+                ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
             )
         )
             ->toBeArray()
@@ -707,7 +707,7 @@ it('test DbalConnectionAdapter : fetchFirstColumn without errors with prepared p
         $this->dbalConnectionAdapterTest->fetchFirstColumn(
             $query,
             ['int' => 1, 'string' => 'bar'],
-            ['int' => ParameterType::INT->value, 'string' => ParameterType::STRING->value]
+            ['int' => QueryParameterTypeEnum::INT->value, 'string' => QueryParameterTypeEnum::STRING->value]
         )
     )
         ->toBeArray()
@@ -759,12 +759,12 @@ it('test DbalConnectionAdapter : startTransaction', function () {
 
 it('test DbalConnectionAdapter : commit with no transaction in progress', function () {
     $dbalConnectionAdapterTest = new DbalConnectionAdapter($this->falseConnection);
-    $dbalConnectionAdapterTest->commit();
+    $dbalConnectionAdapterTest->commitTransaction();
 })->throws(ConnectionException::class);
 
 it('test DbalConnectionAdapter : rollback with no transaction in progress', function () {
     $dbalConnectionAdapterTest = new DbalConnectionAdapter($this->falseConnection);
-    $dbalConnectionAdapterTest->rollBack();
+    $dbalConnectionAdapterTest->rollBackTransaction();
 })->throws(ConnectionException::class);
 
 // -------------------------------- UNBUFFERED QUERY TESTS --------------------------------------
@@ -816,7 +816,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
         user: $dbUser,
         password: $dbPassword,
         databaseName: 'centreon',
-        driver: ConnectionDriver::DRIVER_MYSQL,
+        driver: ConnectionDriverEnum::DRIVER_MYSQL,
         port: 3306,
     );
 }

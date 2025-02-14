@@ -84,7 +84,7 @@ interface ConnectionInterface
      */
     public function getNativeConnection(): object;
 
-    /***
+    /**
      * Returns the ID of the last inserted row.
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
@@ -263,22 +263,21 @@ interface ConnectionInterface
     public function fetchOne(string $query, ?QueryParameters $queryParameters = null): mixed;
 
     /**
-     * Prepares and executes an SQL query and returns the result as an array of the column values.
+     * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * Could be only used with SELECT.
      *
      * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int $column
      *
      * @throws ConnectionException
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->fetchByColumn('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          $result = $db->fetchFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
      *          // $result = ['John', 'Jean']
      */
-    public function fetchByColumn(string $query, ?QueryParameters $queryParameters = null, int $column = 0): array;
+    public function fetchFirstColumn(string $query, ?QueryParameters $queryParameters = null): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
@@ -401,23 +400,18 @@ interface ConnectionInterface
      *
      * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int $column
      *
      * @throws ConnectionException
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateByColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          $result = $db->iterateFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
      *          foreach ($result as $value) {
      *              // $value = 'John'
      *              // $value = 'Jean'
      *          }
      */
-    public function iterateByColumn(
-        string $query,
-        ?QueryParameters $queryParameters = null,
-        int $column = 0
-    ): \Traversable;
+    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys
@@ -463,33 +457,6 @@ interface ConnectionInterface
     public function iterateAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
-
-    /**
-     * Returns the current auto-commit mode for this connection.
-     *
-     * @return bool True if auto-commit mode is currently enabled for this connection, false otherwise.
-     *
-     * @see setAutoCommit
-     */
-    public function isAutoCommit(): bool;
-
-    /**
-     * Sets auto-commit mode for this connection.
-     *
-     * If a connection is in auto-commit mode, then all its SQL statements will be executed and committed as individual
-     * transactions. Otherwise, its SQL statements are grouped into transactions that are terminated by a call to either
-     * the method commit or the method rollback. By default, new connections are in auto-commit mode.
-     *
-     * NOTE: If this method is called during a transaction and the auto-commit mode is changed, the transaction is
-     * committed. If this method is called and the auto-commit mode is not changed, the call is a no-op.
-     *
-     * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
-     *
-     * @return void
-     *
-     * @throws ConnectionException
-     */
-    public function setAutoCommit(bool $autoCommit): void;
 
     /**
      * Checks whether a transaction is currently active.

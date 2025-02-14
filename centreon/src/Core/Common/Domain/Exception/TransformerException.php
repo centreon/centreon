@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Enum;
+namespace Core\Common\Domain\Exception;
 
 /**
- * Enum
+ * Class
  *
- * @class   ConnectionDriver
- * @package Adaptation\Database\Enum
- * @todo    to complete with others database drivers like mysqli, pdo_pgsql, pdo_sqlite,...
+ * @class   TransformerException
+ * @package Core\Common\Domain\Exception
  */
-enum ConnectionDriver: string
+class TransformerException extends DomainException
 {
-    case DRIVER_MYSQL = 'pdo_mysql';
+    /**
+     * TransformerException constructor
+     *
+     * @param string $message
+     * @param array<string,mixed> $context
+     * @param \Throwable|null $previous
+     */
+    public function __construct(string $message, array $context = [], ?\Throwable $previous = null)
+    {
+        parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
+    }
 }

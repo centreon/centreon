@@ -35,7 +35,7 @@ use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
  *
  * To dynamically create SQL queries.
  */
-readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
+final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 {
 
     /**

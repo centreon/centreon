@@ -35,7 +35,7 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBu
  *
  * To dynamically create SQL query parts.
  */
-readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderInterface
+final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderInterface
 {
 
     /**
