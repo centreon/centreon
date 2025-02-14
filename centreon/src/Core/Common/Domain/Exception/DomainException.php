@@ -38,10 +38,10 @@ abstract class DomainException extends \Exception
     /**
      * DomainException constructor
      *
-     * @param string              $message
-     * @param int                 $code
+     * @param string $message
+     * @param int $code
      * @param array<string,mixed> $context
-     * @param \Throwable|null      $previous
+     * @param \Throwable|null $previous
      */
     public function __construct(string $message, int $code, protected array $context = [], \Throwable $previous = null)
     {
@@ -69,7 +69,7 @@ abstract class DomainException extends \Exception
 
     /**
      * @param string $name
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @return void
      */

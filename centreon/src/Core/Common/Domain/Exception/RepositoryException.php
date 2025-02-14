@@ -34,9 +34,9 @@ class RepositoryException extends DomainException
     /**
      * RepositoryException constructor
      *
-     * @param string              $message
+     * @param string $message
      * @param array<string,mixed> $context
-     * @param \Throwable|null      $previous
+     * @param \Throwable|null $previous
      */
     public function __construct(string $message, array $context = [], \Throwable $previous = null)
     {

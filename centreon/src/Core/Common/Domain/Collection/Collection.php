@@ -169,7 +169,7 @@ abstract class Collection implements CollectionInterface
      * Add new item at the collection, if key exists then adding aborted
      *
      * @param int|string $key
-     * @param TItem      $item
+     * @param TItem $item
      *
      * @throws CollectionException
      * @return Collection<TItem>
@@ -187,7 +187,7 @@ abstract class Collection implements CollectionInterface
 
     /**
      * @param int|string $key
-     * @param TItem      $item
+     * @param TItem $item
      *
      * @throws CollectionException
      * @return Collection<TItem>

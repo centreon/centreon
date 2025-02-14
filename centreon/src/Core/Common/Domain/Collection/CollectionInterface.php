@@ -105,7 +105,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
 
     /**
      * @param int|string $key
-     * @param TItem      $item
+     * @param TItem $item
      *
      * @return CollectionInterface<TItem>
      */
@@ -113,7 +113,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
 
     /**
      * @param int|string $key
-     * @param TItem      $item
+     * @param TItem $item
      *
      * @return CollectionInterface<TItem>
      */
