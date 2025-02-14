@@ -1,7 +1,7 @@
 import { capitalize } from '@mui/material';
 import pluralize from 'pluralize';
 
-import { ResponseError, useSnackbar } from '@centreon/ui';
+import { ResponseError, useBulkResponse } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,10 @@ import { useDisable, useEnable } from '../../../api';
 import { selectedRowsAtom } from '../../atoms';
 
 import {
-  labelResourceDisabled,
+  labelFailedToDisableResources,
+  labelFailedToDisableSomeResources,
+  labelFailedToEnableResources,
+  labelFailedToEnableSomeResources,
   labelResourceEnabled
 } from '../../../translatedLabels';
 
@@ -23,16 +26,13 @@ interface UseChangeStatus {
 
 const useChangeStatus = (): UseChangeStatus => {
   const { t } = useTranslation();
-
-  const { showSuccessMessage } = useSnackbar();
+  const handleBulkResponse = useBulkResponse();
 
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
   const configuration = useAtomValue(configurationAtom);
 
   const resourceType = configuration?.resourceType;
-
   const selectedRowsIds = selectedRows?.map((row) => row.id);
-
   const count = selectedRowsIds.length;
 
   const labelResourceType = pluralize(
@@ -47,27 +47,41 @@ const useChangeStatus = (): UseChangeStatus => {
 
   const enable = (): void => {
     enableMutation({ ids: selectedRowsIds }).then((response) => {
-      const { isError } = response as ResponseError;
+      const { isError, results } = response as ResponseError;
+
       if (isError) {
         return;
       }
 
-      resetSelectedRows();
+      handleBulkResponse({
+        data: results,
+        labelWarning: t(labelFailedToEnableSomeResources),
+        labelFailed: t(labelFailedToEnableResources(labelResourceType)),
+        labelSuccess: t(labelResourceEnabled(labelResourceType)),
+        items: selectedRows
+      });
 
-      showSuccessMessage(t(labelResourceEnabled(labelResourceType)));
+      resetSelectedRows();
     });
   };
 
   const disable = (): void => {
     disableMutation({ ids: selectedRowsIds }).then((response) => {
-      const { isError } = response as ResponseError;
+      const { isError, results } = response as ResponseError;
+
       if (isError) {
         return;
       }
 
-      resetSelectedRows();
+      handleBulkResponse({
+        data: results,
+        labelWarning: t(labelFailedToDisableSomeResources),
+        labelFailed: t(labelFailedToDisableResources(labelResourceType)),
+        labelSuccess: t(labelResourceEnabled(labelResourceType)),
+        items: selectedRows
+      });
 
-      showSuccessMessage(t(labelResourceDisabled(labelResourceType)));
+      resetSelectedRows();
     });
   };
 

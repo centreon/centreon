@@ -28,11 +28,25 @@ export const labelUpdateResource = (type) => `Modify a ${type}`;
 export const labelDeleteResource = (type) => `Delete ${type}`;
 export const labelDuplicateResource = (type) => `Duplicate ${type}`;
 
-// success messages
+// API messages
 export const labelResourceDisabled = (type) => `${type} diabled`;
 export const labelResourceEnabled = (type) => `${type} diabled`;
 export const labelResourceDuplicated = (type) => `${type} duplicated`;
 export const labelResourceDeleted = (type) => `${type} deleted`;
+
+export const labelFailedToDeleteResources = (type) =>
+  `Failed to delete the ${type}`;
+export const labelFailedToDuplicateResources = (type) =>
+  `Failed to duplicate the ${type}`;
+export const labelFailedToEnableResources = (type) =>
+  `Failed to enable the ${type}`;
+export const labelFailedToDisableResources = (type) =>
+  `Failed to disable the ${type}`;
+
+export const labelFailedToDeleteSomeResources = 'Failed to delete';
+export const labelFailedToDuplicateSomeResources = 'Failed to duplicate';
+export const labelFailedToEnableSomeResources = 'Failed to enable';
+export const labelFailedToDisableSomeResources = 'Failed to disable';
 
 // dialogs content
 export const labelDeleteResourceConfirmation = (type) =>

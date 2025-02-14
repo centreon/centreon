@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 
-import { ResponseError, truncate, useSnackbar } from '@centreon/ui';
+import {
+  ResponseError,
+  truncate,
+  useBulkResponse,
+  useSnackbar
+} from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
@@ -19,6 +24,8 @@ import {
   labelDeleteResource,
   labelDeleteResourceConfirmation,
   labelDeleteResourcesConfirmation,
+  labelFailedToDeleteResources,
+  labelFailedToDeleteSomeResources,
   labelResourceDeleted
 } from '../../translatedLabels';
 
@@ -33,6 +40,7 @@ interface UseDeleteState {
 
 const useDelete = (): UseDeleteState => {
   const { t } = useTranslation();
+  const handleBulkResponse = useBulkResponse();
   const { showSuccessMessage } = useSnackbar();
 
   const [resourcesToDelete, setResourcesToDelete] = useAtom(
@@ -64,14 +72,28 @@ const useDelete = (): UseDeleteState => {
     useDeleteOneRequest();
 
   const handleApiResponse = (response) => {
-    const { isError } = response as ResponseError;
+    const { isError, results } = response as ResponseError;
     if (isError) {
       return;
     }
 
-    resetSelections();
+    if (equals(count, 1)) {
+      showSuccessMessage(
+        t(labelResourceDeleted(capitalize(labelResourceType)))
+      );
 
-    showSuccessMessage(t(labelResourceDeleted(capitalize(labelResourceType))));
+      resetSelections();
+    }
+
+    handleBulkResponse({
+      data: results,
+      labelWarning: t(labelFailedToDeleteSomeResources),
+      labelFailed: t(labelFailedToDeleteResources(labelResourceType)),
+      labelSuccess: t(labelResourceDeleted(capitalize(labelResourceType))),
+      items: resourcesToDelete
+    });
+
+    resetSelections();
   };
 
   const confirm = (): void => {

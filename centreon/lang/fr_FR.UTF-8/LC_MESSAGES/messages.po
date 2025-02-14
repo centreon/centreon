@@ -19749,3 +19749,27 @@ msgstr "Vous allez supprimer la configuration du collecteur <strong>{{ poller }}
 
 msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone."
 msgstr "Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de configuration de cet agent seront supprimés. Cette action est irréversible."
+
+msgid "Failed to delete"
+msgstr "Échec de la suppression"
+
+msgid "Failed to duplicate"
+msgstr "Échec de la duplication"
+
+msgid "Failed to enable"
+msgstr "Échec de l'activation"
+
+msgid "Failed to disable"
+msgstr "Échec de la désactivation"
+
+msgid "Failed to delete the host group"
+msgstr "Échec de la suppression du groupe d'hôtes"
+
+msgid "Failed to duplicate the host group"
+msgstr "Échec de la duplication du groupe d'hôtes"
+
+msgid "Failed to enable the host group"
+msgstr "Échec de l'activation du groupe d'hôtes"
+
+msgid "Failed to disable the host group"
+msgstr "Échec de la désactivation du groupe d'hôtes"

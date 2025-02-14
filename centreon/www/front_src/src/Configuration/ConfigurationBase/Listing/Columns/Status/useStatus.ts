@@ -1,14 +1,19 @@
 import { useAtomValue } from 'jotai';
+import { complement, isEmpty, propEq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ResponseError, useSnackbar } from '@centreon/ui';
+import { ResponseError, useBulkResponse } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useDisable, useEnable } from '../../../api';
 
 import { configurationAtom } from '../../../../atoms';
 
 import {
+  labelFailedToDisableResources,
+  labelFailedToDisableSomeResources,
+  labelFailedToEnableResources,
+  labelFailedToEnableSomeResources,
   labelResourceDisabled,
   labelResourceEnabled
 } from '../../../translatedLabels';
@@ -22,7 +27,7 @@ interface Props {
 const useStatus = ({ row }): Props => {
   const { t } = useTranslation();
 
-  const { showSuccessMessage } = useSnackbar();
+  const handleBulkResponse = useBulkResponse();
 
   const configuration = useAtomValue(configurationAtom);
   const resourceType = configuration?.resourceType;
@@ -46,15 +51,32 @@ const useStatus = ({ row }): Props => {
     ? t(labelResourceDisabled(labelResourceType))
     : t(labelResourceEnabled(labelResourceType));
 
+  const labelErrorMessage = checked
+    ? t(labelFailedToDisableResources(labelResourceType))
+    : t(labelFailedToEnableResources(labelResourceType));
+
+  const labelWarningMessage = checked
+    ? t(labelFailedToDisableSomeResources)
+    : t(labelFailedToEnableSomeResources);
+
   const handleApiResponse = (response) => {
-    const { isError } = response as ResponseError;
-    if (isError) {
+    const { isError, results } = response as ResponseError;
+
+    const failedResponses = results?.filter(complement(propEq(204, 'status')));
+
+    if (isError || isEmpty(failedResponses)) {
       setChecked(checked);
 
       return;
     }
 
-    showSuccessMessage(labelSuccessMessage);
+    handleBulkResponse({
+      data: results,
+      labelWarning: labelWarningMessage,
+      labelFailed: labelErrorMessage,
+      labelSuccess: labelSuccessMessage,
+      items: [row.id]
+    });
   };
 
   const payload = useMemo(() => ({ ids: [row.id] }), [row]);

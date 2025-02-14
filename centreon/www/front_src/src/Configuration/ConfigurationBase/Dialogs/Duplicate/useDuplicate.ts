@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { ResponseError, truncate, useSnackbar } from '@centreon/ui';
+import { ResponseError, truncate, useBulkResponse } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
@@ -18,6 +18,8 @@ import {
   labelDuplicateResource,
   labelDuplicateResourceConfirmation,
   labelDuplicateResourcesConfirmation,
+  labelFailedToDuplicateResources,
+  labelFailedToDuplicateSomeResources,
   labelResourceDuplicated
 } from '../../translatedLabels';
 
@@ -34,7 +36,7 @@ interface UseDuplicateState {
 
 const useDuplicate = (): UseDuplicateState => {
   const { t } = useTranslation();
-  const { showSuccessMessage } = useSnackbar();
+  const handleBulkResponse = useBulkResponse();
 
   const [duplicatesCount, setDuplicatesCount] = useState(1);
   const [resourcesToDuplicate, setResourcesToDuplicate] = useAtom(
@@ -76,16 +78,21 @@ const useDuplicate = (): UseDuplicateState => {
   );
 
   const handleApiResponse = (response) => {
-    const { isError } = response as ResponseError;
+    const { isError, results } = response as ResponseError;
 
     if (isError) {
       return;
     }
 
+    handleBulkResponse({
+      data: results,
+      labelWarning: t(labelFailedToDuplicateSomeResources),
+      labelFailed: t(labelFailedToDuplicateResources(labelResourceType)),
+      labelSuccess: t(labelResourceDuplicated(capitalize(labelResourceType))),
+      items: resourcesToDuplicate
+    });
+
     resetSelections();
-    showSuccessMessage(
-      t(labelResourceDuplicated(capitalize(labelResourceType)))
-    );
   };
 
   const confirm = (): void => {

@@ -18432,3 +18432,27 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone."
 # msgstr ""
+
+# msgid "Failed to delete"
+# msgstr ""
+
+# msgid "Failed to duplicate"
+# msgstr ""
+
+# msgid "Failed to enable"
+# msgstr ""
+
+# msgid "Failed to disable"
+# msgstr ""
+
+# msgid "Failed to delete the host group"
+# msgstr ""
+
+# msgid "Failed to duplicate the host group"
+# msgstr ""
+
+# msgid "Failed to enable the host group"
+# msgstr ""
+
+# msgid "Failed to disable the host group"
+# msgstr ""
