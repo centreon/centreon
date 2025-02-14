@@ -176,21 +176,19 @@ jobs:
 
           # Lire le fichier .jtl et générer les lignes HTML correctement
           awk -F',' 'NR>1 {
-              # Vérifier si Success contient "true"
-              success_icon = ($7 == "true" || $7 == "TRUE") ? "🟢" : "🔴";
+              # Vérifier si Success contient "true" pour l'afficher comme succès (🟢), sinon échec (🔴)
+              success_icon = ($8 == "true") ? "🟢" : "🔴";
 
-              # Extraire Latency de la bonne colonne
-              # Si la colonne Latency (colonne 9) contient plusieurs valeurs séparées par des virgules, prendre la première valeur
-              split($9, latency_values, ",");
-              latency = latency_values[1];  # Prendre la première valeur de Latency
+              # Extraire la valeur Latency (colonne 16)
+              latency = $16;
 
-              # Si la colonne Latency est vide, utiliser "N/A"
-              if (latency == "") {
+              # Si la colonne Latency contient "null", "0" ou est vide, afficher "N/A"
+              if (latency == "null" || latency == "0" || latency == "") {
                   latency = "N/A";
               }
 
               # Générer la ligne HTML avec les valeurs extraites
-              printf "<tr><td>%s</td><td>%s</td><td>%s</td><td>✅ %s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n", $1, $2, $3, $4, $5, $6, success_icon, $8, latency;
+              printf "<tr><td>%s</td><td>%s</td><td>%s</td><td>✅ %s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n", $1, $2, $3, $4, $5, $6, success_icon, $10, latency;
           }' "$JTL_FILE" >> $GITHUB_STEP_SUMMARY
 
           echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
