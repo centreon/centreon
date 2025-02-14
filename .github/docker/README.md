@@ -18,7 +18,7 @@ Centreon web should be accessible at `http://localhost:4000/centreon`
 ## :toolbox: Custom database image
 
 By default, MariaDB 10.11 is used to store Centreon data (configuration & monitoring).
-This can be overridden with the `MYSQL_IMAGE` environment variable using one of the following ways:```
+This can be overridden with the `MYSQL_IMAGE` environment variable using one of the following ways:
 * Preferred: Export environment variable directly in your terminal (ex: `export MYSQL_IMAGE=bitnami/mysql:8.1`)
 * Alternative: Add a new line to environment file `.github/docker/.env` with MYSQL_IMAGE value (ex: `MYSQL_IMAGE=bitnami/mysql:8.1`)
 
