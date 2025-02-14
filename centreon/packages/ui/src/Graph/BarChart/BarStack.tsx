@@ -140,7 +140,7 @@ const BarStack = ({
                 })}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
                 opacity={style?.opacity || 1}
-                radius={style ? barWidth * style.radius : 0}
+                radius={style?.radius ? barWidth * style.radius : 0}
                 width={isHorizontal ? barWidth : Math.abs(bar.width)}
                 x={
                   isHorizontal

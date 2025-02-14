@@ -19,7 +19,10 @@ import { LineChartProps } from './models';
 import WrapperChart from '.';
 
 interface Props
-  extends Pick<LineChartProps, 'legend' | 'tooltip' | 'axis' | 'lineStyle'> {
+  extends Pick<
+    LineChartProps,
+    'legend' | 'tooltip' | 'axis' | 'lineStyle' | 'barStyle'
+  > {
   data?: LineChartData;
 }
 
@@ -63,7 +66,8 @@ const initialize = ({
   tooltip,
   legend,
   axis,
-  lineStyle
+  lineStyle,
+  barStyle
 }: Props): void => {
   cy.adjustViewport();
 
@@ -84,6 +88,7 @@ const initialize = ({
           data={data as unknown as LineChartData}
           legend={legend}
           lineStyle={lineStyle}
+          barStyle={barStyle}
           tooltip={tooltip}
         />
       </Provider>
@@ -558,7 +563,7 @@ describe('Line chart', () => {
         .and('equals', '4 10');
     });
 
-    it('displays lines with dots width when the prop is set', () => {
+    it('displays lines with dashes width when props are set', () => {
       initialize({ lineStyle: { dashLength: 5, dashOffset: 8 } });
 
       checkGraphWidth();
@@ -567,6 +572,29 @@ describe('Line chart', () => {
       cy.get('path[stroke-width="2"]')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 8');
+    });
+
+    it('displays only one line with custom style when pprops are set', () => {
+      initialize({
+        lineStyle: [
+          {
+            dashLength: 5,
+            dashOffset: 4,
+            lineWidth: 1,
+            showPoints: true,
+            showArea: true,
+            metricId: 13534
+          }
+        ]
+      });
+
+      checkGraphWidth();
+
+      cy.contains(':00 AM').should('be.visible');
+      cy.get('path.visx-area-closed')
+        .should('have.attr', 'stroke-dasharray')
+        .and('equals', '5 4');
+      cy.get('circle[cx="32.5"]').should('be.visible');
     });
   });
 });
@@ -695,6 +723,38 @@ describe('Lines and bars', () => {
 
     cy.findAllByTestId('unit-selector').eq(1).should('have.value', '%');
     cy.contains('20').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays stacked lines and bars when a line and a bar are customized', () => {
+    initialize({
+      data: dataPingServiceLinesBarsStacked,
+      lineStyle: [
+        {
+          metricId: 1,
+          showArea: false,
+          dotOffset: 4,
+          lineWidth: 3
+        }
+      ],
+      barStyle: [
+        {
+          metricId: 10,
+          opacity: 0.5,
+          radius: 0.3
+        }
+      ]
+    });
+
+    checkGraphWidth();
+
+    cy.get(
+      'path[d="M23.85123966942149,19.68479909900534 h23.20661157024793 a17.404958677685947,17.404958677685947 0 0 1 17.404958677685947,17.404958677685947 v170.30491743067807 v17.404958677685947h-17.404958677685947 h-23.20661157024793 h-17.404958677685947v-17.404958677685947 v-170.30491743067807 a17.404958677685947,17.404958677685947 0 0 1 17.404958677685947,-17.404958677685947z"]'
+    ).should('be.visible');
+    cy.get(
+      'path[d="M7.4462809917355415,224.7996338850553 h56.016528925619824 h1v1 v166.2003661149447 a1,1 0 0 1 -1,1 h-56.016528925619824 a1,1 0 0 1 -1,-1 v-166.2003661149447 v-1h1z"]'
+    ).should('be.visible');
 
     cy.makeSnapshot();
   });
