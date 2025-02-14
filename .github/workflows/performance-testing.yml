@@ -119,17 +119,20 @@ jobs:
       - name: Install JMeter
         run: |
           java -version
-          echo "Downloading JMeter..."
-          wget -q https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.4.1.zip -O jmeter.zip || { echo "Download failed!"; exit 1; }
+          echo "Finding latest JMeter version..."
+          JMETER_VERSION=$(curl -s https://downloads.apache.org/jmeter/binaries/ | grep -oP 'apache-jmeter-\d+\.\d+\.\d+\.zip' | sort -V | tail -n 1 | sed 's/apache-jmeter-\(.*\).zip/\1/')
 
-          echo "Checking if the file exists..."
-          ls -lah jmeter.zip || { echo "File not found!"; exit 1; }
+          echo "Latest JMeter version: $JMETER_VERSION"
+
+          echo "Downloading JMeter..."
+          wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip || { echo "Download failed!"; exit 1; }
 
           echo "Unzipping JMeter..."
           unzip -q jmeter.zip || { echo "Unzip failed!"; exit 1; }
 
           rm jmeter.zip
           echo "JMeter installed successfully!"
+
 
       - name: Install JMeter Plugins
         run: |
