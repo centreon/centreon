@@ -66,23 +66,6 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
-      - name: Restore Standard Slim Image from Cache
-        id: cache-docker-slim
-        uses: actions/cache/restore@v4.2.0
-        continue-on-error: true
-        timeout-minutes: 6
-        with:
-          path: /tmp/cache/docker-image
-          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
-
-      - name: Load Standard Slim Image
-        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
-        run: |
-          docker load --input /tmp/cache/docker-image/centreon-web-slim-alma9.tar
-          docker tag docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979
-
       - name: Start Centreon Web and Database Containers
         env:
           WEB_IMAGE: 'docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979'
@@ -158,6 +141,11 @@ jobs:
           done
           echo "Tests completed!"
 
+      - name: Generate HTML Report from JMeter .jtl file
+        run: |
+          # Appeler le script Node.js pour générer le rapport HTML
+          node generateReport.mjs $GITHUB_WORKSPACE/jmeter_results/results_1.jtl $GITHUB_WORKSPACE/generated_report.html
+
       - name: Upload JMeter Results
         uses: actions/upload-artifact@v4
         with:
@@ -169,3 +157,18 @@ jobs:
         with:
           name: jmeter-html-reports
           path: centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
+
+      - name: Display HTML Report in GitHub Summary
+        run: |
+          # Ajouter le rapport HTML dans le résumé de l'étape
+          echo "<h2>JMeter Test Results</h2>" >> $GITHUB_STEP_SUMMARY
+          echo "<table style='width:100%; border-collapse: collapse; border: 1px solid #ddd; text-align: left;'>" >> $GITHUB_STEP_SUMMARY
+          echo "<thead><tr><th>Timestamp</th><th>Elapsed</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency</th><th>URL</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
+          echo "<tbody>" >> $GITHUB_STEP_SUMMARY
+
+          # Lire le fichier .jtl et générer les lignes HTML correspondantes
+          while IFS=, read -r timestamp elapsed label responseCode responseMessage threadName success bytes latency url; do
+            echo "<tr><td>$timestamp</td><td>$elapsed</td><td>$label</td><td>$responseCode</td><td>$responseMessage</td><td>$threadName</td><td>$success</td><td>$bytes</td><td>$latency</td><td><a href='$url' target='_blank'>Link</a></td></tr>" >> $GITHUB_STEP_SUMMARY
+          done < $GITHUB_WORKSPACE/jmeter_results/results_1.jtl
+
+          echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
