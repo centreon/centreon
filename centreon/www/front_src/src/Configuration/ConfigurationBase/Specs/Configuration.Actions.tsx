@@ -1,6 +1,8 @@
+import { capitalize } from '@mui/material';
 import pluralize from 'pluralize';
 
 import initialize from './initialize';
+
 import {
   getLabelDeleteMany,
   getLabelDeleteOne,
@@ -8,7 +10,6 @@ import {
   getLabelDuplicateOne
 } from './utils';
 
-import { capitalize } from '@mui/material';
 import {
   labelDelete,
   labelDeleteResource,
@@ -119,6 +120,7 @@ export default (resourceType) => {
         );
       });
     });
+
     describe('duplicate', () => {
       it('displays the confirmation dialog when the inline duplicate button is clicked', () => {
         cy.waitForRequest('@getAll');
