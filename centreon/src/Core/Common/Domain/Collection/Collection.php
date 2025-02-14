@@ -35,7 +35,6 @@ use Core\Common\Domain\Exception\CollectionException;
  */
 abstract class Collection implements CollectionInterface
 {
-
     /**
      * Collection constructor
      *
@@ -81,6 +80,7 @@ abstract class Collection implements CollectionInterface
         if (isset($this->items[$key])) {
             return $this->items[$key];
         }
+
         throw new CollectionException("Key {$key} not found in the collection");
     }
 
@@ -150,7 +150,7 @@ abstract class Collection implements CollectionInterface
                 $this->items = $itemsBackup;
 
                 throw new CollectionException(
-                    "Collections to merge must be instances of " . $this::class . ", " . $collection::class . " given"
+                    'Collections to merge must be instances of ' . $this::class . ', ' . $collection::class . ' given'
                 );
             }
         }
@@ -261,6 +261,7 @@ abstract class Collection implements CollectionInterface
     {
         $json = json_encode($this->jsonSerialize());
         if (! $json) {
+
             throw new CollectionException(
                 'Stringify the collection to json failed',
                 ['serializedCollection' => $this->jsonSerialize()]
@@ -280,6 +281,7 @@ abstract class Collection implements CollectionInterface
     {
         $class = $this->itemClass();
         if (! $item instanceof $class) {
+
             throw new CollectionException(
                 'Item must be an instance of ' . $class . ', ' . $item::class . ' given'
             );

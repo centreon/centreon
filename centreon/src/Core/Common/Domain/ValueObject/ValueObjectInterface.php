@@ -45,5 +45,4 @@ interface ValueObjectInterface
      * @return bool
      */
     public function equals(self $object): bool;
-
 }
