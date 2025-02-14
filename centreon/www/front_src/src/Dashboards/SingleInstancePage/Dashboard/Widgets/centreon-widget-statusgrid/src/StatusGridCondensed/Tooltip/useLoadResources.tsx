@@ -2,6 +2,7 @@ import { equals, flatten } from 'ramda';
 
 import { useInfiniteScrollListing } from '@centreon/ui';
 
+import { WidgetResourceType } from '../../../../../AddEditWidget/models';
 import { Resource } from '../../../../models';
 import { tooltipPageAtom } from '../../StatusGridStandard/Tooltip/atoms';
 import { ResourceStatus } from '../../StatusGridStandard/models';
@@ -11,7 +12,6 @@ import {
   getListingCustomQueryParameters,
   resourcesEndpoint
 } from '../../api/endpoints';
-import { WidgetResourceType } from '../../../../../AddEditWidget/models';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;
@@ -50,7 +50,11 @@ export const useLoadResources = ({
 
   const formattedResources = resources.map((item) => {
     if (equals(item.resourceType, 'hostgroup')) {
-      return { ...item, resourceType: WidgetResourceType.hostGroup, name:WidgetResourceType.hostGroup };
+      return {
+        ...item,
+        resourceType: WidgetResourceType.hostGroup,
+        name: WidgetResourceType.hostGroup
+      };
     }
     return item;
   });
