@@ -73,8 +73,7 @@ export const getListingCustomQueryParameters = ({
     if (equals(item.resourceType, 'hostgroup')) {
       return {
         ...item,
-        resourceType: WidgetResourceType.hostGroup,
-        name: WidgetResourceType.hostGroup
+        resourceType: WidgetResourceType.hostGroup
       };
     }
     return item;
@@ -120,8 +119,7 @@ export const getListingQueryParameters = ({
     if (equals(item.resourceType, 'hostgroup')) {
       return {
         ...item,
-        resourceType: WidgetResourceType.hostGroup,
-        name: WidgetResourceType.hostGroup
+        resourceType: WidgetResourceType.hostGroup
       };
     }
     return item;
@@ -204,8 +202,7 @@ export const buildCondensedViewEndpoint = ({
     if (equals(item.resourceType, 'hostgroup')) {
       return {
         ...item,
-        resourceType: WidgetResourceType.hostGroup,
-        name: WidgetResourceType.hostGroup
+        resourceType: WidgetResourceType.hostGroup
       };
     }
     return item;

@@ -52,8 +52,7 @@ export const useLoadResources = ({
     if (equals(item.resourceType, 'hostgroup')) {
       return {
         ...item,
-        resourceType: WidgetResourceType.hostGroup,
-        name: WidgetResourceType.hostGroup
+        resourceType: WidgetResourceType.hostGroup
       };
     }
     return item;

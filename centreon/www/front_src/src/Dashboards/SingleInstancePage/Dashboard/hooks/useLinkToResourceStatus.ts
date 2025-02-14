@@ -25,7 +25,7 @@ interface UseLinkToResourceStatus {
   getPageType: (data) => string | null;
 }
 
-const getFormattedResources = (array: Array<Resource>) => {
+const getFormattedResources = (array: Array<Resource>): Array<Resource> => {
   return array.map((item) => {
     if (equals(item.resourceType, 'hostgroup')) {
       return { ...item, resourceType: WidgetResourceType.hostGroup };
