@@ -13,8 +13,7 @@ import {
   QueryParameter,
   buildListingEndpoint
 } from '@centreon/ui';
-
-import { WidgetResourceType } from '../../../../AddEditWidget/models';
+import { getFormattedResources } from '../../../../utils';
 import { Resource } from '../../../models';
 import { formatBAStatus, formatStatus } from '../../../utils';
 
@@ -69,15 +68,7 @@ export const getListingCustomQueryParameters = ({
   states,
   resources
 }: GetCustomQueryParametersProps): Array<QueryParameter> => {
-  const formattedResources = resources.map((item) => {
-    if (equals(item.resourceType, 'hostgroup')) {
-      return {
-        ...item,
-        resourceType: WidgetResourceType.hostGroup
-      };
-    }
-    return item;
-  });
+  const formattedResources = getFormattedResources(resources);
 
   const resourcesToApplyToCustomParameters = formattedResources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
@@ -115,15 +106,7 @@ export const getListingQueryParameters = ({
   limit,
   page
 }: GetListingQueryParametersProps): ListingParameters => {
-  const formattedResources = resources.map((item) => {
-    if (equals(item.resourceType, 'hostgroup')) {
-      return {
-        ...item,
-        resourceType: WidgetResourceType.hostGroup
-      };
-    }
-    return item;
-  });
+  const formattedResources = getFormattedResources(resources);
   const resourcesToApplyToSearchParameters = formattedResources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
   );
@@ -198,15 +181,7 @@ export const buildCondensedViewEndpoint = ({
   baseEndpoint,
   statuses
 }: BuildResourcesEndpointProps): string => {
-  const formattedResources = resources.map((item) => {
-    if (equals(item.resourceType, 'hostgroup')) {
-      return {
-        ...item,
-        resourceType: WidgetResourceType.hostGroup
-      };
-    }
-    return item;
-  });
+  const formattedResources = getFormattedResources(resources);
 
   const resourcesToApply = formattedResources.map((resource) => {
     if (!equals(type, resource.resourceType)) {

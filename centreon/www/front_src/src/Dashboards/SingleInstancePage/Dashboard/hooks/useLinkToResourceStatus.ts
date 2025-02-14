@@ -8,13 +8,12 @@ import {
 } from '../../../../Resources/Listing/columns';
 import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
 import { Visualization } from '../../../../Resources/models';
-import { WidgetResourceType } from '../AddEditWidget/models';
-import { Resource } from '../Widgets/models';
 import {
   labelBusinessActivity,
   labelResourcesStatus
 } from '../translatedLabels';
 import {
+  getFormattedResources,
   getResourcesUrlForMetricsWidgets,
   getUrlForResourcesOnlyWidgets
 } from '../utils';
@@ -25,14 +24,6 @@ interface UseLinkToResourceStatus {
   getPageType: (data) => string | null;
 }
 
-const getFormattedResources = (array: Array<Resource>): Array<Resource> => {
-  return array.map((item) => {
-    if (equals(item.resourceType, 'hostgroup')) {
-      return { ...item, resourceType: WidgetResourceType.hostGroup };
-    }
-    return item;
-  });
-};
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);

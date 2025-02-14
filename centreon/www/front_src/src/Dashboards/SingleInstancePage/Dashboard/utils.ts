@@ -13,6 +13,7 @@ import {
 import { centreonBaseURL } from '@centreon/ui';
 
 import { WidgetResourceType } from './AddEditWidget/models';
+import { Resource } from './Widgets/models';
 import { getIsMetaServiceSelected } from './Widgets/utils';
 
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
@@ -212,4 +213,15 @@ export const getUrlForResourcesOnlyWidgets = ({
   return `/monitoring/resources?filter=${encodeURIComponent(
     JSON.stringify(filterQueryParameter)
   )}&fromTopCounter=true`;
+};
+
+export const getFormattedResources = (
+  array: Array<Resource>
+): Array<Resource> => {
+  return array.map((item) => {
+    if (equals(item.resourceType, 'hostgroup')) {
+      return { ...item, resourceType: WidgetResourceType.hostGroup };
+    }
+    return item;
+  });
 };
