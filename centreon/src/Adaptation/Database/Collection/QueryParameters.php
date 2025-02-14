@@ -38,14 +38,6 @@ use Core\Common\Domain\Exception\CollectionException;
 class QueryParameters extends Collection
 {
     /**
-     * @return class-string<QueryParameter>
-     */
-    protected function itemClass(): string
-    {
-        return QueryParameter::class;
-    }
-
-    /**
      * @throws CollectionException
      * @return Collection<QueryParameter>
      */
@@ -88,5 +80,13 @@ class QueryParameters extends Collection
     public function getLargeObjectQueryParameters(): Collection
     {
         return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT);
+    }
+
+    /**
+     * @return class-string<QueryParameter>
+     */
+    protected function itemClass(): string
+    {
+        return QueryParameter::class;
     }
 }

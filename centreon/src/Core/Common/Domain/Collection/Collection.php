@@ -35,9 +35,7 @@ use Core\Common\Domain\Exception\CollectionException;
  */
 abstract class Collection implements CollectionInterface
 {
-    /**
-     * @var array<string|int,TItem> $items
-     */
+    /** @var array<string|int,TItem> $items */
     protected array $items;
 
     /**
