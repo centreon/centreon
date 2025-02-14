@@ -149,10 +149,19 @@ jobs:
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
           cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
 
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results  # Créer le dossier de résultats
+          # Créer le dossier de résultats
+          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results
+
+          # Lister les fichiers JMX trouvés
+          echo "Tests to be executed:"
+          for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
+              echo "  - $i"
+          done
+
+          # Exécuter les tests JMeter
           for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
               echo "Running test: $i"
-              ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/jmeter_results/results_$(basename "$i" .jmx).jtl
+              ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl --loglevel DEBUG
           done
           echo "Tests completed!"
 
