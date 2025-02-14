@@ -156,11 +156,15 @@ jobs:
           for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
               echo "  - $i"
           done
+
           for i in $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx; do
               echo "Running test: $i"
-              ./jmeter -n -t "$i" -l $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl --loglevel DEBUG
-
+              ./jmeter -n -t "$i" \
+                -l $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/results_$(basename "$i" .jmx).jtl \
+                --loglevel DEBUG \
+                -j $GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/jmeter_results/jmeter_log.log
           done
+
           echo "Tests completed!"
 
       - name: Upload JMeter Results
