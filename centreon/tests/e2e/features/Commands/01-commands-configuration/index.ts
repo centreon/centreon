@@ -22,10 +22,6 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/main.php?p=60802&type=*'
-  }).as('getCommandsPage');
-  cy.intercept({
-    method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
 });
@@ -57,7 +53,7 @@ When('the user creates a command', () => {
     .find('input[class="btc bt_success"][name^="submit"]')
     .eq(0)
     .click();
-  cy.wait('@getCommandsPage');
+  cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
@@ -90,7 +86,7 @@ When('the user changes the properties of a command', () => {
     .find('input[class="btc bt_success"][name^="submit"]')
     .eq(0)
     .click();
-  cy.wait('@getCommandsPage');
+  cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
@@ -168,7 +164,7 @@ When('the user creates a {string} command', (type: string) => {
     .find('input[class="btc bt_success"][name^="submit"]')
     .eq(0)
     .click();
-  cy.wait('@getCommandsPage');
+  cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
