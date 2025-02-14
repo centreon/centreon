@@ -1,5 +1,6 @@
 services:
   web:
+    platform: linux/amd64
     env_file:
       - .env
     image: "${WEB_IMAGE}"
@@ -17,6 +18,7 @@ services:
       timeout: 5s
 
   db:
+    platform: linux/amd64
     env_file:
       - .env
     image: "${MYSQL_IMAGE:-bitnami/mariadb:10.11}"
