@@ -11,6 +11,7 @@ import {
   getListingCustomQueryParameters,
   resourcesEndpoint
 } from '../../api/endpoints';
+import { WidgetResourceType } from '../../../../../AddEditWidget/models';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;
@@ -47,7 +48,14 @@ export const useLoadResources = ({
     return resourcesEndpoint;
   };
 
-  const formattedResources = resources.map((resource) => {
+  const formattedResources = resources.map((item) => {
+    if (equals(item.resourceType, 'hostgroup')) {
+      return { ...item, resourceType: WidgetResourceType.hostGroup, name:WidgetResourceType.hostGroup };
+    }
+    return item;
+  });
+
+  const resourcesToApplyToSearch = formattedResources.map((resource) => {
     if (!equals(resourceType, resource.resourceType)) {
       return {
         ...resource,
@@ -60,7 +68,7 @@ export const useLoadResources = ({
     return { ...resource, resourceType: 'name' };
   });
 
-  const resourcesSearchConditions = formattedResources.map(
+  const resourcesSearchConditions = resourcesToApplyToSearch.map(
     ({ resourceType: type, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({
         field: type,
