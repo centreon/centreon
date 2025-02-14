@@ -21,19 +21,38 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Exception;
-
-use Core\Common\Domain\Exception\DomainException;
+namespace Adaptation\Database\Enum;
 
 /**
- * Class
+ * Enum
  *
- * @class   DatabaseException
- * @package Adaptation\Database\Exception
+ * @class   ParameterType
+ * @package Adaptation\Database
  */
-abstract class DatabaseException extends DomainException
+enum QueryParameterTypeEnum: int
 {
-    public const ERROR_CODE_DATABASE = 10;
-    public const ERROR_CODE_DATABASE_TRANSACTION = 11;
-    public const ERROR_CODE_UNBUFFERED_QUERY = 12;
+    /**
+     * Represents the SQL NULL data type.
+     */
+    case NULL = 0;
+
+    /**
+     * Represents the SQL INTEGER data type.
+     */
+    case INT = 1;
+
+    /**
+     * Represents the SQL CHAR, VARCHAR, or other string data type.
+     */
+    case STRING = 2;
+
+    /**
+     * Represents the SQL large object data type.
+     */
+    case LARGE_OBJECT = 3;
+
+    /**
+     * Represents a boolean data type.
+     */
+    case BOOL = 5;
 }

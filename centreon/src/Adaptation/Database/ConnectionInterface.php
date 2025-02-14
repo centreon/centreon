@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Adaptation\Database;
 
-use Adaptation\Database\Enum\ConnectionDriver;
-use Adaptation\Database\Enum\ParameterType;
+use Adaptation\Database\Collection\BatchInsertParameters;
+use Adaptation\Database\Collection\QueryParameters;
+use Adaptation\Database\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Exception\ConnectionException;
 use Adaptation\Database\Model\ConnectionConfig;
-use Traversable;
 
 /**
  * Interface
@@ -41,7 +41,7 @@ interface ConnectionInterface
      * The list of drivers that allow the use of unbuffered queries.
      */
     public const DRIVER_ALLOWED_UNBUFFERED_QUERY = [
-        ConnectionDriver::DRIVER_MYSQL->value,
+        ConnectionDriverEnum::DRIVER_MYSQL->value,
     ];
 
     /**
@@ -49,37 +49,38 @@ interface ConnectionInterface
      *
      * @param ConnectionConfig $connectionConfig
      *
-     * @return ConnectionInterface
-     *
      * @throws ConnectionException
+     * @return ConnectionInterface
      */
-    public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface;
+    public static function createFromConfig(ConnectionConfig $connectionConfig): self;
 
     /**
      * Creates a new instance of a SQL query builder.
+     *
+     * @return QueryBuilderInterface
      */
     public function createQueryBuilder(): QueryBuilderInterface;
 
     /**
      * Creates an expression builder for the connection.
+     *
+     * @return ExpressionBuilderInterface
      */
     public function createExpressionBuilder(): ExpressionBuilderInterface;
 
     /**
      * Return the database name if it exists.
      *
-     * @return string|null
-     *
      * @throws ConnectionException
+     * @return string|null
      */
     public function getDatabaseName(): ?string;
 
     /**
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
-     * @return object
-     *
      * @throws ConnectionException
+     * @return object
      */
     public function getNativeConnection(): object;
 
@@ -87,9 +88,8 @@ interface ConnectionInterface
      * Returns the ID of the last inserted row.
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
-     * @return string
-     *
      * @throws ConnectionException
+     * @return string
      */
     public function getLastInsertId(): string;
 
@@ -101,23 +101,18 @@ interface ConnectionInterface
     public function isConnected(): bool;
 
     /**
-     * Closes the connection.
-     */
-    public function close(): void;
-
-    /**
      * The usage of this method is discouraged. Use prepared statements.
      *
      * @param string $value
      *
      * @return string
      */
-    public function quote(string $value): string;
+    public function quoteString(string $value): string;
 
-    // ----------------------------------------- CRUD METHODS -----------------------------------------
+    // ----------------------------------------- CUD METHODS ------------------------------------------
 
     /**
-     * To execute all queries except the queries getting results.
+     * To execute all queries except the queries getting results (SELECT).
      *
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
@@ -128,87 +123,91 @@ interface ConnectionInterface
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types
-     *
-     * @return int
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return int
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
-    public function executeStatement(string $query, array $params = [], array $types = []): int;
+    public function executeStatement(string $query, ?QueryParameters $queryParameters = null): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be only used for INSERT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}
-     *
-     * @return int
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return int
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->insert('INSERT INTO table (id, name) VALUES (:id, :name)', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
-    public function insert(string $query, array $params = [], array $types = []): int;
+    public function insert(string $query, ?QueryParameters $queryParameters = null): int;
+
+    /**
+     * Executes an SQL statement with the given parameters and returns the number of affected rows for multiple inserts.
+     *
+     * Could be only used for several INSERT.
+     *
+     * @param string $tableName
+     * @param array<string> $columns
+     * @param BatchInsertParameters $batchInsertParameters
+     *
+     * @throws ConnectionException
+     * @return int
+     *
+     * @example $batchInsertParameters = BatchInsertParameters::create([
+     *              QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]),
+     *              QueryParameters::create([QueryParameter::int('id', 2), QueryParameter::string('name', 'Jean')]),
+     *          ]);
+     *          $nbAffectedRows = $db->batchInsert('table', ['id', 'name'], $batchInsertParameters);
+     *          // $nbAffectedRows = 2
+     */
+    public function batchInsert(string $tableName, array $columns, BatchInsertParameters $batchInsertParameters): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be only used for UPDATE.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}
-     *
-     * @return int
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return int
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->update('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
-    public function update(string $query, array $params = [], array $types = []): int;
+    public function update(string $query, ?QueryParameters $queryParameters = null): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be only used for DELETE.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}
-     *
+     * @throws ConnectionException
      * @return int
      *
-     * @throws ConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+     *          $nbAffectedRows = $db->delete('DELETE FROM table WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
      */
-    public function delete(string $query, array $params = [], array $types = []): int;
+    public function delete(string $query, ?QueryParameters $queryParameters = null): int;
 
     // --------------------------------------- FETCH METHODS -----------------------------------------
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result as an associative array.
-     *
-     * Could be only used with SELECT.
-     *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return array<string, mixed>|false False is returned if no rows are found.
-     *
-     * @throws ConnectionException
-     */
-    public function fetchAssociative(string $query, array $params = [], array $types = []): false | array;
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result
@@ -216,17 +215,34 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return array<string, mixed>|false False is returned if no rows are found.
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return array<string, mixed>|false false is returned if no rows are found
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+     *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
+     *          // $result = [0 => 1, 1 => 'John', 2 => 'Doe']
      */
-    public function fetchNumeric(string $query, array $params = [], array $types = []): false | array;
+    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false|array;
+
+    /**
+     * Prepares and executes an SQL query and returns the first row of the result as an associative array.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return array<string, mixed>|false false is returned if no rows are found
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
+     *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
+     *          // $result = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
+     */
+    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false|array;
 
     /**
      * Prepares and executes an SQL query and returns the value of a single column
@@ -234,51 +250,69 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return mixed|false False is returned if no rows are found.
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return mixed|false false is returned if no rows are found
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
+     *          $result = $db->fetchOne('SELECT name FROM table WHERE name = :name', $queryParameters);
+     *          // $result = 'John'
      */
-    public function fetchOne(string $query, array $params = [], array $types = []): mixed;
+    public function fetchOne(string $query, ?QueryParameters $queryParameters = null): mixed;
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of the column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     * @param int $column
+     *
+     * @throws ConnectionException
+     * @return list<mixed>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchByColumn('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = ['John', 'Jean']
+     */
+    public function fetchByColumn(string $query, ?QueryParameters $queryParameters = null, int $column = 0): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return array<array<int,mixed>>
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return array<array<int,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [[0 => 1, 1 => 'John', 2 => 'Doe'], [0 => 2, 1 => 'Jean', 2 => 'Dupont']]
      */
-    public function fetchAllNumeric(string $query, array $params = [], array $types = []): array;
+    public function fetchAllNumeric(string $query, ?QueryParameters $queryParameters = null): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an array of associative arrays.
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return array<array<string,mixed>>
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return array<array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [['id' => 1, 'name' => 'John', 'surname' => 'Doe'], ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']]
      */
-    public function fetchAllAssociative(string $query, array $params = [], array $types = []): array;
+    public function fetchAllAssociative(string $query, ?QueryParameters $queryParameters = null): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an associative array with the keys
@@ -286,17 +320,17 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return array<int|string,mixed>
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return array<int|string,mixed>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
+     *          // $result = ['John' => 'Doe', 'Jean' => 'Dupont']
      */
-    public function fetchAllKeyValue(string $query, array $params = [], array $types = []): array;
+    public function fetchAllKeyValue(string $query, ?QueryParameters $queryParameters = null): array;
 
     /**
      * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
@@ -305,34 +339,17 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
+     * @throws ConnectionException
      * @return array<mixed,array<string,mixed>>
      *
-     * @throws ConnectionException
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [1 => ['name' => 'John', 'surname' => 'Doe'], 2 => ['name' => 'Jean', 'surname' => 'Dupont']]
      */
-    public function fetchAllAssociativeIndexed(string $query, array $params = [], array $types = []): array;
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an array of the first column values.
-     *
-     * Could be only used with SELECT.
-     *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return list<mixed>
-     *
-     * @throws ConnectionException
-     */
-    public function fetchFirstColumn(string $query, array $params = [], array $types = []): array;
+    public function fetchAllAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): array;
 
     // --------------------------------------- ITERATE METHODS -----------------------------------------
 
@@ -341,17 +358,20 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return Traversable<int,list<mixed>>
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = [0 => 1, 1 => 'John', 2 => 'Doe']
+     *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
+     *          }
      */
-    public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable;
+    public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented
@@ -359,17 +379,45 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return Traversable<int,array<string,mixed>>
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return \Traversable<int,array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
+     *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
+     *          }
      */
-    public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable;
+    public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): \Traversable;
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over the column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     * @param int $column
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateByColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $value) {
+     *              // $value = 'John'
+     *              // $value = 'Jean'
+     *          }
+     */
+    public function iterateByColumn(
+        string $query,
+        ?QueryParameters $queryParameters = null,
+        int $column = 0
+    ): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys
@@ -377,17 +425,20 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return Traversable<mixed,mixed>
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return \Traversable<mixed,mixed>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $key => $value) {
+     *              // $key = 'John', $value = 'Doe'
+     *              // $key = 'Jean', $value = 'Dupont'
+     *          }
      */
-    public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable;
+    public function iterateKeyValue(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
@@ -396,34 +447,20 @@ interface ConnectionInterface
      *
      * Could be only used with SELECT.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return Traversable<mixed,array<string,mixed>>
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     * @return \Traversable<mixed,array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $key => $row) {
+     *              // $key = 1, $row = ['name' => 'John', 'surname' => 'Doe']
+     *              // $key = 2, $row = ['name' => 'Jean', 'surname' => 'Dupont']
+     *          }
      */
-    public function iterateAssociativeIndexed(string $query, array $params = [], array $types = []): Traversable;
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over the first column values.
-     *
-     * Could be only used with SELECT.
-     *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
-     * @param string                   $query
-     * @param array<string,int|string> $params
-     * @param array<string,int|string> $types {@see ParameterType}.
-     *
-     * @return Traversable<int,mixed>
-     *
-     * @throws ConnectionException
-     */
-    public function iterateColumn(string $query, array $params = [], array $types = []): Traversable;
+    public function iterateAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
@@ -457,43 +494,34 @@ interface ConnectionInterface
     /**
      * Checks whether a transaction is currently active.
      *
-     * @return bool TRUE if a transaction is currently active, FALSE otherwise.
+     * @return bool TRUE if a transaction is currently active, FALSE otherwise
      */
     public function isTransactionActive(): bool;
 
     /**
      * Opens a new transaction. This must be closed by calling one of the following methods:
-     * {@see commit} or {@see rollBack}
-     *
-     * Note that it is possible to create nested transactions, but that data will only be written to the database when
-     * the level 1 transaction is committed.
-     *
-     * Similarly, if a rollback occurs in a nested transaction, the level 1 transaction will also be rolled back and
-     * no data will be updated.
-     *
-     * @return void
+     * {@see commitTransaction} or {@see rollBackTransaction}
      *
      * @throws ConnectionException
+     * @return void
      */
     public function startTransaction(): void;
 
     /**
      * To validate a transaction.
      *
-     * @return void
-     *
      * @throws ConnectionException
+     * @return bool
      */
-    public function commit(): void;
+    public function commitTransaction(): bool;
 
     /**
      * To cancel a transaction.
      *
-     * @return void
-     *
      * @throws ConnectionException
+     * @return bool
      */
-    public function rollBack(): void;
+    public function rollBackTransaction(): bool;
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 
@@ -501,15 +529,15 @@ interface ConnectionInterface
      * Checks that the connection instance allows the use of unbuffered queries.
      *
      * @throws ConnectionException
+     * @return bool
      */
-    public function allowUnbufferedQuery(): void;
+    public function allowUnbufferedQuery(): bool;
 
     /**
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
-     * @return void
-     *
      * @throws ConnectionException
+     * @return void
      */
     public function startUnbufferedQuery(): void;
 
@@ -523,9 +551,8 @@ interface ConnectionInterface
     /**
      * To close an unbuffered query.
      *
-     * @return void
-     *
      * @throws ConnectionException
+     * @return void
      */
     public function stopUnbufferedQuery(): void;
 }

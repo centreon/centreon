@@ -21,19 +21,28 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Exception;
+namespace Core\Common\Domain\ValueObject;
 
-use Core\Common\Domain\Exception\DomainException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
- * Class
+ * Interface
  *
- * @class   DatabaseException
- * @package Adaptation\Database\Exception
+ * @class   ValueObjectInterface
+ * @package Core\Common\Domain\ValueObject
  */
-abstract class DatabaseException extends DomainException
+interface ValueObjectInterface
 {
-    public const ERROR_CODE_DATABASE = 10;
-    public const ERROR_CODE_DATABASE_TRANSACTION = 11;
-    public const ERROR_CODE_UNBUFFERED_QUERY = 12;
+    /**
+     * @return string
+     */
+    public function __toString(): string;
+
+    /**
+     * @param ValueObjectInterface $object
+     *
+     * @throws ValueObjectException
+     * @return bool
+     */
+    public function equals(self $object): bool;
 }

@@ -21,19 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Exception;
-
-use Core\Common\Domain\Exception\DomainException;
+namespace Core\Common\Domain\Exception;
 
 /**
  * Class
  *
- * @class   DatabaseException
- * @package Adaptation\Database\Exception
+ * @class   UnexpectedValueException
+ * @package Core\Common\Domain\Exception
  */
-abstract class DatabaseException extends DomainException
+class UnexpectedValueException extends DomainException
 {
-    public const ERROR_CODE_DATABASE = 10;
-    public const ERROR_CODE_DATABASE_TRANSACTION = 11;
-    public const ERROR_CODE_UNBUFFERED_QUERY = 12;
+    /**
+     * UnexpectedValueException constructor
+     *
+     * @param string $message
+     * @param array<string,mixed> $context
+     * @param \Throwable|null $previous
+     */
+    public function __construct(string $message, array $context = [], ?\Throwable $previous = null)
+    {
+        parent::__construct($message, self::ERROR_CODE_BAD_USAGE, $context, $previous);
+    }
 }

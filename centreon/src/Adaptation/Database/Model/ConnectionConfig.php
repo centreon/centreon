@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Model;
 
-use Adaptation\Database\Enum\ConnectionDriver;
+use Adaptation\Database\Enum\ConnectionDriverEnum;
 
 /**
  * Class
@@ -36,31 +36,23 @@ final readonly class ConnectionConfig
     /**
      * ConnectionConfig constructor
      *
-     * @param string           $host
-     * @param string           $user
-     * @param string           $password
-     * @param string           $databaseName
-     * @param ConnectionDriver $driver
-     * @param string           $charset
-     * @param int              $port
+     * @param string $host
+     * @param string $user
+     * @param string $password
+     * @param string $databaseName
+     * @param ConnectionDriverEnum $driver
+     * @param string $charset
+     * @param int $port
      */
     public function __construct(
         private string $host,
         private string $user,
         private string $password,
         private string $databaseName,
-        private ConnectionDriver $driver,
+        private int $port = 0,
         private string $charset = '',
-        private int $port = 0
+        private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_MYSQL
     ) {}
-
-    /**
-     * @return ConnectionDriver
-     */
-    public function getDriver(): ConnectionDriver
-    {
-        return $this->driver;
-    }
 
     /**
      * @return string
@@ -89,14 +81,6 @@ final readonly class ConnectionConfig
     /**
      * @return string
      */
-    public function getCharset(): string
-    {
-        return $this->charset;
-    }
-
-    /**
-     * @return string
-     */
     public function getDatabaseName(): string
     {
         return $this->databaseName;
@@ -108,5 +92,62 @@ final readonly class ConnectionConfig
     public function getPort(): int
     {
         return $this->port;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCharset(): string
+    {
+        return $this->charset;
+    }
+
+    /**
+     * @return ConnectionDriverEnum
+     */
+    public function getDriver(): ConnectionDriverEnum
+    {
+        return $this->driver;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMysqlDsn(): string
+    {
+        return sprintf(
+            'mysql:dbname=%s;host=%s;port=%s',
+            $this->getDatabaseName(),
+            $this->getHost(),
+            $this->getPort()
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getOracleDsn(): string
+    {
+        return sprintf(
+            'oci:dbname=//%s:%s/%s',
+            $this->getHost(),
+            $this->getPort(),
+            $this->getDatabaseName()
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getPgsqlDsn(): string
+    {
+        return sprintf(
+            'pgsql:host=%s;port=%s;dbname=%s;user=%s;password=%s',
+            $this->getHost(),
+            $this->getPort(),
+            $this->getDatabaseName(),
+            $this->getUser(),
+            $this->getPassword(),
+        );
     }
 }

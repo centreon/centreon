@@ -32,6 +32,7 @@ parameters:
     level: max
     paths:
         - src/Core
+        - src/Adaptation
     ignoreErrors:
         - # Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.
             reportUnmatched: false

@@ -21,19 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Exception;
-
-use Core\Common\Domain\Exception\DomainException;
+namespace Adaptation\Database\Enum;
 
 /**
- * Class
+ * Enum
  *
- * @class   DatabaseException
- * @package Adaptation\Database\Exception
+ * @class   ConnectionDriver
+ * @package Adaptation\Database\Enum
  */
-abstract class DatabaseException extends DomainException
+enum ConnectionDriverEnum: string
 {
-    public const ERROR_CODE_DATABASE = 10;
-    public const ERROR_CODE_DATABASE_TRANSACTION = 11;
-    public const ERROR_CODE_UNBUFFERED_QUERY = 12;
+    case DRIVER_MYSQL = 'mysql';
+    case DRIVER_POSTGRESQL = 'pgsql';
+    case DRIVER_SQLITE = 'sqlite';
+    case DRIVER_ORACLE = 'oci';
+    case DRIVER_MICROSOFT_SQL_SERVER = 'sqlsrv';
 }

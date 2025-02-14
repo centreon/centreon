@@ -21,19 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Exception;
+namespace Adaptation\Database\Collection;
 
-use Core\Common\Domain\Exception\DomainException;
+use Core\Common\Domain\Collection\Collection;
 
 /**
  * Class
  *
- * @class   DatabaseException
- * @package Adaptation\Database\Exception
+ * @class   BatchInsertParameters
+ * @package Adaptation\Database\Collection
+ * @extends Collection<QueryParameters>
  */
-abstract class DatabaseException extends DomainException
+class BatchInsertParameters extends Collection
 {
-    public const ERROR_CODE_DATABASE = 10;
-    public const ERROR_CODE_DATABASE_TRANSACTION = 11;
-    public const ERROR_CODE_UNBUFFERED_QUERY = 12;
+    /**
+     * @return class-string<QueryParameters>
+     */
+    protected function itemClass(): string
+    {
+        return QueryParameters::class;
+    }
 }
