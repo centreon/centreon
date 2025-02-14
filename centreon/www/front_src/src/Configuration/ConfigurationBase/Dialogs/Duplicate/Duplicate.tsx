@@ -1,7 +1,6 @@
 import { NumberField } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
 import { Typography } from '@mui/material';
-import {} from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {

@@ -21,7 +21,7 @@ import {
   labelResourceDuplicated
 } from '../../translatedLabels';
 
-interface UseDuplicateProps {
+interface UseDuplicateState {
   confirm: () => void;
   close: () => void;
   isMutating: boolean;
@@ -32,7 +32,7 @@ interface UseDuplicateProps {
   headerContent: string;
 }
 
-const useDuplicate = (): UseDuplicateProps => {
+const useDuplicate = (): UseDuplicateState => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
@@ -62,7 +62,7 @@ const useDuplicate = (): UseDuplicateProps => {
     setResourcesToDuplicate([]);
   };
 
-  const changeDuplicateCount = (inputValue: number) =>
+  const changeDuplicateCount = (inputValue: number): void =>
     setDuplicatesCount(inputValue);
 
   const { duplicateMutation, isMutating } = useDuplicateRequest();
