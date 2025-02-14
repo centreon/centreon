@@ -23,8 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Api;
 
-use Core\Application\Common\UseCase\StandardPresenterInterface;
-use Core\Application\Common\UseCase\StandardResponseInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Application\Common\UseCase\{
+    BulkResponseInterface,
+    ListingResponseInterface,
+    StandardPresenterInterface,
+    StandardResponseInterface
+};
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Serializer;
@@ -34,15 +39,18 @@ class StandardPresenter implements StandardPresenterInterface
 {
     /**
      * @param Serializer $serializer
+     * @param RequestParametersInterface $requestParameters
      */
-    public function __construct(readonly private SerializerInterface $serializer)
-    {
+    public function __construct(
+        private readonly SerializerInterface $serializer,
+        private readonly RequestParametersInterface $requestParameters,
+    ) {
     }
 
     /**
      * @param StandardResponseInterface $data
-     * @param string $format
      * @param array<string, mixed> $context
+     * @param string $format
      *
      * @throws ExceptionInterface
      *
@@ -53,6 +61,57 @@ class StandardPresenter implements StandardPresenterInterface
         array $context = [],
         string $format = JsonEncoder::FORMAT,
     ): string {
-        return $this->serializer->serialize($data->getData(), $format, $context);
+        return match (true) {
+            $data instanceof ListingResponseInterface => $this->presentListing($data, $context, $format),
+            $data instanceof BulkResponseInterface => $this->presentWithoutMeta($data, $context, $format),
+            default => $this->serializer->serialize($data->getData(), $format, $context)
+        };
+    }
+
+    /**
+     * @param ListingResponseInterface $data
+     * @param array<string, mixed> $context
+     * @param string $format
+     *
+     * @throws ExceptionInterface
+     *
+     * @return string
+     */
+    private function presentListing(
+        ListingResponseInterface $data,
+        array $context = [],
+        string $format = JsonEncoder::FORMAT,
+    ): string {
+        return $this->serializer->serialize(
+            [
+                'result' => $data->getData(),
+                'meta' => $this->requestParameters->toArray(),
+            ],
+            $format,
+            $context,
+        );
+    }
+
+    /**
+     * @param BulkResponseInterface $data
+     * @param array<string, mixed> $context
+     * @param string $format
+     *
+     * @throws ExceptionInterface
+     *
+     * @return string
+     */
+    private function presentWithoutMeta(
+        BulkResponseInterface $data,
+        array $context = [],
+        string $format = JsonEncoder::FORMAT,
+    ): string {
+        return $this->serializer->serialize(
+            [
+                'results' => $data->getData(),
+            ],
+            $format,
+            $context,
+        );
     }
 }

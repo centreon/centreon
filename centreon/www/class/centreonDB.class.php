@@ -307,9 +307,17 @@ class CentreonDB extends PDO
     }
 
     /**
+     * This method is used to execute a simple query without prepared statement.
+     * It's useful when we don't need to bind parameters.
+     *
+     * Only for SELECT queries, not used for DDL or DML queries.
+     *
+     * This method does not support PDO binding types.
+     *
      * @param $query
      * @param int $fetchMode
      * @param array $fetchModeArgs
+     *
      * @return PDOStatement|bool
      * @throws CentreonDbException
      */
@@ -330,7 +338,11 @@ class CentreonDB extends PDO
         try {
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
-            return parent::query($query, $fetchMode, ...$fetchModeArgs);
+            $stmt = $this->prepare($query);
+            $stmt->execute();
+            $stmt->setFetchMode($fetchMode, ...$fetchModeArgs);
+
+            return $stmt;
         } catch (PDOException $e) {
             $message = "Error while executing the simple query: {$e->getMessage()}";
             $this->writeDbLog($message, query: $query, exception: $e);
@@ -338,6 +350,8 @@ class CentreonDB extends PDO
                 $message,
                 [
                     'query' => $query,
+                    'fetch_mode' => $fetchMode,
+                    'fetch_mode_args' => $fetchModeArgs,
                     'pdo_error_code' => $e->getCode(),
                     'pdo_error_infos' => $e->errorInfo,
                 ],

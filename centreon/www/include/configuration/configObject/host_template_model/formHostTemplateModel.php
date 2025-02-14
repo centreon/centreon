@@ -445,27 +445,27 @@ $checkCommandSelect->addJsCallback(
 
 $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
 
-// Check information
-if (! $isCloudPlatform) {
-    $hostEHE = [
+$hostEHE = [
         $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1'),
         $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0'),
         $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2'),
-    ];
+];
 
-    $form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_event_handler_enabled' => '2']);
-    }
+$form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_event_handler_enabled' => '2']);
+}
 
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
-    $eventHandlerSelect->addJsCallback(
+$eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
+$eventHandlerSelect->addJsCallback(
         'change',
         'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
+);
 
-    $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
+$form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
 
+// Check information
+if (! $isCloudPlatform) {
     $hostACE = [
         $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1'),
         $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0'),
@@ -911,9 +911,8 @@ if ($o === HOST_TEMPLATE_MASSIVE_CHANGE) {
 // #End of form definition
 //
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($hostConfigurationPath, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($hostConfigurationPath);
 
 // Just watch a host information
 if ($o === HOST_TEMPLATE_WATCH) {
@@ -977,42 +976,21 @@ $tpl->assign('time_unit', ' * ' . $centreon->optGen['interval_length'] . ' ' . _
 $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        if (null !== $hostTplId = insertHostInAPI()) {
+        if (null !== $hostTplId = insertHostInAPI($formData)) {
             $hostObj->setValue($hostTplId);
             $o = null;
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        /*
-         * Before saving, we check if a password macro has changed its name to be able to give it the right password
-         * instead of wildcards (PASSWORD_REPLACEMENT_VALUE).
-         */
-        if (isset($_REQUEST['macroInput'])) {
-            foreach ($_REQUEST['macroInput'] as $index => $macroName) {
-                if (array_key_exists('macroOriginalName_' . $index, $_REQUEST)) {
-                    $originalMacroName = $_REQUEST['macroOriginalName_' . $index];
-                    if ($_REQUEST['macroValue'][$index] === PASSWORD_REPLACEMENT_VALUE) {
-                        /*
-                        * The password has not been changed along with the name, so its value is equal to the wildcard.
-                        * We will therefore recover the password stored for its original name.
-                        */
-                        foreach ($macroArray as $indexMacro => $macroDetails) {
-                            if ($macroDetails['macroInput_#index#'] === $originalMacroName) {
-                                $_REQUEST['macroValue'][$index] = $macroPasswords[$indexMacro]['password'];
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+        if (false !== updateHostInAPI((int) $hostObj->getValue(), $formData)) {
+            $o = null;
+            $valid = true;
         }
-        updateHostInDB($hostObj->getValue());
-        $o = null;
-        $valid = true;
     } elseif ($form->getSubmitValue('submitMC')) {
         foreach (array_keys($select) as $hostTemplateIdToUpdate) {
-            updateHostInDB($hostTemplateIdToUpdate, true);
+            updateHostInDB_MC($hostTemplateIdToUpdate);
         }
         $o = null;
         $valid = true;

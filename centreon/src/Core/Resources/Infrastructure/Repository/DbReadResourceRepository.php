@@ -151,6 +151,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.status_confirmed,
             resources.in_downtime,
             resources.acknowledged,
+            resources.flapping,
+            resources.percent_state_change,
             resources.passive_checks_enabled,
             resources.active_checks_enabled,
             resources.notifications_enabled,
@@ -405,6 +407,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.status_confirmed,
             resources.in_downtime,
             resources.acknowledged,
+            resources.flapping,
+            resources.percent_state_change,
             resources.passive_checks_enabled,
             resources.active_checks_enabled,
             resources.notifications_enabled,
@@ -853,6 +857,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     . ' AND resources.status_confirmed = 1',
                 ResourceFilter::STATE_ACKNOWLEDGED => 'resources.acknowledged = 1',
                 ResourceFilter::STATE_IN_DOWNTIME => 'resources.in_downtime = 1',
+                ResourceFilter::STATE_IN_FLAPPING => 'resources.flapping = 1',
             ];
 
             foreach ($filter->getStates() as $state) {

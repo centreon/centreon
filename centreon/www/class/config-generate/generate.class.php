@@ -335,12 +335,6 @@ class Generate
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
         $kernel = Kernel::createForWeb();
-        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
-        (new AdditionalConnectorVmWareV6(
-            $this->backend_instance,
-            $readAdditionalConnectorRepository
-        ))->generateFromPollerId($this->current_poller['id']);
         $readAgentConfigurationRepository = $kernel->getContainer()->get(
             ReadAgentConfigurationRepositoryInterface::class
         )
@@ -364,9 +358,17 @@ class Generate
         $this->generateModuleObjects(self::GENERATION_FOR_BROKER);
         Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         $this->backend_instance->movePath($this->current_poller['id']);
-
         $this->generateIndexData($this->current_poller['localhost'] === '1');
         $this->generateModulesIndexData($this->current_poller['localhost'] === '1');
+
+        $this->backend_instance->initPath($this->current_poller['id'], 3);
+        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
+            ?? throw new \Exception('ReadAccRepositoryInterface not found');
+        (new AdditionalConnectorVmWareV6(
+            $this->backend_instance,
+            $readAdditionalConnectorRepository
+        ))->generateFromPollerId($this->current_poller['id']);
+        $this->backend_instance->movePath($this->current_poller['id']);
     }
 
     /**

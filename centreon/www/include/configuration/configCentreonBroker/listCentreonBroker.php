@@ -52,9 +52,8 @@ while ($nagios_server = $dbResult->fetch()) {
 }
 $dbResult->closeCursor();
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl(__DIR__, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate(__DIR__);
 
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';

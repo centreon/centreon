@@ -15,7 +15,8 @@ export const useTooltipStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     padding: theme.spacing(1),
-    width: '100%'
+    width: '100%',
+    borderRadius: `${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0px 0px`
   },
   listContainer: {
     maxHeight: theme.spacing(20),

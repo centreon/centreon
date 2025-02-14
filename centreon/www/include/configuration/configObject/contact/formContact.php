@@ -208,11 +208,9 @@ $aclRoute = './include/common/webServices/rest/internal.php?object=centreon_admi
 $attrAclgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $aclRoute, 'multiple' => true, 'linkedObject' => 'centreonAclGroup'];
 
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
-/**
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /**
  * @var $moduleFormManager \Centreon\Domain\Service\ModuleFormManager
@@ -1153,7 +1151,10 @@ if ($form->validate() && $from_list_menu == false) {
             ]
         );
     } elseif ($form->getSubmitValue("submitC")) {
-        updateContactInDB($cctObj->getValue());
+        updateContactInDB(
+            contact_id:$cctObj->getValue(),
+            isRemote: $isRemote
+        );
 
         $eventDispatcher->notify(
             'contact.form',
@@ -1167,7 +1168,7 @@ if ($form->validate() && $from_list_menu == false) {
         $select = explode(",", $select);
         foreach ($select as $key => $selectedContactId) {
             if ($selectedContactId) {
-                updateContactInDB($selectedContactId, true);
+                updateContactInDB($selectedContactId, true, $isRemote);
 
                 $eventDispatcher->notify(
                     'contact.form',

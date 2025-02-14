@@ -80,7 +80,7 @@ describe('Form list', () => {
 
     cy.findByLabelText('sort-0').should('be.visible');
     cy.findByLabelText('delete-0').should('be.visible');
-    cy.contains('Christelle (Schinner - Wiegand)').should('be.visible');
+    cy.contains('Lavinia (Wiegand LLC)').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -94,18 +94,18 @@ describe('Form list', () => {
 
     cy.findByLabelText('sort-0').should('be.visible');
     cy.findByLabelText('delete-0').should('be.visible');
-    cy.contains('Carley (Satterfield, Miller and Metz)').should('be.visible');
+    cy.contains('Sammie (Crist - Beer)').should('be.visible');
     cy.findByLabelText('sort-1').should('be.visible');
     cy.findByLabelText('delete-1').should('be.visible');
-    cy.contains('Anderson (Crist - Bradtke)').should('be.visible');
+    cy.contains('Waino (Quigley Group)').should('be.visible');
 
     cy.moveSortableElementUsingAriaLabel({
       ariaLabel: 'sort-0',
       direction: 'down'
     });
 
-    cy.contains('Carley (Satterfield, Miller and Metz)').should('be.visible');
-    cy.contains('Anderson (Crist - Bradtke)').should('be.visible');
+    cy.contains('Waino (Quigley Group)').should('be.visible');
+    cy.contains('Sammie (Crist - Beer)').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -119,14 +119,14 @@ describe('Form list', () => {
 
     cy.findByLabelText('sort-0').should('be.visible');
     cy.findByLabelText('delete-0').should('be.visible');
-    cy.contains('Lea (Streich - Hartmann)').should('be.visible');
+    cy.contains('Elliott (Effertz, Deckow and Deckow)').should('be.visible');
     cy.findByLabelText('sort-1').should('be.visible');
     cy.findByLabelText('delete-1').should('be.visible');
-    cy.contains('Akeem (Quigley LLC)').should('be.visible');
+    cy.contains('Leopoldo (Kemmer Inc)').should('be.visible');
 
     cy.findByLabelText('delete-0').click();
 
-    cy.contains('Lea (Streich - Hartmann)').should('not.exist');
+    cy.contains('Elliott (Effertz, Deckow and Deckow)').should('not.exist');
 
     cy.makeSnapshot();
   });

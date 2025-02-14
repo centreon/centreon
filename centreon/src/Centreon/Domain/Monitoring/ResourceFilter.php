@@ -52,6 +52,8 @@ class ResourceFilter
      */
     public const STATE_ACKNOWLEDGED = 'acknowledged';
 
+    public const STATE_IN_FLAPPING = 'in_flapping';
+
     /**
      * All status & resources.
      */
