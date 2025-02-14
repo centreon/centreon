@@ -175,7 +175,7 @@ jobs:
           echo "<tbody>" >> $GITHUB_STEP_SUMMARY
 
           # Lire le fichier .jtl et générer les lignes HTML correctement
-          awk -F',' 'NR>1 {
+          awk -F',' 'NR > 1 {
               # Vérifier si Success contient "true" pour l'afficher comme succès (🟢), sinon échec (🔴)
               success_icon = ($8 == "true") ? "🟢" : "🔴";
 
