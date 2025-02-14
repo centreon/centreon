@@ -38,7 +38,7 @@ use Core\Common\Domain\Exception\CollectionException;
 class QueryParameters extends Collection
 {
     /**
-     * @return string
+     * @return class-string<QueryParameter>
      */
     protected function itemClass(): string
     {

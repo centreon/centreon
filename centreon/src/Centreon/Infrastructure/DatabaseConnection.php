@@ -132,6 +132,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                     message: "Unable to connect to database",
                     previous: $exception,
                 );
+
                 throw ConnectionException::connectionFailed($exception);
             }
         }
@@ -214,6 +215,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 message: "Unable to get database name",
                 previous: $e,
             );
+
             throw ConnectionException::getDatabaseNameFailed();
         }
     }
@@ -244,6 +246,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 message: "Unable to get last insert id",
                 previous: $e,
             );
+
             throw ConnectionException::getLastInsertFailed($e);
         }
     }
@@ -343,6 +346,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::executeStatementFailed($e, $query, $queryParameters);
         }
     }
@@ -379,6 +383,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::insertQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -485,6 +490,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query ?? '',
                 previous: $e,
             );
+
             throw ConnectionException::batchInsertQueryFailed(
                 previous: $e,
                 tableName: $tableName,
@@ -527,6 +533,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::updateQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -563,6 +570,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::deleteQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -599,6 +607,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::fetchNumericQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -632,6 +641,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::fetchAssociativeQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -666,6 +676,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::fetchOneQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -700,7 +711,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
-            throw ConnectionException::fetchByColumnQueryFailed($e, $query, $queryParameters, $column);
+
+            throw ConnectionException::fetchByColumnQueryFailed($e, $query, $column, $queryParameters);
         }
     }
 
@@ -733,6 +745,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::fetchAllNumericQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -766,6 +779,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::fetchAllAssociativeQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -800,6 +814,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::fetchAllKeyValueQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -838,6 +853,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::fetchAllAssociativeIndexedQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -877,6 +893,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::iterateNumericQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -915,6 +932,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::iterateAssociativeQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -956,7 +974,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
-            throw ConnectionException::iterateByColumnQueryFailed($e, $query, $queryParameters, $column);
+
+            throw ConnectionException::iterateByColumnQueryFailed($e, $query, $column, $queryParameters);
         }
     }
 
@@ -994,6 +1013,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::iterateKeyValueQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -1032,6 +1052,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::iterateAssociativeIndexedQueryFailed($e, $query, $queryParameters);
         }
     }
@@ -1050,7 +1071,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
 
     /**
      * Opens a new transaction. This must be closed by calling one of the following methods:
-     * {@see commit} or {@see rollBack}
+     * {@see commitTransaction} or {@see rollBackTransaction}
      *
      * @throws ConnectionException
      * @return void
@@ -1065,6 +1086,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 message: "Unable to start transaction",
                 previous: $e,
             );
+
             throw ConnectionException::startTransactionFailed($e);
         }
     }
@@ -1075,7 +1097,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @throws ConnectionException
      * @return bool
      */
-    public function commit(): bool
+    public function commitTransaction(): bool
     {
         try {
             if (! parent::commit()) {
@@ -1088,6 +1110,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 message: "Unable to commit transaction",
                 previous: $e,
             );
+
             throw ConnectionException::commitTransactionFailed($e);
         }
     }
@@ -1098,7 +1121,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @throws ConnectionException
      * @return bool
      */
-    public function rollBack(): bool
+    public function rollBackTransaction(): bool
     {
         try {
             if (! parent::rollBack()) {
@@ -1111,6 +1134,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 message: "Unable to rollback transaction",
                 previous: $e,
             );
+
             throw ConnectionException::rollbackTransactionFailed($e);
         }
     }
@@ -1130,6 +1154,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 message: "Unbuffered queries are not allowed with this driver",
                 customContext: ['driver_name' => $currentDriverName]
             );
+
             throw ConnectionException::allowUnbufferedQueryFailed(parent::class, $currentDriverName);
         }
 
@@ -1147,6 +1172,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         $this->allowUnbufferedQuery();
         if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
             $this->writeDbLog(message: "Error while starting an unbuffered query");
+
             throw ConnectionException::startUnbufferedQueryFailed();
         }
         $this->isBufferedQueryActive = false;
@@ -1175,12 +1201,14 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             $this->writeDbLog(
                 message: "Error while stopping an unbuffered query, no unbuffered query is currently active"
             );
+
             throw ConnectionException::stopUnbufferedQueryFailed(
                 "Error while stopping an unbuffered query, no unbuffered query is currently active"
             );
         }
         if (! $this->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
             $this->writeDbLog(message: "Error while stopping an unbuffered query");
+
             throw ConnectionException::stopUnbufferedQueryFailed("Error while stopping an unbuffered query");
         }
         $this->isBufferedQueryActive = true;
@@ -1204,6 +1232,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $pdoStatement->queryString,
                 previous: $e,
             );
+
             throw ConnectionException::closeQueryFailed($e, $pdoStatement->queryString);
         }
     }
@@ -1255,6 +1284,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 query: $query,
                 previous: $e,
             );
+
             throw ConnectionException::selectQueryFailed(
                 previous: $e,
                 query: $query,
@@ -1325,11 +1355,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             ['exception' => $dbExceptionContext]
         );
 
-        $this->logger->log(
-            LogLevel::CRITICAL,
+        $this->logger->critical(
             "[DatabaseConnection] $message",
-            $context,
-            $previous
+            $context
         );
     }
 

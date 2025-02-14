@@ -75,7 +75,7 @@ class QueryParameter implements ValueObjectInterface
      */
     public static function create(string $name, mixed $value, ?QueryParameterTypeEnum $type = null): self
     {
-        return new static($name, $value, $type);
+        return new self($name, $value, $type);
     }
 
     /**
@@ -89,7 +89,7 @@ class QueryParameter implements ValueObjectInterface
      */
     public static function int(string $name, int $value): self
     {
-        return static::create($name, $value, QueryParameterTypeEnum::INT);
+        return self::create($name, $value, QueryParameterTypeEnum::INT);
     }
 
     /**
@@ -103,7 +103,7 @@ class QueryParameter implements ValueObjectInterface
      */
     public static function string(string $name, string $value): self
     {
-        return static::create($name, $value, QueryParameterTypeEnum::STRING);
+        return self::create($name, $value, QueryParameterTypeEnum::STRING);
     }
 
     /**
@@ -117,7 +117,7 @@ class QueryParameter implements ValueObjectInterface
      */
     public static function bool(string $name, bool $value): self
     {
-        return static::create($name, $value, QueryParameterTypeEnum::BOOL);
+        return self::create($name, $value, QueryParameterTypeEnum::BOOL);
     }
 
     /**
@@ -130,7 +130,7 @@ class QueryParameter implements ValueObjectInterface
      */
     public static function null(string $name): self
     {
-        return static::create($name, null, QueryParameterTypeEnum::NULL);
+        return self::create($name, null, QueryParameterTypeEnum::NULL);
     }
 
     /**
@@ -144,7 +144,7 @@ class QueryParameter implements ValueObjectInterface
      */
     public static function largeObject(string $name, mixed $value): self
     {
-        return static::create($name, $value, QueryParameterTypeEnum::LARGE_OBJECT);
+        return self::create($name, $value, QueryParameterTypeEnum::LARGE_OBJECT);
     }
 
     /**

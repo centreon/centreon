@@ -36,7 +36,7 @@ use Core\Common\Domain\Exception\CollectionException;
 class BatchInsertParameters extends Collection
 {
     /**
-     * @return string
+     * @return class-string<QueryParameters>
      */
     protected function itemClass(): string
     {

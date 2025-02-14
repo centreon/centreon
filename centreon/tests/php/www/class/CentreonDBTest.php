@@ -1242,7 +1242,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it('test CentreonDB : execute commit with success', function () use ($dbConfigCentreon): void {
         $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
         $db->startTransaction();
-        $response = $db->commit();
+        $response = $db->commitTransaction();
         expect($response)->toBeTrue()
             ->and($db->isTransactionActive())->toBeFalse();
     });
@@ -1250,7 +1250,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it('test CentreonDB : execute rollback with success', function () use ($dbConfigCentreon): void {
         $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
         $db->startTransaction();
-        $response = $db->rollback();
+        $response = $db->rollBackTransaction();
         expect($response)->toBeTrue()
             ->and($db->isTransactionActive())->toBeFalse();
     });

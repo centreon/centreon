@@ -410,6 +410,7 @@ class ConnectionException extends DatabaseException
     /**
      * @param \Throwable $previous
      * @param string $query
+     * @param int $column
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -417,9 +418,11 @@ class ConnectionException extends DatabaseException
     public static function fetchByColumnQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        int $column,
+        ?QueryParameters $queryParameters = null,
     ): self {
         $context['query'] = $query;
+        $context['column'] = $column;
         $context['query_parameters'] = $queryParameters;
 
         return new self(
@@ -594,6 +597,7 @@ class ConnectionException extends DatabaseException
     /**
      * @param \Throwable $previous
      * @param string $query
+     * @param int $column
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
@@ -601,9 +605,11 @@ class ConnectionException extends DatabaseException
     public static function iterateByColumnQueryFailed(
         \Throwable $previous,
         string $query,
+        int $column,
         ?QueryParameters $queryParameters = null
     ): self {
         $context['query'] = $query;
+        $context['column'] = $column;
         $context['query_parameters'] = $queryParameters;
 
         return new self(

@@ -459,7 +459,7 @@ interface ConnectionInterface
 
     /**
      * Opens a new transaction. This must be closed by calling one of the following methods:
-     * {@see commit} or {@see rollBack}
+     * {@see commitTransaction} or {@see rollBackTransaction}
      *
      * @throws ConnectionException
      * @return void
@@ -472,7 +472,7 @@ interface ConnectionInterface
      * @throws ConnectionException
      * @return bool
      */
-    public function commit(): bool;
+    public function commitTransaction(): bool;
 
     /**
      * To cancel a transaction.
@@ -480,7 +480,7 @@ interface ConnectionInterface
      * @throws ConnectionException
      * @return bool
      */
-    public function rollBack(): bool;
+    public function rollBackTransaction(): bool;
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
 

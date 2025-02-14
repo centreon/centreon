@@ -1251,7 +1251,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it('test DatabaseConnection : execute commit with success', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
-        $response = $db->commit();
+        $response = $db->commitTransaction();
         expect($response)->toBeTrue()
             ->and($db->isTransactionActive())->toBeFalse();
     });
@@ -1259,7 +1259,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it('test DatabaseConnection : execute rollback with success', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
-        $response = $db->rollback();
+        $response = $db->rollBackTransaction();
         expect($response)->toBeTrue()
             ->and($db->isTransactionActive())->toBeFalse();
     });
