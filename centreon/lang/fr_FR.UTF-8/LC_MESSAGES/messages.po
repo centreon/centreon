@@ -18900,3 +18900,6 @@ msgstr "PNG (petite taille)"
 
 msgid "Export as"
 msgstr "Exporter en tant que"
+
+msgid "The minimum allowed value is 10"
+msgstr "La valeur minimale autorisée est 10"
