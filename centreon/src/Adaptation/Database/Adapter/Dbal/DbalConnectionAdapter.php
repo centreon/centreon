@@ -62,7 +62,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * @param DoctrineDbalConnection $dbalConnection
      */
-    public function __construct(
+    private function __construct(
         private readonly DoctrineDbalConnection $dbalConnection
     ) {}
 
