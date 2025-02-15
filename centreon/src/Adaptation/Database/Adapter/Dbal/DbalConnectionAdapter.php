@@ -23,13 +23,11 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Adapter\Dbal;
 
-use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilderInterface;
 use Adaptation\Database\Trait\ConnectionTrait;
 use Adaptation\Database\Transformer\QueryParametersTransformer;
-use Adaptation\Database\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\UnexpectedValueException;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
