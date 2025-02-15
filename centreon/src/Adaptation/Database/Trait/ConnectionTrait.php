@@ -249,9 +249,12 @@ trait ConnectionTrait {
     public function fetchAllAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): array
     {
         try {
-            $this->validateSelectQuery($query);
+            $data = [];
+            foreach ($this->fetchAllAssociative($query, $queryParameters) as $row) {
+                $data[array_shift($row)] = $row;
+            }
 
-            return $this->fetchAllAssociativeIndexed($query, $queryParameters);
+            return $data;
         } catch (\Throwable $exception) {
             throw ConnectionException::fetchAllAssociativeIndexedQueryFailed($exception, $query, $queryParameters);
         }
