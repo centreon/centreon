@@ -10,7 +10,7 @@ import type { JsonDecoder } from 'ts.data.json';
 
 import { useFetchQuery } from '@centreon/ui';
 import {
-  refreshIntervalAtom,
+  statisticsRefreshIntervalAtom,
   userAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -56,7 +56,7 @@ const useResourceCounters: UseRessourceCounters = ({
 
   const userPermissions = useAtomValue(userPermissionsAtom);
 
-  const refetchInterval = useAtomValue(refreshIntervalAtom);
+  const refetchInterval = useAtomValue(statisticsRefreshIntervalAtom);
   const { use_deprecated_pages } = useAtomValue(userAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
 

@@ -13,6 +13,7 @@ import {
   downtimeAtom,
   platformNameAtom,
   refreshIntervalAtom,
+  statisticsRefreshIntervalAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
@@ -81,6 +82,10 @@ const useApp = (): UseAppState => {
   const [platformVersion] = useAtom(platformVersionsAtom);
   const setDowntime = useSetAtom(downtimeAtom);
   const setRefreshInterval = useSetAtom(refreshIntervalAtom);
+  const setStatisticsRefreshInterval = useSetAtom(
+    statisticsRefreshIntervalAtom
+  );
+
   const setAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
@@ -128,6 +133,12 @@ const useApp = (): UseAppState => {
         setRefreshInterval(
           Number.parseInt(
             retrievedParameters.monitoring_default_refresh_interval,
+            10
+          )
+        );
+        setStatisticsRefreshInterval(
+          Number.parseInt(
+            retrievedParameters?.statistics_default_refresh_interval,
             10
           )
         );
