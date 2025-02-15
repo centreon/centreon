@@ -48,7 +48,6 @@ $dbUser = getEnvironmentVariable('MYSQL_USER');
 $dbPassword = getEnvironmentVariable('MYSQL_PASSWORD');
 
 $dbConfigCentreon = null;
-$dbConfigCentreonStorage = null;
 
 if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
     $dbConfigCentreon = new ConnectionConfig(
@@ -56,13 +55,6 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
         user: $dbUser,
         password: $dbPassword,
         databaseName: 'centreon',
-        port: 3306
-    );
-    $dbConfigCentreonStorage = new ConnectionConfig(
-        host: $dbHost,
-        user: $dbUser,
-        password: $dbPassword,
-        databaseName: 'centreon_storage',
         port: 3306
     );
 }
@@ -134,7 +126,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test DatabaseConnection : DatabaseConnection::createFromConfig factory must return exception "Not implemented"',
+        'test DatabaseConnection : DatabaseConnection::createFromConfig factory"',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             expect($db)->toBeInstanceOf(DatabaseConnection::class);
@@ -676,33 +668,74 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(ConnectionException::class);
 
-    // -- fetchByColumn()
+    // -- fetchOne()
 
     it(
-        'test DatabaseConnection : fetchByColumn with a correct query with query parameters',
+        'test CentreonDB : fetchOne with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-            $contact = $db->fetchFirstColumn("SELECT * FROM contact");
+            $alias = $db->fetchOne(
+                "SELECT contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($alias)->toBeString()->toBe('admin');
+        }
+    );
+
+    it('test CentreonDB : fetchOne with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchOne(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchOne with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchOne("", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it('test CentreonDB : fetchOne with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db->fetchOne("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+    })->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : fetchOne with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db->fetchOne(
+                "SELECT contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+        }
+    )->throws(ConnectionException::class);
+
+    // -- fetchFirstColumn()
+
+    it(
+        'test DatabaseConnection : fetchFirstColumn with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->fetchFirstColumn(
+                "SELECT contact_id FROM contact ORDER BY contact_id",
+            );
             expect($contact)->toBeArray()
                 ->and($contact[0])->toBeInt()->toBe(1);
         }
     );
 
     it(
-        'test DatabaseConnection : fetchByColumn with a correct query with query parameters and another column',
+        'test DatabaseConnection : fetchFirstColumn with a correct query with query parameters and another column',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-            $contact = $db->fetchFirstColumn(
-                "SELECT * FROM contact",
-                null,
-                4 // alias column
-            );
+            $contact = $db->fetchFirstColumn("SELECT contact_alias FROM contact ORDER BY contact_id");
             expect($contact)->toBeArray()
                 ->and($contact[0])->toBeString()->toBe('admin');
         }
     );
 
-    it('test DatabaseConnection : fetchByColumn with a CUD query', function () use ($dbConfigCentreon): void {
+    it('test DatabaseConnection : fetchFirstColumn with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchFirstColumn(
             "DELETE FROM contact WHERE contact_id = :id",
@@ -710,22 +743,22 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         );
     })->throws(ConnectionException::class);
 
-    it('test DatabaseConnection : fetchByColumn with an empty query', function () use ($dbConfigCentreon): void {
+    it('test DatabaseConnection : fetchFirstColumn with an empty query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchFirstColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
-    it('test DatabaseConnection : fetchByColumn with an incorrect query', function () use ($dbConfigCentreon): void {
+    it('test DatabaseConnection : fetchFirstColumn with an incorrect query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchFirstColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
     it(
-        'test DatabaseConnection : fetchByColumn with an incorrect query parameters',
+        'test DatabaseConnection : fetchFirstColumn with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->fetchFirstColumn(
-                "SELECT * FROM contact WHERE contact_id = :id",
+                "SELECT contact_alias FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::string('name', 'foo_name')])
             );
         }
@@ -1046,10 +1079,10 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(ConnectionException::class);
 
-    // -- iterateByColumn()
+    // -- iterateColumn()
 
     it(
-        'test DatabaseConnection : iterateByColumn with a correct query with query parameters',
+        'test DatabaseConnection : iterateColumn with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateColumn(
@@ -1063,13 +1096,12 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test DatabaseConnection : iterateByColumn with a correct query with query parameters and another column',
+        'test DatabaseConnection : iterateColumn with a correct query with query parameters and another column',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateColumn(
-                "SELECT * FROM contact WHERE contact_id = :id",
-                QueryParameters::create([QueryParameter::int('id', 1)]),
-                4 // alias column
+                "SELECT contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
             );
             foreach ($contacts as $contact) {
                 expect($contact)->toBeString()->toBe('admin');
@@ -1077,7 +1109,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
-    it('test DatabaseConnection : iterateByColumn with a CUD query', function () use ($dbConfigCentreon): void {
+    it('test DatabaseConnection : iterateColumn with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $contacts = $db->iterateColumn(
             "DELETE FROM contact WHERE contact_id = :id",
@@ -1089,7 +1121,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     })->throws(ConnectionException::class);
 
-    it('test DatabaseConnection : iterateByColumn with an empty query', function () use ($dbConfigCentreon): void {
+    it('test DatabaseConnection : iterateColumn with an empty query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $contacts = $db->iterateColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
         foreach ($contacts as $contact) {
@@ -1098,7 +1130,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     })->throws(ConnectionException::class);
 
-    it('test DatabaseConnection : iterateByColumn with an incorrect query', function () use ($dbConfigCentreon): void {
+    it('test DatabaseConnection : iterateColumn with an incorrect query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $contacts = $db->iterateColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
         foreach ($contacts as $contact) {
@@ -1108,7 +1140,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     })->throws(ConnectionException::class);
 
     it(
-        'test DatabaseConnection : iterateByColumn with an incorrect query parameters',
+        'test DatabaseConnection : iterateColumn with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateColumn(

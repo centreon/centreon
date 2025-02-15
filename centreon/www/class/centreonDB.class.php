@@ -99,7 +99,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     private bool $isBufferedQueryActive = true;
 
     /**
-     * Constructor
+     * CentreonDB constructor.
      *
      * @param string $dbLabel LABEL_DB_* constants
      * @param int $retry
@@ -413,9 +413,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch();
+            return $pdoStatement->fetch(\PDO::FETCH_NUM);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch numeric query',
@@ -447,9 +447,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch();
+            return $pdoStatement->fetch(\PDO::FETCH_ASSOC);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch associative query',
@@ -482,9 +482,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch()[0] ?? false;
+            return $pdoStatement->fetch(\PDO::FETCH_COLUMN);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch one query',
@@ -516,9 +516,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_COLUMN);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch by column query',
@@ -550,9 +550,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_NUM);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all numeric query',
@@ -584,9 +584,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all associative query',
@@ -619,9 +619,9 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_KEY_PAIR);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all key value query',
@@ -658,8 +658,8 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_NUM)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -697,8 +697,8 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_ASSOC)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -725,17 +725,18 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          $result = $db->iterateColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
      *          foreach ($result as $value) {
      *              // $value = 'John'
      *              // $value = 'Jean'
      *          }
      */
-    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): \Traversable {
+    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_COLUMN)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -773,8 +774,8 @@ class CentreonDB extends PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_KEY_PAIR)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -1026,7 +1027,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                        div.Error{background-color:#fa6f6c;border:1px #AEAEAE solid;width: 500px;}
                        div.Error{border-radius:4px;}
                        div.Error{padding: 15px;}
-                       a, div.Error{font-family:"Bitstream Vera Sans", arial, Tahoma, "Sans serif";font-weight: bold;}
+                       a, div.Error{font-family:"Bitstream Vera Sans", arial, Tahoma, "Sans serif",serif;font-weight: bold;}
                 </style>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
                 <title>Centreon</title>
@@ -1279,17 +1280,13 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int $fetchMode
-     * @param array<mixed> $fetchModeArgs
      *
      * @throws ConnectionException
      * @return \PDOStatement
      */
     private function executeSelectQuery(
         string $query,
-        ?QueryParameters $queryParameters = null,
-        int $fetchMode = \PDO::FETCH_ASSOC,
-        array $fetchModeArgs = []
+        ?QueryParameters $queryParameters = null
     ): \PDOStatement {
         try {
             $this->validateSelectQuery($query);
@@ -1312,14 +1309,6 @@ class CentreonDB extends PDO implements ConnectionInterface
 
             $pdoStatement->execute();
 
-            if (false === $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs)) {
-                throw new ConnectionException(
-                    message: 'Error while setting the fetch mode',
-                    code: ConnectionException::ERROR_CODE_INTERNAL,
-                    context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
-                );
-            }
-
             return $pdoStatement;
         } catch (\Throwable $exception) {
             $this->writeDbLog(
@@ -1332,8 +1321,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             throw ConnectionException::selectQueryFailed(
                 previous: $exception,
                 query: $query,
-                queryParameters: $queryParameters,
-                context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
+                queryParameters: $queryParameters
             );
         } finally {
             // here we restart CentreonDbStatement for the other requests
@@ -1391,10 +1379,9 @@ class CentreonDB extends PDO implements ConnectionInterface
             ['exception' => $dbExceptionContext]
         );
 
-        $this->logger->log(
+        $this->logger->critical(
             CentreonLog::TYPE_SQL,
-            CentreonLog::LEVEL_CRITICAL,
-            "[CentreonDb] $message",
+            "[CentreonDb] {$message}",
             $context,
             $previous
         );
@@ -1878,8 +1865,8 @@ class CentreonDB extends PDO implements ConnectionInterface
             $standardQueryStarts = ['SELECT ', 'UPDATE ', 'DELETE ', 'INSERT INTO '];
             foreach ($standardQueryStarts as $standardQueryStart) {
                 if (
-                    str_starts_with($query, strtolower($standardQueryStart))
-                    || str_starts_with($query, strtoupper($standardQueryStart))
+                    str_starts_with($query, mb_strtolower($standardQueryStart))
+                    || str_starts_with($query, mb_strtoupper($standardQueryStart))
                 ) {
                     throw new CentreonDbException(
                         'Query must not to start by SELECT, UPDATE, DELETE or INSERT INTO, this method is only for DDL queries',

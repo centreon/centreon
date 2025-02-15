@@ -391,9 +391,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch();
+            return $pdoStatement->fetch(\PDO::FETCH_NUM);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch numeric query',
@@ -425,9 +425,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch();
+            return $pdoStatement->fetch(\PDO::FETCH_ASSOC);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch associative query',
@@ -460,9 +460,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch()[0] ?? false;
+            return $pdoStatement->fetch(\PDO::FETCH_COLUMN);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch one query',
@@ -494,9 +494,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_COLUMN);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch by column query',
@@ -528,9 +528,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_NUM);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all numeric query',
@@ -562,9 +562,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all associative query',
@@ -597,9 +597,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_KEY_PAIR);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all key value query',
@@ -636,8 +636,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_NUM)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -675,8 +675,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_ASSOC)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -698,13 +698,12 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int $column
      *
      * @throws ConnectionException
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateByColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          $result = $db->iterateColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
      *          foreach ($result as $value) {
      *              // $value = 'John'
      *              // $value = 'Jean'
@@ -714,8 +713,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_COLUMN)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -753,8 +752,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_KEY_PAIR)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -995,17 +994,13 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int $fetchMode
-     * @param array<mixed> $fetchModeArgs
      *
      * @throws ConnectionException
      * @return \PDOStatement
      */
     private function executeSelectQuery(
         string $query,
-        ?QueryParameters $queryParameters = null,
-        int $fetchMode = \PDO::FETCH_ASSOC,
-        array $fetchModeArgs = []
+        ?QueryParameters $queryParameters = null
     ): \PDOStatement {
         try {
             $this->validateSelectQuery($query);
@@ -1024,14 +1019,6 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
 
             $pdoStatement->execute();
 
-            if (false === $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs)) {
-                throw new ConnectionException(
-                    message: 'Error while setting the fetch mode',
-                    code: ConnectionException::ERROR_CODE_INTERNAL,
-                    context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
-                );
-            }
-
             return $pdoStatement;
         } catch (\Throwable $exception) {
             $this->writeDbLog(
@@ -1044,8 +1031,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             throw ConnectionException::selectQueryFailed(
                 previous: $exception,
                 query: $query,
-                queryParameters: $queryParameters,
-                context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
+                queryParameters: $queryParameters
             );
         }
     }
