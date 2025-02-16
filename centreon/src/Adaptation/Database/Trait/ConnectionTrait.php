@@ -487,5 +487,4 @@ trait ConnectionTrait
             throw ConnectionException::selectQueryBadFormat($query);
         }
     }
-
 }

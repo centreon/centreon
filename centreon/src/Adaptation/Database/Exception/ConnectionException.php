@@ -810,5 +810,4 @@ class ConnectionException extends DatabaseException
             previous: $previous
         );
     }
-
 }

@@ -50,7 +50,7 @@ class DbalParameterTypeTransformer
             QueryParameterTypeEnum::NULL => DbalParameterType::NULL,
             QueryParameterTypeEnum::LARGE_OBJECT => DbalParameterType::LARGE_OBJECT,
             default => throw new TransformerException(
-                "The type of the parameter is not supported by QueryParameterTypeEnum",
+                'The type of the parameter is not supported by QueryParameterTypeEnum',
                 ['query_parameter_type' => $queryParameterTypeEnum]
             ),
         };
@@ -71,7 +71,7 @@ class DbalParameterTypeTransformer
             DbalParameterType::NULL => QueryParameterTypeEnum::NULL,
             DbalParameterType::LARGE_OBJECT => QueryParameterTypeEnum::LARGE_OBJECT,
             default => throw new TransformerException(
-                "The type of the parameter is not supported by DbalParameterType",
+                'The type of the parameter is not supported by DbalParameterType',
                 ['dbal_parameter_type' => $dbalParameterType]
             ),
         };

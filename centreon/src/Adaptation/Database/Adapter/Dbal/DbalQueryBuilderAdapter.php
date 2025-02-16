@@ -37,7 +37,6 @@ use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
  */
 final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 {
-
     /**
      * DbalQueryBuilderAdapter constructor
      *
@@ -57,7 +56,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *     echo $qb->getQuery(); // SELECT u FROM User u
      * </code>
      *
-     * @return string The SQL query string.
+     * @return string the SQL query string
      */
     public function getQuery(): string
     {
@@ -78,7 +77,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * @param string ...$expressions The selection expressions.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function select(string ...$expressions): QueryBuilderInterface
     {
@@ -98,7 +97,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function distinct(): QueryBuilderInterface
     {
@@ -119,10 +118,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $expression     The selection expression.
+     * @param string $expression the selection expression
      * @param string ...$expressions Additional selection expressions.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function addSelect(string $expression, string ...$expressions): QueryBuilderInterface
     {
@@ -143,9 +142,9 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $table The table whose rows are subject to the deletion.
+     * @param string $table the table whose rows are subject to the deletion
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function delete(string $table): QueryBuilderInterface
     {
@@ -166,9 +165,9 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $table The table whose rows are subject to the update.
+     * @param string $table the table whose rows are subject to the update
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function update(string $table): QueryBuilderInterface
     {
@@ -193,9 +192,9 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $table The table into which the rows should be inserted.
+     * @param string $table the table into which the rows should be inserted
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function insert(string $table): QueryBuilderInterface
     {
@@ -215,10 +214,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $table      The table.
-     * @param string|null $alias The alias of the table.
+     * @param string $table the table
+     * @param string|null $alias the alias of the table
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function from(string $table, ?string $alias = null): QueryBuilderInterface
     {
@@ -238,12 +237,12 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $joinAlias The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string $fromAlias the alias that points to a from clause
+     * @param string $join the table name to join
+     * @param string $joinAlias the alias of the join table
+     * @param string $condition the condition for the join
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function join(
         string $fromAlias,
@@ -267,12 +266,12 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $joinAlias The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string $fromAlias the alias that points to a from clause
+     * @param string $join the table name to join
+     * @param string $joinAlias the alias of the join table
+     * @param string $condition the condition for the join
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function innerJoin(
         string $fromAlias,
@@ -296,12 +295,12 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $joinAlias The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string $fromAlias the alias that points to a from clause
+     * @param string $join the table name to join
+     * @param string $joinAlias the alias of the join table
+     * @param string $condition the condition for the join
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function leftJoin(
         string $fromAlias,
@@ -325,12 +324,12 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $joinAlias The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string $fromAlias the alias that points to a from clause
+     * @param string $join the table name to join
+     * @param string $joinAlias the alias of the join table
+     * @param string $condition the condition for the join
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function rightJoin(
         string $fromAlias,
@@ -354,10 +353,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $column The column to set.
-     * @param string $value  The value, expression, placeholder, etc.
+     * @param string $column the column to set
+     * @param string $value the value, expression, placeholder, etc
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function set(string $column, string $value): QueryBuilderInterface
     {
@@ -393,10 +392,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *          ->getQuery();
      * </code>
      *
-     * @param string $whereClauseExpression     The WHERE clause predicate.
+     * @param string $whereClauseExpression the WHERE clause predicate
      * @param string ...$whereClauseExpressions Additional WHERE clause predicates.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function where(string $whereClauseExpression, string ...$whereClauseExpressions): QueryBuilderInterface
     {
@@ -420,12 +419,11 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $whereClauseExpression     The predicate to append.
+     * @param string $whereClauseExpression the predicate to append
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      * @see where()
-     *
      */
     public function andWhere(string $whereClauseExpression, string ...$whereClauseExpressions): QueryBuilderInterface
     {
@@ -440,10 +438,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * Use {@see DbalExpressionBuilderAdapter} to build the where clause expression
      *
-     * @param string $whereClauseExpression     The predicate to append.
+     * @param string $whereClauseExpression the predicate to append
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      * @see where()
      *
      * <code>
@@ -454,7 +452,6 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->orWhere('u.id = 2')
      *         ->getQuery();
      * </code>
-     *
      */
     public function orWhere(string $whereClauseExpression, string ...$whereClauseExpressions): QueryBuilderInterface
     {
@@ -475,10 +472,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $expression     The grouping expression
+     * @param string $expression The grouping expression
      * @param string ...$expressions Additional grouping expressions
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function groupBy(string $expression, string ...$expressions): QueryBuilderInterface
     {
@@ -499,10 +496,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $expression     The grouping expression
+     * @param string $expression The grouping expression
      * @param string ...$expressions Additional grouping expressions
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function addGroupBy(string $expression, string ...$expressions): QueryBuilderInterface
     {
@@ -527,9 +524,9 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param array<string, mixed> $values The values to specify for the insert query indexed by column names.
+     * @param array<string, mixed> $values the values to specify for the insert query indexed by column names
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function values(array $values): QueryBuilderInterface
     {
@@ -553,10 +550,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $column The column into which the value should be inserted.
-     * @param string $value  The value that should be inserted into the column.
+     * @param string $column the column into which the value should be inserted
+     * @param string $value the value that should be inserted into the column
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function setValue(string $column, string $value): QueryBuilderInterface
     {
@@ -571,10 +568,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * Use {@see DbalExpressionBuilderAdapter} to build the having clause expression
      *
-     * @param string $havingClause     The HAVING clause predicate.
+     * @param string $havingClause the HAVING clause predicate
      * @param string ...$havingClauses Additional HAVING clause predicates.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function having(string $havingClause, string ...$havingClauses): QueryBuilderInterface
     {
@@ -589,10 +586,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * Use {@see DbalExpressionBuilderAdapter} to build the having clause expression
      *
-     * @param string $havingClause     The predicate to append.
+     * @param string $havingClause the predicate to append
      * @param string ...$havingClauses Additional predicates to append.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function andHaving(string $havingClause, string ...$havingClauses): QueryBuilderInterface
     {
@@ -607,10 +604,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * Use {@see DbalExpressionBuilderAdapter} to build the having clause expression
      *
-     * @param string $havingClause     The predicate to append.
+     * @param string $havingClause the predicate to append
      * @param string ...$havingClauses Additional predicates to append.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function orHaving(string $havingClause, string ...$havingClauses): QueryBuilderInterface
     {
@@ -623,10 +620,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      * Specifies an ordering for the query results.
      * Replaces any previously specified orderings, if any.
      *
-     * @param string $sort       The ordering expression.
-     * @param string|null $order The ordering direction.
+     * @param string $sort the ordering expression
+     * @param string|null $order the ordering direction
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function orderBy(string $sort, ?string $order = null): QueryBuilderInterface
     {
@@ -638,10 +635,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     /**
      * Adds an ordering to the query results.
      *
-     * @param string $sort       The ordering expression.
-     * @param string|null $order The ordering direction.
+     * @param string $sort the ordering expression
+     * @param string|null $order the ordering direction
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function addOrderBy(string $sort, ?string $order = null): QueryBuilderInterface
     {
@@ -677,7 +674,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     /**
      * Resets the WHERE conditions for the query.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function resetWhere(): QueryBuilderInterface
     {
@@ -689,7 +686,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     /**
      * Resets the grouping for the query.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function resetGroupBy(): QueryBuilderInterface
     {
@@ -701,7 +698,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     /**
      * Resets the HAVING conditions for the query.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function resetHaving(): QueryBuilderInterface
     {
@@ -713,7 +710,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     /**
      * Resets the ordering for the query.
      *
-     * @return DbalQueryBuilderAdapter This QueryBuilder instance.
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
      */
     public function resetOrderBy(): QueryBuilderInterface
     {
@@ -721,5 +718,4 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 
         return $this;
     }
-
 }

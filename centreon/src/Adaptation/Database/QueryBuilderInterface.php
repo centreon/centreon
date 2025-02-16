@@ -43,7 +43,7 @@ interface QueryBuilderInterface
      *     echo $qb->getQuery(); // SELECT u FROM User u
      * </code>
      *
-     * @return string The SQL query string.
+     * @return string the SQL query string
      */
     public function getQuery(): string;
 
@@ -61,9 +61,9 @@ interface QueryBuilderInterface
      *
      * @param string ...$expressions The selection expressions.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function select(string ...$expressions): QueryBuilderInterface;
+    public function select(string ...$expressions): self;
 
     /**
      * Adds or removes DISTINCT to/from the query.
@@ -76,9 +76,9 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function distinct(): QueryBuilderInterface;
+    public function distinct(): self;
 
     /**
      * Adds an item that is to be returned in the query result.
@@ -92,12 +92,12 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $expression     The selection expression.
+     * @param string $expression the selection expression
      * @param string ...$expressions Additional selection expressions.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function addSelect(string $expression, string ...$expressions): QueryBuilderInterface;
+    public function addSelect(string $expression, string ...$expressions): self;
 
     /**
      * Turns the query being built into a bulk delete query that ranges over
@@ -111,11 +111,11 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $table The table whose rows are subject to the deletion.
+     * @param string $table the table whose rows are subject to the deletion
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function delete(string $table): QueryBuilderInterface;
+    public function delete(string $table): self;
 
     /**
      * Turns the query being built into a bulk update query that ranges over
@@ -129,11 +129,11 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $table The table whose rows are subject to the update.
+     * @param string $table the table whose rows are subject to the update
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function update(string $table): QueryBuilderInterface;
+    public function update(string $table): self;
 
     /**
      * Turns the query being built into an insert query that inserts into
@@ -151,11 +151,11 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $table The table into which the rows should be inserted.
+     * @param string $table the table into which the rows should be inserted
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function insert(string $table): QueryBuilderInterface;
+    public function insert(string $table): self;
 
     /**
      * Creates and adds a query root corresponding to the table identified by the
@@ -168,12 +168,12 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $table      The table.
-     * @param string|null $alias The alias of the table.
+     * @param string $table the table
+     * @param string|null $alias the alias of the table
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function from(string $table, ?string $alias = null): QueryBuilderInterface;
+    public function from(string $table, ?string $alias = null): self;
 
     /**
      * Creates and adds a join to the query.
@@ -186,19 +186,19 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $joinAlias The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string $fromAlias the alias that points to a from clause
+     * @param string $join the table name to join
+     * @param string $joinAlias the alias of the join table
+     * @param string $condition the condition for the join
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
     public function join(
         string $fromAlias,
         string $join,
         string $joinAlias,
         string $condition
-    ): QueryBuilderInterface;
+    ): self;
 
     /**
      * Creates and adds a join to the query.
@@ -211,19 +211,19 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $joinAlias The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string $fromAlias the alias that points to a from clause
+     * @param string $join the table name to join
+     * @param string $joinAlias the alias of the join table
+     * @param string $condition the condition for the join
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
     public function innerJoin(
         string $fromAlias,
         string $join,
         string $joinAlias,
         string $condition
-    ): QueryBuilderInterface;
+    ): self;
 
     /**
      * Creates and adds a left join to the query.
@@ -236,19 +236,19 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $joinAlias The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string $fromAlias the alias that points to a from clause
+     * @param string $join the table name to join
+     * @param string $joinAlias the alias of the join table
+     * @param string $condition the condition for the join
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
     public function leftJoin(
         string $fromAlias,
         string $join,
         string $joinAlias,
         string $condition
-    ): QueryBuilderInterface;
+    ): self;
 
     /**
      * Creates and adds a right join to the query.
@@ -261,19 +261,19 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $fromAlias The alias that points to a from clause.
-     * @param string $join      The table name to join.
-     * @param string $joinAlias The alias of the join table.
-     * @param string $condition The condition for the join.
+     * @param string $fromAlias the alias that points to a from clause
+     * @param string $join the table name to join
+     * @param string $joinAlias the alias of the join table
+     * @param string $condition the condition for the join
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
     public function rightJoin(
         string $fromAlias,
         string $join,
         string $joinAlias,
         string $condition
-    ): QueryBuilderInterface;
+    ): self;
 
     /**
      * Sets a new value for a column in a bulk update query.
@@ -286,12 +286,12 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $column The column to set.
-     * @param string $value  The value, expression, placeholder, etc.
+     * @param string $column the column to set
+     * @param string $value the value, expression, placeholder, etc
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function set(string $column, string $value): QueryBuilderInterface;
+    public function set(string $column, string $value): self;
 
     /**
      * Specifies one or more restrictions to the query result.
@@ -320,12 +320,12 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $whereClauseExpression     The WHERE clause predicate.
+     * @param string $whereClauseExpression the WHERE clause predicate
      * @param string ...$whereClauseExpressions Additional WHERE clause predicates.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function where(string $whereClauseExpression, string ...$whereClauseExpressions): QueryBuilderInterface;
+    public function where(string $whereClauseExpression, string ...$whereClauseExpressions): self;
 
     /**
      * Adds one or more restrictions to the query results, forming a logical
@@ -342,14 +342,13 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $whereClauseExpression     The predicate to append.
+     * @param string $whereClauseExpression the predicate to append
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      * @see where()
-     *
      */
-    public function andWhere(string $whereClauseExpression, string ...$whereClauseExpressions): QueryBuilderInterface;
+    public function andWhere(string $whereClauseExpression, string ...$whereClauseExpressions): self;
 
     /**
      * Adds one or more restrictions to the query results, forming a logical
@@ -357,10 +356,10 @@ interface QueryBuilderInterface
      *
      * Use {@see ExpressionBuilderInterface} to build the where clause expression
      *
-     * @param string $whereClauseExpression     The predicate to append.
+     * @param string $whereClauseExpression the predicate to append
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      * @see where()
      *
      * <code>
@@ -371,9 +370,8 @@ interface QueryBuilderInterface
      *         ->orWhere('u.id = 2')
      *         ->getQuery();
      * </code>
-     *
      */
-    public function orWhere(string $whereClauseExpression, string ...$whereClauseExpressions): QueryBuilderInterface;
+    public function orWhere(string $whereClauseExpression, string ...$whereClauseExpressions): self;
 
     /**
      * Specifies one or more grouping expressions over the results of the query.
@@ -386,12 +384,12 @@ interface QueryBuilderInterface
      *         ->groupBy('u.id');
      * </code>
      *
-     * @param string $expression     The grouping expression
+     * @param string $expression The grouping expression
      * @param string ...$expressions Additional grouping expressions
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function groupBy(string $expression, string ...$expressions): QueryBuilderInterface;
+    public function groupBy(string $expression, string ...$expressions): self;
 
     /**
      * Adds one or more grouping expressions to the query.
@@ -405,12 +403,12 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $expression     The grouping expression
+     * @param string $expression The grouping expression
      * @param string ...$expressions Additional grouping expressions
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function addGroupBy(string $expression, string ...$expressions): QueryBuilderInterface;
+    public function addGroupBy(string $expression, string ...$expressions): self;
 
     /**
      * Specifies values for an insert query indexed by column names.
@@ -428,11 +426,11 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param array<string, mixed> $values The values to specify for the insert query indexed by column names.
+     * @param array<string, mixed> $values the values to specify for the insert query indexed by column names
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function values(array $values): QueryBuilderInterface;
+    public function values(array $values): self;
 
     /**
      * Sets a value for a column in an insert query.
@@ -449,12 +447,12 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string $column The column into which the value should be inserted.
-     * @param string $value  The value that should be inserted into the column.
+     * @param string $column the column into which the value should be inserted
+     * @param string $value the value that should be inserted into the column
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function setValue(string $column, string $value): QueryBuilderInterface;
+    public function setValue(string $column, string $value): self;
 
     /**
      * Specifies a restriction over the groups of the query.
@@ -462,12 +460,12 @@ interface QueryBuilderInterface
      *
      * Use {@see ExpressionBuilderInterface} to build the having clause expression
      *
-     * @param string $havingClause     The HAVING clause predicate.
+     * @param string $havingClause the HAVING clause predicate
      * @param string ...$havingClauses Additional HAVING clause predicates.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function having(string $havingClause, string ...$havingClauses): QueryBuilderInterface;
+    public function having(string $havingClause, string ...$havingClauses): self;
 
     /**
      * Adds a restriction over the groups of the query, forming a logical
@@ -475,12 +473,12 @@ interface QueryBuilderInterface
      *
      * Use {@see ExpressionBuilderInterface} to build the having clause expression
      *
-     * @param string $havingClause     The predicate to append.
+     * @param string $havingClause the predicate to append
      * @param string ...$havingClauses Additional predicates to append.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function andHaving(string $havingClause, string ...$havingClauses): QueryBuilderInterface;
+    public function andHaving(string $havingClause, string ...$havingClauses): self;
 
     /**
      * Adds a restriction over the groups of the query, forming a logical
@@ -488,74 +486,73 @@ interface QueryBuilderInterface
      *
      * Use {@see ExpressionBuilderInterface} to build the having clause expression
      *
-     * @param string $havingClause     The predicate to append.
+     * @param string $havingClause the predicate to append
      * @param string ...$havingClauses Additional predicates to append.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function orHaving(string $havingClause, string ...$havingClauses): QueryBuilderInterface;
+    public function orHaving(string $havingClause, string ...$havingClauses): self;
 
     /**
      * Specifies an ordering for the query results.
      * Replaces any previously specified orderings, if any.
      *
-     * @param string $sort       The ordering expression.
-     * @param string|null $order The ordering direction.
+     * @param string $sort the ordering expression
+     * @param string|null $order the ordering direction
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function orderBy(string $sort, ?string $order = null): QueryBuilderInterface;
+    public function orderBy(string $sort, ?string $order = null): self;
 
     /**
      * Adds an ordering to the query results.
      *
-     * @param string $sort       The ordering expression.
-     * @param string|null $order The ordering direction.
+     * @param string $sort the ordering expression
+     * @param string|null $order the ordering direction
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function addOrderBy(string $sort, ?string $order = null): QueryBuilderInterface;
+    public function addOrderBy(string $sort, ?string $order = null): self;
 
     /**
      * @param int $limit
      *
      * @return QueryBuilderInterface
      */
-    public function limit(int $limit): QueryBuilderInterface;
+    public function limit(int $limit): self;
 
     /**
      * @param int $offset
      *
      * @return QueryBuilderInterface
      */
-    public function offset(int $offset): QueryBuilderInterface;
+    public function offset(int $offset): self;
 
     /**
      * Resets the WHERE conditions for the query.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function resetWhere(): QueryBuilderInterface;
+    public function resetWhere(): self;
 
     /**
      * Resets the grouping for the query.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function resetGroupBy(): QueryBuilderInterface;
+    public function resetGroupBy(): self;
 
     /**
      * Resets the HAVING conditions for the query.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function resetHaving(): QueryBuilderInterface;
+    public function resetHaving(): self;
 
     /**
      * Resets the ordering for the query.
      *
-     * @return QueryBuilderInterface This QueryBuilder instance.
+     * @return QueryBuilderInterface this QueryBuilder instance
      */
-    public function resetOrderBy(): QueryBuilderInterface;
-
+    public function resetOrderBy(): self;
 }

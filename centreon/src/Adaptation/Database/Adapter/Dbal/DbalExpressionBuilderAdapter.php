@@ -37,7 +37,6 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBu
  */
 final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderInterface
 {
-
     /**
      * DbalExpressionBuilderAdapter constructor
      *
@@ -73,7 +72,6 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * @example
      *         method : or("field1 = :value1", ["field2 = :value2","field3 = :value3"])
      *         return : "(field1 = :value1) OR (field2 = :value2) OR (field3 = :value3)"
-     *
      */
     public function or(string $expression, string ...$expressions): string
     {
@@ -83,9 +81,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates a comparison expression.
      *
-     * @param string $x        The left expression.
-     * @param string $operator The comparison operator.
-     * @param string $y        The right expression.
+     * @param string $x the left expression
+     * @param string $operator the comparison operator
+     * @param string $y the right expression
      *
      * @return string
      *
@@ -104,8 +102,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> = <right expr>.
      *
-     * @param string $x The left expression.
-     * @param string $y The right expression.
+     * @param string $x the left expression
+     * @param string $y the right expression
      *
      * @return string
      *
@@ -124,8 +122,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> <> <right expr>.
      *
-     * @param string $x The left expression.
-     * @param string $y The right expression.
+     * @param string $x the left expression
+     * @param string $y the right expression
      *
      * @return string
      *
@@ -144,8 +142,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> < <right expr>.
      *
-     * @param string $x The left expression.
-     * @param string $y The right expression.
+     * @param string $x the left expression
+     * @param string $y the right expression
      *
      * @return string
      *
@@ -164,8 +162,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> <= <right expr>.
      *
-     * @param string $x The left expression.
-     * @param string $y The right expression.
+     * @param string $x the left expression
+     * @param string $y the right expression
      *
      * @return string
      *
@@ -183,8 +181,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> > <right expr>.
      *
-     * @param string $x The left expression.
-     * @param string $y The right expression.
+     * @param string $x the left expression
+     * @param string $y the right expression
      *
      * @return string
      *
@@ -203,8 +201,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> >= <right expr>.
      *
-     * @param string $x The left expression.
-     * @param string $y The right expression.
+     * @param string $x the left expression
+     * @param string $y the right expression
      *
      * @return string
      *
@@ -220,7 +218,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates an IS NULL expression with the given arguments.
      *
-     * @param string $x The expression to be restricted by IS NULL.
+     * @param string $x the expression to be restricted by IS NULL
      *
      * @return string
      *
@@ -236,7 +234,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates an IS NOT NULL expression with the given arguments.
      *
-     * @param string $x The expression to be restricted by IS NOT NULL.
+     * @param string $x the expression to be restricted by IS NOT NULL
      *
      * @return string
      *
@@ -252,8 +250,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates a LIKE comparison expression.
      *
-     * @param string $expression      The expression to be inspected by the LIKE comparison
-     * @param string $pattern         The pattern to compare against
+     * @param string $expression The expression to be inspected by the LIKE comparison
+     * @param string $pattern The pattern to compare against
      * @param string|null $escapeChar To indicate the escape character, by default it's '\'  (optional)
      *
      * @return string
@@ -272,8 +270,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates a NOT LIKE comparison expression
      *
-     * @param string $expression      The expression to be inspected by the NOT LIKE comparison
-     * @param string $pattern         The pattern to compare against
+     * @param string $expression The expression to be inspected by the NOT LIKE comparison
+     * @param string $pattern The pattern to compare against
      * @param string|null $escapeChar To indicate the escape character, by default it's '\' (optional)
      *
      * @return string
@@ -289,12 +287,11 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
         return $this->dbalExpressionBuilder->notLike($expression, $pattern, $escapeChar);
     }
 
-
     /**
      * Creates an IN () comparison expression with the given arguments.
      *
-     * @param string $x          The SQL expression to be matched against the set.
-     * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
+     * @param string $x the SQL expression to be matched against the set
+     * @param string|string[] $y the SQL expression or an array of SQL expressions representing the set
      *
      * @return string
      *
@@ -310,8 +307,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates a NOT IN () comparison expression with the given arguments.
      *
-     * @param string $x          The SQL expression to be matched against the set.
-     * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
+     * @param string $x the SQL expression to be matched against the set
+     * @param string|string[] $y the SQL expression or an array of SQL expressions representing the set
      *
      * @return string
      *

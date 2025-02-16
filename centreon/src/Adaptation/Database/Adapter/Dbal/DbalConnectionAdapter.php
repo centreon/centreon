@@ -25,7 +25,10 @@ namespace Adaptation\Database\Adapter\Dbal;
 
 use Adaptation\Database\Adapter\Dbal\Transformer\DbalParametersTransformer;
 use Adaptation\Database\Collection\QueryParameters;
+use Adaptation\Database\ConnectionInterface;
+use Adaptation\Database\Exception\ConnectionException;
 use Adaptation\Database\ExpressionBuilderInterface;
+use Adaptation\Database\Model\ConnectionConfig;
 use Adaptation\Database\QueryBuilderInterface;
 use Adaptation\Database\Trait\ConnectionTrait;
 use Core\Common\Domain\Exception\UnexpectedValueException;
@@ -33,9 +36,6 @@ use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
-use Adaptation\Database\ConnectionInterface;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\Model\ConnectionConfig;
 
 /**
  * Class
@@ -71,7 +71,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * @throws ConnectionException
      * @return DbalConnectionAdapter
-     *
      */
     public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface
     {
@@ -489,7 +488,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     /**
      * Returns the current auto-commit mode for this connection.
      *
-     * @return bool True if auto-commit mode is currently enabled for this connection, false otherwise.
+     * @return bool true if auto-commit mode is currently enabled for this connection, false otherwise
      *
      * @see setAutoCommit
      */
@@ -508,11 +507,10 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * NOTE: If this method is called during a transaction and the auto-commit mode is changed, the transaction is
      * committed. If this method is called and the auto-commit mode is not changed, the call is a no-op.
      *
-     * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
+     * @param bool $autoCommit true to enable auto-commit mode; false to disable it
      *
      * @throws ConnectionException
      * @return void
-     *
      */
     public function setAutoCommit(bool $autoCommit): void
     {
@@ -526,7 +524,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     /**
      * Checks whether a transaction is currently active.
      *
-     * @return bool TRUE if a transaction is currently active, FALSE otherwise.
+     * @return bool TRUE if a transaction is currently active, FALSE otherwise
      */
     public function isTransactionActive(): bool
     {
@@ -545,7 +543,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * @throws ConnectionException
      * @return void
-     *
      */
     public function startTransaction(): void
     {
@@ -570,7 +567,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * @throws ConnectionException
      * @return bool
-     *
      */
     public function commitTransaction(): bool
     {
@@ -588,7 +584,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      *
      * @throws ConnectionException
      * @return bool
-     *
      */
     public function rollBackTransaction(): bool
     {
@@ -614,7 +609,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         $nativeConnection = $this->getNativeConnection();
         $driverName = match ($nativeConnection::class) {
             \PDO::class => "pdo_{$nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME)}",
-            default => "",
+            default => '',
         };
         if (empty($driverName) || ! in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
             throw ConnectionException::allowUnbufferedQueryFailed($nativeConnection::class, $driverName);
@@ -662,17 +657,16 @@ final class DbalConnectionAdapter implements ConnectionInterface
         $nativeConnection = $this->getNativeConnection();
         if (! $this->isUnbufferedQueryActive()) {
             throw ConnectionException::stopUnbufferedQueryFailed(
-                "Unbuffered query not active"
+                'Unbuffered query not active'
             );
         }
         if ($nativeConnection instanceof \PDO) {
             if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
                 throw ConnectionException::stopUnbufferedQueryFailed(
-                    "Unbuffered query failed"
+                    'Unbuffered query failed'
                 );
             }
         }
         $this->isBufferedQueryActive = true;
     }
-
 }
