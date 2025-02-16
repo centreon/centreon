@@ -558,7 +558,7 @@ function multipleContactInDB($contacts = [], $nbrDup = [])
  * @param null $contact_id
  * @param bool $from_MC
  */
-function updateContactInDB($contact_id = null, $from_MC = false)
+function updateContactInDB($contact_id = null, $from_MC = false, bool $isRemote = false)
 {
     global $form;
 
@@ -599,12 +599,14 @@ function updateContactInDB($contact_id = null, $from_MC = false)
     # 1 - MC with deletion of existing cg
     # 2 - MC with addition of new cg
     # 3 - Normal update
-    if (isset($ret["mc_mod_cg"]["mc_mod_cg"]) && $ret["mc_mod_cg"]["mc_mod_cg"]) {
-        updateContactContactGroup($contact_id);
-    } elseif (isset($ret["mc_mod_cg"]["mc_mod_cg"]) && !$ret["mc_mod_cg"]["mc_mod_cg"]) {
-        updateContactContactGroup_MC($contact_id);
-    } else {
-        updateContactContactGroup($contact_id);
+    if (! $isRemote) {
+        if (isset($ret["mc_mod_cg"]["mc_mod_cg"]) && $ret["mc_mod_cg"]["mc_mod_cg"]) {
+            updateContactContactGroup($contact_id);
+        } elseif (isset($ret["mc_mod_cg"]["mc_mod_cg"]) && !$ret["mc_mod_cg"]["mc_mod_cg"]) {
+            updateContactContactGroup_MC($contact_id);
+        } else {
+            updateContactContactGroup($contact_id);
+        }
     }
 
     /**
