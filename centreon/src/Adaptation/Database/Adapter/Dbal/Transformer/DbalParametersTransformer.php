@@ -24,11 +24,11 @@ declare(strict_types=1);
 namespace Adaptation\Database\Adapter\Dbal\Transformer;
 
 use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
+use Doctrine\DBAL\ParameterType as DbalParameterType;
 
 /**
  * Class
@@ -42,7 +42,7 @@ class DbalParametersTransformer
      * @param QueryParameters $queryParameters
      *
      * @throws TransformerException
-     * @return array[]
+     * @return array{0: array<string,mixed>, 1: array<string,mixed>}
      */
     public static function transform(QueryParameters $queryParameters): array
     {
@@ -61,8 +61,8 @@ class DbalParametersTransformer
     }
 
     /**
-     * @param array $params
-     * @param array $types
+     * @param array<string,mixed> $params
+     * @param array<string,mixed> $types
      *
      * @throws TransformerException
      * @return QueryParameters
@@ -72,7 +72,7 @@ class DbalParametersTransformer
         try {
             $queryParameters = new QueryParameters();
             foreach ($params as $name => $value) {
-                $type = $types[$name] ?? QueryParameterTypeEnum::STRING;
+                $type = DbalParameterTypeTransformer::reverse($types[$name] ?? DbalParameterType::STRING);
                 $queryParameter = QueryParameter::create($name, $value, $type);
                 $queryParameters->add($queryParameter->getName(), $queryParameter);
             }

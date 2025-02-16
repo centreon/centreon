@@ -215,9 +215,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     /**
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
-     * @return object
+     * @return \PDO
      */
-    public function getNativeConnection(): object
+    public function getNativeConnection(): \PDO
     {
         return $this;
     }
@@ -355,7 +355,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return array<string, mixed>|false false is returned if no rows are found
+     * @return array<int, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);

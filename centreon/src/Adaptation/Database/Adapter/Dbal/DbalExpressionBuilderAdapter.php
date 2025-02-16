@@ -81,9 +81,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates a comparison expression.
      *
-     * @param string $x the left expression
+     * @param string $leftExpression the left expression
      * @param string $operator the comparison operator
-     * @param string $y the right expression
+     * @param string $rightExpression the right expression
      *
      * @return string
      *
@@ -91,9 +91,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *          method : comparison('field1', '=', ':value1')
      *          return : "field1 = :value1"
      */
-    public function comparison(string $x, string $operator, string $y): string
+    public function comparison(string $leftExpression, string $operator, string $rightExpression): string
     {
-        return $this->dbalExpressionBuilder->comparison($x, $operator, $y);
+        return $this->dbalExpressionBuilder->comparison($leftExpression, $operator, $rightExpression);
     }
 
     /**
@@ -102,8 +102,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> = <right expr>.
      *
-     * @param string $x the left expression
-     * @param string $y the right expression
+     * @param string $leftExpression the left expression
+     * @param string $rightExpression the right expression
      *
      * @return string
      *
@@ -111,9 +111,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *         method : equal('field1', ':value1')
      *         return : "field1 = :value1"
      */
-    public function equal(string $x, string $y): string
+    public function equal(string $leftExpression, string $rightExpression): string
     {
-        return $this->dbalExpressionBuilder->eq($x, $y);
+        return $this->dbalExpressionBuilder->eq($leftExpression, $rightExpression);
     }
 
     /**
@@ -122,8 +122,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> <> <right expr>.
      *
-     * @param string $x the left expression
-     * @param string $y the right expression
+     * @param string $leftExpression the left expression
+     * @param string $rightExpression the right expression
      *
      * @return string
      *
@@ -131,9 +131,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *         method : notEqual('field1', ':value1')
      *         return : "field1 <> :value1"
      */
-    public function notEqual(string $x, string $y): string
+    public function notEqual(string $leftExpression, string $rightExpression): string
     {
-        return $this->dbalExpressionBuilder->neq($x, $y);
+        return $this->dbalExpressionBuilder->neq($leftExpression, $rightExpression);
     }
 
     /**
@@ -142,8 +142,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> < <right expr>.
      *
-     * @param string $x the left expression
-     * @param string $y the right expression
+     * @param string $leftExpression the left expression
+     * @param string $rightExpression the right expression
      *
      * @return string
      *
@@ -151,9 +151,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *         method : lowerThan('field1', ':value1')
      *         return : "field1 < :value1"
      */
-    public function lowerThan(string $x, string $y): string
+    public function lowerThan(string $leftExpression, string $rightExpression): string
     {
-        return $this->dbalExpressionBuilder->lt($x, $y);
+        return $this->dbalExpressionBuilder->lt($leftExpression, $rightExpression);
     }
 
     /**
@@ -162,8 +162,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> <= <right expr>.
      *
-     * @param string $x the left expression
-     * @param string $y the right expression
+     * @param string $leftExpression the left expression
+     * @param string $rightExpression the right expression
      *
      * @return string
      *
@@ -171,9 +171,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *         method : lowerThanEqual('field1', ':value1')
      *         return : "field1 <= :value1"
      */
-    public function lowerThanEqual(string $x, string $y): string
+    public function lowerThanEqual(string $leftExpression, string $rightExpression): string
     {
-        return $this->dbalExpressionBuilder->lte($x, $y);
+        return $this->dbalExpressionBuilder->lte($leftExpression, $rightExpression);
     }
 
     /**
@@ -181,8 +181,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> > <right expr>.
      *
-     * @param string $x the left expression
-     * @param string $y the right expression
+     * @param string $leftExpression the left expression
+     * @param string $rightExpression the right expression
      *
      * @return string
      *
@@ -190,9 +190,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *         method : greaterThan('field1', ':value1')
      *         return : "field1 > :value1"
      */
-    public function greaterThan(string $x, string $y): string
+    public function greaterThan(string $leftExpression, string $rightExpression): string
     {
-        return $this->dbalExpressionBuilder->gt($x, $y);
+        return $this->dbalExpressionBuilder->gt($leftExpression, $rightExpression);
     }
 
     /**
@@ -201,8 +201,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * First argument is considered the left expression and the second is the right expression.
      * When converted to string, it will generated a <left expr> >= <right expr>.
      *
-     * @param string $x the left expression
-     * @param string $y the right expression
+     * @param string $leftExpression the left expression
+     * @param string $rightExpression the right expression
      *
      * @return string
      *
@@ -210,15 +210,15 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *         method : greaterThanEqual('field1', ':value1')
      *         return : "field1 >= :value1"
      */
-    public function greaterThanEqual(string $x, string $y): string
+    public function greaterThanEqual(string $leftExpression, string $rightExpression): string
     {
-        return $this->dbalExpressionBuilder->gte($x, $y);
+        return $this->dbalExpressionBuilder->gte($leftExpression, $rightExpression);
     }
 
     /**
      * Creates an IS NULL expression with the given arguments.
      *
-     * @param string $x the expression to be restricted by IS NULL
+     * @param string $expression the expression to be restricted by IS NULL
      *
      * @return string
      *
@@ -226,15 +226,15 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *         method : isNull('field1')
      *         return : "field1 IS NULL"
      */
-    public function isNull(string $x): string
+    public function isNull(string $expression): string
     {
-        return $this->dbalExpressionBuilder->isNull($x);
+        return $this->dbalExpressionBuilder->isNull($expression);
     }
 
     /**
      * Creates an IS NOT NULL expression with the given arguments.
      *
-     * @param string $x the expression to be restricted by IS NOT NULL
+     * @param string $expression the expression to be restricted by IS NOT NULL
      *
      * @return string
      *
@@ -242,9 +242,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *         method : isNotNull('field1')
      *         return : "field1 IS NOT NULL"
      */
-    public function isNotNull(string $x): string
+    public function isNotNull(string $expression): string
     {
-        return $this->dbalExpressionBuilder->isNotNull($x);
+        return $this->dbalExpressionBuilder->isNotNull($expression);
     }
 
     /**
@@ -290,8 +290,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates an IN () comparison expression with the given arguments.
      *
-     * @param string $x the SQL expression to be matched against the set
-     * @param string|string[] $y the SQL expression or an array of SQL expressions representing the set
+     * @param string $expressionToBeMatched the SQL expression to be matched against the set
+     * @param string|string[] $set the SQL expression or an array of SQL expressions representing the set
      *
      * @return string
      *
@@ -299,16 +299,16 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *          method : in('field1', [:value1, :value2, :value3])
      *          return : "field1 IN (:value1, :value2, :value3)"
      */
-    public function in(string $x, string|array $y): string
+    public function in(string $expressionToBeMatched, string|array $set): string
     {
-        return $this->dbalExpressionBuilder->in($x, $y);
+        return $this->dbalExpressionBuilder->in($expressionToBeMatched, $set);
     }
 
     /**
      * Creates a NOT IN () comparison expression with the given arguments.
      *
-     * @param string $x the SQL expression to be matched against the set
-     * @param string|string[] $y the SQL expression or an array of SQL expressions representing the set
+     * @param string $expressionToBeMatched the SQL expression to be matched against the set
+     * @param string|string[] $set the SQL expression or an array of SQL expressions representing the set
      *
      * @return string
      *
@@ -316,8 +316,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *          method : notIn('field1', [:value1, :value2, :value3])
      *          return : "field1 NOT IN (:value1, :value2, :value3)"
      */
-    public function notIn(string $x, string|array $y): string
+    public function notIn(string $expressionToBeMatched, string|array $set): string
     {
-        return $this->dbalExpressionBuilder->notIn($x, $y);
+        return $this->dbalExpressionBuilder->notIn($expressionToBeMatched, $set);
     }
 }

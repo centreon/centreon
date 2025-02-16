@@ -38,7 +38,6 @@ class DbalParameterTypeTransformer
     /**
      * @param QueryParameterTypeEnum $queryParameterTypeEnum
      *
-     * @throws TransformerException
      * @return DbalParameterType
      */
     public static function transform(QueryParameterTypeEnum $queryParameterTypeEnum): DbalParameterType
@@ -49,10 +48,6 @@ class DbalParameterTypeTransformer
             QueryParameterTypeEnum::BOOLEAN => DbalParameterType::BOOLEAN,
             QueryParameterTypeEnum::NULL => DbalParameterType::NULL,
             QueryParameterTypeEnum::LARGE_OBJECT => DbalParameterType::LARGE_OBJECT,
-            default => throw new TransformerException(
-                'The type of the parameter is not supported by QueryParameterTypeEnum',
-                ['query_parameter_type' => $queryParameterTypeEnum]
-            ),
         };
     }
 

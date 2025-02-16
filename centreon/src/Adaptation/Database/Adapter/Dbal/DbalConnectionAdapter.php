@@ -151,9 +151,9 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
      * @throws ConnectionException
-     * @return object
+     * @return object|resource
      */
-    public function getNativeConnection(): object
+    public function getNativeConnection(): mixed
     {
         try {
             return $this->dbalConnection->getNativeConnection();
@@ -266,7 +266,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return array<string, mixed>|false false is returned if no rows are found
+     * @return array<int, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
@@ -607,15 +607,19 @@ final class DbalConnectionAdapter implements ConnectionInterface
     public function allowUnbufferedQuery(): bool
     {
         $nativeConnection = $this->getNativeConnection();
-        $driverName = match ($nativeConnection::class) {
-            \PDO::class => "pdo_{$nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME)}",
-            default => '',
-        };
-        if (empty($driverName) || ! in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
-            throw ConnectionException::allowUnbufferedQueryFailed($nativeConnection::class, $driverName);
+        if (is_object($nativeConnection)) {
+            $driverName = match ($nativeConnection::class) {
+                \PDO::class => "pdo_{$nativeConnection->getAttribute(\PDO::ATTR_DRIVER_NAME)}",
+                default => '',
+            };
+            if (empty($driverName) || ! in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
+                throw ConnectionException::allowUnbufferedQueryFailed($nativeConnection::class, $driverName);
+            }
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
