@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Centreon\Infrastructure;
+namespace Tests\Adaptation\Database\Adapter\Dbal;
 
 use Adaptation\Database\Adapter\Dbal\DbalConnectionAdapter;
 use Adaptation\Database\Adapter\Dbal\DbalExpressionBuilderAdapter;
@@ -90,12 +90,13 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         'test DbalConnectionAdapter : DbalConnectionAdapter::createFromConfig factory with a good connection',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $pdo = $db->getNativeConnection();
             expect($db)->toBeInstanceOf(DbalConnectionAdapter::class);
-            $stmt = $db->prepare("select database()");
+            $stmt = $db->getNativeConnection()->prepare("select database()");
             $stmt->execute();
             $dbName = $stmt->fetchColumn();
             expect($dbName)->toBe('centreon')
-                ->and($db->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
+                ->and($pdo->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
         }
     );
 
@@ -138,16 +139,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test DbalConnectionAdapter : switch to database',
-        function () use ($dbConfigCentreon): void {
-            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
-            $db->switchToDb('centreon_storage');
-            expect($db->getDatabaseName())->toBe('centreon_storage');
-            $db->switchToDb('centreon');
-            expect($db->getDatabaseName())->toBe('centreon');
-        }
-    );
-    it(
         'test DbalConnectionAdapter : get the database name of the current connection',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
@@ -164,14 +155,15 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it('test DbalConnectionAdapter : get last insert id', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
-        $insert = $db->exec(
+        $pdo = $db->getNativeConnection();
+        $insert = $pdo->exec(
             "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
         );
         expect($insert)->toBeInt()->toBe(1);
         $lastInsertId = $db->getLastInsertId();
         expect($lastInsertId)->toBeString()->toBe('110');
         // clean up the database
-        $delete = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+        $delete = $pdo->exec("DELETE FROM contact WHERE contact_id = 110");
         expect($delete)->toBeInt()->toBe(1);
     });
 
@@ -180,15 +172,10 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         expect($db->isConnected())->toBeTrue();
     });
 
-    it('test DbalConnectionAdapter : close connection', function () use ($dbConfigCentreon): void {
-        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
-        $db->close();
-        expect($db->isConnected())->toBeFalse();
-    });
-
     it('test DbalConnectionAdapter : quote string', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
-        $quotedString = $db->quote("foo");
+        $pdo = $db->getNativeConnection();
+        $quotedString = $pdo->quote("foo");
         expect($quotedString)->toBeString()->toBe("'foo'");
     });
 
@@ -200,12 +187,13 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         'test DbalConnectionAdapter : execute statement with a correct query without query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $pdo = $db->getNativeConnection();
             $inserted = $db->executeStatement(
                 "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
             );
             expect($inserted)->toBeInt()->toBe(1);
             // clean up the database
-            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            $deleted = $pdo->exec("DELETE FROM contact WHERE contact_id = 110");
             expect($deleted)->toBeInt()->toBe(1);
         }
     );
@@ -214,6 +202,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         'test DbalConnectionAdapter : execute statement with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $pdo = $db->getNativeConnection();
             $queryParameters = QueryParameters::create(
                 [
                     QueryParameter::int('id', 110),
@@ -227,7 +216,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             );
             expect($inserted)->toBeInt()->toBe(1);
             // clean up the database
-            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            $deleted = $pdo->exec("DELETE FROM contact WHERE contact_id = 110");
             expect($deleted)->toBeInt()->toBe(1);
         }
     );
@@ -273,6 +262,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         'test DbalConnectionAdapter : insert with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $pdo = $db->getNativeConnection();
             $queryParameters = QueryParameters::create(
                 [
                     QueryParameter::int('id', 110),
@@ -286,7 +276,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             );
             expect($inserted)->toBeInt()->toBe(1);
             // clean up the database
-            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            $deleted = $pdo->exec("DELETE FROM contact WHERE contact_id = 110");
             expect($deleted)->toBeInt()->toBe(1);
         }
     );
@@ -332,6 +322,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         'test DbalConnectionAdapter : batch insert with a correct query with batch query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $pdo = $db->getNativeConnection();
             $batchQueryParameters = BatchInsertParameters::create([
                 QueryParameters::create([
                     QueryParameter::int('contact_id', 110),
@@ -356,7 +347,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             );
             expect($inserted)->toBeInt()->toBe(3);
             // clean up the database
-            $deleted = $db->exec("DELETE FROM contact WHERE contact_id IN (110,111,112)");
+            $deleted = $pdo->exec("DELETE FROM contact WHERE contact_id IN (110,111,112)");
             expect($deleted)->toBeInt()->toBe(3);
         }
     );
@@ -405,6 +396,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         'test DbalConnectionAdapter : update with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $pdo = $db->getNativeConnection();
             $inserted = $db->executeStatement(
                 "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
             );
@@ -422,7 +414,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             );
             expect($updated)->toBeInt()->toBe(1);
             // clean up the database
-            $delete = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            $delete = $pdo->exec("DELETE FROM contact WHERE contact_id = 110");
             expect($delete)->toBeInt()->toBe(1);
         }
     );
@@ -1120,8 +1112,9 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::int('id', 1)])
             );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toBe(['1' => 'admin']);
+            foreach ($contacts as $contactId => $contactAlias) {
+                expect($contactId)->toBeInt()->toBe(1)
+                    ->and($contactAlias)->toBeString()->toBe('admin');
             }
         }
     );
@@ -1291,18 +1284,20 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         'test DbalConnectionAdapter : execute unbufferedQuery with correct query',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            /** @var \PDO $pdo */
+            $pdo = $db->getNativeConnection();
             $db->startUnbufferedQuery();
             expect($db->isUnbufferedQueryActive())->toBeTrue()
-                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
-            $pdoStmt = $db->prepare("SELECT * FROM contact WHERE contact_id = 1");
+                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+            $pdoStmt = $db->getNativeConnection()->prepare("SELECT * FROM contact WHERE contact_id = 1");
             $pdoStmt->execute();
             $contact = $pdoStmt->fetch(\PDO::FETCH_ASSOC);
             expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
                 ->and($db->isUnbufferedQueryActive())->toBeTrue()
-                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
             $db->stopUnbufferedQuery();
             expect($db->isUnbufferedQueryActive())->toBeFalse()
-                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
+                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
         }
     );
 
@@ -1310,25 +1305,10 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         'test DbalConnectionAdapter : stop unbuffered query without start unbuffered query',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
-
             $db->stopUnbufferedQuery();
         }
     )->throws(ConnectionException::class);
 
-    // ---------------------------------------- BASE METHOD ----------------------------------------------
-
-    // -- closeQuery
-
-    it(
-        'test DbalConnectionAdapter : execute closeQuery with success',
-        function () use ($dbConfigCentreon): void {
-            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
-            $pdoSth = $db->prepare("select * from contact where contact_id = :contact_id");
-            $pdoSth->execute(['contact_id' => 1]);
-            $successClose = $db->closeQuery($pdoSth);
-            expect($successClose)->toBeTrue();
-        }
-    );
 } else {
     it('no centreon database available for testing the DbalConnectionAdapter connector, so these tests were ignored');
 }

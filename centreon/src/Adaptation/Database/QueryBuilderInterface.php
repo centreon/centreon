@@ -168,7 +168,7 @@ interface QueryBuilderInterface
      *         ->getQuery();
      * </code>
      *
-     * @param string      $table The table.
+     * @param string $table      The table.
      * @param string|null $alias The alias of the table.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
@@ -499,7 +499,7 @@ interface QueryBuilderInterface
      * Specifies an ordering for the query results.
      * Replaces any previously specified orderings, if any.
      *
-     * @param string      $sort  The ordering expression.
+     * @param string $sort       The ordering expression.
      * @param string|null $order The ordering direction.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.
@@ -509,7 +509,7 @@ interface QueryBuilderInterface
     /**
      * Adds an ordering to the query results.
      *
-     * @param string      $sort  The ordering expression.
+     * @param string $sort       The ordering expression.
      * @param string|null $order The ordering direction.
      *
      * @return QueryBuilderInterface This QueryBuilder instance.

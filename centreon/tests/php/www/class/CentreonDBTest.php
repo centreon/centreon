@@ -1158,12 +1158,13 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         'test CentreonDB : iterateKeyValue with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $contacts = $db->iterateKeyValue(
+            $contact = $db->iterateKeyValue(
                 "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::int('id', 1)])
             );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->toBe(['1' => 'admin'])
+            foreach ($contact as $contactId => $contactAlias) {
+                expect($contactId)->toBeInt()->toBe(1)
+                    ->and($contactAlias)->toBeString()->toBe('admin')
                     ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
             }
         }
@@ -1366,7 +1367,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     // -- prepareQuery
 
     it(
-        'test CentreonDB : prepare query with a correct prepared query',
+        'test DEPRECATED CentreonDB : prepare query with a correct prepared query',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
@@ -1376,7 +1377,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test CentreonDB : prepare query with an empty prepared query',
+        'test DEPRECATED CentreonDB : prepare query with an empty prepared query',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $db->prepareQuery("");
@@ -1387,7 +1388,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     // -- makeBindValue
 
     it(
-        'test CentreonDB : execute makeBindValue with success',
+        'test DEPRECATED CentreonDB : execute makeBindValue with success',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
@@ -1401,7 +1402,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test CentreonDB : execute makeBindValue with an empty param name',
+        'test DEPRECATED CentreonDB : execute makeBindValue with an empty param name',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
@@ -1412,7 +1413,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     )->throws(CentreonDbException::class);
 
     it(
-        'test CentreonDB : execute makeBindValue with a type that doesnt exist',
+        'test DEPRECATED CentreonDB : execute makeBindValue with a type that doesnt exist',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
@@ -1425,7 +1426,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     // -- makeBindParam
 
     it(
-        'test CentreonDB : execute makeBindParam with success',
+        'test DEPRECATED CentreonDB : execute makeBindParam with success',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
@@ -1440,7 +1441,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test CentreonDB : execute makeBindParam with an empty param name',
+        'test DEPRECATED CentreonDB : execute makeBindParam with an empty param name',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
@@ -1452,7 +1453,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     )->throws(CentreonDbException::class);
 
     it(
-        'test CentreonDB : execute makeBindParam with a type that doesnt exist',
+        'test DEPRECATED CentreonDB : execute makeBindParam with a type that doesnt exist',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepareQuery("select * from contact where contact_id = :contact_id");
@@ -1466,7 +1467,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     // -- fetch()
 
     it(
-        'execute fetch with a correct query',
+        'test DEPRECATED CentreonDB : execute fetch with a correct query',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepare("select * from contact");
@@ -1482,7 +1483,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     // -- fetchAll()
 
     it(
-        'execute fetchAll a correct query',
+        'test DEPRECATED CentreonDB : execute fetchAll a correct query',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $pdoSth = $db->prepare("select * from contact");

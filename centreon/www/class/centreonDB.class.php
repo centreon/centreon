@@ -19,13 +19,10 @@
  *
  */
 
+use Adaptation\Database\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ConnectionInterface;
-use Adaptation\Database\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\ExpressionBuilderInterface;
-use Adaptation\Database\Model\ConnectionConfig;
-use Adaptation\Database\QueryBuilderInterface;
 use Adaptation\Database\Trait\ConnectionTrait;
 
 // file centreon.config.php may not exist in test environment
@@ -197,41 +194,6 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     /**
-     * Factory
-     *
-     * @param ConnectionConfig $connectionConfig
-     *
-     * @throws ConnectionException
-     * @return CentreonDB
-     */
-    public static function createFromConfig(ConnectionConfig $connectionConfig): self
-    {
-        throw ConnectionException::notImplemented('createFromConfig');
-    }
-
-    /**
-     * Creates a new instance of a SQL query builder.
-     *
-     * @throws ConnectionException
-     * @return QueryBuilderInterface
-     */
-    public function createQueryBuilder(): QueryBuilderInterface
-    {
-        throw ConnectionException::notImplemented('createQueryBuilder');
-    }
-
-    /**
-     * Creates an expression builder for the connection.
-     *
-     * @throws ConnectionException
-     * @return ExpressionBuilderInterface
-     */
-    public function createExpressionBuilder(): ExpressionBuilderInterface
-    {
-        throw ConnectionException::notImplemented('createExpressionBuilder');
-    }
-
-    /**
      * Return the database name if it exists.
      *
      * @throws ConnectionException
@@ -365,7 +327,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                         ":{$queryParameter->getName()}",
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
+                            ? PdoParameterTypeTransformer::transform($queryParameter->getType()) : \PDO::PARAM_STR
                     );
                 }
             }
@@ -634,201 +596,6 @@ class CentreonDB extends PDO implements ConnectionInterface
         }
     }
 
-    // --------------------------------------- ITERATE METHODS -----------------------------------------
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $row) {
-     *              // $row = [0 => 1, 1 => 'John', 2 => 'Doe']
-     *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
-     *          }
-     */
-    public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
-            while (($row = $pdoStatement->fetch(\PDO::FETCH_NUM)) !== false) {
-                yield $row;
-            }
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to iterate numeric query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::iterateNumericQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over rows represented
-     * as associative arrays.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<int,array<string,mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $row) {
-     *              // $row = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
-     *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
-     *          }
-     */
-    public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
-            while (($row = $pdoStatement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-                yield $row;
-            }
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to iterate associative query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::iterateAssociativeQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over the column values.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $value) {
-     *              // $value = 'John'
-     *              // $value = 'Jean'
-     *          }
-     */
-    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
-            while (($row = $pdoStatement->fetch(\PDO::FETCH_COLUMN)) !== false) {
-                yield $row;
-            }
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to iterate by column query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::iterateColumnQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator with the keys
-     * mapped to the first column and the values mapped to the second column.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<mixed,mixed>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $key => $value) {
-     *              // $key = 'John', $value = 'Doe'
-     *              // $key = 'Jean', $value = 'Dupont'
-     *          }
-     */
-    public function iterateKeyValue(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
-            while (($row = $pdoStatement->fetch(\PDO::FETCH_KEY_PAIR)) !== false) {
-                yield $row;
-            }
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to iterate key value query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::iterateKeyValueQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
-     * to the first column and the values being an associative array representing the rest of the columns
-     * and their values.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<mixed,array<string,mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $key => $row) {
-     *              // $key = 1, $row = ['name' => 'John', 'surname' => 'Doe']
-     *              // $key = 2, $row = ['name' => 'Jean', 'surname' => 'Dupont']
-     *          }
-     */
-    public function iterateAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            foreach ($this->iterateAssociative($query, $queryParameters) as $row) {
-                yield array_shift($row) => $row;
-            }
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to iterate associative indexed query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::iterateAssociativeIndexedQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
     /**
@@ -919,7 +686,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      */
     public function allowUnbufferedQuery(): bool
     {
-        $currentDriverName = $this->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        $currentDriverName = "pdo_{$this->getAttribute(\PDO::ATTR_DRIVER_NAME)}";
         if (! in_array($currentDriverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
             $this->writeDbLog(
                 message: 'Unbuffered queries are not allowed with this driver',
@@ -1302,7 +1069,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                         $queryParameter->getName(),
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
+                            ? PdoParameterTypeTransformer::transform($queryParameter->getType()) : \PDO::PARAM_STR
                     );
                 }
             }

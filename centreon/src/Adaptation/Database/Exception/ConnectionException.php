@@ -82,7 +82,8 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function getNativeConnectionFailed(?\Throwable $previous = null): self {
+    public static function getNativeConnectionFailed(?\Throwable $previous = null): self
+    {
         $message = 'Error while retrieving the native connection';
         if (! is_null($previous) && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
@@ -106,7 +107,8 @@ class ConnectionException extends DatabaseException
         if (! is_null($previous) && ! empty($previous->getMessage())) {
             $message .= " : {$previous->getMessage()}";
         }
-        return new self($message,self::ERROR_CODE_DATABASE);
+
+        return new self($message, self::ERROR_CODE_DATABASE);
     }
 
     /**
@@ -505,29 +507,6 @@ class ConnectionException extends DatabaseException
      *
      * @return ConnectionException
      */
-    public static function fetchAllByColumnQueryFailed(
-        \Throwable $previous,
-        string $query,
-        ?QueryParameters $queryParameters = null
-    ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
-        return new self(
-            message: "Error while executing fetch all by column query : {$previous->getMessage()}",
-            code: self::ERROR_CODE_DATABASE,
-            context: $context,
-            previous: $previous
-        );
-    }
-
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
     public static function fetchAllKeyValueQueryFailed(
         \Throwable $previous,
         string $query,
@@ -633,6 +612,21 @@ class ConnectionException extends DatabaseException
             code: self::ERROR_CODE_DATABASE,
             context: $context,
             previous: $previous
+        );
+    }
+
+    /**
+     * @param string $query
+     * @param string $message
+     *
+     * @return self
+     */
+    public static function iterateKeyValueQueryBadFormat(string $message, string $query): self
+    {
+        return new self(
+            message: "Bad format of iterate key value query : {$message}",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: ['query' => $query]
         );
     }
 

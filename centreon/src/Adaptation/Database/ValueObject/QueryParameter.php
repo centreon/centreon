@@ -109,7 +109,7 @@ final readonly class QueryParameter implements ValueObjectInterface
             return self::null($name);
         }
 
-        return self::create($name, $value, QueryParameterTypeEnum::INT);
+        return self::create($name, $value, QueryParameterTypeEnum::INTEGER);
     }
 
     /**
@@ -142,7 +142,7 @@ final readonly class QueryParameter implements ValueObjectInterface
      */
     public static function bool(string $name, bool $value): self
     {
-        return self::create($name, $value, QueryParameterTypeEnum::BOOL);
+        return self::create($name, $value, QueryParameterTypeEnum::BOOLEAN);
     }
 
     /**

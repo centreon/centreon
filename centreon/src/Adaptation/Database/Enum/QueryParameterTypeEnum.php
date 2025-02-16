@@ -29,30 +29,30 @@ namespace Adaptation\Database\Enum;
  * @class   QueryParameterTypeEnum
  * @package Adaptation\Database
  */
-enum QueryParameterTypeEnum: int
+enum QueryParameterTypeEnum
 {
     /**
      * Represents the SQL NULL data type.
      */
-    case NULL = 0;
+    case NULL;
 
     /**
      * Represents the SQL INTEGER data type.
      */
-    case INT = 1;
+    case INTEGER;
 
     /**
      * Represents the SQL CHAR, VARCHAR, or other string data type.
      */
-    case STRING = 2;
+    case STRING;
 
     /**
      * Represents the SQL large object data type.
      */
-    case LARGE_OBJECT = 3;
+    case LARGE_OBJECT;
 
     /**
      * Represents a boolean data type.
      */
-    case BOOL = 5;
+    case BOOLEAN;
 }

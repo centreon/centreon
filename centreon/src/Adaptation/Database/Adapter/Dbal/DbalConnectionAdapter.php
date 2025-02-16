@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Adapter\Dbal;
 
+use Adaptation\Database\Adapter\Dbal\Transformer\DbalParametersTransformer;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilderInterface;
 use Adaptation\Database\Trait\ConnectionTrait;
-use Adaptation\Database\Transformer\QueryParametersTransformer;
 use Core\Common\Domain\Exception\UnexpectedValueException;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
@@ -194,14 +194,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
     }
 
     /**
-     * Closes the connection.
-     */
-    public function close(): void
-    {
-        $this->dbalConnection->close();
-    }
-
-    /**
      * The usage of this method is discouraged. Use prepared statements.
      *
      * @param string $value
@@ -251,7 +243,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 );
             }
 
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
+            if ($queryParameters === null) {
+                return (int) $this->dbalConnection->executeStatement($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
 
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -281,7 +277,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->fetchNumeric($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
 
             return $this->dbalConnection->fetchNumeric($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -308,7 +309,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->fetchAssociative($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
 
             return $this->dbalConnection->fetchAssociative($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -336,7 +342,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->fetchOne($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
 
             return $this->dbalConnection->fetchOne($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -363,7 +374,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->fetchFirstColumn($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
 
             return $this->dbalConnection->fetchFirstColumn($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -390,7 +406,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->fetchAllNumeric($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
 
             return $this->dbalConnection->fetchAllNumeric($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -417,7 +438,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->fetchAllAssociative($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
 
             return $this->dbalConnection->fetchAllAssociative($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -445,167 +471,16 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->fetchAllKeyValue($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
 
             return $this->dbalConnection->fetchAllKeyValue($query, $params, $types);
         } catch (\Throwable $exception) {
             throw ConnectionException::fetchAllKeyValueQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    // --------------------------------------- ITERATE METHODS -----------------------------------------
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $row) {
-     *              // $row = [0 => 1, 1 => 'John', 2 => 'Doe']
-     *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
-     *          }
-     */
-    public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
-
-            return $this->dbalConnection->iterateNumeric($query, $params, $types);
-        } catch (\Throwable $exception) {
-            throw ConnectionException::iterateNumericQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over rows represented
-     * as associative arrays.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<int,array<string,mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $row) {
-     *              // $row = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
-     *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
-     *          }
-     */
-    public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
-
-            return $this->dbalConnection->iterateAssociative($query, $params, $types);
-        } catch (\Throwable $exception) {
-            throw ConnectionException::iterateAssociativeQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator over the column values.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<int,list<mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $value) {
-     *              // $value = 'John'
-     *              // $value = 'Jean'
-     *          }
-     */
-    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
-
-            return $this->dbalConnection->iterateColumn($query, $params, $types);
-        } catch (\Throwable $exception) {
-            throw ConnectionException::iterateColumnQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator with the keys
-     * mapped to the first column and the values mapped to the second column.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<mixed,mixed>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $key => $value) {
-     *              // $key = 'John', $value = 'Doe'
-     *              // $key = 'Jean', $value = 'Dupont'
-     *          }
-     */
-    public function iterateKeyValue(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
-
-            return $this->dbalConnection->iterateKeyValue($query, $params, $types);
-        } catch (\Throwable $exception) {
-            throw ConnectionException::iterateKeyValueQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
-     * to the first column and the values being an associative array representing the rest of the columns
-     * and their values.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<mixed,array<string,mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $key => $row) {
-     *              // $key = 1, $row = ['name' => 'John', 'surname' => 'Doe']
-     *              // $key = 2, $row = ['name' => 'Jean', 'surname' => 'Dupont']
-     *          }
-     */
-    public function iterateAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            ['params' => $params, 'types' => $types] = QueryParametersTransformer::reverse($queryParameters);
-
-            return $this->dbalConnection->iterateAssociativeIndexed($query, $params, $types);
-        } catch (\Throwable $exception) {
-            throw ConnectionException::iterateAssociativeIndexedQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -760,7 +635,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         $nativeConnection = $this->getNativeConnection();
         if ($nativeConnection instanceof \PDO) {
             if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
-                throw ConnectionException::startUnbufferedQueryFailed($nativeConnection::class);
+                throw ConnectionException::startUnbufferedQueryFailed();
             }
         }
         $this->isBufferedQueryActive = false;
@@ -787,15 +662,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
         $nativeConnection = $this->getNativeConnection();
         if (! $this->isUnbufferedQueryActive()) {
             throw ConnectionException::stopUnbufferedQueryFailed(
-                "Unbuffered query not active",
-                $nativeConnection::class
+                "Unbuffered query not active"
             );
         }
         if ($nativeConnection instanceof \PDO) {
-            if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
+            if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
                 throw ConnectionException::stopUnbufferedQueryFailed(
-                    "Unbuffered query failed",
-                    $nativeConnection::class
+                    "Unbuffered query failed"
                 );
             }
         }

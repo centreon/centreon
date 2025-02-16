@@ -252,8 +252,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates a LIKE comparison expression.
      *
-     * @param string      $expression The expression to be inspected by the LIKE comparison
-     * @param string      $pattern    The pattern to compare against
+     * @param string $expression      The expression to be inspected by the LIKE comparison
+     * @param string $pattern         The pattern to compare against
      * @param string|null $escapeChar To indicate the escape character, by default it's '\'  (optional)
      *
      * @return string
@@ -272,8 +272,8 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates a NOT LIKE comparison expression
      *
-     * @param string      $expression The expression to be inspected by the NOT LIKE comparison
-     * @param string      $pattern    The pattern to compare against
+     * @param string $expression      The expression to be inspected by the NOT LIKE comparison
+     * @param string $pattern         The pattern to compare against
      * @param string|null $escapeChar To indicate the escape character, by default it's '\' (optional)
      *
      * @return string
@@ -293,7 +293,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates an IN () comparison expression with the given arguments.
      *
-     * @param string          $x The SQL expression to be matched against the set.
+     * @param string $x          The SQL expression to be matched against the set.
      * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
      *
      * @return string
@@ -302,7 +302,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *          method : in('field1', [:value1, :value2, :value3])
      *          return : "field1 IN (:value1, :value2, :value3)"
      */
-    public function in(string $x, string | array $y): string
+    public function in(string $x, string|array $y): string
     {
         return $this->dbalExpressionBuilder->in($x, $y);
     }
@@ -310,7 +310,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     /**
      * Creates a NOT IN () comparison expression with the given arguments.
      *
-     * @param string          $x The SQL expression to be matched against the set.
+     * @param string $x          The SQL expression to be matched against the set.
      * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
      *
      * @return string
@@ -319,7 +319,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *          method : notIn('field1', [:value1, :value2, :value3])
      *          return : "field1 NOT IN (:value1, :value2, :value3)"
      */
-    public function notIn(string $x, string | array $y): string
+    public function notIn(string $x, string|array $y): string
     {
         return $this->dbalExpressionBuilder->notIn($x, $y);
     }

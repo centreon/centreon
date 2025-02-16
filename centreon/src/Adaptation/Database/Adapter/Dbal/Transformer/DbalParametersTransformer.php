@@ -18,9 +18,10 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
-namespace Adaptation\Database\Transformer;
+namespace Adaptation\Database\Adapter\Dbal\Transformer;
 
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\Enum\QueryParameterTypeEnum;
@@ -32,11 +33,32 @@ use Core\Common\Domain\Exception\ValueObjectException;
 /**
  * Class
  *
- * @class   DbalQueryParameterTransformer
+ * @class   DbalParametersTransformer
  * @package Adaptation\Database\Adapter\Dbal\Transformer
  */
-class QueryParametersTransformer
+class DbalParametersTransformer
 {
+    /**
+     * @param QueryParameters $queryParameters
+     *
+     * @throws TransformerException
+     * @return array[]
+     */
+    public static function transform(QueryParameters $queryParameters): array
+    {
+        $params = [];
+        $types = [];
+        foreach ($queryParameters->getIterator() as $queryParameter) {
+            $params[$queryParameter->getName()] = $queryParameter->getValue();
+            if (! is_null($queryParameter->getType())) {
+                $types[$queryParameter->getName()] = DbalParameterTypeTransformer::transform(
+                    $queryParameter->getType()
+                );
+            }
+        }
+
+        return [$params, $types];
+    }
 
     /**
      * @param array $params
@@ -45,7 +67,7 @@ class QueryParametersTransformer
      * @throws TransformerException
      * @return QueryParameters
      */
-    public static function transform(array $params, array $types = []): QueryParameters
+    public static function reverse(array $params, array $types): QueryParameters
     {
         try {
             $queryParameters = new QueryParameters();
@@ -58,30 +80,10 @@ class QueryParametersTransformer
             return $queryParameters;
         } catch (CollectionException|ValueObjectException $exception) {
             throw new TransformerException(
-                "Error while transforming QueryParameters : {$exception->getMessage()}",
+                "Error while reversing to QueryParameters : {$exception->getMessage()}",
                 ['params' => $params, 'types' => $types],
                 $exception
             );
         }
     }
-
-    /**
-     * @param QueryParameters $queryParameters
-     *
-     * @return array<string, array<string, mixed>>
-     */
-    public static function reverse(QueryParameters $queryParameters): array
-    {
-        $params = [];
-        $types = [];
-        foreach ($queryParameters->getIterator() as $queryParameter) {
-            $params[$queryParameter->getName()] = $queryParameter->getValue();
-            if (! is_null($queryParameter->getType())) {
-                $types[$queryParameter->getName()] = $queryParameter->getType()->value;
-            }
-        }
-
-        return ['params' => $params, 'types' => $types];
-    }
-
 }

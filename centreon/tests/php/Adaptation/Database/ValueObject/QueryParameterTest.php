@@ -70,7 +70,7 @@ it('test query parameter value object : success instanciation with int type', fu
     $param = QueryParameter::int('name', 1);
     expect($param->getName())->toBe('name')
         ->and($param->getValue())->toBe(1)
-        ->and($param->getType())->toBe(QueryParameterTypeEnum::INT);
+        ->and($param->getType())->toBe(QueryParameterTypeEnum::INTEGER);
 });
 
 it('test query parameter value object : failed instanciation with int type (empty name) ', function () {
@@ -85,7 +85,7 @@ it('test query parameter value object : success instanciation with bool type', f
     $param = QueryParameter::bool('name', true);
     expect($param->getName())->toBe('name')
         ->and($param->getValue())->toBe(true)
-        ->and($param->getType())->toBe(QueryParameterTypeEnum::BOOL);
+        ->and($param->getType())->toBe(QueryParameterTypeEnum::BOOLEAN);
 });
 
 it('test query parameter value object : failed instanciation with bool type (empty name) ', function () {
