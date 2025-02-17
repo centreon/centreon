@@ -63,8 +63,12 @@ module.exports = {
     }
   },
   output: {
-    chunkFilename: '[name].[chunkhash:8].chunk.js',
-    filename: '[name].[chunkhash:8].js',
+    chunkFilename: isDev
+      ? '[name].[chunkhash:8].chunk.js'
+      : `[name].[contenthash].[chunkhash].js?t=${Date.now()}`,
+    filename: isDev
+      ? '[name].[chunkhash:8].js'
+      : `[name].[contenthash].js?t=${Date.now()}`,
     libraryTarget: 'umd',
     umdNamedDefine: true
   }
