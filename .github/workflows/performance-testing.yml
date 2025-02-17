@@ -178,9 +178,9 @@ jobs:
               echo "Error: No JTL file found!"
               exit 1
           fi
-          # Comptabiliser succès et échecs
-          SUCCESS_COUNT=$(grep -c ",true," "$JTL_FILE")
-          FAILURE_COUNT=$(grep -c ",false," "$JTL_FILE")
+
+          SUCCESS_COUNT=$(awk -F, '$0 ~ /true/ {count++} END {print count}' "$JTL_FILE")
+          FAILURE_COUNT=$(awk -F, '$0 ~ /false/ {count++} END {print count}' "$JTL_FILE")
           TOTAL=$((SUCCESS_COUNT + FAILURE_COUNT))
 
           echo "Success: $SUCCESS_COUNT, Failure: $FAILURE_COUNT"
