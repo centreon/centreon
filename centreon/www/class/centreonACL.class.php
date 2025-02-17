@@ -217,8 +217,12 @@ class CentreonACL
      */
     private function hasAccessToAllHostGroups(): bool
     {
+        $accessGroups = $this->getAccessGroups();
+        if ($accessGroups === []) {
+            return false;
+        }
         [$bindValues, $bindQuery] = createMultipleBindQuery(
-            list: explode(',', $this->getAccessGroupsString()),
+            list: array_keys($accessGroups),
             prefix: ':access_group_id_'
         );
 
@@ -229,7 +233,8 @@ class CentreonACL
                 ON argr.acl_res_id = res.acl_res_id
             INNER JOIN acl_groups ag
                 ON ag.acl_group_id = argr.acl_group_id
-            WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
+            WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ($bindQuery)
+            ORDER BY res.all_hostgroups DESC LIMIT 1
             SQL;
 
         $statement = \CentreonDBInstance::getConfInstance()->prepare($request);
@@ -255,8 +260,12 @@ class CentreonACL
      */
     private function hasAccessToAllServiceGroups(): bool
     {
+        $accessGroups = $this->getAccessGroups();
+        if ($accessGroups === []) {
+            return false;
+        }
         [$bindValues, $bindQuery] = createMultipleBindQuery(
-            list: explode(',', $this->getAccessGroupsString()),
+            list: array_keys($accessGroups),
             prefix: ':access_group_id_'
         );
 
@@ -267,7 +276,8 @@ class CentreonACL
                 ON argr.acl_res_id = res.acl_res_id
             INNER JOIN acl_groups ag
                 ON ag.acl_group_id = argr.acl_group_id
-            WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
+            WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ($bindQuery)
+            ORDER BY res.all_servicegroups DESC LIMIT 1
             SQL;
 
         $statement = \CentreonDBInstance::getConfInstance()->prepare($request);
@@ -406,12 +416,16 @@ class CentreonACL
         $bindValues = [];
 
         if ($this->hasAccessToAllServiceGroups === false) {
+            $accessGroups = $this->getAccessGroups();
+            if ($accessGroups === []) {
+                return;
+            }
             [$bindValues, $bindQuery] = createMultipleBindQuery(
-                list: explode(',', $this->getAccessGroupsString()),
+                list: array_keys($accessGroups),
                 prefix: ':access_group_id_'
             );
 
-            $aclSubRequest .= ' AND arsr.acl_res_id IN (' . $bindQuery . ')';
+            $aclSubRequest .= ' AND argr.acl_group_id IN (' . $bindQuery . ')';
         }
 
         $request = <<<SQL
@@ -422,8 +436,13 @@ class CentreonACL
             FROM servicegroup sg
             INNER JOIN acl_resources_sg_relations arsr
                 ON sg.sg_id = arsr.sg_id
+            INNER JOIN acl_resources res
+                ON res.acl_res_id = arsr.acl_res_id
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = res.acl_res_id
             WHERE sg.sg_activate = '1'
             $aclSubRequest
+            GROUP BY sg.sg_id, sg.sg_name
             ORDER BY sg.sg_name ASC
         SQL;
 
