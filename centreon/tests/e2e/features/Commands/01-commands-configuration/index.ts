@@ -43,8 +43,7 @@ When('the user creates a command', () => {
     rootItemNumber: 3,
     subMenu: 'Commands'
   });
-  // Wait for the "Command" search field to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
+  cy.wait('@getTimeZone');
   // Click on the "ADD" button
   cy.getIframeBody().contains('a', '+ ADD').click();
   cy.addCommands(data.check);
@@ -58,8 +57,6 @@ When('the user creates a command', () => {
 });
 
 Then('the command is displayed in the list', () => {
-  // Wait for the "Command" search field to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   // Wait for the created command to be charged on the DOM
   cy.waitForElementInIframe(
     '#main-content',
@@ -74,6 +71,7 @@ When('the user changes the properties of a command', () => {
     rootItemNumber: 3,
     subMenu: 'Commands'
   });
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
     `a:contains("${data.check.name}")`
@@ -91,8 +89,6 @@ When('the user changes the properties of a command', () => {
 });
 
 Then('the properties are updated', () => {
-  // Wait for the "Command" search field to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   // Refresh the page
   cy.reload();
   cy.wait('@getTimeZone');
@@ -112,6 +108,7 @@ When('the user duplicates a command', () => {
     rootItemNumber: 3,
     subMenu: 'Commands'
   });
+  cy.wait('@getTimeZone');
   // Wait for the "Command" search field to be charged on the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   // Click on the "Duplicate" icon to duplicate the command
@@ -132,7 +129,12 @@ Then('the new command has the same properties', () => {
 
 When('the user deletes a command', () => {
   // Go to "Configuration > Commands > Miscellaneous"
-  cy.visit('/centreon/main.php?p=60802&type=3');
+  cy.navigateTo({
+    page: 'Miscellaneous',
+    rootItemNumber: 3,
+    subMenu: 'Commands'
+  });
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
     `a:contains("${data.miscellaneous.name}")`
