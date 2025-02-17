@@ -23,6 +23,7 @@ use Adaptation\Database\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ConnectionInterface;
 use Adaptation\Database\Exception\ConnectionException;
+use Adaptation\Database\Model\ConnectionConfig;
 use Adaptation\Database\Trait\ConnectionTrait;
 
 // file centreon.config.php may not exist in test environment
@@ -85,8 +86,8 @@ class CentreonDB extends PDO implements ConnectionInterface
     /** @var int */
     private $successQueryNumber;
 
-    /** @var CentreonDbConfig */
-    private CentreonDbConfig $dbConfig;
+    /** @var ConnectionConfig */
+    private ConnectionConfig $connectionConfig;
 
     /**
      * By default, the queries are buffered.
@@ -100,26 +101,30 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * @param string $dbLabel LABEL_DB_* constants
      * @param int $retry
-     * @param CentreonDbConfig|null $dbConfig
+     * @param ConnectionConfig|null $connectionConfig
+     * @param bool $forceConnection
      *
      * @throws Exception
      */
     public function __construct(
-        $dbLabel = self::LABEL_DB_CONFIGURATION,
-        $retry = self::RETRY,
-        ?CentreonDbConfig $dbConfig = null
+        string $dbLabel = self::LABEL_DB_CONFIGURATION,
+        int $retry = self::RETRY,
+        ?ConnectionConfig $connectionConfig = null,
+        bool $forceConnection = false
     ) {
         try {
-            if (is_null($dbConfig)) {
-                $this->dbConfig = new CentreonDbConfig(
-                    $dbLabel === self::LABEL_DB_CONFIGURATION ? hostCentreon : hostCentstorage,
-                    user,
-                    password,
-                    $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg,
-                    port ?? 3306
+            if (is_null($connectionConfig)) {
+                $host = $dbLabel === self::LABEL_DB_CONFIGURATION ? hostCentreon : hostCentstorage;
+                $dbName = $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg;
+                $this->connectionConfig = new ConnectionConfig(
+                    host: $forceConnection ? $connectionConfig->getHost() : $host,
+                    user: user,
+                    password: password,
+                    databaseName: $forceConnection ? $connectionConfig->getDatabaseName() : $dbName,
+                    port: port ?? 3306
                 );
             } else {
-                $this->dbConfig = $dbConfig;
+                $this->connectionConfig = $connectionConfig;
             }
 
             $this->logger = CentreonLog::create();
@@ -146,15 +151,15 @@ class CentreonDB extends PDO implements ConnectionInterface
             $this->lineRead = 0;
 
             parent::__construct(
-                $this->dbConfig->getMysqlDsn(),
-                $this->dbConfig->dbUser,
-                $this->dbConfig->dbPassword,
+                $this->connectionConfig->getMysqlDsn(),
+                $this->connectionConfig->getUser(),
+                $this->connectionConfig->getPassword(),
                 $this->options
             );
         } catch (Exception $e) {
             $this->writeDbLog(
                 message: "Unable to connect to database : {$e->getMessage()}",
-                customContext: ['dsn_mysql' => $this->dbConfig->getMysqlDsn()],
+                customContext: ['dsn_mysql' => $this->connectionConfig->getMysqlDsn()],
                 previous: $e,
             );
             if (PHP_SAPI !== "cli") {
@@ -170,46 +175,41 @@ class CentreonDB extends PDO implements ConnectionInterface
     /**
      * Factory
      *
-     * @param CentreonDbConfig $dbConfig
+     * @param ConnectionConfig $connectionConfig
      *
      * @throws Exception
      * @return CentreonDB
      */
-    public static function connectToCentreonDb(CentreonDbConfig $dbConfig): CentreonDB
+    public static function connectToCentreonDb(ConnectionConfig $connectionConfig): CentreonDB
     {
-        return new self(dbLabel: self::LABEL_DB_CONFIGURATION, dbConfig: $dbConfig);
+        return new self(dbLabel: self::LABEL_DB_CONFIGURATION, connectionConfig: $connectionConfig);
     }
 
     /**
      * Factory
      *
-     * @param CentreonDbConfig $dbConfig
+     * @param ConnectionConfig $connectionConfig
      *
      * @throws Exception
      * @return CentreonDB
      */
-    public static function connectToCentreonStorageDb(CentreonDbConfig $dbConfig): CentreonDB
+    public static function connectToCentreonStorageDb(ConnectionConfig $connectionConfig): CentreonDB
     {
-        return new self(dbLabel: self::LABEL_DB_REALTIME, dbConfig: $dbConfig);
+        return new self(dbLabel: self::LABEL_DB_REALTIME, connectionConfig: $connectionConfig);
     }
 
     /**
-     * Return the database name if it exists.
+     * @param ConnectionConfig $connectionConfig
      *
      * @throws ConnectionException
-     * @return string|null
+     * @return ConnectionInterface
      */
-    public function getDatabaseName(): ?string
+    public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface
     {
         try {
-            return $this->fetchFirstColumn('SELECT DATABASE()')[0] ?? null;
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to get database name',
-                previous: $exception,
-            );
-
-            throw ConnectionException::getDatabaseNameFailed();
+            return new static(connectionConfig: $connectionConfig, forceConnection: true);
+        } catch (Exception $e) {
+            throw ConnectionException::connectionFailed($e);
         }
     }
 
@@ -813,26 +813,6 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     /**
-     * Factory for singleton
-     *
-     * @param string $name The name of centreon datasource
-     *
-     * @throws Exception
-     * @return CentreonDB
-     */
-    public static function factory($name = self::LABEL_DB_CONFIGURATION)
-    {
-        if (! in_array($name, [self::LABEL_DB_CONFIGURATION, self::LABEL_DB_REALTIME])) {
-            throw new Exception("The datasource isn't defined in configuration file.");
-        }
-        if (! isset(self::$instance[$name])) {
-            self::$instance[$name] = new CentreonDB($name);
-        }
-
-        return self::$instance[$name];
-    }
-
-    /**
      * return database Properties
      *
      * <code>
@@ -861,7 +841,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $versionInformation = explode('-', $row['mysql_version']);
             $info["version"] = $versionInformation[0];
             $info["engine"] = $versionInformation[1] ?? 'MySQL';
-            if ($dbResult = $this->query("SHOW TABLE STATUS FROM `" . $this->dbConfig->dbName . "`")) {
+            if ($dbResult = $this->query("SHOW TABLE STATUS FROM `" . $this->connectionConfig->getDatabaseName() . "`")) {
                 while ($data = $dbResult->fetch()) {
                     $info['dbsize'] += $data['Data_length'] + $data['Index_length'];
                     $info['indexsize'] += $data['Index_length'];
@@ -907,7 +887,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         $stmt = $this->prepare($query);
 
         try {
-            $stmt->bindValue(':dbName', $this->dbConfig->dbName, PDO::PARAM_STR);
+            $stmt->bindValue(':dbName', $this->connectionConfig->getDatabaseName(), PDO::PARAM_STR);
             $stmt->bindValue(':tableName', $table, PDO::PARAM_STR);
             $stmt->bindValue(':columnName', $column, PDO::PARAM_STR);
             $stmt->execute();
@@ -953,7 +933,7 @@ class CentreonDB extends PDO implements ConnectionInterface
               AND INDEX_NAME = :index_name;
             SQL
         );
-        $statement->bindValue(':db_name', $this->dbConfig->dbName);
+        $statement->bindValue(':db_name', $this->connectionConfig->getDatabaseName());
         $statement->bindValue(':table_name', $table);
         $statement->bindValue(':index_name', $indexName);
 
@@ -982,7 +962,7 @@ class CentreonDB extends PDO implements ConnectionInterface
               AND CONSTRAINT_NAME = :constraint_name;
             SQL
         );
-        $statement->bindValue(':db_name', $this->dbConfig->dbName);
+        $statement->bindValue(':db_name', $this->connectionConfig->getDatabaseName());
         $statement->bindValue(':table_name', $table);
         $statement->bindValue(':constraint_name', $constraintName);
 
@@ -1013,7 +993,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         $stmt = $this->prepare($query);
 
         try {
-            $stmt->bindValue(':dbName', $this->dbConfig->dbName, PDO::PARAM_STR);
+            $stmt->bindValue(':dbName', $this->connectionConfig->getDatabaseName(), PDO::PARAM_STR);
             $stmt->bindValue(':tableName', $tableName, PDO::PARAM_STR);
             $stmt->bindValue(':columnName', $columnName, PDO::PARAM_STR);
             $stmt->execute();
@@ -1135,7 +1115,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         }
 
         // prepare default context
-        $defaultContext = ['database_name' => $this->dbConfig->dbName];
+        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseName()];
         if (! empty($query)) {
             $defaultContext['query'] = $query;
         }
@@ -1155,6 +1135,28 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     //******************************************** DEPRECATED METHODS ***********************************************//
+
+    /**
+     * Factory for singleton
+     *
+     * @param string $name The name of centreon datasource
+     *
+     * @throws Exception
+     * @return CentreonDB
+     *
+     * @deprecated
+     */
+    public static function factory(string $name = self::LABEL_DB_CONFIGURATION)
+    {
+        if (! in_array($name, [self::LABEL_DB_CONFIGURATION, self::LABEL_DB_REALTIME])) {
+            throw new Exception("The datasource isn't defined in configuration file.");
+        }
+        if (! isset(self::$instance[$name])) {
+            self::$instance[$name] = new CentreonDB($name);
+        }
+
+        return self::$instance[$name];
+    }
 
     /**
      * @param string $query
@@ -1349,7 +1351,20 @@ class CentreonDB extends PDO implements ConnectionInterface
         try {
             return $pdoStatement->fetch();
         } catch (\Throwable $e) {
-            $this->closeQuery($pdoStatement);
+            try {
+                $this->closeQuery($pdoStatement);
+            } catch (ConnectionException $e) {
+                $this->writeDbLog(
+                    message: "Error while closing the query : {$e->getMessage()}",
+                    query: $pdoStatement->queryString,
+                    previous: $e,
+                );
+                throw new CentreonDbException(
+                    message: "Error while closing the query : {$e->getMessage()}",
+                    options: ['query' => $pdoStatement->queryString],
+                    previous: $e
+                );
+            }
             $this->writeDbLog(
                 message: "Error while fetching the row : {$e->getMessage()}",
                 query: $pdoStatement->queryString,
@@ -1391,7 +1406,20 @@ class CentreonDB extends PDO implements ConnectionInterface
                 previous: $e
             );
         } finally {
-            $this->closeQuery($pdoStatement);
+            try {
+                $this->closeQuery($pdoStatement);
+            } catch (ConnectionException $e) {
+                $this->writeDbLog(
+                    message: "Error while closing the query : {$e->getMessage()}",
+                    query: $pdoStatement->queryString,
+                    previous: $e,
+                );
+                throw new CentreonDbException(
+                    message: "Error while closing the query : {$e->getMessage()}",
+                    options: ['query' => $pdoStatement->queryString],
+                    previous: $e
+                );
+            }
         }
     }
 
@@ -1673,7 +1701,15 @@ class CentreonDB extends PDO implements ConnectionInterface
         try {
             return $pdoStatement->fetchColumn($column);
         } catch (\Throwable $e) {
-            $this->closeQuery($pdoStatement);
+            try {
+                $this->closeQuery($pdoStatement);
+            } catch (ConnectionException $e) {
+                $this->writeDbLog(
+                    message: "Error while closing the query",
+                    previous: $e,
+                );
+                throw new CentreonDbException($message, previous: $e);
+            }
             $message = "Error while fetching all the rows by column: {$e->getMessage()}";
             $this->writeDbLog($message, ['column' => $column], query: $pdoStatement->queryString, previous: $e);
             $options = ['query' => $pdoStatement->queryString];

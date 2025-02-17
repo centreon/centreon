@@ -193,26 +193,6 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     }
 
     /**
-     * Return the database name if it exists.
-     *
-     * @throws ConnectionException
-     * @return string|null
-     */
-    public function getDatabaseName(): ?string
-    {
-        try {
-            return $this->fetchFirstColumn('SELECT DATABASE()')[0] ?? null;
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to get database name',
-                previous: $exception,
-            );
-
-            throw ConnectionException::getDatabaseNameFailed();
-        }
-    }
-
-    /**
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
      * @return \PDO

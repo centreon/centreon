@@ -69,6 +69,11 @@ interface ConnectionInterface
     public function createExpressionBuilder(): ExpressionBuilderInterface;
 
     /**
+     * @return ConnectionConfig
+     */
+    public function getConnectionConfig(): ConnectionConfig;
+
+    /**
      * Return the database name if it exists.
      *
      * @throws ConnectionException

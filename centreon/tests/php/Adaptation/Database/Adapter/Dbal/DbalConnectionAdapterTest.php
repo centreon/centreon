@@ -139,6 +139,20 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
+        'test DbalConnectionAdapter : get connection config',
+        function () use ($dbConfigCentreon): void {
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $connectionConfig = $db->getConnectionConfig();
+            expect($connectionConfig)->toBeInstanceOf(ConnectionConfig::class)
+                ->and($connectionConfig->getHost())->toBe($dbConfigCentreon->getHost())
+                ->and($connectionConfig->getUser())->toBe($dbConfigCentreon->getUser())
+                ->and($connectionConfig->getPassword())->toBe($dbConfigCentreon->getPassword())
+                ->and($connectionConfig->getDatabaseName())->toBe($dbConfigCentreon->getDatabaseName())
+                ->and($connectionConfig->getPort())->toBe($dbConfigCentreon->getPort());
+        }
+    );
+
+    it(
         'test DbalConnectionAdapter : get the database name of the current connection',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);

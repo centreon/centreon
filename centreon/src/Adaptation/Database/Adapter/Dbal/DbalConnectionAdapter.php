@@ -31,6 +31,7 @@ use Adaptation\Database\ExpressionBuilderInterface;
 use Adaptation\Database\Model\ConnectionConfig;
 use Adaptation\Database\QueryBuilderInterface;
 use Adaptation\Database\Trait\ConnectionTrait;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\Exception\UnexpectedValueException;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
@@ -47,6 +48,7 @@ use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 final class DbalConnectionAdapter implements ConnectionInterface
 {
     use ConnectionTrait;
+    use LoggerTrait;
 
     /**
      * By default, the queries are buffered.
@@ -59,9 +61,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * DbalConnectionAdapter constructor
      *
      * @param DoctrineDbalConnection $dbalConnection
+     * @param ConnectionConfig $connectionConfig
      */
     private function __construct(
-        private readonly DoctrineDbalConnection $dbalConnection
+        private readonly DoctrineDbalConnection $dbalConnection,
+        private readonly ConnectionConfig $connectionConfig
     ) {}
 
     /**
@@ -89,7 +93,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         }
         try {
             $dbalConnection = DoctrineDbalDriverManager::getConnection($dbalConnectionConfig);
-            $dbalConnectionAdapter = new self($dbalConnection);
+            $dbalConnectionAdapter = new self($dbalConnection, $connectionConfig);
             if (! $dbalConnectionAdapter->isConnected()) {
                 throw new UnexpectedValueException('The connection is not established.');
             }
@@ -122,21 +126,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
         $dbalExpressionBuilder = new DoctrineDbalExpressionBuilder($this->dbalConnection);
 
         return new DbalExpressionBuilderAdapter($dbalExpressionBuilder);
-    }
-
-    /**
-     * Return the database name if it exists.
-     *
-     * @throws ConnectionException
-     * @return string|null
-     */
-    public function getDatabaseName(): ?string
-    {
-        try {
-            return $this->dbalConnection->getDatabase();
-        } catch (\Throwable $exception) {
-            throw ConnectionException::getDatabaseNameFailed();
-        }
     }
 
     /**
@@ -673,4 +662,49 @@ final class DbalConnectionAdapter implements ConnectionInterface
         }
         $this->isBufferedQueryActive = true;
     }
+
+    // ----------------------------------------- PRIVATE METHODS -----------------------------------------
+
+    /**
+     * Write SQL errors messages
+     *
+     * @param string $message
+     * @param array<string,mixed> $customContext
+     * @param string $query
+     * @param \Throwable|null $previous
+     */
+    private function writeDbLog(
+        string $message,
+        array $customContext = [],
+        string $query = '',
+        ?\Throwable $previous = null
+    ): void {
+        // prepare context of the database exception
+        if ($previous instanceof ConnectionException) {
+            $dbExceptionContext = $previous->getContext();
+        } else {
+            $dbExceptionContext = [];
+        }
+        if (isset($dbExceptionContext['query'])) {
+            unset($dbExceptionContext['query']);
+        }
+
+        // prepare default context
+        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseName()];
+        if (! empty($query)) {
+            $defaultContext['query'] = $query;
+        }
+
+        $context = array_merge(
+            ['default' => $defaultContext],
+            ['custom' => $customContext],
+            ['exception' => $dbExceptionContext]
+        );
+
+        $this->logger->critical(
+            "[DbalConnectionAdapter] {$message}",
+            $context
+        );
+    }
+
 }

@@ -77,6 +77,36 @@ trait ConnectionTrait
         throw ConnectionException::notImplemented('createExpressionBuilder');
     }
 
+    // ----------------------------------------- BASE METHODS -----------------------------------------
+
+    /**
+     * @return ConnectionConfig
+     */
+    public function getConnectionConfig(): ConnectionConfig
+    {
+        return $this->connectionConfig;
+    }
+
+    /**
+     * Return the database name if it exists.
+     *
+     * @throws ConnectionException
+     * @return string|null
+     */
+    public function getDatabaseName(): ?string
+    {
+        try {
+            return $this->fetchFirstColumn('SELECT DATABASE()')[0] ?? null;
+        } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to get database name',
+                previous: $exception,
+            );
+
+            throw ConnectionException::getDatabaseNameFailed();
+        }
+    }
+
     // ----------------------------------------- CUD METHODS -----------------------------------------
 
     /**

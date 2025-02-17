@@ -55,19 +55,19 @@ $dbConfigCentreon = null;
 $dbConfigCentreonStorage = null;
 
 if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
-    $dbConfigCentreon = new CentreonDbConfig(
-        dbHost: $dbHost,
-        dbUser: $dbUser,
-        dbPassword: $dbPassword,
-        dbName: 'centreon',
-        dbPort: 3306
+    $dbConfigCentreon = new ConnectionConfig(
+        host: $dbHost,
+        user: $dbUser,
+        password: $dbPassword,
+        databaseName: 'centreon',
+        port: 3306
     );
-    $dbConfigCentreonStorage = new CentreonDbConfig(
-        dbHost: $dbHost,
-        dbUser: $dbUser,
-        dbPassword: $dbPassword,
-        dbName: 'centreon_storage',
-        dbPort: 3306
+    $dbConfigCentreonStorage = new ConnectionConfig(
+        host: $dbHost,
+        user: $dbUser,
+        password: $dbPassword,
+        databaseName: 'centreon_storage',
+        port: 3306
     );
 }
 
@@ -76,7 +76,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
  *
  * @return bool
  */
-function hasConnectionDb(CentreonDbConfig $dbConfig): bool
+function hasConnectionDb(ConnectionConfig $dbConfig): bool
 {
     try {
         new PDO (
@@ -96,7 +96,20 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test CentreonDB : connect to centreon database with CentreonDB constructor',
         function () use ($dbConfigCentreon): void {
-            $db = new CentreonDB(dbLabel: CentreonDB::LABEL_DB_CONFIGURATION, dbConfig: $dbConfigCentreon);
+            $db = new CentreonDB(dbLabel: CentreonDB::LABEL_DB_CONFIGURATION, connectionConfig: $dbConfigCentreon);
+            expect($db)->toBeInstanceOf(CentreonDB::class);
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
+            expect($dbName)->toBe('centreon')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
+        'test CentreonDB : connect to centreon database with CentreonDB constructor with forceConnection',
+        function () use ($dbConfigCentreon): void {
+            $db = new CentreonDB(connectionConfig: $dbConfigCentreon, forceConnection: true);
             expect($db)->toBeInstanceOf(CentreonDB::class);
             $stmt = $db->prepare("select database()");
             $stmt->execute();
@@ -122,16 +135,15 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test CentreonDB : CentreonDB::createFromConfig factory must return exception "Not implemented"',
         function () use ($dbConfigCentreon): void {
-            CentreonDB::createFromConfig(
-                new ConnectionConfig(
-                    host: $dbConfigCentreon->dbHost,
-                    user: $dbConfigCentreon->dbUser,
-                    password: $dbConfigCentreon->dbPassword,
-                    databaseName: $dbConfigCentreon->dbName
-                )
-            );
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            expect($db)->toBeInstanceOf(CentreonDB::class);
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
+            expect($dbName)->toBe('centreon')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
-    )->throws(ConnectionException::class);
+    );
 
     it(
         'test CentreonDB : createQueryBuilder must return exception "Not implemented"',
@@ -146,6 +158,20 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             CentreonDB::connectToCentreonDb($dbConfigCentreon)->createExpressionBuilder();
         }
     )->throws(ConnectionException::class);
+
+    it(
+        'test CentreonDB : get connection config',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $connectionConfig = $db->getConnectionConfig();
+            expect($connectionConfig)->toBeInstanceOf(ConnectionConfig::class)
+                ->and($connectionConfig->getHost())->toBe($dbConfigCentreon->getHost())
+                ->and($connectionConfig->getUser())->toBe($dbConfigCentreon->getUser())
+                ->and($connectionConfig->getPassword())->toBe($dbConfigCentreon->getPassword())
+                ->and($connectionConfig->getDatabaseName())->toBe($dbConfigCentreon->getDatabaseName())
+                ->and($connectionConfig->getPort())->toBe($dbConfigCentreon->getPort());
+        }
+    );
 
     it('test CentreonDB : get the database name of the current connection', function () use ($dbConfigCentreon): void {
         $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
@@ -1811,7 +1837,7 @@ if (! is_null($dbConfigCentreonStorage) && hasConnectionDb($dbConfigCentreonStor
     it(
         'connect to centreon_storage database with CentreonDB constructor',
         function () use ($dbConfigCentreonStorage): void {
-            $db = new CentreonDB(dbLabel: CentreonDB::LABEL_DB_REALTIME, dbConfig: $dbConfigCentreonStorage);
+            $db = new CentreonDB(dbLabel: CentreonDB::LABEL_DB_REALTIME, connectionConfig: $dbConfigCentreonStorage);
             expect($db)->toBeInstanceOf(CentreonDB::class);
             $dbName = $db->executeQuery("select database()")->fetchColumn();
             expect($dbName)->toBe('centreon_storage')

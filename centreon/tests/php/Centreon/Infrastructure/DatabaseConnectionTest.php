@@ -218,6 +218,21 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             expect($db->getDatabaseName())->toBe('centreon');
         }
     );
+
+    it(
+        'test DatabaseConnection : get connection config',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $connectionConfig = $db->getConnectionConfig();
+            expect($connectionConfig)->toBeInstanceOf(ConnectionConfig::class)
+                ->and($connectionConfig->getHost())->toBe($dbConfigCentreon->getHost())
+                ->and($connectionConfig->getUser())->toBe($dbConfigCentreon->getUser())
+                ->and($connectionConfig->getPassword())->toBe($dbConfigCentreon->getPassword())
+                ->and($connectionConfig->getDatabaseName())->toBe($dbConfigCentreon->getDatabaseName())
+                ->and($connectionConfig->getPort())->toBe($dbConfigCentreon->getPort());
+        }
+    );
+
     it(
         'test DatabaseConnection : get the database name of the current connection',
         function () use ($dbConfigCentreon): void {
