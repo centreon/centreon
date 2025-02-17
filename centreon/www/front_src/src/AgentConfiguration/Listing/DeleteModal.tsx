@@ -4,6 +4,7 @@ import { Box, CircularProgress, Typography } from '@mui/material';
 import { useAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+
 import { itemToDeleteAtom } from '../atoms';
 import { useDeletePollerAgent } from '../hooks/useDeletePollerAgent';
 import {
