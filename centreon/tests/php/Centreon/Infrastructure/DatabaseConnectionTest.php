@@ -977,336 +977,336 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
 //    // -- iterateNumeric()
 //
-//    it(
-//        'test DatabaseConnection : iterateNumeric with a correct query with query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateNumeric(
-//                "SELECT * FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::int('id', 1)])
-//            );
-//            foreach ($contacts as $contact) {
-//                expect($contact)->toBeArray()->and($contact[0])->toBe(1);
-//            }
-//        }
-//    );
-//
-//    it('test DatabaseConnection : iterateNumeric with a CUD query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateNumeric(
-//            "DELETE FROM contact WHERE contact_id = :id",
-//            QueryParameters::create([QueryParameter::int('id', 1)])
-//        );
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it('test DatabaseConnection : iterateNumeric with an empty query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it('test DatabaseConnection : iterateNumeric with an incorrect query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateNumeric("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it(
-//        'test DatabaseConnection : iterateNumeric with an incorrect query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateNumeric(
-//                "SELECT * FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
-//            );
-//            foreach ($contacts as $contact) {
-//                /* to avoid alert */
-//                $dummy = $contact;
-//            }
-//        }
-//    )->throws(ConnectionException::class);
-//
-//    // -- iterateAssociative()
-//
-//    it(
-//        'test DatabaseConnection : iterateAssociative with a correct query with query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateAssociative(
-//                "SELECT * FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::int('id', 1)])
-//            );
-//            foreach ($contacts as $contact) {
-//                expect($contact)->toBeArray()->and($contact['contact_id'])->toBe(1);
-//            }
-//        }
-//    );
-//
-//    it('test DatabaseConnection : iterateAssociative with a CUD query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateAssociative(
-//            "DELETE FROM contact WHERE contact_id = :id",
-//            QueryParameters::create([QueryParameter::int('id', 1)])
-//        );
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it('test DatabaseConnection : iterateAssociative with an empty query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it(
-//        'test DatabaseConnection : iterateAssociative with an incorrect query',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateAssociative("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
-//            foreach ($contacts as $contact) {
-//                /* to avoid alert */
-//                $dummy = $contact;
-//            }
-//        }
-//    )->throws(ConnectionException::class);
-//
-//    it(
-//        'test DatabaseConnection : iterateAssociative with an incorrect query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateAssociative(
-//                "SELECT * FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
-//            );
-//            foreach ($contacts as $contact) {
-//                /* to avoid alert */
-//                $dummy = $contact;
-//            }
-//        }
-//    )->throws(ConnectionException::class);
-//
-//    // -- iterateColumn()
-//
-//    it(
-//        'test DatabaseConnection : iterateColumn with a correct query with query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateColumn(
-//                "SELECT contact_id FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::int('id', 1)])
-//            );
-//            foreach ($contacts as $contact) {
-//                expect($contact)->toBeInt()->toBe(1);
-//            }
-//        }
-//    );
-//
-//    it(
-//        'test DatabaseConnection : iterateColumn with a correct query with query parameters and another column',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateColumn(
-//                "SELECT contact_alias FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::int('id', 1)])
-//            );
-//            foreach ($contacts as $contact) {
-//                expect($contact)->toBeString()->toBe('admin');
-//            }
-//        }
-//    );
-//
-//    it('test DatabaseConnection : iterateColumn with a CUD query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateColumn(
-//            "DELETE FROM contact WHERE contact_id = :id",
-//            QueryParameters::create([QueryParameter::int('id', 1)])
-//        );
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it('test DatabaseConnection : iterateColumn with an empty query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it('test DatabaseConnection : iterateColumn with an incorrect query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it(
-//        'test DatabaseConnection : iterateColumn with an incorrect query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateColumn(
-//                "SELECT * FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
-//            );
-//            foreach ($contacts as $contact) {
-//                /* to avoid alert */
-//                $dummy = $contact;
-//            }
-//        }
-//    )->throws(ConnectionException::class);
-//
-//    // -- iterateKeyValue()
-//
-//    it(
-//        'test DatabaseConnection : iterateKeyValue with a correct query with query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contact = $db->iterateKeyValue(
-//                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::int('id', 1)])
-//            );
-//            foreach ($contact as $contactId => $contactAlias) {
-//                expect($contactId)->toBeInt()->toBe(1)
-//                    ->and($contactAlias)->toBeString()->toBe('admin');
-//            }
-//        }
-//    );
-//
-//    it('test DatabaseConnection : iterateKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateKeyValue(
-//            "DELETE FROM contact WHERE contact_id = :id",
-//            QueryParameters::create([QueryParameter::int('id', 1)])
-//        );
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it('test DatabaseConnection : iterateKeyValue with an empty query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateKeyValue("", QueryParameters::create([QueryParameter::int('id', 1)]));
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it('test DatabaseConnection : iterateKeyValue with an incorrect query', function () use ($dbConfigCentreon): void {
-//        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//        $contacts = $db->iterateKeyValue("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
-//        foreach ($contacts as $contact) {
-//            /* to avoid alert */
-//            $dummy = $contact;
-//        }
-//    })->throws(ConnectionException::class);
-//
-//    it(
-//        'test DatabaseConnection : iterateKeyValue with an incorrect query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateKeyValue(
-//                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
-//            );
-//            foreach ($contacts as $contact) {
-//                /* to avoid alert */
-//                $dummy = $contact;
-//            }
-//        }
-//    )->throws(ConnectionException::class);
-//
-//    // -- iterateAssociativeIndexed()
-//
-//    it(
-//        'test DatabaseConnection : iterateAssociativeIndexed with a correct query with query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateAssociativeIndexed(
-//                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::int('id', 1)])
-//            );
-//            foreach ($contacts as $contactId => $contact) {
-//                expect($contactId)->toBeInt()->toBe(1)
-//                    ->and($contact)->toBeArray()->toHaveKey('contact_name', 'admin admin');
-//            }
-//        }
-//    );
-//
-//    it(
-//        'test DatabaseConnection : iterateAssociativeIndexed with a CUD query',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateAssociativeIndexed(
-//                "DELETE FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::int('id', 1)])
-//            );
-//            foreach ($contacts as $contact) {
-//                /* to avoid alert */
-//                $dummy = $contact;
-//            }
-//        }
-//    )->throws(ConnectionException::class);
-//
-//    it(
-//        'test DatabaseConnection : iterateAssociativeIndexed with an empty query',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateAssociativeIndexed("", QueryParameters::create([QueryParameter::int('id', 1)]));
-//            foreach ($contacts as $contact) {
-//                /* to avoid alert */
-//                $dummy = $contact;
-//            }
-//        }
-//    )->throws(ConnectionException::class);
-//
-//    it(
-//        'test DatabaseConnection : iterateAssociativeIndexed with an incorrect query',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateAssociativeIndexed("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
-//            foreach ($contacts as $contact) {
-//                /* to avoid alert */
-//                $dummy = $contact;
-//            }
-//        }
-//    )->throws(ConnectionException::class);
-//
-//    it(
-//        'test DatabaseConnection : iterateAssociativeIndexed with an incorrect query parameters',
-//        function () use ($dbConfigCentreon): void {
-//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-//            $contacts = $db->iterateAssociativeIndexed(
-//                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
-//                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
-//            );
-//            foreach ($contacts as $contact) {
-//                /* to avoid alert */
-//                $dummy = $contact;
-//            }
-//        }
-//    )->throws(ConnectionException::class);
+    it(
+        'test DatabaseConnection : iterateNumeric with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeArray()->and($contact[0])->toBe(1);
+            }
+        }
+    );
+
+    it('test DatabaseConnection : iterateNumeric with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateNumeric(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateNumeric with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateNumeric with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateNumeric("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateNumeric with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateNumeric(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateAssociative()
+
+    it(
+        'test DatabaseConnection : iterateAssociative with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeArray()->and($contact['contact_id'])->toBe(1);
+            }
+        }
+    );
+
+    it('test DatabaseConnection : iterateAssociative with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateAssociative(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateAssociative with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociative with an incorrect query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociative("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociative with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociative(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateColumn()
+
+    it(
+        'test DatabaseConnection : iterateColumn with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateColumn(
+                "SELECT contact_id FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeInt()->toBe(1);
+            }
+        }
+    );
+
+    it(
+        'test DatabaseConnection : iterateColumn with a correct query with query parameters and another column',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateColumn(
+                "SELECT contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                expect($contact)->toBeString()->toBe('admin');
+            }
+        }
+    );
+
+    it('test DatabaseConnection : iterateColumn with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateColumn(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateColumn with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateColumn("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateColumn with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateColumn with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateColumn(
+                "SELECT * FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateKeyValue()
+
+    it(
+        'test DatabaseConnection : iterateKeyValue with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contact = $db->iterateKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contact as $contactId => $contactAlias) {
+                expect($contactId)->toBeInt()->toBe(1)
+                    ->and($contactAlias)->toBeString()->toBe('admin');
+            }
+        }
+    );
+
+    it('test DatabaseConnection : iterateKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateKeyValue(
+            "DELETE FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int('id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateKeyValue with an empty query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateKeyValue("", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it('test DatabaseConnection : iterateKeyValue with an incorrect query', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateKeyValue("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+        foreach ($contacts as $contact) {
+            /* to avoid alert */
+            $dummy = $contact;
+        }
+    })->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateKeyValue with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateKeyValue(
+                "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    // -- iterateAssociativeIndexed()
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with a correct query with query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contactId => $contact) {
+                expect($contactId)->toBeInt()->toBe(1)
+                    ->and($contact)->toBeArray()->toHaveKey('contact_name', 'admin admin');
+            }
+        }
+    );
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with a CUD query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed(
+                "DELETE FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with an empty query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed("", QueryParameters::create([QueryParameter::int('id', 1)]));
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with an incorrect query',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
+
+    it(
+        'test DatabaseConnection : iterateAssociativeIndexed with an incorrect query parameters',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $contacts = $db->iterateAssociativeIndexed(
+                "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+                QueryParameters::create([QueryParameter::string('name', 'foo_name')])
+            );
+            foreach ($contacts as $contact) {
+                /* to avoid alert */
+                $dummy = $contact;
+            }
+        }
+    )->throws(ConnectionException::class);
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 

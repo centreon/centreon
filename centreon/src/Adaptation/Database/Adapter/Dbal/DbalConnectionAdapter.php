@@ -543,6 +543,114 @@ final class DbalConnectionAdapter implements ConnectionInterface
         }
     }
 
+    // --------------------------------------- ITERATE METHODS -----------------------------------------
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = [0 => 1, 1 => 'John', 2 => 'Doe']
+     *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
+     *          }
+     */
+    public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    {
+        try {
+            $this->validateSelectQuery($query);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->iterateNumeric($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+
+            return $this->dbalConnection->iterateNumeric($query, $params, $types);
+        } catch (\Throwable $exception) {
+            throw ConnectionException::iterateNumericQueryFailed($exception, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented
+     * as associative arrays.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
+     *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
+     *          }
+     */
+    public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    {
+        try {
+            $this->validateSelectQuery($query);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->iterateAssociative($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+
+            return $this->dbalConnection->iterateAssociative($query, $params, $types);
+        } catch (\Throwable $exception) {
+            throw ConnectionException::iterateAssociativeQueryFailed($exception, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over the column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $value) {
+     *              // $value = 'John'
+     *              // $value = 'Jean'
+     *          }
+     */
+    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    {
+        try {
+            $this->validateSelectQuery($query);
+
+            if ($queryParameters === null) {
+                return $this->dbalConnection->iterateColumn($query);
+            }
+
+            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+
+            return $this->dbalConnection->iterateColumn($query, $params, $types);
+        } catch (\Throwable $exception) {
+            throw ConnectionException::iterateColumnQueryFailed($exception, $query, $queryParameters);
+        }
+    }
+
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
     /**

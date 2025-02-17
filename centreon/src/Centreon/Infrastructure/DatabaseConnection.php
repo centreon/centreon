@@ -598,6 +598,123 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         }
     }
 
+    // --------------------------------------- ITERATE METHODS -----------------------------------------
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = [0 => 1, 1 => 'John', 2 => 'Doe']
+     *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
+     *          }
+     */
+    public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_NUM)) !== false) {
+                yield $row;
+            }
+        } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to iterate numeric query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
+            throw ConnectionException::iterateNumericQueryFailed($exception, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented
+     * as associative arrays.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
+     *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
+     *          }
+     */
+    public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+                yield $row;
+            }
+        } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to iterate associative query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
+            throw ConnectionException::iterateAssociativeQueryFailed($exception, $query, $queryParameters);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over the column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $value) {
+     *              // $value = 'John'
+     *              // $value = 'Jean'
+     *          }
+     */
+    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    {
+        try {
+            $this->validateSelectQuery($query);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_COLUMN)) !== false) {
+                yield $row;
+            }
+        } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to iterate by column query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
+            throw ConnectionException::iterateColumnQueryFailed($exception, $query, $queryParameters);
+        }
+    }
+
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
     /**
