@@ -57,14 +57,14 @@ module.exports = {
     ]
   }),
   optimization: {
+    realContentHash: true,
     splitChunks: {
-      chunks: 'all',
-      maxSize: 400 * 1024
+      chunks: 'all'
     }
   },
   output: {
-    chunkFilename: '[name].[chunkhash:8].chunk.js',
-    filename: '[name].[chunkhash:8].js',
+    chunkFilename: '[name].[chunkhash].[contenthash].chunk.js',
+    filename: '[name].[chunkhash].[contenthash].js',
     libraryTarget: 'umd',
     umdNamedDefine: true
   }
