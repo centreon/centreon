@@ -1,6 +1,7 @@
 name: Performance Testing
 
 on:
+  push:
   workflow_dispatch:
    inputs:
       input1:
@@ -11,7 +12,6 @@ on:
         description: "Deuxième input"
         required: true
         type: string
-
   workflow_call:  # Permet d'exécuter depuis un autre workflow
     inputs:
       image_name:
