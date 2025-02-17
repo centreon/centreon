@@ -19729,8 +19729,8 @@ msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} groupes d'hôte
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. Please specify the number of duplications you would like to make."
 msgstr "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name }}</strong>. Veuillez spécifier le nombre de duplications que vous souhaitez effectuer."
 
-msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> Please specify the number of duplications you would like to make for each group."
-msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôtes</strong>. Veuillez spécifier le nombre de duplications que vous souhaitez effectuer pour chaque groupe."
+msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> Please specify the number of duplications you would like to make for these groups."
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôtes</strong>. Veuillez spécifier le nombre de duplications que vous souhaitez effectuer pour ces groupes."
 
 msgid "Add a host group"
 msgstr "Ajouter un groupe d'hôtes"

@@ -18412,7 +18412,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. Please specify the number of duplications you would like to make."
 # msgstr ""
 
-# msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> Please specify the number of duplications you would like to make for each group."
+# msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> Please specify the number of duplications you would like to make for these groups."
 # msgstr ""
 
 # msgid "Add a host group"

@@ -100,4 +100,4 @@ export const getLabelDuplicateOne = (type, name) =>
   `You are about to duplicate the ${name} ${type}. Please specify the number of duplications you would like to make.`;
 
 export const getLabelDuplicateMany = (type, count) =>
-  `You are about to duplicate ${count} ${type}. Please specify the number of duplications you would like to make for each group.`;
+  `You are about to duplicate ${count} ${type}. Please specify the number of duplications you would like to make for these groups.`;

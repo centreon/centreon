@@ -59,4 +59,4 @@ export const labelDuplicateResourceConfirmation = (type) =>
   `You are about to duplicate the <strong>{{ name }}</strong> ${type}. Please specify the number of duplications you would like to make.`;
 
 export const labelDuplicateResourcesConfirmation = (type) =>
-  `You are about to duplicate <strong>{{ count }} ${type}.</strong> Please specify the number of duplications you would like to make for each group.`;
+  `You are about to duplicate <strong>{{ count }} ${type}.</strong> Please specify the number of duplications you would like to make for these groups.`;
