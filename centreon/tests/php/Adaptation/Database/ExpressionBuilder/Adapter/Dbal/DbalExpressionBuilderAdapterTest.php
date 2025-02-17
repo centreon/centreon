@@ -19,9 +19,14 @@
  *
  */
 
-use Adaptation\Database\Adapter\Dbal\DbalExpressionBuilderAdapter;
+declare(strict_types=1);
+
+namespace Tests\Adaptation\Database\ExpressionBuilder\Adapter\Dbal;
+
+use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Mockery;
 
 beforeEach(function () {
     $connection = Mockery::mock(Connection::class);

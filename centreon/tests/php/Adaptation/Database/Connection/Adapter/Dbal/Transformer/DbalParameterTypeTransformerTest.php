@@ -20,9 +20,10 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Adapter\Dbal\Transformer;
+namespace Tests\Adaptation\Database\Connection\Adapter\Dbal\Transformer;
 
-use Adaptation\Database\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Adapter\Dbal\Transformer\DbalParameterTypeTransformer;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Core\Common\Domain\Exception\TransformerException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\ParameterType as DbalParameterType;

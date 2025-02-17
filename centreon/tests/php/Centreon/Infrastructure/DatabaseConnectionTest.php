@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Infrastructure;
 
-use Adaptation\Database\Connection\Adapter\Dbal\DbalExpressionBuilderAdapter;
-use Adaptation\Database\Connection\Adapter\Dbal\DbalQueryBuilderAdapter;
+use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;

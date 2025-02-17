@@ -21,27 +21,28 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database;
+namespace Adaptation\Database\ExpressionBuilder\Adapter\Dbal;
+
+use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
 
 /**
- * Interface
+ * Class
  *
- * @class   ExpressionBuilderInterface
- * @package Adaptation\Database
+ * @class   ExpressionBuilder
+ * @package Adaptation\Database\Adapter\Dbal
+ * @see     DoctrineDbalExpressionBuilder
  *
  * To dynamically create SQL query parts.
  */
-interface ExpressionBuilderInterface
+final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderInterface
 {
     /**
-     * Comparison operators.
+     * DbalExpressionBuilderAdapter constructor
+     *
+     * @param DoctrineDbalExpressionBuilder $dbalExpressionBuilder
      */
-    public const EQ = '=';
-    public const NEQ = '<>';
-    public const LT = '<';
-    public const LTE = '<=';
-    public const GT = '>';
-    public const GTE = '>=';
+    public function __construct(private DoctrineDbalExpressionBuilder $dbalExpressionBuilder) {}
 
     /**
      * Creates a conjunction of the given expressions.
@@ -55,7 +56,10 @@ interface ExpressionBuilderInterface
      *         method : and("field1 = :value1", ["field2 = :value2","field3 = :value3"])
      *         return : "(field1 = :value1) AND (field2 = :value2) AND (field3 = :value3)"
      */
-    public function and(string $expression, string ...$expressions): string;
+    public function and(string $expression, string ...$expressions): string
+    {
+        return $this->dbalExpressionBuilder->and($expression, ...$expressions)->__toString();
+    }
 
     /**
      * Creates a disjunction of the given expressions.
@@ -69,7 +73,10 @@ interface ExpressionBuilderInterface
      *         method : or("field1 = :value1", ["field2 = :value2","field3 = :value3"])
      *         return : "(field1 = :value1) OR (field2 = :value2) OR (field3 = :value3)"
      */
-    public function or(string $expression, string ...$expressions): string;
+    public function or(string $expression, string ...$expressions): string
+    {
+        return $this->dbalExpressionBuilder->or($expression, ...$expressions)->__toString();
+    }
 
     /**
      * Creates a comparison expression.
@@ -84,7 +91,10 @@ interface ExpressionBuilderInterface
      *          method : comparison('field1', '=', ':value1')
      *          return : "field1 = :value1"
      */
-    public function comparison(string $leftExpression, string $operator, string $rightExpression): string;
+    public function comparison(string $leftExpression, string $operator, string $rightExpression): string
+    {
+        return $this->dbalExpressionBuilder->comparison($leftExpression, $operator, $rightExpression);
+    }
 
     /**
      * Creates an equality comparison expression with the given arguments.
@@ -101,7 +111,10 @@ interface ExpressionBuilderInterface
      *         method : equal('field1', ':value1')
      *         return : "field1 = :value1"
      */
-    public function equal(string $leftExpression, string $rightExpression): string;
+    public function equal(string $leftExpression, string $rightExpression): string
+    {
+        return $this->dbalExpressionBuilder->eq($leftExpression, $rightExpression);
+    }
 
     /**
      * Creates a non equality comparison expression with the given arguments.
@@ -118,7 +131,10 @@ interface ExpressionBuilderInterface
      *         method : notEqual('field1', ':value1')
      *         return : "field1 <> :value1"
      */
-    public function notEqual(string $leftExpression, string $rightExpression): string;
+    public function notEqual(string $leftExpression, string $rightExpression): string
+    {
+        return $this->dbalExpressionBuilder->neq($leftExpression, $rightExpression);
+    }
 
     /**
      * Creates a lower-than comparison expression with the given arguments.
@@ -135,7 +151,10 @@ interface ExpressionBuilderInterface
      *         method : lowerThan('field1', ':value1')
      *         return : "field1 < :value1"
      */
-    public function lowerThan(string $leftExpression, string $rightExpression): string;
+    public function lowerThan(string $leftExpression, string $rightExpression): string
+    {
+        return $this->dbalExpressionBuilder->lt($leftExpression, $rightExpression);
+    }
 
     /**
      * Creates a lower-than-equal comparison expression with the given arguments.
@@ -152,7 +171,10 @@ interface ExpressionBuilderInterface
      *         method : lowerThanEqual('field1', ':value1')
      *         return : "field1 <= :value1"
      */
-    public function lowerThanEqual(string $leftExpression, string $rightExpression): string;
+    public function lowerThanEqual(string $leftExpression, string $rightExpression): string
+    {
+        return $this->dbalExpressionBuilder->lte($leftExpression, $rightExpression);
+    }
 
     /**
      * Creates a greater-than comparison expression with the given arguments.
@@ -168,7 +190,10 @@ interface ExpressionBuilderInterface
      *         method : greaterThan('field1', ':value1')
      *         return : "field1 > :value1"
      */
-    public function greaterThan(string $leftExpression, string $rightExpression): string;
+    public function greaterThan(string $leftExpression, string $rightExpression): string
+    {
+        return $this->dbalExpressionBuilder->gt($leftExpression, $rightExpression);
+    }
 
     /**
      * Creates a greater-than-equal comparison expression with the given arguments.
@@ -185,7 +210,10 @@ interface ExpressionBuilderInterface
      *         method : greaterThanEqual('field1', ':value1')
      *         return : "field1 >= :value1"
      */
-    public function greaterThanEqual(string $leftExpression, string $rightExpression): string;
+    public function greaterThanEqual(string $leftExpression, string $rightExpression): string
+    {
+        return $this->dbalExpressionBuilder->gte($leftExpression, $rightExpression);
+    }
 
     /**
      * Creates an IS NULL expression with the given arguments.
@@ -198,7 +226,10 @@ interface ExpressionBuilderInterface
      *         method : isNull('field1')
      *         return : "field1 IS NULL"
      */
-    public function isNull(string $expression): string;
+    public function isNull(string $expression): string
+    {
+        return $this->dbalExpressionBuilder->isNull($expression);
+    }
 
     /**
      * Creates an IS NOT NULL expression with the given arguments.
@@ -211,7 +242,10 @@ interface ExpressionBuilderInterface
      *         method : isNotNull('field1')
      *         return : "field1 IS NOT NULL"
      */
-    public function isNotNull(string $expression): string;
+    public function isNotNull(string $expression): string
+    {
+        return $this->dbalExpressionBuilder->isNotNull($expression);
+    }
 
     /**
      * Creates a LIKE comparison expression.
@@ -228,7 +262,10 @@ interface ExpressionBuilderInterface
      *         method : like('field1', ':value1','$')
      *         return : "field1 LIKE :value1" ESCAPE '$'
      */
-    public function like(string $expression, string $pattern, ?string $escapeChar = null): string;
+    public function like(string $expression, string $pattern, ?string $escapeChar = null): string
+    {
+        return $this->dbalExpressionBuilder->like($expression, $pattern, $escapeChar);
+    }
 
     /**
      * Creates a NOT LIKE comparison expression
@@ -245,7 +282,10 @@ interface ExpressionBuilderInterface
      *         method : notLike('field1', ':value1','$')
      *         return : "field1 NOT LIKE :value1" ESCAPE '$'
      */
-    public function notLike(string $expression, string $pattern, ?string $escapeChar = null): string;
+    public function notLike(string $expression, string $pattern, ?string $escapeChar = null): string
+    {
+        return $this->dbalExpressionBuilder->notLike($expression, $pattern, $escapeChar);
+    }
 
     /**
      * Creates an IN () comparison expression with the given arguments.
@@ -259,7 +299,10 @@ interface ExpressionBuilderInterface
      *          method : in('field1', [:value1, :value2, :value3])
      *          return : "field1 IN (:value1, :value2, :value3)"
      */
-    public function in(string $expressionToBeMatched, string|array $set): string;
+    public function in(string $expressionToBeMatched, string|array $set): string
+    {
+        return $this->dbalExpressionBuilder->in($expressionToBeMatched, $set);
+    }
 
     /**
      * Creates a NOT IN () comparison expression with the given arguments.
@@ -273,5 +316,8 @@ interface ExpressionBuilderInterface
      *          method : notIn('field1', [:value1, :value2, :value3])
      *          return : "field1 NOT IN (:value1, :value2, :value3)"
      */
-    public function notIn(string $expressionToBeMatched, string|array $set): string;
+    public function notIn(string $expressionToBeMatched, string|array $set): string
+    {
+        return $this->dbalExpressionBuilder->notIn($expressionToBeMatched, $set);
+    }
 }

@@ -21,7 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database;
+namespace Adaptation\Database\QueryBuilder;
+
+use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 
 /**
  * Interface QueryBuilderInterface

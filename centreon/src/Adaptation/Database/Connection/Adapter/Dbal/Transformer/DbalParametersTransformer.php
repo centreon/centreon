@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Adapter\Dbal\Transformer;
+namespace Adaptation\Database\Connection\Adapter\Dbal\Transformer;
 
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;

@@ -21,9 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Adapter\Dbal;
+namespace Adaptation\Database\QueryBuilder\Adapter\Dbal;
 
-use Adaptation\Database\QueryBuilderInterface;
+use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 
 /**

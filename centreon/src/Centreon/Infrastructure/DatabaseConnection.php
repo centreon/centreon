@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure;
 
-use Adaptation\Database\Connection\Adapter\Dbal\DbalExpressionBuilderAdapter;
-use Adaptation\Database\Connection\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
@@ -31,7 +29,9 @@ use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
-use Centreon\Domain\Log\Connection\Logger;
+use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
+use Centreon\Domain\Log\Logger;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;

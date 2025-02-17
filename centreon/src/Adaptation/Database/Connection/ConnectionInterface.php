@@ -28,6 +28,8 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
+use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
  * Interface

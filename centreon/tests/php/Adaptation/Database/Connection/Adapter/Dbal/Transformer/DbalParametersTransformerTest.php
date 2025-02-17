@@ -20,11 +20,12 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Adapter\Dbal\Transformer;
+namespace Tests\Adaptation\Database\Connection\Adapter\Dbal\Transformer;
 
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\Enum\QueryParameterTypeEnum;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Adapter\Dbal\Transformer\DbalParametersTransformer;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Doctrine\DBAL\ParameterType as DbalParameterType;
 
 it('test DbalParametersTransformerTest : transform', function () {

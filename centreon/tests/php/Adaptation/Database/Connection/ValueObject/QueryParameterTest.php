@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Adaptation\Database\ValueObject;
+namespace Tests\Adaptation\Database\Connection\ValueObject;
 
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;

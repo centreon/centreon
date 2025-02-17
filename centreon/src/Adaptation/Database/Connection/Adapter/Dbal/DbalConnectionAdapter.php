@@ -21,16 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Adapter\Dbal;
+namespace Adaptation\Database\Connection\Adapter\Dbal;
 
-use Adaptation\Database\Adapter\Dbal\Transformer\DbalParametersTransformer;
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\ConnectionInterface;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\ExpressionBuilderInterface;
-use Adaptation\Database\Model\ConnectionConfig;
-use Adaptation\Database\QueryBuilderInterface;
-use Adaptation\Database\Trait\ConnectionTrait;
+use Adaptation\Database\Connection\Adapter\Dbal\Transformer\DbalParametersTransformer;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\Trait\ConnectionTrait;
+use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
+use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
+use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\Exception\UnexpectedValueException;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;

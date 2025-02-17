@@ -19,12 +19,17 @@
  *
  */
 
-use Adaptation\Database\Adapter\Dbal\DbalQueryBuilderAdapter;
+declare(strict_types=1);
+
+namespace Tests\Adaptation\Database\QueryBuilder\Adapter\Dbal;
+
+use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
+use Mockery;
 
 beforeEach(function () {
     // prepare instanciation of DbalQueryBuilderAdapter with mocking of dbal Connection (mandatory)
