@@ -1,7 +1,7 @@
 name: Performance Testing
 
 on:
-  push:
+  pull_request:
   workflow_dispatch:
    inputs:
       input1:
@@ -197,3 +197,22 @@ jobs:
           echo "### JMeter Test Results" >> $GITHUB_STEP_SUMMARY
           echo "#### Success vs Failure" >> $GITHUB_STEP_SUMMARY
           echo '<img src="data:image/svg+xml;base64,'$(base64 -w 0 "$SVG_FILE")'" width="200"/>' >> $GITHUB_STEP_SUMMARY
+
+      - name: Debug JTL File
+        run: |
+          echo "Listing JTL files..."
+          ls -la $GITHUB_WORKSPACE/jmeter_results
+
+          JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
+          echo "Using JTL file: $JTL_FILE"
+
+          echo "Displaying first 10 lines of the JTL file..."
+          head -n 10 "$JTL_FILE"
+
+      - name: Debug Pie Chart
+        run: |
+          echo "Checking if SVG file exists..."
+          ls -la $GITHUB_WORKSPACE/jmeter_results
+
+          echo "Displaying SVG file content..."
+          cat $GITHUB_WORKSPACE/jmeter_results/pie_chart.svg
