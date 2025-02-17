@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\ExpressionBuilder\Adapter\Dbal;
 
+use Adaptation\Database\ExpressionBuilder\Enum\ComparisonOperatorEnum;
 use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
 
@@ -82,7 +83,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * Creates a comparison expression.
      *
      * @param string $leftExpression the left expression
-     * @param string $operator the comparison operator
+     * @param ComparisonOperatorEnum $operator the comparison operator
      * @param string $rightExpression the right expression
      *
      * @return string
@@ -91,9 +92,9 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *          method : comparison('field1', '=', ':value1')
      *          return : "field1 = :value1"
      */
-    public function comparison(string $leftExpression, string $operator, string $rightExpression): string
+    public function comparison(string $leftExpression, ComparisonOperatorEnum $operator, string $rightExpression): string
     {
-        return $this->dbalExpressionBuilder->comparison($leftExpression, $operator, $rightExpression);
+        return $this->dbalExpressionBuilder->comparison($leftExpression, $operator->value, $rightExpression);
     }
 
     /**

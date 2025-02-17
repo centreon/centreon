@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\ExpressionBuilder;
 
+use Adaptation\Database\ExpressionBuilder\Enum\ComparisonOperatorEnum;
+
 /**
  * Interface
  *
@@ -33,16 +35,6 @@ namespace Adaptation\Database\ExpressionBuilder;
  */
 interface ExpressionBuilderInterface
 {
-    /**
-     * Comparison operators.
-     */
-    public const EQ = '=';
-    public const NEQ = '<>';
-    public const LT = '<';
-    public const LTE = '<=';
-    public const GT = '>';
-    public const GTE = '>=';
-
     /**
      * Creates a conjunction of the given expressions.
      *
@@ -75,7 +67,7 @@ interface ExpressionBuilderInterface
      * Creates a comparison expression.
      *
      * @param string $leftExpression the left expression
-     * @param string $operator the comparison operator
+     * @param ComparisonOperatorEnum $operator the comparison operator
      * @param string $rightExpression the right expression
      *
      * @return string
@@ -84,7 +76,11 @@ interface ExpressionBuilderInterface
      *          method : comparison('field1', '=', ':value1')
      *          return : "field1 = :value1"
      */
-    public function comparison(string $leftExpression, string $operator, string $rightExpression): string;
+    public function comparison(
+        string $leftExpression,
+        ComparisonOperatorEnum $operator,
+        string $rightExpression
+    ): string;
 
     /**
      * Creates an equality comparison expression with the given arguments.

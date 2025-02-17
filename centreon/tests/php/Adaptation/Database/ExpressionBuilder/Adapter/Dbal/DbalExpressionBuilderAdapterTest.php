@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Adaptation\Database\ExpressionBuilder\Adapter\Dbal;
 
 use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\ExpressionBuilder\Enum\ComparisonOperatorEnum;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Mockery;
@@ -35,7 +36,7 @@ beforeEach(function () {
 });
 
 it('test DbalExpressionBuilderAdapter with the method comparison', function () {
-    $expr = $this->dbalExpressionBuilderAdapterTest->comparison('field1', DbalExpressionBuilderAdapter::EQ, ':value1');
+    $expr = $this->dbalExpressionBuilderAdapterTest->comparison('field1', ComparisonOperatorEnum::EQUAL, ':value1');
     expect($expr)->toBeString()->toBe('field1 = :value1');
 });
 
