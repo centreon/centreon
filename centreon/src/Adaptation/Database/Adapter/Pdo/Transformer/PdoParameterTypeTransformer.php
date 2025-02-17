@@ -32,7 +32,7 @@ use Core\Common\Domain\Exception\TransformerException;
  * @class   PdoParameterTypeTransformer
  * @package Adaptation\Database\Adapter\Pdo\Transformer
  */
-class PdoParameterTypeTransformer
+abstract readonly class PdoParameterTypeTransformer
 {
     /**
      * @param QueryParameterTypeEnum $queryParameterType

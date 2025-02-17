@@ -33,7 +33,7 @@ use Doctrine\DBAL\ParameterType as DbalParameterType;
  * @class   DbalParameterTypeTransformer
  * @package Adaptation\Database\Adapter\Dbal\Transformer
  */
-class DbalParameterTypeTransformer
+abstract readonly class DbalParameterTypeTransformer
 {
     /**
      * @param QueryParameterTypeEnum $queryParameterTypeEnum

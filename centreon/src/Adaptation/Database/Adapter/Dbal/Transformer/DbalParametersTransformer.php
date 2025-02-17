@@ -36,7 +36,7 @@ use Doctrine\DBAL\ParameterType as DbalParameterType;
  * @class   DbalParametersTransformer
  * @package Adaptation\Database\Adapter\Dbal\Transformer
  */
-class DbalParametersTransformer
+abstract readonly class DbalParametersTransformer
 {
     /**
      * @param QueryParameters $queryParameters
