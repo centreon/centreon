@@ -189,7 +189,7 @@ jobs:
         run: |
           # Créer le fichier de données pour gnuplot
           echo "Success Failure" > $GITHUB_WORKSPACE/jmeter_results/data.txt
-          echo "${{ steps.count_results.outputs.SUCCESS_COUNT }} ${ { steps.count_results.outputs.FAILURE_COUNT }}" >> $GITHUB_WORKSPACE/jmeter_results/data.txt
+          echo "${{ steps.count_results.outputs.SUCCESS_COUNT }} ${{ steps.count_results.outputs.FAILURE_COUNT }}" >> $GITHUB_WORKSPACE/jmeter_results/data.txt
 
           # Générer le graphique en utilisant gnuplot (version corrigée)
           gnuplot -e "
