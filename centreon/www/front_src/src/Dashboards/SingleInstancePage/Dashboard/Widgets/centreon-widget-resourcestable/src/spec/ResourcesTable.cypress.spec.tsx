@@ -185,6 +185,7 @@ const resourcesRequests = (): void => {
       response: data
     });
   });
+
   cy.fixture('Widgets/ResourcesTable/downtime.json').then((data) => {
     cy.interceptAPIRequest({
       alias: 'getDowntime',

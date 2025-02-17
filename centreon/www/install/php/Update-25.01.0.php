@@ -20,6 +20,7 @@
  */
 
 require_once __DIR__ . '/../../../bootstrap.php';
+require_once __DIR__ . '/../../class/centreonLog.class.php';
 
 $versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
 $errorMessage = '';
@@ -85,12 +86,43 @@ $updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
         <<<'SQL'
             UPDATE `dashboard_panel`
             SET `layout_x` = `layout_x` * 2,
-                `layout_width` = `layout_width` * 2 
+                `layout_width` = `layout_width` * 2
             SQL
     );
 };
 
+// -------------------------------------------- Resource Status -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDBO
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add column flapping to table resources';
+    if (! $pearDBO->isColumnExist('resources', 'flapping')) {
+        $pearDBO->exec(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
+            SQL
+        );
+    }
+
+    $errorMessage = 'Unable to add column percent_state_change to table resources';
+    if (! $pearDBO->isColumnExist('resources', 'percent_state_change')) {
+        $pearDBO->exec(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
+            SQL
+        );
+    }
+};
+
 try {
+    $addColumnToResourcesTable($pearDBO);
     $createUserProfileTable($pearDB);
     $createUserProfileFavoriteDashboards($pearDB);
     $updatePanelsLayout($pearDB);
@@ -103,7 +135,7 @@ try {
         . ' - Trace : ' . $e->getTraceAsString(),
         customContext: [
             'exception' => $e->getOptions(),
-            'trace' => $e->getTraceAsString()
+            'trace' => $e->getTraceAsString(),
         ],
         exception: $e
     );

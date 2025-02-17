@@ -17,7 +17,7 @@ import {
 } from '../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { resource } from '../../../../../api/models';
 import FavoriteAction from '../../Actions/favoriteAction';
@@ -29,6 +29,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useColumnStyles();
   const queryClient = useQueryClient();
   const { hasEditPermission } = useDashboardUserPermissions();
+  const isFetchingListing = useIsFetching({ queryKey: [resource.dashboards] });
 
   const refetch = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: [resource.dashboards] });
@@ -60,6 +61,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
           dashboardId={row.id}
           isFavorite={row?.isFavorite}
           refetch={refetch}
+          isFetching={isFetchingListing > 0}
         />
         <Box className={classes.line}>-</Box>
       </div>
@@ -72,6 +74,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         dashboardId={row.id}
         isFavorite={row?.isFavorite}
         refetch={refetch}
+        isFetching={isFetchingListing > 0}
       />
       <IconButton
         ariaLabel={t(labelShareWithContacts)}

@@ -48,7 +48,7 @@ export const generateReportForResourceStatusPageFilterInteraction = async ({
 
 
   await startTimespan('Click host input');
-  const input = await getByTestId($document,'Host')
+  const input = await getByTestId($document,'host')
   input.click()
   await endTimespan();
     

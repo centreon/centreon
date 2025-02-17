@@ -215,7 +215,7 @@ const IntersectionRow = ({ isHovered, ...rest }: Props): JSX.Element => {
   return (
     <div
       className={classes.intersectionRow}
-      data-isHovered={isHovered}
+      data-is-hovered={isHovered}
       ref={rowRef}
     >
       <Row {...rest} isHovered={isHovered} isInViewport={isInViewport} />

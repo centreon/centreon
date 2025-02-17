@@ -203,9 +203,22 @@ for ($i = 0; $hg = $dbResult->fetch(); $i++) {
         $isHGSvgFile = true;
         $hgIcone = returnSvg("www/img/icons/host_group.svg", "var(--icons-fill-color)", 16, 16);
     }
-    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure($hg["hg_name"]), "RowMenu_link" => "main.php?p=" . $p . "&o=c&hg_id=" . $hg['hg_id'], "RowMenu_desc" => ($hg["hg_alias"] == ''
-        ? '-'
-        : CentreonUtils::escapeSecure(html_entity_decode($hg["hg_alias"]), CentreonUtils::ESCAPE_ALL)), "RowMenu_status" => $hg["hg_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $hg["hg_activate"] ? "service_ok" : "service_critical", "RowMenu_hostAct" => $nbrhostAct, "RowMenu_icone" => $hgIcone, "RowMenu_hostDeact" => $nbrhostDeact, "RowMenu_options" => $moptions, "isHgSvgFile" => $isHGSvgFile];
+    $elemArr[$i] = [
+        "MenuClass" => "list_" . $style,
+        "RowMenu_select" => $selectedElements->toHtml(),
+        "RowMenu_name" => CentreonUtils::escapeSecure($hg["hg_name"]),
+        "RowMenu_link" => "main.php?p=" . $p . "&o=c&hg_id=" . $hg['hg_id'],
+        "RowMenu_desc" => $hg["hg_alias"] == ''
+            ? '-'
+            : CentreonUtils::escapeSecure(html_entity_decode($hg["hg_alias"]), CentreonUtils::ESCAPE_ALL),
+        "RowMenu_status" => $hg["hg_activate"] ? _("Enabled") : _("Disabled"),
+        "RowMenu_badge" => $hg["hg_activate"] ? "service_ok" : "service_critical",
+        "RowMenu_hostAct" => $nbrhostAct,
+        "RowMenu_icone" => $hgIcone,
+        "RowMenu_hostDeact" => $nbrhostDeact,
+        "RowMenu_options" => $moptions,
+        "isHgSvgFile" => $isHGSvgFile
+    ];
 
     // Switch color line
     $style = $style != "two" ? "two" : "one";

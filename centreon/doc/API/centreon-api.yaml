@@ -502,6 +502,8 @@ paths:
     $ref: "./latest/onPremise/Configuration/Service/PartialUpdateAndDeleteService.yaml"
   /configuration/services:
     $ref: "./latest/onPremise/Configuration/Service/AddServiceAndFindServices.yaml"
+  /configuration/services/_delete:
+    $ref: "./latest/onPremise/Configuration/Service/DeleteServices.yaml"
   /monitoring/services/categories:
     get:
       tags:
