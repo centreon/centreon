@@ -34,7 +34,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted(
     'hostgroup_list',
     null,
-    'You are not allowed to list host groups',
+    'You are not allowed to access host groups',
     Response::HTTP_FORBIDDEN
 )]
 final class FindHostGroupsController extends AbstractController
