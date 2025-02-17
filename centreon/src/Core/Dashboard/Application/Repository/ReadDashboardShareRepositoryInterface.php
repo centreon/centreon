@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Domain\Model\Dashboard;
@@ -178,6 +179,8 @@ interface ReadDashboardShareRepositoryInterface
     /**
      * @param ContactGroup[] $contactGroups
      * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RepositoryException
      * @return DashboardContactRole[]
      */
     public function findContactsWithAccessRightsByContactGroupsAndRequestParameters(
@@ -203,7 +206,7 @@ interface ReadDashboardShareRepositoryInterface
      *
      * @param RequestParametersInterface $requestParameters
      *
-     * @throws \Throwable|\UnexpectedValueException
+     * @throws RepositoryException
      *
      * @return DashboardContactGroupRole[]
      */
@@ -243,7 +246,7 @@ interface ReadDashboardShareRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param int $contactId
      *
-     * @throws \Throwable|\UnexpectedValueException
+     * @throws RepositoryException
      *
      * @return DashboardContactGroupRole[]
      */

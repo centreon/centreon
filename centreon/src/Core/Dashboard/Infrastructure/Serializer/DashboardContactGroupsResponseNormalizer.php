@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,16 @@ final class DashboardContactGroupsResponseNormalizer implements NormalizerInterf
      *
      * @throws \Throwable
      *
-     * @return array<string, mixed>|bool|float|int|string|null
+     * @return array{id: int, name: string, most_permissive_role: string}
      */
     public function normalize(mixed $object, ?string $format = null, array $context = [])
     {
-        /** @var array<string, bool|float|int|string> $data */
+        /** @var array{
+         *  id: int,
+         *  name: string,
+         *  most_permissive_role: string
+         * } $data
+         */
         $data = $this->normalizer->normalize($object, $format, $context);
 
         $data['most_permissive_role'] = DashboardGlobalRoleConverter::toString($object->mostPermissiveRole) === 'creator'

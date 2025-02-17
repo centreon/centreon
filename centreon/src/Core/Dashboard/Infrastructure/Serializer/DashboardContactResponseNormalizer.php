@@ -47,11 +47,17 @@ final class DashboardContactResponseNormalizer implements NormalizerInterface
      *
      * @throws \Throwable
      *
-     * @return array<string, mixed>|bool|float|int|string|null
+     * @return array{id: int, name: string, email: string, most_permissive_role: string}
      */
     public function normalize(mixed $object, ?string $format = null, array $context = [])
     {
-        /** @var array<string, bool|float|int|string> $data */
+        /** @var array{
+         *  id: int,
+         *  name: string,
+         *  email: string,
+         *  most_permissive_role: string
+         * } $data
+         */
         $data = $this->normalizer->normalize($object, $format, $context);
 
         $data['most_permissive_role'] = DashboardGlobalRoleConverter::toString($object->mostPermissiveRole) === 'creator'

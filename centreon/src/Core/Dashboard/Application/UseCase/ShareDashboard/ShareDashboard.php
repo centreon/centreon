@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ use Core\Dashboard\Domain\Model\Role\TinyRole;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Throwable;
 
 /** @package Core\Dashboard\Application\UseCase\ShareDashboard */
 final class ShareDashboard
@@ -161,7 +160,7 @@ final class ShareDashboard
                 DashboardException::CODE_FORBIDDEN => new ForbiddenResponse($ex),
                 default => new InvalidArgumentResponse($ex->getMessage()),
             };
-        } catch (Throwable $ex) {
+        } catch (\Throwable $ex) {
             $this->error(
                 "Error while updating dashboard shares : {$ex->getMessage()}",
                 [
@@ -196,7 +195,7 @@ final class ShareDashboard
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      * @return int[]
      */
     private function findCurrentUserContactGroupIds(): array
@@ -210,7 +209,7 @@ final class ShareDashboard
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      * @return int[]
      */
     private function findCurrentUserAccessGroupIds(): array
@@ -228,7 +227,7 @@ final class ShareDashboard
      * @param TinyRole[] $contactRoles
      * @param TinyRole[] $contactGroupRoles
      *
-     * @throws Throwable
+     * @throws \Throwable
      */
     private function updateDashboardSharesAsAdmin(int $dashboardId, array $contactRoles, array $contactGroupRoles): void {
         try {
@@ -240,7 +239,7 @@ final class ShareDashboard
                 $contactGroupRoles
             );
             $this->dataStorageEngine->commitTransaction();
-        } catch (Throwable $ex) {
+        } catch (\Throwable $ex) {
             $this->error(
                 "Error during update dashboard shares transaction, rolling back: {$ex->getMessage()}",
                 [
@@ -264,7 +263,7 @@ final class ShareDashboard
      * @param int[] $userContactGroupIds
      * @param int[] $contactIdsInUserAccessGroups
      *
-     * @throws Throwable
+     * @throws \Throwable
      */
     private function updateDashboardSharesAsNonAdmin(
         int $dashboardId,
@@ -289,7 +288,7 @@ final class ShareDashboard
                 $contactGroupRoles
             );
             $this->dataStorageEngine->commitTransaction();
-        } catch (Throwable $ex) {
+        } catch (\Throwable $ex) {
             $this->error(
                 "Error during update dashboard shares transaction, rolling back: {$ex->getMessage()}",
                 [
@@ -307,7 +306,7 @@ final class ShareDashboard
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      *
      * @return bool
      */
