@@ -26,14 +26,18 @@ namespace Adaptation\Database\Enum;
 /**
  * Enum
  *
- * @class   ConnectionDriver
+ * @class   ConnectionDriverEnum
  * @package Adaptation\Database\Enum
  */
 enum ConnectionDriverEnum: string
 {
-    case DRIVER_MYSQL = 'mysql';
+    case DRIVER_PDO_MYSQL = 'pdo_mysql';
+    case DRIVER_PDO_POSTGRESQL = 'pdo_pgsql';
+    case DRIVER_PDO_SQLITE = 'pdo_sqlite';
+    case DRIVER_PDO_ORACLE = 'pdo_oci';
+    case DRIVER_PDO_MICROSOFT_SQL_SERVER = 'pdo_sqlsrv';
+    case DRIVER_MYSQLI = 'mysqli';
     case DRIVER_POSTGRESQL = 'pgsql';
-    case DRIVER_SQLITE = 'sqlite';
-    case DRIVER_ORACLE = 'oci';
     case DRIVER_MICROSOFT_SQL_SERVER = 'sqlsrv';
+    case DRIVER_SQLITE3 = 'sqlite3';
 }

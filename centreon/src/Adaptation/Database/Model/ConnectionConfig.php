@@ -51,7 +51,7 @@ final readonly class ConnectionConfig
         private string $databaseName,
         private int $port = 0,
         private string $charset = '',
-        private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_MYSQL
+        private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
     ) {}
 
     /**

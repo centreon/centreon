@@ -35,12 +35,14 @@ use Adaptation\Database\Collection\QueryParameters;
 class ConnectionException extends DatabaseException
 {
     /**
-     * @return self
+     * @param string $method
+     *
+     * @return ConnectionException
      */
-    public static function notImplemented(): self
+    public static function notImplemented(string $method): self
     {
         return new self(
-            message: 'Not implemented',
+            message: "{$method} method not implemented",
             code: self::ERROR_CODE_BAD_USAGE
         );
     }
@@ -76,14 +78,37 @@ class ConnectionException extends DatabaseException
     }
 
     /**
+     * @param \Throwable|null $previous
+     *
      * @return ConnectionException
      */
-    public static function getDatabaseNameFailed(): self
+    public static function getNativeConnectionFailed(?\Throwable $previous = null): self
     {
+        $message = 'Error while retrieving the native connection';
+        if (! is_null($previous) && ! empty($previous->getMessage())) {
+            $message .= " : {$previous->getMessage()}";
+        }
+
         return new self(
-            'Error while getting the database name',
-            code: self::ERROR_CODE_DATABASE
+            message: $message,
+            code: self::ERROR_CODE_DATABASE,
+            previous: $previous
         );
+    }
+
+    /**
+     * @param \Throwable|null $previous
+     *
+     * @return ConnectionException
+     */
+    public static function getDatabaseNameFailed(?\Throwable $previous = null): self
+    {
+        $message = 'Error while retrieving the database name';
+        if (! is_null($previous) && ! empty($previous->getMessage())) {
+            $message .= " : {$previous->getMessage()}";
+        }
+
+        return new self($message, self::ERROR_CODE_DATABASE);
     }
 
     /**
@@ -409,23 +434,20 @@ class ConnectionException extends DatabaseException
     /**
      * @param \Throwable $previous
      * @param string $query
-     * @param int $column
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
      */
-    public static function fetchByColumnQueryFailed(
+    public static function fetchFirstColumnQueryFailed(
         \Throwable $previous,
         string $query,
-        int $column,
         ?QueryParameters $queryParameters = null,
     ): self {
         $context['query'] = $query;
-        $context['column'] = $column;
         $context['query_parameters'] = $queryParameters;
 
         return new self(
-            message: "Error while executing fetch by column query : {$previous->getMessage()}",
+            message: "Error while executing fetch first column query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
             context: $context,
             previous: $previous
@@ -472,29 +494,6 @@ class ConnectionException extends DatabaseException
 
         return new self(
             message: "Error while executing fetch all associative query : {$previous->getMessage()}",
-            code: self::ERROR_CODE_DATABASE,
-            context: $context,
-            previous: $previous
-        );
-    }
-
-    /**
-     * @param \Throwable $previous
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @return ConnectionException
-     */
-    public static function fetchAllByColumnQueryFailed(
-        \Throwable $previous,
-        string $query,
-        ?QueryParameters $queryParameters = null
-    ): self {
-        $context['query'] = $query;
-        $context['query_parameters'] = $queryParameters;
-
-        return new self(
-            message: "Error while executing fetch all by column query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
             context: $context,
             previous: $previous
@@ -596,26 +595,38 @@ class ConnectionException extends DatabaseException
     /**
      * @param \Throwable $previous
      * @param string $query
-     * @param int $column
      * @param QueryParameters|null $queryParameters
      *
      * @return ConnectionException
      */
-    public static function iterateByColumnQueryFailed(
+    public static function iterateColumnQueryFailed(
         \Throwable $previous,
         string $query,
-        int $column,
         ?QueryParameters $queryParameters = null
     ): self {
         $context['query'] = $query;
-        $context['column'] = $column;
         $context['query_parameters'] = $queryParameters;
 
         return new self(
-            message: "Error while executing iterate by column query : {$previous->getMessage()}",
+            message: "Error while executing iterate first column query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
             context: $context,
             previous: $previous
+        );
+    }
+
+    /**
+     * @param string $query
+     * @param string $message
+     *
+     * @return self
+     */
+    public static function iterateKeyValueQueryBadFormat(string $message, string $query): self
+    {
+        return new self(
+            message: "Bad format of iterate key value query : {$message}",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: ['query' => $query]
         );
     }
 
@@ -666,6 +677,25 @@ class ConnectionException extends DatabaseException
     }
 
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
+
+    /**
+     * @param \Throwable|null $exception
+     *
+     * @return self
+     */
+    public static function setAutoCommitFailed(?\Throwable $exception = null): self
+    {
+        $message = 'Error while setting auto commit';
+        if (! is_null($exception) && ! empty($exception->getMessage())) {
+            $message .= " : {$exception->getMessage()}";
+        }
+
+        return new self(
+            message: $message,
+            code: self::ERROR_CODE_DATABASE_TRANSACTION,
+            previous: $exception
+        );
+    }
 
     /**
      * @param \Throwable $previous

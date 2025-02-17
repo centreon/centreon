@@ -38,7 +38,7 @@ final readonly class QueryParameter implements ValueObjectInterface
     /**
      * QueryParameter constructor
      *
-     * Example: new QueryParameter('name', 'value', ParameterType::STRING);
+     * Example: new QueryParameter('name', 'value', QueryParameterTypeEnum::STRING);
      *
      * @param string $name
      * @param mixed $value
@@ -72,11 +72,20 @@ final readonly class QueryParameter implements ValueObjectInterface
      */
     public function __toString(): string
     {
+        $type = match ($this->type) {
+            QueryParameterTypeEnum::STRING => 'string',
+            QueryParameterTypeEnum::INTEGER => 'int',
+            QueryParameterTypeEnum::BOOLEAN => 'bool',
+            QueryParameterTypeEnum::NULL => 'null',
+            QueryParameterTypeEnum::LARGE_OBJECT => 'largeObject',
+            default => 'unknown',
+        };
+
         return sprintf(
             '{name:"%s",value:"%s",type:"%s"}',
             $this->name,
             $this->value,
-            (! is_null($this->type)) ? $this->type->value : 'null'
+            $type
         );
     }
 
@@ -109,7 +118,7 @@ final readonly class QueryParameter implements ValueObjectInterface
             return self::null($name);
         }
 
-        return self::create($name, $value, QueryParameterTypeEnum::INT);
+        return self::create($name, $value, QueryParameterTypeEnum::INTEGER);
     }
 
     /**
@@ -142,7 +151,7 @@ final readonly class QueryParameter implements ValueObjectInterface
      */
     public static function bool(string $name, bool $value): self
     {
-        return self::create($name, $value, QueryParameterTypeEnum::BOOL);
+        return self::create($name, $value, QueryParameterTypeEnum::BOOLEAN);
     }
 
     /**

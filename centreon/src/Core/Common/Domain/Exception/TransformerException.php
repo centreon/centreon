@@ -21,38 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Enum;
+namespace Core\Common\Domain\Exception;
 
 /**
- * Enum
+ * Class
  *
- * @class   QueryParameterTypeEnum
- * @package Adaptation\Database
+ * @class   TransformerException
+ * @package Core\Common\Domain\Exception
  */
-enum QueryParameterTypeEnum
+class TransformerException extends DomainException
 {
     /**
-     * Represents the SQL NULL data type.
+     * TransformerException constructor
+     *
+     * @param string $message
+     * @param array<string,mixed> $context
+     * @param \Throwable|null $previous
      */
-    case NULL;
-
-    /**
-     * Represents the SQL INTEGER data type.
-     */
-    case INTEGER;
-
-    /**
-     * Represents the SQL CHAR, VARCHAR, or other string data type.
-     */
-    case STRING;
-
-    /**
-     * Represents the SQL large object data type.
-     */
-    case LARGE_OBJECT;
-
-    /**
-     * Represents a boolean data type.
-     */
-    case BOOLEAN;
+    public function __construct(string $message, array $context = [], ?\Throwable $previous = null)
+    {
+        parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
+    }
 }

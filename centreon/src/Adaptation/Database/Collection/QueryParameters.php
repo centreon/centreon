@@ -43,7 +43,9 @@ class QueryParameters extends Collection
      */
     public function getIntQueryParameters(): Collection
     {
-        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::INT);
+        return $this->filter(
+            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::INTEGER
+        );
     }
 
     /**
@@ -52,7 +54,9 @@ class QueryParameters extends Collection
      */
     public function getStringQueryParameters(): Collection
     {
-        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::STRING);
+        return $this->filter(
+            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::STRING
+        );
     }
 
     /**
@@ -61,7 +65,9 @@ class QueryParameters extends Collection
      */
     public function getBoolQueryParameters(): Collection
     {
-        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::BOOL);
+        return $this->filter(
+            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::BOOLEAN
+        );
     }
 
     /**
@@ -70,7 +76,9 @@ class QueryParameters extends Collection
      */
     public function getNullQueryParameters(): Collection
     {
-        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::NULL);
+        return $this->filter(
+            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::NULL
+        );
     }
 
     /**
@@ -79,7 +87,9 @@ class QueryParameters extends Collection
      */
     public function getLargeObjectQueryParameters(): Collection
     {
-        return $this->filter(fn (QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT);
+        return $this->filter(
+            fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT
+        );
     }
 
     /**

@@ -22,13 +22,12 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure;
 
-use Adaptation\Database\Collection\BatchInsertParameters;
+use Adaptation\Database\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ConnectionInterface;
-use Adaptation\Database\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Exception\ConnectionException;
 use Adaptation\Database\Model\ConnectionConfig;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Trait\ConnectionTrait;
 use Centreon\Domain\Log\Logger;
 use Psr\Log\LoggerInterface;
 
@@ -42,6 +41,8 @@ use Psr\Log\LoggerInterface;
  */
 class DatabaseConnection extends \PDO implements ConnectionInterface
 {
+    use ConnectionTrait;
+
     /** @var string Name of the configuration table */
     private string $centreonDbName;
 
@@ -192,31 +193,11 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     }
 
     /**
-     * Return the database name if it exists.
-     *
-     * @throws ConnectionException
-     * @return string|null
-     */
-    public function getDatabaseName(): ?string
-    {
-        try {
-            return $this->fetchByColumn('SELECT DATABASE()')[0] ?? null;
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to get database name',
-                previous: $exception,
-            );
-
-            throw ConnectionException::getDatabaseNameFailed();
-        }
-    }
-
-    /**
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
-     * @return object
+     * @return \PDO
      */
-    public function getNativeConnection(): object
+    public function getNativeConnection(): \PDO
     {
         return $this;
     }
@@ -255,7 +236,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             return true;
         } catch (ConnectionException $exception) {
             $this->writeDbLog(
-                message: 'Unable to execute select query',
+                message: 'Unable to check if the connection is established',
                 query: 'SELECT 1',
                 previous: $exception,
             );
@@ -322,7 +303,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         ":{$queryParameter->getName()}",
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
+                            ? PdoParameterTypeTransformer::transform($queryParameter->getType()) : \PDO::PARAM_STR
                     );
                 }
             }
@@ -342,230 +323,6 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         }
     }
 
-    /**
-     * Executes an SQL statement with the given parameters and returns the number of affected rows.
-     *
-     * Could be only used for INSERT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return int
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
-     *          $nbAffectedRows = $db->insert('INSERT INTO table (id, name) VALUES (:id, :name)', $queryParameters);
-     *          // $nbAffectedRows = 1
-     */
-    public function insert(string $query, ?QueryParameters $queryParameters = null): int
-    {
-        try {
-            if (! str_starts_with($query, 'INSERT INTO ')
-                && ! str_starts_with($query, 'insert into ')
-            ) {
-                throw ConnectionException::insertQueryBadFormat($query);
-            }
-
-            return $this->executeStatement($query, $queryParameters);
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to execute insert query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::insertQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Executes an SQL statement with the given parameters and returns the number of affected rows for multiple inserts.
-     *
-     * Could be only used for several INSERT.
-     *
-     * $batchInsertParameters is a collection of QueryParameters, each QueryParameters is a collection of QueryParameter
-     *
-     * @param string $tableName
-     * @param array<string> $columns
-     * @param BatchInsertParameters $batchInsertParameters
-     *
-     * @throws ConnectionException
-     * @return int
-     *
-     * @example $batchInsertParameters = BatchInsertParameters::create([
-     *              QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]),
-     *              QueryParameters::create([QueryParameter::int('id', 2), QueryParameter::string('name', 'Jean')]),
-     *          ]);
-     *          $nbAffectedRows = $db->batchInsert('table', ['id', 'name'], $batchInsertParameters);
-     *          // $nbAffectedRows = 2
-     */
-    public function batchInsert(string $tableName, array $columns, BatchInsertParameters $batchInsertParameters): int
-    {
-        try {
-            if (empty($tableName)) {
-                throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
-            }
-            if (empty($columns)) {
-                throw ConnectionException::batchInsertQueryBadUsage('Columns must not be empty');
-            }
-            if ($batchInsertParameters->isEmpty()) {
-                throw ConnectionException::batchInsertQueryBadUsage('Batch insert parameters must not be empty');
-            }
-
-            $query = "INSERT INTO {$tableName} (" . implode(', ', $columns) . ') VALUES';
-
-            $valuesInsert = [];
-            $queryParametersToInsert = new QueryParameters([]);
-
-            $indexQueryParameterToInsert = 1;
-
-            /*
-             * $batchInsertParameters is a collection of QueryParameters, each QueryParameters is a collection of QueryParameter
-             * We need to iterate over the QueryParameters to build the final query.
-             * Then, for each QueryParameters, we need to iterate over the QueryParameter to build :
-             *  - to check if the query parameters are not empty (queryParameters)
-             *  - to check if the columns and query parameters have the same length (columns, queryParameters)
-             *  - to rename the parameter name to avoid conflicts with a suffix (indexQueryParameterToInsert)
-             *  - the values block of the query (valuesInsert)
-             *  - the query parameters to insert (queryParametersToInsert)
-             */
-
-            foreach ($batchInsertParameters->getIterator() as $queryParameters) {
-                if ($queryParameters->isEmpty()) {
-                    throw ConnectionException::batchInsertQueryBadUsage('Query parameters must not be empty');
-                }
-                if (count($columns) !== $queryParameters->length()) {
-                    throw ConnectionException::batchInsertQueryBadUsage(
-                        'Columns and query parameters must have the same length'
-                    );
-                }
-
-                $valuesInsertItem = '';
-
-                foreach ($queryParameters->getIterator() as $queryParameter) {
-                    if (! empty($valuesInsertItem)) {
-                        $valuesInsertItem .= ', ';
-                    }
-                    $parameterName = "{$queryParameter->getName()}_{$indexQueryParameterToInsert}";
-                    $queryParameterToInsert = QueryParameter::create(
-                        $parameterName,
-                        $queryParameter->getValue(),
-                        $queryParameter->getType()
-                    );
-                    $valuesInsertItem .= ":{$parameterName}";
-                    $queryParametersToInsert->add($queryParameterToInsert->getName(), $queryParameterToInsert);
-                }
-
-                $valuesInsert[] = "({$valuesInsertItem})";
-                $indexQueryParameterToInsert++;
-            }
-
-            if (count($valuesInsert) === $queryParametersToInsert->length()) {
-                throw ConnectionException::batchInsertQueryBadUsage(
-                    'Error while building the final query : values block and query parameters have not the same length'
-                );
-            }
-
-            $query .= implode(', ', $valuesInsert);
-
-            return $this->executeStatement($query, $queryParametersToInsert);
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to execute batch insert query',
-                customContext: [
-                    'table_name' => $tableName,
-                    'columns' => $columns,
-                    'batch_insert_parameters' => $batchInsertParameters,
-                ],
-                query: $query ?? '',
-                previous: $exception,
-            );
-
-            throw ConnectionException::batchInsertQueryFailed(
-                previous: $exception,
-                tableName: $tableName,
-                columns: $columns,
-                batchInsertParameters: $batchInsertParameters,
-                query: $query ?? ''
-            );
-        }
-    }
-
-    /**
-     * Executes an SQL statement with the given parameters and returns the number of affected rows.
-     *
-     * Could be only used for UPDATE.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return int
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
-     *          $nbAffectedRows = $db->update('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
-     *          // $nbAffectedRows = 1
-     */
-    public function update(string $query, ?QueryParameters $queryParameters = null): int
-    {
-        try {
-            if (! str_starts_with($query, 'UPDATE ')
-                && ! str_starts_with($query, 'update ')
-            ) {
-                throw ConnectionException::updateQueryBadFormat($query);
-            }
-
-            return $this->executeStatement($query, $queryParameters);
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to execute update query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::updateQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Executes an SQL statement with the given parameters and returns the number of affected rows.
-     *
-     * Could be only used for DELETE.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return int
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
-     *          $nbAffectedRows = $db->delete('DELETE FROM table WHERE id = :id', $queryParameters);
-     *          // $nbAffectedRows = 1
-     */
-    public function delete(string $query, ?QueryParameters $queryParameters = null): int
-    {
-        try {
-            if (! str_starts_with($query, 'DELETE ')
-                && ! str_starts_with($query, 'delete ')
-            ) {
-                throw ConnectionException::deleteQueryBadFormat($query);
-            }
-
-            return $this->executeStatement($query, $queryParameters);
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to execute insert query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::deleteQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
     // --------------------------------------- FETCH METHODS -----------------------------------------
 
     /**
@@ -578,7 +335,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
-     * @return array<string, mixed>|false false is returned if no rows are found
+     * @return array<int, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
@@ -588,9 +345,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch();
+            return $pdoStatement->fetch(\PDO::FETCH_NUM);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch numeric query',
@@ -622,9 +379,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch();
+            return $pdoStatement->fetch(\PDO::FETCH_ASSOC);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch associative query',
@@ -657,9 +414,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetch()[0] ?? false;
+            return $pdoStatement->fetch(\PDO::FETCH_COLUMN);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch one query',
@@ -673,37 +430,36 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an array of the column values.
+     * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * Could be only used with SELECT.
      *
      * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int $column
      *
      * @throws ConnectionException
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->fetchByColumn('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          $result = $db->fetchFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
      *          // $result = ['John', 'Jean']
      */
-    public function fetchByColumn(string $query, ?QueryParameters $queryParameters = null, int $column = 0): array
+    public function fetchFirstColumn(string $query, ?QueryParameters $queryParameters = null): array
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_COLUMN);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch by column query',
-                customContext: ['query_parameters' => $queryParameters, 'column' => $column],
+                customContext: ['query_parameters' => $queryParameters],
                 query: $query,
                 previous: $exception,
             );
 
-            throw ConnectionException::fetchByColumnQueryFailed($exception, $query, $column, $queryParameters);
+            throw ConnectionException::fetchFirstColumnQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -726,9 +482,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_NUM);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all numeric query',
@@ -760,9 +516,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all associative query',
@@ -795,9 +551,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
 
-            return $pdoStatement->fetchAll();
+            return $pdoStatement->fetchAll(\PDO::FETCH_KEY_PAIR);
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to fetch all key value query',
@@ -807,45 +563,6 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             );
 
             throw ConnectionException::fetchAllKeyValueQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
-     * to the first column and the values being an associative array representing the rest of the columns
-     * and their values.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return array<mixed,array<string,mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->fetchAllAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
-     *          // $result = [1 => ['name' => 'John', 'surname' => 'Doe'], 2 => ['name' => 'Jean', 'surname' => 'Dupont']]
-     */
-    public function fetchAllAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): array
-    {
-        try {
-            $this->validateSelectQuery($query);
-            $data = [];
-            foreach ($this->fetchAllAssociative($query, $queryParameters) as $row) {
-                $data[array_shift($row)] = $row;
-            }
-
-            return $data;
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to fetch all associative indexed query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::fetchAllAssociativeIndexedQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -873,8 +590,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_NUM);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_NUM)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -912,8 +629,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_ASSOC);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_ASSOC)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
@@ -935,116 +652,34 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int $column
      *
      * @throws ConnectionException
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateByColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          $result = $db->iterateColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
      *          foreach ($result as $value) {
      *              // $value = 'John'
      *              // $value = 'Jean'
      *          }
      */
-    public function iterateByColumn(
-        string $query,
-        ?QueryParameters $queryParameters = null,
-        int $column = 0
-    ): \Traversable {
+    public function iterateColumn(string $query, ?QueryParameters $queryParameters = null): \Traversable
+    {
         try {
             $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_COLUMN, [$column]);
-            while (($row = $pdoStatement->fetch()) !== false) {
+            $pdoStatement = $this->executeSelectQuery($query, $queryParameters);
+            while (($row = $pdoStatement->fetch(\PDO::FETCH_COLUMN)) !== false) {
                 yield $row;
             }
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to iterate by column query',
-                customContext: ['query_parameters' => $queryParameters, 'column' => $column],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::iterateByColumnQueryFailed($exception, $query, $column, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator with the keys
-     * mapped to the first column and the values mapped to the second column.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<mixed,mixed>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateKeyValue('SELECT name, surname FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $key => $value) {
-     *              // $key = 'John', $value = 'Doe'
-     *              // $key = 'Jean', $value = 'Dupont'
-     *          }
-     */
-    public function iterateKeyValue(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            $pdoStatement = $this->executeSelectQuery($query, $queryParameters, \PDO::FETCH_KEY_PAIR);
-            while (($row = $pdoStatement->fetch()) !== false) {
-                yield $row;
-            }
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to iterate key value query',
                 customContext: ['query_parameters' => $queryParameters],
                 query: $query,
                 previous: $exception,
             );
 
-            throw ConnectionException::iterateKeyValueQueryFailed($exception, $query, $queryParameters);
-        }
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
-     * to the first column and the values being an associative array representing the rest of the columns
-     * and their values.
-     *
-     * Could be only used with SELECT.
-     *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
-     * @throws ConnectionException
-     * @return \Traversable<mixed,array<string,mixed>>
-     *
-     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
-     *          $result = $db->iterateAssociativeIndexed('SELECT id, name, surname FROM table WHERE active = :active', $queryParameters);
-     *          foreach ($result as $key => $row) {
-     *              // $key = 1, $row = ['name' => 'John', 'surname' => 'Doe']
-     *              // $key = 2, $row = ['name' => 'Jean', 'surname' => 'Dupont']
-     *          }
-     */
-    public function iterateAssociativeIndexed(string $query, ?QueryParameters $queryParameters = null): \Traversable
-    {
-        try {
-            $this->validateSelectQuery($query);
-            foreach ($this->iterateAssociative($query, $queryParameters) as $row) {
-                yield array_shift($row) => $row;
-            }
-        } catch (\Throwable $exception) {
-            $this->writeDbLog(
-                message: 'Unable to iterate associative indexed query',
-                customContext: ['query_parameters' => $queryParameters],
-                query: $query,
-                previous: $exception,
-            );
-
-            throw ConnectionException::iterateAssociativeIndexedQueryFailed($exception, $query, $queryParameters);
+            throw ConnectionException::iterateColumnQueryFailed($exception, $query, $queryParameters);
         }
     }
 
@@ -1138,7 +773,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      */
     public function allowUnbufferedQuery(): bool
     {
-        $currentDriverName = $this->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        $currentDriverName = "pdo_{$this->getAttribute(\PDO::ATTR_DRIVER_NAME)}";
         if (! in_array($currentDriverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
             $this->writeDbLog(
                 message: 'Unbuffered queries are not allowed with this driver',
@@ -1235,17 +870,13 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      *
      * @param string $query
      * @param QueryParameters|null $queryParameters
-     * @param int $fetchMode
-     * @param array<mixed> $fetchModeArgs
      *
      * @throws ConnectionException
      * @return \PDOStatement
      */
     private function executeSelectQuery(
         string $query,
-        ?QueryParameters $queryParameters = null,
-        int $fetchMode = \PDO::FETCH_ASSOC,
-        array $fetchModeArgs = []
+        ?QueryParameters $queryParameters = null
     ): \PDOStatement {
         try {
             $this->validateSelectQuery($query);
@@ -1257,20 +888,12 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         $queryParameter->getName(),
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? $queryParameter->getType()->value : QueryParameterTypeEnum::STRING->value
+                            ? PdoParameterTypeTransformer::transform($queryParameter->getType()) : \PDO::PARAM_STR
                     );
                 }
             }
 
             $pdoStatement->execute();
-
-            if (false === $pdoStatement->setFetchMode($fetchMode, ...$fetchModeArgs)) {
-                throw new ConnectionException(
-                    message: 'Error while setting the fetch mode',
-                    code: ConnectionException::ERROR_CODE_INTERNAL,
-                    context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
-                );
-            }
 
             return $pdoStatement;
         } catch (\Throwable $exception) {
@@ -1284,25 +907,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             throw ConnectionException::selectQueryFailed(
                 previous: $exception,
                 query: $query,
-                queryParameters: $queryParameters,
-                context: ['fetch_mode' => $fetchMode, 'fetch_mode_args' => $fetchModeArgs]
+                queryParameters: $queryParameters
             );
-        }
-    }
-
-    /**
-     * @param string $query
-     *
-     * @throws ConnectionException
-     * @return void
-     */
-    private function validateSelectQuery(string $query): void
-    {
-        if (empty($query)) {
-            throw ConnectionException::notEmptyQuery();
-        }
-        if (! str_starts_with($query, 'SELECT') && ! str_starts_with($query, 'select')) {
-            throw ConnectionException::selectQueryBadFormat($query);
         }
     }
 
