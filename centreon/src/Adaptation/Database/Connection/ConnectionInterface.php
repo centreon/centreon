@@ -21,19 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database;
+namespace Adaptation\Database\Connection;
 
-use Adaptation\Database\Collection\BatchInsertParameters;
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\Enum\ConnectionDriverEnum;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\Model\ConnectionConfig;
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 
 /**
  * Interface
  *
  * @class   ConnectionInterface
- * @package Adaptation\Database
+ * @package Adaptation\Database\Connection
  */
 interface ConnectionInterface
 {

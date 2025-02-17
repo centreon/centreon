@@ -21,16 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Adapter\Pdo\Transformer;
+namespace Adaptation\Database\Connection\Adapter\Pdo\Transformer;
 
-use Adaptation\Database\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Core\Common\Domain\Exception\TransformerException;
 
 /**
  * Class
  *
  * @class   PdoParameterTypeTransformer
- * @package Adaptation\Database\Adapter\Pdo\Transformer
+ * @package Adaptation\Database\Connection\Adapter\Pdo\Transformer
  */
 abstract readonly class PdoParameterTypeTransformer
 {

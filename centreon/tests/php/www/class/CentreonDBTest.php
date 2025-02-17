@@ -23,13 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\www\class;
 
-use Adaptation\Database\Collection\BatchInsertParameters;
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\Model\ConnectionConfig;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use CentreonDB;
-use CentreonDbConfig;
 use CentreonDbException;
 use CentreonDBStatement;
 use PDO;
@@ -72,7 +71,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
 }
 
 /**
- * @param ConnectionConfig $connectionConfig
+ * @param \Adaptation\Database\Connection\Model\ConnectionConfig $connectionConfig
  *
  * @return bool
  */

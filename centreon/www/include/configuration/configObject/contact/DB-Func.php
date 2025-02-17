@@ -34,9 +34,8 @@
  *
  */
 
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 

@@ -20,19 +20,19 @@
  */
 declare(strict_types=1);
 
-namespace Adaptation\Database\Trait;
+namespace Adaptation\Database\Connection\Trait;
 
-use Adaptation\Database\Collection\BatchInsertParameters;
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\Model\ConnectionConfig;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 /**
  * Trait
  *
  * @class   ConnectionTrait
- * @package Adaptation\Database\Trait
+ * @package Adaptation\Database\Connection\Trait
  */
 trait ConnectionTrait
 {

@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\Adaptation\Database\Collection;
 
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 
 it('test query parameters collection : add a query parameter with a good type', function () {
@@ -46,7 +46,7 @@ it('test query parameters collection : create with good type', function () {
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1)
     ];
-    $queryParameters = QueryParameters::create($param);
+    $queryParameters = \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
     expect($queryParameters->length())->toBe(2)
         ->and($queryParameters->get('name_string'))->toBe($param['name_string'])
         ->and($queryParameters->get('name_int'))->toBe($param['name_int']);
@@ -57,7 +57,7 @@ it('test query parameters collection : create with bad type', function () {
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => new \stdClass()
     ];
-    QueryParameters::create($param);
+    \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
 })->throws(CollectionException::class);
 
 it('test query parameters collection : get query parameters with int type', function () {
@@ -87,7 +87,7 @@ it('test query parameters collection : get query parameters with string type', f
             'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
         ),
     ];
-    $queryParameters = QueryParameters::create($param);
+    $queryParameters = \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
     expect($queryParameters->getStringQueryParameters()->length())->toBe(1)
         ->and($queryParameters->getStringQueryParameters()->has('name_string'))->toBeTrue();
 });
@@ -103,7 +103,7 @@ it('test query parameters collection : get query parameters with bool type', fun
             'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
         ),
     ];
-    $queryParameters = QueryParameters::create($param);
+    $queryParameters = \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
     expect($queryParameters->getBoolQueryParameters()->length())->toBe(1)
         ->and($queryParameters->getBoolQueryParameters()->has('name_bool'))->toBeTrue();
 });
@@ -135,7 +135,7 @@ it('test query parameters collection : get query parameters with large object ty
             'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
         ),
     ];
-    $queryParameters = QueryParameters::create($param);
+    $queryParameters = \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
     expect($queryParameters->getLargeObjectQueryParameters()->length())->toBe(1)
         ->and($queryParameters->getLargeObjectQueryParameters()->has('name_large_object'))->toBeTrue();
 });

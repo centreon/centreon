@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure;
 
-use Adaptation\Database\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\ConnectionInterface;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\Model\ConnectionConfig;
-use Adaptation\Database\Trait\ConnectionTrait;
+use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Centreon\Domain\Log\Logger;
 use Psr\Log\LoggerInterface;
 
@@ -206,7 +206,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * Returns the ID of the last inserted row.
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
-     * @throws ConnectionException
+     * @throws \Adaptation\Database\Connection\Exception\ConnectionException
      * @return string
      */
     public function getLastInsertId(): string
