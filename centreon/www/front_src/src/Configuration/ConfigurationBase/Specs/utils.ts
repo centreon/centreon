@@ -91,7 +91,7 @@ export const filtersInitialValues = {
 };
 
 export const getLabelDeleteOne = (type, name) =>
-  `You are about to delete ${type} ${name}. This action cannot be undone. Do you want to delete it?`;
+  `You are about to delete the ${name} ${type}. This action cannot be undone. Do you want to delete it?`;
 
 export const getLabelDeleteMany = (type, count) =>
   `You are about to delete ${count} ${type}. This action cannot be undone. Do you want to delete them?`;

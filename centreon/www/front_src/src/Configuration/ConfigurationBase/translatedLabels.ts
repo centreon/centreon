@@ -50,7 +50,7 @@ export const labelFailedToDisableSomeResources = 'Failed to disable';
 
 // dialogs content
 export const labelDeleteResourceConfirmation = (type) =>
-  `You are about to delete ${type} <strong>{{ name }}</strong>. This action cannot be undone. Do you want to delete it?`;
+  `You are about to delete the <strong>{{ name }}</strong> ${type}. This action cannot be undone. Do you want to delete it?`;
 
 export const labelDeleteResourcesConfirmation = (type) =>
   `You are about to delete <strong>{{ count }} ${type}.</strong> This action cannot be undone. Do you want to delete them?`;
