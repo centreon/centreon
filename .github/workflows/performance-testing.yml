@@ -225,4 +225,6 @@ jobs:
           # Ajouter le camembert au GitHub Summary
           echo "### JMeter Test Results" >> $GITHUB_STEP_SUMMARY
           echo "#### Success vs Failure" >> $GITHUB_STEP_SUMMARY
-          echo '<img src="data:image/svg+xml;base64,'$(base64 -w 0 "$SVG_FILE")'" width="200"/>' >> $GITHUB_STEP_SUMMARY
+          echo "SVG file content:" >> $GITHUB_STEP_SUMMARY
+          cat "$SVG_FILE" >> $GITHUB_STEP_SUMMARY  # Ajouter le contenu du fichier SVG pour déboguer
+          echo '<img src="data:image/svg+xml;base64,'$(base64 "$SVG_FILE")'" width="200"/>' >> $GITHUB_STEP_SUMMARY
