@@ -206,7 +206,15 @@ jobs:
           # Vérifier si les angles sont calculés correctement
           echo "Start Angle: $START_ANGLE, End Angle: $END_ANGLE"
 
-          # Générer le code SVG
+          START_ANGLE=0
+          END_ANGLE=$((360 * SUCCESS_PERCENT / 100))
+
+          # Si SUCCESS_PERCENT est 100, nous devons ajuster l'angle pour éviter un cercle complet
+          if [ "$END_ANGLE" -eq 360 ]; then
+              END_ANGLE=359
+          fi
+
+          # Générer le code SVG pour le graphique circulaire
           cat <<EOF > "$SVG_FILE"
           <svg width="200" height="200" viewBox="0 0 32 32">
               <circle r="16" cx="16" cy="16" fill="#e74c3c"></circle>
