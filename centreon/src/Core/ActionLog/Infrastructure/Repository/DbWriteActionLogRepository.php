@@ -148,8 +148,8 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
             foreach ($details as $fieldName => $fieldValue) {
                 $this->db->insert($request, QueryParameters::create([
                     QueryParameter::string('field_name', $fieldName),
-                    QueryParameter::string('field_value', $fieldValue),
-                    QueryParameter::int('action_log_id', $actionLog->getId()),
+                    QueryParameter::string('field_value', (string) $fieldValue),
+                    QueryParameter::int('action_log_id', (int) $actionLog->getId()),
                 ]));
             }
 
