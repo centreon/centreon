@@ -187,22 +187,34 @@ jobs:
 
       - name: Generate Pie Chart with Gnuplot
         run: |
-            # Créer le fichier de données pour gnuplot
-            echo "Success Failure" > $GITHUB_WORKSPACE/jmeter_results/data.txt
-            echo "${{ steps.count_results.outputs.SUCCESS_COUNT }} ${{steps.count_results.outputs.FAILURE_COUNT }}" >> $GITHUB_WORKSPACE/jmeter_results/data.txt
+          # Créer le fichier de données pour gnuplot
+          echo "Success Failure" > $GITHUB_WORKSPACE/jmeter_results/data.txt
 
-            # Vérification du contenu du fichier de données
-            cat $GITHUB_WORKSPACE/jmeter_results/data.txt  # Pour s'assurer que les données sont bien écrites
+          # Vérifier les valeurs des counts
+          echo "SUCCESS_COUNT: ${{ steps.count_results.outputs.SUCCESS_COUNT }}"
+          echo "FAILURE_COUNT: ${{ steps.count_results.outputs.FAILURE_COUNT }}"
 
-            # Générer le graphique en utilisant gnuplot
-            gnuplot <<EOF
-              set terminal svg size 400,400;
-              set output "$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg";
-              set style fill solid 1.00 border -1;
-              set boxwidth 0.5;
-              set datafile separator ' ';
-              plot "$GITHUB_WORKSPACE/jmeter_results/data.txt" using 2:xtic(1) with boxes title 'Success vs Failure';
-            EOF
+          # Si FAILURE_COUNT est vide ou nul, affecter la valeur 0
+          FAILURE_COUNT=${{ steps.count_results.outputs.FAILURE_COUNT }}
+          if [ -z "$FAILURE_COUNT" ]; then
+            FAILURE_COUNT=0
+          fi
+
+          # Ajouter les données au fichier data.txt
+          echo "${{ steps.count_results.outputs.SUCCESS_COUNT }} $FAILURE_COUNT" >> $GITHUB_WORKSPACE/jmeter_results/data.txt
+
+          # Vérification du contenu du fichier de données
+          cat $GITHUB_WORKSPACE/jmeter_results/data.txt  # Afficher le contenu du fichier pour s'assurer qu'il est correct
+
+          # Générer le graphique en utilisant gnuplot
+          gnuplot <<EOF
+            set terminal svg size 400,400;
+            set output "$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg";
+            set style fill solid 1.00 border -1;
+            set boxwidth 0.5;
+            set datafile separator ' ';
+            plot "$GITHUB_WORKSPACE/jmeter_results/data.txt" using 2:xtic(1) with boxes title 'Success vs Failure';
+          EOF
 
       - name: Upload Pie Chart to GitHub Summary
         run: |
