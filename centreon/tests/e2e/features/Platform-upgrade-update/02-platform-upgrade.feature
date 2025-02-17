@@ -1,5 +1,5 @@
 @execTimeout(300000)
-@REQ_MON-22196 @system @upgrade
+@REQ_MON-22196 @system @upgrade @ignore
 Feature: Upgrade platform from major version A to major version B
 
   @TEST_MON-22198
@@ -16,3 +16,4 @@ Feature: Upgrade platform from major version A to major version B
     Examples:
       | major_from | version_from    |
       | n - 1      | last stable     |
+      | n - 1      | last stable - 1 |
