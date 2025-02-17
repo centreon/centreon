@@ -147,6 +147,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             return $this->dbalConnection->getNativeConnection();
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to get native connection',
+                previous: $exception
+            );
+
             throw ConnectionException::getNativeConnectionFailed($exception);
         }
     }
@@ -163,6 +168,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             return (string) $this->dbalConnection->lastInsertId();
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to get last insert id',
+                previous: $exception,
+            );
+
             throw ConnectionException::getLastInsertFailed($exception);
         }
     }
@@ -177,6 +187,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             return ! empty($this->dbalConnection->getServerVersion());
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to check if the connection is established',
+                previous: $exception,
+            );
+
             return false;
         }
     }
@@ -239,6 +254,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to execute statement',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
             throw ConnectionException::executeStatementFailed($exception, $query, $queryParameters);
         }
     }
@@ -274,6 +296,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return $this->dbalConnection->fetchNumeric($query, $params, $types);
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to fetch numeric query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
             throw ConnectionException::fetchNumericQueryFailed($exception, $query, $queryParameters);
         }
     }
@@ -306,6 +335,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return $this->dbalConnection->fetchAssociative($query, $params, $types);
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to fetch associative query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
             throw ConnectionException::fetchAssociativeQueryFailed($exception, $query, $queryParameters);
         }
     }
@@ -339,6 +375,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return $this->dbalConnection->fetchOne($query, $params, $types);
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to fetch one query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
             throw ConnectionException::fetchOneQueryFailed($exception, $query, $queryParameters);
         }
     }
@@ -371,6 +414,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return $this->dbalConnection->fetchFirstColumn($query, $params, $types);
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to fetch first column query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
             throw ConnectionException::fetchFirstColumnQueryFailed($exception, $query, $queryParameters);
         }
     }
@@ -403,6 +453,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return $this->dbalConnection->fetchAllNumeric($query, $params, $types);
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to fetch all numeric query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
             throw ConnectionException::fetchAllNumericQueryFailed($exception, $query, $queryParameters);
         }
     }
@@ -435,6 +492,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return $this->dbalConnection->fetchAllAssociative($query, $params, $types);
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to fetch all associative query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
             throw ConnectionException::fetchAllAssociativeQueryFailed($exception, $query, $queryParameters);
         }
     }
@@ -468,6 +532,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return $this->dbalConnection->fetchAllKeyValue($query, $params, $types);
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to fetch all key value query',
+                customContext: ['query_parameters' => $queryParameters],
+                query: $query,
+                previous: $exception,
+            );
+
             throw ConnectionException::fetchAllKeyValueQueryFailed($exception, $query, $queryParameters);
         }
     }
@@ -506,6 +577,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
         try {
             $this->dbalConnection->setAutoCommit($autoCommit);
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to set auto commit',
+                customContext: ['auto_commit' => $autoCommit],
+                previous: $exception,
+            );
+
             throw ConnectionException::setAutoCommitFailed($exception);
         }
     }
@@ -547,6 +624,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
             }
             $this->dbalConnection->beginTransaction();
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to start transaction',
+                previous: $exception,
+            );
+
             throw ConnectionException::startTransactionFailed($exception);
         }
     }
@@ -564,6 +646,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return true;
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to commit transaction',
+                previous: $exception,
+            );
+
             throw ConnectionException::commitTransactionFailed($exception);
         }
     }
@@ -581,6 +668,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
 
             return true;
         } catch (\Throwable $exception) {
+            $this->writeDbLog(
+                message: 'Unable to rollback transaction',
+                previous: $exception,
+            );
+
             throw ConnectionException::rollbackTransactionFailed($exception);
         }
     }
@@ -602,6 +694,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 default => '',
             };
             if (empty($driverName) || ! in_array($driverName, self::DRIVER_ALLOWED_UNBUFFERED_QUERY, true)) {
+                $this->writeDbLog(
+                    message: 'Unbuffered queries are not allowed with this driver',
+                    customContext: ['driver_name' => $driverName]
+                );
+
                 throw ConnectionException::allowUnbufferedQueryFailed($nativeConnection::class, $driverName);
             }
 
@@ -623,6 +720,8 @@ final class DbalConnectionAdapter implements ConnectionInterface
         $nativeConnection = $this->getNativeConnection();
         if ($nativeConnection instanceof \PDO) {
             if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)) {
+                $this->writeDbLog(message: 'Error while starting an unbuffered query');
+
                 throw ConnectionException::startUnbufferedQueryFailed();
             }
         }
@@ -649,12 +748,18 @@ final class DbalConnectionAdapter implements ConnectionInterface
     {
         $nativeConnection = $this->getNativeConnection();
         if (! $this->isUnbufferedQueryActive()) {
+            $this->writeDbLog(
+                message: 'Error while stopping an unbuffered query, no unbuffered query is currently active'
+            );
+
             throw ConnectionException::stopUnbufferedQueryFailed(
                 'Unbuffered query not active'
             );
         }
         if ($nativeConnection instanceof \PDO) {
             if (! $nativeConnection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)) {
+                $this->writeDbLog(message: 'Error while stopping an unbuffered query');
+
                 throw ConnectionException::stopUnbufferedQueryFailed(
                     'Unbuffered query failed'
                 );
