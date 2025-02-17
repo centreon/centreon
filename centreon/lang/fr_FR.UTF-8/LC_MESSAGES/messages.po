@@ -19700,7 +19700,7 @@ msgid "Duplicate host group"
 msgstr "Dupliquer le groupe d'hôtes"
 
 msgid "Duplicate host groups"
-msgstr "Dupliquer des groupes d'hôtes"
+msgstr "Dupliquer les groupes d'hôtes"
 
 msgid "Host group duplicated"
 msgstr "Groupe d'hôtes dupliqué"
