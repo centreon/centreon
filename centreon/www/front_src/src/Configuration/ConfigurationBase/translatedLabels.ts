@@ -56,7 +56,7 @@ export const labelDeleteResourcesConfirmation = (type) =>
   `You are about to delete <strong>{{ count }} ${type}.</strong> This action cannot be undone. Do you want to delete them?`;
 
 export const labelDuplicateResourceConfirmation = (type) =>
-  `You are about to duplicate ${type} <strong>{{ name }}</strong>. Please specify the number of duplications you would like to make.`;
+  `You are about to duplicate the <strong>{{ name }}</strong> ${type}. Please specify the number of duplications you would like to make.`;
 
 export const labelDuplicateResourcesConfirmation = (type) =>
   `You are about to duplicate <strong>{{ count }} ${type}.</strong> Please specify the number of duplications you would like to make for each group.`;
