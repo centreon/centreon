@@ -2,17 +2,6 @@ name: Performance Testing
 
 on:
   pull_request:
-  workflow_dispatch:
-   inputs:
-      input1:
-        description: "Premier input"
-        required: true
-        type: string
-      input2:
-        description: "Deuxième input"
-        required: true
-        type: string
-
   workflow_call:  # Permet d'exécuter depuis un autre workflow
     inputs:
       image_name:
@@ -164,60 +153,44 @@ jobs:
           name: jmeter-html-reports
           path: centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
 
-      - name: Looking for JTL files...
-        id: looking_for_jtl
+      - name: Display HTML Report in GitHub Summary
         run: |
-            ls -la $GITHUB_WORKSPACE/jmeter_results
-            JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
-            echo "Found JTL file: $JTL_FILE"
-            echo "JTL_FILE=$JTL_FILE" >> $GITHUB_OUTPUT  # Output JTL file path
+          echo "Looking for JTL files..."
+          ls -la $GITHUB_WORKSPACE/jmeter_results
 
-      - name: Generate Success and Failure Counts
-        id: count_results
-        run: |
-            JTL_FILE=${{ steps.looking_for_jtl.outputs.JTL_FILE }}
-            SUCCESS_COUNT=$(awk -F, '$0 ~ /true/ {count++} END {print count}' "$JTL_FILE")
-            FAILURE_COUNT=$(awk -F, '$0 ~ /false/ {count++} END {print count}' "$JTL_FILE")
-            echo "Success: $SUCCESS_COUNT, Failure: $FAILURE_COUNT"
-            echo "SUCCESS_COUNT=$SUCCESS_COUNT" >> $GITHUB_OUTPUT
-            echo "FAILURE_COUNT=$FAILURE_COUNT" >> $GITHUB_OUTPUT
+          # Trouver un fichier JTL
+          JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
+          echo "Found JTL file: $JTL_FILE"
 
-      - name: Install gnuplot
-        run: sudo apt-get install -y gnuplot
-
-      - name: Generate Pie Chart with Gnuplot
-        run: |
-          # Créer le fichier de données pour gnuplot
-          echo "Success Failure" > $GITHUB_WORKSPACE/jmeter_results/data.txt
-
-          # Vérifier les valeurs des counts
-          echo "SUCCESS_COUNT: ${{ steps.count_results.outputs.SUCCESS_COUNT }}"
-          echo "FAILURE_COUNT: ${{ steps.count_results.outputs.FAILURE_COUNT }}"
-
-          # Si FAILURE_COUNT est vide ou nul, affecter la valeur 0
-          FAILURE_COUNT=${{ steps.count_results.outputs.FAILURE_COUNT }}
-          if [ -z "$FAILURE_COUNT" ]; then
-            FAILURE_COUNT=0
+          # Vérifier si le fichier existe avant de l'utiliser
+          if [ ! -f "$JTL_FILE" ]; then
+              echo "Error: No JTL file found!"
+              exit 1
           fi
 
-          # Ajouter les données au fichier data.txt
-          echo "${{ steps.count_results.outputs.SUCCESS_COUNT }} $FAILURE_COUNT" >> $GITHUB_WORKSPACE/jmeter_results/data.txt
+          # Ajouter le rapport dans le résumé GitHub
+          echo "<h2>JMeter Test Results</h2>" >> $GITHUB_STEP_SUMMARY
+          echo "<table style='width:100%; border-collapse: collapse; border: 1px solid #ddd; text-align: left;'>" >> $GITHUB_STEP_SUMMARY
+          echo "<thead><tr><th>Timestamp</th><th>Elapsed (ms)</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency (ms)</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
+          echo "<tbody>" >> $GITHUB_STEP_SUMMARY
 
-          # Vérification du contenu du fichier de données
-          cat $GITHUB_WORKSPACE/jmeter_results/data.txt  # Afficher le contenu du fichier pour s'assurer qu'il est correct
+          # Lire le fichier .jtl et générer les lignes HTML correctement
+          awk -F',' 'NR>1 {
+              # Vérifier si Success contient "true"
+              success_icon = ($7 == "true" || $7 == "TRUE") ? "🟢" : "🔴";
 
-          # Générer le graphique en utilisant gnuplot
-          gnuplot <<EOF
-            set terminal svg size 400,400;
-            set output "$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg";
-            set style fill solid 1.00 border -1;
-            set boxwidth 0.5;
-            set datafile separator ' ';
-            plot "$GITHUB_WORKSPACE/jmeter_results/data.txt" using 2:xtic(1) with boxes title 'Success vs Failure';
-          EOF
+              # Extraire Latency de la bonne colonne
+              # Si la colonne Latency (colonne 9) contient plusieurs valeurs séparées par des virgules, prendre la première valeur
+              split($9, latency_values, ",");
+              latency = latency_values[1];  # Prendre la première valeur de Latency
 
-      - name: Upload Pie Chart to GitHub Summary
-        run: |
-            echo "### JMeter Test Results" >> $GITHUB_STEP_SUMMARY
-            echo "#### Success vs Failure" >> $GITHUB_STEP_SUMMARY
-            echo '<img src="data:image/svg+xml;base64,'$(base64 -w 0 "$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg")'" width="400"/>' >> $GITHUB_STEP_SUMMARY
+              # Si la colonne Latency est vide, utiliser "N/A"
+              if (latency == "") {
+                  latency = "N/A";
+              }
+
+              # Générer la ligne HTML avec les valeurs extraites
+              printf "<tr><td>%s</td><td>%s</td><td>%s</td><td>✅ %s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n", $1, $2, $3, $4, $5, $6, success_icon, $8, latency;
+          }' "$JTL_FILE" >> $GITHUB_STEP_SUMMARY
+
+          echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
