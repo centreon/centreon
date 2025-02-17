@@ -179,6 +179,10 @@ jobs:
               exit 1
           fi
 
+          # Vérification du contenu du fichier
+          echo "Displaying the first 10 lines of the JTL file:"
+          head -n 10 "$JTL_FILE"
+
           # Comptabiliser succès et échecs
           SUCCESS_COUNT=$(grep -c ",true," "$JTL_FILE")
           FAILURE_COUNT=$(grep -c ",false," "$JTL_FILE")
@@ -194,6 +198,7 @@ jobs:
               SUCCESS_ANGLE=0
               FAILURE_ANGLE=0
           fi
+          echo "SUCCESS_ANGLE: $SUCCESS_ANGLE, FAILURE_ANGLE: $FAILURE_ANGLE"
 
           # Générer le camembert en SVG
           SVG_FILE="$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg"
