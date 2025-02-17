@@ -206,6 +206,8 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     /**
+     * Factory
+     *
      * @param ConnectionConfig $connectionConfig
      *
      * @throws ConnectionException

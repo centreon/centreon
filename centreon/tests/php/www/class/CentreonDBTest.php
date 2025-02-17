@@ -137,7 +137,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test CentreonDB : CentreonDB::createFromConfig factory',
+        'test CentreonDB : CentreonDB::createFromConfig factory with centreon database',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::createFromConfig($dbConfigCentreon);
             expect($db)->toBeInstanceOf(CentreonDB::class);
@@ -1854,6 +1854,19 @@ if (! is_null($dbConfigCentreonStorage) && hasConnectionDb($dbConfigCentreonStor
     );
 
     it(
+        'test CentreonDB : connect to centreon_storage database with CentreonDB constructor with forceConnection',
+        function () use ($dbConfigCentreonStorage): void {
+            $db = new CentreonDB(connectionConfig: $dbConfigCentreonStorage, forceConnection: true);
+            expect($db)->toBeInstanceOf(CentreonDB::class);
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
+            expect($dbName)->toBe('centreon_storage')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
+    it(
         'connect to centreon_storage database with CentreonDB::connectToCentreonStorageDb factory',
         function () use ($dbConfigCentreonStorage): void {
             $db = CentreonDB::connectToCentreonStorageDb($dbConfigCentreonStorage);
@@ -1863,6 +1876,20 @@ if (! is_null($dbConfigCentreonStorage) && hasConnectionDb($dbConfigCentreonStor
                 ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
         }
     );
+
+    it(
+        'test CentreonDB : CentreonDB::createFromConfig factory with centreon_storage database',
+        function () use ($dbConfigCentreonStorage): void {
+            $db = CentreonDB::createFromConfig($dbConfigCentreonStorage);
+            expect($db)->toBeInstanceOf(CentreonDB::class);
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
+            expect($dbName)->toBe('centreon_storage')
+                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
+        }
+    );
+
 } else {
     it('no centreon_storage database available for testing the CentreonDB connector, so these tests were ignored');
 }

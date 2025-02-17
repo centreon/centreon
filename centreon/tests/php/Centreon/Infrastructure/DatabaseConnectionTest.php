@@ -197,6 +197,19 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     )->throws(ConnectionException::class);
 
     it(
+        'test DatabaseConnection : DatabaseConnection::createFromConfig factory',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            expect($db)->toBeInstanceOf(DatabaseConnection::class);
+            $stmt = $db->prepare("select database()");
+            $stmt->execute();
+            $dbName = $stmt->fetchColumn();
+            expect($dbName)->toBe('centreon')
+                ->and($db->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
+        }
+    );
+
+    it(
         'test DatabaseConnection : DatabaseConnection::createQueryBuilder factory',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
@@ -692,7 +705,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     // -- fetchOne()
 
     it(
-        'test CentreonDB : fetchOne with a correct query with query parameters',
+        'test DatabaseConnection : fetchOne with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $alias = $db->fetchOne(
@@ -703,7 +716,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
-    it('test CentreonDB : fetchOne with a CUD query', function () use ($dbConfigCentreon): void {
+    it('test DatabaseConnection : fetchOne with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchOne(
             "DELETE FROM contact WHERE contact_id = :id",
@@ -711,18 +724,18 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         );
     })->throws(ConnectionException::class);
 
-    it('test CentreonDB : fetchOne with an empty query', function () use ($dbConfigCentreon): void {
+    it('test DatabaseConnection : fetchOne with an empty query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchOne("", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
-    it('test CentreonDB : fetchOne with an incorrect query', function () use ($dbConfigCentreon): void {
+    it('test DatabaseConnection : fetchOne with an incorrect query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchOne("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
     it(
-        'test CentreonDB : fetchOne with an incorrect query parameters',
+        'test DatabaseConnection : fetchOne with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->fetchOne(
@@ -975,8 +988,8 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     // ---------------------------------------- ITERATE METHODS ----------------------------------------------
 
-//    // -- iterateNumeric()
-//
+    // -- iterateNumeric()
+
     it(
         'test DatabaseConnection : iterateNumeric with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
