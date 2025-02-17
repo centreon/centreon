@@ -19,15 +19,15 @@
  *
  */
 
-use Adaptation\Database\Adapter\Dbal\DbalExpressionBuilderAdapter;
-use Adaptation\Database\Adapter\Dbal\DbalQueryBuilderAdapter;
-use Adaptation\Database\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\ConnectionInterface;
-use Adaptation\Database\Enum\ConnectionDriverEnum;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\Model\ConnectionConfig;
-use Adaptation\Database\Trait\ConnectionTrait;
+use Adaptation\Database\Connection\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\Connection\Adapter\Dbal\DbalQueryBuilderAdapter;
+use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use DbManager\Connection\Dbal\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;

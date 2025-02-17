@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Collection;
+namespace Adaptation\Database\Connection\Collection;
 
 use Core\Common\Domain\Collection\Collection;
 
@@ -29,7 +29,7 @@ use Core\Common\Domain\Collection\Collection;
  * Class
  *
  * @class   BatchInsertParameters
- * @package Adaptation\Database\Collection
+ * @package Adaptation\Database\Connection\Collection
  * @extends Collection<QueryParameters>
  */
 class BatchInsertParameters extends Collection

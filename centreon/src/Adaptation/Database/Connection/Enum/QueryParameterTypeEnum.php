@@ -21,13 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Enum;
+namespace Adaptation\Database\Connection\Enum;
 
 /**
  * Enum
  *
  * @class   QueryParameterTypeEnum
- * @package Adaptation\Database
+ * @package Adaptation\Database\Connection\Enum
  */
 enum QueryParameterTypeEnum
 {

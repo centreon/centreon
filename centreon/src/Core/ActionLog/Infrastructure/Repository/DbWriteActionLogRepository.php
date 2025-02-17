@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Core\ActionLog\Infrastructure\Repository;
 
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;

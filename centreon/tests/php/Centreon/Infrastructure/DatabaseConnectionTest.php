@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Infrastructure;
 
-use Adaptation\Database\Adapter\Dbal\DbalExpressionBuilderAdapter;
-use Adaptation\Database\Adapter\Dbal\DbalQueryBuilderAdapter;
-use Adaptation\Database\Collection\BatchInsertParameters;
-use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\Model\ConnectionConfig;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\Connection\Adapter\Dbal\DbalQueryBuilderAdapter;
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\Logger;
 use Centreon\Infrastructure\DatabaseConnection;
 

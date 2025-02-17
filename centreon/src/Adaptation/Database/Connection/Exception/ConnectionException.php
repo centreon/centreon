@@ -21,16 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Exception;
+namespace Adaptation\Database\Connection\Exception;
 
-use Adaptation\Database\Collection\BatchInsertParameters;
-use Adaptation\Database\Collection\QueryParameters;
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Exception\DatabaseException;
 
 /**
  * Class
  *
  * @class   ConnectionException
- * @package Adaptation\Database\Exception
+ * @package Adaptation\Database\Connection\Exception
  */
 class ConnectionException extends DatabaseException
 {

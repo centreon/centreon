@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\Collection;
+namespace Adaptation\Database\Connection\Collection;
 
-use Adaptation\Database\Enum\QueryParameterTypeEnum;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Collection\Collection;
 use Core\Common\Domain\Exception\CollectionException;
 
@@ -32,14 +32,14 @@ use Core\Common\Domain\Exception\CollectionException;
  * Class
  *
  * @class   QueryParameters
- * @package Adaptation\Database\Collection
+ * @package Adaptation\Database\Connection\Collection
  * @extends Collection<QueryParameter>
  */
 class QueryParameters extends Collection
 {
     /**
      * @throws CollectionException
-     * @return Collection<QueryParameter>
+     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
      */
     public function getIntQueryParameters(): Collection
     {
@@ -50,7 +50,7 @@ class QueryParameters extends Collection
 
     /**
      * @throws CollectionException
-     * @return Collection<QueryParameter>
+     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
      */
     public function getStringQueryParameters(): Collection
     {
@@ -61,7 +61,7 @@ class QueryParameters extends Collection
 
     /**
      * @throws CollectionException
-     * @return Collection<QueryParameter>
+     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
      */
     public function getBoolQueryParameters(): Collection
     {
@@ -72,7 +72,7 @@ class QueryParameters extends Collection
 
     /**
      * @throws CollectionException
-     * @return Collection<QueryParameter>
+     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
      */
     public function getNullQueryParameters(): Collection
     {
@@ -83,7 +83,7 @@ class QueryParameters extends Collection
 
     /**
      * @throws CollectionException
-     * @return Collection<QueryParameter>
+     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
      */
     public function getLargeObjectQueryParameters(): Collection
     {
@@ -93,7 +93,7 @@ class QueryParameters extends Collection
     }
 
     /**
-     * @return class-string<QueryParameter>
+     * @return class-string<\Adaptation\Database\Connection\ValueObject\QueryParameter>
      */
     protected function itemClass(): string
     {

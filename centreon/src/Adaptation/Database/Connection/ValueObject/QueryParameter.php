@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Database\ValueObject;
+namespace Adaptation\Database\Connection\ValueObject;
 
-use Adaptation\Database\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\ValueObject\ValueObjectInterface;
 
@@ -31,7 +31,7 @@ use Core\Common\Domain\ValueObject\ValueObjectInterface;
  * Class
  *
  * @class   QueryParameter
- * @package Adaptation\Database\ValueObject
+ * @package Adaptation\Database\Connection\ValueObject
  */
 final readonly class QueryParameter implements ValueObjectInterface
 {

@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\Adaptation\Database\ValueObject;
 
-use Adaptation\Database\Enum\QueryParameterTypeEnum;
-use Adaptation\Database\ValueObject\QueryParameter;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\ValueObjectException;
 
 it('test query parameter value object : success instanciation with create (with type)', function () {
@@ -50,7 +50,7 @@ it('test query parameter value object : failed instanciation with create (bad ty
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with create (bad type for large object) ', function () {
-    QueryParameter::create('name', 0, QueryParameterTypeEnum::LARGE_OBJECT);
+    \Adaptation\Database\Connection\ValueObject\QueryParameter::create('name', 0, QueryParameterTypeEnum::LARGE_OBJECT);
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : success instanciation with string type', function () {
@@ -73,11 +73,11 @@ it('test query parameter value object : success instanciation with string type',
 });
 
 it('test query parameter value object : failed instanciation with string type (empty name) ', function () {
-    QueryParameter::string('', 'value');
+    \Adaptation\Database\Connection\ValueObject\QueryParameter::string('', 'value');
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with string type (bad value) ', function () {
-    QueryParameter::string('name', 0);
+    \Adaptation\Database\Connection\ValueObject\QueryParameter::string('name', 0);
 })->throws(\TypeError::class);
 
 it('test query parameter value object : success instanciation with int type', function () {
@@ -88,11 +88,11 @@ it('test query parameter value object : success instanciation with int type', fu
 });
 
 it('test query parameter value object : failed instanciation with int type (empty name) ', function () {
-    QueryParameter::int('', 1);
+    \Adaptation\Database\Connection\ValueObject\QueryParameter::int('', 1);
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with int type (bad value) ', function () {
-    QueryParameter::int('name', 'value');
+    \Adaptation\Database\Connection\ValueObject\QueryParameter::int('name', 'value');
 })->throws(\TypeError::class);
 
 it('test query parameter value object : success instanciation with bool type', function () {
@@ -111,7 +111,7 @@ it('test query parameter value object : failed instanciation with bool type (bad
 })->throws(\TypeError::class);
 
 it('test query parameter value object : success instanciation with null type', function () {
-    $param = QueryParameter::null('name');
+    $param = \Adaptation\Database\Connection\ValueObject\QueryParameter::null('name');
     expect($param->getName())->toBe('name')
         ->and($param->getValue())->toBeNull()
         ->and($param->getType())->toBe(QueryParameterTypeEnum::NULL);
@@ -122,7 +122,7 @@ it('test query parameter value object : failed instanciation with null type (emp
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : success instanciation with large object type', function () {
-    $param = QueryParameter::largeObject('name', 'value');
+    $param = \Adaptation\Database\Connection\ValueObject\QueryParameter::largeObject('name', 'value');
     expect($param->getName())->toBe('name')
         ->and($param->getValue())->toBe('value')
         ->and($param->getType())->toBe(QueryParameterTypeEnum::LARGE_OBJECT);
@@ -133,6 +133,6 @@ it('test query parameter value object : failed instanciation with large object t
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with large object type (bad value) ', function () {
-    QueryParameter::largeObject('name', 1);
+    \Adaptation\Database\Connection\ValueObject\QueryParameter::largeObject('name', 1);
 })->throws(ValueObjectException::class);
 
