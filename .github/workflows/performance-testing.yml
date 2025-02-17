@@ -164,75 +164,35 @@ jobs:
           name: jmeter-html-reports
           path: centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
 
-      - name: Display HTML Report in GitHub Summary
+      - name: Looking for JTL files...
+        id: looking_for_jtl
         run: |
-          echo "Looking for JTL files..."
           ls -la $GITHUB_WORKSPACE/jmeter_results
-
-          # Find a JTL file
           JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
           echo "Found JTL file: $JTL_FILE"
+          echo "JTL_FILE=$JTL_FILE" >> $GITHUB_OUTPUT  # Output JTL file path
 
-          # Check if the file exists before using it
-          if [ ! -f "$JTL_FILE" ]; then
-              echo "Error: No JTL file found!"
-              exit 1
-          fi
-
+      - name: Generate Success and Failure Counts
+        id: count_results
+        run: |
+          JTL_FILE=${{ steps.looking_for_jtl.outputs.JTL_FILE }}
           SUCCESS_COUNT=$(awk -F, '$0 ~ /true/ {count++} END {print count}' "$JTL_FILE")
           FAILURE_COUNT=$(awk -F, '$0 ~ /false/ {count++} END {print count}' "$JTL_FILE")
-          TOTAL=$((SUCCESS_COUNT + FAILURE_COUNT))
-
           echo "Success: $SUCCESS_COUNT, Failure: $FAILURE_COUNT"
+          echo "SUCCESS_COUNT=$SUCCESS_COUNT" >> $GITHUB_OUTPUT
+          echo "FAILURE_COUNT=$FAILURE_COUNT" >> $GITHUB_OUTPUT
 
-          # Calcul des pourcentages
-          if [ "$TOTAL" -gt 0 ]; then
-              SUCCESS_PERCENT=$((100 * SUCCESS_COUNT / TOTAL))
-              FAILURE_PERCENT=$((100 - SUCCESS_PERCENT))
-          else
-              SUCCESS_PERCENT=0
-              FAILURE_PERCENT=0
-          fi
+      - name: Generate Pie Chart with Graph Charts Action
+        uses: graph-charts/action@v2
+        with:
+          title: "JMeter Test Results"
+          chart_type: "pie"
+          labels: "Success, Failure"
+          values: "${{ steps.count_results.outputs.SUCCESS_COUNT }},${{ steps.count_results.outputs.FAILURE_COUNT }}"
+          output_file: $GITHUB_WORKSPACE/jmeter_results/pie_chart.png
 
-          echo "SUCCESS_PERCENT: $SUCCESS_PERCENT, FAILURE_PERCENT: $FAILURE_PERCENT"
-
-          # Créer le graphique circulaire SVG
-          SVG_FILE="$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg"
-          echo "Creating SVG file at $SVG_FILE..."
-
-          START_ANGLE=0
-          END_ANGLE=$((360 * SUCCESS_PERCENT / 100))
-
-          # Vérifier si les angles sont calculés correctement
-          echo "Start Angle: $START_ANGLE, End Angle: $END_ANGLE"
-
-          START_ANGLE=0
-          END_ANGLE=$((360 * SUCCESS_PERCENT / 100))
-
-          # Si SUCCESS_PERCENT est 100, nous devons ajuster l'angle pour éviter un cercle complet
-          if [ "$END_ANGLE" -eq 360 ]; then
-              END_ANGLE=359
-          fi
-
-          # Générer le code SVG pour le graphique circulaire
-          cat <<EOF > "$SVG_FILE"
-          <svg width="200" height="200" viewBox="0 0 32 32">
-              <circle r="16" cx="16" cy="16" fill="#e74c3c"></circle>
-              <path d="M16 16 L16 0 A16 16 0 $([ "$END_ANGLE" -gt 180 ] && echo 1 || echo 0) 1 $(awk -v angle="$END_ANGLE" 'BEGIN { rad=angle*3.141592/180; printf "%.2f %.2f", 16+16*cos(rad), 16-16*sin(rad) }')" fill="#2ecc71"></path>
-          </svg>
-          EOF
-
-          # Vérifier que le fichier SVG a bien été créé
-          if [ ! -f "$SVG_FILE" ]; then
-              echo "Error: SVG file was not created!"
-              exit 1
-          fi
-
-          echo "SVG file created successfully: $SVG_FILE"
-
-          # Ajouter le camembert au GitHub Summary
+      - name: Upload Pie Chart to GitHub Summary
+        run: |
           echo "### JMeter Test Results" >> $GITHUB_STEP_SUMMARY
           echo "#### Success vs Failure" >> $GITHUB_STEP_SUMMARY
-          echo "SVG file content:" >> $GITHUB_STEP_SUMMARY
-          cat "$SVG_FILE" >> $GITHUB_STEP_SUMMARY  # Ajouter le contenu du fichier SVG pour déboguer
-          echo '<img src="data:image/svg+xml;base64,'$(base64 "$SVG_FILE")'" width="200"/>' >> $GITHUB_STEP_SUMMARY
+          echo "![Pie Chart](jmeter_results/pie_chart.png)" >> $GITHUB_STEP_SUMMARY
