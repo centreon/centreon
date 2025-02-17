@@ -164,7 +164,7 @@ jobs:
           name: jmeter-html-reports
           path: centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
 
-      - name: Display HTML Report in GitHub Summary
+      - name: Generate Pie Chart and Display in GitHub Summary
         run: |
           echo "Looking for JTL files..."
           ls -la $GITHUB_WORKSPACE/jmeter_results
@@ -173,12 +173,6 @@ jobs:
           JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
           echo "Found JTL file: $JTL_FILE"
 
-          # Check if the file exists before using it
-          if [ ! -f "$JTL_FILE" ]; then
-              echo "Error: No JTL file found!"
-              exit 1
-          fi
-
           # Comptabiliser succès et échecs
           SUCCESS_COUNT=$(grep -c ",true," "$JTL_FILE")
           FAILURE_COUNT=$(grep -c ",false," "$JTL_FILE")
@@ -186,26 +180,31 @@ jobs:
 
           echo "Success: $SUCCESS_COUNT, Failure: $FAILURE_COUNT"
 
-          # Calcul des angles pour le camembert
+          # Calcul des pourcentages
           if [ "$TOTAL" -gt 0 ]; then
-              SUCCESS_ANGLE=$((360 * SUCCESS_COUNT / TOTAL))
-              FAILURE_ANGLE=$((360 - SUCCESS_ANGLE))
+              SUCCESS_PERCENT=$((100 * SUCCESS_COUNT / TOTAL))
+              FAILURE_PERCENT=$((100 - SUCCESS_PERCENT))
           else
-              SUCCESS_ANGLE=0
-              FAILURE_ANGLE=0
+              SUCCESS_PERCENT=0
+              FAILURE_PERCENT=0
           fi
-          echo "SUCCESS_ANGLE: $SUCCESS_ANGLE, FAILURE_ANGLE: $FAILURE_ANGLE"
 
-          # Générer le camembert en SVG
-          echo "Creating SVG file..."
+          echo "SUCCESS_PERCENT: $SUCCESS_PERCENT, FAILURE_PERCENT: $FAILURE_PERCENT"
+
+          # Créer le graphique circulaire SVG
+          SVG_FILE="$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg"
+          START_ANGLE=0
+          END_ANGLE=$((360 * SUCCESS_PERCENT / 100))
+
+          # SVG code pour un graphique circulaire
           cat <<EOF > "$SVG_FILE"
           <svg width="200" height="200" viewBox="0 0 32 32">
               <circle r="16" cx="16" cy="16" fill="#e74c3c"></circle>
-              <path d="M16 16 L16 0 A16 16 0 $([ "$SUCCESS_ANGLE" -gt 180 ] && echo 1 || echo 0) 1 $(awk -v angle="$SUCCESS_ANGLE" 'BEGIN { rad=angle*3.141592/180; printf "%.2f %.2f", 16+16*cos(rad), 16-16*sin(rad) }')" fill="#2ecc71"></path>
+              <path d="M16 16 L16 0 A16 16 0 $([ "$END_ANGLE" -gt 180 ] && echo 1 || echo 0) 1 $(awk -v angle="$END_ANGLE" 'BEGIN { rad=angle*3.141592/180; printf "%.2f %.2f", 16+16*cos(rad), 16-16*sin(rad) }')" fill="#2ecc71"></path>
           </svg>
           EOF
-          echo "SVG file created: $SVG_FILE"
 
+          echo "SVG file created: $SVG_FILE"
 
           # Ajouter le camembert au GitHub Summary
           echo "### JMeter Test Results" >> $GITHUB_STEP_SUMMARY
