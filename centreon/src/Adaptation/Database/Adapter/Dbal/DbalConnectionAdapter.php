@@ -806,10 +806,9 @@ final class DbalConnectionAdapter implements ConnectionInterface
             ['exception' => $dbExceptionContext]
         );
 
-        $this->logger->critical(
+        $this->critical(
             "[DbalConnectionAdapter] {$message}",
             $context
         );
     }
-
 }

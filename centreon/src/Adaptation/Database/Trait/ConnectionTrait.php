@@ -24,11 +24,8 @@ namespace Adaptation\Database\Trait;
 
 use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
-use Adaptation\Database\ConnectionInterface;
 use Adaptation\Database\Exception\ConnectionException;
-use Adaptation\Database\ExpressionBuilderInterface;
 use Adaptation\Database\Model\ConnectionConfig;
-use Adaptation\Database\QueryBuilderInterface;
 use Adaptation\Database\ValueObject\QueryParameter;
 
 /**
@@ -39,46 +36,6 @@ use Adaptation\Database\ValueObject\QueryParameter;
  */
 trait ConnectionTrait
 {
-
-    // ----------------------------------------- FACTORY METHODS -----------------------------------------
-
-    /**
-     * Factory
-     *
-     * @param ConnectionConfig $connectionConfig
-     *
-     * @throws ConnectionException
-     * @return ConnectionInterface
-     */
-    public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface
-    {
-        throw ConnectionException::notImplemented('createFromConfig');
-    }
-
-    /**
-     * Creates a new instance of a SQL query builder.
-     *
-     * @throws ConnectionException
-     * @return QueryBuilderInterface
-     */
-    public function createQueryBuilder(): QueryBuilderInterface
-    {
-        throw ConnectionException::notImplemented('createQueryBuilder');
-    }
-
-    /**
-     * Creates an expression builder for the connection.
-     *
-     * @throws ConnectionException
-     * @return ExpressionBuilderInterface
-     */
-    public function createExpressionBuilder(): ExpressionBuilderInterface
-    {
-        throw ConnectionException::notImplemented('createExpressionBuilder');
-    }
-
-    // ----------------------------------------- BASE METHODS -----------------------------------------
-
     /**
      * @return ConnectionConfig
      */

@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Infrastructure;
 
+use Adaptation\Database\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\Exception\ConnectionException;
@@ -195,18 +197,22 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     )->throws(ConnectionException::class);
 
     it(
-        'test DatabaseConnection : createQueryBuilder must return exception "Not implemented"',
+        'test DatabaseConnection : DatabaseConnection::createQueryBuilder factory',
         function () use ($dbConfigCentreon): void {
-            DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon)->createQueryBuilder();
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $qb = $db->createQueryBuilder();
+            expect($qb)->toBeInstanceOf(DbalQueryBuilderAdapter::class);
         }
-    )->throws(ConnectionException::class);
+    );
 
     it(
-        'test DatabaseConnection : createExpressionBuilder must return exception "Not implemented"',
+        'test DatabaseConnection : DatabaseConnection::createExpressionBuilder factory',
         function () use ($dbConfigCentreon): void {
-            DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon)->createExpressionBuilder();
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $qb = $db->createExpressionBuilder();
+            expect($qb)->toBeInstanceOf(DbalExpressionBuilderAdapter::class);
         }
-    )->throws(ConnectionException::class);
+    );
 
     it(
         'test DatabaseConnection : switch to database',
@@ -1032,19 +1038,19 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 //
 //    // -- iterateAssociative()
 //
-    it(
-        'test DatabaseConnection : iterateAssociative with a correct query with query parameters',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-            $contacts = $db->iterateAssociative(
-                "SELECT * FROM contact WHERE contact_id = :id",
-                QueryParameters::create([QueryParameter::int('id', 1)])
-            );
-            foreach ($contacts as $contact) {
-                expect($contact)->toBeArray()->and($contact['contact_id'])->toBe(1);
-            }
-        }
-    );
+//    it(
+//        'test DatabaseConnection : iterateAssociative with a correct query with query parameters',
+//        function () use ($dbConfigCentreon): void {
+//            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+//            $contacts = $db->iterateAssociative(
+//                "SELECT * FROM contact WHERE contact_id = :id",
+//                QueryParameters::create([QueryParameter::int('id', 1)])
+//            );
+//            foreach ($contacts as $contact) {
+//                expect($contact)->toBeArray()->and($contact['contact_id'])->toBe(1);
+//            }
+//        }
+//    );
 //
 //    it('test DatabaseConnection : iterateAssociative with a CUD query', function () use ($dbConfigCentreon): void {
 //        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);

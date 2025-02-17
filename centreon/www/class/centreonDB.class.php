@@ -19,12 +19,19 @@
  *
  */
 
+use Adaptation\Database\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ConnectionInterface;
+use Adaptation\Database\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Exception\ConnectionException;
 use Adaptation\Database\Model\ConnectionConfig;
 use Adaptation\Database\Trait\ConnectionTrait;
+use DbManager\Connection\Dbal\Driver;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
@@ -211,6 +218,32 @@ class CentreonDB extends PDO implements ConnectionInterface
         } catch (Exception $e) {
             throw ConnectionException::connectionFailed($e);
         }
+    }
+
+    /**
+     * Creates a new instance of a SQL query builder.
+     *
+     * @return DbalQueryBuilderAdapter
+     */
+    public function createQueryBuilder(): DbalQueryBuilderAdapter
+    {
+        // Dummy connection to use QueryBuilder with dbal
+        $dummyConnection = DriverManager::getConnection(['driver' => ConnectionDriverEnum::DRIVER_PDO_MYSQL->value]);
+
+        return new DbalQueryBuilderAdapter(new QueryBuilder($dummyConnection));
+    }
+
+    /**
+     * Creates an expression builder for the connection.
+     *
+     * @return DbalExpressionBuilderAdapter
+     */
+    public function createExpressionBuilder(): DbalExpressionBuilderAdapter
+    {
+        // Dummy connection to use QueryBuilder with dbal
+        $dummyConnection = DriverManager::getConnection(['driver' => ConnectionDriverEnum::DRIVER_PDO_MYSQL->value]);
+
+        return new DbalExpressionBuilderAdapter(new ExpressionBuilder($dummyConnection));
     }
 
     /**
