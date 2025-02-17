@@ -68,7 +68,7 @@ module.exports = {
       : '[name].[contenthash].[chunkhash].[hash].js',
     filename: isDev
       ? '[name].[chunkhash:8].js'
-      : `[name].[contenthash].js?t=${Date.now()}`,
+      : '[name].[contenthash].[hash].js',
     libraryTarget: 'umd',
     umdNamedDefine: true
   }
