@@ -30,7 +30,7 @@ interface UseDuplicateState {
   duplicatesCount: number;
   changeDuplicateCount: (inputValue: number) => void;
   isOpened: boolean;
-  bodyContent: string;
+  bodyContent: { label: string; value: object };
   headerContent: string;
 }
 
@@ -99,13 +99,12 @@ const useDuplicate = (): UseDuplicateState => {
     duplicateMutation(payload).then(handleApiResponse);
   };
 
-  const bodyContent = useMemo(
-    () =>
-      equals(count, 1)
-        ? t(labelDuplicateResourceConfirmation(labelResourceType), { name })
-        : t(labelDuplicateResourcesConfirmation(labelResourceType), { count }),
-    [name, count, labelResourceType]
-  );
+  const bodyContent = {
+    label: equals(count, 1)
+      ? labelDuplicateResourceConfirmation(labelResourceType)
+      : labelDuplicateResourcesConfirmation(labelResourceType),
+    value: equals(count, 1) ? { name } : { count }
+  };
 
   const headerContent = useMemo(
     () => t(labelDuplicateResource(labelResourceType)),

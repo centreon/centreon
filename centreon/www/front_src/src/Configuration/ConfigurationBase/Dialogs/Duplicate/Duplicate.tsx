@@ -1,7 +1,7 @@
-import { NumberField, sanitizedHTML } from '@centreon/ui';
+import { NumberField } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
 import { Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   labelCancel,
@@ -31,7 +31,11 @@ const DuplicateDialog = (): JSX.Element => {
       <Modal.Header>{headerContent}</Modal.Header>
       <Modal.Body>
         <Typography>
-          {sanitizedHTML({ initialContent: bodyContent })}
+          <Trans
+            defaults={bodyContent.label}
+            values={bodyContent.value}
+            components={{ bold: <strong /> }}
+          />
         </Typography>
         <div className={classes.duplicationCount}>
           <Typography className={classes.duplicationCountTitle}>

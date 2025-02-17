@@ -35,7 +35,7 @@ interface UseDeleteState {
   isMutating: boolean;
   isOpened: boolean;
   headerContent: string;
-  bodyContent: string;
+  bodyContent: { label: string; value: object };
 }
 
 const useDelete = (): UseDeleteState => {
@@ -102,15 +102,12 @@ const useDelete = (): UseDeleteState => {
       : deleteMutation({ ids }).then(handleApiResponse);
   };
 
-  const bodyContent = useMemo(
-    () =>
-      equals(count, 1)
-        ? t(labelDeleteResourceConfirmation(labelResourceType), { name })
-        : t(labelDeleteResourcesConfirmation(labelResourceType), {
-            count
-          }),
-    [labelResourceType, name, count]
-  );
+  const bodyContent = {
+    label: equals(count, 1)
+      ? labelDeleteResourceConfirmation(labelResourceType)
+      : labelDeleteResourcesConfirmation(labelResourceType),
+    value: equals(count, 1) ? { name } : { count }
+  };
 
   const headerContent = useMemo(
     () => t(labelDeleteResource(labelResourceType)),
