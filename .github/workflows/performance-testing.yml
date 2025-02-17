@@ -2,6 +2,17 @@ name: Performance Testing
 
 on:
   pull_request:
+  workflow_dispatch:
+   inputs:
+      input1:
+        description: "Premier input"
+        required: true
+        type: string
+      input2:
+        description: "Deuxième input"
+        required: true
+        type: string
+
   workflow_call:  # Permet d'exécuter depuis un autre workflow
     inputs:
       image_name:
