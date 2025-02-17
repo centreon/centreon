@@ -187,17 +187,18 @@ jobs:
 
       - name: Generate Pie Chart with Gnuplot
         run: |
-            # Générez le fichier de données pour gnuplot
-            echo "Success Failure" > $GITHUB_WORKSPACE/jmeter_results/data.txt
-            echo "${{ steps.count_results.outputs.SUCCESS_COUNT }} ${{ steps.count_results.outputs.FAILURE_COUNT }}" >> $GITHUB_WORKSPACE/jmeter_results/data.txt
+          # Créer le fichier de données pour gnuplot
+          echo "Success Failure" > $GITHUB_WORKSPACE/jmeter_results/data.txt
+          echo "${{ steps.count_results.outputs.SUCCESS_COUNT }} ${ { steps.count_results.outputs.FAILURE_COUNT }}" >> $GITHUB_WORKSPACE/jmeter_results/data.txt
 
-            # Générer le graphique en utilisant gnuplot
-            gnuplot -e "
-              set terminal svg size 400,400;
-              set output '$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg';
-              set style data pie;
-              plot '$GITHUB_WORKSPACE/jmeter_results/data.txt' using 2:xtic(1) with pie;
-            "
+          # Générer le graphique en utilisant gnuplot (version corrigée)
+          gnuplot -e "
+            set terminal svg size 400,400;
+            set output '$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg';
+            set style fill solid 1.00 border -1;
+            set boxwidth 0.5;
+            set datafile separator ' ';
+            plot '$GITHUB_WORKSPACE/jmeter_results/data.txt' using 2:xtic(1) with boxes title 'Success vs Failure';
 
       - name: Upload Pie Chart to GitHub Summary
         run: |
