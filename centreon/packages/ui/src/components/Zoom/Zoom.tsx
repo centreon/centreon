@@ -1,6 +1,6 @@
-import { type MutableRefObject } from 'react';
 import { Zoom as VisxZoom } from '@visx/zoom';
 import { TransformMatrix } from '@visx/zoom/lib/types';
+import { type MutableRefObject } from 'react';
 
 import { ParentSize } from '../..';
 

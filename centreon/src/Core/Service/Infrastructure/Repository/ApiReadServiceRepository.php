@@ -189,4 +189,20 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
     {
         throw RepositoryException::notYetImplemented();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceRelationsByHostGroupId(int $hostGroupId): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNameById(int $serviceId): ?string
+    {
+        throw RepositoryException::notYetImplemented();
+    }
 }
