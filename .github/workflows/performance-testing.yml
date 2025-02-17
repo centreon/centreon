@@ -167,32 +167,40 @@ jobs:
       - name: Looking for JTL files...
         id: looking_for_jtl
         run: |
-          ls -la $GITHUB_WORKSPACE/jmeter_results
-          JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
-          echo "Found JTL file: $JTL_FILE"
-          echo "JTL_FILE=$JTL_FILE" >> $GITHUB_OUTPUT  # Output JTL file path
+            ls -la $GITHUB_WORKSPACE/jmeter_results
+            JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
+            echo "Found JTL file: $JTL_FILE"
+            echo "JTL_FILE=$JTL_FILE" >> $GITHUB_OUTPUT  # Output JTL file path
 
       - name: Generate Success and Failure Counts
         id: count_results
         run: |
-          JTL_FILE=${{ steps.looking_for_jtl.outputs.JTL_FILE }}
-          SUCCESS_COUNT=$(awk -F, '$0 ~ /true/ {count++} END {print count}' "$JTL_FILE")
-          FAILURE_COUNT=$(awk -F, '$0 ~ /false/ {count++} END {print count}' "$JTL_FILE")
-          echo "Success: $SUCCESS_COUNT, Failure: $FAILURE_COUNT"
-          echo "SUCCESS_COUNT=$SUCCESS_COUNT" >> $GITHUB_OUTPUT
-          echo "FAILURE_COUNT=$FAILURE_COUNT" >> $GITHUB_OUTPUT
+            JTL_FILE=${{ steps.looking_for_jtl.outputs.JTL_FILE }}
+            SUCCESS_COUNT=$(awk -F, '$0 ~ /true/ {count++} END {print count}' "$JTL_FILE")
+            FAILURE_COUNT=$(awk -F, '$0 ~ /false/ {count++} END {print count}' "$JTL_FILE")
+            echo "Success: $SUCCESS_COUNT, Failure: $FAILURE_COUNT"
+            echo "SUCCESS_COUNT=$SUCCESS_COUNT" >> $GITHUB_OUTPUT
+            echo "FAILURE_COUNT=$FAILURE_COUNT" >> $GITHUB_OUTPUT
 
-      - name: Generate Pie Chart with Graph Charts Action
-        uses: graph-charts/action@v2
-        with:
-          title: "JMeter Test Results"
-          chart_type: "pie"
-          labels: "Success, Failure"
-          values: "${{ steps.count_results.outputs.SUCCESS_COUNT }},${{ steps.count_results.outputs.FAILURE_COUNT }}"
-          output_file: $GITHUB_WORKSPACE/jmeter_results/pie_chart.png
+      - name: Install gnuplot
+        run: sudo apt-get install -y gnuplot
+
+      - name: Generate Pie Chart with Gnuplot
+        run: |
+            # Générez le fichier de données pour gnuplot
+            echo "Success Failure" > $GITHUB_WORKSPACE/jmeter_results/data.txt
+            echo "${{ steps.count_results.outputs.SUCCESS_COUNT }} ${{ steps.count_results.outputs.FAILURE_COUNT }}" >> $GITHUB_WORKSPACE/jmeter_results/data.txt
+
+            # Générer le graphique en utilisant gnuplot
+            gnuplot -e "
+              set terminal svg size 400,400;
+              set output '$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg';
+              set style data pie;
+              plot '$GITHUB_WORKSPACE/jmeter_results/data.txt' using 2:xtic(1) with pie;
+            "
 
       - name: Upload Pie Chart to GitHub Summary
         run: |
-          echo "### JMeter Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "#### Success vs Failure" >> $GITHUB_STEP_SUMMARY
-          echo "![Pie Chart](jmeter_results/pie_chart.png)" >> $GITHUB_STEP_SUMMARY
+            echo "### JMeter Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "#### Success vs Failure" >> $GITHUB_STEP_SUMMARY
+            echo '<img src="data:image/svg+xml;base64,'$(base64 -w 0 "$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg")'" width="400"/>' >> $GITHUB_STEP_SUMMARY
