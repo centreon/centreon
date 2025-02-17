@@ -12,6 +12,7 @@ on:
         description: "Deuxième input"
         required: true
         type: string
+
   workflow_call:  # Permet d'exécuter depuis un autre workflow
     inputs:
       image_name:
@@ -163,40 +164,45 @@ jobs:
           name: jmeter-html-reports
           path: centreon/tests/performanceTesting/jmeterFolder/jmeter_html_report
 
-      - name: Generate Pie Chart for JMeter Results
+      - name: Display HTML Report in GitHub Summary
         run: |
-          echo "Processing JTL file..."
-          JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
+      - name: Display JMeter Report and Pie Chart in GitHub Summary
+        run: |
+          echo "Looking for JTL files..."
+          ls -la $GITHUB_WORKSPACE/jmeter_results
 
+          # Find a JTL file
+          JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
+          echo "Found JTL file: $JTL_FILE"
+
+          # Check if the file exists before using it
           if [ ! -f "$JTL_FILE" ]; then
               echo "Error: No JTL file found!"
               exit 1
           fi
 
-          # Compter le nombre de requêtes réussies et échouées
-          SUCCESS_COUNT=$(awk -F',' '$7 == "true" {count++} END {print count+0}' "$JTL_FILE")  # Ajout de +0 pour éviter les valeurs vides
-          FAILURE_COUNT=$(awk -F',' '$7 == "false" {count++} END {print count+0}' "$JTL_FILE")
+          # Comptabiliser succès et échecs
+          SUCCESS_COUNT=$(grep -c ",true," "$JTL_FILE")
+          FAILURE_COUNT=$(grep -c ",false," "$JTL_FILE")
+          TOTAL=$((SUCCESS_COUNT + FAILURE_COUNT))
 
           echo "Success: $SUCCESS_COUNT, Failure: $FAILURE_COUNT"
 
-          TOTAL=$((SUCCESS_COUNT + FAILURE_COUNT))
-
-          # Vérification pour éviter la division par zéro
-          if [ "$TOTAL" -eq 0 ]; then
-              echo "Error: No test results found in the JTL file!"
-              exit 1
+          # Calcul des angles pour le camembert
+          if [ "$TOTAL" -gt 0 ]; then
+              SUCCESS_ANGLE=$((360 * SUCCESS_COUNT / TOTAL))
+              FAILURE_ANGLE=$((360 - SUCCESS_ANGLE))
+          else
+              SUCCESS_ANGLE=0
+              FAILURE_ANGLE=0
           fi
-
-          # Calcul des angles pour un pie chart (360° au total)
-          SUCCESS_ANGLE=$((360 * SUCCESS_COUNT / TOTAL))
-          FAILURE_ANGLE=$((360 - SUCCESS_ANGLE))
 
           # Générer le camembert en SVG
           SVG_FILE="$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg"
           cat <<EOF > "$SVG_FILE"
           <svg width="200" height="200" viewBox="0 0 32 32">
-            <circle r="16" cx="16" cy="16" fill="#e74c3c"></circle>
-            <path d="M16 16 L16 0 A16 16 0 $([ "$SUCCESS_ANGLE" -gt 180 ] && echo 1 || echo 0) 1 $(awk -v angle="$SUCCESS_ANGLE" 'BEGIN { rad=angle*3.141592/180; printf "%.2f %.2f", 16+16*cos(rad), 16-16*sin(rad) }')" fill="#2ecc71"></path>
+              <circle r="16" cx="16" cy="16" fill="#e74c3c"></circle>
+              <path d="M16 16 L16 0 A16 16 0 $([ "$SUCCESS_ANGLE" -gt 180 ] && echo 1 || echo 0) 1 $(awk -v angle="$SUCCESS_ANGLE" 'BEGIN { rad=angle*3.141592/180; printf "%.2f %.2f", 16+16*cos(rad), 16-16*sin(rad) }')" fill="#2ecc71"></path>
           </svg>
           EOF
 
@@ -205,21 +211,34 @@ jobs:
           echo "#### Success vs Failure" >> $GITHUB_STEP_SUMMARY
           echo '<img src="data:image/svg+xml;base64,'$(base64 -w 0 "$SVG_FILE")'" width="200"/>' >> $GITHUB_STEP_SUMMARY
 
-      - name: Debug JTL File
-        run: |
-          echo "Listing JTL files..."
-          ls -la $GITHUB_WORKSPACE/jmeter_results
+          # Ajouter le tableau HTML des résultats
+          echo "<h2>JMeter Test Results</h2>" >> $GITHUB_STEP_SUMMARY
+          echo "<table style='width:100%; border-collapse: collapse; border: 1px solid #ddd; text-align: left;'>" >> $GITHUB_STEP_SUMMARY
+          echo "<thead><tr><th>Timestamp</th><th>Elapsed (ms)</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency (ms)</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
+          echo "<tbody>" >> $GITHUB_STEP_SUMMARY
 
-          JTL_FILE=$(ls $GITHUB_WORKSPACE/jmeter_results/*.jtl | head -n 1)
-          echo "Using JTL file: $JTL_FILE"
+          # Lire le fichier JTL et générer le tableau HTML
+          while IFS=',' read -r timestamp elapsed label response_code response_message thread_name data_type success failure_message bytes sent_bytes grp_threads all_threads url latency idle_time connect
+          do
+              # Skip the header row
+              if [ "$timestamp" == "timeStamp" ]; then
+                  continue
+              fi
 
-          echo "Displaying first 10 lines of the JTL file..."
-          head -n 10 "$JTL_FILE"
+              # Check if success is "true" for success (🟢), else failure (🔴)
+              if [ "$success" == "true" ]; then
+                  success_icon="🟢"
+              else
+                  success_icon="🔴"
+              fi
 
-      - name: Debug Pie Chart
-        run: |
-          echo "Checking if SVG file exists..."
-          ls -la $GITHUB_WORKSPACE/jmeter_results
+              # If Latency is "null", "0", or empty, set it to "N/A"
+              if [[ "$latency" == "null" || "$latency" == "0" || -z "$latency" ]]; then
+                  latency="N/A"
+              fi
 
-          echo "Displaying SVG file content..."
-          cat $GITHUB_WORKSPACE/jmeter_results/pie_chart.svg
+              # Generate the HTML table row
+              echo "<tr><td>$timestamp</td><td>$elapsed</td><td>$label</td><td>✅ $response_code</td><td>$response_message</td><td>$thread_name</td><td>$success_icon</td><td>$bytes</td><td>$latency</td></tr>" >> $GITHUB_STEP_SUMMARY
+          done < "$JTL_FILE"
+
+          echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
