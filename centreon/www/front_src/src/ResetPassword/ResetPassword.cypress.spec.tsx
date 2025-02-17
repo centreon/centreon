@@ -94,7 +94,6 @@ describe('Reset Password', () => {
 
   it('displays the reset password form', () => {
     mountComponentAndStub();
-
     cy.contains(labelResetPassword).should('be.visible');
     cy.findByLabelText(labelCurrentPassword).should('be.visible');
     cy.findByLabelText(labelNewPassword).should('be.visible');
