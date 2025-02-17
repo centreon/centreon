@@ -166,8 +166,6 @@ jobs:
 
       - name: Display HTML Report in GitHub Summary
         run: |
-      - name: Display JMeter Report and Pie Chart in GitHub Summary
-        run: |
           echo "Looking for JTL files..."
           ls -la $GITHUB_WORKSPACE/jmeter_results
 
