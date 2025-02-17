@@ -19691,7 +19691,7 @@ msgid "Delete host group"
 msgstr "Supprimer le groupe d'hôtes"
 
 msgid "Delete host groups"
-msgstr "Supprimer des groupe d'hôtes"
+msgstr "Supprimer les groupes d'hôtes"
 
 msgid "Host group deleted"
 msgstr "Groupe d'hôtes supprimé"
