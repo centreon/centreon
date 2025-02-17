@@ -20,6 +20,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Adaptation\Database\Collection;
+
 use Adaptation\Database\Collection\BatchInsertParameters;
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ValueObject\QueryParameter;
@@ -39,7 +41,7 @@ it('test batch insert parameters collection : add a query parameters with a good
 
 it('test batch insert parameters collection : add a query parameters with a bad type', function () {
     $queryParameters = new BatchInsertParameters();
-    $queryParameters->add('batch_insert_param_1', new stdClass());
+    $queryParameters->add('batch_insert_param_1', new \stdClass());
 })->throws(CollectionException::class);
 
 it('test batch insert parameters collection : create with good type', function () {
@@ -71,8 +73,8 @@ it('test batch insert parameters collection : create with good type', function (
 
 it('test batch insert parameters collection : create with bad type', function () {
     BatchInsertParameters::create([
-        new stdClass(),
-        new stdClass(),
-        new stdClass()
+        new \stdClass(),
+        new \stdClass(),
+        new \stdClass()
     ]);
 })->throws(CollectionException::class);

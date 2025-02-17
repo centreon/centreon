@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Adaptation\Database\Collection;
+
 use Adaptation\Database\Collection\QueryParameters;
 use Adaptation\Database\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
@@ -34,7 +36,7 @@ it('test query parameters collection : add a query parameter with a good type', 
 });
 
 it('test query parameters collection : add a query parameter with a bad type', function () {
-    $param = new stdClass();
+    $param = new \stdClass();
     $queryParameters = new QueryParameters();
     $queryParameters->add('name', $param);
 })->throws(CollectionException::class);
@@ -53,7 +55,7 @@ it('test query parameters collection : create with good type', function () {
 it('test query parameters collection : create with bad type', function () {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
-        'name_int' => new stdClass()
+        'name_int' => new \stdClass()
     ];
     QueryParameters::create($param);
 })->throws(CollectionException::class);

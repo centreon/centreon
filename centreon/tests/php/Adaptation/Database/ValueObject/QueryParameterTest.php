@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Adaptation\Database\ValueObject;
+
 use Adaptation\Database\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\ValueObjectException;
@@ -44,7 +46,7 @@ it('test query parameter value object : failed instanciation with create (empty 
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with create (bad type for string) ', function () {
-    QueryParameter::create('name', new stdClass());
+    QueryParameter::create('name', new \stdClass());
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with create (bad type for large object) ', function () {
@@ -76,7 +78,7 @@ it('test query parameter value object : failed instanciation with string type (e
 
 it('test query parameter value object : failed instanciation with string type (bad value) ', function () {
     QueryParameter::string('name', 0);
-})->throws(TypeError::class);
+})->throws(\TypeError::class);
 
 it('test query parameter value object : success instanciation with int type', function () {
     $param = QueryParameter::int('name', 1);
@@ -91,7 +93,7 @@ it('test query parameter value object : failed instanciation with int type (empt
 
 it('test query parameter value object : failed instanciation with int type (bad value) ', function () {
     QueryParameter::int('name', 'value');
-})->throws(TypeError::class);
+})->throws(\TypeError::class);
 
 it('test query parameter value object : success instanciation with bool type', function () {
     $param = QueryParameter::bool('name', true);
@@ -106,7 +108,7 @@ it('test query parameter value object : failed instanciation with bool type (emp
 
 it('test query parameter value object : failed instanciation with bool type (bad value) ', function () {
     QueryParameter::bool('name', 1);
-})->throws(TypeError::class);
+})->throws(\TypeError::class);
 
 it('test query parameter value object : success instanciation with null type', function () {
     $param = QueryParameter::null('name');
