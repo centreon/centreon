@@ -179,10 +179,6 @@ jobs:
               exit 1
           fi
 
-          # Vérification du contenu du fichier
-          echo "Displaying the first 10 lines of the JTL file:"
-          head -n 10 "$JTL_FILE"
-
           # Comptabiliser succès et échecs
           SUCCESS_COUNT=$(grep -c ",true," "$JTL_FILE")
           FAILURE_COUNT=$(grep -c ",false," "$JTL_FILE")
@@ -213,35 +209,3 @@ jobs:
           echo "### JMeter Test Results" >> $GITHUB_STEP_SUMMARY
           echo "#### Success vs Failure" >> $GITHUB_STEP_SUMMARY
           echo '<img src="data:image/svg+xml;base64,'$(base64 -w 0 "$SVG_FILE")'" width="200"/>' >> $GITHUB_STEP_SUMMARY
-
-          # Ajouter le tableau HTML des résultats
-          echo "<h2>JMeter Test Results</h2>" >> $GITHUB_STEP_SUMMARY
-          echo "<table style='width:100%; border-collapse: collapse; border: 1px solid #ddd; text-align: left;'>" >> $GITHUB_STEP_SUMMARY
-          echo "<thead><tr><th>Timestamp</th><th>Elapsed (ms)</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency (ms)</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
-          echo "<tbody>" >> $GITHUB_STEP_SUMMARY
-
-          # Lire le fichier JTL et générer le tableau HTML
-          while IFS=',' read -r timestamp elapsed label response_code response_message thread_name data_type success failure_message bytes sent_bytes grp_threads all_threads url latency idle_time connect
-          do
-              # Skip the header row
-              if [ "$timestamp" == "timeStamp" ]; then
-                  continue
-              fi
-
-              # Check if success is "true" for success (🟢), else failure (🔴)
-              if [ "$success" == "true" ]; then
-                  success_icon="🟢"
-              else
-                  success_icon="🔴"
-              fi
-
-              # If Latency is "null", "0", or empty, set it to "N/A"
-              if [[ "$latency" == "null" || "$latency" == "0" || -z "$latency" ]]; then
-                  latency="N/A"
-              fi
-
-              # Generate the HTML table row
-              echo "<tr><td>$timestamp</td><td>$elapsed</td><td>$label</td><td>✅ $response_code</td><td>$response_message</td><td>$thread_name</td><td>$success_icon</td><td>$bytes</td><td>$latency</td></tr>" >> $GITHUB_STEP_SUMMARY
-          done < "$JTL_FILE"
-
-          echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
