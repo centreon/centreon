@@ -855,7 +855,7 @@ function updateContactHostCommands(int $contactId, array $fields = []): bool
             );
         }
         return true;
-    } catch (ConnectionException $e) {
+    } catch (\Throwable $e) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             "Error while updating the relationship between contacts and host commands",
