@@ -17,6 +17,8 @@ interface Props {
 const Label = forwardRef<HTMLParagraphElement, Props>(
   ({ metricTop, index }, ref) => {
     const { classes } = useTopBottomStyles({});
+    const prefix = `#${inc(index)}`;
+    const title = `${prefix} ${metricTop.parentName}_${metricTop.name}`;
 
     return (
       <div className={classes.tooltipContainer}>
@@ -32,9 +34,7 @@ const Label = forwardRef<HTMLParagraphElement, Props>(
               target="_blank"
               to={getResourcesUrlForMetricsWidgets(metricTop)}
             >
-              <strong>
-                #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
-              </strong>
+              <strong>{title}</strong>
             </Link>
           </Typography>
         </Tooltip>

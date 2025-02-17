@@ -252,7 +252,7 @@ describe('TopBottom', () => {
 
   it('does not display the labels when the corresponding setting is disabled', () => {
     initializeComponent({
-      topMetricsPath:'Widgets/Graph/topBottom.json',
+      topMetricsPath: 'Widgets/Graph/topBottom.json',
       topBottomSettings: {
         numberOfValues: 5,
         order: 'bottom',
