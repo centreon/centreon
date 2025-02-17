@@ -177,7 +177,7 @@ jobs:
                 echo "<thead><tr><th>Timestamp</th><th>Elapsed (ms)</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency (ms)</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
                 echo "<tbody>" >> $GITHUB_STEP_SUMMARY
 
-                # Initialize line counter
+                # Initialize line counter for data rows only
                 line_counter=0
 
                 # Read the JTL file line by line and generate the HTML rows
@@ -188,8 +188,13 @@ jobs:
                         continue
                     fi
 
-                    # Increment the line counter
+                    # Increment the line counter for data rows only
                     line_counter=$((line_counter + 1))
+
+                    # If more than 5 rows, stop processing further rows and break the loop
+                    if [ "$line_counter" -gt 5 ]; then
+                        break
+                    fi
 
                     # Check if success is "true" for success (🟢), else failure (🚨)
                     if [ "$success" == "true" ]; then
@@ -207,7 +212,7 @@ jobs:
                     echo "<tr><td>$timestamp</td><td>$elapsed</td><td>$label</td><td>✅ $response_code</td><td>$response_message</td><td>$thread_name</td><td>$success_icon</td><td>$bytes</td><td>$latency</td></tr>" >> $GITHUB_STEP_SUMMARY
                 done < "$JTL_FILE"
 
-                # Check if there are more than 5 rows and add a message if true
+                # If there were more than 5 data rows, add a message to the table
                 if [ "$line_counter" -gt 5 ]; then
                     echo "<tr><td colspan='9' style='color: red;'> ℹ️ Please refer to the artifact for more details.</td></tr>" >> $GITHUB_STEP_SUMMARY
                 fi
