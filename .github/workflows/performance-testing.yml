@@ -174,13 +174,20 @@ jobs:
           fi
 
           # Compter le nombre de requêtes réussies et échouées
-          SUCCESS_COUNT=$(awk -F',' '$7 == "true" {count++} END {print count}' "$JTL_FILE")
-          FAILURE_COUNT=$(awk -F',' '$7 == "false" {count++} END {print count}' "$JTL_FILE")
+          SUCCESS_COUNT=$(awk -F',' '$7 == "true" {count++} END {print count+0}' "$JTL_FILE")  # Ajout de +0 pour éviter les valeurs vides
+          FAILURE_COUNT=$(awk -F',' '$7 == "false" {count++} END {print count+0}' "$JTL_FILE")
 
           echo "Success: $SUCCESS_COUNT, Failure: $FAILURE_COUNT"
 
-          # Calcul des angles pour un pie chart (360° au total)
           TOTAL=$((SUCCESS_COUNT + FAILURE_COUNT))
+
+          # Vérification pour éviter la division par zéro
+          if [ "$TOTAL" -eq 0 ]; then
+              echo "Error: No test results found in the JTL file!"
+              exit 1
+          fi
+
+          # Calcul des angles pour un pie chart (360° au total)
           SUCCESS_ANGLE=$((360 * SUCCESS_COUNT / TOTAL))
           FAILURE_ANGLE=$((360 - SUCCESS_ANGLE))
 
