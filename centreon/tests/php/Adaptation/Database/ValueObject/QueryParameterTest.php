@@ -56,6 +56,18 @@ it('test query parameter value object : success instanciation with string type',
     expect($param->getName())->toBe('name')
         ->and($param->getValue())->toBe('value')
         ->and($param->getType())->toBe(QueryParameterTypeEnum::STRING);
+    $param = QueryParameter::string('age', '25');
+    expect($param->getName())->toBe('age')
+        ->and($param->getValue())->toBe('25')
+        ->and($param->getType())->toBe(QueryParameterTypeEnum::STRING);
+    $param = QueryParameter::string('active', 'false');
+    expect($param->getName())->toBe('active')
+        ->and($param->getValue())->toBe('false')
+        ->and($param->getType())->toBe(QueryParameterTypeEnum::STRING);
+    $param = QueryParameter::string('price', '9.99');
+    expect($param->getName())->toBe('price')
+        ->and($param->getValue())->toBe('9.99')
+        ->and($param->getType())->toBe(QueryParameterTypeEnum::STRING);
 });
 
 it('test query parameter value object : failed instanciation with string type (empty name) ', function () {
