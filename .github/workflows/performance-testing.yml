@@ -197,13 +197,15 @@ jobs:
           echo "SUCCESS_ANGLE: $SUCCESS_ANGLE, FAILURE_ANGLE: $FAILURE_ANGLE"
 
           # Générer le camembert en SVG
-          SVG_FILE="$GITHUB_WORKSPACE/jmeter_results/pie_chart.svg"
+          echo "Creating SVG file..."
           cat <<EOF > "$SVG_FILE"
           <svg width="200" height="200" viewBox="0 0 32 32">
               <circle r="16" cx="16" cy="16" fill="#e74c3c"></circle>
               <path d="M16 16 L16 0 A16 16 0 $([ "$SUCCESS_ANGLE" -gt 180 ] && echo 1 || echo 0) 1 $(awk -v angle="$SUCCESS_ANGLE" 'BEGIN { rad=angle*3.141592/180; printf "%.2f %.2f", 16+16*cos(rad), 16-16*sin(rad) }')" fill="#2ecc71"></path>
           </svg>
           EOF
+          echo "SVG file created: $SVG_FILE"
+
 
           # Ajouter le camembert au GitHub Summary
           echo "### JMeter Test Results" >> $GITHUB_STEP_SUMMARY
