@@ -206,7 +206,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * Returns the ID of the last inserted row.
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
-     * @throws \Adaptation\Database\Connection\Exception\ConnectionException
+     * @throws ConnectionException
      * @return string
      */
     public function getLastInsertId(): string

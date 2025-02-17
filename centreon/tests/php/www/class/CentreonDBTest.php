@@ -71,7 +71,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
 }
 
 /**
- * @param \Adaptation\Database\Connection\Model\ConnectionConfig $connectionConfig
+ * @param ConnectionConfig $connectionConfig
  *
  * @return bool
  */
