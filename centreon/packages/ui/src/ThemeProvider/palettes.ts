@@ -27,6 +27,8 @@ declare module '@mui/material/styles/createPalette' {
     acknowledgedBackground: string;
     inDowntime: string;
     inDowntimeBackground: string;
+    inFlapping: string;
+    inFlappingBackground: string;
   }
 }
 
@@ -159,11 +161,13 @@ export const lightPalette: PaletteOptions = {
   action: {
     acknowledged: '#745F35',
     acknowledgedBackground: '#DFD2B9',
+    inFlapping: '#064A3F',
+    inFlappingBackground: '#D8F3EF',
     activatedOpacity: 0.12,
     active: '#666666',
     disabled: '#999999',
     disabledBackground: 'rgba(0, 0, 0, 0.12)',
-    focus: 'rgba(0, 0, 0, 0.12)',
+    focus: '#dadada',
     focusOpacity: 0.12,
     hover: 'rgba(0, 0, 0, 0.06)',
     hoverOpacity: 0.06,
@@ -299,11 +303,13 @@ export const darkPalette: PaletteOptions = {
   action: {
     acknowledged: '#DFD2B9',
     acknowledgedBackground: '#745F35',
+    inFlapping: '#D8F3EF',
+    inFlappingBackground: '#064A3F',
     activatedOpacity: 0.3,
     active: '#B5B5B5',
     disabled: '#999999',
     disabledBackground: '#555555',
-    focus: 'rgba(255, 255, 255, 0.30)',
+    focus: '#6d6d6d',
     focusOpacity: 0.3,
     hover: 'rgba(255, 255, 255, 0.16)',
     hoverOpacity: 0.16,

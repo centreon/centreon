@@ -4,6 +4,8 @@ post:
   summary: "Update the media content on the file system"
   description: |
     Updates on the file system the contents of the file linked to the provided media ID
+  parameters:
+    - $ref: 'QueryParameter/mediaId.yaml'
   requestBody:
     required: true
     content:

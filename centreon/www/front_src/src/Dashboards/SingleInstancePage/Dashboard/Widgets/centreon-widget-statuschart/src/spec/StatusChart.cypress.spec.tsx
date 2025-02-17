@@ -1,6 +1,6 @@
 import { Provider, createStore } from 'jotai';
 import { equals, last } from 'ramda';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
@@ -156,8 +156,6 @@ displayTypes.forEach(({ displayType, label }) => {
       });
 
       cy.get(`[data-variant="${displayType}"]`).should('exist');
-
-      cy.makeSnapshot();
     });
 
     it('displays charts with the default values', () => {
@@ -179,8 +177,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '19.8%');
-
-      cy.makeSnapshot(`${label} : displays charts with the default values`);
     });
 
     it(`displays a ${label} for services when the resource type is set to service and displayType to ${displayType}`, () => {
@@ -196,8 +192,6 @@ displayTypes.forEach(({ displayType, label }) => {
       cy.findByText('212 hosts').should('not.exist');
       cy.contains('678');
       cy.contains('services');
-
-      cy.makeSnapshot();
     });
 
     it(`displays a ${label} for hosts when the resource type is set to host and displayType to ${displayType}`, () => {
@@ -213,8 +207,6 @@ displayTypes.forEach(({ displayType, label }) => {
       cy.contains('212');
       cy.contains('hosts');
       cy.findByText('678 services').should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('conditionally displays the legend based on displayLegend prop', () => {
@@ -241,10 +233,6 @@ displayTypes.forEach(({ displayType, label }) => {
       });
 
       cy.findByTestId('Legend').should('be.visible');
-
-      cy.makeSnapshot(
-        `${label} : conditionally displays the legend based on displayLegend prop`
-      );
     });
 
     it('conditionally displays values based on displayValues prop', () => {
@@ -275,10 +263,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '5.8%');
-
-      cy.makeSnapshot(
-        `${label} : conditionally displays values based on displayValues prop`
-      );
     });
 
     it('displays values with the unit "number" when the displayValues is set to true and unit to number', () => {
@@ -297,8 +281,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '39');
-
-      cy.makeSnapshot(`${label} : displays values with the unit "number"`);
     });
 
     describe('Tooltip', () => {
@@ -346,10 +328,6 @@ displayTypes.forEach(({ displayType, label }) => {
           );
 
           cy.contains('February 1, 2024').should('be.visible');
-
-          cy.makeSnapshot(
-            `${label} : 'displays tooltip with correct information on hover for type ${resourceType}`
-          );
         });
       });
     });

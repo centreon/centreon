@@ -3,7 +3,7 @@ import { ReactElement, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Box, Typography } from '@mui/material';
@@ -30,6 +30,7 @@ import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 
+import { onlyFavoriteDashboardsAtom } from '../DashboardListing/Actions/favoriteFilter/atoms';
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
@@ -41,8 +42,10 @@ const DashboardsOverview = (): ReactElement => {
   const viewMode = useAtomValue(viewModeAtom);
   const search = useAtomValue(searchAtom);
   const user = useAtomValue(userAtom);
+  const onlyFavoriteDashboards = useAtomValue(onlyFavoriteDashboardsAtom);
 
-  const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
+  const { isEmptyList, dashboards, data, isLoading, refetch } =
+    useDashboardsOverview();
   const { createDashboard } = useDashboardConfig();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
@@ -84,20 +87,6 @@ const DashboardsOverview = (): ReactElement => {
     return <DashboardsOverviewSkeleton />;
   }
 
-  if (isEmptyList && !search && !isLoading) {
-    return (
-      <DataTable isEmpty={isEmptyList} variant="grid">
-        <DataTable.EmptyState
-          aria-label="create"
-          canCreate={canCreateOrManageDashboards}
-          data-testid="create-dashboard"
-          labels={emptyStateLabels}
-          onCreate={createDashboard}
-        />
-      </DataTable>
-    );
-  }
-
   const GridTable = (
     <div>
       <Box className={classes.warningContainer}>
@@ -111,7 +100,13 @@ const DashboardsOverview = (): ReactElement => {
           <div className={classes.dashboardItemContainer} key={dashboard.id}>
             <DataTable.Item
               hasCardAction
-              Actions={<DashboardCardActions dashboard={dashboard} />}
+              Actions={
+                <DashboardCardActions
+                  dashboard={dashboard}
+                  refetch={refetch}
+                  isFetchingListing={isLoading}
+                />
+              }
               description={dashboard.description ?? undefined}
               hasActions={hasEditPermission(dashboard)}
               thumbnail={
@@ -141,6 +136,22 @@ const DashboardsOverview = (): ReactElement => {
       </DataTable>
     </div>
   );
+
+  const isEmptyListing = isEmptyList && !search && !isLoading;
+
+  if (isEmptyListing && !onlyFavoriteDashboards) {
+    return (
+      <DataTable isEmpty={isEmptyList} variant="grid">
+        <DataTable.EmptyState
+          aria-label="create"
+          canCreate={canCreateOrManageDashboards}
+          data-testid="create-dashboard"
+          labels={emptyStateLabels}
+          onCreate={createDashboard}
+        />
+      </DataTable>
+    );
+  }
 
   return (
     <div className={classes.container}>

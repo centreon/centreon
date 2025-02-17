@@ -1,47 +1,60 @@
 import { equals } from 'ramda';
 import { lazy } from 'react';
 import { FederatedModule } from '../../../../federatedModules/models';
+import { PanelConfiguration } from '../models';
 
 const testWidgets =
   equals(window.Cypress?.testingType, 'component') &&
   !equals(process.env.NODE_ENV, 'production')
     ? [
         { name: 'data' },
-        { name: 'input' },
+        { name: 'input', panelDefaultWidth: 12, panelDefaultHeight: 6 },
         { name: 'singledata' },
         { name: 'text' }
       ]
     : [];
 
-const internalWidgets = [
+const internalWidgets: Array<
+  Omit<PanelConfiguration, 'path'> & { name: string }
+> = [
   ...testWidgets,
   {
     name: 'batree',
-    panelMinHeight: 5,
-    panelMinWidth: 6
+    panelMinHeight: 6,
+    panelMinWidth: 12,
+    panelDefaultWidth: 12,
+    panelDefaultHeight: 6
   },
   {
-    name: 'clock'
+    name: 'clock',
+    panelDefaultHeight: 3,
+    panelDefaultWidth: 6
   },
-  { name: 'generictext' },
+  { name: 'generictext', panelDefaultWidth: 6, panelDefaultHeight: 3 },
   {
     name: 'graph',
     panelMinHeight: 3,
-    panelMinWidth: 4
+    panelMinWidth: 8,
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12
   },
   {
     name: 'groupmonitoring',
-    panelMinWidth: 4,
-    panelMinHeight: 3
+    panelMinWidth: 8,
+    panelMinHeight: 3,
+    panelDefaultWidth: 12,
+    panelDefaultHeight: 4
   },
   {
     name: 'resourcestable',
-    panelMinWidth: 6,
-    panelMinHeight: 3
+    panelMinWidth: 12,
+    panelMinHeight: 3,
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12
   },
   { name: 'singlemetric' },
-  { name: 'statuschart' },
-  { name: 'statusgrid' },
+  { name: 'statuschart', panelMinWidth: 4, panelMinHeight: 3 },
+  { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },
   { name: 'webpage' }
 ];

@@ -1,10 +1,13 @@
 import type { SelectEntry } from '@centreon/ui';
 import { ComponentType, LazyExoticComponent } from 'react';
+import { WidgetType } from '../Dashboards/SingleInstancePage/Dashboard/AddEditWidget/models';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
   panelMinHeight?: number;
   panelMinWidth?: number;
+  panelDefaultWidth?: number;
+  panelDefaultHeight?: number;
   path: string;
   title?: string;
 }
@@ -134,4 +137,6 @@ export interface FederatedWidgetProperties {
     label: string;
     icon?: string;
   };
+  canExpand?: boolean;
+  widgetType: WidgetType;
 }

@@ -4,6 +4,7 @@ delete:
   summary: "Delete a poller/agent configuration's link to a poller"
   parameters:
     - $ref: 'QueryParameter/AgentConfigurationId.yaml'
+    - $ref: 'QueryParameter/PollerId.yaml'
   responses:
     '204':
       $ref: '../../Common/Response/NoContent.yaml'

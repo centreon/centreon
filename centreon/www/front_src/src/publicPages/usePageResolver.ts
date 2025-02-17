@@ -1,7 +1,7 @@
 import { ComponentType, LazyExoticComponent, useMemo, useRef } from 'react';
 
 import { fromPairs, replace } from 'ramda';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 import { ComponentProps, Parameters } from './models';
 import { routes } from './routes';
@@ -19,17 +19,16 @@ interface UsePageResolverState {
 
 export const usePageResolver = (): UsePageResolverState => {
   const { pathname } = usePageResolver.useLocation();
-  const parametersNamesRef = useRef([]);
+  const parametersNamesRef = useRef<Array<string>>([]);
 
   const formattedPathname = pathname.replace('/public', '');
 
   const matchedRoute = useMemo(
     () =>
       Object.entries(routes).find(([key]) => {
-        parametersNamesRef.current = key
-          .matchAll(/\[(?<param>\w+|\w+(-|_)\w+)\]/g)
-          .toArray()
-          .map((match) => match[1]);
+        parametersNamesRef.current = Array.from(
+          key.matchAll(/\[(?<param>\w+|\w+(-|_)\w+)\]/g)
+        ).map((match) => match[1]);
 
         return formattedPathname.match(getURLMatchRegExp(key));
       }),
@@ -37,9 +36,9 @@ export const usePageResolver = (): UsePageResolverState => {
   );
 
   const parameterValues = matchedRoute
-    ? formattedPathname
-        .matchAll(getURLMatchRegExp(matchedRoute[0]))
-        .toArray()[0]
+    ? Array.from(
+        formattedPathname.matchAll(getURLMatchRegExp(matchedRoute[0]))
+      )[0]
         .slice(1)
         .filter((v) => v)
     : [];

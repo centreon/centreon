@@ -3,7 +3,7 @@ import { lazy, useEffect } from 'react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createStore } from 'jotai';
 import { not, startsWith, tail } from 'ramda';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router';
 
 import { Module } from '@centreon/ui';
 
