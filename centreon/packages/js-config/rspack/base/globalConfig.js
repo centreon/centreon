@@ -65,7 +65,7 @@ module.exports = {
   output: {
     chunkFilename: isDev
       ? '[name].[chunkhash:8].chunk.js'
-      : `[name].[contenthash].[chunkhash].js?t=${Date.now()}`,
+      : '[name].[contenthash].[chunkhash].[hash].js',
     filename: isDev
       ? '[name].[chunkhash:8].js'
       : `[name].[contenthash].js?t=${Date.now()}`,
