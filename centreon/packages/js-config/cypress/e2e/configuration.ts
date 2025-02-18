@@ -63,7 +63,8 @@ export default ({
         return plugins(on, config);
       },
       specPattern,
-      supportFile: 'support/e2e.{js,jsx,ts,tsx}'
+      supportFile: 'support/e2e.{js,jsx,ts,tsx}',
+      testIsolation: true,
     },
     env: {
       ...env,
@@ -82,7 +83,6 @@ export default ({
       runMode: 2
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    testIsolation: true,
     video: isDevelopment,
     videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`,
