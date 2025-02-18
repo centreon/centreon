@@ -250,6 +250,5 @@ afterEach(() => {
   cy
     .visitEmptyPage()
     .copyWebContainerLogs({ name: 'web' })
-    .wait(10000)
     .stopContainer({ name: 'web' });
 });
