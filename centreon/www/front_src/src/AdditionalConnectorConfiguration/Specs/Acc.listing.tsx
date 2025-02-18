@@ -98,7 +98,7 @@ export default (): void => {
         expect(JSON.parse(request.url.searchParams.get('page'))).to.equal(2);
       });
     });
-    it.only('executes a listing request with sort parameter when a sortable column is clicked`', () => {
+    it('executes a listing request with sort parameter when a sortable column is clicked`', () => {
       initializeListing();
 
       columnToSort.forEach(({ label, id }) => {
