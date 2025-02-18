@@ -27,9 +27,9 @@ const internalWidgets: Array<
   },
   {
     name: 'metriccapacityplanning',
-    panelMinHeight: 8,
+    panelMinHeight: 4,
     panelMinWidth: 8,
-    panelDefaultHeight: 8,
+    panelDefaultHeight: 5,
     panelDefaultWidth: 12
   },
   {

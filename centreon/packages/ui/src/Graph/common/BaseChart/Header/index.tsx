@@ -18,7 +18,6 @@ const Header = ({ title, header }: Props): JSX.Element => {
   return useMemoComponent({
     Component: (
       <div className={classes.header}>
-        <div />
         <div>
           {displayTitle && (
             <Typography align="center" variant="body1">

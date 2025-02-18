@@ -43,6 +43,6 @@ interface PanelOptions {
   yAxisTickLabelRotation: number;
 }
 export interface WidgetProps extends CommonWidgetProps<PanelOptions> {
-  panelData: Pick<Data, 'resources'>;
+  panelData: Data;
   panelOptions: PanelOptions;
 }

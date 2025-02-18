@@ -1,3 +1,4 @@
+import { isEmpty } from 'ramda';
 import FederatedComponent from '../../../../../../components/FederatedComponents';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
@@ -17,7 +18,10 @@ const Widget = ({
   isFromPreview,
   queryClient
 }: WidgetProps): JSX.Element => {
-  if (!areResourcesFullfilled(panelData.resources)) {
+  if (
+    !areResourcesFullfilled(panelData.resources) ||
+    isEmpty(panelData.metrics)
+  ) {
     return <NoResources />;
   }
   return (
