@@ -31,6 +31,7 @@ systemctl stop centengine
 systemctl stop cbd
 systemctl stop httpd
 systemctl stop php-fpm
+systemctl stop snmpd
 
 dnf clean all
 

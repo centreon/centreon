@@ -37,6 +37,7 @@ systemctl stop centengine
 systemctl stop cbd
 systemctl stop apache2
 systemctl stop php8.2-fpm
+systemctl stop snmpd
 
 apt-get clean
 

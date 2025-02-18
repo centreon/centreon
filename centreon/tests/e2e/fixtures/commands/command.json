@@ -1,6 +1,6 @@
 {
     "notification": {
-        "name": "notification_cmd",
+        "name": "A_notification_cmd",
         "type": 1,
         "command_line": "string",
         "is_shell": false,
@@ -11,7 +11,7 @@
         "graph_template_id": 4
     },
     "check": {
-        "name": "check_cmd",
+        "name": "A_check_cmd",
         "type": 2,
         "command_line": "string",
         "is_shell": false,
@@ -23,7 +23,7 @@
     },
     
     "miscellaneous": {
-        "name": "miscellaneous_cmd",
+        "name": "A_miscellaneous_cmd",
         "type": 3,
         "command_line": "string",
         "is_shell": false,
@@ -34,7 +34,7 @@
         "graph_template_id": 4
     },
     "discovery": {
-        "name": "discovery_cmd",
+        "name": "A_discovery_cmd",
         "type": 4,
         "command_line": "string",
         "is_shell": false,
