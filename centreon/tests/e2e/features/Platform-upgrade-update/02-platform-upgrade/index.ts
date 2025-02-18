@@ -250,5 +250,8 @@ afterEach(() => {
   cy
     .visitEmptyPage()
     .copyWebContainerLogs({ name: 'web' })
-    .stopContainer({ name: 'web' });
+    .stopContainer({ name: 'web' })
+    .clearCookies()
+    .clearLocalStorage()
+    .clearAllSessionStorage();
 });
