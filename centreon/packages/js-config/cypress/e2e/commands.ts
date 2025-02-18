@@ -587,40 +587,33 @@ Cypress.Commands.add(
 Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
   cy.log('Stopping containers ...');
 
-  const logDirectory = `results/logs/${Cypress.spec.name.replace(
-    artifactIllegalCharactersMatcher,
-    '_'
-  )}/${Cypress.currentTest.title.replace(
-    artifactIllegalCharactersMatcher,
-    '_'
-  )}`;
-
   const name = 'web';
 
   return cy
     .visitEmptyPage()
-    .createDirectory(logDirectory)
-    .getContainersLogs()
-    .then((containersLogs: Array<Array<string>>) => {
-      if (!containersLogs) {
-        return;
-      }
+    .getLogDirectory()
+    .then((logDirectory) => {
+      return cy
+        .getContainersLogs()
+        .then((containersLogs: Array<Array<string>>) => {
+          if (!containersLogs) {
+            return;
+          }
 
-      return cy.getLogDirectory().then((logDirectory) => {
-        Object.entries(containersLogs).forEach(([containerName, logs]) => {
-          cy.writeFile(
-            `${logDirectory}/container-${containerName}.log`,
-            logs
-          );
-        });
-      });
-    })
-    .copyWebContainerLogs({ name })
-    .task(
-      'stopContainers',
-      {},
-      { timeout: 600000 } // 10 minutes because docker pull can be very slow
-    );
+          Object.entries(containersLogs).forEach(([containerName, logs]) => {
+            cy.writeFile(
+              `${logDirectory}/container-${containerName}.log`,
+              logs
+            );
+          });
+        })
+        .copyWebContainerLogs({ name })
+        .task(
+          'stopContainers',
+          {},
+          { timeout: 600000 } // 10 minutes because docker pull can be very slow
+        );
+    });
 });
 
 Cypress.Commands.add(

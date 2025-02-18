@@ -246,7 +246,7 @@ EOF`,
   }
 );
 
-afterEach(() => {
+after(() => {
   cy
     .visitEmptyPage()
     .copyWebContainerLogs({ name: 'web' })

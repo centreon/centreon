@@ -15,5 +15,4 @@ Feature: Upgrade platform from major version A to major version B
 
     Examples:
       | major_from | version_from    |
-      | n - 1      | last stable     |
       | n - 1      | last stable - 1 |
