@@ -519,9 +519,6 @@ describe('column sorting', () => {
     columnToSort.forEach(({ label, id, sortField }) => {
       const sortBy = (sortField || id) as string;
 
-      cy.contains('notification1');
-      cy.contains('notification2');
-
       cy.findByLabelText(`Column ${label}`).click();
 
       cy.waitForRequestAndVerifyQueries({
@@ -529,9 +526,16 @@ describe('column sorting', () => {
         requestAlias: `dataToListingTableDesc${label}`
       });
 
-      cy.makeSnapshot(
-        `column sorting --  executes a listing request when the ${label} column is clicked`
-      );
+      cy.findByLabelText(`Column ${label}`).click();
+
+      cy.waitForRequestAndVerifyQueries({
+        queries: [{ key: 'sort_by', value: { [sortBy]: 'asc' } }],
+        requestAlias: `dataToListingTableAsc${label}`
+      });
+
+      cy.contains('notification1');
     });
+
+    cy.makeSnapshot();
   });
 });
