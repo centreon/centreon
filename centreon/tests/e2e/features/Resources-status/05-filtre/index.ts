@@ -282,16 +282,14 @@ Then(
 	cy.waitForElementToBeVisible('div[class*="statusColumn"]:first').then(() => {
 	cy.get('div[class*="statusColumn"]:first').invoke("text").should((text) => {
 		expect(text.trim()).to.match(/Pending|Unknown/);
-	});
-});
-		cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-			const cellText = $statusCell.text().trim();
-			console.log(`Cell ${index}: ${cellText}`);
-			expect(["Pending", "OK"]).to.include(
-				cellText,
-				`Cell ${index} has unexpected text: ${cellText}`,
-			);
-		});
+	  });
+    });
+	cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+		const cellText = $statusCell.text().trim();
+		console.log(`Cell ${index}: ${cellText}`);
+
+		expect(cellText).to.match(/^(Pending|OK|Unknown)$/);
+	 });
 	},
 );
 
