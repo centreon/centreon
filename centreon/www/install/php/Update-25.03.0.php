@@ -212,6 +212,25 @@ $removeFieldFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$error
         DELETE FROM cfg_centreonbroker_info WHERE config_key = 'check_replication'
         SQL
     );
+
+// -------------------------------------------- Downtimes -------------------------------------------- //
+/**
+ * Create index for resources table.
+ *
+ * @param CentreonDB $realtimeDb
+ *
+ * @throws CentreonDbException
+ */
+$createIndexForDowntimes = function (CentreonDB $realtimeDb): void {
+    try {
+        $realtimeDb->executeQuery('CREATE INDEX IF NOT EXISTS `downtimes_end_time_index` ON downtimes (`end_time`)');
+    } catch (CentreonDbException $e) {
+        throw new CentreonDbException(
+            "Unable to create index for downtimes: {$e->getMessage()}",
+            $e->getOptions(),
+            $e
+        );
+    }
 };
 
 try {
@@ -220,6 +239,7 @@ try {
     $changeAccNameInTopology($pearDB);
     $addColumnToResourcesTable($pearDBO);
     $removeConstraintFromBrokerConfiguration($pearDB);
+    $createIndexForDowntimes($pearDBO);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
