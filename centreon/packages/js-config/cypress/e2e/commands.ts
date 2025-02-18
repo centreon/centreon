@@ -514,7 +514,7 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'getLogDirectory',
   (): Cypress.Chainable => {
-    const logDirectory = `results/logs/${Cypress.spec.name.replace(
+    const logDirectory = `${Cypress.config('videosFolder')}/../logs/${Cypress.spec.name.replace(
         artifactIllegalCharactersMatcher,
         '_'
       )}/${Cypress.currentTest.title.replace(
