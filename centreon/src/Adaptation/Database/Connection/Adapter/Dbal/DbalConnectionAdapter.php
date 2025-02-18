@@ -28,6 +28,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\Trait\CentreonConnectionTrait;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
 use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
@@ -49,8 +50,9 @@ use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
  */
 final class DbalConnectionAdapter implements ConnectionInterface
 {
-    use ConnectionTrait;
     use LoggerTrait;
+    use ConnectionTrait;
+    use CentreonConnectionTrait;
 
     /**
      * By default, the queries are buffered.
@@ -252,7 +254,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return (int) $this->dbalConnection->executeStatement($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return (int) $this->dbalConnection->executeStatement($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -294,7 +296,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->fetchNumeric($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->fetchNumeric($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -333,7 +335,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->fetchAssociative($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->fetchAssociative($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -373,7 +375,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->fetchOne($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->fetchOne($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -412,7 +414,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->fetchFirstColumn($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->fetchFirstColumn($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -451,7 +453,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->fetchAllNumeric($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->fetchAllNumeric($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -490,7 +492,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->fetchAllAssociative($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->fetchAllAssociative($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -530,7 +532,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->fetchAllKeyValue($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->fetchAllKeyValue($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -574,7 +576,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->iterateNumeric($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->iterateNumeric($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -610,7 +612,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->iterateAssociative($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->iterateAssociative($query, $params, $types);
         } catch (\Throwable $exception) {
@@ -645,7 +647,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
                 return $this->dbalConnection->iterateColumn($query);
             }
 
-            [$params, $types] = DbalParametersTransformer::transform($queryParameters);
+            [$params, $types] = DbalParametersTransformer::transformFromQueryParameters($queryParameters);
 
             return $this->dbalConnection->iterateColumn($query, $params, $types);
         } catch (\Throwable $exception) {
