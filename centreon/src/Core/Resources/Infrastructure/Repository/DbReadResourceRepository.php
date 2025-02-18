@@ -827,6 +827,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         $subRequestFilterParentIds = implode(', ', $filteredParentIds);
+
         return <<<SQL
 
             AND (
@@ -884,10 +885,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $sqlState = [];
             $sqlStateCatalog = [
                 ResourceFilter::STATE_RESOURCES_PROBLEMS => '(resources.status != 0 AND resources.status != 4)',
-                ResourceFilter::STATE_UNHANDLED_PROBLEMS => <<<SQL
-                    
+                ResourceFilter::STATE_UNHANDLED_PROBLEMS => <<<'SQL'
                     (
-                        resources.status != 0 
+                        resources.status != 0
                         AND resources.status != 4
                         AND resources.acknowledged = 0
                         AND resources.in_downtime = 0
