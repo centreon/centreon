@@ -198,7 +198,8 @@ jobs:
           echo "Modified Feature Name: $feature_name_with_dash"
           echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
 
-      - name: results
+      - name: show results
+        if: always()
         run: |
           ls -lR ${{ inputs.module_name }}/tests/e2e/results/
 
