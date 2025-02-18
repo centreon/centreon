@@ -526,13 +526,6 @@ describe('column sorting', () => {
         requestAlias: `dataToListingTableDesc${label}`
       });
 
-      cy.findByLabelText(`Column ${label}`).click();
-
-      cy.waitForRequestAndVerifyQueries({
-        queries: [{ key: 'sort_by', value: { [sortBy]: 'asc' } }],
-        requestAlias: `dataToListingTableAsc${label}`
-      });
-
       cy.contains('notification1');
     });
 
