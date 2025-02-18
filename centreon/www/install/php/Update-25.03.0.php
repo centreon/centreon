@@ -221,16 +221,9 @@ $removeFieldFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$error
  *
  * @throws CentreonDbException
  */
-$createIndexForDowntimes = function (CentreonDB $realtimeDb): void {
-    try {
-        $realtimeDb->executeQuery('CREATE INDEX IF NOT EXISTS `downtimes_end_time_index` ON downtimes (`end_time`)');
-    } catch (CentreonDbException $e) {
-        throw new CentreonDbException(
-            "Unable to create index for downtimes: {$e->getMessage()}",
-            $e->getOptions(),
-            $e
-        );
-    }
+$createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
+    $errorMessage = 'Unable to create index for downtimes table';
+    $realtimeDb->executeQuery('CREATE INDEX IF NOT EXISTS `downtimes_end_time_index` ON downtimes (`end_time`)');
 };
 
 try {
@@ -252,6 +245,8 @@ try {
 
     $pearDB->commit();
 
+    $pearDB->commit();
+
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
@@ -265,8 +260,17 @@ try {
         exception: $e
     );
 
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
+    try {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+    } catch (PDOException $ex) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+            customContext: ['error_message' => $ex->getMessage(), 'trace' => $e->getTraceAsString()],
+            exception: $ex
+        );
     }
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
