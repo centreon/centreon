@@ -41,6 +41,7 @@ interface PanelOptions {
   nbDays: number;
   base: string;
   yAxisTickLabelRotation: number;
+  showThresholds: boolean;
 }
 export interface WidgetProps extends CommonWidgetProps<PanelOptions> {
   panelData: Data;

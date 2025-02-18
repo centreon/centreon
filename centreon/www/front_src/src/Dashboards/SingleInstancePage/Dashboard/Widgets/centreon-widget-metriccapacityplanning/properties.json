@@ -51,6 +51,11 @@
         }
       ]
     },
+    "showThresholds": {
+      "type": "switch",
+      "label": "Thresholds",
+      "defaultValue": true
+    },
     "refreshInterval": {
       "type": "refresh-interval",
       "defaultValue": "default",
