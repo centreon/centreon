@@ -44,14 +44,14 @@ abstract readonly class DbalParametersTransformer
      * @throws TransformerException
      * @return array{0: array<string,mixed>, 1: array<string,mixed>}
      */
-    public static function transform(QueryParameters $queryParameters): array
+    public static function transformFromQueryParameters(QueryParameters $queryParameters): array
     {
         $params = [];
         $types = [];
         foreach ($queryParameters->getIterator() as $queryParameter) {
             $params[$queryParameter->getName()] = $queryParameter->getValue();
             if (! is_null($queryParameter->getType())) {
-                $types[$queryParameter->getName()] = DbalParameterTypeTransformer::transform(
+                $types[$queryParameter->getName()] = DbalParameterTypeTransformer::transformFromQueryParameterType(
                     $queryParameter->getType()
                 );
             }
@@ -67,12 +67,12 @@ abstract readonly class DbalParametersTransformer
      * @throws TransformerException
      * @return QueryParameters
      */
-    public static function reverse(array $params, array $types): QueryParameters
+    public static function reverseToQueryParameters(array $params, array $types): QueryParameters
     {
         try {
             $queryParameters = new QueryParameters();
             foreach ($params as $name => $value) {
-                $type = DbalParameterTypeTransformer::reverse($types[$name] ?? DbalParameterType::STRING);
+                $type = DbalParameterTypeTransformer::reverseToQueryParameterType($types[$name] ?? DbalParameterType::STRING);
                 $queryParameter = QueryParameter::create($name, $value, $type);
                 $queryParameters->add($queryParameter->getName(), $queryParameter);
             }

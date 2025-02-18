@@ -39,7 +39,7 @@ abstract readonly class PdoParameterTypeTransformer
      *
      * @return int
      */
-    public static function transform(QueryParameterTypeEnum $queryParameterType): int
+    public static function transformFromQueryParameterType(QueryParameterTypeEnum $queryParameterType): int
     {
         return match ($queryParameterType) {
             QueryParameterTypeEnum::NULL => \PDO::PARAM_NULL,
@@ -56,7 +56,7 @@ abstract readonly class PdoParameterTypeTransformer
      * @throws TransformerException
      * @return QueryParameterTypeEnum
      */
-    public static function reverse(int $pdoParameterType): QueryParameterTypeEnum
+    public static function reverseToQueryParameterType(int $pdoParameterType): QueryParameterTypeEnum
     {
         return match ($pdoParameterType) {
             \PDO::PARAM_NULL => QueryParameterTypeEnum::NULL,

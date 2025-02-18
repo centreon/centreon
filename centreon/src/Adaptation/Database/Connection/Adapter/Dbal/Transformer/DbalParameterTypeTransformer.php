@@ -40,7 +40,7 @@ abstract readonly class DbalParameterTypeTransformer
      *
      * @return DbalParameterType
      */
-    public static function transform(QueryParameterTypeEnum $queryParameterTypeEnum): DbalParameterType
+    public static function transformFromQueryParameterType(QueryParameterTypeEnum $queryParameterTypeEnum): DbalParameterType
     {
         return match ($queryParameterTypeEnum) {
             QueryParameterTypeEnum::STRING => DbalParameterType::STRING,
@@ -57,7 +57,7 @@ abstract readonly class DbalParameterTypeTransformer
      * @throws TransformerException
      * @return QueryParameterTypeEnum
      */
-    public static function reverse(DbalParameterType $dbalParameterType): QueryParameterTypeEnum
+    public static function reverseToQueryParameterType(DbalParameterType $dbalParameterType): QueryParameterTypeEnum
     {
         return match ($dbalParameterType) {
             DbalParameterType::STRING => QueryParameterTypeEnum::STRING,

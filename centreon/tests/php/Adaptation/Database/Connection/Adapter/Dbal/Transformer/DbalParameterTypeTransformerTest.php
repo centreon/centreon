@@ -30,48 +30,48 @@ use Doctrine\DBAL\ParameterType as DbalParameterType;
 
 it('test DbalParameterTypeTranformer : transform', function () {
     $queryParameterTypeEnum = QueryParameterTypeEnum::STRING;
-    $dbalParameterType = DbalParameterTypeTransformer::transform($queryParameterTypeEnum);
+    $dbalParameterType = DbalParameterTypeTransformer::transformFromQueryParameterType($queryParameterTypeEnum);
     expect($dbalParameterType)->toBe(DbalParameterType::STRING);
 
     $queryParameterTypeEnum = QueryParameterTypeEnum::INTEGER;
-    $dbalParameterType = DbalParameterTypeTransformer::transform($queryParameterTypeEnum);
+    $dbalParameterType = DbalParameterTypeTransformer::transformFromQueryParameterType($queryParameterTypeEnum);
     expect($dbalParameterType)->toBe(DbalParameterType::INTEGER);
 
     $queryParameterTypeEnum = QueryParameterTypeEnum::BOOLEAN;
-    $dbalParameterType = DbalParameterTypeTransformer::transform($queryParameterTypeEnum);
+    $dbalParameterType = DbalParameterTypeTransformer::transformFromQueryParameterType($queryParameterTypeEnum);
     expect($dbalParameterType)->toBe(DbalParameterType::BOOLEAN);
 
     $queryParameterTypeEnum = QueryParameterTypeEnum::NULL;
-    $dbalParameterType = DbalParameterTypeTransformer::transform($queryParameterTypeEnum);
+    $dbalParameterType = DbalParameterTypeTransformer::transformFromQueryParameterType($queryParameterTypeEnum);
     expect($dbalParameterType)->toBe(DbalParameterType::NULL);
 
     $queryParameterTypeEnum = QueryParameterTypeEnum::LARGE_OBJECT;
-    $dbalParameterType = DbalParameterTypeTransformer::transform($queryParameterTypeEnum);
+    $dbalParameterType = DbalParameterTypeTransformer::transformFromQueryParameterType($queryParameterTypeEnum);
     expect($dbalParameterType)->toBe(DbalParameterType::LARGE_OBJECT);
 });
 
 it('test DbalParameterTypeTranformer : reverse', function () {
     $dbalParameterType = DbalParameterType::STRING;
-    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverse($dbalParameterType);
+    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverseToQueryParameterType($dbalParameterType);
     expect($queryParameterTypeEnum)->toBe(QueryParameterTypeEnum::STRING);
 
     $dbalParameterType = DbalParameterType::INTEGER;
-    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverse($dbalParameterType);
+    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverseToQueryParameterType($dbalParameterType);
     expect($queryParameterTypeEnum)->toBe(QueryParameterTypeEnum::INTEGER);
 
     $dbalParameterType = DbalParameterType::BOOLEAN;
-    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverse($dbalParameterType);
+    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverseToQueryParameterType($dbalParameterType);
     expect($queryParameterTypeEnum)->toBe(QueryParameterTypeEnum::BOOLEAN);
 
     $dbalParameterType = DbalParameterType::NULL;
-    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverse($dbalParameterType);
+    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverseToQueryParameterType($dbalParameterType);
     expect($queryParameterTypeEnum)->toBe(QueryParameterTypeEnum::NULL);
 
     $dbalParameterType = DbalParameterType::LARGE_OBJECT;
-    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverse($dbalParameterType);
+    $queryParameterTypeEnum = DbalParameterTypeTransformer::reverseToQueryParameterType($dbalParameterType);
     expect($queryParameterTypeEnum)->toBe(QueryParameterTypeEnum::LARGE_OBJECT);
 });
 
 it('test DbalParameterTypeTranformer : reverse with exception', function () {
-    DbalParameterTypeTransformer::reverse(ParameterType::ASCII);
+    DbalParameterTypeTransformer::reverseToQueryParameterType(ParameterType::ASCII);
 })->throws(TransformerException::class);
