@@ -23,9 +23,9 @@ Feature: Configuration of a connector
     Then the new connector is updated with '<type>' status
 
     Examples:
-    | type      |
-    | Disabled  |
-    | Enabled   |
+      | type      |
+      | Disabled  |
+      | Enabled   |
 
   Scenario: Delete one existing connector
     When the user deletes a connector
