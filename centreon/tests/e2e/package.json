@@ -12,7 +12,7 @@
     "gherkinlint": "pnpm gherkin-lint -c ../../../.github/actions/gherkin-lint/.gherkin-lintrc ./features/"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^20.1.2",
+    "@badeball/cypress-cucumber-preprocessor": "^22.0.1",
     "@types/cypress-cucumber-preprocessor": "^4.0.5",
     "@types/node": "^22.5.0",
     "cross-env": "^7.0.3",

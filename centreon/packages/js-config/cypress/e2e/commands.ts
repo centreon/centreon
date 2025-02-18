@@ -535,6 +535,8 @@ interface CopyWebContainerLogsProps {
 Cypress.Commands.add(
   'copyWebContainerLogs',
   ({ name }: CopyWebContainerLogsProps): Cypress.Chainable => {
+    cy.log(`Getting logs from container ${name} ...`);
+
     return cy.getLogDirectory().then((logDirectory) => {
       let sourcePhpLogs = '/var/log/php8.1-fpm-centreon-error.log';
       let targetPhpLogs = `${logDirectory}/php8.1-fpm-centreon-error.log`;
