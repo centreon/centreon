@@ -18,13 +18,12 @@ const Header = ({ title, header }: Props): JSX.Element => {
   return useMemoComponent({
     Component: (
       <div className={classes.header}>
-        <div>
-          {displayTitle && (
-            <Typography align="center" variant="body1">
-              {title}
-            </Typography>
-          )}
-        </div>
+        <div />
+        {displayTitle && (
+          <Typography align="center" variant="body1" className={classes.title}>
+            {title}
+          </Typography>
+        )}
         {header?.extraComponent}
       </div>
     ),
