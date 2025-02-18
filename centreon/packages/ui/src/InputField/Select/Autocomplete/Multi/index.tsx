@@ -63,6 +63,7 @@ const MultiAutocompleteField = ({
               deleteIcon: classes.deleteIcon,
               root: classes.tag
             }}
+            data-testid={`tag-option-chip-${option.id}`}
             label={getTagLabel(option)}
             size="medium"
             {...getTagProps({ index })}
