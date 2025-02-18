@@ -247,5 +247,8 @@ EOF`,
 );
 
 afterEach(() => {
-  cy.visitEmptyPage().stopContainer({ name: 'web' });
+  cy
+    .visitEmptyPage()
+    .copyWebContainerLogs({ name: 'web' })
+    .stopContainer({ name: 'web' });
 });

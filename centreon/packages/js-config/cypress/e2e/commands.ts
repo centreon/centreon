@@ -6,6 +6,7 @@ import './commands/configuration';
 import './commands/monitoring';
 
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
+import { StringChain } from 'cypress/types/lodash';
 
 installLogsCollector({
   commandTimings: 'seconds',
@@ -511,6 +512,76 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'getLogDirectory',
+  (): Cypress.Chainable => {
+    const logDirectory = `results/logs/${Cypress.spec.name.replace(
+        artifactIllegalCharactersMatcher,
+        '_'
+      )}/${Cypress.currentTest.title.replace(
+        artifactIllegalCharactersMatcher,
+        '_'
+      )}`;
+
+    return cy
+      .createDirectory(logDirectory)
+      .wrap(logDirectory);
+  }
+);
+
+interface CopyWebContainerLogsProps {
+  name: string;
+}
+
+Cypress.Commands.add(
+  'copyWebContainerLogs',
+  ({ name }: CopyWebContainerLogsProps): Cypress.Chainable => {
+    return cy.getLogDirectory().then((logDirectory) => {
+      let sourcePhpLogs = '/var/log/php8.1-fpm-centreon-error.log';
+      let targetPhpLogs = `${logDirectory}/php8.1-fpm-centreon-error.log`;
+      let sourceApacheLogs = '/var/log/apache2';
+      let targetApacheLogs = `${logDirectory}/apache2`;
+      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+        sourcePhpLogs = '/var/log/php-fpm';
+        targetPhpLogs = `${logDirectory}/php`;
+        sourceApacheLogs = '/var/log/httpd';
+        targetApacheLogs = `${logDirectory}/httpd`;
+      }
+
+      return cy
+        .copyFromContainer({
+          destination: `${logDirectory}/broker`,
+          name,
+          source: '/var/log/centreon-broker'
+        })
+        .copyFromContainer({
+          destination: `${logDirectory}/engine`,
+          name,
+          source: '/var/log/centreon-engine'
+        })
+        .copyFromContainer({
+          destination: `${logDirectory}/centreon`,
+          name,
+          source: '/var/log/centreon'
+        })
+        .copyFromContainer({
+          destination: `${logDirectory}/centreon-gorgone`,
+          name,
+          source: '/var/log/centreon-gorgone'
+        })
+        .copyFromContainer({
+          destination: targetPhpLogs,
+          name,
+          source: sourcePhpLogs,
+        })
+        .copyFromContainer({
+          destination: targetApacheLogs,
+          name,
+          source: sourceApacheLogs,
+        });
+      });
+});
+
 Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
   cy.log('Stopping containers ...');
 
@@ -533,75 +604,16 @@ Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
         return;
       }
 
-      Object.entries(containersLogs).forEach(([containerName, logs]) => {
-        cy.writeFile(
-          `results/logs/${Cypress.spec.name.replace(
-            artifactIllegalCharactersMatcher,
-            '_'
-          )}/${Cypress.currentTest.title.replace(
-            artifactIllegalCharactersMatcher,
-            '_'
-          )}/container-${containerName}.log`,
-          logs
-        );
+      return cy.getLogDirectory().then((logDirectory) => {
+        Object.entries(containersLogs).forEach(([containerName, logs]) => {
+          cy.writeFile(
+            `${logDirectory}/container-${containerName}.log`,
+            logs
+          );
+        });
       });
     })
-    .copyFromContainer({
-      destination: `${logDirectory}/broker`,
-      name,
-      source: '/var/log/centreon-broker'
-    })
-    .copyFromContainer({
-      destination: `${logDirectory}/engine`,
-      name,
-      source: '/var/log/centreon-engine'
-    })
-    .copyFromContainer({
-      destination: `${logDirectory}/centreon`,
-      name,
-      source: '/var/log/centreon'
-    })
-    .copyFromContainer({
-      destination: `${logDirectory}/centreon-gorgone`,
-      name,
-      source: '/var/log/centreon-gorgone'
-    })
-    .then(() => {
-      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-        return cy.copyFromContainer({
-          destination: `${logDirectory}/php`,
-          name,
-          source: '/var/log/php-fpm'
-        });
-      }
-
-      return cy.copyFromContainer(
-        {
-          destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
-          name,
-          source: '/var/log/php8.1-fpm-centreon-error.log'
-        },
-        { failOnNonZeroExit: false }
-      );
-    })
-    .then(() => {
-      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-        return cy.copyFromContainer({
-          destination: `${logDirectory}/httpd`,
-          name,
-          source: '/var/log/httpd'
-        });
-      }
-
-      return cy.copyFromContainer(
-        {
-          destination: `${logDirectory}/apache2`,
-          name,
-          source: '/var/log/apache2'
-        },
-        { failOnNonZeroExit: false }
-      );
-    })
+    .copyWebContainerLogs({ name })
     .exec(`chmod -R 755 "${logDirectory}"`)
     .task(
       'stopContainers',
@@ -880,6 +892,7 @@ declare global {
         props: CopyToContainerProps,
         options?: Partial<Cypress.ExecOptions>
       ) => Cypress.Chainable;
+      copyWebContainerLogs: (props: CopyWebContainerLogsProps) => Cypress.Chainable;
       createDirectory: (directoryPath: string) => Cypress.Chainable;
       execInContainer: (
         props: ExecInContainerProps,
@@ -899,6 +912,7 @@ declare global {
       getContainerIpAddress: (containerName: string) => Cypress.Chainable;
       getContainersLogs: () => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
+      getLogDirectory: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
