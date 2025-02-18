@@ -344,106 +344,67 @@ function removeRelationLastHostDependency(int $hostId): void
 {
     global $pearDB;
 
-    $query = 'SELECT service_service_id FROM host_service_relation WHERE host_host_id =  ' . $hostId;
-    $res = $pearDB->query($query);
+    $findQuery = <<<'SQL'
+        SELECT service_service_id
+        FROM host_service_relation
+        WHERE host_host_id =  :hostId
+    SQL;
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+    $findStatement = $pearDB->prepare($findQuery);
+    $findStatement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+    $findStatement->execute();
+
+    $countQuery = <<<'SQL'
+        SELECT COUNT(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
         FROM dependency_serviceParent_relation
-        WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_serviceParent_relation
-        WHERE service_service_id =  :service_service_id) GROUP BY dependency_dep_id';
+        WHERE dependency_dep_id IN (SELECT dependency_dep_id FROM dependency_serviceParent_relation
+        WHERE service_service_id = :service_service_id) GROUP BY dependency_dep_id
+    SQL;
 
-    $countStatement = $pearDB->prepare($query);
-    $deleteStatement = $pearDB->prepare("DELETE FROM dependency WHERE dep_id = :dep_id");
-    while ($row = $res->fetch()) {
+    $countStatement = $pearDB->prepare($countQuery);
+
+    $deleteQuery = <<<'SQL'
+        DELETE FROM dependency WHERE dep_id = :dep_id
+    SQL;
+
+    $deleteStatement = $pearDB->prepare($deleteQuery);
+
+    while ($row = $findStatement->fetch()) {
         $countStatement->bindValue(':service_service_id', (int) $row['service_service_id'], \PDO::PARAM_INT);
         $countStatement->execute();
-        if (false !== ($result = $countStatement->fetch(\PDO::FETCH_ASSOC))) {;
+        if ($result = $countStatement->fetch(\PDO::FETCH_ASSOC)) {
             //is last service parent
-            if ($result['nb_dependency'] == 1) {
+            if ($result['nb_dependency'] === 1) {
                 $deleteStatement->bindValue(':dep_id', (int) $result['id'], \PDO::PARAM_INT);
                 $deleteStatement->execute();
             }
         }
     }
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
-              FROM dependency_hostParent_relation
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostParent_relation
-                                         WHERE host_host_id =  ' . $hostId . ') GROUP BY dependency_dep_id';
-    $dbResult = $pearDB->query($query);
+    $countQuery = <<<'SQL'
+        SELECT COUNT(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+        FROM dependency_hostParent_relation
+        WHERE dependency_dep_id IN (SELECT dependency_dep_id FROM dependency_hostParent_relation
+        WHERE host_host_id = :hostId)
+        GROUP BY dependency_dep_id
+    SQL;
 
-    if (false !== ($result = $dbResult->fetch())) {
+    $countStatement = $pearDB->prepare($countQuery);
+    $countStatement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+    $countStatement->execute();
+
+    $deleteQuery = <<<'SQL'
+        DELETE FROM dependency WHERE dep_id = :dep_id
+    SQL;
+    $deleteStatement = $pearDB->prepare($deleteQuery);
+
+    if ($result = $countStatement->fetch()) {
         //is last parent
-        if ($result['nb_dependency'] == 1) {
-            $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
+        if ($result['nb_dependency'] === 1) {
+            $deleteStatement->bindValue(':dep_id', (int) $result['id'], \PDO::PARAM_INT);
+            $deleteStatement->execute();
         }
     };
-}
-
-function deleteHostInDB($hosts = [])
-{
-    global $pearDB, $centreon;
-
-    $hostIds = array_keys($hosts);
-    $kernel = Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
-    if ($vaultConfiguration !== null) {
-        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
-        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
-        deleteResourceSecretsInVault($writeVaultRepository, $hostIds, []);
-    }
-    foreach ($hostIds as $hostId) {
-        $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
-
-        removeRelationLastHostDependency((int) $hostId);
-        $rq = "SELECT @nbr := (SELECT COUNT( * )
-                            FROM host_service_relation
-                            WHERE service_service_id = hsr.service_service_id
-                            GROUP BY service_service_id)
-                            AS nbr, hsr.service_service_id
-                            FROM host_service_relation hsr, host
-                            WHERE hsr.host_host_id = '" . (int) $hostId . "'
-                            AND host.host_id = hsr.host_host_id
-                            AND host.host_register = '1'";
-        $dbResult = $pearDB->query($rq);
-
-        $dbResult3 = $pearDB->query("SELECT host_name FROM `host` WHERE `host_id` = '" . (int) $hostId . "' LIMIT 1");
-        $hostname = $dbResult3->fetch();
-
-        while ($row = $dbResult->fetch()) {
-            if ($row["nbr"] == 1) {
-                $dbResult4 = $pearDB->query("SELECT service_description
-                                            FROM `service`
-                                            WHERE `service_id` = '" . $row["service_service_id"] . "' LIMIT 1");
-                $svcname = $dbResult4->fetch();
-
-                $dbResult2 = $pearDB->query("DELETE FROM service
-                                              WHERE service_id = '" . $row["service_service_id"] . "'");
-                $centreon->CentreonLogAction->insertLog(
-                    object_type: ActionLog::OBJECT_TYPE_SERVICE,
-                    object_id: $row["service_service_id"],
-                    object_name: $hostname['host_name'] . "/" . $svcname["service_description"],
-                    action_type: ActionLog::ACTION_TYPE_DELETE
-                );
-            }
-        }
-        $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "DELETE"]);
-        $dbResult = $pearDB->query("DELETE FROM host WHERE host_id = '" . (int) $hostId . "'");
-        $dbResult = $pearDB->query("DELETE FROM host_template_relation WHERE host_host_id = '" . (int) $hostId . "'");
-        $dbResult = $pearDB->query("DELETE FROM on_demand_macro_host WHERE host_host_id = '" . (int) $hostId . "'");
-        $dbResult = $pearDB->query("DELETE FROM contact_host_relation WHERE host_host_id = '" . (int) $hostId . "'");
-
-        signalConfigurationChange('host', (int) $hostId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOST,
-            object_id: $hostId,
-            object_name: $hostname['host_name'],
-            action_type: ActionLog::ACTION_TYPE_DELETE
-        );
-    }
 }
 
 /*
@@ -2734,6 +2695,68 @@ function sanitizeFormHostParameters(array $ret): array
 
 // ------ API Configuration calls --------------------------------------------------------
 
+/**
+ * @param int[] $hosts
+ * @param bool $isTemplate
+ */
+function deleteHostInApi(array $hosts = [], bool $isTemplate = false): void
+{
+    global $basePath;
+
+    try {
+        deleteHostByApi($basePath, $hosts, $isTemplate);
+    } catch (Throwable $throwable) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while deleting host by API : {$throwable->getMessage()}",
+            customContext: ['hosts' => $hosts, 'basePath' => $basePath],
+            exception: $throwable
+        );
+    }
+}
+
+/**
+ * @param string $basePath
+ * @param int[] $hosts
+ *
+ * @throws Throwable
+ */
+function deleteHostByApi(string $basePath, array $hosts, bool $isTemplate = false): void
+{
+    global $centreon;
+
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class);
+
+    foreach ($hosts as $hostId) {
+        $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
+
+        removeRelationLastHostDependency((int) $hostId);
+
+        $url = $router->generate(
+            $isTemplate ? 'DeleteHostTemplate' : 'DeleteHost',
+            $basePath
+                ? ['base_uri' => $basePath, $isTemplate ? 'hostTemplateId' : 'hostId' => $hostId]
+                : [],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        $response = callHostApi($url, 'DELETE', []);
+        if ($response['status_code'] !== 204) {
+            $message = $response['content']['message'] ?? 'Unknown error';
+
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Error while deleting host by API : {$message}",
+                customContext: ['host_id' => $hostId]
+            );
+        }
+
+        $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "DELETE"]);
+        signalConfigurationChange('host', (int) $hostId, $previousPollerIds);
+    }
+}
 
 /**
  * Create a new host/hostTemplate from formData.
@@ -2835,7 +2858,9 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    return callHostApi($url, 'POST', $payload);
+    $response = callHostApi($url, 'POST', $payload);
+
+    return $response['content']['id'] ?? null;
 }
 
 /**
@@ -2958,9 +2983,9 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
  * @throws JsonException
  * @throws Exception
  *
- * @return int|null
+ * @return array<string,mixed>
  */
-function callHostApi(string $url, string $httpMethod, array $payload): int|null
+function callHostApi(string $url, string $httpMethod, array $payload): array
 {
     $client = new CurlHttpClient();
     $response = $client->request(
@@ -2985,14 +3010,7 @@ function callHostApi(string $url, string $httpMethod, array $payload): int|null
         throw new \Exception($content->message ?? 'Unexpected return status');
     }
 
-    if ($httpMethod === 'POST') {
-        $data = $response->toArray();
-
-        /** @var array{id:int} $data */
-        return $data['id'];
-    }
-
-    return null;
+    return ['status_code' => $status, 'content' => json_decode($response->getContent(false), true)];
 }
 
 /**

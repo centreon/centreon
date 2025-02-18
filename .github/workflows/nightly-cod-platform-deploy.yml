@@ -34,7 +34,7 @@ jobs:
                     "remote_server_number": 1,
                     "poller_number": 1,
                     "instance_features": "Alma9 - MariaDB",
-                    "centreon_branch": "develop",
+                    "centreon_branch": "develop (On-Prem)",
                     "custom_centreon_web_admin_password": "${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}",
                     "configured_resources": "true",
                     "install_business_modules": "false"
