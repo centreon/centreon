@@ -513,7 +513,7 @@ describe('Listing row actions: Duplicate button', () => {
 describe('column sorting', () => {
   beforeEach(initializeSorting);
 
-  it.only('executes a listing request when a sortable column is clicked', () => {
+  it('executes a listing request when a sortable column is clicked', () => {
     cy.waitForRequest('@defaultRequest');
 
     columnToSort.forEach(({ label, id, sortField }) => {
