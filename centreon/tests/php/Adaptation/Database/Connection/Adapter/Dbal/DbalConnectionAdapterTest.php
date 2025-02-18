@@ -90,7 +90,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $pdo = $db->getNativeConnection();
-            expect($db)->toBeInstanceOf(\Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::class);
+            expect($db)->toBeInstanceOf(DbalConnectionAdapter::class);
             $stmt = $db->getNativeConnection()->prepare("select database()");
             $stmt->execute();
             $dbName = $stmt->fetchColumn();
@@ -128,7 +128,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : createExpressionBuilder with success',
         function () use ($dbConfigCentreon): void {
-            $expressionBuilder = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(
+            $expressionBuilder = DbalConnectionAdapter::createFromConfig(
                 connectionConfig: $dbConfigCentreon
             )->createExpressionBuilder();
             expect($expressionBuilder)
@@ -154,7 +154,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : get the database name of the current connection',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $dbName = $db->getDatabaseName();
             expect($dbName)->toBe('centreon');
         }
@@ -181,7 +181,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     });
 
     it('test DbalConnectionAdapter : is connected', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         expect($db->isConnected())->toBeTrue();
     });
 
@@ -214,7 +214,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : execute statement with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $pdo = $db->getNativeConnection();
             $queryParameters = QueryParameters::create(
                 [
@@ -235,7 +235,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it('test DbalConnectionAdapter : execute statement with a SELECT query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->executeStatement("SELECT * FROM contact");
     })->throws(ConnectionException::class);
 
@@ -247,7 +247,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : execute statement with an incorrect query',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->executeStatement("foo");
         }
     )->throws(ConnectionException::class);
@@ -295,7 +295,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it('test DbalConnectionAdapter : insert with a SELECT query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->insert(
             "SELECT * FROM contact WHERE contact_id = :id",
             QueryParameters::create([QueryParameter::int('contact_id', 110)])
@@ -303,7 +303,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     })->throws(ConnectionException::class);
 
     it('test DbalConnectionAdapter : insert with an empty query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->insert("", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
     })->throws(ConnectionException::class);
 
@@ -315,7 +315,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : insert with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $queryParameters = QueryParameters::create(
                 [
                     QueryParameter::int('id', 110),
@@ -334,7 +334,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : batch insert with a correct query with batch query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $pdo = $db->getNativeConnection();
             $batchQueryParameters = BatchInsertParameters::create([
                 QueryParameters::create([
@@ -368,7 +368,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : batch insert with a correct query with empty batch query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->batchInsert(
                 'contact',
                 ['contact_id', 'contact_name', 'contact_alias'],
@@ -408,7 +408,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : update with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $pdo = $db->getNativeConnection();
             $inserted = $db->executeStatement(
                 "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
@@ -441,19 +441,19 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     })->throws(ConnectionException::class);
 
     it('test DbalConnectionAdapter : update with an empty query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->update("", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
     })->throws(ConnectionException::class);
 
     it('test DbalConnectionAdapter : update with an incorrect query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->update("foo", QueryParameters::create([QueryParameter::int('contact_id', 110)]));
     })->throws(ConnectionException::class);
 
     it(
         'test DbalConnectionAdapter : update with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $queryParameters = QueryParameters::create(
                 [
                     QueryParameter::string('name', 'bar_name'),
@@ -472,7 +472,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : delete with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $inserted = $db->executeStatement(
                 "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(110, 'foo_name', 'foo_alias')"
             );
@@ -525,7 +525,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : fetchNumeric with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contact = $db->fetchNumeric(
                 "SELECT * FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::int('id', 1)])
@@ -549,7 +549,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     })->throws(ConnectionException::class);
 
     it('test DbalConnectionAdapter : fetchNumeric with an incorrect query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchNumeric("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
@@ -588,14 +588,14 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     })->throws(ConnectionException::class);
 
     it('test DbalConnectionAdapter : fetchAssociative with an empty query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
     it(
         'test DbalConnectionAdapter : fetchAssociative with an incorrect query',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->fetchAssociative("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
         }
     )->throws(ConnectionException::class);
@@ -634,7 +634,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     })->throws(ConnectionException::class);
 
     it('test CentreonDB : fetchOne with an empty query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchOne("", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
@@ -694,7 +694,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : fetchFirstColumn with an incorrect query',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->fetchFirstColumn("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
         }
     )->throws(ConnectionException::class);
@@ -702,7 +702,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : fetchFirstColumn with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->fetchFirstColumn(
                 "SELECT contact_alias FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::string('name', 'foo_name')])
@@ -715,7 +715,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : fetchAllNumeric with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contact = $db->fetchAllNumeric(
                 "SELECT * FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::int('id', 1)])
@@ -734,7 +734,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     })->throws(ConnectionException::class);
 
     it('test DbalConnectionAdapter : fetchAllNumeric with an empty query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchAllNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
@@ -762,7 +762,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : fetchAllAssociative with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contact = $db->fetchAllAssociative(
                 "SELECT * FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::int('id', 1)])
@@ -773,7 +773,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it('test DbalConnectionAdapter : fetchAllAssociative with a CUD query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchAllAssociative(
             "DELETE FROM contact WHERE contact_id = :id",
             QueryParameters::create([QueryParameter::int('id', 1)])
@@ -799,7 +799,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : fetchAllAssociative with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->fetchAllAssociative(
                 "SELECT * FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::string('name', 'foo_name')])
@@ -823,7 +823,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it('test DbalConnectionAdapter : fetchAllKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchAllKeyValue(
             "DELETE FROM contact WHERE contact_id = :id",
             QueryParameters::create([QueryParameter::int('id', 1)])
@@ -838,7 +838,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : fetchAllKeyValue with an incorrect query',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->fetchAllKeyValue("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
         }
     )->throws(ConnectionException::class);
@@ -846,7 +846,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : fetchAllKeyValue with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->fetchAllKeyValue(
                 "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::string('name', 'foo_name')])
@@ -859,7 +859,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : fetchAllAssociativeIndexed with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contact = $db->fetchAllAssociativeIndexed(
                 "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::int('id', 1)])
@@ -926,7 +926,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it('test DbalConnectionAdapter : iterateNumeric with a CUD query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $contacts = $db->iterateNumeric(
             "DELETE FROM contact WHERE contact_id = :id",
             QueryParameters::create([QueryParameter::int('id', 1)])
@@ -938,7 +938,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     })->throws(ConnectionException::class);
 
     it('test DbalConnectionAdapter : iterateNumeric with an empty query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $contacts = $db->iterateNumeric("", QueryParameters::create([QueryParameter::int('id', 1)]));
         foreach ($contacts as $contact) {
             /* to avoid alert */
@@ -1004,7 +1004,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : iterateAssociative with an empty query',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateAssociative("", QueryParameters::create([QueryParameter::int('id', 1)]));
             foreach ($contacts as $contact) {
                 /* to avoid alert */
@@ -1045,7 +1045,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : iterateColumn with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateColumn(
                 "SELECT contact_id FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::int('id', 1)])
@@ -1059,7 +1059,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : iterateColumn with a correct query with query parameters and another column',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateColumn(
                 "SELECT contact_alias FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::int('id', 1)])
@@ -1103,7 +1103,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : iterateColumn with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateColumn(
                 "SELECT * FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::string('name', 'foo_name')])
@@ -1133,7 +1133,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it('test DbalConnectionAdapter : iterateKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $contacts = $db->iterateKeyValue(
             "DELETE FROM contact WHERE contact_id = :id",
             QueryParameters::create([QueryParameter::int('id', 1)])
@@ -1156,7 +1156,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : iterateKeyValue with an incorrect query',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateKeyValue("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
             foreach ($contacts as $contact) {
                 /* to avoid alert */
@@ -1168,7 +1168,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : iterateKeyValue with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contacts = $db->iterateKeyValue(
                 "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
                 QueryParameters::create([QueryParameter::string('name', 'foo_name')])
@@ -1271,7 +1271,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     });
 
     it('test DbalConnectionAdapter : execute commit with success', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
         $response = $db->commitTransaction();
         expect($response)->toBeTrue()
@@ -1279,7 +1279,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     });
 
     it('test DbalConnectionAdapter : execute rollback with success', function () use ($dbConfigCentreon): void {
-        $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->startTransaction();
         $response = $db->rollBackTransaction();
         expect($response)->toBeTrue()
@@ -1296,7 +1296,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DbalConnectionAdapter : execute unbufferedQuery with correct query',
         function () use ($dbConfigCentreon): void {
-            $db = \Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             /** @var \PDO $pdo */
             $pdo = $db->getNativeConnection();
             $db->startUnbufferedQuery();
