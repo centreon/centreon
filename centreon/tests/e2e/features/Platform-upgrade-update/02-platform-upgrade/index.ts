@@ -27,8 +27,6 @@ before(() => {
 });
 
 beforeEach(() => {
-  cy.clearAllLocalStorage();
-
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'

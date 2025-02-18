@@ -82,6 +82,7 @@ export default ({
       runMode: 2
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
+    testIsolation: true,
     video: isDevelopment,
     videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`,
