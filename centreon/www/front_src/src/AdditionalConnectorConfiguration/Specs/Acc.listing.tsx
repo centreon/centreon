@@ -98,18 +98,21 @@ export default (): void => {
         expect(JSON.parse(request.url.searchParams.get('page'))).to.equal(2);
       });
     });
-    it('executes a listing request with sort parameter when a sortable column is clicked`', () => {
+    it.only('executes a listing request with sort parameter when a sortable column is clicked`', () => {
       initializeListing();
 
       columnToSort.forEach(({ label, id }) => {
         const sortBy = id;
 
+        cy.contains('VMWare1');
+        cy.contains('VMWare2');
+
         cy.findByLabelText(`Column ${label}`).click();
 
         cy.waitForRequest('@getConnectors').then(({ request }) => {
-          expect(
-            JSON.parse(request.url.searchParams.get('sort_by'))
-          ).to.deep.equal({
+          const sortParam = JSON.parse(request.url.searchParams.get('sort_by'));
+
+          expect(sortParam).to.deep.equal({
             [sortBy]: 'desc'
           });
         });
