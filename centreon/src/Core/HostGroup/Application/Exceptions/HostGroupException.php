@@ -83,6 +83,11 @@ class HostGroupException extends \Exception
         return new self(_('Error while updating a host group'));
     }
 
+    public static function errorWhileEnablingDisabling(): self
+    {
+        return new self(_('Error while enabling/disabling host groups'));
+    }
+
     /**
      * @return self
      */

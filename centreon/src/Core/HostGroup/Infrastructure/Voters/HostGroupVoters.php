@@ -34,13 +34,19 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class HostGroupVoters extends Voter
 {
     public const HOSTGROUP_DELETE = 'hostgroup_delete';
+    public const HOSTGROUP_ENABLE_DISABLE = 'hostgroup_enable_disable';
+
+    private const ALLOWED_ATTRIBUTES = [
+        self::HOSTGROUP_DELETE,
+        self::HOSTGROUP_ENABLE_DISABLE,
+    ];
 
     /**
      * @inheritDoc
      */
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $attribute === self::HOSTGROUP_DELETE;
+        return in_array($attribute, self::ALLOWED_ATTRIBUTES, true);
     }
 
     /**
@@ -55,7 +61,7 @@ final class HostGroupVoters extends Voter
         }
 
         return match ($attribute) {
-            self::HOSTGROUP_DELETE => $this->checkUserRights($user),
+            self::HOSTGROUP_DELETE, self::HOSTGROUP_ENABLE_DISABLE => $this->checkUserRights($user),
             default => false,
         };
     }

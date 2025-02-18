@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,24 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Application\Repository;
+namespace Core\HostGroup\Infrastructure\API\EnableDisableHostGroups;
 
-interface WriteMonitoringServerRepositoryInterface {
-    /**
-     * Define the monitoring server as changed since its last configuration export.
-     *
-     * @param int $monitoringServerId
-     *
-     * @throws \Throwable
-     */
-    public function notifyConfigurationChange(int $monitoringServerId): void;
+use Core\HostGroup\Application\UseCase\EnableDisableHostGroups\EnableDisableHostGroupsRequest;
 
+final class EnableDisableHostGroupsRequestTransformer
+{
     /**
-     * Notify the monitoring servers as changed.
-     *
-     * @param int[] $monitoringServerIds
-     *
-     * @throws \Throwable
+     * @param EnableDisableHostGroupsInput $input
+     * @return EnableDisableHostGroupsRequest
      */
-    public function notifyConfigurationChanges(array $monitoringServerIds): void;
+    public static function transform(EnableDisableHostGroupsInput $input, string $action): EnableDisableHostGroupsRequest
+    {
+        $action = ltrim($action, '_');
+        return new EnableDisableHostGroupsRequest($input->ids, $action === 'enable');
+    }
 }

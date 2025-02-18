@@ -470,6 +470,30 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findLinkedHosts(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT DISTINCT hgr.host_host_id
+                    FROM `:db`.`hostgroup_relation` hgr
+                    JOIN `:db`.`hostgroup`
+                        ON hostgroup.hg_id = hgr.hostgroup_hg_id
+                    WHERE hostgroup.hg_activate = '1'
+                        AND hgr.hostgroup_hg_id = :hostGroupId
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
      * @param ?RequestParametersInterface $requestParameters
      * @param list<int> $accessGroupIds
      *

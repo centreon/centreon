@@ -185,4 +185,15 @@ interface ReadHostGroupRepositoryInterface
      * @return bool
      */
     public function hasAccessToAllHostGroups(array $accessGroupIds): bool;
+
+    /**
+     * Find hosts associated with a host group.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findLinkedHosts(int $hostGroupId): array;
 }

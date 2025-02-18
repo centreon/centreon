@@ -70,4 +70,12 @@ interface WriteHostGroupRepositoryInterface
      * @throws \Throwable
      */
     public function unlinkFromHost(int $hostId, array $groupIds): void;
+
+    /**
+     * Set an host group as enabled or disabled.
+     *
+     * @param int $hostGroupId
+     * @param bool $isEnable
+     */
+    public function enableDisableHostGroup(int $hostGroupId, bool $isEnable): void;
 }

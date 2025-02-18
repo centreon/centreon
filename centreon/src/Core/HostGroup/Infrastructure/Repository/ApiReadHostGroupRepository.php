@@ -189,4 +189,12 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
     {
         throw RepositoryException::notYetImplemented();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findLinkedHosts(int $hostGroupId): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
 }

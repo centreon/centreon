@@ -1,0 +1,7 @@
+EnableDisableHostGroups:
+  methods: POST
+  path: /configuration/hosts/groups/{action}
+  requirements:
+    action: '_enable|_disable'
+  controller: 'Core\HostGroup\Infrastructure\API\EnableDisableHostGroups\EnableDisableHostGroupsController'
+  condition: "request.attributes.get('version') >= 25.03"
