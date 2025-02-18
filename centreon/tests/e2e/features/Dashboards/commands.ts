@@ -369,26 +369,28 @@ Cypress.Commands.add(
           .then(($aTags) => {
             $aTags.each((i, aTag) => {
               cy.wrap(aTag)
-                .find('div')
-                .invoke('attr', 'style')
+                .find("div")
+                .invoke("attr", "style")
                 .then((style) => {
                   expect(style).to.contain(expectedColors[i]);
                 });
 
-              const valueToCheck = alternativeValues.length > 0
-                ? (alternativeValues[i] || expectedValues[i])
-                : expectedValues[i];
               cy.wrap(aTag)
-                .next('p')
-                .invoke('text')
+                .next("p")
+                .invoke("text")
                 .then((text) => {
-                  expect(text).to.match(new RegExp(`${valueToCheck}`));
+                  const possibleValues = [expectedValues[i]];
+
+                  if (alternativeValues[i]) {
+                    possibleValues.push(alternativeValues[i]);
+                  }
+
+                  expect(text.trim()).to.match(new RegExp(possibleValues.join("|")));
                 });
             });
           });
       });
 
-    // Return a Cypress Chainable
     return cy;
   }
 );
