@@ -1672,54 +1672,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(CentreonDbException::class);
 
-    // -- updateDatabase()
-
-    it(
-        'test DEPRECATED CentreonDB : execute updateDatabase with correct query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->updateDatabase(
-                "CREATE TABLE IF NOT EXISTS test_table (id INT PRIMARY KEY, name VARCHAR(255))"
-            );
-            expect($response)->toBeTrue();
-            $stmt = $db->executeQuery("SHOW TABLES LIKE 'test_table'");
-            $response = $stmt->fetch();
-            expect($response)->toBeArray()->toHaveCount(1);
-            $response = $db->updateDatabase("DROP TABLE test_table");
-            expect($response)->toBeTrue();
-            $stmt = $db->executeQuery("SHOW TABLES LIKE 'test_table'");
-            $response = $stmt->fetch();
-            expect($response)->toBeFalse();
-        }
-    );
-
-    it(
-        'test DEPRECATED CentreonDB : execute updateDatabase with incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->updateDatabase("CREATE TABLE IF NOT EXISTS test_table");
-            expect($response)->toBeFalse();
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'test DEPRECATED CentreonDB : execute updateDatabase with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->updateDatabase("");
-            expect($response)->toBeFalse();
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'test DEPRECATED CentreonDB : execute updateDatabase with a no DDL query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->updateDatabase("SELECT * FROM contact");
-            expect($response)->toBeFalse();
-        }
-    )->throws(CentreonDbException::class);
-
     // -- executeQueryFetchAll()
 
     it(

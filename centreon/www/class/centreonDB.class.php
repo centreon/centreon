@@ -1757,54 +1757,6 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     /**
-     * Only for DDL queries (ALTER TABLE, CREATE TABLE, DROP TABLE, CREATE DATABASE, and TRUNCATE TABLE...)
-     *
-     * @param string $query
-     *
-     * @throws CentreonDbException
-     * @return bool
-     *
-     * @deprecated Instead use {@see CentreonDB::executeStatement()}
-     * @see        CentreonDB::executeStatement()
-     */
-    public function updateDatabase(string $query): bool
-    {
-        try {
-            if (empty($query)) {
-                throw new CentreonDbException(
-                    'Query must not be empty',
-                    ['query' => $query]
-                );
-            }
-            $standardQueryStarts = ['SELECT ', 'UPDATE ', 'DELETE ', 'INSERT INTO '];
-            foreach ($standardQueryStarts as $standardQueryStart) {
-                if (
-                    str_starts_with($query, mb_strtolower($standardQueryStart))
-                    || str_starts_with($query, mb_strtoupper($standardQueryStart))
-                ) {
-                    throw new CentreonDbException(
-                        'Query must not to start by SELECT, UPDATE, DELETE or INSERT INTO, this method is only for DDL queries',
-                        ['query' => $query]
-                    );
-                }
-            }
-
-            return $this->exec($query) !== false;
-        } catch (\Throwable $e) {
-            $this->writeDbLog(
-                message: "Error while updating the database: {$e->getMessage()}",
-                query: $query,
-                previous: $e
-            );
-            throw new CentreonDbException(
-                message: "Error while updating the database: {$e->getMessage()}",
-                options: ['query' => $query,],
-                previous: $e
-            );
-        }
-    }
-
-    /**
      * @param \PDOStatement $pdoStatement
      * @param int $column
      *
