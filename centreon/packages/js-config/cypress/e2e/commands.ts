@@ -580,7 +580,8 @@ Cypress.Commands.add(
           destination: targetApacheLogs,
           name,
           source: sourceApacheLogs,
-        });
+        })
+        .exec(`chmod -R 755 "${logDirectory}"`);
       });
 });
 
@@ -608,6 +609,7 @@ Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
           });
         })
         .copyWebContainerLogs({ name })
+        .exec(`chmod -R 755 "${logDirectory}"`)
         .task(
           'stopContainers',
           {},
