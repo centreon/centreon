@@ -164,6 +164,7 @@ async function main() {
     const connection = await connectToDatabase();
 
     try {
+        console.log("🚀 Starting meta services injection");
         const timeperiodIds = await getTimePeriodIds(connection);
         const metaserviceIds = await injectMetaservice(connection, NUMBER_OF_METASERVICES, timeperiodIds);
         const serviceIds = await injectService(connection, metaserviceIds);

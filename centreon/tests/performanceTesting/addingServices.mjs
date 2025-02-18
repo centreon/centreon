@@ -18,8 +18,7 @@ async function getFilteredHostIds(connection) {
 
 async function injectServiceTemplate(connection, service, properties, injectedIds) {
     const [result] = await connection.execute("SELECT MAX(service_id) AS max FROM service");
-    const firstId = ((result[0].max || 0) + 1);  // Laisser l'auto-incrément gérer l'ID
-
+    const firstId = ((result[0].max || 0) + 1);
     const query = `
         INSERT INTO service (service_description, service_alias, service_register, command_command_id)
         VALUES (?, ?, ?, ?)
@@ -145,6 +144,7 @@ async function main() {
     const connection = await connectToDatabase();
 
     try {
+        console.log("🚀 Starting service injection");
         const hostIds = await getFilteredHostIds(connection);
         console.log("✅ Host IDs récupérés :", hostIds);
 

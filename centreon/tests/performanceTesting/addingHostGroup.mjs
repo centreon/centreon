@@ -95,8 +95,8 @@ async function main() {
     const connection = await connectToDatabase();
 
     try {
-        console.log("🚀 Script started");
 
+        console.log("🚀 Starting host group injection");
         // Example parameters
         const hostgroup = { name: "group", alias: "alias" };
         const properties = { hostgroup: { count: NUMBER_OF_HOSTGROUPS, hosts: { min: 1, max: 5 } } };

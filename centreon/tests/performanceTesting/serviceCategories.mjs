@@ -124,10 +124,7 @@ async function main() {
 
         console.log(`✅ Available services: ${services.length} services found.`);
 
-        // Inject service categories
         const categoryIds = await injectServiceCategory(connection, serviceCategory, properties);
-
-        // Inject relations between categories and services
         const minServicesCount = properties['service_category']['services']['min'] || 0;
         const maxServicesCount = properties['service_category']['services']['max'] || 5;
         await injectServiceCategoryRelation(connection, categoryIds, services, minServicesCount, maxServicesCount);

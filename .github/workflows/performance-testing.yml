@@ -71,16 +71,13 @@ jobs:
           WEB_IMAGE: 'docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979'
           MYSQL_IMAGE: 'bitnami/mariadb:10.11'
         run: |
-            # Démarrer les services Docker avec docker-compose
             docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
 
-            # Vérifier si un script de configuration est nécessaire et l'exécuter
             if [[ -f "../../../.github/docker/setup.sh" ]]; then
             echo "Running setup.sh ..."
             bash -ex "../../../.github/docker/setup.sh"
             fi
 
-            # Exécuter un script de configuration supplémentaire pour le service web si nécessaire
             if [[ -f "../../../.github/docker/setup-web.sh" ]]; then
             echo "Running setup-web.sh ..."
             docker compose -f ../../../.github/docker/docker-compose.yml cp ../../../.github/docker/setup-web.sh web:/tmp/setup-web.sh
@@ -89,10 +86,10 @@ jobs:
         shell: bash
 
       - name: Adding hosts
-        run: node addingHosts.mjs  # Exécute ton script
+        run: node addingHosts.mjs
 
       - name: Adding users
-        run: node AddingUsers.mjs  # Exécute ton script
+        run: node AddingUsers.mjs
 
       - name: Display users.csv content
         run: |

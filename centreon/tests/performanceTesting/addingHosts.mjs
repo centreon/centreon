@@ -1,9 +1,8 @@
 import dotenv from 'dotenv';
 import { connectToDatabase } from './dbConfig.mjs';
 
-dotenv.config(); // 🔹 Load environment variables first
+dotenv.config();
 
-// 🔹 Use the variable imported from config.mjs or the one from process.env
 let NUMBER_OF_HOSTS = process.env.NUMBER_OF_HOSTS ? parseInt(process.env.NUMBER_OF_HOSTS, 10) : 2;
 
 // ✅ Insert host_id into the extended_host_information table
@@ -138,13 +137,12 @@ async function injectHostServerRelations(connection, firstId, maxId, injectedIds
 
 // ✅ Main function
 async function main() {
-    const connection = await connectToDatabase(); // 📌 Single database connection here
-
+    const connection = await connectToDatabase();
     try {
         console.log("🚀 Starting host injection");
 
         const host = { name: 'host', alias: 'HostAlias', address: '127.0.0.1' };
-        const properties = { host: { count: NUMBER_OF_HOSTS } }; // Number of hosts to insert
+        const properties = { host: { count: NUMBER_OF_HOSTS } };
         const injectedIds = {
             command: [1], // ID of an existing command
             poller: [1, 2, 3] // IDs of available pollers
@@ -160,5 +158,4 @@ async function main() {
     }
 }
 
-// 🔥 Execute the script
 main();

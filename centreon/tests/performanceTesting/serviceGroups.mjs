@@ -114,7 +114,7 @@ async function main() {
     };
 
     try {
-        // Inject service groups
+        console.log("🚀 Starting service group injection");
         const serviceGroupIds = await injectServiceGroups(connection, serviceGroup, {});
 
         if (serviceGroupIds.length === 0) {
