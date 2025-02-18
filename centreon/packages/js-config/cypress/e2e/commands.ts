@@ -524,6 +524,7 @@ Cypress.Commands.add(
 
     return cy
       .createDirectory(logDirectory)
+      .exec(`chmod -R 755 "${logDirectory}"`)
       .wrap(logDirectory);
   }
 );
@@ -615,7 +616,6 @@ Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
       });
     })
     .copyWebContainerLogs({ name })
-    .exec(`chmod -R 755 "${logDirectory}"`)
     .task(
       'stopContainers',
       {},
