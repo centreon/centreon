@@ -21,7 +21,7 @@
         "prettier": "^3.0.0"
     },
     "dependencies": {
-        "@badeball/cypress-cucumber-preprocessor": "^22.0.1",
+        "@badeball/cypress-cucumber-preprocessor": "^20.1.2",
         "@bahmutov/cypress-esbuild-preprocessor": "^2.2.4",
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
         "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
