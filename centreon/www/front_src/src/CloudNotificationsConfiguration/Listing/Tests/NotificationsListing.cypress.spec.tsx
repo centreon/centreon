@@ -498,6 +498,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.findAllByTestId(labelDuplicate).eq(0).click();
 
     cy.findByLabelText(labelNotificationName).type('New name');
+
     cy.findByTestId('Confirm').click();
 
     cy.waitForRequest('@duplicateNotificationtRequest');
