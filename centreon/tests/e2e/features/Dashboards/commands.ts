@@ -355,7 +355,12 @@ Cypress.Commands.add('applyAcl', () => {
 
 Cypress.Commands.add(
   'verifyLegendItemStyle',
-  (index, expectedColors, expectedValue) => {
+  (
+    index: number,
+    expectedColors: Array<string>,
+    expectedValues: Array<string>,
+    alternativeValues: Array<string> = []
+  ): Cypress.Chainable => {
     cy.get('[data-testid="Legend"] > *')
       .eq(index)
       .each(($legendItem) => {
@@ -370,18 +375,24 @@ Cypress.Commands.add(
                   expect(style).to.contain(expectedColors[i]);
                 });
 
-              // Get the value of the <p> element next to the <a> tag
+              const valueToCheck = alternativeValues.length > 0
+                ? (alternativeValues[i] || expectedValues[i])
+                : expectedValues[i];
               cy.wrap(aTag)
                 .next('p')
                 .invoke('text')
                 .then((text) => {
-                  expect(text).to.contain(expectedValue[i]);
+                  expect(text).to.match(new RegExp(`${valueToCheck}`));
                 });
             });
           });
       });
+
+    // Return a Cypress Chainable
+    return cy;
   }
 );
+
 
 Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
   const defaultHostData = {
@@ -685,7 +696,8 @@ declare global {
       verifyLegendItemStyle: (
         index: number,
         expectedColors: Array<string>,
-        expectedValue: Array<string>
+        expectedValue: Array<string>,
+        alternativeValues?: Array<string>
       ) => Cypress.Chainable;
       visitDashboard: (name: string) => Cypress.Chainable;
       visitDashboards: () => Cypress.Chainable;
