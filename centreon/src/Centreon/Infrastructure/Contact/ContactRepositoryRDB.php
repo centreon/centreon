@@ -568,6 +568,12 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             case 'manage_tokens':
                 $contact->addRole(Contact::ROLE_MANAGE_TOKENS);
                 break;
+            case 'top_counter':
+                $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER);
+                break;
+            case 'poller_stats':
+                $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS);
+                break;
         }
     }
 
