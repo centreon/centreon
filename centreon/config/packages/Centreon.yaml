@@ -82,6 +82,27 @@ services:
             - method: setStorageDbName
               arguments: ['%database_dbstg%']
 
+    Adaptation\Database\Connection\Model\ConnectionConfig:
+      arguments:
+        $host: '%database_host%'
+        $user: '%database_user%'
+        $password: '%database_password%'
+        $databaseName: '%database_db%'
+        $port: '%database_port%'
+
+    Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter:
+      factory: [ null, 'createFromConfig' ]
+      arguments:
+        $connectionConfig: @Adaptation\Database\Connection\Model\ConnectionConfig
+      calls:
+        - method: setCentreonDbName
+          arguments: [ '%database_db%' ]
+        - method: setStorageDbName
+          arguments: [ '%database_dbstg%' ]
+
+    Adaptation\Database\Connection\ConnectionInterface:
+        alias: Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter
+
     jms_serializer.object_constructor:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
         public: false
