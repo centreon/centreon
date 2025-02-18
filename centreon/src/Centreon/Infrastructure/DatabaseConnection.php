@@ -27,6 +27,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\Trait\CentreonConnectionTrait;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Centreon\Domain\Log\Logger;
 use Psr\Log\LoggerInterface;
@@ -42,12 +43,7 @@ use Psr\Log\LoggerInterface;
 class DatabaseConnection extends \PDO implements ConnectionInterface
 {
     use ConnectionTrait;
-
-    /** @var string Name of the configuration table */
-    private string $centreonDbName;
-
-    /** @var string Name of the storage table */
-    private string $storageDbName;
+    use CentreonConnectionTrait;
 
     /** @var ConnectionConfig */
     private ConnectionConfig $connectionConfig;
@@ -146,38 +142,6 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         } catch (\Throwable $exception) {
             throw ConnectionException::connectionFailed($exception);
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getCentreonDbName(): string
-    {
-        return $this->centreonDbName;
-    }
-
-    /**
-     * @param string $centreonDbName
-     */
-    public function setCentreonDbName(string $centreonDbName): void
-    {
-        $this->centreonDbName = $centreonDbName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStorageDbName(): string
-    {
-        return $this->storageDbName;
-    }
-
-    /**
-     * @param string $storageDbName
-     */
-    public function setStorageDbName(string $storageDbName): void
-    {
-        $this->storageDbName = $storageDbName;
     }
 
     /**
@@ -303,7 +267,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         ":{$queryParameter->getName()}",
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? PdoParameterTypeTransformer::transform($queryParameter->getType()) : \PDO::PARAM_STR
+                            ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType()) : \PDO::PARAM_STR
                     );
                 }
             }
@@ -888,7 +852,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         $queryParameter->getName(),
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? PdoParameterTypeTransformer::transform($queryParameter->getType()) : \PDO::PARAM_STR
+                            ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType()) : \PDO::PARAM_STR
                     );
                 }
             }

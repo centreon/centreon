@@ -329,7 +329,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                         ":{$queryParameter->getName()}",
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? PdoParameterTypeTransformer::transform($queryParameter->getType()) : \PDO::PARAM_STR
+                            ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType()) : \PDO::PARAM_STR
                     );
                 }
             }
@@ -1168,7 +1168,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                         $queryParameter->getName(),
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? PdoParameterTypeTransformer::transform($queryParameter->getType()) : \PDO::PARAM_STR
+                            ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType()) : \PDO::PARAM_STR
                     );
                 }
             }
