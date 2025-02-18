@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
+use Adaptation\Database\Connection\ConnectionInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
@@ -36,10 +37,10 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
-     * @param DatabaseConnection $db
+     * @param DbalConnectionAdapter $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(ConnectionInterface $db, SqlRequestParametersTranslator $sqlRequestTranslator)
     {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
