@@ -6,9 +6,9 @@ Feature: Configuration of a connector
 	Background:
 		Given an admin user is logged in a Centreon server
 
-  Scenario: Create a new connector
-    When the user creates a connector
-    Then the connector is displayed in the list
+	Scenario: Create a new connector
+		When the user creates a connector
+		Then the connector is displayed in the list
 
 	Scenario: Change the properties of a connector
 		When the user changes the properties of a connector
@@ -23,9 +23,9 @@ Feature: Configuration of a connector
 		Then the new connector is updated with '<type>' status
 
 		Examples:
-      | type      |
-      | Disabled  |
-      | Enabled   |
+		| type      |
+		| Disabled  |
+		| Enabled   |
 
 	Scenario: Delete one existing connector
 		When the user deletes a connector
