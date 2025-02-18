@@ -6,7 +6,6 @@ import './commands/configuration';
 import './commands/monitoring';
 
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
-import { StringChain } from 'cypress/types/lodash';
 
 installLogsCollector({
   commandTimings: 'seconds',
