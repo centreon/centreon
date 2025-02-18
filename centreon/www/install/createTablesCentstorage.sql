@@ -335,6 +335,10 @@ CREATE TABLE `resources` (
   PRIMARY KEY (`resource_id`),
   UNIQUE KEY `resources_id_parent_id_type_uindex` (`id`,`parent_id`,`type`),
   KEY `resources_severities_severity_id_fk` (`severity_id`),
+  INDEX `resources_poller_id_index` (`poller_id`),
+  INDEX `resources_id_index` (`id`),
+  INDEX `resources_parent_id_index` (`parent_id`),
+  INDEX `resources_enabled_type_index` (`enabled`, `type`),
   CONSTRAINT `resources_severities_severity_id_fk` FOREIGN KEY (`severity_id`) REFERENCES `severities` (`severity_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -344,7 +348,8 @@ CREATE TABLE `tags` (
   `type` tinyint(3) unsigned NOT NULL COMMENT '0=servicegroup, 1=hostgroup, 2=servicecategory, 3=hostcategory',
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`tag_id`),
-  UNIQUE KEY `tags_id_type_uindex` (`id`,`type`)
+  UNIQUE KEY `tags_id_type_uindex` (`id`,`type`),
+  INDEX `tags_type_name_index` (`type`, `name`(10))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `resources_tags` (

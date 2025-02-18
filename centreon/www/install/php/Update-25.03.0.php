@@ -123,10 +123,46 @@ $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void 
     );
 };
 
+// -------------------------------------------- Resource Status -------------------------------------------- //
+/**
+ * Create indexes for resources and tags tables.
+ *
+ * @param CentreonDB $realtimeDb the realtime database
+ *
+ * @throws CentreonDbException
+ */
+$createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
+        if (! $realtimeDb->isIndexExists('resources', 'resources_poller_id_index')) {
+            $errorMessage = 'Unable to create index resources_poller_id_index';
+            $realtimeDb->exec('CREATE INDEX `resources_poller_id_index` ON resources (`poller_id`)');
+        }
+
+        if (! $realtimeDb->isIndexExists('resources', 'resources_id_index')) {
+            $errorMessage = 'Unable to create index resources_id_index';
+            $realtimeDb->exec('CREATE INDEX `resources_id_index` ON resources (`id`)');
+        }
+
+        if (! $realtimeDb->isIndexExists('resources', 'resources_parent_id_index')) {
+            $errorMessage = 'Unable to create index resources_parent_id_index';
+            $realtimeDb->exec('CREATE INDEX `resources_parent_id_index` ON resources (`parent_id`)');
+        }
+
+        if (! $realtimeDb->isIndexExists('resources', 'resources_enabled_type_index')) {
+            $errorMessage = 'Unable to create index resources_enabled_type_index';
+            $realtimeDb->exec('CREATE INDEX `resources_enabled_type_index` ON resources (`enabled`, `type`)');
+        }
+
+        if (! $realtimeDb->isIndexExists('tags', 'tags_type_name_index')) {
+            $errorMessage = 'Unable to create index tags_type_name_index';
+            $realtimeDb->exec('CREATE INDEX `tags_type_name_index` ON tags (`type`, `name`(10))');
+        }
+};
+
 try {
     $createAgentInformationTable($pearDBO);
     $addConnectorToTopology($pearDB);
     $changeAccNameInTopology($pearDB);
+    $createIndexesForResourceStatus($pearDBO);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -135,21 +171,31 @@ try {
 
     $insertAccConnectors($pearDB);
 
-} catch (CentreonDbException $e) {
+    $pearDB->commit();
+
+} catch (\Throwable $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: $versionOfTheUpgrade . $errorMessage
             . ' - Code : ' . (int) $e->getCode()
             . ' - Error : ' . $e->getMessage(),
         customContext: [
-            'exception' => $e->getOptions(),
             'trace' => $e->getTraceAsString(),
         ],
         exception: $e
     );
 
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
+    try {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+    } catch (PDOException $ex) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+            customContext: ['error_message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+            exception: $ex
+        );
     }
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
