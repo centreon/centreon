@@ -55,7 +55,6 @@ export default ({
           {
             commandTrimLength: 5000,
             defaultTrimLength: 5000,
-            includeSuccessfulHookLogs: true,
           }
       );
         await esbuildPreprocessor(on, config);
