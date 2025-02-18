@@ -2,9 +2,9 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/commands/connector.json';
 
-// before(() => {
-//   cy.startContainers();
-// });
+before(() => {
+  cy.startContainers();
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -17,9 +17,9 @@ beforeEach(() => {
   }).as('getConnectorsPage');
 });
 
-// after(() => {
-//   cy.stopContainers();
-// });
+after(() => {
+  cy.stopContainers();
+});
 
 Given('an admin user is logged in a Centreon server', () => {
   cy.loginByTypeOfUser({
@@ -31,7 +31,7 @@ Given('an admin user is logged in a Centreon server', () => {
 When('the user creates a connector', () => {
   cy.visit('/centreon/main.php?p=60806');
   cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
-  cy.getIframeBody().contains('a', '+ ADD').click();
+  cy.getIframeBody().contains('a', 'Add').click();
   cy.addConnectors(data.connector);
   cy.getIframeBody()
     .find('input[class="btc bt_success"][name^="submit"]')
@@ -48,7 +48,10 @@ Then('the connector is displayed in the list', () => {
 
 When('the user changes the properties of a connector', () => {
   cy.visit('/centreon/main.php?p=60806');
-  cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
+  cy.waitForElementInIframe(
+    '#main-content',
+    'select[name="o1"]'
+  );
   cy.getIframeBody().contains(data.connector.name).click();
   cy.updateConnectors(data.connectorUpdated);
   cy.getIframeBody()
@@ -59,7 +62,10 @@ When('the user changes the properties of a connector', () => {
 
 Then('the properties are updated', () => {
   cy.wait('@getConnectorsPage');
-  cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
+  cy.waitForElementInIframe(
+    '#main-content',
+    'select[name="o1"]'
+  );
   cy.reload();
   cy.getIframeBody().contains(data.connectorUpdated.name).should('exist');
   cy.getIframeBody().contains(data.connectorUpdated.name).click();
@@ -68,49 +74,115 @@ Then('the properties are updated', () => {
 
 When('the user duplicates a connector', () => {
   cy.visit('/centreon/main.php?p=60806');
-  cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
-  // cy.getIframeBody().find('[alt="Duplicate"]').eq(1).click();
+  cy.waitForElementInIframe(
+    '#main-content',
+    'select[name="o1"]'
+  );
+  cy.getIframeBody()
+    .contains(data.connectorUpdated.name)
+    .parents('tr')
+    .find('input[type="checkbox"]')
+    .check({ force: true });
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
+    );
+  cy.getIframeBody().find('select[name="o1"]').select("Duplicate");
 });
 
 Then('the new connector has the same properties', () => {
-  // cy.waitForElementInIframe(
-  //   '#main-content',
-  //   `a:contains("${data.connectorUpdated.name}_1")`
-  // );
-  // cy.getIframeBody().contains('a', `${data.connectorUpdated.name}_1`).click();
-  // cy.checkValuesOfCommands(`${data.connectorUpdated.name}_1`, data.connectorUpdated);
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${data.connectorUpdated.name}_1")`
+  );
+  cy.getIframeBody().contains('a', `${data.connectorUpdated.name}_1`).click();
+  cy.checkValuesOfConnectors(`${data.connectorUpdated.name}_1`, data.connectorUpdated);
 });
 
-When('the user update the status of a connector to {string}', (type: string) => {
+When('the user updates the status of a connector to {string}', (type: string) => {
   cy.visit('/centreon/main.php?p=60806');
-  cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
-  // cy.getIframeBody().contains('a', '+ ADD').click();
-  // cy.addCommands(commandData);
-  // cy.getIframeBody()
-  //   .find('input[class="btc bt_success"][name^="submit"]')
-  //   .eq(0)
-  //   .click();
+  cy.waitForElementInIframe(
+    '#main-content',
+    'select[name="o1"]'
+  );
+  switch (type) {
+    case 'Disabled':
+      cy.getIframeBody()
+        .contains(data.connectorUpdated.name)
+        .parents('tr')
+        .find('img[alt="Disabled"]')
+        .click({ force: true });
+      break;
+    case 'Enabled':
+      cy.getIframeBody()
+        .contains(data.connectorUpdated.name)
+        .parents('tr')
+        .find('img[alt="Enabled"]')
+        .click({ force: true });
+      break;
+  }
 });
 
 Then('the new connector is updated with {string} status', (type: string) => {
-  // cy.wait('@getCommandsPage');
-  // cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
-  // cy.reload();
-  // cy.getIframeBody().contains(commandTypeMap[type].data.name).should('exist');
+  cy.waitForElementInIframe(
+    '#main-content',
+    'select[name="o1"]'
+  );
+  cy.reload();
+  switch (type) {
+    case 'Disabled':
+      cy.getIframeBody()
+        .contains(data.connectorUpdated.name)
+        .parents('tr')
+        .find('img[alt="Enabled"]')
+        .should('exist');
+      cy.getIframeBody()
+        .contains(data.connectorUpdated.name)
+        .parents('tr')
+        .find('span[class="badge service_critical"]')
+        .should('have.text', type);
+      break;
+    case 'Enabled':
+      cy.getIframeBody()
+        .contains(data.connectorUpdated.name)
+        .parents('tr')
+        .find('img[alt="Disabled"]')
+        .should('exist');
+      cy.getIframeBody()
+        .contains(data.connectorUpdated.name)
+        .parents('tr')
+        .find('span[class="badge service_ok"]')
+        .should('have.text', type);
+      break;
+  }
 });
 
 
 When('the user deletes a connector', () => {
   cy.visit('/centreon/main.php?p=60806');
-  cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
-  // cy.getIframeBody()
-  //   .contains('a', `${data.miscellaneous.name}`)
-  //   .parents('tr')
-  //   .find('[alt="Delete"]')
-  //   .click();
+  cy.waitForElementInIframe(
+    '#main-content',
+    'select[name="o1"]'
+  );
+  cy.getIframeBody()
+    .contains(data.connectorUpdated.name)
+    .parents('tr')
+    .find('input[type="checkbox"]')
+    .check({ force: true });
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
+    );
+  cy.getIframeBody().find('select[name="o1"]').select("Delete");
 });
 
 Then('the deleted connector is not displayed in the list', () => {
-  // cy.reload();
-  // cy.getIframeBody().should('not.have.text', data.miscellaneous.name);
+  cy.reload();
+  cy.getIframeBody().should('not.have.text', data.connectorUpdated.name);
 });

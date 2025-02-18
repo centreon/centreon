@@ -19,13 +19,13 @@ Feature: Configuration of a connector
 		Then the new connector has the same properties
 
 	Scenario Outline: Change status of one existing connector
-		When the user update the status of a connector to '<type>'
+		When the user updates the status of a connector to '<type>'
 		Then the new connector is updated with '<type>' status
 
 		Examples:
       | type      |
-      | enabled   |
-      | disabled  |
+      | Disabled  |
+      | Enabled   |
 
 	Scenario: Delete one existing connector
 		When the user deletes a connector

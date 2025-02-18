@@ -98,7 +98,7 @@ Cypress.Commands.add("addConnectors", (body: Ctr) => {
     .find('input[name="connector_status[connector_status]"][value="1"]')
     .then(($val) => {
       if (body.is_enabled === 1) {
-        cy.wrap($val).click();
+        cy.wrap($val).click({ force: true });
       }
     });
 });
@@ -115,7 +115,7 @@ Cypress.Commands.add("updateConnectors", (body: Ctr) => {
     .find('input[name="connector_status[connector_status]"][value="1"]')
     .then(($val) => {
       if (body.is_enabled === 1) {
-        cy.wrap($val).click();
+        cy.wrap($val).click({ force: true });
       }
     });
 });
@@ -124,7 +124,7 @@ Cypress.Commands.add("checkValuesOfConnectors", (name: string, body: Ctr) => {
   cy.waitForElementInIframe("#main-content", 'input[name="connector_name"]');
   cy.getIframeBody()
     .find('input[name="connector_name"]')
-    .should("have.value", body.name);
+    .should("have.value", `${name}`);
   cy.getIframeBody()
     .find('input[name="connector_description"]')
     .should("have.value", body.description);
