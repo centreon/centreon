@@ -5,15 +5,14 @@ Feature: LDAPManualImport
 
   Background:
     Given a user is logged in a Centreon server
-    And a LDAP configuration with Users auto import disabled has been created
 
   Scenario: Search and import one user whose alias contains an accent
-    Given the user searchs a specific user whose alias contains a special character such as an accent
-    And the LDAP search result displays the expected alias
+    Given a LDAP configuration with Users auto import disabled has been created
+    When the user searchs a specific user whose alias contains a special character such as an accent
+    Then the LDAP search result displays the expected alias
     When the user imports the searched user
     Then the user is added to the contacts listing page
 
   Scenario: LDAP manually imported user can authenticate to Centreon Web
-    Given one user with an alias with an accent has been manually imported
-    When this user logins to Centreon Web
-    Then he's logged by default on Home page
+    Given one ldap user has been manually imported
+    Then this user can log in to Centreon Web
