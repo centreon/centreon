@@ -123,10 +123,59 @@ $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void 
     );
 };
 
+// -------------------------------------------- Dashboard Panel -------------------------------------------- //
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table dashboard_panel';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `dashboard_panel`
+            SET `layout_x` = `layout_x` * 2,
+                `layout_width` = `layout_width` * 2
+            SQL
+    );
+};
+
+// -------------------------------------------- Resource Status -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDBO
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add column flapping to table resources';
+    if (! $pearDBO->isColumnExist('resources', 'flapping')) {
+        $pearDBO->exec(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
+            SQL
+        );
+    }
+
+    $errorMessage = 'Unable to add column percent_state_change to table resources';
+    if (! $pearDBO->isColumnExist('resources', 'percent_state_change')) {
+        $pearDBO->exec(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
+            SQL
+        );
+    }
+};
+
 try {
     $createAgentInformationTable($pearDBO);
     $addConnectorToTopology($pearDB);
     $changeAccNameInTopology($pearDB);
+    $addColumnToResourcesTable($pearDBO);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -134,6 +183,7 @@ try {
     }
 
     $insertAccConnectors($pearDB);
+    $updatePanelsLayout($pearDB);
 
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
