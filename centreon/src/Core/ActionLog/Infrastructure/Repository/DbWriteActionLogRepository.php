@@ -93,19 +93,20 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
             ]));
 
             return (int) $this->db->getLastInsertId();
-        } catch (\Throwable $ex) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             $this->error(
-                "Add action log failed : {$ex->getMessage()}",
+                "Add action log failed : {$exception->getMessage()}",
                 [
                     'action_log' => $actionLog,
-                    'exception' => [
-                        'message' => $ex->getMessage(),
-                        'trace' => $ex->getTraceAsString(),
-                    ],
+                    'exception' => $exception->getContext(),
                 ]
             );
 
-            throw new RepositoryException($ex->getMessage(), ['action_log' => $actionLog], $ex);
+            throw new RepositoryException(
+                "Add action log failed : {$exception->getMessage()}",
+                ['action_log' => $actionLog],
+                $exception
+            );
         }
     }
 
