@@ -13,8 +13,8 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/main.php?p=60806'
-  }).as('getConnectorsPage');
+    url: '/centreon/include/common/userTimezone.php'
+  }).as('getTimeZone');
 });
 
 after(() => {
@@ -29,7 +29,11 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user creates a connector', () => {
-  cy.visit('/centreon/main.php?p=60806');
+  cy.navigateTo({
+    page: 'Connectors',
+    rootItemNumber: 3,
+    subMenu: 'Commands'
+  });
   cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addConnectors(data.connector);
@@ -40,14 +44,17 @@ When('the user creates a connector', () => {
 });
 
 Then('the connector is displayed in the list', () => {
-  cy.wait('@getConnectorsPage');
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
-  cy.reload();
   cy.getIframeBody().contains(data.connector.name).should('exist');
 });
 
 When('the user changes the properties of a connector', () => {
-  cy.visit('/centreon/main.php?p=60806');
+  cy.navigateTo({
+    page: 'Connectors',
+    rootItemNumber: 3,
+    subMenu: 'Commands'
+  });
   cy.waitForElementInIframe(
     '#main-content',
     'select[name="o1"]'
@@ -61,19 +68,22 @@ When('the user changes the properties of a connector', () => {
 });
 
 Then('the properties are updated', () => {
-  cy.wait('@getConnectorsPage');
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
     'select[name="o1"]'
   );
-  cy.reload();
   cy.getIframeBody().contains(data.connectorUpdated.name).should('exist');
   cy.getIframeBody().contains(data.connectorUpdated.name).click();
   cy.checkValuesOfConnectors(data.connectorUpdated.name, data.connectorUpdated);
 });
 
 When('the user duplicates a connector', () => {
-  cy.visit('/centreon/main.php?p=60806');
+  cy.navigateTo({
+    page: 'Connectors',
+    rootItemNumber: 3,
+    subMenu: 'Commands'
+  });
   cy.waitForElementInIframe(
     '#main-content',
     'select[name="o1"]'
@@ -94,6 +104,7 @@ When('the user duplicates a connector', () => {
 });
 
 Then('the new connector has the same properties', () => {
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
     `a:contains("${data.connectorUpdated.name}_1")`
@@ -103,7 +114,11 @@ Then('the new connector has the same properties', () => {
 });
 
 When('the user updates the status of a connector to {string}', (type: string) => {
-  cy.visit('/centreon/main.php?p=60806');
+  cy.navigateTo({
+    page: 'Connectors',
+    rootItemNumber: 3,
+    subMenu: 'Commands'
+  });
   cy.waitForElementInIframe(
     '#main-content',
     'select[name="o1"]'
@@ -127,11 +142,12 @@ When('the user updates the status of a connector to {string}', (type: string) =>
 });
 
 Then('the new connector is updated with {string} status', (type: string) => {
+  cy.reload();
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
     'select[name="o1"]'
   );
-  cy.reload();
   switch (type) {
     case 'Disabled':
       cy.getIframeBody()
@@ -160,9 +176,12 @@ Then('the new connector is updated with {string} status', (type: string) => {
   }
 });
 
-
 When('the user deletes a connector', () => {
-  cy.visit('/centreon/main.php?p=60806');
+  cy.navigateTo({
+    page: 'Connectors',
+    rootItemNumber: 3,
+    subMenu: 'Commands'
+  });
   cy.waitForElementInIframe(
     '#main-content',
     'select[name="o1"]'
@@ -183,6 +202,6 @@ When('the user deletes a connector', () => {
 });
 
 Then('the deleted connector is not displayed in the list', () => {
-  cy.reload();
+  cy.wait('@getTimeZone');
   cy.getIframeBody().should('not.have.text', data.connectorUpdated.name);
 });
