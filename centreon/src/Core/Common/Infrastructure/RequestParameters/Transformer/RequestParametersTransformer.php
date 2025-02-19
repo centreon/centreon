@@ -25,6 +25,7 @@ namespace Core\Common\Infrastructure\RequestParameters\Transformer;
 
 use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\TransformerException;
@@ -36,16 +37,20 @@ use Core\Common\Domain\Exception\ValueObjectException;
  * @class RequestParametersTransformer
  * @package Centreon\Infrastructure\RequestParameters\Transformer
  */
-readonly abstract class RequestParametersTransformer {
+readonly abstract class RequestParametersTransformer
+{
     /**
      * @param QueryParameters $queryParameters
      *
      * @return array<string,array<int,mixed>>
      */
-    public static function transformFromQueryParameters(QueryParameters $queryParameters): array {
+    public static function transformFromQueryParameters(QueryParameters $queryParameters): array
+    {
         $requestParameters = [];
         foreach ($queryParameters->getIterator() as $queryParameter) {
-            $pdoType = PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType());
+            $pdoType = PdoParameterTypeTransformer::transformFromQueryParameterType(
+                $queryParameter->getType() ?? QueryParameterTypeEnum::STRING
+            );
             $requestParameters[$queryParameter->getName()] = [$pdoType, $queryParameter->getValue()];
         }
 
@@ -58,7 +63,8 @@ readonly abstract class RequestParametersTransformer {
      * @throws TransformerException
      * @return QueryParameters
      */
-    public static function reverseToQueryParameters(array $requestParameters): QueryParameters {
+    public static function reverseToQueryParameters(array $requestParameters): QueryParameters
+    {
         try {
             $queryParameters = new QueryParameters();
             foreach ($requestParameters as $key => $value) {
@@ -68,11 +74,11 @@ readonly abstract class RequestParametersTransformer {
             }
 
             return $queryParameters;
-        } catch (CollectionException|ValueObjectException $e) {
+        } catch (CollectionException|ValueObjectException $exception) {
             throw new TransformerException(
                 'Error while transforming request parameters to query parameters',
                 ['requestParameters' => $requestParameters],
-                $e
+                $exception
             );
         }
     }

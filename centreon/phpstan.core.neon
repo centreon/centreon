@@ -123,4 +123,5 @@ parameters:
             message: '#Catch block must contain a Logger trait method call.#'
             paths:
                 - src/Adaptation
+                - src/Core/Common/Infrastructure/RequestParameters/Transformer
 
