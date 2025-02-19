@@ -16,6 +16,7 @@ import BarGroup from '../BarChart/BarGroup';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
+import { useComputeYAxisMaxCharacters } from '../common/BaseChart/useComputeYAxisMaxCharacters';
 import Thresholds from '../common/Thresholds/Thresholds';
 import type { Thresholds as ThresholdsModel } from '../common/models';
 import {
@@ -25,7 +26,6 @@ import {
   getYScalePerUnit
 } from '../common/timeSeries';
 import type { Line } from '../common/timeSeries/models';
-
 import Lines from './BasicComponents/Lines';
 import {
   canDisplayThreshold,
@@ -127,13 +127,24 @@ const Chart = ({
     [displayedLines]
   );
 
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      graphData,
+      thresholds,
+      thresholdUnit,
+      axis,
+      firstUnit,
+      secondUnit
+    });
+
   const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
     hasSecondUnit: Boolean(secondUnit),
     height,
     legendDisplay: legend?.display,
     legendHeight: legend?.height,
     legendPlacement: legend?.placement,
-    width
+    width,
+    maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
   });
 
   const xScale = useMemo(
@@ -270,39 +281,45 @@ const Chart = ({
                 svgRef={graphSvgRef}
                 timeSeries={timeSeries}
                 xScale={xScale}
+                maxAxisCharacters={maxLeftAxisCharacters}
+                hasSecondUnit={Boolean(secondUnit)}
               >
                 <>
-                  <BarGroup
-                    barStyle={barStyle}
-                    isTooltipHidden={false}
-                    lines={linesDisplayedAsBar}
-                    orientation="horizontal"
-                    size={graphHeight - margin.top - 5}
-                    timeSeries={timeSeries}
-                    xScale={xScaleBand}
-                    yScalesPerUnit={yScalesPerUnit}
-                  />
-                  <Lines
-                    areaTransparency={lineStyle?.areaTransparency}
-                    curve={lineStyle?.curve || 'linear'}
-                    dashLength={lineStyle?.dashLength}
-                    dashOffset={lineStyle?.dashOffset}
-                    displayAnchor={displayAnchor}
-                    displayedLines={linesDisplayedAsLine}
-                    dotOffset={lineStyle?.dotOffset}
-                    graphSvgRef={graphSvgRef}
-                    height={graphHeight - margin.top}
-                    lineWidth={lineStyle?.lineWidth}
-                    scale={axis?.scale}
-                    scaleLogarithmicBase={axis?.scaleLogarithmicBase}
-                    showArea={lineStyle?.showArea}
-                    showPoints={lineStyle?.showPoints}
-                    timeSeries={timeSeries}
-                    width={graphWidth}
-                    xScale={xScale}
-                    yScalesPerUnit={yScalesPerUnit}
-                    {...shapeLines}
-                  />
+                  {!isEmpty(linesDisplayedAsBar) && (
+                    <BarGroup
+                      barStyle={barStyle}
+                      isTooltipHidden={false}
+                      lines={linesDisplayedAsBar}
+                      orientation="horizontal"
+                      size={graphHeight - margin.top - 5}
+                      timeSeries={timeSeries}
+                      xScale={xScaleBand}
+                      yScalesPerUnit={yScalesPerUnit}
+                    />
+                  )}
+                  {!isEmpty(linesDisplayedAsLine) && (
+                    <Lines
+                      areaTransparency={lineStyle?.areaTransparency}
+                      curve={lineStyle?.curve || 'linear'}
+                      dashLength={lineStyle?.dashLength}
+                      dashOffset={lineStyle?.dashOffset}
+                      displayAnchor={displayAnchor}
+                      displayedLines={linesDisplayedAsLine}
+                      dotOffset={lineStyle?.dotOffset}
+                      graphSvgRef={graphSvgRef}
+                      height={graphHeight - margin.top}
+                      lineWidth={lineStyle?.lineWidth}
+                      scale={axis?.scale}
+                      scaleLogarithmicBase={axis?.scaleLogarithmicBase}
+                      showArea={lineStyle?.showArea}
+                      showPoints={lineStyle?.showPoints}
+                      timeSeries={timeSeries}
+                      width={graphWidth}
+                      xScale={xScale}
+                      yScalesPerUnit={yScalesPerUnit}
+                      {...shapeLines}
+                    />
+                  )}
                   <InteractionWithGraph
                     annotationData={{ ...annotationEvent }}
                     commonData={{
