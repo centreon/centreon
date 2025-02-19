@@ -47,11 +47,39 @@ Cypress.Commands.add('setPassiveResource', (url_string) => {
   });
 });
 
+Cypress.Commands.add(
+  'waitForElementToBeVisible',
+  (selector, timeout = 50000, interval = 2000) => {
+    cy.waitUntil(
+      () =>
+        cy.get('body').then(($body) => {
+          const element = $body.find(selector);
+
+          return element.length > 0 && element.is(':visible');
+        }),
+      {
+        errorMsg: `The element '${selector}' is not visible`,
+        interval,
+        timeout
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error(`The element '${selector}' is not visible`);
+      }
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
       deleteAllEventViewFilters: () => Cypress.Chainable;
       setPassiveResource: (url: string) => Cypress.Chainable;
+      waitForElementToBeVisible(
+        selector: string,
+        timeout?: number,
+        interval?: number
+      ): Cypress.Chainable;
     }
   }
 }
