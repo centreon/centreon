@@ -33,7 +33,8 @@ class AbstractRepositoryRDB
     /** @var positive-int Maximum number of elements an SQL query can return */
     protected int $maxItemsByRequest = 5000;
 
-    protected ConnectionInterface $db;
+    /** @var ConnectionInterface */
+    protected $db;
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.
