@@ -66,22 +66,6 @@ services:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
         public: true
 
-    Centreon\Infrastructure\DatabaseConnection:
-        class: Centreon\Infrastructure\DatabaseConnection
-        bind:
-            $logger: '@Logger'
-        arguments:
-            $host: '%database_host%'
-            $port: '%database_port%'
-            $basename: '%database_db%'
-            $login: '%database_user%'
-            $password: '%database_password%'
-        calls:
-            - method: setCentreonDbName
-              arguments: ['%database_db%']
-            - method: setStorageDbName
-              arguments: ['%database_dbstg%']
-
     Adaptation\Database\Connection\Model\ConnectionConfig:
       arguments:
         $host: '%database_host%'
@@ -90,18 +74,28 @@ services:
         $databaseName: '%database_db%'
         $port: '%database_port%'
 
+    Adaptation\Database\Connection\ConnectionInterface:
+        alias: Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter
+
     Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter:
       factory: [ null, 'createFromConfig' ]
       arguments:
-        $connectionConfig: @Adaptation\Database\Connection\Model\ConnectionConfig
+        $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
       calls:
         - method: setCentreonDbName
           arguments: [ '%database_db%' ]
         - method: setStorageDbName
           arguments: [ '%database_dbstg%' ]
 
-    Adaptation\Database\Connection\ConnectionInterface:
-        alias: Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter
+    Centreon\Infrastructure\DatabaseConnection:
+      factory: [ null, 'createFromConfig' ]
+      arguments:
+        $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
+      calls:
+        - method: setCentreonDbName
+          arguments: [ '%database_db%' ]
+        - method: setStorageDbName
+          arguments: [ '%database_dbstg%' ]
 
     jms_serializer.object_constructor:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor

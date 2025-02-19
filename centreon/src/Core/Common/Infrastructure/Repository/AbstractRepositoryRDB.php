@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
 
 class AbstractRepositoryRDB
 {
@@ -33,7 +34,8 @@ class AbstractRepositoryRDB
     /** @var positive-int Maximum number of elements an SQL query can return */
     protected int $maxItemsByRequest = 5000;
 
-    protected DatabaseConnection $db;
+    /** @var ConnectionInterface */
+    protected ConnectionInterface $db;
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.
@@ -63,13 +65,15 @@ class AbstractRepositoryRDB
      */
     protected function calculateNumberOfRows(): ?int
     {
-        if (
-            false === ($result = $this->db->query('SELECT FOUND_ROWS()'))
-            || false === ($value = $result->fetchColumn())
-        ) {
+        try {
+            return (int) $this->db->fetchOne('SELECT FOUND_ROWS()');
+        } catch (ConnectionException $exception) {
+            $this->error(
+                'Error while calculating the number of rows',
+                ['exception' => $exception->getContext()]
+            );
+
             return null;
         }
-
-        return (int) $value;
     }
 }

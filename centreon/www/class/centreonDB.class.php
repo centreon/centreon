@@ -26,6 +26,7 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\Trait\CentreonConnectionTrait;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Doctrine\DBAL\DriverManager;
@@ -50,6 +51,7 @@ require_once __DIR__ . '/centreonLog.class.php';
 class CentreonDB extends PDO implements ConnectionInterface
 {
     use ConnectionTrait;
+    use CentreonConnectionTrait;
 
     public const DRIVER_PDO_MYSQL = "mysql";
     public const LABEL_DB_CONFIGURATION = 'centreon';
@@ -132,6 +134,9 @@ class CentreonDB extends PDO implements ConnectionInterface
             } else {
                 $this->connectionConfig = $connectionConfig;
             }
+
+            $this->setCentreonDbName(db);
+            $this->setStorageDbName(dbcstg);
 
             $this->logger = CentreonLog::create();
 
@@ -1785,54 +1790,6 @@ class CentreonDB extends PDO implements ConnectionInterface
                 CentreonDBStatement::class,
                 [$this->logger],
             ]);
-        }
-    }
-
-    /**
-     * Only for DDL queries (ALTER TABLE, CREATE TABLE, DROP TABLE, CREATE DATABASE, and TRUNCATE TABLE...)
-     *
-     * @param string $query
-     *
-     * @throws CentreonDbException
-     * @return bool
-     *
-     * @deprecated Instead use {@see CentreonDB::executeStatement()}
-     * @see        CentreonDB::executeStatement()
-     */
-    public function updateDatabase(string $query): bool
-    {
-        try {
-            if (empty($query)) {
-                throw new CentreonDbException(
-                    'Query must not be empty',
-                    ['query' => $query]
-                );
-            }
-            $standardQueryStarts = ['SELECT ', 'UPDATE ', 'DELETE ', 'INSERT INTO '];
-            foreach ($standardQueryStarts as $standardQueryStart) {
-                if (
-                    str_starts_with($query, mb_strtolower($standardQueryStart))
-                    || str_starts_with($query, mb_strtoupper($standardQueryStart))
-                ) {
-                    throw new CentreonDbException(
-                        'Query must not to start by SELECT, UPDATE, DELETE or INSERT INTO, this method is only for DDL queries',
-                        ['query' => $query]
-                    );
-                }
-            }
-
-            return $this->exec($query) !== false;
-        } catch (\Throwable $e) {
-            $this->writeDbLog(
-                message: "Error while updating the database: {$e->getMessage()}",
-                query: $query,
-                previous: $e
-            );
-            throw new CentreonDbException(
-                message: "Error while updating the database: {$e->getMessage()}",
-                options: ['query' => $query,],
-                previous: $e
-            );
         }
     }
 

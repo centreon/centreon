@@ -24,13 +24,16 @@ declare(strict_types=1);
 namespace Core\ActionLog\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 /**
@@ -46,9 +49,9 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
     /**
      * DbWriteActionLogRepository constructor
      *
-     * @param DatabaseConnection $db
+     * @param ConnectionInterface $db
      */
-    public function __construct(DatabaseConnection $db)
+    public function __construct(ConnectionInterface $db)
     {
         $this->db = $db;
     }
@@ -91,19 +94,20 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
             ]));
 
             return (int) $this->db->getLastInsertId();
-        } catch (\Throwable $ex) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             $this->error(
-                "Add action log failed : {$ex->getMessage()}",
+                "Add action log failed : {$exception->getMessage()}",
                 [
                     'action_log' => $actionLog,
-                    'exception' => [
-                        'message' => $ex->getMessage(),
-                        'trace' => $ex->getTraceAsString(),
-                    ],
+                    'exception' => $exception->getContext(),
                 ]
             );
 
-            throw new RepositoryException($ex->getMessage(), ['action_log' => $actionLog], $ex);
+            throw new RepositoryException(
+                "Add action log failed : {$exception->getMessage()}",
+                ['action_log' => $actionLog],
+                $exception
+            );
         }
     }
 
@@ -156,15 +160,12 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
             if (! $aleadyInTransction) {
                 $this->db->commitTransaction();
             }
-        } catch (\Throwable $ex) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             $this->error(
-                "Add action log failed : {$ex->getMessage()}",
+                "Add action log failed : {$exception->getMessage()}",
                 [
                     'action_log' => $actionLog,
-                    'exception' => [
-                        'message' => $ex->getMessage(),
-                        'trace' => $ex->getTraceAsString(),
-                    ],
+                    'exception' => $exception->getContext(),
                 ]
             );
 
@@ -176,10 +177,7 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                         "Rollback failed for action logs: {$rollbackException->getMessage()}",
                         [
                             'action_log' => $actionLog,
-                            'exception' => [
-                                'message' => $rollbackException->getMessage(),
-                                'trace' => $rollbackException->getTraceAsString(),
-                            ],
+                            'exception' => $rollbackException->getContext(),
                         ]
                     );
 
@@ -192,9 +190,9 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
             }
 
             throw new RepositoryException(
-                "Add action log failed : {$ex->getMessage()}",
+                "Add action log failed : {$exception->getMessage()}",
                 ['action_log' => $actionLog],
-                $ex
+                $exception
             );
         }
     }

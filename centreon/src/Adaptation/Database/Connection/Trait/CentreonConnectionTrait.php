@@ -29,7 +29,6 @@ namespace Adaptation\Database\Connection\Trait;
  * @package Adaptation\Database\Connection\Trait
  */
 trait CentreonConnectionTrait {
-
     /** @var string Name of the configuration table */
     private string $centreonDbName;
 
@@ -67,5 +66,4 @@ trait CentreonConnectionTrait {
     {
         $this->storageDbName = $storageDbName;
     }
-
 }

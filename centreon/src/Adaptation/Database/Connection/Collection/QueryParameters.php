@@ -39,7 +39,7 @@ class QueryParameters extends Collection
 {
     /**
      * @throws CollectionException
-     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
+     * @return Collection<QueryParameter>
      */
     public function getIntQueryParameters(): Collection
     {
@@ -50,7 +50,7 @@ class QueryParameters extends Collection
 
     /**
      * @throws CollectionException
-     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
+     * @return Collection<QueryParameter>
      */
     public function getStringQueryParameters(): Collection
     {
@@ -61,7 +61,7 @@ class QueryParameters extends Collection
 
     /**
      * @throws CollectionException
-     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
+     * @return Collection<QueryParameter>
      */
     public function getBoolQueryParameters(): Collection
     {
@@ -72,7 +72,7 @@ class QueryParameters extends Collection
 
     /**
      * @throws CollectionException
-     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
+     * @return Collection<QueryParameter>
      */
     public function getNullQueryParameters(): Collection
     {
@@ -83,7 +83,7 @@ class QueryParameters extends Collection
 
     /**
      * @throws CollectionException
-     * @return Collection<\Adaptation\Database\Connection\ValueObject\QueryParameter>
+     * @return Collection<QueryParameter>
      */
     public function getLargeObjectQueryParameters(): Collection
     {
@@ -93,7 +93,7 @@ class QueryParameters extends Collection
     }
 
     /**
-     * @return class-string<\Adaptation\Database\Connection\ValueObject\QueryParameter>
+     * @return class-string<QueryParameter>
      */
     protected function itemClass(): string
     {

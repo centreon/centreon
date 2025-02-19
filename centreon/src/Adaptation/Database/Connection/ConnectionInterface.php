@@ -116,6 +116,18 @@ interface ConnectionInterface
      */
     public function quoteString(string $value): string;
 
+    // ----------------------------------------- Centreon METHODS ------------------------------------------
+
+    /**
+     * @return string
+     */
+    public function getCentreonDbName(): string;
+
+    /**
+     * @return string
+     */
+    public function getStorageDbName(): string;
+
     // ----------------------------------------- CUD METHODS ------------------------------------------
 
     /**

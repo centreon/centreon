@@ -1322,6 +1322,27 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(ConnectionException::class);
 
+    // ----------------------------------- QUERY ON SEVERAL DATABASES -------------------------------------
+
+    it(
+        'test DatabaseConnection : execute query on several databases with success',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            // get log actions done by admin
+            $sql = <<<'SQL'
+                SELECT * FROM `centreon_storage`.`log_action` AS la 
+                    INNER JOIN `centreon`.`contact` AS c
+                        ON la.log_contact_id = c.contact_id
+                WHERE c.contact_id = :contact_id;
+                SQL;
+            $logActions = $db->fetchAllAssociative(
+                $sql,
+                QueryParameters::create([QueryParameter::int('contact_id', 1)])
+            );
+            expect($logActions)->toBeArray()->toHaveCount(11);
+        }
+    );
+
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
     it('test CentreonDB : execute startTransaction with success', function () use ($dbConfigCentreon): void {
@@ -1692,54 +1713,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(CentreonDbException::class);
 
-    // -- updateDatabase()
-
-    it(
-        'test DEPRECATED CentreonDB : execute updateDatabase with correct query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->updateDatabase(
-                "CREATE TABLE IF NOT EXISTS test_table (id INT PRIMARY KEY, name VARCHAR(255))"
-            );
-            expect($response)->toBeTrue();
-            $stmt = $db->executeQuery("SHOW TABLES LIKE 'test_table'");
-            $response = $stmt->fetch();
-            expect($response)->toBeArray()->toHaveCount(1);
-            $response = $db->updateDatabase("DROP TABLE test_table");
-            expect($response)->toBeTrue();
-            $stmt = $db->executeQuery("SHOW TABLES LIKE 'test_table'");
-            $response = $stmt->fetch();
-            expect($response)->toBeFalse();
-        }
-    );
-
-    it(
-        'test DEPRECATED CentreonDB : execute updateDatabase with incorrect query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->updateDatabase("CREATE TABLE IF NOT EXISTS test_table");
-            expect($response)->toBeFalse();
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'test DEPRECATED CentreonDB : execute updateDatabase with an empty query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->updateDatabase("");
-            expect($response)->toBeFalse();
-        }
-    )->throws(CentreonDbException::class);
-
-    it(
-        'test DEPRECATED CentreonDB : execute updateDatabase with a no DDL query',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            $response = $db->updateDatabase("SELECT * FROM contact");
-            expect($response)->toBeFalse();
-        }
-    )->throws(CentreonDbException::class);
-
     // -- executeQueryFetchAll()
 
     it(
@@ -1832,27 +1805,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             expect($escapedString)->toBeString()->toBe('\'foo\'');
             $escapedString = $db->escapeString('1');
             expect($escapedString)->toBeString()->toBe('\'1\'');
-        }
-    );
-
-    // ----------------------------------- QUERY ON SEVERAL DATABASES -------------------------------------
-
-    it(
-        'test DatabaseConnection : execute query on several databases with success',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            // get log actions done by admin
-            $sql = <<<'SQL'
-                SELECT * FROM `centreon_storage`.`log_action` AS la 
-                    INNER JOIN `centreon`.`contact` AS c
-                        ON la.log_contact_id = c.contact_id
-                WHERE c.contact_id = :contact_id;
-                SQL;
-            $logActions = $db->fetchAllAssociative(
-                $sql,
-                QueryParameters::create([QueryParameter::int('contact_id', 1)])
-            );
-            expect($logActions)->toBeArray()->toHaveCount(11);
         }
     );
 
