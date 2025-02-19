@@ -36,7 +36,6 @@ When('the admin user accesses the backup page', () => {
 });
 
 Then('the backup is enabled in the UI', () => {
-  throw new Error('failure');
   cy.enterIframe('#main-content').within(() => {
     cy.get('input[name="backup_enabled[backup_enabled]"]').should('be.checked');
   });

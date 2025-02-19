@@ -27,11 +27,7 @@ before(() => {
 });
 
 beforeEach(() => {
-  cy
-    .clearCookies()
-    .clearLocalStorage()
-    .clearAllSessionStorage();
-
+  // clear network cache to avoid chunk loading issues
   cy.wrap(Cypress.automation('remote:debugger:protocol', {
     command: 'Network.clearBrowserCache',
   }));
