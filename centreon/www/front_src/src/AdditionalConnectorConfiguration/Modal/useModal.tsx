@@ -38,11 +38,11 @@ const useAdditionalConnectorModal = (): UseConnectorConfig => {
 
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
   const isFormDirty = useAtomValue(isFormDirtyAtom);
-  const setIsCloseModalDialogOpenAtom = useSetAtom(isCloseModalDialogOpenAtom);
+  const setIsCloseModalDialogOpen = useSetAtom(isCloseModalDialogOpenAtom);
 
   const closeDialog = (): void => {
     if (isFormDirty) {
-      setIsCloseModalDialogOpenAtom(true);
+      setIsCloseModalDialogOpen(true);
 
       return;
     }

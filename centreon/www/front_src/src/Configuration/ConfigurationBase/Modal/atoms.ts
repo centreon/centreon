@@ -1,8 +1,8 @@
 import { atom } from 'jotai';
-import { DialogState } from './models';
+import { ModalState } from './models';
 
-export const dialogStateAtom = atom<DialogState>({
+export const modalStateAtom = atom<ModalState>({
   id: null,
   isOpen: false,
-  variant: 'create'
+  mode: 'add'
 });

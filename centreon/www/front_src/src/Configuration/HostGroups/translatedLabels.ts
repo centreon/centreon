@@ -12,3 +12,21 @@ export const labelNoEnabledHosts =
   'No hosts in this group are currently enabled.';
 export const labelNoDisabledHosts =
   'No hosts in this group are currently disabled.';
+
+// form
+export const labelCancel = 'Cancel';
+export const labelCreate = 'Create';
+export const labelUpdate = 'Update';
+
+export const labelGeneralInformation = 'General information';
+export const labelGroupMembers = 'Group members';
+export const labelResourceAccessRule = 'Resource access rule';
+export const labelExtendedInformation = 'Extended information';
+
+export const labelComment = 'Comment';
+export const labelSelectHosts = 'Select hosts';
+export const labelApplyResourceAccessRule =
+  'Apply resource access rule to Host group';
+export const labelGeographicCoordinates = 'Geographic coordinates for MAP';
+
+export const labelRequired = 'Required';

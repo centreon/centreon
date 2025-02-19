@@ -1,5 +1,5 @@
-export interface DialogState {
+export interface ModalState {
   id: number | null;
   isOpen: boolean;
-  variant: 'create' | 'update';
+  mode: 'add' | 'edit';
 }

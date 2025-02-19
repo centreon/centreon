@@ -9,7 +9,7 @@ export enum ResourceType {
 
 export interface ConfigurationBase {
   resourceType: ResourceType;
-  Form: JSX.Element;
+  Form: () => JSX.Element;
   columns: Array<Column>;
 }
 

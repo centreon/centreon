@@ -103,7 +103,7 @@ const HostGroups = () => {
     <ConfigurationBase
       columns={columns}
       resourceType={ResourceType.HostGroup}
-      Form={<Form />}
+      Form={Form}
     />
   );
 };

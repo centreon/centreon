@@ -1,5 +1,8 @@
 export const hostGroupsListEndpoint = '/configuration/hosts/groups';
+
 export const hostListEndpoint = '/configuration/hosts';
+export const resourceAccessRulesEndpoint =
+  '/administration/resource-access/rules';
 
 export const getHostGroupEndpoint = ({ id }): string =>
   `/configuration/hosts/groups/${id}`;

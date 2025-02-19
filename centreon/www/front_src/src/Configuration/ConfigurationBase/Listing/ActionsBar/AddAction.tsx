@@ -5,16 +5,21 @@ import AddIcon from '@mui/icons-material/Add';
 import { Button } from '@centreon/ui/components';
 
 import { useSetAtom } from 'jotai';
-import { dialogStateAtom } from '../../Modal/atoms';
+import { useSearchParams } from 'react-router';
+import { modalStateAtom } from '../../Modal/atoms';
 import { labelAdd } from '../../translatedLabels';
 
 const Add = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const setDialogState = useSetAtom(dialogStateAtom);
+  const [, setSearchParams] = useSearchParams();
+
+  const setModalState = useSetAtom(modalStateAtom);
 
   const openCreatetModal = (): void => {
-    setDialogState({ id: null, isOpen: true, variant: 'create' });
+    setSearchParams({ mode: 'add' });
+
+    setModalState({ id: null, isOpen: true, mode: 'add' });
   };
 
   return (

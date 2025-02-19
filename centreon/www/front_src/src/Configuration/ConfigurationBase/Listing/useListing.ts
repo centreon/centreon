@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { useSnackbar } from '@centreon/ui';
 
 import { useTheme } from '@mui/material';
-import { useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router';
 import { configurationAtom } from '../../atoms';
-import { dialogStateAtom } from '../Modal/atoms';
+import { modalStateAtom } from '../Modal/atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
@@ -30,7 +30,8 @@ const useListing = (): UseListing => {
   const { t } = useTranslation();
   const theme = useTheme();
   const { showWarningMessage } = useSnackbar();
-  const navigate = useNavigate();
+
+  const [, setSearchParams] = useSearchParams();
 
   const configuration = useAtomValue(configurationAtom);
   const defaultSelectedColumnIds = configuration?.defaultSelectedColumnIds;
@@ -39,7 +40,7 @@ const useListing = (): UseListing => {
     defaultSelectedColumnIds
   );
 
-  const setDialogState = useSetAtom(dialogStateAtom);
+  const setModalState = useSetAtom(modalStateAtom);
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
@@ -69,11 +70,11 @@ const useListing = (): UseListing => {
   };
 
   const openEditModal = (row) => {
-    navigate(`?id=${row.id}`);
+    setSearchParams({ mode: 'edit', id: row.id });
 
-    setDialogState({
+    setModalState({
       isOpen: true,
-      variant: 'update',
+      mode: 'edit',
       id: row.id
     });
   };

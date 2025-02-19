@@ -1,53 +1,91 @@
 import { Modal } from '@centreon/ui/components';
-import { useAtom } from 'jotai';
-import { equals } from 'ramda';
+import { Typography } from '@mui/material';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { labelAddResource, labelUpdateResource } from '../translatedLabels';
-import { useStyles } from './Modal.styles';
-import { dialogStateAtom } from './atoms';
+import { useSearchParams } from 'react-router';
 
-import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import { useStyles } from './Modal.styles';
+
 import { configurationAtom } from '../../atoms';
+import { modalStateAtom } from './atoms';
+
+import {
+  isCloseConfirmationDialogOpenAtom,
+  isFormDirtyAtom
+} from '../../HostGroups/atoms';
+import { labelAddResource, labelUpdateResource } from '../translatedLabels';
 
 interface Props {
-  Form: JSX.Element;
+  Form: ({ onSubmit, onCancel, mode }) => JSX.Element;
 }
 
 const FormModal = ({ Form }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useStyles();
 
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams(
+    window.location.search
+  );
 
-  const [dialogState, setDialogState] = useAtom(dialogStateAtom);
+  const isFormDirty = useAtomValue(isFormDirtyAtom);
+  const setIsCloseConfirmationDialogOpen = useSetAtom(
+    isCloseConfirmationDialogOpenAtom
+  );
+  const [modalState, setModalState] = useAtom(modalStateAtom);
+
   const configuration = useAtomValue(configurationAtom);
   const resourceType = configuration?.resourceType;
 
-  const close = () => {
-    navigate('');
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    const id = searchParams.get('id');
 
-    setDialogState({ ...dialogState, isOpen: false, id: null });
+    if (mode) {
+      setModalState({
+        isOpen: true,
+        mode: mode as 'add' | 'edit',
+        id: Number(id)
+      });
+    }
+  }, [searchParams, setModalState]);
+
+  const close = () => {
+    if (isFormDirty) {
+      setIsCloseConfirmationDialogOpen(true);
+
+      return;
+    }
+
+    setSearchParams({});
+
+    setModalState({ ...modalState, isOpen: false, id: null });
   };
 
-  const labelHeader = equals(dialogState.variant, 'create')
+  const labelHeader = equals(modalState.mode, 'add')
     ? labelAddResource
     : labelUpdateResource;
 
   return (
     <Modal
       data-testid="Modal"
-      open={dialogState.isOpen}
+      open={modalState.isOpen}
       size="xlarge"
       onClose={close}
     >
-      <div className={classes.modal}>
-        <Modal.Header data-testid="Modal-header">
+      <Modal.Header data-testid="Modal-header">
+        <Typography className={classes.modalHeader}>
           {t(labelHeader(resourceType))}
-        </Modal.Header>
-
-        <Modal.Body>{Form}</Modal.Body>
-      </div>
+        </Typography>
+      </Modal.Header>
+      <Modal.Body>
+        <Form
+          onSubmit={() => undefined}
+          onCancel={() => undefined}
+          mode={modalState.mode}
+        />
+      </Modal.Body>
     </Modal>
   );
 };

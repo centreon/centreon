@@ -1,3 +1,5 @@
+import { ModalState } from '../ConfigurationBase/Modal/models';
+
 export const defaultSelectedColumnIds = [
   'name',
   'alias',
@@ -12,4 +14,10 @@ export const filtersInitialValues = {
   alias: '',
   enabled: false,
   disabled: false
+};
+
+export const modalInitialState: ModalState = {
+  isOpen: false,
+  mode: 'edit',
+  id: null
 };
