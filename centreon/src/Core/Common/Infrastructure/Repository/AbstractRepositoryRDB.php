@@ -69,7 +69,7 @@ class AbstractRepositoryRDB
         try {
             return (int) $this->db->fetchOne('SELECT FOUND_ROWS()');
         } catch (ConnectionException $exception) {
-            $this->logger->error(
+            $this->error(
                 'Error while calculating the number of rows',
                 ['exception' => $exception->getContext()]
             );
