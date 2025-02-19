@@ -81,6 +81,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         ?ConnectionConfig $connectionConfig = null
     ) {
         try {
+            $this->logger = $logger;
+
             if (is_null($connectionConfig)) {
                 if (empty($host) || empty($login) || empty($password) || empty($basename)) {
                     throw ConnectionException::connectionBadUsage(
@@ -124,7 +126,6 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 throw ConnectionException::connectionFailed($exception);
             }
         }
-        $this->logger = $logger;
     }
 
     /**
