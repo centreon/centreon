@@ -78,19 +78,14 @@ services:
       alias: Centreon\Infrastructure\DatabaseConnection
 
     Centreon\Infrastructure\DatabaseConnection:
-      bind:
-        $logger: '@Logger'
+      factory: [ null, 'createFromConfig' ]
       arguments:
-        $host: '%database_host%'
-        $port: '%database_port%'
-        $basename: '%database_db%'
-        $login: '%database_user%'
-        $password: '%database_password%'
+        $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
       calls:
         - method: setCentreonDbName
-          arguments: ['%database_db%']
+          arguments: [ '%database_db%' ]
         - method: setStorageDbName
-          arguments: ['%database_dbstg%']
+          arguments: [ '%database_dbstg%' ]
 
     jms_serializer.object_constructor:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
