@@ -1,4 +1,6 @@
 import { Zoom as VisxZoom } from '@visx/zoom';
+import { TransformMatrix } from '@visx/zoom/lib/types';
+import { type MutableRefObject } from 'react';
 
 import { ParentSize } from '../..';
 
@@ -12,6 +14,8 @@ export interface ZoomProps {
   scaleMax?: number;
   scaleMin?: number;
   showMinimap?: boolean;
+  contentRef?: MutableRefObject<SVGGElement | null>;
+  transformMatrix?: TransformMatrix;
 }
 
 const initialTransform = {
@@ -29,14 +33,16 @@ const Zoom = ({
   scaleMax = 4,
   showMinimap = false,
   minimapPosition = 'top-left',
-  id = 0
+  id = 0,
+  contentRef,
+  transformMatrix = initialTransform
 }: ZoomProps): JSX.Element => {
   return (
     <ParentSize>
       {({ width, height }) => (
         <VisxZoom<SVGSVGElement>
           height={height}
-          initialTransformMatrix={initialTransform}
+          initialTransformMatrix={transformMatrix}
           scaleXMax={scaleMax}
           scaleXMin={scaleMin}
           scaleYMax={scaleMax}
@@ -51,6 +57,7 @@ const Zoom = ({
               showMinimap={showMinimap}
               width={width}
               zoom={zoom}
+              ref={contentRef}
             >
               {children}
             </ZoomContent>
