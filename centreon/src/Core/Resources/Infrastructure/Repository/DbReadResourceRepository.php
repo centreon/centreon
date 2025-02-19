@@ -184,6 +184,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 AND resources.parent_name NOT LIKE '\_Module\_BAM%'
                 AND resources.enabled = 1
                 AND resources.type != 3
+
             SQL;
 
         $request .= $this->addResourceParentIdSubRequest($filter, $collector);
