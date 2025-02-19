@@ -112,7 +112,6 @@ interface ConnectionInterface
      */
     public function getStorageDbName(): string;
 
-
     // ----------------------------------------- CUD METHODS ------------------------------------------
 
     /**
