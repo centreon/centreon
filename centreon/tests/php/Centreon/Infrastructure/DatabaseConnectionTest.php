@@ -1326,7 +1326,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DatabaseConnection : execute query on several databases with success',
         function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             // get log actions done by admin
             $sql = <<<'SQL'
                 SELECT * FROM `centreon_storage`.`log_action` AS la 
