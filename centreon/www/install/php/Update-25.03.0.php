@@ -247,8 +247,6 @@ try {
 
     $pearDB->commit();
 
-    $pearDB->commit();
-
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
