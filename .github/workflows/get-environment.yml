@@ -74,6 +74,7 @@ jobs:
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
       is_targeting_feature_branch: ${{ steps.get_stability.outputs.is_targeting_feature_branch }}
       is_nightly: ${{ steps.get_nightly_status.outputs.is_nightly }}
+      trigger_has_changes: ${{ steps.trigger_has_changes.outputs.trigger_has_changes }}
       skip_workflow: ${{ steps.skip_workflow.outputs.result }}
       labels: ${{ steps.has_skip_label.outputs.labels }}
 
