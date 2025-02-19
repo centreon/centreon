@@ -19675,4 +19675,4 @@ msgid "The minimum allowed value is 10"
 msgstr "La valeur minimale autorisée est 10"
 
 msgid "Error while enabling/disabling host groups"
-msgstr "Erreur lors de l'activation/désaction de groupes d'hôtes"
+msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
