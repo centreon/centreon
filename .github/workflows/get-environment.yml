@@ -426,6 +426,8 @@ jobs:
             const triggerHasChanges = () => {
               if (${{ steps.get_nightly_status.outputs.is_nightly }} == 'true' || context.eventName === 'workflow_dispatch' || context.eventName === 'push') {
                 return 'false';
+              } else if (${{ steps.get_stability.outputs.stability }} == 'testing' && ${{ steps.get_stability.outputs.target_stability == 'stable' }}) {
+                return 'false';
               } else {
                 return 'true';
               }
