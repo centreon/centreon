@@ -131,13 +131,6 @@ class OutputUnifiedSql
                 'grp_level' => '0',
             ],
             [
-                'config_key' => 'check_replication',
-                'config_value' => 'no',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
                 'config_key' => 'rebuild_check_interval',
                 'config_value' => '',
                 'config_group' => 'output',
