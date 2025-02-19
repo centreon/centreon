@@ -433,7 +433,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 instances.name AS `monitoring_server_name`,
                 resources.enabled,
                 resources.icon_id,
-                resources.severity_id
+                resources.severity_id,
+                resources.flapping,
+                resources.percent_state_change
             FROM `:dbstg`.`resources`
             INNER JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
