@@ -222,8 +222,10 @@ $removeFieldFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$error
  * @throws CentreonDbException
  */
 $createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
-    $errorMessage = 'Unable to create index for downtimes table';
-    $realtimeDb->executeQuery('CREATE INDEX IF NOT EXISTS `downtimes_end_time_index` ON downtimes (`end_time`)');
+    if (! $realtimeDb->isIndexExists('downtimes', 'downtimes_end_time_index')) {
+        $errorMessage = 'Unable to create index for downtimes table';
+        $realtimeDb->executeQuery('CREATE INDEX `downtimes_end_time_index` ON downtimes (`end_time`)');
+    }
 };
 
 try {
