@@ -56,7 +56,7 @@ it ('should call the callback for a file with macro', function () {
     expect($result)->toBe(['key' => 'val']);
 });
 
-it('should not create manifest file is input is an empty array', function () {
+it('should not create manifest file if input is an empty array', function () {
     $this->parser->dump([], '/tmp/test.json');
     expect($this->fs->exists('/tmp/test.json'))->toBeFalse();
 });
