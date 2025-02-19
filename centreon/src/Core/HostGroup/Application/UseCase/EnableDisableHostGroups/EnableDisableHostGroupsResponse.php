@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\HostGroup\Application\UseCase\EnableDisableHostGroups;
 
 use Core\Application\Common\UseCase\BulkResponseInterface;
-use Core\Application\Common\UseCase\StandardResponseInterface;
 
 final class EnableDisableHostGroupsResponse implements BulkResponseInterface
 {

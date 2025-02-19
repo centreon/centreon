@@ -29,6 +29,7 @@ final class DeleteHostGroupsRequestTransformer
 {
     /**
      * @param DeleteHostGroupsInput $input
+     *
      * @return DeleteHostGroupsRequest
      */
     public static function transform(DeleteHostGroupsInput $input): DeleteHostGroupsRequest

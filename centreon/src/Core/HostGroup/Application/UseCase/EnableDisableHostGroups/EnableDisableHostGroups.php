@@ -99,7 +99,7 @@ final class EnableDisableHostGroups
         return new EnableDisableHostGroupsResponse($results);
     }
 
-        /**
+    /**
      * Check that host group exists for the user regarding ACLs.
      *
      * @param int $hostGroupId

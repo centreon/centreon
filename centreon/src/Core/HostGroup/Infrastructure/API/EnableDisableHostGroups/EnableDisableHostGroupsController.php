@@ -29,7 +29,6 @@ use Core\HostGroup\Infrastructure\Voters\HostGroupVoters;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 

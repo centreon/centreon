@@ -29,11 +29,14 @@ final class EnableDisableHostGroupsRequestTransformer
 {
     /**
      * @param EnableDisableHostGroupsInput $input
+     * @param string $action
+     *
      * @return EnableDisableHostGroupsRequest
      */
     public static function transform(EnableDisableHostGroupsInput $input, string $action): EnableDisableHostGroupsRequest
     {
         $action = ltrim($action, '_');
+
         return new EnableDisableHostGroupsRequest($input->ids, $action === 'enable');
     }
 }

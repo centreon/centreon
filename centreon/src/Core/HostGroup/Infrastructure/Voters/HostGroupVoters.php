@@ -35,7 +35,6 @@ final class HostGroupVoters extends Voter
 {
     public const HOSTGROUP_DELETE = 'hostgroup_delete';
     public const HOSTGROUP_ENABLE_DISABLE = 'hostgroup_enable_disable';
-
     private const ALLOWED_ATTRIBUTES = [
         self::HOSTGROUP_DELETE,
         self::HOSTGROUP_ENABLE_DISABLE,
