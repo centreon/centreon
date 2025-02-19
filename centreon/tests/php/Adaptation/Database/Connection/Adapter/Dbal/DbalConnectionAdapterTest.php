@@ -1322,6 +1322,27 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(ConnectionException::class);
 
+    // ----------------------------------- QUERY ON SEVERAL DATABASES -------------------------------------
+
+    it(
+        'test DbalConnectionAdapter : execute query on several databases with success',
+        function () use ($dbConfigCentreon): void {
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            // get log actions done by admin
+            $sql = <<<'SQL'
+                SELECT * FROM `centreon_storage`.`log_action` AS la 
+                    INNER JOIN `centreon`.`contact` AS c
+                        ON la.log_contact_id = c.contact_id
+                WHERE c.contact_id = :contact_id;
+                SQL;
+            $logActions = $db->fetchAllAssociative(
+                $sql,
+                QueryParameters::create([QueryParameter::int('contact_id', 1)])
+            );
+            expect($logActions)->toBeArray();
+        }
+    );
+
 } else {
     it('no centreon database available for testing the DbalConnectionAdapter connector, so these tests were ignored');
 }
