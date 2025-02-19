@@ -141,35 +141,25 @@ $updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
     );
 };
 
-// -------------------------------------------- Resource Status -------------------------------------------- //
-
-$createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
-        if (! $realtimeDb->isIndexExists('resources', 'resources_poller_id_index')) {
-            $errorMessage = 'Unable to create index resources_poller_id_index';
-            $realtimeDb->exec('CREATE INDEX `resources_poller_id_index` ON resources (`poller_id`)');
-        }
-
-        if (! $realtimeDb->isIndexExists('resources', 'resources_id_index')) {
-            $errorMessage = 'Unable to create index resources_id_index';
-            $realtimeDb->exec('CREATE INDEX `resources_id_index` ON resources (`id`)');
-        }
-
-        if (! $realtimeDb->isIndexExists('resources', 'resources_parent_id_index')) {
-            $errorMessage = 'Unable to create index resources_parent_id_index';
-            $realtimeDb->exec('CREATE INDEX `resources_parent_id_index` ON resources (`parent_id`)');
-        }
-
-        if (! $realtimeDb->isIndexExists('resources', 'resources_enabled_type_index')) {
-            $errorMessage = 'Unable to create index resources_enabled_type_index';
-            $realtimeDb->exec('CREATE INDEX `resources_enabled_type_index` ON resources (`enabled`, `type`)');
-        }
-
-        if (! $realtimeDb->isIndexExists('tags', 'tags_type_name_index')) {
-            $errorMessage = 'Unable to create index tags_type_name_index';
-            $realtimeDb->exec('CREATE INDEX `tags_type_name_index` ON tags (`type`, `name`(10))');
-        }
+// -------------------------------------------- Dashboard Panel -------------------------------------------- //
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table dashboard_panel';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `dashboard_panel`
+            SET `layout_x` = `layout_x` * 2,
+                `layout_width` = `layout_width` * 2
+            SQL
+    );
 };
 
+// -------------------------------------------- Resource Status -------------------------------------------- //
 /**
  * @param CentreonDB $pearDBO
  *
@@ -198,6 +188,32 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     }
 };
 
+$createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
+    if (! $realtimeDb->isIndexExists('resources', 'resources_poller_id_index')) {
+        $errorMessage = 'Unable to create index resources_poller_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_poller_id_index` ON resources (`poller_id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_id_index')) {
+        $errorMessage = 'Unable to create index resources_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_id_index` ON resources (`id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_parent_id_index')) {
+        $errorMessage = 'Unable to create index resources_parent_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_parent_id_index` ON resources (`parent_id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_enabled_type_index')) {
+        $errorMessage = 'Unable to create index resources_enabled_type_index';
+        $realtimeDb->exec('CREATE INDEX `resources_enabled_type_index` ON resources (`enabled`, `type`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('tags', 'tags_type_name_index')) {
+        $errorMessage = 'Unable to create index tags_type_name_index';
+        $realtimeDb->exec('CREATE INDEX `tags_type_name_index` ON tags (`type`, `name`(10))');
+    }
+};
 
 // -------------------------------------------- Broker I/O Configuration -------------------------------------------- //
 
