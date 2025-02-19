@@ -27,6 +27,15 @@ before(() => {
 });
 
 beforeEach(() => {
+  cy
+    .clearCookies()
+    .clearLocalStorage()
+    .clearAllSessionStorage();
+
+  cy.wrap(Cypress.automation('remote:debugger:protocol', {
+    command: 'Network.clearBrowserCache',
+  }));
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -250,8 +259,5 @@ afterEach(() => {
   cy
     .visitEmptyPage()
     .copyWebContainerLogs({ name: 'web' })
-    .stopContainer({ name: 'web' })
-    .clearCookies()
-    .clearLocalStorage()
-    .clearAllSessionStorage();
+    .stopContainer({ name: 'web' });
 });
