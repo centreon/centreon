@@ -104,12 +104,15 @@ export default (): void => {
       columnToSort.forEach(({ label, id }) => {
         const sortBy = id;
 
+        cy.contains('VMWare1');
+        cy.contains('VMWare2');
+
         cy.findByLabelText(`Column ${label}`).click();
 
         cy.waitForRequest('@getConnectors').then(({ request }) => {
-          expect(
-            JSON.parse(request.url.searchParams.get('sort_by'))
-          ).to.deep.equal({
+          const sortParam = JSON.parse(request.url.searchParams.get('sort_by'));
+
+          expect(sortParam).to.deep.equal({
             [sortBy]: 'desc'
           });
         });
