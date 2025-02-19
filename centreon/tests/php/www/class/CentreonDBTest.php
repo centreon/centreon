@@ -1302,6 +1302,27 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     )->throws(ConnectionException::class);
 
+    // ----------------------------------- QUERY ON SEVERAL DATABASES -------------------------------------
+
+    it(
+        'test DatabaseConnection : execute query on several databases with success',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            // get log actions done by admin
+            $sql = <<<'SQL'
+                SELECT * FROM `centreon_storage`.`log_action` AS la 
+                    INNER JOIN `centreon`.`contact` AS c
+                        ON la.log_contact_id = c.contact_id
+                WHERE c.contact_id = :contact_id;
+                SQL;
+            $logActions = $db->fetchAllAssociative(
+                $sql,
+                QueryParameters::create([QueryParameter::int('contact_id', 1)])
+            );
+            expect($logActions)->toBeArray();
+        }
+    );
+
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
     it('test CentreonDB : execute startTransaction with success', function () use ($dbConfigCentreon): void {
@@ -1372,27 +1393,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             $pdoSth->execute(['contact_id' => 1]);
             $successClose = $db->closeQuery($pdoSth);
             expect($successClose)->toBeTrue();
-        }
-    );
-
-    // ----------------------------------- QUERY ON SEVERAL DATABASES -------------------------------------
-
-    it(
-        'test CentreonDB : execute query on several databases with success',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
-            // get log actions done by admin
-            $sql = <<<'SQL'
-                SELECT * FROM `centreon_storage`.`log_action` AS la 
-                    INNER JOIN `centreon`.`contact` AS c
-                        ON la.log_contact_id = c.contact_id
-                WHERE c.contact_id = :contact_id;
-                SQL;
-            $logActions = $db->fetchAllAssociative(
-                $sql,
-                QueryParameters::create([QueryParameter::int('contact_id', 1)])
-            );
-            expect($logActions)->toBeArray();
         }
     );
 
