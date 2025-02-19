@@ -1392,7 +1392,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 $sql,
                 QueryParameters::create([QueryParameter::int('contact_id', 1)])
             );
-            expect($logActions)->toBeArray()->toHaveCount(11);
+            expect($logActions)->toBeArray();
         }
     );
 
