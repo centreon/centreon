@@ -23,10 +23,12 @@ declare(strict_types=1);
 namespace Centreon\Domain\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class AbstractRepositoryDRB
 {
+    /** @var DatabaseConnection */
     protected ConnectionInterface $db;
 
     /**

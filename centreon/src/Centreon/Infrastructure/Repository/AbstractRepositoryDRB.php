@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Centreon\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 use JsonSchema\Validator;
 use Centreon\Domain\Log\LoggerTrait;
 use JsonSchema\Constraints\Constraint;
@@ -32,6 +33,7 @@ class AbstractRepositoryDRB
 {
     use LoggerTrait;
 
+    /** @var DatabaseConnection */
     protected ConnectionInterface $db;
 
     /**
