@@ -23,11 +23,21 @@ declare(strict_types=1);
 namespace Centreon\Domain\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * Class
+ *
+ * @class AbstractRepositoryDRB
+ * @package Centreon\Domain\Repository
+ *
+ * @deprecated use {@see DatabaseRepository} instead
+ */
 class AbstractRepositoryDRB
 {
-    /** @var ConnectionInterface */
+    /** @var DatabaseConnection */
     protected ConnectionInterface $db;
 
     /**

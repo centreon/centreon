@@ -22,17 +22,26 @@ declare(strict_types=1);
 namespace Centreon\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 use JsonSchema\Validator;
 use Centreon\Domain\Log\LoggerTrait;
 use JsonSchema\Constraints\Constraint;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Repository\RepositoryException;
 
+/**
+ * Class
+ *
+ * @class AbstractRepositoryDRB
+ * @package Centreon\Infrastructure\Repository
+ *
+ * @deprecated use {@see DatabaseRepository} instead
+ */
 class AbstractRepositoryDRB
 {
     use LoggerTrait;
 
-    /** @var ConnectionInterface */
+    /** @var DatabaseConnection */
     protected ConnectionInterface $db;
 
     /**

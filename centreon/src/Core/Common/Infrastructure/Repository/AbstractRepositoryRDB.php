@@ -26,7 +26,16 @@ namespace Core\Common\Infrastructure\Repository;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Infrastructure\DatabaseConnection;
 
+/**
+ * Class
+ *
+ * @class AbstractRepositoryRDB
+ * @package Core\Common\Infrastructure\Repository
+ *
+ * @deprecated use {@see DatabaseRepository} instead
+ */
 class AbstractRepositoryRDB
 {
     use LoggerTrait;
@@ -34,7 +43,7 @@ class AbstractRepositoryRDB
     /** @var positive-int Maximum number of elements an SQL query can return */
     protected int $maxItemsByRequest = 5000;
 
-    /** @var ConnectionInterface */
+    /** @var DatabaseConnection */
     protected ConnectionInterface $db;
 
     /**
