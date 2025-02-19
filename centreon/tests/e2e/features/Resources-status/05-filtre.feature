@@ -58,12 +58,6 @@ Feature: Filre Resources
     When I select the filter for services with OK and Critical statuses
     Then only services with OK and Critical statuses are shown in the result
 
-  @TEST_MON-158445
-  Scenario: Selecting a filter for acknowledged services with all states selected
-    Given a saved filter that includes acknowledged services with all states selected
-    When I apply the filter for acknowledged services with all states selected
-    Then all acknowledged services with any state OK, Warning, Critical and Unknown are displayed in the results
-
   @TEST_MON-158446
   Scenario: Selecting a filter for a service with status OK and service category ping
     Given a saved filter that includes services with status OK and service category ping

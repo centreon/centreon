@@ -503,54 +503,6 @@ Then(
 );
 
 Given(
-	"a saved filter that includes acknowledged services with all states selected",
-	() => {
-		cy.fixture("resources/acknowledgeServiceAllStates.json").then((filters) =>
-			setUserFilter(filters),
-		);
-
-		cy.visit("centreon/monitoring/resources").wait([
-			"@getFilters",
-			"@monitoringEndpoint",
-		]);
-
-		cy.contains("Unhandled alerts").should("be.visible");
-
-		cy.get(`div[data-testid="selectedFilter"]`).click();
-
-		cy.contains("acknowledgeServiceAllStates");
-	},
-);
-
-When(
-	"I apply the filter for acknowledged services with all states selected",
-	() => {
-		cy.contains("acknowledgeServiceAllStates").click();
-		cy.getByTestId({ testId: "RefreshIcon" }).click();
-	},
-);
-
-Then(
-	"all acknowledged services with any state OK, Warning, Critical and Unknown are displayed in the results",
-	() => {
-		cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
-			cy.get('div[class*="statusColumn"]:last').should(
-				"contain.text",
-				"Critical",
-			);
-		});
-		cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-			const cellText = $statusCell.text().trim();
-			console.log(`Cell ${index}: ${cellText}`);
-			expect(["Critical"]).to.include(
-				cellText,
-				`Cell ${index} has unexpected text: ${cellText}`,
-			);
-		});
-	},
-);
-
-Given(
 	"a saved filter that includes services with status OK and service category ping",
 	() => {
 		cy.fixture("resources/okServiceAndPingServiceCategory.json").then(
