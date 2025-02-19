@@ -24,17 +24,15 @@ declare(strict_types=1);
 namespace Core\ActionLog\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 
 /**
  * Class
@@ -42,19 +40,9 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
  * @class   DbWriteActionLogRepository
  * @package Core\ActionLog\Infrastructure\Repository
  */
-class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteActionLogRepositoryInterface
+class DbWriteActionLogRepository extends DatabaseRepository implements WriteActionLogRepositoryInterface
 {
     use LoggerTrait;
-
-    /**
-     * DbWriteActionLogRepository constructor
-     *
-     * @param ConnectionInterface $db
-     */
-    public function __construct(ConnectionInterface $db)
-    {
-        $this->db = $db;
-    }
 
     /**
      * @param ActionLog $actionLog
@@ -64,27 +52,19 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
      */
     public function addAction(ActionLog $actionLog): int
     {
-        $request = $this->translateDbName(
-            <<<'SQL'
-                INSERT INTO `:dbstg`.`log_action` (
-                    `action_log_date`,
-                    `object_type`,
-                    `object_id`,
-                    `object_name`,
-                    `action_type`,
-                    `log_contact_id`
-                ) VALUES (
-                    :creation_date,
-                    :object_type,
-                    :object_id,
-                    :object_name,
-                    :action_type,
-                    :contact_id
-                )
-                SQL
-        );
         try {
-            $this->db->insert($request, QueryParameters::create([
+            $this->queryBuilder->insert('`:dbstg`.log_action')
+                ->values([
+                    'action_log_date' => ':creation_date',
+                    'object_type' => ':object_type',
+                    'object_id' => ':object_id',
+                    'object_name' => ':object_name',
+                    'action_type' => ':action_type',
+                    'log_contact_id' => ':contact_id',
+                ]);
+            $query = $this->translateDbName($this->queryBuilder->getQuery());
+
+            $this->connection->insert($query, QueryParameters::create([
                 QueryParameter::int('creation_date', $actionLog->getCreationDate()->getTimestamp()),
                 QueryParameter::string('object_type', $actionLog->getObjectType()),
                 QueryParameter::int('object_id', $actionLog->getObjectId()),
@@ -93,7 +73,7 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                 QueryParameter::int('contact_id', $actionLog->getContactId()),
             ]));
 
-            return (int) $this->db->getLastInsertId();
+            return (int) $this->connection->getLastInsertId();
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             $this->error(
                 "Add action log failed : {$exception->getMessage()}",
@@ -129,36 +109,30 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
             throw new RepositoryException('Action log id is required to add details');
         }
 
-        $aleadyInTransction = $this->db->isTransactionActive();
-        if (! $aleadyInTransction) {
-            $this->db->startTransaction();
+        $isTransactionActive = $this->connection->isTransactionActive();
+        if (! $isTransactionActive) {
+            $this->connection->startTransaction();
         }
 
         try {
-            $request = $this->translateDbName(
-                <<<'SQL'
-                    INSERT INTO `:dbstg`.`log_action_modification` (
-                        `field_name`,
-                        `field_value`,
-                        `action_log_id`
-                    ) VALUES (
-                        :field_name,
-                        :field_value,
-                        :action_log_id
-                    )
-                    SQL
-            );
+            $this->queryBuilder->insert('`:dbstg`.log_action_modification')
+                ->values([
+                    'field_name' => ':field_name',
+                    'field_value' => ':field_value',
+                    'action_log_id' => ':action_log_id',
+                ]);
+            $request = $this->translateDbName($this->queryBuilder->getQuery());
 
             foreach ($details as $fieldName => $fieldValue) {
-                $this->db->insert($request, QueryParameters::create([
+                $this->connection->insert($request, QueryParameters::create([
                     QueryParameter::string('field_name', $fieldName),
                     QueryParameter::string('field_value', (string) $fieldValue),
                     QueryParameter::int('action_log_id', (int) $actionLog->getId()),
                 ]));
             }
 
-            if (! $aleadyInTransction) {
-                $this->db->commitTransaction();
+            if (! $isTransactionActive) {
+                $this->connection->commitTransaction();
             }
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             $this->error(
@@ -169,9 +143,9 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                 ]
             );
 
-            if (! $aleadyInTransction) {
+            if (! $isTransactionActive) {
                 try {
-                    $this->db->rollBackTransaction();
+                    $this->connection->rollBackTransaction();
                 } catch (ConnectionException $rollbackException) {
                     $this->error(
                         "Rollback failed for action logs: {$rollbackException->getMessage()}",
