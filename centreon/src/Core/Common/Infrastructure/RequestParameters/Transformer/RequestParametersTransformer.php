@@ -18,9 +18,10 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
-namespace Centreon\Infrastructure\RequestParameters\Transformer;
+namespace Core\Common\Infrastructure\RequestParameters\Transformer;
 
 use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Connection\Collection\QueryParameters;

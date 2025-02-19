@@ -95,7 +95,6 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
      * @param ActionLog $actionLog
      * @param array<string,mixed> $details
      *
-     * @throws ConnectionException
      * @throws RepositoryException
      * @return void
      */
@@ -110,11 +109,12 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
         }
 
         $isTransactionActive = $this->connection->isTransactionActive();
-        if (! $isTransactionActive) {
-            $this->connection->startTransaction();
-        }
 
         try {
+            if (! $isTransactionActive) {
+                $this->connection->startTransaction();
+            }
+
             $this->queryBuilder->insert('`:dbstg`.log_action_modification')
                 ->values([
                     'field_name' => ':field_name',

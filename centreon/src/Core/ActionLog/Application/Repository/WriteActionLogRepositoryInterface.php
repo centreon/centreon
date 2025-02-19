@@ -25,13 +25,18 @@ namespace Core\ActionLog\Application\Repository;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Domain\Exception\RepositoryException;
 
+/**
+ * Interface
+ *
+ * @class WriteActionLogRepositoryInterface
+ * @package Core\ActionLog\Application\Repository
+ */
 interface WriteActionLogRepositoryInterface
 {
     /**
      * @param ActionLog $actionLog
      *
      * @throws RepositoryException
-     *
      * @return int
      */
     public function addAction(ActionLog $actionLog): int;
