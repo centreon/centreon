@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Adaptation\Database\Adapter\Pdo\Transformer;
+namespace Tests\Adaptation\Database\Connection\Adapter\Pdo\Transformer;
 
 use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;

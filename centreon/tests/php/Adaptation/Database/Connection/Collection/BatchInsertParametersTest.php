@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Adaptation\Database\Collection;
+namespace Tests\Adaptation\Database\Connection\Collection;
 
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;

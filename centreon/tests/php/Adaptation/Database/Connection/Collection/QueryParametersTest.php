@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Adaptation\Database\Collection;
+namespace Tests\Adaptation\Database\Connection\Collection;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
