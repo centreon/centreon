@@ -19,19 +19,13 @@
  *
  */
 
-use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
 use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
-use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\CentreonConnectionTrait;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
-use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
-use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
-use Doctrine\DBAL\Query\QueryBuilder;
 
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
@@ -224,32 +218,6 @@ class CentreonDB extends PDO implements ConnectionInterface
         } catch (Exception $e) {
             throw ConnectionException::connectionFailed($e);
         }
-    }
-
-    /**
-     * Creates a new instance of a SQL query builder.
-     *
-     * @return DbalQueryBuilderAdapter
-     */
-    public function createQueryBuilder(): DbalQueryBuilderAdapter
-    {
-        // Dummy connection to use QueryBuilder with dbal
-        $dummyConnection = DriverManager::getConnection(['driver' => ConnectionDriverEnum::DRIVER_PDO_MYSQL->value]);
-
-        return new DbalQueryBuilderAdapter(new QueryBuilder($dummyConnection));
-    }
-
-    /**
-     * Creates an expression builder for the connection.
-     *
-     * @return DbalExpressionBuilderAdapter
-     */
-    public function createExpressionBuilder(): DbalExpressionBuilderAdapter
-    {
-        // Dummy connection to use QueryBuilder with dbal
-        $dummyConnection = DriverManager::getConnection(['driver' => ConnectionDriverEnum::DRIVER_PDO_MYSQL->value]);
-
-        return new DbalExpressionBuilderAdapter(new ExpressionBuilder($dummyConnection));
     }
 
     /**

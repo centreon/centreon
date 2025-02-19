@@ -35,6 +35,14 @@ use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
  */
 interface QueryBuilderInterface
 {
+
+    /**
+     * To build where clauses easier
+     *
+     * @return ExpressionBuilderInterface
+     */
+    public function expr(): ExpressionBuilderInterface;
+
     /**
      * Gets the complete SQL string formed by the current specifications of this QueryBuilder.
      *

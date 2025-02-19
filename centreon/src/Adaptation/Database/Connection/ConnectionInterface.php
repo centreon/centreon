@@ -57,20 +57,6 @@ interface ConnectionInterface
     public static function createFromConfig(ConnectionConfig $connectionConfig): self;
 
     /**
-     * Creates a new instance of a SQL query builder.
-     *
-     * @return QueryBuilderInterface
-     */
-    public function createQueryBuilder(): QueryBuilderInterface;
-
-    /**
-     * Creates an expression builder for the connection.
-     *
-     * @return ExpressionBuilderInterface
-     */
-    public function createExpressionBuilder(): ExpressionBuilderInterface;
-
-    /**
      * @return ConnectionConfig
      */
     public function getConnectionConfig(): ConnectionConfig;

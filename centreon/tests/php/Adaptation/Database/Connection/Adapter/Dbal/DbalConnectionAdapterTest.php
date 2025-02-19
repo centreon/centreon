@@ -114,30 +114,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     )->throws(ConnectionException::class);
 
     it(
-        'test DbalConnectionAdapter : createQueryBuilder with success',
-        function () use ($dbConfigCentreon): void {
-            $queryBuilder = DbalConnectionAdapter::createFromConfig(
-                connectionConfig: $dbConfigCentreon
-            )->createQueryBuilder();
-            expect($queryBuilder)
-                ->toBeInstanceOf(DbalQueryBuilderAdapter::class)
-                ->toBeInstanceOf(QueryBuilderInterface::class);
-        }
-    );
-
-    it(
-        'test DbalConnectionAdapter : createExpressionBuilder with success',
-        function () use ($dbConfigCentreon): void {
-            $expressionBuilder = DbalConnectionAdapter::createFromConfig(
-                connectionConfig: $dbConfigCentreon
-            )->createExpressionBuilder();
-            expect($expressionBuilder)
-                ->toBeInstanceOf(\Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter::class)
-                ->toBeInstanceOf(ExpressionBuilderInterface::class);
-        }
-    );
-
-    it(
         'test DbalConnectionAdapter : get connection config',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);

@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\ExpressionBuilder\Adapter\Dbal;
 
+use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 use Adaptation\Database\ExpressionBuilder\Enum\ComparisonOperatorEnum;
 use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
 
 /**
@@ -44,6 +46,21 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * @param DoctrineDbalExpressionBuilder $dbalExpressionBuilder
      */
     public function __construct(private DoctrineDbalExpressionBuilder $dbalExpressionBuilder) {}
+
+    /**
+     * Factory
+     *
+     * Creates an expression builder for the connection.
+     *
+     * @return DbalExpressionBuilderAdapter
+     */
+    public static function create(): ExpressionBuilderInterface
+    {
+        // Dummy connection to use QueryBuilder with dbal
+        $dummyConnection = DriverManager::getConnection(['driver' => ConnectionDriverEnum::DRIVER_PDO_MYSQL->value]);
+
+        return new self(new DoctrineDbalExpressionBuilder($dummyConnection));
+    }
 
     /**
      * Creates a conjunction of the given expressions.

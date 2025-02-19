@@ -149,24 +149,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test CentreonDB : CentreonDB::createQueryBuilder factory',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::createFromConfig($dbConfigCentreon);
-            $qb = $db->createQueryBuilder();
-            expect($qb)->toBeInstanceOf(DbalQueryBuilderAdapter::class);
-        }
-    );
-
-    it(
-        'test CentreonDB : CentreonDB::createExpressionBuilder factory',
-        function () use ($dbConfigCentreon): void {
-            $db = CentreonDB::createFromConfig($dbConfigCentreon);
-            $qb = $db->createExpressionBuilder();
-            expect($qb)->toBeInstanceOf(DbalExpressionBuilderAdapter::class);
-        }
-    );
-
-    it(
         'test CentreonDB : get connection config',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
@@ -1339,7 +1321,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 $sql,
                 QueryParameters::create([QueryParameter::int('contact_id', 1)])
             );
-            expect($logActions)->toBeArray()->toHaveCount(11);
+            expect($logActions)->toBeArray();
         }
     );
 

@@ -30,16 +30,10 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\CentreonConnectionTrait;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
-use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
-use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
-use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\Exception\UnexpectedValueException;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
-use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
-use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 
 /**
  * Class
@@ -106,30 +100,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
         } catch (\Throwable $exception) {
             throw ConnectionException::connectionFailed($exception);
         }
-    }
-
-    /**
-     * Creates a new instance of a SQL query builder.
-     *
-     * @return DbalQueryBuilderAdapter
-     */
-    public function createQueryBuilder(): QueryBuilderInterface
-    {
-        $dbalQueryBuilder = new DoctrineDbalQueryBuilder($this->dbalConnection);
-
-        return new DbalQueryBuilderAdapter($dbalQueryBuilder);
-    }
-
-    /**
-     * Creates an expression builder for the connection.
-     *
-     * @return DbalExpressionBuilderAdapter
-     */
-    public function createExpressionBuilder(): ExpressionBuilderInterface
-    {
-        $dbalExpressionBuilder = new DoctrineDbalExpressionBuilder($this->dbalConnection);
-
-        return new DbalExpressionBuilderAdapter($dbalExpressionBuilder);
     }
 
     /**

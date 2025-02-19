@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Adaptation\Database\QueryBuilder\Adapter\Dbal;
 
+use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
 use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -50,6 +51,10 @@ beforeEach(function () {
     // instanciation of DbalQueryBuilderAdapter
     $dbalQueryBuilder = new QueryBuilder($dbalConnection);
     $this->dbalQueryBuilderAdapterTest = new DbalQueryBuilderAdapter($dbalQueryBuilder);
+});
+
+it('test DbalQueryBuilderAdapter : expr', function () {
+    expect($this->dbalQueryBuilderAdapterTest->expr())->toBeInstanceOf(DbalExpressionBuilderAdapter::class);
 });
 
 it('test DbalQueryBuilderAdapter : select with one parameter', function () {

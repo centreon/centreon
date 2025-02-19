@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\QueryBuilder\Adapter\Dbal;
 
+use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 
 /**
@@ -46,6 +49,31 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     public function __construct(
         private DoctrineDbalQueryBuilder $dbalQueryBuilder,
     ) {}
+
+    /**
+     * Factory
+     *
+     * Creates a new instance of a SQL query builder.
+     *
+     * @return DbalQueryBuilderAdapter
+     */
+    public static function create(): QueryBuilderInterface
+    {
+        // Dummy connection to use QueryBuilder with dbal
+        $dummyConnection = DriverManager::getConnection(['driver' => ConnectionDriverEnum::DRIVER_PDO_MYSQL->value]);
+
+        return new self(new DoctrineDbalQueryBuilder($dummyConnection));
+    }
+
+    /**
+     * To build where clauses easier
+     *
+     * @return DbalExpressionBuilderAdapter
+     */
+    public function expr(): ExpressionBuilderInterface
+    {
+        return DbalExpressionBuilderAdapter::create();
+    }
 
     /**
      * Gets the complete SQL string formed by the current specifications of this QueryBuilder.

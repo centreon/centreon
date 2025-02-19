@@ -97,6 +97,12 @@ services:
         - method: setStorageDbName
           arguments: [ '%database_dbstg%' ]
 
+    Adaptation\Database\QueryBuilder\QueryBuilderInterface:
+      alias: Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter
+
+    Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter:
+      factory: [ null, 'create' ]
+
     jms_serializer.object_constructor:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
         public: false
