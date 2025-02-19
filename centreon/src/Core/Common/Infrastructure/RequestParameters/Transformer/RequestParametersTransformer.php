@@ -37,7 +37,6 @@ use Core\Common\Domain\Exception\ValueObjectException;
  * @package Centreon\Infrastructure\RequestParameters\Transformer
  */
 readonly abstract class RequestParametersTransformer {
-
     /**
      * @param QueryParameters $queryParameters
      *
@@ -49,6 +48,7 @@ readonly abstract class RequestParametersTransformer {
             $pdoType = PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType());
             $requestParameters[$queryParameter->getName()] = [$pdoType, $queryParameter->getValue()];
         }
+
         return $requestParameters;
     }
 
@@ -66,6 +66,7 @@ readonly abstract class RequestParametersTransformer {
                 $value = $value[1];
                 $queryParameters->add($key, QueryParameter::create($key, $value, $queryParameterTypeEnum));
             }
+
             return $queryParameters;
         } catch (CollectionException|ValueObjectException $e) {
             throw new TransformerException(
@@ -75,5 +76,4 @@ readonly abstract class RequestParametersTransformer {
             );
         }
     }
-
 }
