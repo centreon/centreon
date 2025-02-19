@@ -35,7 +35,6 @@ use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
  */
 interface QueryBuilderInterface
 {
-
     /**
      * To build where clauses easier
      *

@@ -24,7 +24,6 @@ namespace Core\Common\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
-use Centreon\Domain\Log\LoggerTrait;
 
 /**
  * Class
