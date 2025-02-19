@@ -114,7 +114,6 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
      * @param ActionLog $actionLog
      * @param array<string,mixed> $details
      *
-     * @throws ConnectionException
      * @throws RepositoryException
      * @return void
      */
@@ -128,12 +127,13 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
             throw new RepositoryException('Action log id is required to add details');
         }
 
-        $aleadyInTransction = $this->db->isTransactionActive();
-        if (! $aleadyInTransction) {
+        $isTransactionActive = $this->db->isTransactionActive();
+
+        try {
+            if (! $isTransactionActive) {
             $this->db->startTransaction();
         }
 
-        try {
             $request = $this->translateDbName(
                 <<<'SQL'
                     INSERT INTO `:dbstg`.`log_action_modification` (
@@ -156,7 +156,7 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                 ]));
             }
 
-            if (! $aleadyInTransction) {
+            if (! $isTransactionActive) {
                 $this->db->commitTransaction();
             }
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
@@ -168,7 +168,7 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                 ]
             );
 
-            if (! $aleadyInTransction) {
+            if (! $isTransactionActive) {
                 try {
                     $this->db->rollBackTransaction();
                 } catch (ConnectionException $rollbackException) {
