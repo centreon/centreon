@@ -28,9 +28,9 @@ runs:
     - name: Validate package delivery trigger
       id: trigger_delivery
       run: |
-        TRIGGER_DELIVERY=false
-        if [[ ${{ inputs.is_nightly }} == false && (${{ inputs.has_frontend_changes }} == true || ${{ inputs.has_backend_changes }} == true) ]]; then
-          TRIGGER_DELIVERY=true
+        TRIGGER_DELIVERY='false'
+        if [[ ${{ inputs.is_nightly }} == 'false' && (${{ inputs.has_frontend_changes }} == 'true' || ${{ inputs.has_backend_changes }} == 'true') ]]; then
+          TRIGGER_DELIVERY='true'
         fi
         echo "trigger_delivery=$TRIGGER_DELIVERY"
         echo "trigger_delivery=$TRIGGER_DELIVERY" >> $GITHUB_OUTPUT
@@ -39,9 +39,9 @@ runs:
     - name: Validate API testing trigger
       id: trigger_api_testing
       run: |
-        TRIGGER_API_TESTING=false
-        if [[ ${{ inputs.is_nightly }} == true || (${{ inputs.has_backend_changes }} == true || ${{ inputs.has_test_changes }} == true) ]]; then
-          TRIGGER_API_TESTING=true
+        TRIGGER_API_TESTING='false'
+        if [[ ${{ inputs.is_nightly }} == 'true' || (${{ inputs.has_backend_changes }} == 'true' || ${{ inputs.has_test_changes }} == 'true') ]]; then
+          TRIGGER_API_TESTING='true'
         fi
         echo "trigger_api_testing=$TRIGGER_API_TESTING"
         echo "trigger_api_testing=$TRIGGER_API_TESTING" >> $GITHUB_OUTPUT
