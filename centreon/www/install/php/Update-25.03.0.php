@@ -123,14 +123,26 @@ $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void 
     );
 };
 
-// -------------------------------------------- Resource Status -------------------------------------------- //
+// -------------------------------------------- Dashboard Panel -------------------------------------------- //
 /**
- * Create indexes for resources and tags tables.
- *
- * @param CentreonDB $realtimeDb the realtime database
+ * @param CentreonDB $pearDB
  *
  * @throws CentreonDbException
+ * @return void
  */
+$updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table dashboard_panel';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `dashboard_panel`
+            SET `layout_x` = `layout_x` * 2,
+                `layout_width` = `layout_width` * 2
+            SQL
+    );
+};
+
+// -------------------------------------------- Resource Status -------------------------------------------- //
+
 $createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
         if (! $realtimeDb->isIndexExists('resources', 'resources_poller_id_index')) {
             $errorMessage = 'Unable to create index resources_poller_id_index';
@@ -158,11 +170,84 @@ $createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$error
         }
 };
 
+/**
+ * @param CentreonDB $pearDBO
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add column flapping to table resources';
+    if (! $pearDBO->isColumnExist('resources', 'flapping')) {
+        $pearDBO->exec(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
+            SQL
+        );
+    }
+
+    $errorMessage = 'Unable to add column percent_state_change to table resources';
+    if (! $pearDBO->isColumnExist('resources', 'percent_state_change')) {
+        $pearDBO->exec(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
+            SQL
+        );
+    }
+};
+
+
+// -------------------------------------------- Broker I/O Configuration -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$removeConstraintFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    // prevent side effect on the $removeFieldFromBrokerConfiguration function
+    $errorMessage = 'Unable to update table cb_list_values';
+    $pearDB->executeQuery(
+        <<<SQL
+        ALTER TABLE cb_list_values DROP CONSTRAINT `fk_cb_list_values_1`
+        SQL
+    );
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$removeFieldFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to remove data from cb_field';
+    $pearDB->executeQuery(
+        <<<SQL
+        DELETE FROM cb_field WHERE fieldname = 'check_replication'
+        SQL
+    );
+
+    $errorMessage = 'Unable to remove data from cfg_centreonbroker_info';
+    $pearDB->executeQuery(
+        <<<SQL
+        DELETE FROM cfg_centreonbroker_info WHERE config_key = 'check_replication'
+        SQL
+    );
+};
+
 try {
     $createAgentInformationTable($pearDBO);
     $addConnectorToTopology($pearDB);
     $changeAccNameInTopology($pearDB);
     $createIndexesForResourceStatus($pearDBO);
+    $addColumnToResourcesTable($pearDBO);
+    $removeConstraintFromBrokerConfiguration($pearDB);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -170,6 +255,8 @@ try {
     }
 
     $insertAccConnectors($pearDB);
+    $updatePanelsLayout($pearDB);
+    $removeFieldFromBrokerConfiguration($pearDB);
 
     $pearDB->commit();
 
