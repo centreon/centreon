@@ -828,14 +828,10 @@ function updateContactHostCommands(int $contactId, array $fields = []): bool
     }
 
     try {
-        $deleted = $pearDB->delete(
+        $pearDB->delete(
             'DELETE FROM contact_hostcommands_relation WHERE contact_contact_id = :contact_id',
             QueryParameters::create([QueryParameter::int('contact_id', $contactId)])
         );
-
-        if ($deleted === 0) {
-            return false;
-        }
 
         $hostCommandIdsFromForm = $fields["contact_hostNotifCmds"] ?? $form->getSubmitValue("contact_hostNotifCmds");
 
