@@ -35,7 +35,7 @@ if (isset($_SESSION['centreon'])) {
     exit;
 }
 
-define('SMARTY_DIR', "$centreon_path/vendor/smarty/smarty/libs/");
+define('SMARTY_DIR', "$centreon_path/vendor/" . SmartyCentreon::PACKAGE_CENTREON_SMARTY_NAME . "/libs/");
 require_once SMARTY_DIR . "Smarty.class.php";
 require_once $centreon_path . 'www/include/common/common-Func.php';
 
