@@ -27,6 +27,11 @@ before(() => {
 });
 
 beforeEach(() => {
+  // clear network cache to avoid chunk loading issues
+  cy.wrap(Cypress.automation('remote:debugger:protocol', {
+    command: 'Network.clearBrowserCache',
+  }));
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -196,15 +201,38 @@ Given(
                       });
                     }
 
+                    cy.execInContainer(
+                      {
+                        command: `bash -e <<EOF
+                          echo "deb https://packages.centreon.com/apt-plugins-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
+                          echo "deb https://packages.centreon.com/apt-plugins-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
+                          echo "deb https://packages.centreon.com/apt-plugins-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
+                          wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+EOF`,
+                        name: 'web'
+                      }
+                    );
+
+                    if (Cypress.env('IS_CLOUD')) {
+                      cy.log('Configuring cloud internal repository...');
+
+                      return cy.execInContainer(
+                        {
+                          command: `bash -e <<EOF
+                            echo "deb https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/apt-standard-internal-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-unstable.list
+                            apt-get update
+EOF`,
+                          name: 'web'
+                        },
+                        { log: false }
+                      );
+                    }
+
                     return cy.execInContainer({
                       command: `bash -e <<EOF
                         echo "deb https://packages.centreon.com/apt-standard-${major_version}-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-stable.list
                         echo "deb https://packages.centreon.com/apt-standard-${major_version}-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-testing.list
                         echo "deb https://packages.centreon.com/apt-standard-${major_version}-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-unstable.list
-                        echo "deb https://packages.centreon.com/apt-plugins-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
-                        echo "deb https://packages.centreon.com/apt-plugins-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
-                        echo "deb https://packages.centreon.com/apt-plugins-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
-                        wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
                         apt-get update
 EOF`,
                       name: 'web'
@@ -224,5 +252,8 @@ EOF`,
 );
 
 afterEach(() => {
-  cy.visitEmptyPage().stopContainer({ name: 'web' });
+  cy
+    .visitEmptyPage()
+    .copyWebContainerLogs({ name: 'web' })
+    .stopContainer({ name: 'web' });
 });

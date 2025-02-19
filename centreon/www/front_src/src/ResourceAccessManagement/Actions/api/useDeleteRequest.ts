@@ -83,8 +83,8 @@ const useDeleteRequest = ({
         data?.filter(propEq(204, 'status')) || isNil(data);
       const failedResponses = data?.filter(complement(propEq(204, 'status')));
       const failedResponsesIds = failedResponses
-        .map(prop('href'))
-        .map((item: string) =>
+        ?.map(prop('href'))
+        ?.map((item: string) =>
           Number.parseInt(last(split('/', item)) as string, 10)
         );
 

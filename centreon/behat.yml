@@ -27,10 +27,6 @@ default:
       paths: [ "%paths.base%/features/KnowledgeBase.feature" ]
       contexts: [ KnowledgeBaseContext ]
 
-    disable_fields_on_blocked_objects:
-      paths: [ "%paths.base%/features/DisableFieldsOnBlockedObjects.feature" ]
-      contexts: [ DisableFieldsOnBlockedObjectsContext ]
-
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
@@ -58,10 +54,6 @@ default:
     downtime_recurrent:
       paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
       contexts: [ DowntimeRecurrentContext ]
-
-    command_arguments:
-      paths: [ "%paths.base%/features/CommandArguments.feature" ]
-      contexts: [ CommandArgumentsContext ]
 
     autologin:
       paths: [ "%paths.base%/features/Autologin.feature" ]
@@ -99,41 +91,9 @@ default:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
 
-    command_configuration:
-      paths: [ "%paths.base%/features/CommandConfiguration.feature" ]
-      contexts: [ CommandConfigurationContext ]
-
-    host_group_service_configuration:
-      paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
-      contexts: [ HostGroupServiceConfigurationContext ]
-
-    escalation_configuration:
-      paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]
-      contexts: [ EscalationConfigurationContext ]
-
-    host_group_dependency_configuration:
-      paths: [ "%paths.base%/features/HostGroupDependencyConfiguration.feature" ]
-      contexts: [ HostGroupDependencyConfigurationContext ]
-
-    service_submit_result:
-      paths: [ "%paths.base%/features/ServiceSubmitResult.feature" ]
-      contexts: [ ServiceSubmitResultContext ]
-
-    service_group_dependency_configuration:
-      paths: [ "%paths.base%/features/ServiceGroupDependencyConfiguration.feature" ]
-      contexts: [ ServiceGroupDependencyConfigurationContext ]
-
     connector_configuration:
       paths: [ "%paths.base%/features/ConnectorConfiguration.feature" ]
       contexts: [ ConnectorConfigurationContext ]
-
-    vendor_configuration:
-      paths: [ "%paths.base%/features/VendorConfiguration.feature" ]
-      contexts: [ VendorConfigurationContext ]
-
-    test_proxy_configuration:
-      paths: [ "%paths.base%/features/TestProxyConfiguration.feature" ]
-      contexts: [ TestProxyConfigurationContext ]
 
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]

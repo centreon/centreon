@@ -13,7 +13,9 @@ import {
   downtimeAtom,
   platformNameAtom,
   platformVersionsAtom,
-  refreshIntervalAtom
+  refreshIntervalAtom,
+  statisticsRefreshIntervalAtom,
+  userPermissionsAtom
 } from '@centreon/ui-context';
 
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
@@ -22,7 +24,11 @@ import useNavigation from '../Navigation/useNavigation';
 import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
 
-import { aclEndpoint, parametersEndpoint } from './endpoint';
+import {
+  aclEndpoint,
+  parametersEndpoint,
+  userPermissionsEndpoint
+} from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
@@ -53,7 +59,13 @@ const useApp = (): UseAppState => {
     httpCodesBypassErrorSnackbar: [403],
     request: getData
   });
-  const { sendRequest: getAcl } = useRequest<Actions>({
+
+  const { sendRequest: getUserPermissions } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
+    request: getData
+  });
+
+  const { sendRequest: getResourcesAcl } = useRequest<Actions>({
     request: getData
   });
 
@@ -70,11 +82,15 @@ const useApp = (): UseAppState => {
   const [platformVersion] = useAtom(platformVersionsAtom);
   const setDowntime = useSetAtom(downtimeAtom);
   const setRefreshInterval = useSetAtom(refreshIntervalAtom);
-  const setAcl = useSetAtom(aclAtom);
+  const setStatisticsRefreshInterval = useSetAtom(
+    statisticsRefreshIntervalAtom
+  );
+  const setResourcesAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
 
   const setPlaformName = useSetAtom(platformNameAtom);
+  const setUserPermissions = useSetAtom(userPermissionsAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -111,6 +127,14 @@ const useApp = (): UseAppState => {
             10
           )
         );
+
+        setStatisticsRefreshInterval(
+          Number.parseInt(
+            retrievedParameters?.statistics_default_refresh_interval,
+            10
+          )
+        );
+
         setAcknowledgement({
           force_active_checks:
             retrievedParameters.monitoring_default_acknowledgement_force_active_checks,
@@ -128,11 +152,21 @@ const useApp = (): UseAppState => {
         }
       });
 
-    getAcl({
+    getUserPermissions({
+      endpoint: userPermissionsEndpoint
+    })
+      .then(setUserPermissions)
+      .catch((error) => {
+        if (pathEq(401, ['response', 'status'])(error)) {
+          logout();
+        }
+      });
+
+    getResourcesAcl({
       endpoint: aclEndpoint
     })
       .then((retrievedAcl) => {
-        setAcl({ actions: retrievedAcl });
+        setResourcesAcl({ actions: retrievedAcl });
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {

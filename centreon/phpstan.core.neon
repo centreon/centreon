@@ -10,7 +10,6 @@ rules:
     - Centreon\PHPStan\CustomRules\MiscRules\VariableLengthCustomRule
     - Centreon\PHPStan\CustomRules\MiscRules\StringBackquotesCustomRule
     - Centreon\PHPStan\CustomRules\LoggerRules\LogMethodInCatchCustomRule
-    - Centreon\PHPStan\CustomRules\LoggerRules\LoggerUseCaseCustomRule
     - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
     - Centreon\PHPStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
     - Centreon\PHPStan\CustomRules\ArchitectureRules\FinalClassCustomRule
@@ -75,6 +74,7 @@ parameters:
                 - src/Core/Dashboard/Application/UseCase/AddDashboardThumbnail/AddDashboardThumbnail.php
                 - src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
                 - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
+                - src/Core/UserProfile/Infrastructure/Repository/DbWriteUserProfileRepository.php
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false

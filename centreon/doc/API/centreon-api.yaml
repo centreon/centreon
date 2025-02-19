@@ -264,9 +264,9 @@ paths:
     $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAndFindDetailAc.yaml"
   /configuration/agent-configurations/{ac_id}/pollers/{poller_id}:
     $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAcPollerLink.yaml"
-  /configuration/broker/{brokerId}/{tag}:
+  /configuration/broker/{broker_id}/{tag}:
     $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
-  /configuration/broker/{brokerId}/outputs/{outputId}/file:
+  /configuration/broker/{broker_id}/outputs/{output_id}/file:
     $ref: "./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:
     $ref: "./latest/onPremise/Configuration/Command/AddAndFindCommands.yaml"
@@ -502,6 +502,8 @@ paths:
     $ref: "./latest/onPremise/Configuration/Service/PartialUpdateAndDeleteService.yaml"
   /configuration/services:
     $ref: "./latest/onPremise/Configuration/Service/AddServiceAndFindServices.yaml"
+  /configuration/services/_delete:
+    $ref: "./latest/onPremise/Configuration/Service/DeleteServices.yaml"
   /monitoring/services/categories:
     get:
       tags:
@@ -637,6 +639,8 @@ paths:
       summary: "Get a host severity"
       description: |
         Get a host severity configuration
+      parameters:
+        - $ref: '#/components/parameters/HostSeverityId'
       responses:
         "200":
           description: "OK"
@@ -839,6 +843,8 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/hosts/groups/_delete:
+    $ref: "./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml"
   /configuration/services/groups:
     get:
       tags:
@@ -1529,6 +1535,10 @@ paths:
     $ref: './latest/onPremise/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
     $ref: './latest/onPremise/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/favorites:
+    $ref: './latest/onPremise/Configuration/Dashboard/DeleteDashboardFromFavorites.yaml'
+  /configuration/dashboards/favorites:
+    $ref: './latest/onPremise/Configuration/Dashboard/FavoriteDashboards.yaml'
   /configuration/dashboards/{dashboard_id}/shares:
     $ref: './latest/onPremise/Configuration/Dashboard/ShareDashboard.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
@@ -5882,7 +5892,7 @@ components:
         snmp_version:
           type: string
           nullable: true
-          enum: [1, 2c, 3]
+          enum: ["1", "2c", "3"]
           description: |
             Version of the SNMP agent.
 
@@ -6637,6 +6647,7 @@ components:
              * `3` - UNKNOWN
           example: 1
     Acknowledgement.Service:
+      type: object
       nullable: true
       allOf:
         - $ref: '#/components/schemas/Acknowledgement.Host'
@@ -6926,7 +6937,7 @@ components:
       properties:
         status:
           type: string
-          enum: [0, 1, 2, 3]
+          enum: ["0", "1", "2", "3"]
           description: |
             Service status code that can be submitted
             * `0` - OK

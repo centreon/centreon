@@ -1047,9 +1047,8 @@ $macChecker->setValue(1);
 $form->registerRule('macHandler', 'callback', 'hostMacHandler');
 $form->addRule('macChecker', _('You cannot override reserved macros'), 'macHandler');
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     'alert_check_interval',
@@ -1143,42 +1142,21 @@ if ($o !== HOST_ADD && $o !== HOST_MODIFY) {
 $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        if (null !== $hostId = insertHostInAPI()) {
+        if (null !== $hostId = insertHostInAPI($formData)) {
             $hostObj->setValue($hostId);
             $o = HOST_WATCH;
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        /*
-         * Before saving, we check if a password macro has changed its name to be able to give it the right password
-         * instead of wildcards (PASSWORD_REPLACEMENT_VALUE).
-         */
-        if (isset($_REQUEST['macroInput'])) {
-            foreach ($_REQUEST['macroInput'] as $index => $macroName) {
-                if (array_key_exists('macroOriginalName_' . $index, $_REQUEST)) {
-                    $originalMacroName = $_REQUEST['macroOriginalName_' . $index];
-                    if ($_REQUEST['macroValue'][$index] === PASSWORD_REPLACEMENT_VALUE) {
-                        /*
-                         * The password has not been changed along with the name, so its value is equal to the wildcard.
-                         * We will therefore recover the password stored for its original name.
-                         */
-                        foreach ($aMacros as $indexMacro => $macroDetails) {
-                            if ($macroDetails['macroInput_#index#'] === $originalMacroName) {
-                                $_REQUEST['macroValue'][$index] = $macroPasswords[$indexMacro]['password'];
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+        if (false !== updateHostInApi((int) $hostObj->getValue(), $formData)) {
+            $o = HOST_WATCH;
+            $valid = true;
         }
-        updateHostInDB($hostObj->getValue());
-        $o = HOST_WATCH;
-        $valid = true;
     } elseif ($form->getSubmitValue('submitMC')) {
         foreach (array_keys($select) as $hostIdToUpdate) {
-            updateHostInDB($hostIdToUpdate, true);
+            updateHostInDB_MC($hostIdToUpdate);
         }
         $o = HOST_WATCH;
         $valid = true;
