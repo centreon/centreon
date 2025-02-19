@@ -11,6 +11,7 @@ services:
       MYSQL_HOST: db
       GLPI_HOST: glpi
       VAULT_HOST: vault
+      CENTREON_LANG: ${CENTREON_LANG}
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s
