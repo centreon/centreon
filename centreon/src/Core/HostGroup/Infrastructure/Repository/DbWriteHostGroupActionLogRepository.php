@@ -235,7 +235,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         try {
             $hostGroup = $this->readHostGroupRepository->findOne($hostGroupId);
             if ($hostGroup === null) {
-                throw new RepositoryException('Cannot find hostgroup to delete');
+                throw new RepositoryException('Cannot find hostgroup to enable/disable');
             }
 
             $this->writeHostGroupRepository->enableDisableHostGroup($hostGroupId, $isEnable);
