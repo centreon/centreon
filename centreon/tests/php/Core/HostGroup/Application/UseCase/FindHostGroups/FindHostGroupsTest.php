@@ -23,61 +23,63 @@ declare(strict_types=1);
 
 namespace Tests\Core\HostGroup\Application\UseCase\FindHostGroups;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Domain\Common\GeoCoords;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\UseCase\FindHostGroups\FindHostGroups;
 use Core\HostGroup\Application\UseCase\FindHostGroups\FindHostGroupsResponse;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\HostsCountById;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
-    $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class);
-    $this->contact = $this->createMock(ContactInterface::class);
-
     $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new FindHostGroups(
-        $this->readHostGroupRepository,
+        $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->createMock(RequestParametersInterface::class),
-        $this->contact,
+        $this->contact = $this->createMock(ContactInterface::class),
     );
 
-    $this->testedHostGroup = new HostGroup(
+    $this->hostsCountById = new HostsCountById();
+    $this->hostsCountById->setEnabledCount(1, 1);
+    $this->hostsCountById->setDisabledCount(1, 2);
+
+    $this->hostGroup = new HostGroup(
         1,
         'hg-name',
         'hg-alias',
         '',
         '',
         '',
+        12,
         null,
         null,
-        null,
-        GeoCoords::fromString('-2,100'),
+        $this->geoCoords = GeoCoords::fromString('-2,100'),
         '',
         true
     );
-    $this->testedHostGroupArray = [
+    $this->hostGroupResponse = [
         'id' => 1,
         'name' => 'hg-name',
         'alias' => 'hg-alias',
         'notes' => '',
         'notesUrl' => '',
         'actionUrl' => '',
-        'iconId' => null,
+        'iconId' => 12,
         'iconMapId' => null,
         'rrdRetention' => null,
-        'geoCoords' => '-2,100',
+        'geoCoords' => $this->geoCoords,
         'comment' => '',
         'isActivated' => true,
+        'enabledHostsCount' => 1,
+        'disabledHostsCount' => 2,
     ];
 });
 
@@ -93,38 +95,12 @@ it(
             ->method('findAll')
             ->willThrowException(new \Exception());
 
-        ($this->useCase)($this->presenter);
+        $response = ($this->useCase)();
 
-        expect($this->presenter->getResponseStatus())
+        expect($response)
             ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($response->getMessage())
             ->toBe(HostGroupException::errorWhileSearching()->getMessage());
-    }
-);
-
-it(
-    'should present a ForbiddenResponse when the user does not have the correct role',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ, false],
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE, false],
-                ]
-            );
-
-        ($this->useCase)($this->presenter);
-
-        expect($this->presenter->getResponseStatus())
-            ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostGroupException::accessNotAllowed()->getMessage());
     }
 );
 
@@ -138,33 +114,55 @@ it(
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findAll')
-            ->willReturn(new \ArrayIterator([$this->testedHostGroup]));
+            ->willReturn(new \ArrayIterator([$this->hostGroup]));
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findHostsCountByIds')
+            ->willReturn($this->hostsCountById);
 
-        ($this->useCase)($this->presenter);
+        $response = ($this->useCase)();
 
-        expect($this->presenter->getPresentedData())
+        expect($response)
             ->toBeInstanceOf(FindHostGroupsResponse::class)
-            ->and($this->presenter->getPresentedData()->hostgroups[0])
-            ->toBe($this->testedHostGroupArray);
+            ->and($response->hostgroups[0]->id)
+            ->toBe($this->hostGroupResponse['id'])
+            ->and($response->hostgroups[0]->name)
+            ->toBe($this->hostGroupResponse['name'])
+            ->and($response->hostgroups[0]->alias)
+            ->toBe($this->hostGroupResponse['alias'])
+            ->and($response->hostgroups[0]->notes)
+            ->toBe($this->hostGroupResponse['notes'])
+            ->and($response->hostgroups[0]->notesUrl)
+            ->toBe($this->hostGroupResponse['notesUrl'])
+            ->and($response->hostgroups[0]->actionUrl)
+            ->toBe($this->hostGroupResponse['actionUrl'])
+            ->and($response->hostgroups[0]->iconId)
+            ->toBe($this->hostGroupResponse['iconId'])
+            ->and($response->hostgroups[0]->iconMapId)
+            ->toBe($this->hostGroupResponse['iconMapId'])
+            ->and($response->hostgroups[0]->rrdRetention)
+            ->toBe($this->hostGroupResponse['rrdRetention'])
+            ->and($response->hostgroups[0]->geoCoords)
+            ->toBe($this->hostGroupResponse['geoCoords'])
+            ->and($response->hostgroups[0]->comment)
+            ->toBe($this->hostGroupResponse['comment'])
+            ->and($response->hostgroups[0]->isActivated)
+            ->toBe($this->hostGroupResponse['isActivated'])
+            ->and($response->hostgroups[0]->enabledHostsCount)
+            ->toBe($this->hostGroupResponse['enabledHostsCount'])
+            ->and($response->hostgroups[0]->disabledHostsCount)
+            ->toBe($this->hostGroupResponse['disabledHostsCount']);
     }
 );
 
 it(
-    'should present a FindHostGroupsResponse as allowed READ user',
+    'should present a FindHostGroupsResponse as non-admin',
     function (): void {
         $this->contact
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ, true],
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE, false],
-                ]
-            );
+
         $this->readAccessGroupRepository
             ->expects($this->any())
             ->method('findByContact')
@@ -176,51 +174,43 @@ it(
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findAllByAccessGroupIds')
-            ->willReturn(new \ArrayIterator([$this->testedHostGroup]));
-
-        ($this->useCase)($this->presenter);
-
-        expect($this->presenter->getPresentedData())
-            ->toBeInstanceOf(FindHostGroupsResponse::class)
-            ->and($this->presenter->getPresentedData()->hostgroups[0])
-            ->toBe($this->testedHostGroupArray);
-    }
-);
-
-it(
-    'should present a FindHostGroupsResponse as allowed READ_WRITE user',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ, false],
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE, true],
-                ]
-            );
-        $this->readAccessGroupRepository
-            ->expects($this->any())
-            ->method('findByContact')
-            ->willReturn([new AccessGroup(id: 1, name: 'testName', alias: 'testAlias')]);
+            ->willReturn(new \ArrayIterator([$this->hostGroup]));
         $this->readHostGroupRepository
             ->expects($this->once())
-            ->method('hasAccessToAllHostGroups')
-            ->willReturn(false);
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('findAllByAccessGroupIds')
-            ->willReturn(new \ArrayIterator([$this->testedHostGroup]));
+            ->method('findHostsCountByAccessGroupsIds')
+            ->willReturn($this->hostsCountById);
 
-        ($this->useCase)($this->presenter);
+        $response = ($this->useCase)();
 
-        expect($this->presenter->getPresentedData())
+        expect($response)
             ->toBeInstanceOf(FindHostGroupsResponse::class)
-            ->and($this->presenter->getPresentedData()->hostgroups[0])
-            ->toBe($this->testedHostGroupArray);
+            ->and($response->hostgroups[0]->id)
+            ->toBe($this->hostGroupResponse['id'])
+            ->and($response->hostgroups[0]->name)
+            ->toBe($this->hostGroupResponse['name'])
+            ->and($response->hostgroups[0]->alias)
+            ->toBe($this->hostGroupResponse['alias'])
+            ->and($response->hostgroups[0]->notes)
+            ->toBe($this->hostGroupResponse['notes'])
+            ->and($response->hostgroups[0]->notesUrl)
+            ->toBe($this->hostGroupResponse['notesUrl'])
+            ->and($response->hostgroups[0]->actionUrl)
+            ->toBe($this->hostGroupResponse['actionUrl'])
+            ->and($response->hostgroups[0]->iconId)
+            ->toBe($this->hostGroupResponse['iconId'])
+            ->and($response->hostgroups[0]->iconMapId)
+            ->toBe($this->hostGroupResponse['iconMapId'])
+            ->and($response->hostgroups[0]->rrdRetention)
+            ->toBe($this->hostGroupResponse['rrdRetention'])
+            ->and($response->hostgroups[0]->geoCoords)
+            ->toBe($this->hostGroupResponse['geoCoords'])
+            ->and($response->hostgroups[0]->comment)
+            ->toBe($this->hostGroupResponse['comment'])
+            ->and($response->hostgroups[0]->isActivated)
+            ->toBe($this->hostGroupResponse['isActivated'])
+            ->and($response->hostgroups[0]->enabledHostsCount)
+            ->toBe($this->hostGroupResponse['enabledHostsCount'])
+            ->and($response->hostgroups[0]->disabledHostsCount)
+            ->toBe($this->hostGroupResponse['disabledHostsCount']);
     }
 );
