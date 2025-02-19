@@ -557,11 +557,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      */
     private function createQueryHeaders(ResourceFilter $filter, StatementCollector $collector): string
     {
+        $headers = '';
         $nextHeaders = function () use (&$headers): void {
             $headers .= $headers !== '' ? ",\n" : 'WITH ';
         };
         $cteToIntersect = [];
-        $headers = '';
 
         // Create CTE for each tag type
         if ($filter->getHostgroupNames() !== []) {
