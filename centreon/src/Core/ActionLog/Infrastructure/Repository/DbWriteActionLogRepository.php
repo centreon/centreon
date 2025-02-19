@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace Core\ActionLog\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -46,9 +46,9 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
     /**
      * DbWriteActionLogRepository constructor
      *
-     * @param DatabaseConnection $db
+     * @param ConnectionInterface $db
      */
-    public function __construct(DatabaseConnection $db)
+    public function __construct(ConnectionInterface $db)
     {
         $this->db = $db;
     }

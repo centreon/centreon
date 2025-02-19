@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\ConnectionInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
 
 class AbstractRepositoryRDB
 {
@@ -33,7 +33,7 @@ class AbstractRepositoryRDB
     /** @var positive-int Maximum number of elements an SQL query can return */
     protected int $maxItemsByRequest = 5000;
 
-    protected DatabaseConnection $db;
+    protected ConnectionInterface $db;
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.

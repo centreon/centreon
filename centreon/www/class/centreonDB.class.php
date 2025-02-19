@@ -24,6 +24,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Adaptation\Database\Connection\Trait\CentreonConnectionTrait;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 
 // file centreon.config.php may not exist in test environment
@@ -44,6 +45,7 @@ require_once __DIR__ . '/centreonLog.class.php';
 class CentreonDB extends PDO implements ConnectionInterface
 {
     use ConnectionTrait;
+    use CentreonConnectionTrait;
 
     public const DRIVER_PDO_MYSQL = "mysql";
     public const LABEL_DB_CONFIGURATION = 'centreon';
@@ -126,6 +128,9 @@ class CentreonDB extends PDO implements ConnectionInterface
             } else {
                 $this->connectionConfig = $connectionConfig;
             }
+
+            $this->setCentreonDbName(db);
+            $this->setStorageDbName(dbcstg);
 
             $this->logger = CentreonLog::create();
 
