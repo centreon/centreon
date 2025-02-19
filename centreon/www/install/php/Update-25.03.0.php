@@ -212,6 +212,7 @@ $removeFieldFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$error
         DELETE FROM cfg_centreonbroker_info WHERE config_key = 'check_replication'
         SQL
     );
+};
 
 // -------------------------------------------- Downtimes -------------------------------------------- //
 /**
