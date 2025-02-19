@@ -73,6 +73,7 @@ class AbstractRepositoryRDB
                 'Error while calculating the number of rows',
                 ['exception' => $e->getContext()]
             );
+
             return null;
         }
     }
