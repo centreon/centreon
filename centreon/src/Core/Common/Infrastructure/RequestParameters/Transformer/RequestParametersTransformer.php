@@ -40,7 +40,7 @@ readonly abstract class RequestParametersTransformer {
     /**
      * @param QueryParameters $queryParameters
      *
-     * @return array
+     * @return array<string,array<int,mixed>>
      */
     public static function transformFromQueryParameters(QueryParameters $queryParameters): array {
         $requestParameters = [];
@@ -53,7 +53,7 @@ readonly abstract class RequestParametersTransformer {
     }
 
     /**
-     * @param array $requestParameters
+     * @param array<string,array<int,mixed>> $requestParameters
      *
      * @throws TransformerException
      * @return QueryParameters
