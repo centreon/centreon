@@ -90,7 +90,7 @@ final class EnableDisableHostGroups
                 );
 
                 $statusResponse->status = ResponseCodeEnum::Error;
-                $statusResponse->message = HostGroupException::errorWhileDeleting()->getMessage();
+                $statusResponse->message = HostGroupException::errorWhileEnablingDisabling()->getMessage();
 
                 $results[] = $statusResponse;
             }

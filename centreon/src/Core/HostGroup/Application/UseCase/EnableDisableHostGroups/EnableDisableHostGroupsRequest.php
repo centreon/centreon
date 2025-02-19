@@ -25,6 +25,11 @@ namespace Core\HostGroup\Application\UseCase\EnableDisableHostGroups;
 
 final readonly class EnableDisableHostGroupsRequest
 {
+    /**
+     *
+     * @param int[] $hostGroupIds
+     * @param bool $isEnable
+     */
     public function __construct(public array $hostGroupIds, public bool $isEnable)
     {
     }

@@ -1,0 +1,7 @@
+in: query
+name: action
+required: true
+description: "Action to enable or disable host group"
+schema:
+  type: string
+  enum: [ "_enable", "_disable" ]

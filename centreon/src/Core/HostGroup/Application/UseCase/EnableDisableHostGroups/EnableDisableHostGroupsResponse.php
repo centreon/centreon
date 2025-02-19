@@ -35,6 +35,11 @@ final class EnableDisableHostGroupsResponse implements BulkResponseInterface
     {
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return EnableDisableHostGroupsStatusResponse[]
+     */
     public function getData(): array
     {
         return $this->results;
