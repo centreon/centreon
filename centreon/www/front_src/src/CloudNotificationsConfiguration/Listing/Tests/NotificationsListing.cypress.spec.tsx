@@ -528,7 +528,5 @@ describe('column sorting', () => {
 
       cy.contains('notification1');
     });
-
-    cy.makeSnapshot();
   });
 });
