@@ -61,7 +61,6 @@ installLanguagePack() {
 
 case "$CENTREON_LANG" in
   de*)
-    dnf install -y glibc-langpack-de
     installLanguagePack "de"
     setAdminLanguage "de_DE"
     ;;
