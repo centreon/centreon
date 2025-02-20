@@ -80,7 +80,7 @@ case "$CENTREON_LANG" in
     installLanguagePack "pt"
     setAdminLanguage "pt_BR"
     ;;
-  pt_PT)
+  pt*)
     installLanguagePack "pt"
     setAdminLanguage "pt_PT"
     ;;
