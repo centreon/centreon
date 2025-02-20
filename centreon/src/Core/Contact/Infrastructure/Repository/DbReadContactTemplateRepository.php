@@ -55,7 +55,9 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
-     * @param DatabaseConnection $connection
+     * DbReadContactTemplateRepository constructor
+     *
+     * @param ConnectionInterface $connection
      * @param QueryBuilderInterface $queryBuilder
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
