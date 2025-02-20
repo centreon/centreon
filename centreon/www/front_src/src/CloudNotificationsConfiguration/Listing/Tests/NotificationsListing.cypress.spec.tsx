@@ -498,6 +498,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.findAllByTestId(labelDuplicate).eq(0).click();
 
     cy.findByLabelText(labelNotificationName).type('New name');
+
     cy.findByTestId('Confirm').click();
 
     cy.waitForRequest('@duplicateNotificationtRequest');
@@ -533,10 +534,6 @@ describe('column sorting', () => {
       });
 
       cy.contains('notification1').should('exist');
-
-      cy.makeSnapshot(
-        `column sorting --  executes a listing request when the ${label} column is clicked`
-      );
     });
   });
 });
