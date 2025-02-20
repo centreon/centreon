@@ -142,7 +142,6 @@ Cypress.Commands.add('clearBrowserCache', () => {
 declare global {
   namespace Cypress {
     interface Chainable {
-      clearBrowserCache: () => Cypress.Chainable;
       disableListingAutoRefresh: () => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
