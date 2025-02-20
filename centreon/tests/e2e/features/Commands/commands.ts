@@ -112,12 +112,25 @@ Cypress.Commands.add("checkValuesOfCommands", (name: string, body: Cmd) => {
 });
 
 Cypress.Commands.add("addConnectors", (body: Ctr) => {
+  // Wait for the "Connector Name" input to be charged on the DOM
   cy.waitForElementInIframe("#main-content", 'input[name="connector_name"]');
+  // Type a value on the "Connector Name" input
   cy.getIframeBody().find('input[name="connector_name"]').type(body.name);
+  // Type a value on the "Connector Description" input
   cy.getIframeBody().find('input[name="connector_description"]').type(body.description);
+  // Type a value on the "Command Line" textarea
   cy.getIframeBody()
     .find('textarea[id="command_line"]')
     .type(body.command_line);
+  // Type a value on the "Used by command" input
+  cy.getIframeBody()
+    .find('input[placeholder="Used by command"]')
+    .type(body.used_by_command);
+  // Select the command used by the connector
+  cy.getIframeBody()
+    .find(`div[title="${body.used_by_command}"]`)
+    .click();
+  // Enable if needed the connector (default value is disabled)
   cy.getIframeBody()
     .find('input[name="connector_status[connector_status]"][value="1"]')
     .then(($val) => {
@@ -128,13 +141,30 @@ Cypress.Commands.add("addConnectors", (body: Ctr) => {
 });
 
 Cypress.Commands.add("updateConnectors", (body: Ctr) => {
+  // Wait for the "Connector Name" input to be charged on the DOM
   cy.waitForElementInIframe("#main-content", 'input[name="connector_name"]');
+  // Update the value of the "Connector Name"
   cy.getIframeBody().find('input[name="connector_name"]').clear().type(body.name);
+  // Update the value of the "Connector Description"
   cy.getIframeBody().find('input[name="connector_description"]').clear().type(body.description);
+  // Update the value of the "Command Line"
   cy.getIframeBody()
     .find('textarea[id="command_line"]')
     .clear()
     .type(body.command_line);
+  // Clear the value on the "Used by command" input
+  cy.getIframeBody()
+    .find('span[title="Clear field"]')
+    .click({ force: true });
+  // Update a value on the "Used by command" input
+  cy.getIframeBody()
+    .find('input[placeholder="Used by command"]')
+    .type(body.used_by_command);
+  // Select the command used by the connector
+  cy.getIframeBody()
+    .find(`div[title="${body.used_by_command}"]`)
+    .click();
+  // Update the value of the "Connector Status"
   cy.getIframeBody()
     .find('input[name="connector_status[connector_status]"][value="1"]')
     .then(($val) => {
@@ -145,16 +175,25 @@ Cypress.Commands.add("updateConnectors", (body: Ctr) => {
 });
 
 Cypress.Commands.add("checkValuesOfConnectors", (name: string, body: Ctr) => {
+  // Wait for the "Connector Name" input to be charged on the DOM
   cy.waitForElementInIframe("#main-content", 'input[name="connector_name"]');
+  // Check that the "Connector Name" input contains right value
   cy.getIframeBody()
     .find('input[name="connector_name"]')
     .should("have.value", `${name}`);
+  // Check that the "Connector Description" input contains right value
   cy.getIframeBody()
     .find('input[name="connector_description"]')
     .should("have.value", body.description);
+  // Check that the "Command Line" input contains right value
   cy.getIframeBody()
     .find('textarea[id="command_line"]')
     .should("have.value", body.command_line);
+  // Check that the "Used by command" input contains right value
+  cy.getIframeBody()
+    .find('select[id="command_id"]')
+    .should("have.text", body.used_by_command);
+  // Check that the "Connector Status" contains right value
   cy.getIframeBody()
     .find(`input[name="connector_status[connector_status]"][value="${body.is_enabled}"]`)
     .should("be.checked");
