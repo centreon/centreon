@@ -62,7 +62,11 @@ jobs:
 
       - uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd # v3.0.0
         id: filter
+        if: |
+          github.event_name == 'pull_request' &&
+          needs.get-environment.outputs.stability != 'testing'
         with:
+          base: ${{ github.head_ref || github.ref_name }}
           filters: |
             has_frontend_changes:
               - 'centreon/*.[jt]sx?'
