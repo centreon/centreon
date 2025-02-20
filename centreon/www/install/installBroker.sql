@@ -120,6 +120,7 @@ CREATE TABLE `downtimes` (
   KEY `instance_id` (`instance_id`),
   KEY `entry_time_2` (`entry_time`),
   KEY `downtimeManager_hostList` (`host_id`,`start_time`),
+  KEY `downtimes_end_time_index` (`end_time`),
   CONSTRAINT `downtimes_ibfk_1` FOREIGN KEY (`host_id`) REFERENCES `hosts` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `downtimes_ibfk_2` FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
