@@ -50,14 +50,21 @@ export default ({
       },
       setupNodeEvents: async (cypressOn, config) => {
         const on = require('cypress-on-fix')(cypressOn)
-        installLogsPrinter(on);
+        installLogsPrinter(
+          on,
+          {
+            commandTrimLength: 5000,
+            defaultTrimLength: 5000,
+          }
+      );
         await esbuildPreprocessor(on, config);
         tasks(on);
 
         return plugins(on, config);
       },
       specPattern,
-      supportFile: 'support/e2e.{js,jsx,ts,tsx}'
+      supportFile: 'support/e2e.{js,jsx,ts,tsx}',
+      testIsolation: true,
     },
     env: {
       ...env,
