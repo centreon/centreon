@@ -366,7 +366,6 @@
 									"            \"db_name\": \"storage\",\r",
 									"            \"queries_per_transaction\": \"500\",\r",
 									"            \"read_timeout\": \"3600\",\r",
-									"            \"check_replication\": \"yes\",\r",
 									"            \"rebuild_check_interval\": \"60\",\r",
 									"            \"store_in_data_bin\": \"no\",\r",
 									"            \"insert_in_index_data\": \"2\",\r",
@@ -389,7 +388,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"output-test-5\",\r\n  \"type\": 14,\r\n  \"parameters\": {\r\n    \"interval\": 120,\r\n    \"length\": 155520000,\r\n    \"db_type\": \"mysql\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"connections_count\": 2,\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 60,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"filters_category\": [\"storage\", \"neb\", \"dumper\"]\r\n  }\r\n}",
+							"raw": "{\r\n  \"name\": \"output-test-5\",\r\n  \"type\": 14,\r\n  \"parameters\": {\r\n    \"interval\": 120,\r\n    \"length\": 155520000,\r\n    \"db_type\": \"mysql\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"connections_count\": 2,\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"rebuild_check_interval\": 60,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"filters_category\": [\"storage\", \"neb\", \"dumper\"]\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -442,7 +441,6 @@
 									"            \"db_name\": \"storage\",\r",
 									"            \"queries_per_transaction\": \"500\",\r",
 									"            \"read_timeout\": \"3600\",\r",
-									"            \"check_replication\": \"yes\",\r",
 									"            \"cleanup_check_interval\": \"60\",\r",
 									"            \"instance_timeout\": \"6000\",\r",
 									"            \"filters_category\": [\r",
@@ -463,7 +461,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"output-test-6\",\r\n  \"type\": 16,\r\n  \"parameters\": {\r\n    \"db_type\": \"oci\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"connections_count\": 2,\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"cleanup_check_interval\": 60,\r\n    \"instance_timeout\": 6000,\r\n    \"filters_category\": [\"storage\", \"dumper\"]\r\n  }\r\n}",
+							"raw": "{\r\n  \"name\": \"output-test-6\",\r\n  \"type\": 16,\r\n  \"parameters\": {\r\n    \"db_type\": \"oci\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"connections_count\": 2,\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"cleanup_check_interval\": 60,\r\n    \"instance_timeout\": 6000,\r\n    \"filters_category\": [\"storage\", \"dumper\"]\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -873,7 +871,6 @@
 									"            \"connections_count\": \"123\",\r",
 									"            \"db_name\": \"name1\",\r",
 									"            \"read_timeout\": \"4500\",\r",
-									"            \"check_replication\": \"yes\",\r",
 									"            \"rebuild_check_interval\": \"12\",\r",
 									"            \"store_in_data_bin\": \"no\",\r",
 									"            \"insert_in_index_data\": \"1\",\r",
@@ -898,7 +895,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"output-test-12\",\r\n  \"type\": 34,\r\n  \"parameters\": {\r\n    \"interval\": 75,\r\n    \"length\": 15553000,\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"connections_count\": 123,\r\n    \"db_name\": \"name1\",\r\n    \"read_timeout\": 4500,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 12,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"1\",\r\n    \"cleanup_check_interval\": 7500,\r\n    \"instance_timeout\": 5000,\r\n    \"db_type\": \"oci\",\r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"raw": "{\r\n  \"name\": \"output-test-12\",\r\n  \"type\": 34,\r\n  \"parameters\": {\r\n    \"interval\": 75,\r\n    \"length\": 15553000,\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"connections_count\": 123,\r\n    \"db_name\": \"name1\",\r\n    \"read_timeout\": 4500,\r\n    \"rebuild_check_interval\": 12,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"1\",\r\n    \"cleanup_check_interval\": 7500,\r\n    \"instance_timeout\": 5000,\r\n    \"db_type\": \"oci\",\r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1845,7 +1842,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"output-test-5\",\r\n  \"type\": 14,\r\n  \"parameters\": {\r\n    \"interval\": 120,\r\n    \"length\": 155520000,\r\n    \"db_type\": \"mysql\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"connections_count\": 2,\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 60,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"filters_category\": [\"storage\", \"neb\", \"dumper\"]\r\n  }\r\n}",
+							"raw": "{\r\n  \"name\": \"output-test-5\",\r\n  \"type\": 14,\r\n  \"parameters\": {\r\n    \"interval\": 120,\r\n    \"length\": 155520000,\r\n    \"db_type\": \"mysql\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"connections_count\": 2,\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"rebuild_check_interval\": 60,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"filters_category\": [\"storage\", \"neb\", \"dumper\"]\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1888,7 +1885,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"output-test-6\",\r\n  \"type\": 16,\r\n  \"parameters\": {\r\n    \"db_type\": \"oci\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"connections_count\": 2,\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"cleanup_check_interval\": 60,\r\n    \"instance_timeout\": 6000,\r\n    \"filters_category\": [\"storage\", \"dumper\"]\r\n  }\r\n}",
+							"raw": "{\r\n  \"name\": \"output-test-6\",\r\n  \"type\": 16,\r\n  \"parameters\": {\r\n    \"db_type\": \"oci\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"connections_count\": 2,\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"cleanup_check_interval\": 60,\r\n    \"instance_timeout\": 6000,\r\n    \"filters_category\": [\"storage\", \"dumper\"]\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2146,7 +2143,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"output-test-12\",\r\n  \"type\": 34,\r\n  \"parameters\": {\r\n    \"interval\": 75,\r\n    \"length\": 15553000,\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"connections_count\": 123,\r\n    \"db_name\": \"name1\",\r\n    \"read_timeout\": 4500,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 12,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"1\",\r\n    \"cleanup_check_interval\": 7500,\r\n    \"instance_timeout\": 5000,\r\n    \"db_type\": \"oci\",\r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"raw": "{\r\n  \"name\": \"output-test-12\",\r\n  \"type\": 34,\r\n  \"parameters\": {\r\n    \"interval\": 75,\r\n    \"length\": 15553000,\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"connections_count\": 123,\r\n    \"db_name\": \"name1\",\r\n    \"read_timeout\": 4500,\r\n    \"rebuild_check_interval\": 12,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"1\",\r\n    \"cleanup_check_interval\": 7500,\r\n    \"instance_timeout\": 5000,\r\n    \"db_type\": \"oci\",\r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3207,7 +3204,6 @@
 									"            \"db_name\": \"storage\",\r",
 									"            \"queries_per_transaction\": \"500\",\r",
 									"            \"read_timeout\": \"3600\",\r",
-									"            \"check_replication\": \"yes\",\r",
 									"            \"rebuild_check_interval\": \"60\",\r",
 									"            \"store_in_data_bin\": \"no\",\r",
 									"            \"insert_in_index_data\": \"2\",\r",
@@ -3230,7 +3226,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"output-test-5\",\r\n  \"type\": 14,\r\n  \"parameters\": {\r\n    \"interval\": 120,\r\n    \"length\": 155520000,\r\n    \"db_type\": \"mysql\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"connections_count\": 2,\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 60,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"filters_category\": [\"storage\", \"neb\", \"dumper\"]\r\n  }\r\n}",
+							"raw": "{\r\n  \"name\": \"output-test-5\",\r\n  \"type\": 14,\r\n  \"parameters\": {\r\n    \"interval\": 120,\r\n    \"length\": 155520000,\r\n    \"db_type\": \"mysql\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"connections_count\": 2,\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"rebuild_check_interval\": 60,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"2\",\r\n    \"filters_category\": [\"storage\", \"neb\", \"dumper\"]\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3283,7 +3279,6 @@
 									"            \"db_name\": \"storage\",\r",
 									"            \"queries_per_transaction\": \"500\",\r",
 									"            \"read_timeout\": \"3600\",\r",
-									"            \"check_replication\": \"yes\",\r",
 									"            \"cleanup_check_interval\": \"60\",\r",
 									"            \"instance_timeout\": \"6000\",\r",
 									"            \"filters_category\": [\r",
@@ -3304,7 +3299,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"output-test-6\",\r\n  \"type\": 16,\r\n  \"parameters\": {\r\n    \"db_type\": \"oci\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"connections_count\": 2,\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"check_replication\": \"yes\",\r\n    \"cleanup_check_interval\": 60,\r\n    \"instance_timeout\": 6000,\r\n    \"filters_category\": [\"storage\", \"dumper\"]\r\n  }\r\n}",
+							"raw": "{\r\n  \"name\": \"output-test-6\",\r\n  \"type\": 16,\r\n  \"parameters\": {\r\n    \"db_type\": \"oci\",\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"db_name\": \"storage\",\r\n    \"connections_count\": 2,\r\n    \"queries_per_transaction\": 500,\r\n    \"read_timeout\": 3600,\r\n    \"cleanup_check_interval\": 60,\r\n    \"instance_timeout\": 6000,\r\n    \"filters_category\": [\"storage\", \"dumper\"]\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3714,7 +3709,6 @@
 									"            \"connections_count\": \"123\",\r",
 									"            \"db_name\": \"name1\",\r",
 									"            \"read_timeout\": \"4500\",\r",
-									"            \"check_replication\": \"yes\",\r",
 									"            \"rebuild_check_interval\": \"12\",\r",
 									"            \"store_in_data_bin\": \"no\",\r",
 									"            \"insert_in_index_data\": \"1\",\r",
@@ -3739,7 +3733,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"output-test-12\",\r\n  \"type\": 34,\r\n  \"parameters\": {\r\n    \"interval\": 75,\r\n    \"length\": 15553000,\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"connections_count\": 123,\r\n    \"db_name\": \"name1\",\r\n    \"read_timeout\": 4500,\r\n    \"check_replication\": \"yes\",\r\n    \"rebuild_check_interval\": 12,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"1\",\r\n    \"cleanup_check_interval\": 7500,\r\n    \"instance_timeout\": 5000,\r\n    \"db_type\": \"oci\",\r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
+							"raw": "{\r\n  \"name\": \"output-test-12\",\r\n  \"type\": 34,\r\n  \"parameters\": {\r\n    \"interval\": 75,\r\n    \"length\": 15553000,\r\n    \"db_host\": \"127.0.0.1\",\r\n    \"db_port\": 3456,\r\n    \"db_user\": \"user-test\",\r\n    \"db_password\": \"super_password\",\r\n    \"queries_per_transaction\": 10000,\r\n    \"connections_count\": 123,\r\n    \"db_name\": \"name1\",\r\n    \"read_timeout\": 4500,\r\n    \"rebuild_check_interval\": 12,\r\n    \"store_in_data_bin\": \"no\",\r\n    \"insert_in_index_data\": \"1\",\r\n    \"cleanup_check_interval\": 7500,\r\n    \"instance_timeout\": 5000,\r\n    \"db_type\": \"oci\",\r\n    \"filters_category\": [\"dumper\", \"storage\"]\r\n  }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
