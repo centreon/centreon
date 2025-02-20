@@ -30,7 +30,6 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
