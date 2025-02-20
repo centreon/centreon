@@ -56,7 +56,7 @@ installLanguagePack() {
 
   echo "Installing language pack for $1"
 
-  dnf install -y --disablerepo='centreon*' glibc-langpack-$1
+  dnf install -y --disablerepo='centreon*' --disablerepo='epel*' glibc-langpack-$1
 }
 
 case "$CENTREON_LANG" in
