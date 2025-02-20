@@ -77,6 +77,8 @@ case "$CENTREON_LANG" in
     installLanguagePack "pt"
     setAdminLanguage "pt_PT"
     ;;
+  "")
+    ;;
   *)
     echo "Language $CENTREON_LANG not supported"
     ;;
