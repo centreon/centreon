@@ -18,3 +18,9 @@ Feature: LDAPManualImport
   Scenario: LDAP manually imported user can authenticate to Centreon Web
     Given one ldap user has been manually imported
     Then this user can log in to Centreon Web
+
+  Scenario: User cannot change DN
+    Given a ldap user has been imported
+    When the imported ldap logs in to Centreon web
+    Then the ldap user cannot update the contact dn
+    And the ldap user cannot update the contact password
