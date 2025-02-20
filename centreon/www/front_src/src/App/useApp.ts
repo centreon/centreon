@@ -13,7 +13,8 @@ import {
   downtimeAtom,
   platformNameAtom,
   refreshIntervalAtom,
-  statisticsRefreshIntervalAtom
+  statisticsRefreshIntervalAtom,
+  userPermissionsAtom
 } from '@centreon/ui-context';
 
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
@@ -23,7 +24,11 @@ import useNavigation from '../Navigation/useNavigation';
 import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
 
-import { aclEndpoint, parametersEndpoint } from './endpoint';
+import {
+  aclEndpoint,
+  parametersEndpoint,
+  userPermissionsEndpoint
+} from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
@@ -51,9 +56,16 @@ const useApp = (): UseAppState => {
     request: getData
   });
   const { sendRequest: getParameters } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
     request: getData
   });
-  const { sendRequest: getAcl } = useRequest<Actions>({
+
+  const { sendRequest: getUserPermissions } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
+    request: getData
+  });
+
+  const { sendRequest: getResourcesAcl } = useRequest<Actions>({
     request: getData
   });
 
@@ -79,6 +91,7 @@ const useApp = (): UseAppState => {
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
 
   const setPlaformName = useSetAtom(platformNameAtom);
+  const setUserPermissions = useSetAtom(userPermissionsAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -100,11 +113,14 @@ const useApp = (): UseAppState => {
       getParameters({
         endpoint: parametersEndpoint
       }),
-      getAcl({
+      getResourcesAcl({
         endpoint: aclEndpoint
+      }),
+      getUserPermissions({
+        endpoint: userPermissionsEndpoint
       })
     ])
-      .then(([retrievedParameters, retrievedAcl]) => {
+      .then(([retrievedParameters, retrievedAcl, userPermissions]) => {
         setDowntime({
           duration: Number.parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
@@ -127,6 +143,9 @@ const useApp = (): UseAppState => {
           )
         );
         setAcl({ actions: retrievedAcl });
+
+        setUserPermissions(userPermissions);
+
         setAcknowledgement({
           force_active_checks:
             retrievedParameters.monitoring_default_acknowledgement_force_active_checks,

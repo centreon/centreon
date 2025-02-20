@@ -10,7 +10,6 @@ rules:
     - Centreon\PHPStan\CustomRules\MiscRules\VariableLengthCustomRule
     - Centreon\PHPStan\CustomRules\MiscRules\StringBackquotesCustomRule
     - Centreon\PHPStan\CustomRules\LoggerRules\LogMethodInCatchCustomRule
-    - Centreon\PHPStan\CustomRules\LoggerRules\LoggerUseCaseCustomRule
     - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
     - Centreon\PHPStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
     - Centreon\PHPStan\CustomRules\ArchitectureRules\FinalClassCustomRule

@@ -8,6 +8,11 @@ import {
 } from '../common';
 
 beforeEach(() => {
+  // clear network cache to avoid chunk loading issues
+  cy.wrap(Cypress.automation('remote:debugger:protocol', {
+    command: 'Network.clearBrowserCache',
+  }));
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -179,5 +184,8 @@ EOF`,
 );
 
 afterEach(() => {
-  cy.visitEmptyPage().stopContainer({ name: 'web' });
+  cy
+    .visitEmptyPage()
+    .copyWebContainerLogs({ name: 'web' })
+    .stopContainer({ name: 'web' });
 });
