@@ -49,14 +49,7 @@ setAdminLanguage() {
 }
 
 installLanguagePack() {
-  if [ -z "$1" ]; then
-    echo "Language not set"
-    return
-  fi
-
-  echo "Installing language pack for $1"
-
-  # dnf install -y --disablerepo='centreon*' --disablerepo='epel*' glibc-langpack-$1
+  # locales is already a dependency of centreon-web deb package
 }
 
 case "$CENTREON_LANG" in
