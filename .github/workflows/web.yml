@@ -67,8 +67,7 @@ jobs:
         id: filter
         if: |
           github.event_name == 'pull_request' &&
-          needs.get-environment.outputs.stability != 'testing' &&
-          needs.get-environment.outputs.target_stability != 'stable'
+          needs.get-environment.outputs.stability != 'testing'
         with:
           base: ${{ github.head_ref || github.ref_name }}
           filters: |
