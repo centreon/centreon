@@ -1,12 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useFormStyles = makeStyles()((theme) => ({
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
-    height: '100%'
-  },
   groups: {
     '&:hover': {
       background: theme.palette.background.listingHeader
@@ -18,9 +12,5 @@ export const useFormStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
     paddingInline: theme.spacing(1.25),
     margin: theme.spacing(3, 0, 1)
-  },
-  titleGroup: {
-    fontWeight: theme.typography.fontWeightMedium,
-    fontSize: theme.typography.subtitle1.fontSize
   }
 }));

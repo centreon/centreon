@@ -1,11 +1,11 @@
 import { usePluralizedTranslation } from '@centreon/ui';
 import { Box, Typography, capitalize } from '@mui/material';
-import { ConfigurationBase } from '../models';
+import { DeleteDialog, DuplicateDialog } from './Dialogs';
+import Filters from './Filters';
 import { Listing } from './Listing';
 import { Modal } from './Modal';
 
-import { DeleteDialog, DuplicateDialog } from './Dialogs';
-import Filters from './Filters';
+import { ConfigurationBase } from '../models';
 import { useStyles } from './Page.styles';
 
 const Page = ({
@@ -36,11 +36,12 @@ const Page = ({
             <Filters />
           </Box>
         </Box>
-        <Box className={classes.listing}>
+        <Box className={classes.pageBody}>
           <Listing columns={columns} />
-          <Modal form={form} />
         </Box>
       </Box>
+
+      <Modal form={form} />
       <DeleteDialog />
       <DuplicateDialog />
     </>
