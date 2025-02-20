@@ -7,7 +7,6 @@ import {
 } from '../common';
 
 beforeEach(() => {
-  cy.clearBrowserCache();
 
   cy.getWebVersion().then(({ major_version }) => {
     cy.intercept({
