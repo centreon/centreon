@@ -125,7 +125,7 @@ const useListing = ({
   );
 
   useEffect(() => {
-    if (isOpenTicketEnabled || !isFromPreview) {
+    if (isOpenTicketEnabled && isFromPreview) {
       setPanelOptions?.({ displayType: DisplayType.Service });
 
       return;
