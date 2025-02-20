@@ -45,6 +45,20 @@ $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void 
     );
 };
 
+/**
+ * Create index for resources table.
+ *
+ * @param CentreonDB $realtimeDb
+ *
+ * @throws CentreonDbException
+ */
+$createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
+    if (! $realtimeDb->isIndexExists('downtimes', 'downtimes_end_time_index')) {
+        $errorMessage = 'Unable to create index for downtimes table';
+        $realtimeDb->executeQuery('CREATE INDEX `downtimes_end_time_index` ON downtimes (`end_time`)');
+    }
+};
+
 try {
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
@@ -52,6 +66,7 @@ try {
     }
 
     $insertAccConnectors($pearDB);
+    $createIndexForDowntimes($pearDBO);
 
     $pearDB->commit();
 } catch (\Exception $e) {
