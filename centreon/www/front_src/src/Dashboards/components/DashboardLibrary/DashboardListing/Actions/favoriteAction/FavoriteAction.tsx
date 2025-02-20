@@ -25,13 +25,19 @@ interface Props {
   dashboardId: number;
   isFavorite: boolean;
   refetch?: () => void;
+  isFetching: boolean;
 }
 
-const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
+const FavoriteAction = ({
+  dashboardId,
+  isFavorite,
+  refetch,
+  isFetching
+}: Props) => {
   const { t } = useTranslation();
   const labelSuccess = useRef('');
   const { showSuccessMessage } = useSnackbar();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [color, setColor] = useState('');
   const [title, setTitle] = useState('');
 
@@ -59,7 +65,7 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
     setTitle(previousTitle);
   };
 
-  const { mutateAsync } = useMutationQuery({
+  const { mutateAsync, isMutating } = useMutationQuery({
     getEndpoint,
     method: isFavorite ? Method.DELETE : Method.POST,
     onSuccess,
@@ -116,7 +122,7 @@ const FavoriteAction = ({ dashboardId, isFavorite, refetch }: Props) => {
       title={title || defaultTitle}
       onClick={handleFavorites}
       color={color || defaultColor}
-      disabled={isPending}
+      disabled={isFetching || isMutating}
       size="small"
       ariaLabel="FavoriteIconButton"
     >
