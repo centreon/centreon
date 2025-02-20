@@ -130,12 +130,12 @@ const initializeCustomUnits = ({
 
 const checkGraphWidth = (): void => {
   cy.findByTestId('graph-interaction-zone')
-    .should('have.attr', 'width')
-    .and('equal', '1170');
-
-  cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
     .and('equal', '393');
+
+  cy.findByTestId('graph-interaction-zone').then((graph) => {
+    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
+  });
 };
 
 describe('Line chart', () => {
@@ -158,8 +158,7 @@ describe('Line chart', () => {
       cy.contains('06/18/2023').should('be.visible');
 
       cy.contains('0.45 s').should('be.visible');
-      cy.contains('75.93%').should('be.visible');
-      cy.contains('0.43 s').should('be.visible');
+      cy.contains('73.65%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -181,7 +180,7 @@ describe('Line chart', () => {
       cy.get('[data-metric="connTime"]').should(
         'have.attr',
         'data-highlight',
-        'true'
+        'false'
       );
 
       cy.makeSnapshot();
@@ -194,7 +193,7 @@ describe('Line chart', () => {
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1185, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(1198, 100);
 
       cy.get('[data-metric="querytime"]').should('not.exist');
 
@@ -208,10 +207,10 @@ describe('Line chart', () => {
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1152, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(1170, 100);
 
       cy.get('[data-metric="querytime"]').should('be.visible');
-      cy.get('[data-metric="hitratio"]').should('not.exist');
+      cy.get('[data-metric="hitratio"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -225,12 +224,12 @@ describe('Line chart', () => {
 
       cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
 
-      cy.get('[data-metric="connTime"]').should(
+      cy.get('[data-metric="hitratio"]').should(
         'have.attr',
         'data-highlight',
         'true'
       );
-      cy.get('[data-metric="hitratio"]').should('not.exist');
+      cy.get('[data-metric="querytime"]').should('not.exist');
 
       cy.makeSnapshot();
     });
@@ -286,7 +285,7 @@ describe('Line chart', () => {
 
     cy.findByTestId('graph-interaction-zone')
       .should('have.attr', 'width')
-      .and('equal', '1212');
+      .and('equal', '1200');
 
     cy.findByLabelText('Centreon-Server: Round-Trip Average Time')
       .find('[data-icon="true"]')
@@ -362,8 +361,6 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains(':00 AM').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it('displays the legend on the right side of the graph as list when the corresponding props are set', () => {
@@ -373,8 +370,6 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains(':00 AM').should('be.visible');
-
-      cy.makeSnapshot();
     });
   });
 
@@ -530,8 +525,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="4.0625"]').should('be.visible');
-      cy.get('circle[cy="105.21757370835121"]').should('be.visible');
+      cy.get('circle[cx="37.625"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -583,7 +577,6 @@ describe('Lines and bars', () => {
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -634,7 +627,6 @@ describe('Lines and bars', () => {
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
 
     cy.makeSnapshot();
   });

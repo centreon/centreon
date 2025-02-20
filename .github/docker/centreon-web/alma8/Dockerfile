@@ -31,6 +31,7 @@ systemctl stop centengine
 systemctl stop cbd
 systemctl stop httpd
 systemctl stop php-fpm
+systemctl stop snmpd
 
 dnf clean all
 
@@ -41,3 +42,4 @@ EXPOSE 80
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 ENV CENTREON_DATASET="1"
+ENV CENTREON_LANG="en_US"
