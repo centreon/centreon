@@ -192,7 +192,15 @@ Cypress.Commands.add("checkValuesOfConnectors", (name: string, body: Ctr) => {
   // Check that the "Used by command" input contains right value
   cy.getIframeBody()
     .find('select[id="command_id"]')
-    .should("have.text", body.used_by_command);
+    .then(($val) => {
+      if (name.endsWith("_1")) {
+        cy.wrap($val).should("be.empty");
+      }
+      else {
+        cy.wrap($val).should("have.text", body.used_by_command);
+      }
+    }
+    );
   // Check that the "Connector Status" contains right value
   cy.getIframeBody()
     .find(`input[name="connector_status[connector_status]"][value="${body.is_enabled}"]`)
