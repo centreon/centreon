@@ -11,12 +11,10 @@ import { useMemoComponent } from '../utils';
 import FilterSkeleton from './FilterSkeleton';
 import ListingSkeleton from './ListingSkeleton';
 
-const useStyles = makeStyles<boolean>()((theme, disableBorderBottom) => {
+const useStyles = makeStyles<{ disableBorderBottom : boolean}>()((theme, { disableBorderBottom }) => {
   return {
     filters: {
-      ...(!disableBorderBottom && {
-        borderBottom: `1px solid ${theme.palette.divider}`
-      }),
+      borderBottom: disableBorderBottom ? 'none' : `1px solid ${theme.palette.divider}`,
       margin: theme.spacing(0, 3)
     },
     listing: {
@@ -58,7 +56,7 @@ const ListingPage = ({
   memoListingProps = [],
   disableBorderBottom = false
 }: ListingPageProps): JSX.Element => {
-  const { classes, cx } = useStyles(disableBorderBottom);
+  const { classes, cx } = useStyles({ disableBorderBottom });
   const filtersRef = useRef<HTMLDivElement | null>(null);
 
   const memoListingComponent = useMemoComponent({
