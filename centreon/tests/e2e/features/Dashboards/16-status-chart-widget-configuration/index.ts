@@ -301,6 +301,7 @@ Then(
 				blueCssBackground,
 			],
 			["50.0%", "8.3%", "8.3%", "0.0%", "33.3%"],
+			["25.0%", "8.3%", "8.3%", "25.0%", "33.3%"]
 		);
 	},
 );
@@ -339,6 +340,7 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 			blueCssBackground,
 		],
 		["50.0%", "8.3%", "8.3%", "0.0%", "33.3%"],
+		["25.0%", "8.3%", "8.3%", "25.0%", "33.3%"]
 	);
 });
 
@@ -408,6 +410,7 @@ Then("only the contents of the other widget are displayed", () => {
 			blueCssBackground,
 		],
 		["50.0%", "8.3%", "8.3%", "0.0%", "33.3%"],
+		["25.0%", "8.3%", "8.3%", "25.0%", "33.3%"]
 	);
 });
 
@@ -440,6 +443,7 @@ Then("a second Status Chart widget is displayed on the dashboard", () => {
 			blueCssBackground,
 		],
 		["50.0%", "8.3%", "8.3%", "0.0%", "33.3%"],
+		["25.0%", "8.3%", "8.3%", "25.0%", "33.3%"]
 	);
 });
 
@@ -477,6 +481,7 @@ Then(
 				blueCssBackground,
 			],
 			["50.0%", "8.3%", "8.3%", "0.0%", "33.3%"],
+			["25.0%", "8.3%", "8.3%", "25.0%", "33.3%"]
 		);
 	},
 );
