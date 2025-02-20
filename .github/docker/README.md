@@ -27,14 +27,14 @@ This can be overridden with the `MYSQL_IMAGE` environment variable using one of 
 
 By default, the Centreon web image targets the develop branch and is installed on almalinux 9.
 This can be overridden with the `WEB_IMAGE` environment variable using one of the following ways:
-* *Preferred*: Export environment variable directly in your terminal (ex: `export WEB_IMAGE=docker.centreon.com/centreon/centreon-web-alma9:MON-XXX`)
-* *Alternative*: Add a new line to environment file `.github/docker/.env` with WEB_IMAGE value (ex: `docker.centreon.com/centreon/centreon-web-alma9:MON-XXX`)
+* *Preferred*: Export the environment variable directly in your terminal (ex: `export WEB_IMAGE=docker.centreon.com/centreon/centreon-web-alma9:MON-XXX`)
+* *Alternative*: Add a new line to the environment file `.github/docker/.env` with WEB_IMAGE value (ex: `docker.centreon.com/centreon/centreon-web-alma9:MON-XXX`)
 
 > [!NOTE]
 > To get an image of centreon-web on other operating system, web workflow needs to be run on a pull request which has label `system`<br/>
 > Then, following image can be used: `export WEB_IMAGE=docker.centreon.com/centreon/centreon-web-bookworm:MON-XXX`
 
-centreon-web image accepts following environment variables:
+centreon-web image accepts the following environment variables:
 * `CENTREON_DATASET`:
   * `0`: centreon configuration is empty
   * `1` (default value): inject minimal dataset (commands, hosts, services)
