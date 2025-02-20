@@ -2,9 +2,9 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/commands/connector.json';
 
-// before(() => {
-//   cy.startContainers();
-// });
+before(() => {
+  cy.startContainers();
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -17,9 +17,9 @@ beforeEach(() => {
   }).as('getTimeZone');
 });
 
-// after(() => {
-//   cy.stopContainers();
-// });
+after(() => {
+  cy.stopContainers();
+});
 
 Given('an admin user is logged in a Centreon server', () => {
   cy.loginByTypeOfUser({
