@@ -4,42 +4,36 @@ import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../../atoms';
 
-interface UseEnableProps {
-  enableMutation: ({
-    ids
-  }: { ids: Array<number> }) => Promise<object | ResponseError>;
-  isMutating: boolean;
+interface UseCreateProps {
+  createMutation: (
+    payload: Record<string, string | Array<number> | object | null>
+  ) => Promise<object | ResponseError>;
 }
 
-const useEnable = (): UseEnableProps => {
+const useCreate = (): UseCreateProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.api?.endpoints?.enable as string;
+  const endpoint = configuration?.api?.endpoints?.create as string;
 
   const queryClient = useQueryClient();
 
-  const { isMutating, mutateAsync } = useMutationQuery({
+  const { mutateAsync } = useMutationQuery({
     getEndpoint: () => endpoint,
     method: Method.POST,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listResources'] });
+      queryClient.resetQueries({ queryKey: ['getDetails'] });
     }
   });
-
-  const enableMutation = ({
-    ids
-  }: {
-    ids: Array<number>;
-  }) => {
+  const createMutation = (payload) => {
     return mutateAsync({
-      payload: { ids }
+      payload
     });
   };
 
   return {
-    enableMutation,
-    isMutating
+    createMutation
   };
 };
 
-export default useEnable;
+export default useCreate;

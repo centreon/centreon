@@ -36,7 +36,7 @@ const useGetAll = ({
           sort
         }
       }),
-    getQueryKey: () => ['listHostGroups', sortField, sortOrder, limit, page],
+    getQueryKey: () => ['listResources', sortField, sortOrder, limit, page],
     queryOptions: {
       refetchOnMount: false,
       staleTime: 0,

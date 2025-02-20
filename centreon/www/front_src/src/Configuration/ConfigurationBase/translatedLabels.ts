@@ -33,6 +33,8 @@ export const labelResourceDisabled = (type) => `${type} diabled`;
 export const labelResourceEnabled = (type) => `${type} diabled`;
 export const labelResourceDuplicated = (type) => `${type} duplicated`;
 export const labelResourceDeleted = (type) => `${type} deleted`;
+export const labelResourceCreated = (type) => `${type} created`;
+export const labelResourceUpdated = (type) => `${type} updated`;
 
 export const labelFailedToDeleteResources = (type) =>
   `Failed to delete the ${type}`;
@@ -60,3 +62,7 @@ export const labelDuplicateResourceConfirmation = (type) =>
 
 export const labelDuplicateResourcesConfirmation = (type) =>
   `You are about to duplicate <strong>{{ count }} ${type}.</strong> Please specify the number of duplications you would like to make for these groups.`;
+
+// Form
+export const labelCreate = 'Create';
+export const labelUpdate = 'Update';

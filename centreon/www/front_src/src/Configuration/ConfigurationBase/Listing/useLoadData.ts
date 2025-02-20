@@ -3,14 +3,14 @@ import { equals } from 'ramda';
 
 import { useGetAll } from '../api';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
-import { HostGroupListItem, List } from './models';
 
 import { useMemo } from 'react';
 import { configurationAtom, filtersAtom } from '../../atoms';
 import { FieldType } from '../../models';
+import { List } from '../models';
 
 interface LoadDataState {
-  data?: List<HostGroupListItem>;
+  data?: List<unknown>;
   isLoading: boolean;
 }
 

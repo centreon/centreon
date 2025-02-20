@@ -6,3 +6,6 @@ export const modalStateAtom = atom<ModalState>({
   isOpen: false,
   mode: 'add'
 });
+
+export const isFormDirtyAtom = atom<boolean>(false);
+export const isCloseConfirmationDialogOpenAtom = atom<boolean>(false);

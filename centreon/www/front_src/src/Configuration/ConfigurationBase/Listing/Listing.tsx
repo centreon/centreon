@@ -1,7 +1,6 @@
 import { Column, MemoizedListing } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
-import {} from '../Dialogs';
 import ActionsBar from './ActionsBar';
 import useColumns from './Columns/useColumns';
 import { selectedRowsAtom } from './atoms';

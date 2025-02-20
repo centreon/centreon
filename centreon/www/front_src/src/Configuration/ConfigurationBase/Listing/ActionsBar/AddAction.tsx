@@ -6,7 +6,7 @@ import { Button } from '@centreon/ui/components';
 
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router';
-import { modalStateAtom } from '../../Modal/atoms';
+import { modalStateAtom } from '../../atoms';
 import { labelAdd } from '../../translatedLabels';
 
 const Add = (): JSX.Element => {

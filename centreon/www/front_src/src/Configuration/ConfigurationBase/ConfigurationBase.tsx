@@ -4,9 +4,9 @@ import Page from './Page';
 const Base = ({
   columns,
   resourceType,
-  Form
+  form
 }: ConfigurationBase): JSX.Element => {
-  return <Page columns={columns} resourceType={resourceType} Form={Form} />;
+  return <Page columns={columns} resourceType={resourceType} form={form} />;
 };
 
 export default Base;

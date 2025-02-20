@@ -13,13 +13,13 @@ const useDeleteOne = (): UseDeleteOneProps => {
   const queryClient = useQueryClient();
 
   const configuration = useAtomValue(configurationAtom);
-  const endpoint = configuration?.api?.endpoints?.deleteOne;
+  const getEndpoint = configuration?.api?.endpoints?.deleteOne;
 
   const { isMutating, mutateAsync } = useMutationQuery({
-    getEndpoint: endpoint,
+    getEndpoint,
     method: Method.DELETE,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['listResources'] });
     }
   });
 

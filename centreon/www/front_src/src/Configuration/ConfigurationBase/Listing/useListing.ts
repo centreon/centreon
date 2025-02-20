@@ -1,16 +1,17 @@
-import { useState } from 'react';
-
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
 import { useTheme } from '@mui/material';
 import { useSearchParams } from 'react-router';
+
 import { configurationAtom } from '../../atoms';
-import { modalStateAtom } from '../Modal/atoms';
-import { labelSelectAtLeastOneColumn } from '../translatedLabels';
+import { modalStateAtom } from '../atoms';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
+
+import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
@@ -18,7 +19,7 @@ interface UseListing {
   page?: number;
   resetColumns: () => void;
   selectColumns: (updatedColumnIds: Array<string>) => void;
-  selectedColumnIds: Array<string>;
+  selectedColumnIds?: Array<string>;
   setLimit;
   sortf: string;
   sorto: 'asc' | 'desc';

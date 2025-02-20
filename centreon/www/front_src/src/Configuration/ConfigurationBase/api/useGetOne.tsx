@@ -1,25 +1,21 @@
 import { useFetchQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { isNotNil } from 'ramda';
 import { configurationAtom } from '../../atoms';
 
-interface UseGetOneProps {
-  id: number;
-  variant: 'create' | 'update';
-}
-
-const useGetOne = ({ id, variant }: UseGetOneProps) => {
+const useGetDetails = ({ id }: { id: number | null }) => {
   const configuration = useAtomValue(configurationAtom);
 
+  const resourceType = configuration?.resourceType;
   const endpoint = configuration?.api?.endpoints?.getOne;
   const decoder = configuration?.api?.decoders?.getOne;
 
   const { data, isFetching } = useFetchQuery({
     decoder,
-    getEndpoint: () => endpoint({ id }),
-    getQueryKey: () => ['getHostGroup', id],
+    getEndpoint: () => endpoint?.({ id }) as string,
+    getQueryKey: () => ['getDetails', id, resourceType],
     queryOptions: {
-      enabled: equals(variant, 'update'),
+      enabled: isNotNil(id),
       suspense: false
     }
   });
@@ -27,4 +23,4 @@ const useGetOne = ({ id, variant }: UseGetOneProps) => {
   return { data, isLoading: isFetching };
 };
 
-export default useGetOne;
+export default useGetDetails;

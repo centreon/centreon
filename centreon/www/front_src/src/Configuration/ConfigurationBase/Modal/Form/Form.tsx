@@ -1,26 +1,23 @@
 import { useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Form, FormProps } from '@centreon/ui';
-
-import { isFormDirtyAtom } from '../atoms';
-import { HostGroupItem } from '../models';
-import { labelCancel, labelCreate, labelUpdate } from '../translatedLabels';
-
-import useFormInitialValues from './useFormInitialValues';
-import useFormInputs from './useFormInputs';
-import useValidationSchema from './useValidationSchema';
-
+import { Form } from '@centreon/ui';
 import { FormActions, FormActionsProps } from '@centreon/ui/components';
-import { equals } from 'ramda';
-import { useSearchParams } from 'react-router';
-import CloseModalConfirmation from './CloseModalConfirmation';
+
+import { CloseModalConfirmation } from '../../Dialogs';
+import useGetDetails from '../../api/useGetOne';
+
+import { isFormDirtyAtom } from '../../atoms';
+
+import { labelCancel, labelCreate, labelUpdate } from '../../translatedLabels';
+
 import { useFormStyles } from './Form.styles';
 
 export type HostGroupFormProps = {
   id?: number;
-  onSubmit?: FormProps<HostGroupItem>['submit'];
+  onSubmit?;
   mode?: 'add' | 'edit';
 } & Pick<FormActionsProps, 'onCancel'>;
 
@@ -30,15 +27,17 @@ export type ConnectorFormLabels = {
 };
 
 const HostGroupForm = ({
-  mode = 'add',
+  id,
+  mode,
   onSubmit,
-  onCancel
+  onCancel,
+  inputs,
+  groups,
+  validationSchema,
+  defaultValues
 }: HostGroupFormProps): JSX.Element => {
   const { classes } = useFormStyles();
   const { t } = useTranslation();
-
-  const [searchParams] = useSearchParams(window.location.search);
-  const id = searchParams.get('id');
 
   const actionsLabels = {
     cancel: t(labelCancel),
@@ -48,12 +47,23 @@ const HostGroupForm = ({
     }
   };
 
-  const { inputs, groups } = useFormInputs();
-  const { validationSchema } = useValidationSchema();
-  const { initialValues, isLoading } = useFormInitialValues({
-    id,
-    mode
+  // to check later for quit the modal if the id does not exists
+  const { data, isLoading } = useGetDetails({
+    id
   });
+
+  // const initialValues = data && equals(mode, 'edit') ? data : defaultValues;
+  const initialValues =
+    data && equals(mode, 'edit')
+      ? {
+          ...data,
+          hosts: [{ id: 1, name: 'Host_1' }],
+          resourceAccessRules: [
+            { id: 1, name: 'Rule_1' },
+            { id: 2, name: 'Rule_2' }
+          ]
+        } // for now
+      : defaultValues;
 
   const Actions = (): JSX.Element => {
     const setIsDirty = useSetAtom(isFormDirtyAtom);
@@ -64,7 +74,7 @@ const HostGroupForm = ({
 
     return (
       <>
-        <FormActions<HostGroupItem>
+        <FormActions
           labels={actionsLabels}
           variant={equals(mode, 'add') ? 'create' : 'update'}
           onCancel={onCancel}
@@ -76,7 +86,7 @@ const HostGroupForm = ({
 
   return (
     <div className={classes.form}>
-      <Form<HostGroupItem>
+      <Form
         Buttons={Actions}
         isCollapsible
         areGroupsOpen

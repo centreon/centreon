@@ -1,27 +1,40 @@
-import { Modal } from '@centreon/ui/components';
-import { Typography } from '@mui/material';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
+
+import { ResponseError, useSnackbar } from '@centreon/ui';
+import { Modal } from '@centreon/ui/components';
+
+import { Typography, capitalize } from '@mui/material';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
-import { equals } from 'ramda';
-import { useStyles } from './Modal.styles';
+import Form from './Form/Form';
 
 import { configurationAtom } from '../../atoms';
-import { modalStateAtom } from './atoms';
-
 import {
   isCloseConfirmationDialogOpenAtom,
-  isFormDirtyAtom
-} from '../../HostGroups/atoms';
-import { labelAddResource, labelUpdateResource } from '../translatedLabels';
+  isFormDirtyAtom,
+  modalStateAtom
+} from '../atoms';
 
-interface Props {
-  Form: ({ onSubmit, onCancel, mode }) => JSX.Element;
-}
+import {
+  useCreate as useCreateRequest,
+  useUpdate as useUpdateRequest
+} from '../api';
 
-const FormModal = ({ Form }: Props): JSX.Element => {
+import {
+  labelAddResource,
+  labelResourceCreated,
+  labelResourceUpdated,
+  labelUpdateResource
+} from '../translatedLabels';
+
+import { useStyles } from './Modal.styles';
+
+const FormModal = ({ form }): JSX.Element => {
+  const { showSuccessMessage } = useSnackbar();
+
   const { t } = useTranslation();
   const { classes } = useStyles();
 
@@ -29,14 +42,21 @@ const FormModal = ({ Form }: Props): JSX.Element => {
     window.location.search
   );
 
+  const [modalState, setModalState] = useAtom(modalStateAtom);
   const isFormDirty = useAtomValue(isFormDirtyAtom);
   const setIsCloseConfirmationDialogOpen = useSetAtom(
     isCloseConfirmationDialogOpenAtom
   );
-  const [modalState, setModalState] = useAtom(modalStateAtom);
-
   const configuration = useAtomValue(configurationAtom);
+
   const resourceType = configuration?.resourceType;
+  const adapter = configuration?.api?.adapter;
+
+  const labelResourceType = capitalize(resourceType as string);
+  const isAddMode = equals(modalState.mode, 'add');
+
+  const { createMutation } = useCreateRequest();
+  const { updateMutation } = useUpdateRequest();
 
   useEffect(() => {
     const mode = searchParams.get('mode');
@@ -51,6 +71,11 @@ const FormModal = ({ Form }: Props): JSX.Element => {
     }
   }, [searchParams, setModalState]);
 
+  const reset = (): void => {
+    setSearchParams({});
+    setModalState({ ...modalState, isOpen: false, id: null });
+  };
+
   const close = () => {
     if (isFormDirty) {
       setIsCloseConfirmationDialogOpen(true);
@@ -58,14 +83,41 @@ const FormModal = ({ Form }: Props): JSX.Element => {
       return;
     }
 
-    setSearchParams({});
-
-    setModalState({ ...modalState, isOpen: false, id: null });
+    reset();
   };
 
-  const labelHeader = equals(modalState.mode, 'add')
-    ? labelAddResource
-    : labelUpdateResource;
+  const handleApiSuccess = (response): void => {
+    const { isError } = response as ResponseError;
+
+    if (isError) {
+      return;
+    }
+
+    reset();
+
+    showSuccessMessage(
+      t(
+        isAddMode
+          ? labelResourceCreated(labelResourceType)
+          : labelResourceUpdated(labelResourceType)
+      )
+    );
+  };
+
+  const submit = (values, { setSubmitting }): void => {
+    const payload = adapter(values);
+    const mutate = isAddMode
+      ? createMutation
+      : updateMutation(modalState.id as number);
+
+    mutate(payload)
+      .then(handleApiSuccess)
+      .finally(() => {
+        setSubmitting(false);
+      });
+  };
+
+  const labelHeader = isAddMode ? labelAddResource : labelUpdateResource;
 
   return (
     <Modal
@@ -81,9 +133,14 @@ const FormModal = ({ Form }: Props): JSX.Element => {
       </Modal.Header>
       <Modal.Body>
         <Form
-          onSubmit={() => undefined}
-          onCancel={() => undefined}
+          onSubmit={submit}
+          onCancel={close}
           mode={modalState.mode}
+          id={modalState.id}
+          inputs={form?.inputs}
+          groups={form?.groups}
+          validationSchema={form?.validationSchema}
+          defaultValues={form?.defaultValues}
         />
       </Modal.Body>
     </Modal>

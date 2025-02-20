@@ -1,4 +1,4 @@
-import { Column } from '@centreon/ui';
+import { Column, Group, InputProps } from '@centreon/ui';
 
 export enum ResourceType {
   Host = 'host',
@@ -7,10 +7,17 @@ export enum ResourceType {
   ServiceGroup = 'service group'
 }
 
+interface Form {
+  inputs: Array<InputProps>;
+  groups: Array<Group>;
+  validationSchema;
+  defaultValues;
+}
+
 export interface ConfigurationBase {
   resourceType: ResourceType;
-  Form: () => JSX.Element;
   columns: Array<Column>;
+  form: Form;
 }
 
 export enum FieldType {
@@ -26,14 +33,17 @@ export interface Endpoints {
   duplicate: string;
   enable: string;
   disable: string;
+  create: string;
+  update: ({ id }) => string;
 }
 
 interface APIType {
   endpoints: Endpoints | null;
   decoders?: {
-    geOne?;
+    getOne?;
     getAll?;
   };
+  adapter;
 }
 
 export interface FilterConfiguration {

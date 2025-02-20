@@ -1,6 +1,8 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
 import { useTranslation } from 'react-i18next';
 
+import { platformFeaturesAtom } from '@centreon/ui-context';
+import { useAtomValue } from 'jotai';
 import {
   hostListEndpoint,
   resourceAccessRulesEndpoint
@@ -28,6 +30,9 @@ const useFormInputs = (): FormInputsState => {
   const { t } = useTranslation();
   const { classes } = useFormStyles();
 
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
+  const isCloudPlatform = platformFeatures?.isCloudPlatform;
+
   const titleAttributes = {
     classes: { root: classes.titleGroup },
     variant: 'subtitle1'
@@ -46,12 +51,16 @@ const useFormInputs = (): FormInputsState => {
       titleAttributes,
       isDividerHidden: true
     },
-    {
-      name: t(labelResourceAccessRule),
-      order: 3,
-      titleAttributes,
-      isDividerHidden: true
-    },
+    ...(isCloudPlatform
+      ? [
+          {
+            name: t(labelResourceAccessRule),
+            order: 3,
+            titleAttributes,
+            isDividerHidden: true
+          }
+        ]
+      : []),
     { name: t(labelExtendedInformation), order: 4, titleAttributes }
   ];
 

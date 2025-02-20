@@ -10,11 +10,10 @@ import { useStyles } from './Page.styles';
 
 const Page = ({
   columns,
-  Form,
-  resourceType
+  resourceType,
+  form
 }: ConfigurationBase): JSX.Element => {
   const { classes } = useStyles();
-
   const { pluralizedT } = usePluralizedTranslation();
 
   const labelTitle = pluralizedT({
@@ -39,10 +38,9 @@ const Page = ({
         </Box>
         <Box className={classes.listing}>
           <Listing columns={columns} />
-          <Modal Form={Form} />
+          <Modal form={form} />
         </Box>
       </Box>
-
       <DeleteDialog />
       <DuplicateDialog />
     </>

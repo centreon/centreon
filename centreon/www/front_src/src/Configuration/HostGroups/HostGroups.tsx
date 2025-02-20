@@ -1,12 +1,11 @@
 import { useEffect, useMemo } from 'react';
 
-import { useAtom } from 'jotai';
-import { isEmpty, not } from 'ramda';
+import { useAtom, useAtomValue } from 'jotai';
+import { isEmpty, not, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { configurationAtom, filtersAtom } from '../atoms';
 
 import ConfigurationBase from '../ConfigurationBase';
-import Form from './Form/Form';
 
 import {
   Endpoints,
@@ -16,7 +15,7 @@ import {
 } from '../models';
 import useColumns from './Columns/useColumns';
 
-import { hostGroupsDecoderListDecoder } from './api/decoders';
+import { hostGroupDecoder, hostGroupsListDecoder } from './api/decoders';
 import {
   bulkDeleteHostGroupEndpoint,
   bulkDisableHostGroupEndpoint,
@@ -26,6 +25,10 @@ import {
   hostGroupsListEndpoint
 } from './api/endpoints';
 
+import { platformFeaturesAtom } from '@centreon/ui-context';
+import { defaultValues } from './Form/defaultValues';
+import useFormInputs from './Form/useFormInputs';
+import useValidationSchema from './Form/useValidationSchema';
 import { labelAlias, labelName, labelStatus } from './translatedLabels';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
@@ -35,7 +38,35 @@ const HostGroups = () => {
 
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
+  const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
+  const { groups, inputs } = useFormInputs();
+  const { validationSchema } = useValidationSchema();
+
+  const adaptFormToApiPayload = ({
+    name,
+    alias,
+    comment,
+    geoCoords,
+    hosts,
+    resourceAccessRules
+  }) => {
+    const cloudOnlyProperty = isCloudPlatform
+      ? { resource_access_rules: pluck('id', resourceAccessRules) }
+      : {};
+
+    const payload = {
+      name,
+      alias,
+      comment,
+      geo_coords: geoCoords,
+      hosts: pluck('id', hosts),
+      ...cloudOnlyProperty
+    };
+
+    return payload;
+  };
   const hostGroupsEndpoints: Endpoints = useMemo(
     () => ({
       getAll: hostGroupsListEndpoint,
@@ -44,7 +75,9 @@ const HostGroups = () => {
       delete: bulkDeleteHostGroupEndpoint,
       duplicate: bulkDuplicateHostGroupEndpoint,
       disable: bulkDisableHostGroupEndpoint,
-      enable: bulkEnableHostGroupEndpoint
+      enable: bulkEnableHostGroupEndpoint,
+      create: hostGroupsListEndpoint,
+      update: getHostGroupEndpoint
     }),
     []
   );
@@ -74,7 +107,8 @@ const HostGroups = () => {
       resourceType: ResourceType.HostGroup,
       api: {
         endpoints: hostGroupsEndpoints,
-        decoders: { getAll: hostGroupsDecoderListDecoder }
+        decoders: { getAll: hostGroupsListDecoder, getOne: hostGroupDecoder },
+        adapter: adaptFormToApiPayload
       },
       filtersConfiguration,
       filtersInitialValues,
@@ -103,7 +137,7 @@ const HostGroups = () => {
     <ConfigurationBase
       columns={columns}
       resourceType={ResourceType.HostGroup}
-      Form={Form}
+      form={{ inputs, groups, validationSchema, defaultValues }}
     />
   );
 };

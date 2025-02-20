@@ -12,7 +12,7 @@ interface UseDeleteProps {
 const useDelete = (): UseDeleteProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.api?.endpoints?.delete;
+  const endpoint = configuration?.api?.endpoints?.delete as string;
 
   const queryClient = useQueryClient();
 
@@ -20,7 +20,7 @@ const useDelete = (): UseDeleteProps => {
     getEndpoint: () => endpoint,
     method: Method.POST,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['listResources'] });
     }
   });
 

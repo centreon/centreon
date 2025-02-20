@@ -24,14 +24,13 @@ const hostGroupsDecoder = JsonDecoder.object<HostGroupListItem>(
   }
 );
 
-export const hostGroupsDecoderListDecoder = buildListingDecoder({
+export const hostGroupsListDecoder = buildListingDecoder({
   entityDecoder: hostGroupsDecoder,
   entityDecoderName: 'Host group',
   listingDecoderName: 'Host group List'
 });
 
 // Form
-
 export const hostGroupDecoder = JsonDecoder.object<HostGroupItem>(
   {
     ...namedEntityDecoder,

@@ -14,9 +14,6 @@ export const labelNoDisabledHosts =
   'No hosts in this group are currently disabled.';
 
 // form
-export const labelCancel = 'Cancel';
-export const labelCreate = 'Create';
-export const labelUpdate = 'Update';
 
 export const labelGeneralInformation = 'General information';
 export const labelGroupMembers = 'Group members';
@@ -30,3 +27,4 @@ export const labelApplyResourceAccessRule =
 export const labelGeographicCoordinates = 'Geographic coordinates for MAP';
 
 export const labelRequired = 'Required';
+export const labelInvalidCoordinateFormat = 'Invalid geo-coordinate format';

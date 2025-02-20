@@ -3,7 +3,7 @@ import { Configuration } from './models';
 
 export const configurationAtom = atom<Configuration | null>({
   resourceType: null,
-  api: { endpoints: null },
+  api: { endpoints: null, adapter: null },
   filtersInitialValues: {},
   defaultSelectedColumnIds: []
 });

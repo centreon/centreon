@@ -3,12 +3,13 @@ import { useAtom, useSetAtom } from 'jotai';
 
 import { UnsavedChangesDialog } from '@centreon/ui';
 import { useCallback } from 'react';
-import { modalStateAtom } from '../../ConfigurationBase/Modal/atoms'; // to be changed
-import { isCloseConfirmationDialogOpenAtom } from '../atoms';
+import { useSearchParams } from 'react-router';
+import { isCloseConfirmationDialogOpenAtom, modalStateAtom } from '../atoms';
 
-const CloseModalConfirmation = (): JSX.Element => {
+const CloseModal = (): JSX.Element => {
   const { isValid, dirty, isSubmitting, submitForm } = useFormikContext();
 
+  const [, setSearchParams] = useSearchParams();
   const [isDialogOpen, setIsDialogOpen] = useAtom(
     isCloseConfirmationDialogOpenAtom
   );
@@ -16,12 +17,14 @@ const CloseModalConfirmation = (): JSX.Element => {
 
   const discard = useCallback(() => {
     setIsDialogOpen(false);
+    setSearchParams({});
+
     setModalState((dialogState) => ({ ...dialogState, isOpen: false }));
   }, []);
 
   const submitAndClose = useCallback(() => {
     submitForm();
-    setIsDialogOpen(false);
+    // setSearchParams({});
   }, []);
 
   const closeDialog = useCallback(() => {
@@ -40,4 +43,4 @@ const CloseModalConfirmation = (): JSX.Element => {
   );
 };
 
-export default CloseModalConfirmation;
+export default CloseModal;
