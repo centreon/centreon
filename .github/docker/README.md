@@ -46,7 +46,8 @@ centreon-web image accepts following environment variables:
   * `pt_BR`
   * `pt_PT`
 
-usage:
+Usage:
+
 ```bash
 CENTREON_DATASET=0 CENTREON_LANG=fr_FR docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
