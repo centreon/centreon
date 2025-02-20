@@ -108,9 +108,19 @@ interface ConnectionInterface
     public function getCentreonDbName(): string;
 
     /**
+     * @param string $centreonDbName
+     */
+    public function setCentreonDbName(string $centreonDbName): void;
+
+    /**
      * @return string
      */
     public function getStorageDbName(): string;
+
+    /**
+     * @param string $storageDbName
+     */
+    public function setStorageDbName(string $storageDbName): void;
 
     // ----------------------------------------- CUD METHODS ------------------------------------------
 
