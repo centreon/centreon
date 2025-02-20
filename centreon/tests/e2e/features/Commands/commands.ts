@@ -193,9 +193,11 @@ Cypress.Commands.add("checkValuesOfConnectors", (name: string, body: Ctr) => {
   cy.getIframeBody()
     .find('select[id="command_id"]')
     .then(($val) => {
+      // If the name of the connector ends with "_1", it means the connector is duplicated then the value should be empty
       if (name.endsWith("_1")) {
-        cy.wrap($val).should("be.empty");
+        cy.wrap($val).should("have.text", "");
       }
+      // Else, the value should be the one chose during the creation/update of the connector
       else {
         cy.wrap($val).should("have.text", body.used_by_command);
       }
