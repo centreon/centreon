@@ -33,6 +33,8 @@ systemctl stop httpd
 systemctl stop php-fpm
 systemctl stop snmpd
 
+dnf install -y glibc-langpack-fr
+
 dnf clean all
 
 EOF
