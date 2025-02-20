@@ -48,33 +48,23 @@ setAdminLanguage() {
   mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
 }
 
-installLanguagePack() {
-  # locales is already a dependency of centreon-web deb package
-}
-
 case "$CENTREON_LANG" in
   de*)
-    dnf install -y glibc-langpack-de
-    installLanguagePack "de"
     setAdminLanguage "de_DE"
     ;;
   en*)
     setAdminLanguage "en_US"
     ;;
   es*)
-    installLanguagePack "es"
     setAdminLanguage "es_ES"
     ;;
   fr*)
-    installLanguagePack "fr"
     setAdminLanguage "fr_FR"
     ;;
   pt_BR)
-    installLanguagePack "pt"
     setAdminLanguage "pt_BR"
     ;;
   pt*)
-    installLanguagePack "pt"
     setAdminLanguage "pt_PT"
     ;;
   "")
