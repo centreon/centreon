@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { equals, includes, isNil, replace } from 'ramda';
 import { useLocation, useNavigate } from 'react-router';
@@ -9,6 +9,7 @@ const LegacyRoute = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const { toggleFullscreen } = useFullscreen();
 
@@ -21,44 +22,49 @@ const LegacyRoute = (): JSX.Element => {
   const load = (): void => {
     setLoading(false);
 
-    window.frames[0].document.querySelectorAll('a').forEach((element) => {
-      element.addEventListener(
-        'click',
-        (e) => {
-          const href = (e.target as HTMLLinkElement).getAttribute('href');
-          const target = (e.target as HTMLLinkElement).getAttribute('target');
+    iframeRef.current?.contentDocument
+      ?.querySelectorAll('a')
+      .forEach((element) =>
+        element.addEventListener(
+          'click',
+          (e) => {
+            const href = (e.target as HTMLLinkElement).getAttribute('href');
+            const target = (e.target as HTMLLinkElement).getAttribute('target');
 
-          if (equals(target, '_blank')) {
-            return;
-          }
+            if (equals(target, '_blank')) {
+              return;
+            }
 
-          e.preventDefault();
+            e.preventDefault();
 
-          if (isNil(href)) {
-            return;
-          }
+            if (isNil(href)) {
+              return;
+            }
 
-          const formattedHref = replace('./', '', href);
+            const formattedHref = replace('./', '', href);
 
-          if (equals(formattedHref, '#') || !formattedHref.match(/^main.php/)) {
-            return;
-          }
+            if (
+              equals(formattedHref, '#') ||
+              !formattedHref.match(/^main.php/)
+            ) {
+              return;
+            }
 
-          navigate(`/${formattedHref}`, { replace: true });
-        },
-        { once: true }
+            navigate(`/${formattedHref}`, { replace: true });
+          },
+          { once: true }
+        )
       );
-    });
   };
 
   const toggle = (event: KeyboardEvent): void => {
     if (
-      includes(window.frames[0].document.activeElement?.tagName, [
+      includes(iframeRef.current?.contentDocument?.activeElement?.tagName, [
         'INPUT',
         'TEXTAREA'
       ]) ||
       equals(
-        window.frames[0].document.activeElement?.getAttribute(
+        iframeRef.current?.contentDocument?.activeElement?.getAttribute(
           'contenteditable'
         ),
         'true'
@@ -73,11 +79,15 @@ const LegacyRoute = (): JSX.Element => {
 
   useEffect(() => {
     window.addEventListener('react.href.update', handleHref, false);
-    window.frames[0].addEventListener('keypress', toggle, false);
+    iframeRef.current?.contentWindow?.addEventListener(
+      'keypress',
+      toggle,
+      false
+    );
 
     return () => {
       window.removeEventListener('react.href.update', handleHref);
-      window.frames[0]?.removeEventListener('keypress', toggle);
+      iframeRef.current?.contentWindow?.removeEventListener('keypress', toggle);
     };
   }, []);
 
