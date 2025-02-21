@@ -1,13 +1,14 @@
 name: Performance Testing
 
 on:
-  pull_request:
   workflow_dispatch:
     inputs:
       image_name:
         description: 'Nom de l’image'
         required: true
         type: string
+  pull_request:
+
 
 jobs:
   performance-test:
