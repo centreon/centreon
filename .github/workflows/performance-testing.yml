@@ -28,6 +28,12 @@ on:
       stability:
         required: true
         type: string
+  workflow_dispatch:
+    inputs:
+      image_name:
+        description: 'Nom de l’image'
+        required: true
+        type: string
 
 jobs:
   performance-test:
