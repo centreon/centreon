@@ -19,7 +19,7 @@ import {
   resourceDecoderListDecoder
 } from './utils';
 
-const mockActionsRequests = (resourceType): void => {
+export const mockActionsRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'deleteOne',
     method: Method.DELETE,
@@ -104,7 +104,6 @@ const initialize = ({
   const resource = resourceType.replace(' ', '_');
 
   mockListingRequests(resource);
-  mockActionsRequests(resource);
 
   i18next.use(initReactI18next).init({
     lng: 'en',

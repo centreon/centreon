@@ -1,7 +1,7 @@
 import { capitalize } from '@mui/material';
 import pluralize from 'pluralize';
 
-import initialize from './initialize';
+import initialize, { mockActionsRequests } from './initialize';
 
 import {
   getLabelDeleteMany,
@@ -28,7 +28,11 @@ import {
 
 export default (resourceType) => {
   describe('Actions: ', () => {
-    beforeEach(() => initialize({ resourceType }));
+    beforeEach(() => {
+      initialize({ resourceType });
+      mockActionsRequests(resourceType.replace(' ', '_'));
+    });
+
     describe('Delete', () => {
       it('displays the confirmation dialog when the inline delete button is clicked', () => {
         cy.waitForRequest('@getAll');
