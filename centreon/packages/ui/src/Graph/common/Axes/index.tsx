@@ -97,7 +97,7 @@ const Axes = ({
         tickLabelProps={() => ({
           ...axisLeft.tickLabelProps(),
           angle: yAxisTickLabelRotation,
-          dx: isHorizontal ? -8 : 4,
+          dx: isHorizontal ? -4 : 4,
           dy: isHorizontal ? 4 : -6
         })}
         tickLength={2}

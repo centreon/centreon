@@ -3,6 +3,7 @@ import { MutableRefObject, useRef } from 'react';
 import { equals, isNil } from 'ramda';
 
 import { margin } from '../../Chart/common';
+import { margins } from '../margins';
 
 export const extraMargin = 10;
 
@@ -13,6 +14,7 @@ interface UseComputeBaseChartDimensionsProps {
   legendHeight?: number;
   legendPlacement?: string;
   width: number;
+  maxAxisCharacters: number;
 }
 
 interface UseComputeBaseChartDimensionsState {
@@ -28,7 +30,8 @@ export const useComputeBaseChartDimensions = ({
   legendDisplay,
   legendPlacement,
   hasSecondUnit,
-  legendHeight
+  legendHeight,
+  maxAxisCharacters
 }: UseComputeBaseChartDimensionsProps): UseComputeBaseChartDimensionsState => {
   const legendRef = useRef<HTMLDivElement | null>(null);
   const titleRef = useRef<HTMLDivElement | null>(null);
@@ -50,9 +53,8 @@ export const useComputeBaseChartDimensions = ({
   const graphWidth =
     width > 0
       ? width -
-        margin.left -
-        (hasSecondUnit ? margin.right : 8) -
-        extraMargin -
+        (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
+        (hasSecondUnit ? margins.left * 0.8 : margin.left) -
         legendBoundingWidth
       : 0;
   const graphHeight =
