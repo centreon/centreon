@@ -3,13 +3,11 @@ name: Performance Testing
 on:
   workflow_dispatch:
     inputs:
-      image_name:
-        description: 'Nom de l’image'
+      nightly_manual_trigger:
+        description: 'Set to true to trigger a nightly run'
         required: true
-        type: string
-
-
-
+        default: false
+        type: boolean
 jobs:
   performance-test:
     runs-on: ubuntu-latest
