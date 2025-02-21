@@ -43,7 +43,7 @@ const useFilters = (): UseFilters => {
   const isClearDisabled = equals(filters, initialValues);
 
   const reload = (): void => {
-    queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+    queryClient.invalidateQueries({ queryKey: ['listResources'] });
   };
 
   const reset = (): void => {

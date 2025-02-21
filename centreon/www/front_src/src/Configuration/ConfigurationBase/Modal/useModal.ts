@@ -85,7 +85,7 @@ const useModal = ({ defaultValues }): UseModalState => {
       setModalState({
         isOpen: true,
         mode: mode as 'add' | 'edit',
-        id: Number(id)
+        id: id ? Number(id) : null
       });
     }
   }, [searchParams, setModalState]);

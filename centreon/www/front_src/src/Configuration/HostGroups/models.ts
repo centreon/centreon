@@ -20,7 +20,6 @@ export type List<TEntity> = {
   result: Array<TEntity>;
 };
 
-// Form
 export interface HostGroupItem extends NamedEntity {
   alias: string | null;
   geoCoords: string | null;

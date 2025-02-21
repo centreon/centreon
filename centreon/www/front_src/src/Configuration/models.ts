@@ -43,7 +43,7 @@ interface APIType {
     getOne?;
     getAll?;
   };
-  adapter;
+  adapter?;
 }
 
 export interface FilterConfiguration {

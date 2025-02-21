@@ -21,7 +21,7 @@ const useSearch = (): UseSearch => {
   const filtersConfiguration = configuration?.filtersConfiguration;
 
   const reload = (): void => {
-    queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+    queryClient.invalidateQueries({ queryKey: ['listResources'] });
   };
 
   const searchDebounced = useRef(
