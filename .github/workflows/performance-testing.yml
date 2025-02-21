@@ -3,11 +3,11 @@ name: Performance Testing
 on:
   workflow_dispatch:
     inputs:
-      nightly_manual_trigger:
-        description: 'Set to true to trigger a nightly run'
+      test_input:
+        description: 'Enter test value'
         required: true
-        default: false
-        type: boolean
+        default: 'test'
+        type: string
 jobs:
   performance-test:
     runs-on: ubuntu-latest
@@ -31,6 +31,10 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci  # Installation des dépendances en mode clean
+
+      - name: Display test input
+        run: |
+          echo "Test input value is: ${{ github.event.inputs.test_input }}"
 
       - name: Login to Docker Registry
         uses: docker/login-action@v3.3.0
