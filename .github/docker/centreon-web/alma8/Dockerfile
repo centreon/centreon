@@ -57,3 +57,18 @@ EXPOSE 80 3306
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 ENV CENTREON_LANG="en_US"
+
+FROM web_fresh AS web_standard
+
+COPY ./.github/docker/centreon-web/sql /tmp/sql
+
+RUN bash -e <<EOF
+
+service mysql start
+mysql centreon < /tmp/sql/standard.sql
+mysql centreon < /tmp/sql/media.sql
+mysql centreon < /tmp/sql/openldap.sql
+centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
+service mysql stop
+
+EOF
