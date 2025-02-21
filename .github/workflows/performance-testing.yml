@@ -2,32 +2,6 @@ name: Performance Testing
 
 on:
   pull_request:
-  workflow_call:  # Permet d'exécuter depuis un autre workflow
-    inputs:
-      image_name:
-        required: true
-        type: string
-      os:
-        required: true
-        type: string
-      container_name:
-        required: true
-        type: string
-      centreon_url:
-        required: true
-        type: string
-      centreon_image:
-        required: true
-        type: string
-      database_image:
-        required: true
-        type: string
-      major_version:
-        required: true
-        type: string
-      stability:
-        required: true
-        type: string
   workflow_dispatch:
     inputs:
       image_name:
@@ -45,12 +19,6 @@ jobs:
         working-directory: centreon/tests/performanceTesting
 
     env:
-      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
-      SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
-      CONTAINER_NAME: ${{ inputs.container_name }}
-      CENTREON_URL: ${{ inputs.centreon_url }}
-      WEB_IMAGE: ${{ inputs.centreon_image }}
-      DATABASE_IMAGE: ${{ inputs.database_image }}
       CSV_FILE_PATH: users.csv
 
     steps:
