@@ -4,6 +4,8 @@ services:
     image: "@WEB_IMAGE@"
     ports: ["80", "3306"]
     profiles: ["web"]
+    environment:
+      CENTREON_LANG: ${CENTREON_LANG:-en_US}
 
   web-fresh:
     image: "@WEB_FRESH_IMAGE@"
