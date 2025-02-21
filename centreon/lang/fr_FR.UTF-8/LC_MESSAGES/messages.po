@@ -19673,3 +19673,12 @@ msgstr "Configuration d'agent"
 
 msgid "The minimum allowed value is 10"
 msgstr "La valeur minimale autorisée est 10"
+
+msgid "Workhours"
+msgstr "Heures de travail"
+
+msgid "Non-workhours"
+msgstr "Hors heures de travail"
+
+msgid "Forecast based on past X days"
+msgstr "Prévision basée sur les X derniers jours"
