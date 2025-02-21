@@ -1,6 +1,9 @@
 name: Performance Testing
 
 on:
+  push:
+    branches:
+      - mon-159979
   workflow_dispatch:
     inputs:
       nightly_manual_trigger:
