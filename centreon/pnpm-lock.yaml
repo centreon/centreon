@@ -56,6 +56,9 @@ importers:
       '@react-spring/web':
         specifier: ^9.7.5
         version: 9.7.5(react-dom@18.3.1)(react@18.3.1)
+      '@swc/core-linux-arm64-gnu':
+        specifier: ^1.6.6
+        version: 1.6.6
       '@tanstack/react-query':
         specifier: ^5.62.7
         version: 5.62.7(react@18.3.1)
@@ -225,6 +228,9 @@ importers:
       '@mui/utils':
         specifier: ^6.2.0
         version: 6.2.0(@types/react@19.0.1)(react@18.3.1)
+      '@rspack/binding-linux-arm64-gnu':
+        specifier: 1.1.6
+        version: 1.1.6
       '@rspack/cli':
         specifier: ^1.1.6
         version: 1.1.6(@rspack/core@1.1.6)(webpack@5.97.1)
@@ -7015,7 +7021,6 @@ packages:
     os: [linux]
     requiresBuild: true
     dev: true
-    optional: true
 
   /@rspack/binding-linux-arm64-musl@1.1.6:
     resolution: {integrity: sha512-7QMtwUtgFpt3/Y3/X18fSyN+kk4H8ZnZ8tDzQskVWc/j2AQYShZq56XQYqrhClzwujcCVAHauIQ2eiuJ2ASGag==}
@@ -8028,7 +8033,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    optional: true
 
   /@swc/core-linux-arm64-gnu@1.7.0:
     resolution: {integrity: sha512-UnLrCiZ1EI4shznJn0xP6DLgsXUSwtfsdgHhGYCrvbgVBBve3S9iFgVFEB3SPl7Q/TdowNbrN4zHU0oChfiNfw==}
