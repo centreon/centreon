@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\UseCase\AddHostGroup;
+namespace Core\HostGroup\Infrastructure\API\AddHostGroup;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
 
-final readonly class AddHostGroupResponse implements StandardResponseInterface
+final class AddHostGroupRequestTransformer
 {
-
-    public function __construct(private readonly mixed $data)
+    /**
+     * @param AddHostGroupInput $input
+     * @return AddHostGroupRequest
+     */
+    public static function transform(AddHostGroupInput $input): AddHostGroupRequest
     {
-    }
+        $request = new AddHostGroupRequest();
+        $request->name = $input->name;
+        $request->alias = $input->alias ?? '';
+        $request->geoCoords = $input->geoCoords;
+        $request->comment = $input->comment ?? '';
 
-    public function getData(): mixed
-    {
-        return $this->data;
+        return $request;
     }
 }

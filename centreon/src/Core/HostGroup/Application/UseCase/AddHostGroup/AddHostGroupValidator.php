@@ -23,17 +23,26 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\HostGroup\Application\Exceptions\HostGroupException;
+use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 
-final readonly class AddHostGroupResponse implements StandardResponseInterface
+final class AddHostGroupValidator
 {
-
-    public function __construct(private readonly mixed $data)
+    public function __construct(private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository)
     {
     }
 
-    public function getData(): mixed
+    /**
+     * @param AddHostGroupRequest $request
+     *
+     * @throws HostGroupException
+     *
+     * @throws \Throwable
+     */
+    public function assertNameDoesNotAlreadyExists(string $hostGroupName): void
     {
-        return $this->data;
+        if ($this->readHostGroupRepository->nameAlreadyExists($hostGroupName)) {
+            throw HostGroupException::nameAlreadyExists($hostGroupName);
+        }
     }
 }

@@ -29,21 +29,17 @@ final class AddHostGroupRequest
 
     public string $alias = '';
 
-    public string $notes = '';
-
-    public string $notesUrl = '';
-
-    public string $actionUrl = '';
-
-    public ?int $iconId = null;
-
-    public ?int $iconMapId = null;
-
-    public ?int $rrdRetention = null;
-
     public ?string $geoCoords = null;
 
     public string $comment = '';
 
-    public bool $isActivated = true;
+    /**
+     * @var int[]
+     */
+    public array $hosts = [];
+
+    /**
+     * @var int[]
+     */
+    public array $resourceAccessRules = [];
 }
