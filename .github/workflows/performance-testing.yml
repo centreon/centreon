@@ -48,6 +48,14 @@ jobs:
       - name: Update JMeter .jmx with inputs
         run: |
           echo "Updating JMeter configuration with inputs..."
+
+          # Recherche du répertoire JMeter (bin directory)
+          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
+
+          # Vérifier que le répertoire bin de JMeter a bien été trouvé
+          cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
+
+          # Mettre à jour le fichier .jmx avec les entrées du workflow
           JMX_FILE="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/test-plan.jmx"  # Remplace par ton chemin réel
 
           # Remplacer les valeurs dans le fichier .jmx
@@ -57,8 +65,6 @@ jobs:
 
           echo "Updated JMeter test plan:"
           cat $JMX_FILE  # Pour vérifier que les valeurs ont été correctement mises à jour
-
-      # Lancer les conteneurs, ajouter des utilisateurs, et tester comme avant...
 
       - name: Login to Docker Registry
         uses: docker/login-action@v3.3.0
