@@ -7,7 +7,7 @@ on:
         description: 'Nom de l’image'
         required: true
         type: string
-  pull_request:
+
 
 
 jobs:
