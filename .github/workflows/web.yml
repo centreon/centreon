@@ -14,16 +14,16 @@ on:
         default: false
         type: boolean
   pull_request:
-    # paths:
-    #   - ".version.centreon-web"
-    #   - "centreon/**"
-    #   - "!centreon/cypress/**"
-    #   - "!centreon/features/**"
-    #   - "!centreon/lighthouse/**"
-    #   - "!centreon/tests/**"
-    #   - "!centreon/.veracode-exclusions"
-    #   - "!centreon/veracode.json"
-    #   - "!centreon/packages/**"
+    paths:
+      - ".version.centreon-web"
+      - "centreon/**"
+      - "!centreon/cypress/**"
+      - "!centreon/features/**"
+      - "!centreon/lighthouse/**"
+      - "!centreon/tests/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
