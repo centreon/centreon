@@ -14,6 +14,8 @@ import {
   filtersInitialValues,
   getEndpoints,
   getListingResponse,
+  groups,
+  inputs,
   resourceDecoderListDecoder
 } from './utils';
 
@@ -63,6 +65,35 @@ const mockListingRequests = (resourceType): void => {
   });
 };
 
+export const mockModalRequests = (resourceType): void => {
+  const response = {
+    name: `${resourceType} 1`,
+    alias: `${resourceType} 1 alias`,
+    coordinates: '-20.40,13,12'
+  };
+
+  cy.interceptAPIRequest({
+    alias: 'getDetails',
+    method: Method.GET,
+    path: `**${getEndpoints(resourceType).getOne({ id: 1 })}`,
+    response
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'create',
+    method: Method.POST,
+    path: `**${getEndpoints(resourceType).create}`,
+    response
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'update',
+    method: Method.PUT,
+    path: `**${getEndpoints(resourceType).update({ id: 1 })}`,
+    response: {}
+  });
+};
+
 const initialize = ({
   resourceType = ResourceType.Host,
   filters = filtersConfiguration
@@ -70,9 +101,10 @@ const initialize = ({
   resourceType?: ResourceType;
   filters?: Array<FilterConfiguration>;
 }): void => {
-  mockListingRequests(resourceType.replace(' ', '_'));
+  const resource = resourceType.replace(' ', '_');
 
-  mockActionsRequests(resourceType.replace(' ', '_'));
+  mockListingRequests(resource);
+  mockActionsRequests(resource);
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -80,14 +112,14 @@ const initialize = ({
   });
 
   const store = createStore();
-
   store.set(filtersAtom, filtersInitialValues);
 
   store.set(configurationAtom, {
     resourceType: resourceType,
     api: {
-      endpoints: getEndpoints(resourceType.replace(' ', '_')),
-      decoders: { getAll: resourceDecoderListDecoder }
+      endpoints: getEndpoints(resource),
+      decoders: { getAll: resourceDecoderListDecoder },
+      adapter: (data) => data
     },
     filtersConfiguration: filters,
     filtersInitialValues,
@@ -103,7 +135,15 @@ const initialize = ({
               <ConfigurationBase
                 resourceType={resourceType}
                 columns={columns}
-                Form={<div />}
+                form={{
+                  groups,
+                  inputs,
+                  defaultValues: {
+                    name: '',
+                    alias: '',
+                    coordinates: ''
+                  }
+                }}
               />
             </Provider>
           </TestQueryProvider>
