@@ -56,6 +56,8 @@ EXPOSE 80 3306
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
+ENV CENTREON_LANG="en_US"
+
 FROM web_fresh AS web_standard
 
 COPY ./.github/docker/centreon-web/sql /tmp/sql
