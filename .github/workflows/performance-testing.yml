@@ -49,22 +49,21 @@ jobs:
         run: |
           echo "Updating JMeter configuration with inputs..."
 
-          # Recherche du répertoire JMeter (bin directory)
-          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performanceTesting/apache-jmeter-*/bin)
+          # Mettre à jour tous les fichiers .jmx dans le répertoire spécifié
+          JMX_FILES=$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/*.jmx
 
-          # Vérifier que le répertoire bin de JMeter a bien été trouvé
-          cd $JMETER_DIR || { echo "JMeter bin directory not found!"; exit 1; }
+          for JMX_FILE in $JMX_FILES; do
+            echo "Updating $JMX_FILE with inputs..."
 
-          # Mettre à jour le fichier .jmx avec les entrées du workflow
-          JMX_FILE="$GITHUB_WORKSPACE/centreon/tests/performanceTesting/jmeterFolder/test-plan.jmx"  # Remplace par ton chemin réel
+            # Remplacer les valeurs dans le fichier .jmx
+            sed -i "s|<stringProp name=\"HTTPSampler.domain\">.*</stringProp>|<stringProp name=\"HTTPSampler.domain\">${{ github.event.inputs.jmeter_domain }}</stringProp>|g" $JMX_FILE
+            sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\">${{ github.event.inputs.jmeter_port }}</stringProp>|g" $JMX_FILE
+            sed -i "s|<stringProp name=\"HTTPSampler.protocol\">.*</stringProp>|<stringProp name=\"HTTPSampler.protocol\">${{ github.event.inputs.jmeter_protocol }}</stringProp>|g" $JMX_FILE
 
-          # Remplacer les valeurs dans le fichier .jmx
-          sed -i "s|<stringProp name=\"HTTPSampler.domain\">.*</stringProp>|<stringProp name=\"HTTPSampler.domain\">${{ github.event.inputs.jmeter_domain }}</stringProp>|g" $JMX_FILE
-          sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\">${{ github.event.inputs.jmeter_port }}</stringProp>|g" $JMX_FILE
-          sed -i "s|<stringProp name=\"HTTPSampler.protocol\">.*</stringProp>|<stringProp name=\"HTTPSampler.protocol\">${{ github.event.inputs.jmeter_protocol }}</stringProp>|g" $JMX_FILE
+            echo "Updated $JMX_FILE:"
+            cat $JMX_FILE  # Pour vérifier que les valeurs ont été correctement mises à jour
+          done
 
-          echo "Updated JMeter test plan:"
-          cat $JMX_FILE  # Pour vérifier que les valeurs ont été correctement mises à jour
 
       - name: Login to Docker Registry
         uses: docker/login-action@v3.3.0
