@@ -590,7 +590,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     // -- fetchOne()
 
     it(
-        'test CentreonDB : fetchOne with a correct query with query parameters',
+        'test DbalConnectionAdapter : fetchOne with a correct query with query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $alias = $db->fetchOne(
@@ -601,7 +601,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
-    it('test CentreonDB : fetchOne with a CUD query', function () use ($dbConfigCentreon): void {
+    it('test DbalConnectionAdapter : fetchOne with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchOne(
             "DELETE FROM contact WHERE contact_id = :id",
@@ -609,18 +609,18 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         );
     })->throws(ConnectionException::class);
 
-    it('test CentreonDB : fetchOne with an empty query', function () use ($dbConfigCentreon): void {
+    it('test DbalConnectionAdapter : fetchOne with an empty query', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchOne("", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
-    it('test CentreonDB : fetchOne with an incorrect query', function () use ($dbConfigCentreon): void {
+    it('test DbalConnectionAdapter : fetchOne with an incorrect query', function () use ($dbConfigCentreon): void {
         $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchOne("foo", QueryParameters::create([QueryParameter::int('id', 1)]));
     })->throws(ConnectionException::class);
 
     it(
-        'test CentreonDB : fetchOne with an incorrect query parameters',
+        'test DbalConnectionAdapter : fetchOne with an incorrect query parameters',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->fetchOne(
