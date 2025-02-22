@@ -92,9 +92,6 @@ const useFormInputs = (): FormInputsState => {
         additionalConditionParameters: [],
         endpoint: hostListEndpoint
       },
-      text: {
-        multilineRows: 3
-      },
       fieldName: 'hosts',
       group: t(labelGroupMembers),
       label: t(labelSelectHosts),
@@ -104,9 +101,6 @@ const useFormInputs = (): FormInputsState => {
       connectedAutocomplete: {
         additionalConditionParameters: [],
         endpoint: resourceAccessRulesEndpoint
-      },
-      text: {
-        multilineRows: 3
       },
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),

@@ -30,17 +30,17 @@ export const hostGroupsListDecoder = buildListingDecoder({
   listingDecoderName: 'Host group List'
 });
 
-// Form
 export const hostGroupDecoder = JsonDecoder.object<HostGroupItem>(
   {
     ...namedEntityDecoder,
     alias: JsonDecoder.nullable(JsonDecoder.string),
-    geoCoords: JsonDecoder.optional(JsonDecoder.string), // to be changed
+    geoCoords: JsonDecoder.nullable(JsonDecoder.string),
     comment: JsonDecoder.nullable(JsonDecoder.string),
     isActivated: JsonDecoder.boolean,
-    hosts: JsonDecoder.optional(
-      JsonDecoder.array(JsonDecoder.object(namedEntityDecoder, 'Host'), 'Hosts')
-    ), // to be changed
+    hosts: JsonDecoder.array(
+      JsonDecoder.object(namedEntityDecoder, 'Host'),
+      'Hosts'
+    ),
     resourceAccessRules: JsonDecoder.optional(
       JsonDecoder.array(
         JsonDecoder.object(namedEntityDecoder, 'Access Rule'),
