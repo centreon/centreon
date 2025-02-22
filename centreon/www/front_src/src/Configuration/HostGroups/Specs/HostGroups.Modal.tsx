@@ -48,7 +48,9 @@ export default () => {
             .should('have.value', '');
           cy.findAllByTestId(labelComment).eq(1).should('have.value', '');
 
-          cy.makeSnapshot();
+          cy.makeSnapshot(
+            `${platform}: shows form fields organized into groups, with each field initialized with default values`
+          );
 
           cy.findByLabelText('close').click();
         });
@@ -91,7 +93,9 @@ export default () => {
             .eq(1)
             .should('have.value', getPayload({}).comment);
 
-          cy.makeSnapshot();
+          cy.makeSnapshot(
+            `${platform}: shows form fields organized into groups, with each field initialized with the value received from the API`
+          );
 
           cy.findByLabelText('close').click();
         });
@@ -143,7 +147,9 @@ export default () => {
             );
           });
 
-          cy.makeSnapshot();
+          cy.makeSnapshot(
+            `${platform}: sends a POST request when the Create Button is clicked`
+          );
         });
 
         it('sends an UPDATE request when the Update Button is clicked', () => {
@@ -166,7 +172,9 @@ export default () => {
 
           cy.contains('Host group updated');
 
-          cy.makeSnapshot();
+          cy.makeSnapshot(
+            `${platform}: sends an UPDATE request when the Update Button is clicked`
+          );
         });
       });
     });
@@ -185,7 +193,7 @@ export default () => {
       cy.contains(labelInvalidCoordinateFormat);
       cy.get(`button[data-testid="submit"`).should('be.disabled');
 
-      cy.makeSnapshot();
+      cy.makeSnapshot('validate geographic coordianates with wrong value');
 
       cy.findAllByTestId(labelGeographicCoordinates)
         .eq(1)
@@ -195,7 +203,7 @@ export default () => {
       cy.findByText(labelInvalidCoordinateFormat).should('not.exist');
       cy.get(`button[data-testid="submit"`).should('not.be.disabled');
 
-      cy.makeSnapshot();
+      cy.makeSnapshot('validate geographic coordianates with correct value');
 
       cy.findByLabelText('close').click();
       cy.findByLabelText('Discard').click();
