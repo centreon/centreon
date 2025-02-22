@@ -56,9 +56,6 @@ importers:
       '@react-spring/web':
         specifier: ^9.7.5
         version: 9.7.5(react-dom@18.3.1)(react@18.3.1)
-      '@swc/core-linux-arm64-gnu':
-        specifier: ^1.6.6
-        version: 1.6.6
       '@tanstack/react-query':
         specifier: ^5.62.7
         version: 5.62.7(react@18.3.1)
@@ -250,8 +247,8 @@ importers:
         specifier: ^1.6.6
         version: 1.6.6
       '@swc/core-linux-x64-gnu':
-        specifier: ^1.7.12
-        version: 1.7.12
+        specifier: 1.6.6
+        version: 1.6.6
       '@swc/jest':
         specifier: ^0.2.36
         version: 0.2.36(@swc/core@1.6.6)
@@ -8033,6 +8030,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
+    optional: true
 
   /@swc/core-linux-arm64-gnu@1.7.0:
     resolution: {integrity: sha512-UnLrCiZ1EI4shznJn0xP6DLgsXUSwtfsdgHhGYCrvbgVBBve3S9iFgVFEB3SPl7Q/TdowNbrN4zHU0oChfiNfw==}
@@ -8082,7 +8080,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    optional: true
 
   /@swc/core-linux-x64-gnu@1.7.0:
     resolution: {integrity: sha512-SY3HA0K0Dpqt1HIfMLGpwL4hd4UaL2xHP5oZXPlRQPhUDZrbb4PbI3ZJnh66c63eL4ZR8EJ+HRFI0Alx5p69Zw==}
@@ -8092,13 +8089,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /@swc/core-linux-x64-gnu@1.7.12:
-    resolution: {integrity: sha512-NQ0bb9eCIp2z2WdRyELzfWc1LDJJ99OYdxT+CIwW9ixPVgAerOv0Oc+BkdijLw5VeYMGlK6JEI4HdLvQE34f1g==}
-    engines: {node: '>=10'}
-    cpu: [x64]
-    os: [linux]
-    dev: true
 
   /@swc/core-linux-x64-musl@1.10.1:
     resolution: {integrity: sha512-tcaS43Ydd7Fk7sW5ROpaf2Kq1zR+sI5K0RM+0qYLYYurvsJruj3GhBCaiN3gkzd8m/8wkqNqtVklWaQYSDsyqA==}
