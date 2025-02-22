@@ -90,7 +90,8 @@ const useFormInputs = (): FormInputsState => {
     {
       connectedAutocomplete: {
         additionalConditionParameters: [],
-        endpoint: hostListEndpoint
+        endpoint: hostListEndpoint,
+        filterKey: 'name'
       },
       fieldName: 'hosts',
       group: t(labelGroupMembers),
@@ -100,7 +101,8 @@ const useFormInputs = (): FormInputsState => {
     {
       connectedAutocomplete: {
         additionalConditionParameters: [],
-        endpoint: resourceAccessRulesEndpoint
+        endpoint: resourceAccessRulesEndpoint,
+        filterKey: 'name'
       },
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),
