@@ -1,15 +1,9 @@
 import { equals } from 'ramda';
 import {
-  labelAlias,
-  labelApplyResourceAccessRule,
-  labelComment,
   labelExtendedInformation,
   labelGeneralInformation,
-  labelGeographicCoordinates,
   labelGroupMembers,
-  labelName,
-  labelResourceAccessRule,
-  labelSelectHosts
+  labelResourceAccessRule
 } from '../translatedLabels';
 
 export const getListingResponse = (resourceType) => ({
@@ -49,15 +43,13 @@ export const getDetailsResponse = ({ isCloudPlatform = false }) => ({
     { id: 3, name: 'host 3' }
   ],
   ...(isCloudPlatform
-    ? [
-        {
-          resource_access_rules: [
-            { id: 1, name: 'rule 1' },
-            { id: 2, name: 'rule 2' }
-          ]
-        }
-      ]
-    : []),
+    ? {
+        resource_access_rules: [
+          { id: 1, name: 'rule 1' },
+          { id: 2, name: 'rule 2' }
+        ]
+      }
+    : {}),
   geo_coords: '-40.16,98.22',
   comment: 'host group 1 comment',
   is_activated: true
@@ -67,7 +59,7 @@ export const getPayload = ({ isCloudPlatform = false }) => ({
   name: 'host group 1 name',
   alias: 'host group 1 alias',
   hosts: [1, 2, 3],
-  ...(isCloudPlatform ? [{ resource_access_rules: ['rule 1', 'rule 2'] }] : []),
+  ...(isCloudPlatform ? { resource_access_rules: [1, 2] } : {}),
   geo_coords: '-40.16,98.22',
   comment: 'host group 1 comment'
 });
@@ -87,36 +79,4 @@ export const getGroups = ({ isCloudPlatform = false }) => [
       ]
     : []),
   { name: labelExtendedInformation }
-];
-
-// to remove if not used
-export const getInputs = ({ isCloudPlatform = false }) => [
-  {
-    fieldName: 'name',
-    label: labelName
-  },
-  {
-    fieldName: 'alias',
-    label: labelAlias
-  },
-  {
-    fieldName: 'hosts',
-    label: labelSelectHosts
-  },
-  ...(isCloudPlatform
-    ? [
-        {
-          fieldName: 'resourceAccessRules',
-          label: labelApplyResourceAccessRule
-        }
-      ]
-    : []),
-  {
-    fieldName: 'geoCoords',
-    label: labelGeographicCoordinates
-  },
-  {
-    fieldName: 'comment',
-    label: labelComment
-  }
 ];
