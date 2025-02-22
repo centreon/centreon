@@ -39,7 +39,6 @@
     "@cypress/webpack-dev-server": "^3.11.0",
     "@cypress/webpack-preprocessor": "^6.0.2",
     "@mui/utils": "^6.2.0",
-    "@rspack/binding-linux-arm64-gnu": "1.1.6",
     "@rspack/cli": "^1.1.6",
     "@rspack/core": "^1.1.6",
     "@rspack/plugin-react-refresh": "^1.0.1",
