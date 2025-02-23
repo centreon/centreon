@@ -160,7 +160,8 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
 
             return null;
         } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
-            $this->error('finding contact template by id failed',
+            $this->error(
+                'finding contact template by id failed',
                 ['id' => $id, 'exception' => $exception->getContext()]
             );
 
