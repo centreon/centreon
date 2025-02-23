@@ -7,7 +7,6 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import ConfigurationBase from '..';
 import { FilterConfiguration, ResourceType } from '../../models';
-import { configurationAtom, filtersAtom } from '../atoms';
 import {
   columns,
   filtersConfiguration,
@@ -111,19 +110,6 @@ const initialize = ({
   });
 
   const store = createStore();
-  store.set(filtersAtom, filtersInitialValues);
-
-  store.set(configurationAtom, {
-    resourceType: resourceType,
-    api: {
-      endpoints: getEndpoints(resource),
-      decoders: { getAll: resourceDecoderListDecoder },
-      adapter: (data) => data
-    },
-    filtersConfiguration: filters,
-    filtersInitialValues,
-    defaultSelectedColumnIds: ['name', 'alias', 'actions', 'is_activated']
-  });
 
   cy.mount({
     Component: (
@@ -143,6 +129,19 @@ const initialize = ({
                     coordinates: ''
                   }
                 }}
+                api={{
+                  endpoints: getEndpoints(resource),
+                  decoders: { getAll: resourceDecoderListDecoder },
+                  adapter: (data) => data
+                }}
+                filtersConfiguration={filters}
+                filtersInitialValues={filtersInitialValues}
+                defaultSelectedColumnIds={[
+                  'name',
+                  'alias',
+                  'actions',
+                  'is_activated'
+                ]}
               />
             </Provider>
           </TestQueryProvider>
