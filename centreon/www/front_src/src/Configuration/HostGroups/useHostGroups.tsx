@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
-import { useAtom, useAtomValue } from 'jotai';
-import { isEmpty, pluck } from 'ramda';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { configurationAtom, filtersAtom } from '../atoms';
 
@@ -47,15 +47,11 @@ const adaptFormToApiPayload =
     return payload;
   };
 
-interface UseHostGroupsState {
-  isConfigurationValid: boolean;
-}
-
-const useHostGroups = (): UseHostGroupsState => {
+const useHostGroups = () => {
   const { t } = useTranslation();
 
-  const [configuration, setConfiguration] = useAtom(configurationAtom);
-  const [filters, setFilters] = useAtom(filtersAtom);
+  const setConfiguration = useSetAtom(configurationAtom);
+  const setFilters = useSetAtom(filtersAtom);
   const platformFeatures = useAtomValue(platformFeaturesAtom);
   const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
@@ -109,21 +105,6 @@ const useHostGroups = (): UseHostGroupsState => {
 
     setFilters(filtersInitialValues);
   }, [setConfiguration, setFilters, hostGroupsEndpoints, filtersConfiguration]);
-
-  const isConfigurationValid = useMemo(
-    () =>
-      configuration?.api?.endpoints &&
-      configuration?.resourceType &&
-      configuration?.filtersConfiguration &&
-      !isEmpty(configuration?.defaultSelectedColumnIds) &&
-      !isEmpty(configuration?.filtersInitialValues) &&
-      !isEmpty(filters),
-    [configuration, filters]
-  ) as boolean;
-
-  return {
-    isConfigurationValid
-  };
 };
 
 export default useHostGroups;

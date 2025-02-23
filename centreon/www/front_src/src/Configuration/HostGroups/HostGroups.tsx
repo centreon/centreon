@@ -1,5 +1,3 @@
-import { not } from 'ramda';
-
 import ConfigurationBase from '../ConfigurationBase';
 import useColumns from './Columns/useColumns';
 import useHostGroups from './useHostGroups';
@@ -13,11 +11,7 @@ const HostGroups = () => {
   const { groups, inputs } = useFormInputs();
   const { validationSchema } = useValidationSchema();
 
-  const { isConfigurationValid } = useHostGroups();
-
-  if (not(isConfigurationValid)) {
-    return;
-  }
+  useHostGroups();
 
   return (
     <ConfigurationBase
