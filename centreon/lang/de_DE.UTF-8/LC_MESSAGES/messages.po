@@ -17675,7 +17675,7 @@ msgstr "Erweiterter Modus"
 # msgid "Select hosts"
 # msgstr ""
 
-# msgid "Apply resource access rule to the host group"
+# msgid "Apply resource access rules to the host group"
 # msgstr ""
 
 # msgid "Geographic coordinates for MAP"
