@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,24 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Core\MonitoringServer\Application\Repository;
+namespace Core\HostGroup\Infrastructure\API\DuplicateHostGroups;
 
-interface WriteMonitoringServerRepositoryInterface {
-    /**
-     * Define the monitoring server as changed since its last configuration export.
-     *
-     * @param int $monitoringServerId
-     *
-     * @throws \Throwable
-     */
-    public function notifyConfigurationChange(int $monitoringServerId): void;
+use Symfony\Component\Validator\Constraints as Assert;
 
+final class DuplicateHostGroupsInput
+{
     /**
-     * Notify the monitoring servers as changed.
-     *
-     * @param int[] $monitoringServerIds
-     *
-     * @throws \Throwable
+     * @param int[] $ids
+     * @param int $nbDuplicates
      */
-    public function notifyConfigurationChanges(array $monitoringServerIds): void;
+    public function __construct(
+        #[Assert\NotNull()]
+        #[Assert\Type('array')]
+        #[Assert\All(
+            new Assert\Type('integer')
+        )]
+        public readonly array $ids,
+        #[Assert\NotNull()]
+        #[Assert\Type('integer')]
+        public readonly int $nbDuplicates
+    ) {
+    }
 }
