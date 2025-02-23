@@ -15,13 +15,19 @@ interface Form {
   defaultValues: object;
 }
 
+export type Filters = {
+  name: string;
+  enabeld?: boolean;
+  disabled?: boolean;
+} & Record<string, string | boolean>;
+
 export interface ConfigurationBase {
   resourceType: ResourceType;
   columns: Array<Column>;
   form: Form;
   api: APIType;
   filtersConfiguration: Array<FilterConfiguration>;
-  filtersInitialValues: Record<string, string | boolean>;
+  filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
 }
 
@@ -61,6 +67,6 @@ export interface Configuration {
   resourceType: ResourceType | null;
   api: APIType | null;
   filtersConfiguration?: Array<FilterConfiguration>;
-  filtersInitialValues: object;
+  filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
 }

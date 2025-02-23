@@ -7,10 +7,9 @@ import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 import { useMemo } from 'react';
 import { FieldType } from '../../models';
 import { configurationAtom, filtersAtom } from '../atoms';
-import { List } from '../models';
 
 interface LoadDataState {
-  data?: List<unknown>;
+  data?;
   isLoading: boolean;
 }
 
@@ -24,7 +23,7 @@ const useLoadData = (): LoadDataState => {
 
   const searchConditions = useMemo(() => {
     const hasStatusFilter = configuration?.filtersConfiguration?.some(
-      (filter) => filter.fieldType === FieldType.Status
+      (filter) => equals(filter.fieldType, FieldType.Status)
     );
 
     const statusCondition =
@@ -34,9 +33,9 @@ const useLoadData = (): LoadDataState => {
 
     const otherConditions = configuration?.filtersConfiguration?.reduce(
       (acc, filter) => {
-        if (filter.fieldType === FieldType.Status) return acc;
+        if (equals(filter.fieldType, FieldType.Status)) return acc;
 
-        const fieldName = filter.fieldName;
+        const fieldName = filter.fieldName as string;
         const filterValue = filters[fieldName];
 
         return filterValue
