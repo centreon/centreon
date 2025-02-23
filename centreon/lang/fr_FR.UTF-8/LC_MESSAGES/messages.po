@@ -19773,3 +19773,24 @@ msgstr "Échec de l'activation du groupe d'hôtes"
 
 msgid "Failed to disable the host group"
 msgstr "Échec de la désactivation du groupe d'hôtes"
+
+msgid "Host group created"
+msgstr "Groupe d'hôtes créé"
+
+msgid "Host group updated"
+msgstr "Groupe d'hôtes mis à jour"
+
+msgid "Group members"
+msgstr "Membres du groupe"
+
+msgid "Select hosts"
+msgstr "Sélectionner des hôtes"
+
+msgid "Apply resource access rule to the host group"
+msgstr "Appliquer des règle d'accès aux ressources au groupe d'hôtes"
+
+msgid "Geographic coordinates for MAP"
+msgstr "Coordonnées géographiques pour la carte"
+
+msgid "Invalid geo-coordinate format"
+msgstr "Format de coordonnées géographiques invalide"

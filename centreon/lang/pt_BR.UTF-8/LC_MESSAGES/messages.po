@@ -18476,3 +18476,24 @@ msgstr ""
 
 # msgid "Failed to disable the host group"
 # msgstr ""
+
+# msgid "Host group created"
+# msgstr ""
+
+# msgid "Host group updated"
+# msgstr ""
+
+# msgid "Group members"
+# msgstr ""
+
+# msgid "Select hosts"
+# msgstr ""
+
+# msgid "Apply resource access rule to the host group"
+# msgstr ""
+
+# msgid "Geographic coordinates for MAP"
+# msgstr ""
+
+# msgid "Invalid geo-coordinate format"
+# msgstr ""

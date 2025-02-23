@@ -17,13 +17,13 @@ export const labelNoDisabledHosts =
 
 export const labelGeneralInformation = 'General information';
 export const labelGroupMembers = 'Group members';
-export const labelResourceAccessRule = 'Resource access rule';
+export const labelResourceAccessRule = 'Resource access rules';
 export const labelExtendedInformation = 'Extended information';
 
 export const labelComment = 'Comment';
 export const labelSelectHosts = 'Select hosts';
 export const labelApplyResourceAccessRule =
-  'Apply resource access rule to Host group';
+  'Apply resource access rule to the host group';
 export const labelGeographicCoordinates = 'Geographic coordinates for MAP';
 
 export const labelRequired = 'Required';
