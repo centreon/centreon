@@ -101,7 +101,9 @@ services:
       alias: Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter
 
     Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter:
-      factory: [ null, 'create' ]
+      factory: [ null, 'createFromConnectionConfig' ]
+      arguments:
+        $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
 
     jms_serializer.object_constructor:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
