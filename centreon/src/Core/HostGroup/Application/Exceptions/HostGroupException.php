@@ -86,6 +86,14 @@ class HostGroupException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileDuplicating(): self
+    {
+        return new self(_('Error while duplicating a host group'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileRetrievingJustCreated(): self
     {
         return new self(_('Error while retrieving newly created host group'));
