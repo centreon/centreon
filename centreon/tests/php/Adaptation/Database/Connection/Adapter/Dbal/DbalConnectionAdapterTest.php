@@ -27,6 +27,7 @@ use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
 use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
@@ -112,6 +113,28 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
         }
     )->throws(ConnectionException::class);
+
+    it(
+        'test DbalConnectionAdapter : create query builder with success',
+        function () use ($dbConfigCentreon): void {
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $queryBuilder = $db->createQueryBuilder();
+            expect($queryBuilder)
+                ->toBeInstanceOf(QueryBuilderInterface::class)
+                ->toBeInstanceOf(DbalQueryBuilderAdapter::class);
+        }
+    );
+
+    it(
+        'test DbalConnectionAdapter : create expression builder with success',
+        function () use ($dbConfigCentreon): void {
+            $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $expressionBuilder = $db->createExpressionBuilder();
+            expect($expressionBuilder)
+                ->toBeInstanceOf(ExpressionBuilderInterface::class)
+                ->toBeInstanceOf(DbalExpressionBuilderAdapter::class);
+        }
+    );
 
     it(
         'test DbalConnectionAdapter : get connection config',

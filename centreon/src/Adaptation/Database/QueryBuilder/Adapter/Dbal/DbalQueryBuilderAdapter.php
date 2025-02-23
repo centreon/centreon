@@ -23,11 +23,15 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\QueryBuilder\Adapter\Dbal;
 
-use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
+use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
+use Adaptation\Database\ExpressionBuilder\Exception\ExpressionBuilderException;
 use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
-use Doctrine\DBAL\DriverManager;
+use Centreon\Domain\Log\Logger;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 
 /**
@@ -45,9 +49,11 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      * DbalQueryBuilderAdapter constructor
      *
      * @param DoctrineDbalQueryBuilder $dbalQueryBuilder
+     * @param ConnectionConfig $connectionConfig
      */
     public function __construct(
         private DoctrineDbalQueryBuilder $dbalQueryBuilder,
+        private ConnectionConfig $connectionConfig
     ) {}
 
     /**
@@ -55,24 +61,48 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      *
      * Creates a new instance of a SQL query builder.
      *
+     * We have to use a connection configuration to instantiate the query builder because the query builder needs a
+     * connection to work.
+     *
+     * @param ConnectionConfig $connectionConfig
+     *
+     * @throws QueryBuilderException
      * @return DbalQueryBuilderAdapter
      */
-    public static function create(): QueryBuilderInterface
+    public static function createFromConnectionConfig(ConnectionConfig $connectionConfig): QueryBuilderInterface
     {
-        // Dummy connection to use QueryBuilder with dbal
-        $dummyConnection = DriverManager::getConnection(['driver' => ConnectionDriverEnum::DRIVER_PDO_MYSQL->value]);
+        try {
+            $connection = DbalConnectionAdapter::createFromConfig($connectionConfig);
 
-        return new self(new DoctrineDbalQueryBuilder($dummyConnection));
+            return new self(new DoctrineDbalQueryBuilder($connection->getDbalConnection()), $connectionConfig);
+        } catch (ConnectionException $exception) {
+            Logger::create()->error(
+                'An error occurred while trying to create a new instance of query builder',
+                ['exception' => $exception->getContext()]
+            );
+
+            throw QueryBuilderException::createFromConnectionConfigFailed($exception);
+        }
     }
 
     /**
      * To build where clauses easier
      *
+     * @throws QueryBuilderException
      * @return DbalExpressionBuilderAdapter
      */
     public function expr(): ExpressionBuilderInterface
     {
-        return DbalExpressionBuilderAdapter::create();
+        try {
+            return DbalExpressionBuilderAdapter::createFromConnectionConfig($this->connectionConfig);
+        } catch (ExpressionBuilderException $exception) {
+            Logger::create()->error(
+                'An error occurred while trying to create a new instance of expression builder',
+                ['exception' => $exception->getContext()]
+            );
+
+            throw QueryBuilderException::getExpressionBuilderFailed($exception);
+        }
     }
 
     /**

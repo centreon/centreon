@@ -23,10 +23,13 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\ExpressionBuilder\Adapter\Dbal;
 
-use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
+use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\ExpressionBuilder\Enum\ComparisonOperatorEnum;
+use Adaptation\Database\ExpressionBuilder\Exception\ExpressionBuilderException;
 use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
-use Doctrine\DBAL\DriverManager;
+use Centreon\Domain\Log\Logger;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
 
 /**
@@ -52,14 +55,29 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *
      * Creates an expression builder for the connection.
      *
+     * We have to use a connection configuration to instantiate the query builder because the query builder needs a
+     * connection to work.
+     *
+     * @param ConnectionConfig $connectionConfig
+     *
+     * @throws ExpressionBuilderException
      * @return DbalExpressionBuilderAdapter
      */
-    public static function create(): ExpressionBuilderInterface
+    public static function createFromConnectionConfig(ConnectionConfig $connectionConfig): ExpressionBuilderInterface
     {
-        // Dummy connection to use QueryBuilder with dbal
-        $dummyConnection = DriverManager::getConnection(['driver' => ConnectionDriverEnum::DRIVER_PDO_MYSQL->value]);
+        try {
+            $connection = DbalConnectionAdapter::createFromConfig($connectionConfig);
 
-        return new self(new DoctrineDbalExpressionBuilder($dummyConnection));
+            return new self(new DoctrineDbalExpressionBuilder($connection->getDbalConnection()));
+        } catch (ConnectionException $exception) {
+            Logger::create()->error(
+                'An error occurred while trying to create an instance of expression builder',
+                ['exception' => $exception->getContext()]
+            );
+
+            throw ExpressionBuilderException::createFromConnectionConfigFailed($exception);
+        }
+
     }
 
     /**
@@ -109,8 +127,11 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      *          method : comparison('field1', '=', ':value1')
      *          return : "field1 = :value1"
      */
-    public function comparison(string $leftExpression, ComparisonOperatorEnum $operator, string $rightExpression): string
-    {
+    public function comparison(
+        string $leftExpression,
+        ComparisonOperatorEnum $operator,
+        string $rightExpression
+    ): string {
         return $this->dbalExpressionBuilder->comparison($leftExpression, $operator->value, $rightExpression);
     }
 

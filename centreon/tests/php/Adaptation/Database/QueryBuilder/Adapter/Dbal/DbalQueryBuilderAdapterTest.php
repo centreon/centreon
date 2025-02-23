@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\Adaptation\Database\QueryBuilder\Adapter\Dbal;
 
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
 use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -33,6 +35,13 @@ use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Mockery;
 
 beforeEach(function () {
+    // prepare instanciation of ConnectionConfig with a mock (mandatory)
+    $connectionConfig = new ConnectionConfig(
+            host: 'fake_host',
+            user: 'fake_user',
+            password: 'fake_password',
+            databaseName: 'fake_databaseName'
+        );
     // prepare instanciation of DbalQueryBuilderAdapter with mocking of dbal Connection (mandatory)
     $dbalConnection = Mockery::mock(Connection::class);
     $platform = Mockery::mock(AbstractPlatform::class);
@@ -50,12 +59,12 @@ beforeEach(function () {
         ->andReturn($platform);
     // instanciation of DbalQueryBuilderAdapter
     $dbalQueryBuilder = new QueryBuilder($dbalConnection);
-    $this->dbalQueryBuilderAdapterTest = new DbalQueryBuilderAdapter($dbalQueryBuilder);
+    $this->dbalQueryBuilderAdapterTest = new DbalQueryBuilderAdapter($dbalQueryBuilder, $connectionConfig);
 });
 
-it('test DbalQueryBuilderAdapter : expr', function () {
-    expect($this->dbalQueryBuilderAdapterTest->expr())->toBeInstanceOf(DbalExpressionBuilderAdapter::class);
-});
+it('test DbalQueryBuilderAdapter : expr with error because no database connection', function () {
+    $this->dbalQueryBuilderAdapterTest->expr();
+})->throws(QueryBuilderException::class);
 
 it('test DbalQueryBuilderAdapter : select with one parameter', function () {
     $query = $this->dbalQueryBuilderAdapterTest->select('field1')->getQuery();
