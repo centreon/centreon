@@ -1,4 +1,5 @@
 import { Column, Group, InputProps } from '@centreon/ui';
+import { ObjectSchema } from 'yup';
 
 export enum ResourceType {
   Host = 'host',
@@ -10,8 +11,8 @@ export enum ResourceType {
 interface Form {
   inputs: Array<InputProps>;
   groups: Array<Group>;
-  validationSchema;
-  defaultValues;
+  validationSchema: ObjectSchema<object>;
+  defaultValues: object;
 }
 
 export interface ConfigurationBase {

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { object, string } from 'yup';
+import { ObjectSchema, object, string } from 'yup';
 
 import {
   labelInvalidCoordinateFormat,
@@ -7,7 +7,14 @@ import {
   labelRequired
 } from '../translatedLabels';
 
-const useValidationSchema = (): { validationSchema } => {
+interface UseValidationSchemaState {
+  validationSchema: ObjectSchema<{
+    name: string;
+    geoCoords?: string;
+  }>;
+}
+
+const useValidationSchema = (): UseValidationSchemaState => {
   const { t } = useTranslation();
 
   const validationSchema = object({

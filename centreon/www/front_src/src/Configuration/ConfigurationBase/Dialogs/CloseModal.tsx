@@ -23,8 +23,10 @@ const CloseModal = (): JSX.Element => {
   }, []);
 
   const submitAndClose = useCallback(() => {
-    submitForm();
-    // setSearchParams({});
+    submitForm().then(() => {
+      setIsDialogOpen(false);
+      setSearchParams({});
+    });
   }, []);
 
   const closeDialog = useCallback(() => {

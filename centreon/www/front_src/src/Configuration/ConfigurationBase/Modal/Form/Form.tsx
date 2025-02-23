@@ -8,17 +8,25 @@ import { Form, Group, InputProps } from '@centreon/ui';
 import { FormActions, FormActionsProps } from '@centreon/ui/components';
 import { CloseModalConfirmation } from '../../Dialogs';
 
+import { ObjectSchema } from 'yup';
 import { isFormDirtyAtom } from '../../atoms';
 import { labelCancel, labelCreate, labelUpdate } from '../../translatedLabels';
 import { useFormStyles } from './Form.styles';
 
 export type HostGroupFormProps = {
   id?: number;
-  onSubmit?;
+  onSubmit?: (
+    values,
+    {
+      setSubmitting
+    }: {
+      setSubmitting;
+    }
+  ) => void;
   mode?: 'add' | 'edit';
-  inputs: InputProps;
+  inputs: Array<InputProps>;
   groups: Array<Group>;
-  validationSchema;
+  validationSchema: ObjectSchema<object>;
   initialValues;
   isLoading: boolean;
 } & Pick<FormActionsProps, 'onCancel'>;
