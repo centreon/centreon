@@ -7,7 +7,7 @@ import { ResponseError, useBulkResponse } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useDisable, useEnable } from '../../../api';
 
-import { configurationAtom } from '../../../../atoms';
+import { configurationAtom } from '../../../atoms';
 
 import {
   labelFailedToDisableResources,

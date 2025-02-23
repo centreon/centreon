@@ -7,8 +7,8 @@ import { useSearchParams } from 'react-router';
 
 import { ResponseError, useSnackbar } from '@centreon/ui';
 
-import { configurationAtom } from '../../atoms';
 import {
+  configurationAtom,
   isCloseConfirmationDialogOpenAtom,
   isFormDirtyAtom,
   modalStateAtom

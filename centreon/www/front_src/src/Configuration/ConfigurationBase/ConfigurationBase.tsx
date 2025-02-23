@@ -1,18 +1,41 @@
-import { useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { isEmpty, not } from 'ramda';
-import { useMemo } from 'react';
-import { configurationAtom, filtersAtom } from '../atoms';
+import { useEffect, useMemo } from 'react';
 import { ConfigurationBase } from '../models';
+import { configurationAtom, filtersAtom } from './atoms';
 
 import Page from './Page';
 
 const Base = ({
   columns,
   resourceType,
-  form
+  form,
+  api,
+  filtersConfiguration,
+  filtersInitialValues,
+  defaultSelectedColumnIds
 }: ConfigurationBase): JSX.Element => {
-  const configuration = useAtomValue(configurationAtom);
-  const filters = useAtomValue(filtersAtom);
+  const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const [filters, setFilters] = useAtom(filtersAtom);
+
+  useEffect(() => {
+    setConfiguration({
+      resourceType,
+      api,
+      filtersConfiguration,
+      filtersInitialValues,
+      defaultSelectedColumnIds
+    });
+
+    setFilters(filtersInitialValues);
+  }, [
+    setConfiguration,
+    setFilters,
+    api,
+    filtersConfiguration,
+    defaultSelectedColumnIds,
+    filtersInitialValues
+  ]);
 
   const isConfigurationValid = useMemo(
     () =>

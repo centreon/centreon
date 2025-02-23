@@ -19,6 +19,10 @@ export interface ConfigurationBase {
   resourceType: ResourceType;
   columns: Array<Column>;
   form: Form;
+  api: APIType;
+  filtersConfiguration: Array<FilterConfiguration>;
+  filtersInitialValues: Record<string, string | boolean>;
+  defaultSelectedColumnIds: Array<string>;
 }
 
 export enum FieldType {
@@ -38,7 +42,7 @@ export interface Endpoints {
   update: ({ id }) => string;
 }
 
-interface APIType {
+export interface APIType {
   endpoints: Endpoints | null;
   decoders?: {
     getOne?;

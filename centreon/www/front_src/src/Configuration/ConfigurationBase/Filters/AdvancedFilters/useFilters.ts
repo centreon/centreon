@@ -4,7 +4,7 @@ import { equals } from 'ramda';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
-import { configurationAtom, filtersAtom } from '../../../atoms';
+import { configurationAtom, filtersAtom } from '../../atoms';
 
 interface UseFilters {
   reset: () => void;

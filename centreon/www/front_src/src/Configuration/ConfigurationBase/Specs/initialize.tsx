@@ -6,8 +6,8 @@ import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import ConfigurationBase from '..';
-import { configurationAtom, filtersAtom } from '../../atoms';
 import { FilterConfiguration, ResourceType } from '../../models';
+import { configurationAtom, filtersAtom } from '../atoms';
 import {
   columns,
   filtersConfiguration,

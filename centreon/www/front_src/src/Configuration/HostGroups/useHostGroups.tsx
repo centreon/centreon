@@ -1,12 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { configurationAtom, filtersAtom } from '../atoms';
-
-import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
 import {
   bulkDeleteHostGroupEndpoint,
@@ -19,19 +16,19 @@ import {
   hostGroupsListEndpoint
 } from './api';
 
-import {
-  Endpoints,
-  FieldType,
-  FilterConfiguration,
-  ResourceType
-} from '../models';
+import { APIType, FieldType, FilterConfiguration } from '../models';
 
 import { labelAlias, labelName, labelStatus } from './translatedLabels';
+
+interface UseHostGroupsState {
+  api: APIType;
+  filtersConfiguration: Array<FilterConfiguration>;
+}
 
 const adaptFormToApiPayload =
   ({ isCloudPlatform }) =>
   ({ name, alias, comment, geoCoords, hosts, resourceAccessRules }) => {
-    const cloudOnlyProperty = isCloudPlatform
+    const cloudProperties = isCloudPlatform
       ? { resource_access_rules: pluck('id', resourceAccessRules) }
       : {};
 
@@ -41,31 +38,32 @@ const adaptFormToApiPayload =
       comment,
       geo_coords: geoCoords,
       hosts: pluck('id', hosts),
-      ...cloudOnlyProperty
+      ...cloudProperties
     };
 
     return payload;
   };
 
-const useHostGroups = () => {
+const useHostGroups = (): UseHostGroupsState => {
   const { t } = useTranslation();
-
-  const setConfiguration = useSetAtom(configurationAtom);
-  const setFilters = useSetAtom(filtersAtom);
   const platformFeatures = useAtomValue(platformFeaturesAtom);
   const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
-  const hostGroupsEndpoints: Endpoints = useMemo(
+  const api: APIType = useMemo(
     () => ({
-      getAll: hostGroupsListEndpoint,
-      getOne: getHostGroupEndpoint,
-      deleteOne: getHostGroupEndpoint,
-      delete: bulkDeleteHostGroupEndpoint,
-      duplicate: bulkDuplicateHostGroupEndpoint,
-      disable: bulkDisableHostGroupEndpoint,
-      enable: bulkEnableHostGroupEndpoint,
-      create: hostGroupsListEndpoint,
-      update: getHostGroupEndpoint
+      endpoints: {
+        getAll: hostGroupsListEndpoint,
+        getOne: getHostGroupEndpoint,
+        deleteOne: getHostGroupEndpoint,
+        delete: bulkDeleteHostGroupEndpoint,
+        duplicate: bulkDuplicateHostGroupEndpoint,
+        disable: bulkDisableHostGroupEndpoint,
+        enable: bulkEnableHostGroupEndpoint,
+        create: hostGroupsListEndpoint,
+        update: getHostGroupEndpoint
+      },
+      decoders: { getAll: hostGroupsListDecoder, getOne: hostGroupDecoder },
+      adapter: adaptFormToApiPayload({ isCloudPlatform })
     }),
     []
   );
@@ -90,21 +88,10 @@ const useHostGroups = () => {
     []
   );
 
-  useEffect(() => {
-    setConfiguration({
-      resourceType: ResourceType.HostGroup,
-      api: {
-        endpoints: hostGroupsEndpoints,
-        decoders: { getAll: hostGroupsListDecoder, getOne: hostGroupDecoder },
-        adapter: adaptFormToApiPayload({ isCloudPlatform })
-      },
-      filtersConfiguration,
-      filtersInitialValues,
-      defaultSelectedColumnIds
-    });
-
-    setFilters(filtersInitialValues);
-  }, [setConfiguration, setFilters, hostGroupsEndpoints, filtersConfiguration]);
+  return {
+    api,
+    filtersConfiguration
+  };
 };
 
 export default useHostGroups;

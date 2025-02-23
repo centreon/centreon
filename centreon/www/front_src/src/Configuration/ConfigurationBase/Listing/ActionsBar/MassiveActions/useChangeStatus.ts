@@ -6,8 +6,8 @@ import { ResponseError, useBulkResponse } from '@centreon/ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { configurationAtom } from '../../../../atoms';
 import { useDisable, useEnable } from '../../../api';
+import { configurationAtom } from '../../../atoms';
 import { selectedRowsAtom } from '../../atoms';
 
 import {

@@ -7,8 +7,7 @@ import { useSnackbar } from '@centreon/ui';
 import { useTheme } from '@mui/material';
 import { useSearchParams } from 'react-router';
 
-import { configurationAtom } from '../../atoms';
-import { modalStateAtom } from '../atoms';
+import { configurationAtom, modalStateAtom } from '../atoms';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';

@@ -5,8 +5,8 @@ import { useGetAll } from '../api';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 import { useMemo } from 'react';
-import { configurationAtom, filtersAtom } from '../../atoms';
 import { FieldType } from '../../models';
+import { configurationAtom, filtersAtom } from '../atoms';
 import { List } from '../models';
 
 interface LoadDataState {

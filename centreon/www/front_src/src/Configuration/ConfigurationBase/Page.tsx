@@ -12,7 +12,10 @@ const Page = ({
   columns,
   resourceType,
   form
-}: ConfigurationBase): JSX.Element => {
+}: Pick<
+  ConfigurationBase,
+  'columns' | 'form' | 'resourceType'
+>): JSX.Element => {
   const { classes } = useStyles();
   const { pluralizedT } = usePluralizedTranslation();
 

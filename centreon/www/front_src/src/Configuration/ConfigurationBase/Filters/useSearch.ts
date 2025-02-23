@@ -1,7 +1,7 @@
 import debounce from '@mui/utils/debounce';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, pluck } from 'ramda';
-import { configurationAtom, filtersAtom } from '../../atoms';
+import { configurationAtom, filtersAtom } from '../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
