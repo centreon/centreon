@@ -108,13 +108,15 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
                 $this->sqlRequestTranslator->getSearchValues()
             );
 
+            // get data with pagination
             $contactTemplates = [];
-            while (is_array($result = $this->connection->fetchAssociative($query, $queryParameters))) {
+            $results = $this->connection->fetchAllAssociative($query, $queryParameters);
+            foreach ($results as $result) {
                 $contactTemplates[] = DbContactTemplateFactory::createFromRecord($result);
             }
 
-            // Set total
-            if ($total = $this->connection->fetchOne('SELECT FOUND_ROWS()') !== false) {
+            // get total without pagination
+            if (($total = $this->connection->fetchOne('SELECT FOUND_ROWS() from contact')) !== false) {
                 $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
             }
 
