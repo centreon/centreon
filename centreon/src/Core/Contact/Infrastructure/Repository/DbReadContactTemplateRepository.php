@@ -144,8 +144,8 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
             $query = $this->queryBuilder
                 ->select('contact_id, contact_name')
                 ->from('contact')
-                ->where('contact_id', '=', ':id')
-                ->andWhere('contact_register', '=', ':register')
+                ->where($this->queryBuilder->expr()->equal('contact_id', ':id'))
+                ->andWhere($this->queryBuilder->expr()->equal('contact_register', ':register'))
                 ->getQuery();
 
             $queryParameters = QueryParameters::create([
