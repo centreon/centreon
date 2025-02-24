@@ -49,8 +49,8 @@ final readonly class ConnectionConfig
         private string $user,
         private string $password,
         private string $databaseName,
-        private int $port = 0,
-        private string $charset = '',
+        private int $port = 3306,
+        private string $charset = 'utf8mb4',
         private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
     ) {}
 
