@@ -50,6 +50,10 @@ final class AddHostGroupController extends AbstractController
 {
     use LoggerTrait;
 
+    public function __construct(private readonly bool $isCloudPlatform)
+    {
+    }
+
     /**
      *
      * @param AddHostGroupInput $request
@@ -63,8 +67,7 @@ final class AddHostGroupController extends AbstractController
         AddHostGroup $useCase,
         StandardPresenter $presenter
     ): Response {
-        dd($request);
-        $response = $useCase(AddHostGroupRequestTransformer::transform($request));
+        $response = $useCase(AddHostGroupRequestTransformer::transform($request, $this->isCloudPlatform));
 
         return JsonResponse::fromJsonString($presenter->present($response));
     }

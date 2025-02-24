@@ -23,9 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Common\Domain;
 
-enum PlatformEnum
+final class PlatformType
 {
-    case Cloud;
-    case OnPrem;
-}
+    public const CLOUD = 'cloud';
+    public const ON_PREM = 'on-premise';
 
+    public const AVAILABLE_TYPES = [self::CLOUD, self::ON_PREM];
+}

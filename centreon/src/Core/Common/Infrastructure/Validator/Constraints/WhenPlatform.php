@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure\Validator\Constraints;
 
 use Core\Common\Domain\PlatformEnum;
+use Core\Common\Domain\PlatformType;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Validator\Constraint;
@@ -31,6 +32,10 @@ use Symfony\Component\Validator\Constraints\Composite;
 use Symfony\Component\Validator\Exception\LogicException;
 
 /**
+ * Strongly Inspired by Symfony\Component\Validator\Constraints\When
+ *
+ * Dedicated to handle by ourselves the context of the platform.
+ *
  * @Annotation
  * @Target({"CLASS", "PROPERTY", "METHOD", "ANNOTATION"})
  */
@@ -49,6 +54,10 @@ final class WhenPlatform extends Composite
         $payload = null,
         array $options = []
     ) {
+        if (!\in_array($platform, PlatformType::AVAILABLE_TYPES, true)) {
+            throw new LogicException(\sprintf('The platform "%s" is not valid.', $platform));
+        }
+
         $options['platform'] = $platform;
         $options['constraints'] = $constraints;
 

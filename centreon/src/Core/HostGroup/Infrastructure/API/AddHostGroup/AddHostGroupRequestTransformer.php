@@ -31,13 +31,15 @@ final class AddHostGroupRequestTransformer
      * @param AddHostGroupInput $input
      * @return AddHostGroupRequest
      */
-    public static function transform(AddHostGroupInput $input): AddHostGroupRequest
+    public static function transform(AddHostGroupInput $input, bool $isCloudPlatform): AddHostGroupRequest
     {
         $request = new AddHostGroupRequest();
         $request->name = $input->name;
         $request->alias = $input->alias ?? '';
         $request->geoCoords = $input->geoCoords;
         $request->comment = $input->comment ?? '';
+        $request->hosts = $input->hosts;
+        $request->resourceAccessRules = $isCloudPlatform ? $input->resourceAccessRules : [];
 
         return $request;
     }

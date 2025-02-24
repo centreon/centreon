@@ -24,14 +24,12 @@ declare(strict_types=1);
 namespace Core\HostGroup\Infrastructure\API\AddHostGRoup;
 
 use Core\Common\Domain\PlatformEnum;
+use Core\Common\Domain\PlatformType;
 use Core\Common\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class AddHostGroupInput
 {
-    /**
-     * @param int[] $ids
-     */
     public function __construct(
         #[Assert\NotNull()]
         #[Assert\Type('string')]
@@ -56,7 +54,7 @@ final class AddHostGroupInput
         /**
          * This field MUST NOT be used outside of a Cloud Platform Context.
          */
-        #[WhenPlatform('cloud', [
+        #[WhenPlatform(PlatformType::CLOUD, [
             new Assert\NotNull(),
             new Assert\Type('array'),
             new Assert\All(

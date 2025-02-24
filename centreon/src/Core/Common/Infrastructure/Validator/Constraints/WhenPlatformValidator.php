@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure\Validator\Constraints;
 
 use Core\Common\Domain\PlatformEnum;
+use Core\Common\Domain\PlatformType;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -52,7 +53,7 @@ final class WhenPlatformValidator extends ConstraintValidator
 
     private function platformMatch(string $platform): bool
     {
-        return ($this->isCloudPlatform === true && $platform === 'cloud')
-            || ($this->isCloudPlatform === false && $platform === 'on-premise');
+        return ($this->isCloudPlatform === true && $platform === PlatformType::CLOUD)
+            || ($this->isCloudPlatform === false && $platform === PlatformType::ON_PREM);
     }
 }
