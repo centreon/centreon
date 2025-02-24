@@ -81,7 +81,7 @@ final class EnableDisableHostGroups
                     $this->storageEngine->rollbackTransaction();
                 }
                 $this->error(
-                    "Error while deleting host groups : {$ex->getMessage()}",
+                    "Error while enabling/disabling host groups : {$ex->getMessage()}",
                     [
                         'hostgroupIds' => $request->hostGroupIds,
                         'current_hostgroupId' => $hostGroupId,
