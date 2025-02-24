@@ -40,7 +40,8 @@ beforeEach(function () {
             host: 'fake_host',
             user: 'fake_user',
             password: 'fake_password',
-            databaseName: 'fake_databaseName'
+            databaseName: 'fake_databaseName',
+            databaseNameStorage: 'fake_databaseNameStorage'
         );
     // prepare instanciation of DbalQueryBuilderAdapter with mocking of dbal Connection (mandatory)
     $dbalConnection = Mockery::mock(Connection::class);
