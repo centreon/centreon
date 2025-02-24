@@ -33,7 +33,7 @@ it('test IpAddress value object : correct instanciation', function () {
     expect($IpAddress->getValue())->toBe($string);
 });
 
-it('test IpAddress value object with an incorrect email', function () {
+it('test IpAddress value object with an incorrect ip address', function () {
     $string = "yoyo";
     $IpAddress = new IpAddress($string);
 })->throws(ValueObjectException::class);
