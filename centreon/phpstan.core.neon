@@ -123,6 +123,7 @@ parameters:
             message: '#Catch block must contain a Logger trait method call.#'
             paths:
                 - src/Adaptation
+                - src/Core/Common/Infrastructure/RequestParameters/Transformer
         - # Unsafe usage of new static(). Unblock usage of value object.
             reportUnmatched: false
             message: '#Unsafe usage of new static#'
