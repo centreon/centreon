@@ -30,6 +30,8 @@ use Core\Common\Domain\Exception\ValueObjectException;
  *
  * @class   LiteralString
  * @package Core\Common\Domain\ValueObject
+ * @implements ValueObjectInterface
+ * @phpstan-consistent-constructor
  */
 readonly class LiteralString implements ValueObjectInterface
 {
