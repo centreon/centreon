@@ -21,19 +21,22 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Infrastructure\API\DeleteHostGroups;
+namespace Core\HostGroup\Infrastructure\API\EnableDisableHostGroups;
 
-use Core\HostGroup\Application\UseCase\DeleteHostGroups\DeleteHostGroupsRequest;
+use Core\HostGroup\Application\UseCase\EnableDisableHostGroups\EnableDisableHostGroupsRequest;
 
-final class DeleteHostGroupsRequestTransformer
+final class EnableDisableHostGroupsRequestTransformer
 {
     /**
-     * @param DeleteHostGroupsInput $input
+     * @param EnableDisableHostGroupsInput $input
+     * @param string $action
      *
-     * @return DeleteHostGroupsRequest
+     * @return EnableDisableHostGroupsRequest
      */
-    public static function transform(DeleteHostGroupsInput $input): DeleteHostGroupsRequest
+    public static function transform(EnableDisableHostGroupsInput $input, string $action): EnableDisableHostGroupsRequest
     {
-        return new DeleteHostGroupsRequest($input->ids);
+        $action = ltrim($action, '_');
+
+        return new EnableDisableHostGroupsRequest($input->ids, $action === 'enable');
     }
 }
