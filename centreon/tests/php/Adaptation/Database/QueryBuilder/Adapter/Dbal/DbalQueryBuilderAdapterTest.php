@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\Adaptation\Database\QueryBuilder\Adapter\Dbal;
 
 use Adaptation\Database\Connection\Model\ConnectionConfig;
-use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
 use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Doctrine\DBAL\Connection;
