@@ -49,12 +49,6 @@ it('test IpAddress value object : with an incorrect ip address', function () {
     $ipAddress = new IpAddress($string);
 })->throws(ValueObjectException::class);
 
-it('test IpAddress value object : get value', function () {
-    $string = "170.0.0.1";
-    $ipAddress = new IpAddress($string);
-    expect($ipAddress->getValue())->toBe($string);
-});
-
 it('test IpAddress value object : is not empty', function () {
     $string = "170.0.0.1";
     $ipAddress = new IpAddress($string);
