@@ -276,7 +276,6 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         foreach ($bindValues as $bindParam => $bindValue) {
             $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }
-
         $statement->execute();
 
         return $statement->fetchAll(\PDO::FETCH_COLUMN);
