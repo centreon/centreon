@@ -133,7 +133,7 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
     public function find(int $id): ?ContactTemplate
     {
         try {
-            $query = 'SELECT contact_id, contact_name FROM contact WHERE contact_id = :id AND contact_register = 0';
+            $query = 'SELECT contact_id, contact_name FROM contact WHERE contact_id = :id AND contact_register = :register';
 
             $queryParameters = QueryParameters::create([
                 QueryParameter::int('id', $id),
