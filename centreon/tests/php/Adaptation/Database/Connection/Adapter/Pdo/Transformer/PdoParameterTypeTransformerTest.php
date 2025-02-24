@@ -27,32 +27,28 @@ use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTrans
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Core\Common\Domain\Exception\TransformerException;
 
-it('test pdo parameter type transformer : transform', function () {
-    $type = PdoParameterTypeTransformer::transformFromQueryParameterType(QueryParameterTypeEnum::STRING);
-    expect($type)->toBeInt()->toBe(\PDO::PARAM_STR);
-    $type = \Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer::transformFromQueryParameterType(QueryParameterTypeEnum::INTEGER);
-    expect($type)->toBeInt()->toBe(\PDO::PARAM_INT);
-    $type = PdoParameterTypeTransformer::transformFromQueryParameterType(QueryParameterTypeEnum::LARGE_OBJECT);
-    expect($type)->toBeInt()->toBe(\PDO::PARAM_LOB);
-    $type = \Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer::transformFromQueryParameterType(QueryParameterTypeEnum::NULL);
-    expect($type)->toBeInt()->toBe(\PDO::PARAM_NULL);
-    $type = \Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer::transformFromQueryParameterType(QueryParameterTypeEnum::BOOLEAN);
-    expect($type)->toBeInt()->toBe(\PDO::PARAM_BOOL);
-});
+it('test pdo parameter type transformer : transform', function (QueryParameterTypeEnum $queryType, int $pdoType) {
+    $type = PdoParameterTypeTransformer::transformFromQueryParameterType($queryType);
+    expect($type)->toBeInt()->toBe($pdoType);
+})->with([
+    [QueryParameterTypeEnum::STRING, \PDO::PARAM_STR],
+    [QueryParameterTypeEnum::INTEGER, \PDO::PARAM_INT],
+    [QueryParameterTypeEnum::LARGE_OBJECT, \PDO::PARAM_LOB],
+    [QueryParameterTypeEnum::NULL, \PDO::PARAM_NULL],
+    [QueryParameterTypeEnum::BOOLEAN, \PDO::PARAM_BOOL],
+]);
 
-it('test pdo parameter type transformer : reverse', function () {
-    $type = \Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer::reverseToQueryParameterType(\PDO::PARAM_STR);
-    expect($type)->toBe(QueryParameterTypeEnum::STRING);
-    $type = \Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer::reverseToQueryParameterType(\PDO::PARAM_INT);
-    expect($type)->toBe(QueryParameterTypeEnum::INTEGER);
-    $type = \Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer::reverseToQueryParameterType(\PDO::PARAM_LOB);
-    expect($type)->toBe(QueryParameterTypeEnum::LARGE_OBJECT);
-    $type = PdoParameterTypeTransformer::reverseToQueryParameterType(\PDO::PARAM_NULL);
-    expect($type)->toBe(QueryParameterTypeEnum::NULL);
-    $type = \Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer::reverseToQueryParameterType(\PDO::PARAM_BOOL);
-    expect($type)->toBe(QueryParameterTypeEnum::BOOLEAN);
-});
+it('test pdo parameter type transformer : reverse', function (int $pdoType, QueryParameterTypeEnum $queryType) {
+    $type = PdoParameterTypeTransformer::reverseToQueryParameterType($pdoType);
+    expect($type)->toBe($queryType);
+})->with([
+    [\PDO::PARAM_STR, QueryParameterTypeEnum::STRING],
+    [\PDO::PARAM_INT, QueryParameterTypeEnum::INTEGER],
+    [\PDO::PARAM_LOB, QueryParameterTypeEnum::LARGE_OBJECT],
+    [\PDO::PARAM_NULL, QueryParameterTypeEnum::NULL],
+    [\PDO::PARAM_BOOL, QueryParameterTypeEnum::BOOLEAN],
+]);
 
 it('test pdo parameter type transformer : reverse with a bad pdo type', function () {
-    $type = \Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer::reverseToQueryParameterType(999999);
+    $type = PdoParameterTypeTransformer::reverseToQueryParameterType(999999);
 })->throws(TransformerException::class);
