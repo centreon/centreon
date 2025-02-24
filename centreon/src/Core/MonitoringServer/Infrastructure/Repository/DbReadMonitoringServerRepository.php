@@ -255,7 +255,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
      */
     public function findByHostsIds(array $hostIds): array
     {
-        if ($hostIds === []) {
+        if (empty($hostIds)) {
             return [];
         }
 

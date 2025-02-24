@@ -161,6 +161,14 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function nameAlreadyExistsByAccessGroups(string $hostGroupName, array $accessGroups): bool
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByHost(int $hostId): array
     {
         throw RepositoryException::notYetImplemented();

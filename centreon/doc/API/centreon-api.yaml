@@ -850,6 +850,8 @@ paths:
     $ref: "./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml"
   /configuration/hosts/groups/{action}:
     $ref: "./latest/onPremise/Configuration/HostGroup/EnableDisableHostGroups.yaml"
+  /configuration/hosts/groups/_duplicate:
+    $ref: "./latest/onPremise/Configuration/HostGroup/DuplicateHostGroups.yaml"
   /configuration/services/groups:
     get:
       tags:

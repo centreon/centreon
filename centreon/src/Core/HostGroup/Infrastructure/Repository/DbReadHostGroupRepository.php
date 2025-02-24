@@ -395,6 +395,43 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         return (bool) $statement->fetchColumn();
     }
 
+    public function nameAlreadyExistsByAccessGroups(string $hostGroupName, array $accessGroups): bool
+    {
+        if ([] === $accessGroups) {
+            return false;
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
+
+            return $this->nameAlreadyExists($hostGroupName);
+        }
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT 1
+                    FROM `:db`.`hostgroup` hg
+                    INNER JOIN `:db`.acl_resources_hg_relations arhr
+                        ON hg.hg_id = arhr.hg_hg_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    WHERE hg.hg_name = :name
+                    AND ag.acl_group_id IN (:ids)
+                    SQL
+            )
+        );
+        $statement->bindValue(':name', $hostGroupName);
+        $statement->bindValue(':ids', $accessGroupIds, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
     /**
      * @inheritDoc
      */

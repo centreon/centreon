@@ -69,6 +69,8 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
             return;
         }
 
+        $this->debug('Signal configuration change on monitoring servers with IDs ' . implode(', ', $monitoringServerIds));
+
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($monitoringServerIds, ':monitoring_server_id_');
 
         $request = $this->translateDbName(

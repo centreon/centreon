@@ -78,4 +78,16 @@ interface WriteHostGroupRepositoryInterface
      * @param bool $isEnable
      */
     public function enableDisableHostGroup(int $hostGroupId, bool $isEnable): void;
+
+    /**
+     * Duplicate a host group.
+     *
+     * @param int $hostGroupId
+     * @param int $duplicateIndex The index to append to the duplicated host group name
+     *
+     * @throws \Throwable
+     *
+     * @return int The new host group ID
+     */
+    public function duplicate(int $hostGroupId, int $duplicateIndex): int;
 }
