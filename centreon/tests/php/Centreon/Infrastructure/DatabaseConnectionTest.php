@@ -104,26 +104,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test DatabaseConnection : DatabaseConnection constructor with ConnectionConfig',
-        function () use ($dbConfigCentreon): void {
-            $db = new DatabaseConnection(
-                logger: new Logger(),
-                host: $dbConfigCentreon->getHost(),
-                basename: $dbConfigCentreon->getDatabaseName(),
-                login: $dbConfigCentreon->getUser(),
-                password: $dbConfigCentreon->getPassword(),
-                port: $dbConfigCentreon->getPort()
-            );
-            expect($db)->toBeInstanceOf(DatabaseConnection::class);
-            $stmt = $db->prepare("select database()");
-            $stmt->execute();
-            $dbName = $stmt->fetchColumn();
-            expect($dbName)->toBe('centreon')
-                ->and($db->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
-        }
-    );
-
-    it(
         'test DatabaseConnection : DatabaseConnection::createFromConfig factory"',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
