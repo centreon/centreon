@@ -26,11 +26,13 @@ namespace Core\MonitoringServer\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 
 class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements WriteMonitoringServerRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -56,6 +58,35 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function notifyConfigurationChanges(array $monitoringServerIds): void
+    {
+        if ($monitoringServerIds === []) {
+            return;
+        }
+
+        $this->debug('Signal configuration change on monitoring servers with IDs ' . implode(', ', $monitoringServerIds));
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($monitoringServerIds, ':monitoring_server_id_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                UPDATE `:db`.`nagios_server`
+                SET `updated` =  '1'
+                WHERE `id` IN ({$bindQuery})
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
         $statement->execute();
     }
 }
