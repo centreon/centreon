@@ -70,6 +70,89 @@ it('test Email value object : length', function () {
     expect($email->length())->toBe(12);
 });
 
+
+it('test Email value object : to uppercase', function () {
+    $email = new Email("yoyo@toto.fr");
+    $newEmail = $email->toUpperCase();
+    expect($email)
+        ->toBeInstanceOf(Email::class)
+        ->and($email->getValue())
+        ->toBe("yoyo@toto.fr")
+        ->and($newEmail)
+        ->toBeInstanceOf(Email::class)
+        ->and($newEmail->getValue())
+        ->toBe("YOYO@TOTO.FR");
+});
+
+it('test Email value object : to lowercase', function () {
+    $email = new Email("YOYO@TOTO.FR");
+    $newEmail = $email->toLowerCase();
+    expect($email)
+        ->toBeInstanceOf(Email::class)
+        ->and($email->getValue())
+        ->toBe("YOYO@TOTO.FR")
+        ->and($newEmail)
+        ->toBeInstanceOf(Email::class)
+        ->and($newEmail->getValue())
+        ->toBe("yoyo@toto.fr");
+});
+
+it('test Email value object : starts with', function () {
+    $email = new Email("yoyo@toto.fr");
+    expect($email->startsWith("yoyo"))->toBeTrue();
+});
+
+it('test Email value object : not starts with', function () {
+    $email = new Email("yoyo@toto.fr");
+    expect($email->startsWith("bar"))->toBeFalse();
+});
+
+it('test Email value object : ends with', function () {
+    $email = new Email("yoyo@toto.fr");
+    expect($email->endsWith("fr"))->toBeTrue();
+});
+
+it('test Email value object : not ends with', function () {
+    $email = new Email("yoyo@toto.fr");
+    expect($email->endsWith("bar"))->toBeFalse();
+});
+
+it('test Email value object : replace', function () {
+    $email = new Email("yoyo@toto.fr");
+    $newEmail = $email->replace("yoyo", "yaya");
+    expect($email)
+        ->toBeInstanceOf(Email::class)
+        ->and($email->getValue())
+        ->toBe("yoyo@toto.fr")
+        ->and($newEmail)
+        ->toBeInstanceOf(Email::class)
+        ->and($newEmail->getValue())
+        ->toBe("yaya@toto.fr");
+});
+
+it('test Email value object : contains', function () {
+    $email = new Email("yoyo@toto.fr");
+    expect($email->contains("yoyo"))->toBeTrue();
+});
+
+it('test Email value object : not contains', function () {
+    $email = new Email("yoyo@toto.fr");
+    expect($email->contains("bar"))->toBeFalse();
+});
+
+it('test Email value object : append', function () {
+    $email = new Email("yoyo@toto.fr");
+    $newEmail = $email->append("ance");
+    expect($email)
+        ->toBeInstanceOf(Email::class)
+        ->and($email->getValue())
+        ->toBe("yoyo@toto.fr")
+        ->and($newEmail)
+        ->toBeInstanceOf(Email::class)
+        ->and($newEmail->getValue())
+        ->toBe("yoyo@toto.france");
+});
+
 it('test Email value object : equal', function () {
     $email1 = new Email("yoyo@toto.fr");
     $email2 = new Email("yoyo@toto.fr");

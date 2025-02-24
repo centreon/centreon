@@ -50,17 +50,41 @@ it('test LiteralString value object : length', function () {
 
 it('test LiteralString value object : to uppercase', function () {
     $literalString = new LiteralString("foo");
-    expect($literalString->toUpperCase())->toBe("FOO");
+    $newLiteralString = $literalString->toUpperCase();
+    expect($literalString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($literalString->getValue())
+        ->toBe("foo")
+        ->and($newLiteralString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($newLiteralString->getValue())
+        ->toBe("FOO");
 });
 
 it('test LiteralString value object : to lowercase', function () {
     $literalString = new LiteralString("FOO");
-    expect($literalString->toLowerCase())->toBe("foo");
+    $newLiteralString = $literalString->toLowerCase();
+    expect($literalString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($literalString->getValue())
+        ->toBe("FOO")
+        ->and($newLiteralString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($newLiteralString->getValue())
+        ->toBe("foo");
 });
 
 it('test LiteralString value object : trim', function () {
     $literalString = new LiteralString(" foo ");
-    expect($literalString->trim())->toBe("foo");
+    $newLiteralString = $literalString->trim();
+    expect($literalString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($literalString->getValue())
+        ->toBe(" foo ")
+        ->and($newLiteralString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($newLiteralString->getValue())
+        ->toBe("foo");
 });
 
 it('test LiteralString value object : starts with', function () {
@@ -85,7 +109,15 @@ it('test LiteralString value object : not ends with', function () {
 
 it('test LiteralString value object : replace', function () {
     $literalString = new LiteralString("foo");
-    expect($literalString->replace("foo", "bar"))->toBe("bar");
+    $newLiteralString = $literalString->replace("foo", "bar");
+    expect($literalString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($literalString->getValue())
+        ->toBe("foo")
+        ->and($newLiteralString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($newLiteralString->getValue())
+        ->toBe("bar");
 });
 
 it('test LiteralString value object : contains', function () {
@@ -100,7 +132,15 @@ it('test LiteralString value object : not contains', function () {
 
 it('test LiteralString value object : append', function () {
     $literalString = new LiteralString("foo");
-    expect($literalString->append("bar"))->toBe("foobar");
+    $newLiteralString = $literalString->append("bar");
+    expect($literalString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($literalString->getValue())
+        ->toBe("foo")
+        ->and($newLiteralString)
+        ->toBeInstanceOf(LiteralString::class)
+        ->and($newLiteralString->getValue())
+        ->toBe("foobar");
 });
 
 it('test LiteralString value object : equal', function () {
