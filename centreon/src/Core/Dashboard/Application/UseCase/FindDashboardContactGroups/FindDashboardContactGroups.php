@@ -25,6 +25,7 @@ namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
@@ -62,6 +63,20 @@ final class FindDashboardContactGroups
             return $this->isUserAdmin()
                 ? $this->createResponse($this->findContactGroupsAsAdmin())
                 : $this->createResponse($this->findContactGroupsAsContact());
+        } catch (RepositoryException $ex) {
+            $this->error(
+                $ex->getMessage(),
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => [
+                        'message' => $ex->getPrevious()?->getMessage(),
+                        'trace' => $ex->getPrevious()?->getTraceAsString(),
+                    ],
+                ]
+            );
+
+            return new ErrorResponse(DashboardException::errorWhileSearchingSharableContactGroups());
         } catch (\Throwable $ex) {
             $this->error(
                 "Error while retrieving contact groups allowed to receive a dashboard share : {$ex->getMessage()}",

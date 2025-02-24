@@ -83,8 +83,8 @@ final class FindDashboardContacts
                     'contact_id' => $this->contact->getId(),
                     'request_parameters' => $this->requestParameters->toArray(),
                     'exception' => [
-                        'message' => $ex->getMessage(),
-                        'trace' => $ex->getTraceAsString(),
+                        'message' => $ex->getPrevious()?->getMessage(),
+                        'trace' => $ex->getPrevious()?->getTraceAsString(),
                     ],
                 ]
             );

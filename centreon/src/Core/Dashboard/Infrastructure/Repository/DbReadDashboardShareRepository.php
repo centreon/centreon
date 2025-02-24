@@ -617,7 +617,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
             return $dashboardContactGroupRoles;
         } catch (\Throwable $exception) {
-            throw new RepositoryException(message: $exception->getmessage(), previous: $exception);
+            throw new RepositoryException(message: 'Error while searching for contact groups', previous: $exception);
         }
     }
 
@@ -991,7 +991,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
             return $dashboardContactGroupRoles;
         } catch (\Throwable $exception) {
-            throw new RepositoryException(message: $exception->getmessage(), previous: $exception);
+            throw new RepositoryException(message: 'Error while searching contact groups by user', previous: $exception);
         }
     }
 
