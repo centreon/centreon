@@ -214,7 +214,7 @@ interface ReadHostGroupRepositoryInterface
      */
     public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): HostsCountById;
 
-    /*
+    /**
      * Find hosts associated with a host group.
      *
      * @param int $hostGroupId
