@@ -124,7 +124,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     {
         $upgradeFilePath = $this->installDir . '/sql/centstorage/Update-CSTG-' . $version . '.sql';
         if (is_readable($upgradeFilePath)) {
-            $this->db->switchToDb($this->db->getStorageDbName());
+            $this->db->switchToDb($this->db->getConnectionConfig()->getDatabaseNameStorage());
             $this->runSqlFile($upgradeFilePath);
         }
     }
