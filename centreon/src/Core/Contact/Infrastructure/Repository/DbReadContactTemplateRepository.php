@@ -152,7 +152,9 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
                 QueryParameter::int('id', $id),
                 QueryParameter::int('register', 0),
             ]);
+
             $result = $this->connection->fetchAssociative($query, $queryParameters);
+
             if ($result !== []) {
                 /** @var array<string, string> $result */
                 return DbContactTemplateFactory::createFromRecord($result);

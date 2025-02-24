@@ -81,14 +81,11 @@ final class DbalConnectionAdapter implements ConnectionInterface
             'user' => $connectionConfig->getUser(),
             'password' => $connectionConfig->getPassword(),
             'host' => $connectionConfig->getHost(),
+            'port' => $connectionConfig->getPort(),
+            'charset' => $connectionConfig->getCharset(),
             'driver' => $connectionConfig->getDriver()->value,
         ];
-        if ($connectionConfig->getCharset() !== '') {
-            $dbalConnectionConfig['charset'] = $connectionConfig->getCharset();
-        }
-        if ($connectionConfig->getPort() > 0) {
-            $dbalConnectionConfig['port'] = $connectionConfig->getPort();
-        }
+
         try {
             $dbalConnection = DoctrineDbalDriverManager::getConnection($dbalConnectionConfig);
             $dbalConnectionAdapter = new self($dbalConnection, $connectionConfig);
