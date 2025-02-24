@@ -133,7 +133,6 @@ class UpdateOpenIdConfiguration
             $this->error(
                 'Unable to create OpenID Provider because one or several parameters are invalid',
                 [
-                    'update_openid_configuration_request' => $request,
                     'exception' => [
                         'type' => $ex::class,
                         'message' => $ex->getMessage(),
@@ -149,10 +148,7 @@ class UpdateOpenIdConfiguration
         } catch (RepositoryException $exception) {
             $this->error(
                 'Error during Opend ID Provider Update',
-                [
-                    'update_openid_configuration_request' => $request,
-                    'exception' => $exception->getContext(),
-                ]
+                ['exception' => $exception->getContext()]
             );
             $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
 
@@ -161,7 +157,6 @@ class UpdateOpenIdConfiguration
             $this->error(
                 'Error during Opend ID Provider Update',
                 [
-                    'update_openid_configuration_request' => $request,
                     'exception' => [
                         'type' => $ex::class,
                         'message' => $ex->getMessage(),

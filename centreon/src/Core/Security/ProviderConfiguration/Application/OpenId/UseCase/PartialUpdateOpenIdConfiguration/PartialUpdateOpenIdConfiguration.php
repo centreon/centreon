@@ -123,7 +123,6 @@ final class PartialUpdateOpenIdConfiguration
             $this->error(
                 'Unable to perform partial update on OpenID Provider because one or several parameters are invalid',
                 [
-                    'partial_update_openid_configuration_request' => $request,
                     'exception' => [
                         'type' => $ex::class,
                         'message' => $ex->getMessage(),
@@ -139,10 +138,7 @@ final class PartialUpdateOpenIdConfiguration
         } catch (RepositoryException $exception) {
             $this->error(
                 'Error during Opend ID Provider Partial Update',
-                [
-                    'partial_update_openid_configuration_request' => $request,
-                    'exception' => $exception->getContext(),
-                ]
+                ['exception' => $exception->getContext()]
             );
             $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
 
@@ -150,7 +146,6 @@ final class PartialUpdateOpenIdConfiguration
         }
         catch (\Throwable $ex) {
             $this->error('Error during Opend ID Provider Partial Update', [
-                'partial_update_openid_configuration_request' => $request,
                 'exception' => [
                     'type' => $ex::class,
                     'message' => $ex->getMessage(),
