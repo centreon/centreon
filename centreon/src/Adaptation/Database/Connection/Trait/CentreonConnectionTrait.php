@@ -29,11 +29,11 @@ namespace Adaptation\Database\Connection\Trait;
  * @package Adaptation\Database\Connection\Trait
  */
 trait CentreonConnectionTrait {
-    /** @var string Name of the configuration table */
-    private string $centreonDbName;
+    /** @var string Name of the configuration database */
+    private string $centreonDbName = '';
 
-    /** @var string Name of the storage table */
-    private string $storageDbName;
+    /** @var string Name of the storage database */
+    private string $storageDbName = '';
 
     /**
      * @return string
