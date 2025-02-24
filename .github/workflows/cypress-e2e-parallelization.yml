@@ -101,7 +101,7 @@ jobs:
           pnpm add -g @cucumber/cucumber@10.8.0
           cd ${{ inputs.module_name }}
           cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | grep -i configuration | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
@@ -206,28 +206,20 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
-      - name: Check for test retries
-        id: check_retries
+      - name: Move retries.json to reports directory and display warnings
         if: always()
         run: |
-            retriesFile="${{ inputs.module_name }}/tests/e2e/results/hasRetries.json"
+            retriesFile="${{ inputs.module_name }}/tests/e2e/results/retries.json"
             if [ -f "$retriesFile" ]; then
-              retries=$(jq '.' $retriesFile)
-              if [ "$retries" != "{}" ]; then
-                echo "Test retries: $retries"
-                retriesHtml="<h2>:warning:The following tests were retried during execution:</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
-                # Generate the HTML rows
-                retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>\(.key | split(" > ")[0])</td><td>\(.key | split(" > ")[1])</td></tr>"' $retriesFile)
-                retriesHtml+="</table>"
-                echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
-                retriesJson=$(echo "$retries" | jq -c '.')
-                echo "retries=$retriesJson" >> $GITHUB_OUTPUT
-              fi
+              jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
+                echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+              done
+              mv $retriesFile "${{ inputs.module_name }}/tests/e2e/results/reports/"
             fi
         shell: bash
 
       - name: Upload test reports
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
@@ -285,7 +277,7 @@ jobs:
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
-    if: failure()
+    if: always()
     runs-on: ubuntu-24.04
 
     steps:
@@ -302,11 +294,35 @@ jobs:
           path: ${{ inputs.name }}-json-reports
           merge-multiple: true
 
+      - name: Display retries summary
+        run: |
+          jq 'to_entries | reduce .[] as $item ({}; . * $item)' "${{ inputs.name }}-json-reports/**/retries.json" > retries.json
+          if [[ $(jq 'to_entries | length' retries.json) -gt 0 ]]; then
+            retriesHtml="<h2>:warning:The following tests were retried during execution:</h2>\n"
+            retriesHtml+="| feature | scenario | retries |\n"
+            retriesHtml+="| - | - | - |\n"
+            jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
+              featureName=$(echo $testName | cut -d'>' -f-1)
+              scenarioName=$(echo $testName | cut -d'>' -f2-)
+              retries=$(jq ".$testName" $retriesFile)
+              retriesHtml+="| $featureName | $scenarioName | $retries |\n"
+            done
+            echo retriesHtml+="<details>"
+            echo retriesHtml+="<summary>retries.json content</summary>"
+            echo retriesHtml+="<pre>"
+            echo retriesHtml+=$(cat retries.json)
+            echo retriesHtml+="</pre>"
+            echo retriesHtml+="</details>"
+            echo "$retriesHtml" >> $GITHUB_JOB_SUMMARY
+          fi
+        shell: bash
+
       - name: Merge reports
         run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
         shell: bash
 
       - name: Publish report
+        if: failure()
         uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-report

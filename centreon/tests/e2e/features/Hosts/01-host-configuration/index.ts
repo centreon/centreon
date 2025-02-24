@@ -92,6 +92,9 @@ When('a host is configured', () => {
 });
 
 When('the user changes the name of a host to "New Host Name"', () => {
+  if (Cypress.currentRetry === 0) {
+    throw new Error('test retry');
+  }
   cy.navigateTo({
     page: 'Hosts',
     rootItemNumber: 3,
