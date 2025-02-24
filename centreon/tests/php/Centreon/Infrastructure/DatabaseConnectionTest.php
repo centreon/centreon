@@ -28,7 +28,6 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Centreon\Domain\Log\Logger;
 use Centreon\Infrastructure\DatabaseConnection;
 
 /**
@@ -55,6 +54,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
         user: $dbUser,
         password: $dbPassword,
         databaseName: 'centreon',
+        databaseNameStorage: 'centreon_storage',
         port: 3306
     );
 }
@@ -86,14 +86,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     it(
         'test DatabaseConnection : DatabaseConnection constructor',
         function () use ($dbConfigCentreon): void {
-            $db = new DatabaseConnection(
-                new Logger(),
-                $dbConfigCentreon->getHost(),
-                $dbConfigCentreon->getUser(),
-                $dbConfigCentreon->getPassword(),
-                $dbConfigCentreon->getDatabaseName(),
-                $dbConfigCentreon->getPort()
-            );
+            $db = new DatabaseConnection($dbConfigCentreon);
             expect($db)->toBeInstanceOf(DatabaseConnection::class);
             $stmt = $db->prepare("select database()");
             $stmt->execute();

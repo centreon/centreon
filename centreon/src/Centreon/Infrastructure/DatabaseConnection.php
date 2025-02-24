@@ -25,13 +25,10 @@ namespace Centreon\Infrastructure;
 use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
-use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
-use Adaptation\Database\Connection\Trait\CentreonConnectionTrait;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Centreon\Domain\Log\Logger;
-use Psr\Log\LoggerInterface;
 
 /**
  * This class extend the PDO class and can be used to create a database
@@ -44,10 +41,6 @@ use Psr\Log\LoggerInterface;
 class DatabaseConnection extends \PDO implements ConnectionInterface
 {
     use ConnectionTrait;
-    use CentreonConnectionTrait;
-
-    /** @var ConnectionConfig */
-    private ConnectionConfig $connectionConfig;
 
     /**
      * By default, the queries are buffered.
@@ -56,46 +49,17 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      */
     private bool $isBufferedQueryActive = true;
 
-    /** @var LoggerInterface */
-    private LoggerInterface $logger;
-
     /**
      * DatabaseConnection constructor.
      *
-     * @param LoggerInterface $logger
-     * @param string $host
-     * @param string $basename
-     * @param string $login
-     * @param string $password
-     * @param int $port
-     * @param string $charset
-     * @param ConnectionDriverEnum $driver
+     * @param ConnectionConfig $connectionConfig
      *
      * @throws ConnectionException
      */
     public function __construct(
-        LoggerInterface $logger,
-        string $host,
-        string $basename,
-        string $login,
-        string $password,
-        int $port = 3306,
-        string $charset = 'utf8mb4',
-        ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
+        private readonly ConnectionConfig $connectionConfig,
     ) {
         try {
-            $this->logger = $logger;
-
-            $this->connectionConfig = new ConnectionConfig(
-                host: $host,
-                user: $login,
-                password: $password,
-                databaseName: $basename,
-                port: $port,
-                charset: $charset,
-                driver: $driver
-            );
-
             parent::__construct(
                 $this->connectionConfig->getMysqlDsn(),
                 $this->connectionConfig->getUser(),
@@ -107,14 +71,13 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 ]
             );
         } catch (\PDOException $exception) {
-            if ($exception->getCode() === 2002) {
-                $this->writeDbLog(
-                    message: 'Unable to connect to database',
-                    previous: $exception,
-                );
+            $this->writeDbLog(
+                message: "Unable to connect to database : {$exception->getMessage()}",
+                customContext: ['dsn_mysql' => $this->connectionConfig->getMysqlDsn()],
+                previous: $exception,
+            );
 
-                throw ConnectionException::connectionFailed($exception);
-            }
+            throw ConnectionException::connectionFailed($exception);
         }
     }
 
@@ -128,20 +91,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      */
     public static function createFromConfig(ConnectionConfig $connectionConfig): self
     {
-        try {
-            return new self(
-                logger: new Logger(),
-                host: $connectionConfig->getHost(),
-                basename: $connectionConfig->getDatabaseName(),
-                login: $connectionConfig->getUser(),
-                password: $connectionConfig->getPassword(),
-                port: $connectionConfig->getPort(),
-                charset: $connectionConfig->getCharset(),
-                driver: $connectionConfig->getDriver()
-            );
-        } catch (\Throwable $exception) {
-            throw ConnectionException::connectionFailed($exception);
-        }
+        return new self($connectionConfig);
     }
 
     /**
@@ -267,7 +217,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         ":{$queryParameter->getName()}",
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType()) : \PDO::PARAM_STR
+                            ? PdoParameterTypeTransformer::transformFromQueryParameterType(
+                            $queryParameter->getType()
+                        ) : \PDO::PARAM_STR
                     );
                 }
             }
@@ -852,7 +804,9 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         $queryParameter->getName(),
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType()) : \PDO::PARAM_STR
+                            ? PdoParameterTypeTransformer::transformFromQueryParameterType(
+                            $queryParameter->getType()
+                        ) : \PDO::PARAM_STR
                     );
                 }
             }
@@ -921,7 +875,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             ['exception' => $dbExceptionContext]
         );
 
-        $this->logger->critical(
+        Logger::create()->critical(
             "[DatabaseConnection] {$message}",
             $context
         );

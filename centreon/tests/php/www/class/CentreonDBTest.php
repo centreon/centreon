@@ -59,6 +59,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
         user: $dbUser,
         password: $dbPassword,
         databaseName: 'centreon',
+        databaseNameStorage: 'centreon_storage',
         port: 3306
     );
     $dbConfigCentreonStorage = new ConnectionConfig(
@@ -66,6 +67,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
         user: $dbUser,
         password: $dbPassword,
         databaseName: 'centreon_storage',
+        databaseNameStorage: 'centreon_storage',
         port: 3306
     );
 }
