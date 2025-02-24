@@ -17270,6 +17270,9 @@ msgstr "Erreur durant l'ajout d'un groupe d'hôtes"
 msgid "Error while updating a host group"
 msgstr "Erreur lors de la mise à jour d'un groupe d'hôtes"
 
+msgid "Error while duplicating a host group"
+msgstr "Erreur durant la duplication d'un groupe d'hôtes"
+
 msgid "The host group name '%s' already exists"
 msgstr "Le groupe d'hôtes '%s' existe déjà"
 
@@ -19674,7 +19677,6 @@ msgstr "Configuration d'agent"
 msgid "The minimum allowed value is 10"
 msgstr "La valeur minimale autorisée est 10"
 
-
 msgid "Enable/Disable"
 msgstr "Activer / Désactiver"
 
@@ -19773,6 +19775,10 @@ msgstr "Échec de l'activation du groupe d'hôtes"
 
 msgid "Failed to disable the host group"
 msgstr "Échec de la désactivation du groupe d'hôtes"
+
+msgid "Error while enabling/disabling host groups"
+msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
+
 
 msgid "Host group created"
 msgstr "Groupe d'hôtes créé"

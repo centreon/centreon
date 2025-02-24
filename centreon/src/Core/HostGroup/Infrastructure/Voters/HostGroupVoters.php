@@ -35,13 +35,21 @@ final class HostGroupVoters extends Voter
 {
     public const HOSTGROUP_DELETE = 'hostgroup_delete';
     public const HOSTGROUP_LIST = 'hostgroup_list';
+    public const HOSTGROUP_ENABLE_DISABLE = 'hostgroup_enable_disable';
+    public const HOSTGROUP_DUPLICATE = 'hostgroup_duplicate';
+    private const ALLOWED_ATTRIBUTES = [
+        self:HOST_GROUP_LIST,
+        self::HOSTGROUP_DELETE,
+        self::HOSTGROUP_ENABLE_DISABLE,
+        self::HOSTGROUP_DUPLICATE,
+    ];
 
     /**
      * @inheritDoc
      */
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return in_array($attribute, [self::HOSTGROUP_DELETE, self::HOSTGROUP_LIST], true);
+        return in_array($attribute, self::ALLOWED_ATTRIBUTES, true);
     }
 
     /**
@@ -56,14 +64,16 @@ final class HostGroupVoters extends Voter
         }
 
         return match ($attribute) {
-            self::HOSTGROUP_DELETE => $this->checkUserWriteRights($user),
             self::HOSTGROUP_LIST => $this->checkUserReadRights($user),
+            self::HOSTGROUP_DELETE,
+            self::HOSTGROUP_ENABLE_DISABLE,
+            self::HOSTGROUP_DUPLICATE => $this->checkUserWriteRights($user),
             default => false,
         };
     }
 
     /**
-     * Check that user has rights to perform write operations on services.
+     * Check that user has rights to perform write operations on host groups.
      *
      * @param ContactInterface $user
      *
