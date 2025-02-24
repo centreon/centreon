@@ -55,10 +55,13 @@ apt-get update
 #############################
 
 apt-get install -y \
+  apache2 \
   apt-transport-https \
   curl \
   jq \
   python3 \
+  sed \
+  snmpd \
   software-properties-common \
   sudo
 
