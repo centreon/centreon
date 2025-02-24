@@ -137,6 +137,18 @@ interface ReadHostGroupRepositoryInterface
     public function nameAlreadyExists(string $hostGroupName): bool;
 
     /**
+     * Tells whether the host group name already exists by access groups.
+     *
+     * @param string $hostGroupName
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function nameAlreadyExistsByAccessGroups(string $hostGroupName, array $accessGroups): bool;
+
+    /**
      * Find host groups linked to a host (no ACLs).
      *
      * @param int $hostId
@@ -185,4 +197,15 @@ interface ReadHostGroupRepositoryInterface
      * @return bool
      */
     public function hasAccessToAllHostGroups(array $accessGroupIds): bool;
+
+    /**
+     * Find hosts associated with a host group.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findLinkedHosts(int $hostGroupId): array;
 }
