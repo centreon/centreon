@@ -149,3 +149,62 @@ Then('this user can log in to Centreon Web', () => {
     loginViaApi: false
   });
 });
+
+Given('the ldap user has rights to access the contacts listing page', () => {
+  cy.navigateTo({
+    page: 'Access Groups',
+    rootItemNumber: 4,
+    subMenu: 'ACL'
+  });
+  cy.wait('@getTimeZone');
+  cy.getIframeBody().contains('a', 'ALL').click();
+  cy.waitForElementInIframe('#main-content', 'input[name="acl_group_name"]');
+  cy.getIframeBody().find('select#cg_contacts-f')
+  .select(ldapLogin);
+  cy.getIframeBody().find('input[name="add"]').eq(0).click();
+  cy.getIframeBody().find('input[name="submitC"]').eq(0).click();
+  cy.exportConfig();
+  cy.visit('/');
+  cy.navigateTo({
+    page: 'Menus Access',
+    rootItemNumber: 4,
+    subMenu: 'ACL'
+  });
+  cy.wait('@getTimeZone');
+  cy.getIframeBody().contains('a', 'Add').eq(0).click();
+  cy.waitForElementInIframe('#main-content', 'input[name="acl_topo_name"]');
+  cy.getIframeBody().find('input[name="acl_topo_name"]').type('action');
+  cy.getIframeBody().find('select#acl_groups-f')
+  .select('ALL');
+  cy.getIframeBody().find('input[name="add"]').eq(0).click();
+  cy.getIframeBody().find('input[name="acl_r_topos[6]"]').click({force: true});
+  cy.getIframeBody().find('#img_3').click();
+  cy.getIframeBody().find('#img_3_2').click();
+  cy.getIframeBody().find('input[name="acl_r_topos[84]"][value="1"]')
+  .check();
+  cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
+  cy.exportConfig();
+});
+
+When('the ldap user goes to the contacts listing page', () => {
+  cy.navigateTo({
+    page: 'Contacts / Users',
+    rootItemNumber: 0,
+    subMenu: 'Users'
+  });
+  cy.wait('@getTimeZone');
+});
+
+Then('the ldap user cannot update the contact dn', () => {
+  cy.getIframeBody().contains('a', ldapLogin).click();
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
+  cy.getIframeBody().contains('a', 'Centreon Authentication').click();
+  cy.get('body').click(0, 0);
+  cy.getIframeBody().find('input#contact_ldap_dn')
+  .should('have.attr', 'type', 'hidden');
+});
+
+Then('the ldap user cannot update the contact password', () => {
+  cy.getIframeBody().find('input#paswd1').should('not.exist');
+});
