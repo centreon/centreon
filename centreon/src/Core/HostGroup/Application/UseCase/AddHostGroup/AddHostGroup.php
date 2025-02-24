@@ -105,7 +105,14 @@ final class AddHostGroup
             $this->linkHostGroupToRessourceAccess($request->resourceAccessRules, $newHostGroupId);
             $this->storageEngine->commitTransaction();
 
-            return new AddHostGroupResponse($hostGroup);
+            $linkedHosts = $this->readHostRepository->findByHostGroup($newHostGroupId);
+            $linkedResourceAccessRules = array_map(
+                fn (int $ruleId) => $this->readResourceAccessRepository->findById($ruleId),
+                $request->resourceAccessRules
+            );
+
+            dd($linkedHosts);
+            return new AddHostGroupResponse($hostGroup, $linkedHosts, $linkedResourceAccessRules);
         } catch (HostGroupException|HostException|RuleException|AssertionFailedException $ex) {
             $this->error(
                 "Error while adding host groups : {$ex->getMessage()}",

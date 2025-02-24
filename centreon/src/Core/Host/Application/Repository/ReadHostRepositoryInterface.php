@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Host\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\SimpleEntity;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
 use Core\Host\Domain\Model\SmallHost;
@@ -168,4 +169,14 @@ interface ReadHostRepositoryInterface
      * @return Host[]
      */
     public function findAll(): array;
+
+    /**
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return SimpleEntity[]
+     */
+    public function findByHostGroup(int $hostGroupId): array;
 }

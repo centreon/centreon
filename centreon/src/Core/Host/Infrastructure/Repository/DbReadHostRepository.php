@@ -31,6 +31,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostType;
+use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -920,5 +921,43 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         }
 
         return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostGroup(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT host_id, host_name FROM host
+                INNER JOIN hostgroup_relation
+                WHERE hostgroup_hg_id = :hostGroupId
+                AND host.host_register = '1'
+                SQL
+        ));
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $hostsByHostGroup = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $hostsByHostGroup[] = $this->createSimpleEntity($result['host_id'], $result['host_name']);
+        }
+
+        return $hostsByHostGroup;
+    }
+
+    /**
+     * @param int $id
+     * @param string $name
+     *
+     * @return SimpleEntity
+     *
+     * @throws AssertionFailedException
+     */
+    private function createSimpleEntity(int $id, string $name): SimpleEntity
+    {
+        return new SimpleEntity($id, new TrimmedString($name), 'Host');
     }
 }
