@@ -25,21 +25,14 @@ namespace Core\HostGroup\Infrastructure\API\AddHostGroup;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Infrastructure\FeatureFlags;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroup;
-use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
 use Core\HostGroup\Infrastructure\Voters\HostGroupVoters;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 #[IsGranted(
     HostGroupVoters::HOSTGROUP_ADD,

@@ -27,10 +27,14 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
+    InvalidArgumentResponse,
+    ResponseStatusInterface
+};
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
+use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\{
@@ -38,6 +42,7 @@ use Core\HostGroup\Application\Repository\{
     WriteHostGroupRepositoryInterface
 };
 use Core\HostGroup\Domain\Model\NewHostGroup;
+use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\{
     ReadResourceAccessRepositoryInterface,
     WriteResourceAccessRepositoryInterface
@@ -70,9 +75,8 @@ final class AddHostGroup
 
     /**
      * @param AddHostGroupRequest $request
-     * @param AddHostGroupPresenterInterface $presenter
      */
-    public function __invoke(AddHostGroupRequest $request,): AddHostGroupResponse|ResponseStatusInterface
+    public function __invoke(AddHostGroupRequest $request): AddHostGroupResponse|ResponseStatusInterface
     {
         try {
             $this->validator->assertNameDoesNotAlreadyExists($request->name);
@@ -102,18 +106,39 @@ final class AddHostGroup
             $this->storageEngine->commitTransaction();
 
             return new AddHostGroupResponse($hostGroup);
-        } catch (AssertionFailedException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            return new ErrorResponse($ex);
-        } catch (HostGroupException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            return new ErrorResponse($ex);
+        } catch (HostGroupException|HostException|RuleException|AssertionFailedException $ex) {
+            $this->error(
+                "Error while adding host groups : {$ex->getMessage()}",
+                [
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
+
+
+            return new InvalidArgumentResponse($ex);
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while adding host groups : {$ex->getMessage()}",
+                [
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
+
             return new ErrorResponse($ex);
         }
     }
 
+    /**
+     * Link Host Groups to Ressource Access
+     *      For On Prem: Host Groups are linked to Ressource Access Groups
+     *      For Cloud: Host Groups are added to Datasets's Resource Access Rules,
+     *          only if the dataset Hostgroup has no parent
+     *
+     * @param array $resourceAccessRuleIds
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     */
     private function linkHostGroupToRessourceAccess(array $resourceAccessRuleIds, int $hostGroupId): void
     {
         if ($this->isCloudPlatform) {
@@ -123,6 +148,14 @@ final class AddHostGroup
         }
     }
 
+    /**
+     * Link Host groups to Datasets's Resource Access Rules, only if the dataset Hostgroup has no parent
+     *
+     * @param int[] $resourceAccessRuleIds
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     */
     private function linkHostGroupToRAM(array $resourceAccessRuleIds, int $hostGroupId): void
     {
         $datasetFilters = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
@@ -137,6 +170,13 @@ final class AddHostGroup
 
     }
 
+    /**
+     * Link Host Groups to user Resource Access Groups
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     */
     private function linkHostGroupToResourcesACL(int $hostGroupId): void
     {
         if (! $this->user->isAdmin()) {

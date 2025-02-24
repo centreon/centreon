@@ -26,11 +26,14 @@ namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
+use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Throwable;
 
 final class AddHostGroupValidator
 {
@@ -60,6 +63,12 @@ final class AddHostGroupValidator
         }
     }
 
+    /**
+     * Assert that given host ids exists (filtered by access groups for non admin users)
+     *
+     * @param int[] $hostIds
+     * @throws Throwable|HostException
+     */
     public function assertHostsExist(array $hostIds): void
     {
         $unexistentHosts = $this->user->isAdmin()
@@ -76,13 +85,21 @@ final class AddHostGroupValidator
                 'Some hosts are not accessible by the user, they will not be linked to the host group.',
                 ['unexistentHosts' => $unexistentHosts]
             );
-            throw new HostGroupException(
-                'Some hosts are not accessible by the user, they will not be linked to the host group.',
 
-            );
+            throw HostException::idsDoNotExist('hosts', $unexistentHosts);
         }
     }
 
+    /**
+     * Assert That given Resource Access Rule IDs exists.
+     *      - Check that ids globally exists
+     *      - Check that ids exists for the contact
+     *      - Check that ids exists for the contact contact groups.
+     *
+     * @param int[] $resourceAccessRuleIds
+     *
+     * @throws RuleException
+     */
     public function assertResourceAccessRulesExist(array $resourceAccessRuleIds): void
     {     // Add Link between RAM rule and HG
         $unexistentAccessRules = array_diff(
@@ -91,7 +108,7 @@ final class AddHostGroupValidator
         );
 
         if (! empty($unexistentAccessRules)) {
-            throw new \Exception('Some rules do not exist');
+            throw RuleException::idsDoNotExist('rules', $unexistentAccessRules);
         }
 
         $existentRulesByContact = $this->readResourceAccessRepository->existByContact($this->user->getId());
@@ -100,11 +117,11 @@ final class AddHostGroupValidator
         );
 
         $existentRules = array_unique(
-            array_merge($resourceAccessRuleIds, $existentRulesByContact, $existentRulesByContactGroup)
+            array_merge($existentRulesByContact, $existentRulesByContactGroup)
         );
 
-        if ([] === array_intersect($existentRules, $resourceAccessRuleIds)) {
-            throw new \Exception('Some rules do not exist');
+        if ([] !== $unexistentAccessRulesByContact = array_diff($resourceAccessRuleIds, $existentRules)) {
+            throw RuleException::idsDoNotExist('rules', $unexistentAccessRulesByContact);
         }
     }
 }
