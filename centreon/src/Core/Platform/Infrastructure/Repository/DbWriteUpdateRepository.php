@@ -154,7 +154,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     {
         $upgradeFilePath = $this->installDir . '/sql/centreon/Update-DB-' . $version . '.sql';
         if (is_readable($upgradeFilePath)) {
-            $this->db->switchToDb($this->db->getCentreonDbName());
+            $this->db->switchToDb($this->db->getConnectionConfig()->getDatabaseName());
             $this->runSqlFile($upgradeFilePath);
         }
     }
