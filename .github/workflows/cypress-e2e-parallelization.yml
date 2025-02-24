@@ -295,7 +295,7 @@ jobs:
           merge-multiple: true
 
       - name: Merge reports
-        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
         shell: bash
 
       - name: Publish report
