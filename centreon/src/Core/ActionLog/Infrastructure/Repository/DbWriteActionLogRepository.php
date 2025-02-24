@@ -125,7 +125,7 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
                 ]);
             }
 
-            $this->db->batchInsert(
+            $this->connection->batchInsert(
                 $this->translateDbName('`:dbstg`.`log_action_modification`'),
                 ['`field_name`', '`field_value`', '`action_log_id`'],
                 BatchInsertParameters::create($batchQueryParameters)
