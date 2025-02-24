@@ -214,7 +214,7 @@ jobs:
               jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
                 echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
               done
-              mv $retriesFile "${{ inputs.module_name }}/tests/e2e/results/reports/"
+              mv $retriesFile "${{ inputs.module_name }}/tests/e2e/results/reports/${{ steps.feature-path.outputs.feature_name_with_dash }}-retries.json"
             fi
         shell: bash
 
@@ -294,9 +294,22 @@ jobs:
           path: ${{ inputs.name }}-json-reports
           merge-multiple: true
 
+      - name: Merge reports
+        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+        shell: bash
+
+      - name: Publish report
+        if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          check_name: ${{ inputs.name }}-report
+          path: mochawesome.json
+          format: cypress
+          urlFilePrefix: centreon
+
       - name: Display retries summary
         run: |
-          jq 'to_entries | reduce .[] as $item ({}; . * $item)' ${{ inputs.name }}-json-reports/**/retries.json > retries.json
+          jq 'to_entries | reduce .[] as $item ({}; . * $item)' ${{ inputs.name }}-json-reports/**/*-retries.json > retries.json
           if [[ $(jq 'to_entries | length' retries.json) -gt 0 ]]; then
             retriesHtml="<h2>:warning:The following tests were retried during execution:</h2>\n"
             retriesHtml+="| feature | scenario | retries |\n"
@@ -316,19 +329,6 @@ jobs:
             echo "$retriesHtml" >> $GITHUB_JOB_SUMMARY
           fi
         shell: bash
-
-      - name: Merge reports
-        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
-        shell: bash
-
-      - name: Publish report
-        if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          check_name: ${{ inputs.name }}-report
-          path: mochawesome.json
-          format: cypress
-          urlFilePrefix: centreon
 
   regroup-artifacts:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]

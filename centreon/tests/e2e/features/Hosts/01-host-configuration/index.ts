@@ -142,6 +142,9 @@ Then('a new host is created with identical fields', () => {
 });
 
 When('the user deletes the host', () => {
+  if (Cypress.currentRetry === 0) {
+    throw new Error('test retry');
+  }
   cy.navigateTo({
     page: 'Hosts',
     rootItemNumber: 3,
