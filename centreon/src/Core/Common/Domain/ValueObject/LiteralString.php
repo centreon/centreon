@@ -30,8 +30,6 @@ use Core\Common\Domain\Exception\ValueObjectException;
  *
  * @class   LiteralString
  * @package Core\Common\Domain\ValueObject
- * @implements ValueObjectInterface
- * @phpstan-consistent-constructor
  */
 readonly class LiteralString implements ValueObjectInterface
 {
@@ -77,7 +75,7 @@ readonly class LiteralString implements ValueObjectInterface
     /**
      * @return LiteralString
      */
-    public function toUpperCase(): static
+    public function toUpperCase(): LiteralString
     {
         return new static(mb_strtoupper($this->value));
     }
@@ -85,7 +83,7 @@ readonly class LiteralString implements ValueObjectInterface
     /**
      * @return LiteralString
      */
-    public function toLowerCase(): static
+    public function toLowerCase(): LiteralString
     {
         return new static(mb_strtolower($this->value));
     }
@@ -126,7 +124,7 @@ readonly class LiteralString implements ValueObjectInterface
      *
      * @return LiteralString
      */
-    public function replace(string $search, string $replace): static
+    public function replace(string $search, string $replace): LiteralString
     {
         return new static(str_replace($search, $replace, $this->value));
     }
@@ -134,7 +132,7 @@ readonly class LiteralString implements ValueObjectInterface
     /**
      * @return LiteralString
      */
-    public function trim(): static
+    public function trim(): LiteralString
     {
         return new static(trim($this->value));
     }
@@ -144,7 +142,7 @@ readonly class LiteralString implements ValueObjectInterface
      *
      * @return LiteralString
      */
-    public function append(string $value): static
+    public function append(string $value): LiteralString
     {
         return new static($this->value . $value);
     }

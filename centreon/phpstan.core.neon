@@ -124,4 +124,9 @@ parameters:
             paths:
                 - src/Adaptation
                 - src/Core/Common/Infrastructure/RequestParameters/Transformer
+        - # Unsafe usage of new static(). Unblock usage of value object.
+            reportUnmatched: false
+            message: '#Unsafe usage of new static#'
+            paths:
+                - src/Core/Common/Domain/ValueObject
 
