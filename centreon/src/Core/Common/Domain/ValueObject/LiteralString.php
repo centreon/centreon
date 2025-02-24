@@ -75,7 +75,7 @@ readonly class LiteralString implements ValueObjectInterface
     /**
      * @return LiteralString
      */
-    public function toUpperCase(): LiteralString
+    public function toUpperCase(): self
     {
         return new static(mb_strtoupper($this->value));
     }
@@ -83,7 +83,7 @@ readonly class LiteralString implements ValueObjectInterface
     /**
      * @return LiteralString
      */
-    public function toLowerCase(): LiteralString
+    public function toLowerCase(): self
     {
         return new static(mb_strtolower($this->value));
     }
@@ -124,7 +124,7 @@ readonly class LiteralString implements ValueObjectInterface
      *
      * @return LiteralString
      */
-    public function replace(string $search, string $replace): LiteralString
+    public function replace(string $search, string $replace): self
     {
         return new static(str_replace($search, $replace, $this->value));
     }
@@ -132,7 +132,7 @@ readonly class LiteralString implements ValueObjectInterface
     /**
      * @return LiteralString
      */
-    public function trim(): LiteralString
+    public function trim(): self
     {
         return new static(trim($this->value));
     }
@@ -142,7 +142,7 @@ readonly class LiteralString implements ValueObjectInterface
      *
      * @return LiteralString
      */
-    public function append(string $value): LiteralString
+    public function append(string $value): self
     {
         return new static($this->value . $value);
     }
