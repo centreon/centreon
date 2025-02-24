@@ -34,76 +34,86 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include_once _CENTREON_PATH_ . "www/class/centreonGMT.class.php";
-
-include("./include/common/autoNumLimit.php");
+require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
+require_once _CENTREON_PATH_ . 'www/include/common/sqlCommonFunction.php';
+require_once './include/common/autoNumLimit.php';
 
 $search_service = null;
 $host_name = null;
 $search_output = null;
-$view_all = 0;
-$view_downtime_cycle = 0;
+$canViewAll = false;
+$canViewDowntimeCycle = false;
+$serviceType = 1;
+$hostType = 2;
 
 if (isset($_POST['SearchB'])) {
     $centreon->historySearch[$url] = [];
+
     $search_service = isset($_POST['search_service'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_service'])
-        : null;
-    $centreon->historySearch[$url]["search_service"] = $search_service;
-    $host_name = isset($_POST['search_host'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_host'])
-        : null;
-    $centreon->historySearch[$url]["search_host"] = $host_name;
-    $search_output = isset($_POST['search_output'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_output'])
-        : null;
-    $centreon->historySearch[$url]["search_output"] = $search_output;
-    $search_author = isset($_POST['search_author'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['search_author'])
-        : null;
-    $centreon->historySearch[$url]["search_author"] = $search_author;
-    $view_all = isset($_POST["view_all"]) ? 1 : 0;
-    $centreon->historySearch[$url]["view_all"] = $view_all;
-    $view_downtime_cycle = isset($_POST["view_downtime_cycle"]) ? 1 : 0;
-    $centreon->historySearch[$url]["view_downtime_cycle"] = $view_downtime_cycle;
-} elseif (isset($_GET['SearchB'])) {
-    $centreon->historySearch[$url] = [];
-    $search_service = isset($_GET['search_service'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_service'])
+        ? HtmlSanitizer::createFromString($_POST['search_service'])->removeTags()->getString()
         : null;
     $centreon->historySearch[$url]['search_service'] = $search_service;
+
+    $host_name = isset($_POST['search_host'])
+        ? HtmlSanitizer::createFromString($_POST['search_host'])->removeTags()->getString()
+        : null;
+    $centreon->historySearch[$url]['search_host'] = $host_name;
+
+    $search_output = isset($_POST['search_output'])
+        ? HtmlSanitizer::createFromString($_POST['search_output'])->removeTags()->getString()
+        : null;
+    $centreon->historySearch[$url]['search_output'] = $search_output;
+
+    $search_author = isset($_POST['search_author'])
+        ? HtmlSanitizer::createFromString($_POST['search_author'])->removeTags()->getString()
+        : null;
+    $centreon->historySearch[$url]['search_author'] = $search_author;
+
+    $canViewAll = isset($_POST['view_all']) ? true : false;
+    $centreon->historySearch[$url]['view_all'] = $canViewAll;
+    $canViewDowntimeCycle = isset($_POST['view_downtime_cycle']) ? true : false;
+    $centreon->historySearch[$url]['view_downtime_cycle'] = $canViewDowntimeCycle;
+} elseif (isset($_GET['SearchB'])) {
+    $centreon->historySearch[$url] = [];
+
+    $search_service = isset($_GET['search_service'])
+        ? HtmlSanitizer::createFromString($_GET['search_service'])->removeTags()->getString()
+        : null;
+    $centreon->historySearch[$url]['search_service'] = $search_service;
+
     $host_name = isset($_GET['search_host'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_host'])
+        ? HtmlSanitizer::createFromString($_GET['search_host'])->removeTags()->getString()
         : null;
-    $centreon->historySearch[$url]["search_host"] = $host_name;
+    $centreon->historySearch[$url]['search_host'] = $host_name;
+
     $search_output = isset($_GET['search_output'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_output'])
+        ? HtmlSanitizer::createFromString($_GET['search_output'])->removeTags()->getString()
         : null;
-    $centreon->historySearch[$url]["search_output"] = $search_output;
+    $centreon->historySearch[$url]['search_output'] = $search_output;
+
     $search_author = isset($_GET['search_author'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search_author'])
+        ? HtmlSanitizer::createFromString($_GET['search_author'])->removeTags()->getString()
         : null;
-    $centreon->historySearch[$url]["search_author"] = $search_author;
-    $view_all = isset($_GET["view_all"]) ? 1 : 0;
-    $centreon->historySearch[$url]["view_all"] = $view_all;
-    $view_downtime_cycle = isset($_GET["view_downtime_cycle"]) ? 1 : 0;
-    $centreon->historySearch[$url]["view_downtime_cycle"] = $view_downtime_cycle;
+    $centreon->historySearch[$url]['search_author'] = $search_author;
+
+    $canViewAll = isset($_GET['view_all']) ? true : false;
+    $centreon->historySearch[$url]['view_all'] = $canViewAll;
+    $canViewDowntimeCycle = isset($_GET['view_downtime_cycle']) ? true : false;
+    $centreon->historySearch[$url]['view_downtime_cycle'] = $canViewDowntimeCycle;
 } else {
     $search_service = $centreon->historySearch[$url]['search_service'] ?? null;
-    $host_name = $centreon->historySearch[$url]["search_host"] ?? null;
-    $search_output = $centreon->historySearch[$url]["search_output"] ?? null;
-    $search_author = $centreon->historySearch[$url]["search_author"] ?? null;
-    $view_all = $centreon->historySearch[$url]["view_all"] ?? 0;
-    $view_downtime_cycle = $centreon->historySearch[$url]["view_downtime_cycle"] ?? 0;
+    $host_name = $centreon->historySearch[$url]['search_host'] ?? null;
+    $search_output = $centreon->historySearch[$url]['search_output'] ?? null;
+    $search_author = $centreon->historySearch[$url]['search_author'] ?? null;
+    $canViewAll = $centreon->historySearch[$url]['view_all'] ?? false;
+    $canViewDowntimeCycle = $centreon->historySearch[$url]['view_downtime_cycle'] ?? false;
 }
 
-/*
- * Init GMT class
- */
+// Init GMT class
 $centreonGMT = new CentreonGMT($pearDB);
 $centreonGMT->getMyGMTFromSession(session_id());
 
@@ -113,7 +123,7 @@ $centreonGMT->getMyGMTFromSession(session_id());
  */
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
-include_once "./class/centreonDB.class.php";
+include_once './class/centreonDB.class.php';
 
 $kernel = \App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
@@ -123,116 +133,168 @@ $resourceController = $kernel->getContainer()->get(
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate('./include/monitoring/downtime/', 'template/');
 
-$form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'GET', '?p=' . $p);
 
 $tab_downtime_svc = [];
 
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'SearchB', _('Search'), $attrBtnSuccess);
 
-$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
-
-//Service Downtimes
-if ($view_all == 1) {
-    $downtimeTable = "downtimehistory";
-    $extrafields = ", actual_end_time, cancelled as was_cancelled ";
-} else {
-    $downtimeTable = "scheduleddowntime";
-    $extrafields = "";
-}
-/*------------------ BAM ------------------*/
+// ------------------ BAM ------------------
 $tab_service_bam = [];
-$request = "SELECT id FROM modules_informations WHERE name = 'centreon-bam-server';";
-$DBRESULT = $pearDB->query($request);
-if ($DBRESULT->rowCount()) {
-    $request = "SELECT CONCAT('ba_',ba_id) AS id, ba_id, name FROM mod_bam";
-    $DBRESULT = $pearDB->query($request);
+$result = $pearDB->executeQuery("SELECT id FROM modules_informations WHERE name = 'centreon-bam-server'");
 
-    while ($elem = $DBRESULT->fetchRow()) {
+if ($result->rowCount()) {
+    $result = $pearDB->executeQuery("SELECT CONCAT('ba_', ba_id) AS id, ba_id, name FROM mod_bam");
+
+    while ($elem = $result->fetchRow()) {
         $tab_service_bam[$elem['id']] = ['name' => $elem['name'], 'id' => $elem['ba_id']];
     }
 }
 
-/* --------------- Services ---------------*/
-$request = "(SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
+// Service Downtimes
+$extraFields = '';
+if ($canViewAll) {
+    $extraFields = ', actual_end_time, cancelled as was_cancelled ';
+}
+
+$bindValues = [
+    ':offset' => [$num * $limit, PDO::PARAM_INT],
+    ':limit' => [$limit, PDO::PARAM_INT],
+];
+$serviceAclSubRequest = '';
+$hostAclSubRequest = '';
+
+if (! $is_admin) {
+    if ($centreon->user->access->getAccessGroups() !== []) {
+        [$aclBindValues, $aclQuery] = createMultipleBindQuery($centreon->user->access->getAccessGroups(), 'group_id');
+        $bindValues = array_merge($bindValues, $aclBindValues);
+    } else {
+        $aclQuery = '-1';
+    }
+    $serviceAclSubRequest = <<<SQL
+
+        INNER JOIN centreon_acl acl
+            ON acl.host_id = s.host_id
+            AND acl.service_id = s.service_id
+            AND acl.group_id IN ({$aclQuery})
+        SQL;
+
+    $hostAclSubRequest = <<<SQL
+
+        INNER JOIN centreon_acl acl
+            ON acl.host_id = h.host_id
+            AND acl.service_id IS NULL
+            AND acl.group_id IN ({$aclQuery})
+        SQL;
+}
+
+$subQueryConditionCancelled = (! $canViewAll) ? ' AND d.cancelled = 0 ' : '';
+
+$subQueryConditionSearchService = '';
+if (isset($search_service) && $search_service !== '') {
+    $subQueryConditionSearchService = 'AND s.description LIKE :service ';
+    $bindValues[':service'] = ['%' . $search_service . '%', PDO::PARAM_STR];
+}
+
+$subQueryConditionSearchOutput = '';
+if (isset($search_output) && $search_output !== '') {
+    $subQueryConditionSearchOutput = 'AND d.comment_data LIKE :output ';
+    $bindValues[':output'] = ['%' . $search_output . '%', PDO::PARAM_STR];
+} elseif ($canViewDowntimeCycle === false) {
+    $subQueryConditionSearchOutput = " AND d.comment_data NOT LIKE '%Downtime cycle%' ";
+}
+
+$subQueryConditionSearchAuthor = '';
+if (isset($search_author) && $search_author !== '') {
+    $subQueryConditionSearchAuthor = 'AND d.author LIKE :author ';
+    $bindValues[':author'] = ['%' . $search_author . '%', PDO::PARAM_STR];
+}
+
+$subQueryConditionSearchHost = '';
+if (isset($host_name) && $host_name !== '') {
+    $subQueryConditionSearchHost = 'AND h.name LIKE :host ';
+    $bindValues[':host'] = ['%' . $host_name . '%', PDO::PARAM_STR];
+}
+
+$subQueryConditionSearchEndTime = '';
+if ($canViewAll === false) {
+    $subQueryConditionSearchEndTime = 'AND d.end_time > :end_time ';
+    $bindValues[':end_time'] = [time(), PDO::PARAM_INT];
+}
+
+$serviceQuery = <<<SQL
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+        1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
         d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
         d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
-        s.description as service_description " . $extrafields . " " .
-    "FROM downtimes d, services s, hosts h " . ($is_admin ? "" : ", centreon_acl acl ") .
-    "WHERE d.host_id = s.host_id " .
-    "AND d.service_id = s.service_id " .
-    "AND s.host_id = h.host_id " .
-    "AND d.type = 1 ";
-if (!$view_all) {
-    $request .= " AND d.cancelled = 0 ";
-}
-if (!$is_admin) {
-    $request .= " AND s.host_id = acl.host_id AND s.service_id = acl.service_id AND group_id IN (" .
-        $centreon->user->access->getAccessGroupsString() . ") ";
-}
-$request .= "AND s.description LIKE :service " .
-    "AND h.name LIKE :host " .
-    "AND d.comment_data LIKE :output " .
-    (isset($view_all) && $view_all == 0 ? "AND d.end_time > '" . time() . "' " : "") .
-    (
-        isset($view_downtime_cycle) && $view_downtime_cycle == 0
-            ? " AND d.comment_data NOT LIKE '%Downtime cycle%' "
-            : ""
-    ) .
-    " AND d.author LIKE :author";
+        s.description as service_description {$extraFields}
+    FROM downtimes d
+    INNER JOIN services s
+        ON d.host_id = s.host_id
+        AND d.service_id = s.service_id
+    INNER JOIN hosts h
+        ON h.host_id = s.host_id
+    {$serviceAclSubRequest}
+    WHERE d.type = {$serviceType}
+        {$subQueryConditionCancelled}
+        {$subQueryConditionSearchService}
+        {$subQueryConditionSearchOutput}
+        {$subQueryConditionSearchAuthor}
+        {$subQueryConditionSearchHost}
+        {$subQueryConditionSearchEndTime}
+    SQL;
 
-/* --------------- Hosts --------------- */
-$request .= ") UNION (SELECT DISTINCT 1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
-  d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
-  d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
-   '' as service_description " . $extrafields .
-    "FROM downtimes d, hosts h " . ($is_admin ? "" : ", centreon_acl acl ") . " " .
-    "WHERE d.host_id = h.host_id AND d.type = 2 ";
-if (!$view_all) {
-    $request .= " AND d.cancelled = 0 ";
-}
-if (!$is_admin) {
-    $request .= " AND h.host_id = acl.host_id AND acl.service_id IS NULL AND group_id IN (" .
-        $centreon->user->access->getAccessGroupsString() . ") ";
-}
-$request .= (isset($search_service) && $search_service != "" ? "AND 1 = 0 " : "") .
-    "AND h.name LIKE :host " .
-    "AND d.comment_data LIKE :output " .
-    (isset($view_all) && $view_all == 0 ? "AND d.end_time > '" . time() . "' " : "") .
-    (isset($view_downtime_cycle) && $view_downtime_cycle == 0 ?
-        " AND d.comment_data NOT LIKE '%Downtime cycle%' " : "") .
-    " AND d.author LIKE :author" .
-    ") ORDER BY scheduled_start_time DESC " .
-    "LIMIT :offset, :limit";
-$downtimesStatement = $pearDBO->prepare($request);
-$downtimesStatement->bindValue(':service', '%' . $search_service . '%', \PDO::PARAM_STR);
-$downtimesStatement->bindValue(':host', '%' . $host_name . '%', \PDO::PARAM_STR);
-$downtimesStatement->bindValue(':output', '%' . $search_output . '%', \PDO::PARAM_STR);
-$downtimesStatement->bindValue(':author', '%' . $search_author . '%', \PDO::PARAM_STR);
-$downtimesStatement->bindValue(':offset', $num * $limit, \PDO::PARAM_INT);
-$downtimesStatement->bindValue(':limit', $limit, \PDO::PARAM_INT);
-$downtimesStatement->execute();
+$hostQuery = <<<SQL
+    SELECT DISTINCT
+        1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
+        d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
+        d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
+        '' as service_description {$extraFields}
+    FROM downtimes d
+    INNER JOIN hosts h
+        ON d.host_id = h.host_id
+    {$hostAclSubRequest}
+    WHERE d.type = {$hostType}
+        {$subQueryConditionCancelled}
+        {$subQueryConditionSearchOutput}
+        {$subQueryConditionSearchAuthor}
+        {$subQueryConditionSearchHost}
+        {$subQueryConditionSearchEndTime}
+    SQL;
 
-$rows = $pearDBO->query("SELECT FOUND_ROWS() AS REALTIME")->fetchColumn();
+$unionQuery = <<<SQL
+    ({$serviceQuery})
+    UNION
+    ({$hostQuery})
+    ORDER BY scheduled_start_time DESC
+    LIMIT :offset, :limit
+    SQL;
 
-for ($i = 0; $data = $downtimesStatement->fetchRow(); $i++) {
+$downtimesStatement = $pearDBO->prepareQuery($unionQuery);
+$pearDBO->executePreparedQuery($downtimesStatement, $bindValues, true);
+
+$rows = $pearDBO->fetchColumn($pearDBO->executeQuery('SELECT FOUND_ROWS() AS REALTIME'));
+
+for ($i = 0; $data = $pearDBO->fetch($downtimesStatement); $i++) {
     $tab_downtime_svc[$i] = $data;
 
-    $tab_downtime_svc[$i]['comment_data'] =
-        CentreonUtils::escapeAllExceptSelectedTags($data['comment_data']);
+    $tab_downtime_svc[$i]['comment_data']
+        = CentreonUtils::escapeAllExceptSelectedTags($data['comment_data']);
 
-    $tab_downtime_svc[$i]['scheduled_start_time'] = $tab_downtime_svc[$i]["scheduled_start_time"] . " ";
-    $tab_downtime_svc[$i]['scheduled_end_time'] = $tab_downtime_svc[$i]["scheduled_end_time"] . " ";
+    $tab_downtime_svc[$i]['scheduled_start_time'] = $tab_downtime_svc[$i]['scheduled_start_time'] . ' ';
+    $tab_downtime_svc[$i]['scheduled_end_time'] = $tab_downtime_svc[$i]['scheduled_end_time'] . ' ';
 
     if (preg_match('/_Module_BAM_\d+/', $data['host_name'])) {
         $tab_downtime_svc[$i]['host_name'] = 'Module BAM';
-        $tab_downtime_svc[$i]['h_details_uri'] = "./main.php?p=207&o=d&ba_id="
+        $tab_downtime_svc[$i]['h_details_uri'] = './main.php?p=207&o=d&ba_id='
             . $tab_service_bam[$data['service_description']]['id'];
-        $tab_downtime_svc[$i]['s_details_uri'] = "./main.php?p=207&o=d&ba_id="
+        $tab_downtime_svc[$i]['s_details_uri'] = './main.php?p=207&o=d&ba_id='
             . $tab_service_bam[$data['service_description']]['id'];
         $tab_downtime_svc[$i]['service_description'] = $tab_service_bam[$data['service_description']]['name'];
         $tab_downtime_svc[$i]['downtime_type'] = 'SVC';
-        if ($tab_downtime_svc[$i]['author_name'] == 'Centreon Broker BAM Module') {
-            $tab_downtime_svc[$i]['scheduled_end_time'] = "Automatic";
+        if ($tab_downtime_svc[$i]['author_name'] === 'Centreon Broker BAM Module') {
+            $tab_downtime_svc[$i]['scheduled_end_time'] = 'Automatic';
             $tab_downtime_svc[$i]['duration'] = 'Automatic';
         }
     } else {
@@ -260,69 +322,66 @@ for ($i = 0; $data = $downtimesStatement->fetchRow(); $i++) {
 }
 unset($data);
 
-include("./include/common/checkPagination.php");
+include './include/common/checkPagination.php';
 
-$en = ["0" => _("No"), "1" => _("Yes")];
+$en = ['0' => _('No'), '1' => _('Yes')];
 foreach ($tab_downtime_svc as $key => $value) {
-    $tab_downtime_svc[$key]["is_fixed"] = $en[$tab_downtime_svc[$key]["is_fixed"]];
-    $tab_downtime_svc[$key]["was_started"] = $en[$tab_downtime_svc[$key]["was_started"]];
-    if ($view_all == 1) {
-        if (!isset($tab_downtime_svc[$key]["actual_end_time"]) || !$tab_downtime_svc[$key]["actual_end_time"]) {
-            if ($tab_downtime_svc[$key]["was_cancelled"] == 0) {
-                $tab_downtime_svc[$key]["actual_end_time"] = _("N/A");
+    $tab_downtime_svc[$key]['is_fixed'] = $en[$tab_downtime_svc[$key]['is_fixed']];
+    $tab_downtime_svc[$key]['was_started'] = $en[$tab_downtime_svc[$key]['was_started']];
+    if ($canViewAll) {
+        if (! isset($tab_downtime_svc[$key]['actual_end_time']) || ! $tab_downtime_svc[$key]['actual_end_time']) {
+            if ($tab_downtime_svc[$key]['was_cancelled'] === 0) {
+                $tab_downtime_svc[$key]['actual_end_time'] = _('N/A');
             } else {
-                $tab_downtime_svc[$key]["actual_end_time"] = _("Never Started");
+                $tab_downtime_svc[$key]['actual_end_time'] = _('Never Started');
             }
         } else {
-            $tab_downtime_svc[$key]["actual_end_time"] = $tab_downtime_svc[$key]["actual_end_time"] . " ";
+            $tab_downtime_svc[$key]['actual_end_time'] = $tab_downtime_svc[$key]['actual_end_time'] . ' ';
         }
-        $tab_downtime_svc[$key]["was_cancelled"] = $en[$tab_downtime_svc[$key]["was_cancelled"]];
+        $tab_downtime_svc[$key]['was_cancelled'] = $en[$tab_downtime_svc[$key]['was_cancelled']];
     }
 }
-/*
- * Element we need when we reload the page
- */
+// Element we need when we reload the page
 $form->addElement('hidden', 'p');
-$tab = ["p" => $p];
+$tab = ['p' => $p];
 $form->setDefaults($tab);
 
-if ($oreon->user->access->checkAction("host_schedule_downtime")) {
-    $tpl->assign('msgs2', ["addL2" => "?p=" . $p . "&o=a", "addT2" => _("Add a downtime"), "delConfirm" => addslashes(_("Do you confirm the cancellation ?"))]);
+if ($centreon->user->access->checkAction('host_schedule_downtime')) {
+    $tpl->assign('msgs2', ['addL2' => '?p=' . $p . '&o=a', 'addT2' => _('Add a downtime'), 'delConfirm' => addslashes(_('Do you confirm the cancellation ?'))]);
 }
 
+$tpl->assign('p', $p);
+$tpl->assign('o', $o);
 
-$tpl->assign("p", $p);
-$tpl->assign("o", $o);
+$tpl->assign('tab_downtime_svc', $tab_downtime_svc);
+$tpl->assign('nb_downtime_svc', count($tab_downtime_svc));
+$tpl->assign('dtm_service_downtime', _('Services Downtimes'));
+$tpl->assign('secondes', _('s'));
+$tpl->assign('view_host_dtm', _('View downtimes of hosts'));
+$tpl->assign('host_dtm_link', './main.php?p=' . $p . '&o=vh');
+$tpl->assign('cancel', _('Cancel'));
+$tpl->assign('limit', $limit);
 
-$tpl->assign("tab_downtime_svc", $tab_downtime_svc);
-$tpl->assign("nb_downtime_svc", count($tab_downtime_svc));
-$tpl->assign("dtm_service_downtime", _("Services Downtimes"));
-$tpl->assign("secondes", _("s"));
-$tpl->assign("view_host_dtm", _("View downtimes of hosts"));
-$tpl->assign("host_dtm_link", "./main.php?p=" . $p . "&o=vh");
-$tpl->assign("cancel", _("Cancel"));
-$tpl->assign("limit", $limit);
-
-$tpl->assign("Host", _("Host Name"));
-$tpl->assign("Service", _("Service"));
-$tpl->assign("Output", _("Output"));
-$tpl->assign("user", _("Users"));
-$tpl->assign('Hostgroup', _("Hostgroup"));
-$tpl->assign('Search', _("Search"));
-$tpl->assign("ViewAll", _("Display Finished Downtimes"));
-$tpl->assign("ViewDowntimeCycle", _("Display Recurring Downtimes"));
-$tpl->assign("Author", _("Author"));
-$tpl->assign("search_output", $search_output);
+$tpl->assign('Host', _('Host Name'));
+$tpl->assign('Service', _('Service'));
+$tpl->assign('Output', _('Output'));
+$tpl->assign('user', _('Users'));
+$tpl->assign('Hostgroup', _('Hostgroup'));
+$tpl->assign('Search', _('Search'));
+$tpl->assign('ViewAll', _('Display Finished Downtimes'));
+$tpl->assign('ViewDowntimeCycle', _('Display Recurring Downtimes'));
+$tpl->assign('Author', _('Author'));
+$tpl->assign('search_output', $search_output);
 $tpl->assign('search_host', $host_name);
-$tpl->assign("search_service", $search_service);
-$tpl->assign('view_all', $view_all);
-$tpl->assign('view_downtime_cycle', $view_downtime_cycle);
+$tpl->assign('search_service', $search_service);
+$tpl->assign('view_all', (int) $canViewAll);
+$tpl->assign('view_downtime_cycle', (int) $canViewDowntimeCycle);
 $tpl->assign('search_author', $search_author ?? '');
 
-/* Send Form */
+// Send Form
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 
-/* Display Page */
-$tpl->display("listDowntime.ihtml");
+// Display Page
+$tpl->display('listDowntime.ihtml');
