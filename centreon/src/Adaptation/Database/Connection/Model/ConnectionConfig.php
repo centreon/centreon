@@ -126,10 +126,11 @@ final readonly class ConnectionConfig
     public function getMysqlDsn(): string
     {
         return sprintf(
-            'mysql:dbname=%s;host=%s;port=%s',
+            'mysql:dbname=%s;host=%s;port=%s;charset=%s',
             $this->getDatabaseName(),
             $this->getHost(),
-            $this->getPort()
+            $this->getPort(),
+            $this->getCharset()
         );
     }
 

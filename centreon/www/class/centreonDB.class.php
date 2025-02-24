@@ -103,57 +103,57 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param int $retry
      * @param ConnectionConfig|null $connectionConfig
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct(
         string $dbLabel = self::LABEL_DB_CONFIGURATION,
         int $retry = self::RETRY,
         ?ConnectionConfig $connectionConfig = null
     ) {
+        if (is_null($connectionConfig)) {
+            $this->connectionConfig = new ConnectionConfig(
+                host: $dbLabel === self::LABEL_DB_CONFIGURATION ? hostCentreon : hostCentstorage,
+                user: user,
+                password: password,
+                databaseName: $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg,
+                databaseNameStorage: dbcstg,
+                port: port ?? 3306
+            );
+        } else {
+            $this->connectionConfig = $connectionConfig;
+        }
+
+        $this->logger = CentreonLog::create();
+
+        $this->centreon_path = _CENTREON_PATH_;
+        $this->retry = $retry;
+
+        $this->options = [
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            \PDO::ATTR_STATEMENT_CLASS => [
+                CentreonDBStatement::class,
+                [$this->logger],
+            ],
+            \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
+            \PDO::MYSQL_ATTR_LOCAL_INFILE => true,
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+        ];
+
+        /*
+         * Init request statistics
+         */
+        $this->requestExecuted = 0;
+        $this->requestSuccessful = 0;
+        $this->lineRead = 0;
+
         try {
-            if (is_null($connectionConfig)) {
-                $this->connectionConfig = new ConnectionConfig(
-                    host: $dbLabel === self::LABEL_DB_CONFIGURATION ? hostCentreon : hostCentstorage,
-                    user: user,
-                    password: password,
-                    databaseName: $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg,
-                    databaseNameStorage: dbcstg,
-                    port: port ?? 3306
-                );
-            } else {
-                $this->connectionConfig = $connectionConfig;
-            }
-
-            $this->logger = CentreonLog::create();
-
-            $this->centreon_path = _CENTREON_PATH_;
-            $this->retry = $retry;
-
-            $this->options = [
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_STATEMENT_CLASS => [
-                    CentreonDBStatement::class,
-                    [$this->logger],
-                ],
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-                PDO::MYSQL_ATTR_LOCAL_INFILE => true,
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-            ];
-
-            /*
-             * Init request statistics
-             */
-            $this->requestExecuted = 0;
-            $this->requestSuccessful = 0;
-            $this->lineRead = 0;
-
             parent::__construct(
                 $this->connectionConfig->getMysqlDsn(),
                 $this->connectionConfig->getUser(),
                 $this->connectionConfig->getPassword(),
                 $this->options
             );
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->writeDbLog(
                 message: "Unable to connect to database : {$e->getMessage()}",
                 customContext: ['dsn_mysql' => $this->connectionConfig->getMysqlDsn()],
@@ -164,7 +164,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                     $e->getCode() === 2002 ? "Unable to connect to database" : $e->getMessage()
                 );
             } else {
-                throw new Exception($e->getMessage());
+                throw new \Exception($e->getMessage());
             }
         }
     }
@@ -326,7 +326,9 @@ class CentreonDB extends PDO implements ConnectionInterface
                         ":{$queryParameter->getName()}",
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType()) : \PDO::PARAM_STR
+                            ? PdoParameterTypeTransformer::transformFromQueryParameterType(
+                            $queryParameter->getType()
+                        ) : \PDO::PARAM_STR
                     );
                 }
             }
@@ -957,7 +959,9 @@ class CentreonDB extends PDO implements ConnectionInterface
             $versionInformation = explode('-', $row['mysql_version']);
             $info["version"] = $versionInformation[0];
             $info["engine"] = $versionInformation[1] ?? 'MySQL';
-            if ($dbResult = $this->query("SHOW TABLE STATUS FROM `" . $this->connectionConfig->getDatabaseName() . "`")) {
+            if ($dbResult = $this->query(
+                "SHOW TABLE STATUS FROM `" . $this->connectionConfig->getDatabaseName() . "`"
+            )) {
                 while ($data = $dbResult->fetch()) {
                     $info['dbsize'] += $data['Data_length'] + $data['Index_length'];
                     $info['indexsize'] += $data['Index_length'];
@@ -1165,7 +1169,9 @@ class CentreonDB extends PDO implements ConnectionInterface
                         $queryParameter->getName(),
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
-                            ? PdoParameterTypeTransformer::transformFromQueryParameterType($queryParameter->getType()) : \PDO::PARAM_STR
+                            ? PdoParameterTypeTransformer::transformFromQueryParameterType(
+                            $queryParameter->getType()
+                        ) : \PDO::PARAM_STR
                     );
                 }
             }
