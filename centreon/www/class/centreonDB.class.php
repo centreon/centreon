@@ -102,25 +102,21 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param string $dbLabel LABEL_DB_* constants
      * @param int $retry
      * @param ConnectionConfig|null $connectionConfig
-     * @param bool $forceConnection
      *
      * @throws Exception
      */
     public function __construct(
         string $dbLabel = self::LABEL_DB_CONFIGURATION,
         int $retry = self::RETRY,
-        ?ConnectionConfig $connectionConfig = null,
-        bool $forceConnection = false
+        ?ConnectionConfig $connectionConfig = null
     ) {
         try {
             if (is_null($connectionConfig)) {
-                $host = $dbLabel === self::LABEL_DB_CONFIGURATION ? hostCentreon : hostCentstorage;
-                $dbName = $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg;
                 $this->connectionConfig = new ConnectionConfig(
-                    host: $forceConnection ? $connectionConfig->getHost() : $host,
+                    host: $dbLabel === self::LABEL_DB_CONFIGURATION ? hostCentreon : hostCentstorage,
                     user: user,
                     password: password,
-                    databaseName: $forceConnection ? $connectionConfig->getDatabaseName() : $dbName,
+                    databaseName: $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg,
                     databaseNameStorage: dbcstg,
                     port: port ?? 3306
                 );

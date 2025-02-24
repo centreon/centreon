@@ -110,19 +110,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test CentreonDB : connect to centreon database with CentreonDB constructor with forceConnection',
-        function () use ($dbConfigCentreon): void {
-            $db = new CentreonDB(connectionConfig: $dbConfigCentreon, forceConnection: true);
-            expect($db)->toBeInstanceOf(CentreonDB::class);
-            $stmt = $db->prepare("select database()");
-            $stmt->execute();
-            $dbName = $stmt->fetchColumn();
-            expect($dbName)->toBe('centreon')
-                ->and($db->getAttribute(PDO::ATTR_STATEMENT_CLASS)[0])->toBe(CentreonDBStatement::class);
-        }
-    );
-
-    it(
         'test CentreonDB : connect to centreon database with CentreonDB::connectToCentreonDb factory',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
