@@ -33,7 +33,17 @@ it('test Email value object is correct', function () {
     expect($email->getValue())->toBe($string);
 });
 
-it('test Email value object with an incorrect email', function () {
+it('test Email value object : with special characters', function () {
+    $email = new Email("user+tag@example.com");
+    expect($email->getValue())->toBe("user+tag@example.com");
+});
+
+it('test Email value object : with quoted local part', function () {
+    $email = new Email('"test.email"@example.com');
+    expect($email->getValue())->toBe('"test.email"@example.com');
+});
+
+it('test Email value object : with an incorrect email', function () {
     $string = "yoyo";
     $email = new Email($string);
 })->throws(ValueObjectException::class);
@@ -53,7 +63,6 @@ it('test Email value object : is not empty', function () {
 it('test Email value object : is empty', function () {
     $string = "";
     $email = new Email($string);
-    expect($email->isEmpty())->toBeFalse();
 })->throws(ValueObjectException::class);
 
 it('test Email value object : length', function () {
