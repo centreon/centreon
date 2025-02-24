@@ -147,7 +147,7 @@ $result = $pearDB->executeQuery("SELECT id FROM modules_informations WHERE name 
 if ($result->rowCount()) {
     $result = $pearDB->executeQuery("SELECT CONCAT('ba_', ba_id) AS id, ba_id, name FROM mod_bam");
 
-    while ($elem = $result->fetchRow()) {
+    while ($elem = $result->fetch()) {
         $tab_service_bam[$elem['id']] = ['name' => $elem['name'], 'id' => $elem['ba_id']];
     }
 }

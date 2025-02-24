@@ -31,8 +31,7 @@ use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepository
 
 class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements WriteMonitoringServerRepositoryInterface
 {
-    use LoggerTrait;
-    use SqlMultipleBindTrait;
+    use LoggerTrait, SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db

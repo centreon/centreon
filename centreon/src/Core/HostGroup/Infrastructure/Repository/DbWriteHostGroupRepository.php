@@ -189,6 +189,25 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
     /**
      * @inheritDoc
      */
+    public function enableDisableHostGroup(int $hostGroupId, bool $isEnable): void
+    {
+        $update = <<<'SQL'
+            UPDATE `:db`.`hostgroup`
+            SET
+                hg_activate = :activate
+            WHERE
+                hg_id = :hostgroup_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($update));
+        $statement->bindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+        $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($isEnable));
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function duplicate(int $hostGroupId, int $duplicateIndex): int
     {
         $this->info('Duplicate host group', ['id' => $hostGroupId]);

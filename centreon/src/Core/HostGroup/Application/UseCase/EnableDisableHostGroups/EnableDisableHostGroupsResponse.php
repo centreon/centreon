@@ -21,19 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Infrastructure\API\DeleteHostGroups;
+namespace Core\HostGroup\Application\UseCase\EnableDisableHostGroups;
 
-use Core\HostGroup\Application\UseCase\DeleteHostGroups\DeleteHostGroupsRequest;
+use Core\Application\Common\UseCase\BulkResponseInterface;
 
-final class DeleteHostGroupsRequestTransformer
+final class EnableDisableHostGroupsResponse implements BulkResponseInterface
 {
     /**
-     * @param DeleteHostGroupsInput $input
-     *
-     * @return DeleteHostGroupsRequest
+     * @param EnableDisableHostGroupsStatusResponse[] $results
      */
-    public static function transform(DeleteHostGroupsInput $input): DeleteHostGroupsRequest
+    public function __construct(private readonly array $results)
     {
-        return new DeleteHostGroupsRequest($input->ids);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return EnableDisableHostGroupsStatusResponse[]
+     */
+    public function getData(): array
+    {
+        return $this->results;
     }
 }

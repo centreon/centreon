@@ -518,7 +518,8 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                     FROM `:db`.`hostgroup_relation` hgr
                     JOIN `:db`.`hostgroup`
                         ON hostgroup.hg_id = hgr.hostgroup_hg_id
-                    WHERE hgr.hostgroup_hg_id = :hostGroupId
+                    WHERE hostgroup.hg_activate = '1'
+                        AND hgr.hostgroup_hg_id = :hostGroupId
                     SQL
             )
         );
