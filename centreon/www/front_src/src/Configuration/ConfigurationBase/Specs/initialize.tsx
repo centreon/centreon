@@ -43,14 +43,18 @@ const mockActionsRequests = (resourceType): void => {
     alias: 'enable',
     method: Method.POST,
     path: `**${getEndpoints(resourceType).enable}`,
-    response: { status: 'ok', code: 200 }
+    response: {
+      results: [{ status: 204, message: null, href: '/resources/1' }]
+    }
   });
 
   cy.interceptAPIRequest({
     alias: 'disable',
     method: Method.POST,
     path: `**${getEndpoints(resourceType).disable}`,
-    response: { status: 'ok', code: 200 }
+    response: {
+      results: [{ status: 204, message: null, href: '/resources/1' }]
+    }
   });
 };
 
