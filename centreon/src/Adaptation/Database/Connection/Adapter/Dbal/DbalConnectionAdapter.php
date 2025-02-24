@@ -28,7 +28,6 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
-use Adaptation\Database\Connection\Trait\CentreonConnectionTrait;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\Exception\UnexpectedValueException;
@@ -46,7 +45,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
 {
     use LoggerTrait;
     use ConnectionTrait;
-    use CentreonConnectionTrait;
 
     /**
      * By default, the queries are buffered.

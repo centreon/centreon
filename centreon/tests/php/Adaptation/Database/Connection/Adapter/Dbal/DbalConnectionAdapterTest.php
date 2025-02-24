@@ -58,6 +58,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
         user: $dbUser,
         password: $dbPassword,
         databaseName: 'centreon',
+        databaseNameStorage: 'centreon_storage',
         port: 3306
     );
 }
@@ -108,6 +109,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 user: $dbUser,
                 password: $dbPassword,
                 databaseName: 'bad_connection',
+                databaseNameStorage: 'bad_connection_storage',
                 port: 3306
             );
             DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);

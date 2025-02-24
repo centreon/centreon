@@ -206,7 +206,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface
     {
         try {
-            return new static(connectionConfig: $connectionConfig, forceConnection: true);
+            return new static(connectionConfig: $connectionConfig);
         } catch (Exception $e) {
             throw ConnectionException::connectionFailed($e);
         }
