@@ -23,13 +23,21 @@ declare(strict_types=1);
 
 namespace Core\Contact\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\Model\ContactTemplate;
 
+/**
+ * Interface
+ *
+ * @class ReadContactTemplateRepositoryInterface
+ * @package Core\Contact\Application\Repository
+ */
 interface ReadContactTemplateRepositoryInterface
 {
     /**
      * Get all contact templates.
      *
+     * @throws RepositoryException
      * @return array<ContactTemplate>
      */
     public function findAll(): array;
@@ -39,6 +47,7 @@ interface ReadContactTemplateRepositoryInterface
      *
      * @param int $id
      *
+     * @throws RepositoryException
      * @return ContactTemplate|null
      */
     public function find(int $id): ?ContactTemplate;
