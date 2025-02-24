@@ -313,7 +313,7 @@ jobs:
       - name: Display retries summary
         run: |
           ls -lR ${{ inputs.name }}-json-reports
-          jq 'to_entries | reduce .[] as $item ({}; . * $item)' ${{ inputs.name }}-json-reports/**/*retries.json > retries.json
+          jq 'to_entries | reduce .[] as $item ({}; . * $item)' ${{ inputs.name }}-json-reports/*retries.json > retries.json
           if [[ $(jq 'to_entries | length' retries.json) -gt 0 ]]; then
             retriesHtml="<h2>:warning:The following tests were retried during execution:</h2>\n"
             retriesHtml+="| feature | scenario | retries |\n"
