@@ -39,16 +39,18 @@ final readonly class ConnectionConfig
      * @param string $host
      * @param string $user
      * @param string $password
-     * @param string $databaseName
-     * @param ConnectionDriverEnum $driver
-     * @param string $charset
+     * @param string $databaseName Configuration database name of Centreon
+     * @param string $databaseNameStorage Storage database name of Centreon
      * @param int $port
+     * @param string $charset
+     * @param ConnectionDriverEnum $driver
      */
     public function __construct(
         private string $host,
         private string $user,
         private string $password,
         private string $databaseName,
+        private string $databaseNameStorage,
         private int $port = 3306,
         private string $charset = 'utf8mb4',
         private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
@@ -84,6 +86,14 @@ final readonly class ConnectionConfig
     public function getDatabaseName(): string
     {
         return $this->databaseName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseNameStorage(): string
+    {
+        return $this->databaseNameStorage;
     }
 
     /**

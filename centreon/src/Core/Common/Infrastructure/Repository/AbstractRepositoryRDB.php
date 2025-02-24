@@ -59,7 +59,7 @@ class AbstractRepositoryRDB
     {
         return str_replace(
             [':dbstg', ':db'],
-            [$this->db->getStorageDbName(), $this->db->getCentreonDbName()],
+            [$this->db->getConnectionConfig()->getDatabaseNameStorage(), $this->db->getConnectionConfig()->getDatabaseName()],
             $request
         );
     }

@@ -91,11 +91,6 @@ services:
       factory: [ null, 'createFromConfig' ]
       arguments:
         $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
-      calls:
-        - method: setCentreonDbName
-          arguments: [ '%database_db%' ]
-        - method: setStorageDbName
-          arguments: [ '%database_dbstg%' ]
 
     Adaptation\Database\QueryBuilder\QueryBuilderInterface:
       alias: Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter
