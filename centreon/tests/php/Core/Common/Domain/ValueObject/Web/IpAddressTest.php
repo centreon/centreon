@@ -27,13 +27,24 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\ValueObject\Identity\Email;
 use Core\Common\Domain\ValueObject\Web\IpAddress;
 
-it('test IpAddress value object : correct instanciation', function () {
+it('test IpAddress value object : with valid IPv4', function () {
     $string = "170.0.0.1";
     $IpAddress = new IpAddress($string);
     expect($IpAddress->getValue())->toBe($string);
 });
 
-it('test IpAddress value object with an incorrect ip address', function () {
+it('test IpAddress value object : with valid IPv6', function () {
+    $string = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
+    $IpAddress = new IpAddress($string);
+    expect($IpAddress->getValue())->toBe($string);
+});
+
+it('test IpAddress value object : with invalid IPv6', function () {
+    $string = "2001:0db8:85a3:0000:0000:8a2e:0370";
+    $IpAddress = new IpAddress($string);
+})->throws(ValueObjectException::class);
+
+it('test IpAddress value object : with an incorrect ip address', function () {
     $string = "yoyo";
     $IpAddress = new IpAddress($string);
 })->throws(ValueObjectException::class);
@@ -53,7 +64,6 @@ it('test IpAddress value object : is not empty', function () {
 it('test IpAddress value object : is empty', function () {
     $string = "";
     $IpAddress = new IpAddress($string);
-    expect($IpAddress->isEmpty())->toBeFalse();
 })->throws(ValueObjectException::class);
 
 it('test IpAddress value object : length', function () {
