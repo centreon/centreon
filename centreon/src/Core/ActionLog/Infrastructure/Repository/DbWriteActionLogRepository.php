@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\ActionLog\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
@@ -115,21 +116,20 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
                 $this->connection->startTransaction();
             }
 
-            $this->queryBuilder->insert('`:dbstg`.log_action_modification')
-                ->values([
-                    'field_name' => ':field_name',
-                    'field_value' => ':field_value',
-                    'action_log_id' => ':action_log_id',
-                ]);
-            $request = $this->translateDbName($this->queryBuilder->getQuery());
-
+            $batchQueryParameters = [];
             foreach ($details as $fieldName => $fieldValue) {
-                $this->connection->insert($request, QueryParameters::create([
+                $batchQueryParameters[] = QueryParameters::create([
                     QueryParameter::string('field_name', $fieldName),
                     QueryParameter::string('field_value', (string) $fieldValue),
                     QueryParameter::int('action_log_id', (int) $actionLog->getId()),
-                ]));
+                ]);
             }
+
+            $this->db->batchInsert(
+                $this->translateDbName('`:dbstg`.`log_action_modification`'),
+                ['`field_name`', '`field_value`', '`action_log_id`'],
+                BatchInsertParameters::create($batchQueryParameters)
+            );
 
             if (! $isTransactionActive) {
                 $this->connection->commitTransaction();
