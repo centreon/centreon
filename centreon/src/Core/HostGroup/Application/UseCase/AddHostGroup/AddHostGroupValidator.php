@@ -84,8 +84,7 @@ final class AddHostGroupValidator
     }
 
     public function assertResourceAccessRulesExist(array $resourceAccessRuleIds): void
-    {
-        // Add Link between RAM rule and HG
+    {     // Add Link between RAM rule and HG
         $unexistentAccessRules = array_diff(
             $resourceAccessRuleIds,
             $this->readResourceAccessRepository->exist($resourceAccessRuleIds)

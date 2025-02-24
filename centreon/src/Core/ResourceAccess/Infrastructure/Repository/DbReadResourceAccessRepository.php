@@ -98,14 +98,14 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
             return [];
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':ruleIds');
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
 
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                 SELECT acl_group_id
                 FROM `:db`.acl_groups
-                WHERE acl_group_id IN ({bindQuery})
+                WHERE acl_group_id IN ({$bindQuery})
                     AND cloud_specific = 1
             SQL
         ));
@@ -115,7 +115,6 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         }
 
         $statement->execute();
-
         return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
@@ -167,7 +166,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
                     OR acl_group_id IN (
                         SELECT acl_group_id
                         FROM `:db`.acl_group_contactgroups_relations
-                        WHERE cg_cg_id IN ({bindQuery})
+                        WHERE cg_cg_id IN ({$bindQuery})
                     )
                 )
         SQL;
@@ -352,21 +351,20 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
 
     public function findLastLevelDatasetFilterByRuleIdsAndType(array $ruleIds, string $type): array
     {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':ruleIds');
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
 
         $statement = $this->db->prepare(
             $this->translateDbName(
-                <<<'SQL'
+                <<<SQL
                         SELECT
-                            id AS dataset_filter_id,
-                            resource_ids AS dataset_filter_resources,
+                            id,
+                            resource_ids
                         FROM `:db`.dataset_filters
                         INNER JOIN `:db`.acl_resources AS dataset
                             ON dataset.acl_res_id = dataset_filters.acl_resource_id
-                        WHERE acl_group_id IN ({bindQuery})
+                        WHERE acl_group_id IN ({$bindQuery})
                             AND type = :type
                             AND parent_id IS NULL
-                        ORDER BY dataset_name ASC
                     SQL
             )
         );

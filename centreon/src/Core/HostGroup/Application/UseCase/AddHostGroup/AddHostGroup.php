@@ -27,7 +27,8 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use CentreonMap\Common\Application\UseCase\ResponseStatusInterface;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -95,21 +96,21 @@ final class AddHostGroup
             }
 
             $newHostGroupId = $this->writeHostGroupRepository->add($hostGroup);
+
             $this->writeHostGroupRepository->addHosts($newHostGroupId, $request->hosts);
             $this->linkHostGroupToRessourceAccess($request->resourceAccessRules, $newHostGroupId);
-
-            if (! $this->storageEngine->isAlreadyinTransaction()) {
-                $this->storageEngine->commitTransaction();
-            }
+            $this->storageEngine->commitTransaction();
 
             return new AddHostGroupResponse($hostGroup);
         } catch (AssertionFailedException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            return new ErrorResponse($ex);
         } catch (HostGroupException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            return new ErrorResponse($ex);
         } catch (\Throwable $ex) {
-            // $presenter->presentResponse(new ErrorResponse(HostGroupException::errorWhileAdding()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            return new ErrorResponse($ex);
         }
     }
 

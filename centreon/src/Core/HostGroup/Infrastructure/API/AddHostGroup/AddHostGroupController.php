@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroup;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
@@ -68,6 +69,10 @@ final class AddHostGroupController extends AbstractController
         StandardPresenter $presenter
     ): Response {
         $response = $useCase(AddHostGroupRequestTransformer::transform($request, $this->isCloudPlatform));
+
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
 
         return JsonResponse::fromJsonString($presenter->present($response));
     }
