@@ -25,6 +25,7 @@ namespace Centreon\Infrastructure;
 use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\CentreonConnectionTrait;
@@ -67,44 +68,33 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param string $login
      * @param string $password
      * @param int $port
-     * @param ConnectionConfig|null $connectionConfig
+     * @param string $charset
+     * @param ConnectionDriverEnum $driver
      *
      * @throws ConnectionException
      */
     public function __construct(
         LoggerInterface $logger,
-        string $host = '',
-        string $basename = '',
-        string $login = '',
-        string $password = '',
+        string $host,
+        string $basename,
+        string $login,
+        string $password,
         int $port = 3306,
-        ?ConnectionConfig $connectionConfig = null
+        string $charset = 'utf8mb4',
+        ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
     ) {
         try {
             $this->logger = $logger;
 
-            if (is_null($connectionConfig)) {
-                if (empty($host) || empty($login) || empty($password) || empty($basename)) {
-                    throw ConnectionException::connectionBadUsage(
-                        'Host, login, password and database name must not be empty',
-                        [
-                            'host' => $host,
-                            'login' => $login,
-                            'password' => $password,
-                            'basename' => $basename,
-                        ]
-                    );
-                }
-                $this->connectionConfig = new ConnectionConfig(
-                    host: $host,
-                    user: $login,
-                    password: $password,
-                    databaseName: $basename,
-                    port: $port
-                );
-            } else {
-                $this->connectionConfig = $connectionConfig;
-            }
+            $this->connectionConfig = new ConnectionConfig(
+                host: $host,
+                user: $login,
+                password: $password,
+                databaseName: $basename,
+                port: $port,
+                charset: $charset,
+                driver: $driver
+            );
 
             parent::__construct(
                 $this->connectionConfig->getMysqlDsn(),
@@ -139,7 +129,16 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     public static function createFromConfig(ConnectionConfig $connectionConfig): self
     {
         try {
-            return new self(logger: new Logger(), connectionConfig: $connectionConfig);
+            return new self(
+                logger: new Logger(),
+                host: $connectionConfig->getHost(),
+                basename: $connectionConfig->getDatabaseName(),
+                login: $connectionConfig->getUser(),
+                password: $connectionConfig->getPassword(),
+                port: $connectionConfig->getPort(),
+                charset: $connectionConfig->getCharset(),
+                driver: $connectionConfig->getDriver()
+            );
         } catch (\Throwable $exception) {
             throw ConnectionException::connectionFailed($exception);
         }

@@ -108,13 +108,11 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         function () use ($dbConfigCentreon): void {
             $db = new DatabaseConnection(
                 logger: new Logger(),
-                connectionConfig: new ConnectionConfig(
-                    host: $dbConfigCentreon->getHost(),
-                    user: $dbConfigCentreon->getUser(),
-                    password: $dbConfigCentreon->getPassword(),
-                    databaseName: $dbConfigCentreon->getDatabaseName(),
-                    port: $dbConfigCentreon->getPort()
-                )
+                host: $dbConfigCentreon->getHost(),
+                basename: $dbConfigCentreon->getDatabaseName(),
+                login: $dbConfigCentreon->getUser(),
+                password: $dbConfigCentreon->getPassword(),
+                port: $dbConfigCentreon->getPort()
             );
             expect($db)->toBeInstanceOf(DatabaseConnection::class);
             $stmt = $db->prepare("select database()");
@@ -127,75 +125,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it(
         'test DatabaseConnection : DatabaseConnection::createFromConfig factory"',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-            expect($db)->toBeInstanceOf(DatabaseConnection::class);
-            $stmt = $db->prepare("select database()");
-            $stmt->execute();
-            $dbName = $stmt->fetchColumn();
-            expect($dbName)->toBe('centreon')
-                ->and($db->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
-        }
-    );
-
-    it(
-        'test DatabaseConnection : DatabaseConnection constructor without host',
-        function () use ($dbConfigCentreon): void {
-            $db = new DatabaseConnection(
-                new Logger(),
-                '',
-                $dbConfigCentreon->getUser(),
-                $dbConfigCentreon->getPassword(),
-                $dbConfigCentreon->getDatabaseName(),
-                $dbConfigCentreon->getPort()
-            );
-        }
-    )->throws(ConnectionException::class);
-
-    it(
-        'test DatabaseConnection : DatabaseConnection constructor without user',
-        function () use ($dbConfigCentreon): void {
-            $db = new DatabaseConnection(
-                new Logger(),
-                $dbConfigCentreon->getHost(),
-                '',
-                $dbConfigCentreon->getPassword(),
-                $dbConfigCentreon->getDatabaseName(),
-                $dbConfigCentreon->getPort()
-            );
-        }
-    )->throws(ConnectionException::class);
-
-    it(
-        'test DatabaseConnection : DatabaseConnection constructor without password',
-        function () use ($dbConfigCentreon): void {
-            $db = new DatabaseConnection(
-                new Logger(),
-                $dbConfigCentreon->getHost(),
-                $dbConfigCentreon->getUser(),
-                '',
-                $dbConfigCentreon->getDatabaseName(),
-                $dbConfigCentreon->getPort()
-            );
-        }
-    )->throws(ConnectionException::class);
-
-    it(
-        'test DatabaseConnection : DatabaseConnection constructor without database name',
-        function () use ($dbConfigCentreon): void {
-            $db = new DatabaseConnection(
-                new Logger(),
-                $dbConfigCentreon->getHost(),
-                $dbConfigCentreon->getUser(),
-                $dbConfigCentreon->getPassword(),
-                '',
-                $dbConfigCentreon->getPort()
-            );
-        }
-    )->throws(ConnectionException::class);
-
-    it(
-        'test DatabaseConnection : DatabaseConnection::createFromConfig factory',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             expect($db)->toBeInstanceOf(DatabaseConnection::class);
