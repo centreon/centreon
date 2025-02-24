@@ -17,6 +17,9 @@ info:
     + Added new 'thumbnail' key to dashboard listing endpoint, that contains thumbnail information
     + Added new 'thumbnail' key to dashboard update payload endpoint, that contains thumbnail information
     + Added new 'thumbnail_data' key to dashboard update payload endpoint, that contains thumbnail contents
+    + Added new endpoint to bulk delete services
+    + Added new endpoint to bulk delete hostgroups
+    + Added new endpoint to bulk enable/disable hostgroups
     + Update FindHostGroups response
     +
     # Information
@@ -688,6 +691,10 @@ paths:
     $ref: './latest/onPremise/Configuration/HostGroup/FindAndDeleteAndUpdateHostGroup.yaml'
   /configuration/hosts/groups/_delete:
     $ref: "./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml"
+  /configuration/hosts/groups/{action}:
+    $ref: "./latest/onPremise/Configuration/HostGroup/EnableDisableHostGroups.yaml"
+  /configuration/hosts/groups/_duplicate:
+    $ref: "./latest/onPremise/Configuration/HostGroup/DuplicateHostGroups.yaml"
   /configuration/services/groups:
     get:
       tags:
