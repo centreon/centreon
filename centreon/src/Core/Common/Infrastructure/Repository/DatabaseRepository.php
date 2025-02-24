@@ -57,7 +57,10 @@ abstract class DatabaseRepository
     {
         return str_replace(
             [':dbstg', ':db'],
-            [$this->connection->getStorageDbName(), $this->connection->getCentreonDbName()],
+            [
+                $this->connection->getConnectionConfig()->getDatabaseNameStorage(),
+                $this->connection->getConnectionConfig()->getDatabaseName(),
+            ],
             $request
         );
     }
