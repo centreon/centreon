@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { complement, isEmpty, propEq } from 'ramda';
+import { complement, isNotEmpty, propEq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -64,7 +64,7 @@ const useStatus = ({ row }): Props => {
 
     const failedResponses = results?.filter(complement(propEq(204, 'status')));
 
-    if (isError || isEmpty(failedResponses)) {
+    if (isError || isNotEmpty(failedResponses)) {
       setChecked(checked);
 
       return;
