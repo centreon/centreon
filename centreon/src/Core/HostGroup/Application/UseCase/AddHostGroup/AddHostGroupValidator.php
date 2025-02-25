@@ -35,7 +35,7 @@ use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInter
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Throwable;
 
-final class AddHostGroupValidator
+class AddHostGroupValidator
 {
     use LoggerTrait;
 

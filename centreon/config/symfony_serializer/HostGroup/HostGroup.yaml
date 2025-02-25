@@ -1,0 +1,12 @@
+Core\HostGroup\Domain\Model\HostGroup:
+  attributes:
+    id:
+      groups: ['HostGroup:Add']
+    name:
+      groups: ['HostGroup:Add']
+    alias:
+      groups: ['HostGroup:Add']
+    geoCoords:
+      groups: ['HostGroup:Add']
+    comment:
+      groups: ['HostGroup:Add']

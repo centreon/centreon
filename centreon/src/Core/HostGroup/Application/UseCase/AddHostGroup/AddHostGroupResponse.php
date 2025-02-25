@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
 use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\HostGroup\Domain\Model\HostGroupRelation;
 
 final readonly class AddHostGroupResponse implements StandardResponseInterface
 {
@@ -32,7 +33,7 @@ final readonly class AddHostGroupResponse implements StandardResponseInterface
     {
     }
 
-    public function getData(): mixed
+    public function getData(): HostGroupRelation
     {
         return $this->data;
     }

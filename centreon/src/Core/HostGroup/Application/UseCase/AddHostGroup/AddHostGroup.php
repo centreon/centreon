@@ -41,6 +41,7 @@ use Core\HostGroup\Application\Repository\{
     ReadHostGroupRepositoryInterface,
     WriteHostGroupRepositoryInterface
 };
+use Core\HostGroup\Domain\Model\HostGroupRelation;
 use Core\HostGroup\Domain\Model\NewHostGroup;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\{
@@ -105,14 +106,21 @@ final class AddHostGroup
             $this->linkHostGroupToRessourceAccess($request->resourceAccessRules, $newHostGroupId);
             $this->storageEngine->commitTransaction();
 
+            $newHostGroup = $this->readHostGroupRepository->findOne($newHostGroupId);
+            if ($newHostGroup === null) {
+                throw HostGroupException::errorWhileRetrievingJustCreated();
+            }
             $linkedHosts = $this->readHostRepository->findByHostGroup($newHostGroupId);
-            $linkedResourceAccessRules = array_map(
-                fn (int $ruleId) => $this->readResourceAccessRepository->findById($ruleId),
-                $request->resourceAccessRules
-            );
+            if ($this->isCloudPlatform) {
+                $linkedResourceAccessRules = array_map(
+                    fn (int $ruleId) => $this->readResourceAccessRepository->findById($ruleId),
+                    $request->resourceAccessRules
+                );
+            }
 
-            dd($linkedHosts);
-            return new AddHostGroupResponse($hostGroup, $linkedHosts, $linkedResourceAccessRules);
+            return new AddHostGroupResponse(
+                new HostGroupRelation($newHostGroup, $linkedHosts, $linkedResourceAccessRules ?? [])
+            );
         } catch (HostGroupException|HostException|RuleException|AssertionFailedException $ex) {
             $this->error(
                 "Error while adding host groups : {$ex->getMessage()}",
@@ -131,7 +139,7 @@ final class AddHostGroup
                 ]
             );
 
-            return new ErrorResponse($ex);
+            return new ErrorResponse(HostGroupException::errorWhileAdding());
         }
     }
 

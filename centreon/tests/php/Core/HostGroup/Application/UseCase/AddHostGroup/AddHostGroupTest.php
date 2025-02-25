@@ -28,337 +28,249 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Domain\SimpleEntity;
+use Core\Common\Domain\TrimmedString;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
+use Core\Host\Application\Exception\HostException;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroup;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
+use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupValidator;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\HostGroupRelation;
 use Core\HostGroup\Domain\Model\NewHostGroup;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\ResourceAccess\Application\Exception\RuleException;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\MetaServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
+use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 beforeEach(function (): void {
-    $this->presenter = new AddHostGroupTestPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new AddHostGroup(
-        $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
-        $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
-        $this->readViewImgRepository = $this->createMock(ReadViewImgRepositoryInterface::class),
+        $this->contact = $this->createMock(ContactInterface::class),
+        $this->validator = $this->createMock(AddHostGroupValidator::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
-        $this->contact = $this->createMock(ContactInterface::class)
+        $this->isCloudPlatform = true,
+        $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
+        $this->readResourceAccessRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
+        $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
+        $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
+        $this->writeResourceAccessRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
+        $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
     );
 
-    $this->testedAddHostGroupRequest = new AddHostGroupRequest();
-    $this->testedAddHostGroupRequest->name = 'added-hostgroup';
+    $this->addHostGroupRequest = new AddHostGroupRequest();
+    $this->addHostGroupRequest->name = 'HG1';
+    $this->addHostGroupRequest->alias = 'HG_Alias';
+    $this->addHostGroupRequest->geoCoords = '-10,10';
+    $this->addHostGroupRequest->comment = 'A New Hostgroup';
+    $this->addHostGroupRequest->hosts = [1,2];
+    $this->addHostGroupRequest->resourceAccessRules = [1,2,3];
 
-    $this->testedHostGroup = new HostGroup(
-        66,
-        'hg-name',
-        'hg-alias',
-        '',
-        '',
-        '',
-        null,
-        null,
-        null,
-        GeoCoords::fromString('-2,100'),
-        '',
-        true
-    );
+    $this->datasetFilterValidator = $this->createMock(DatasetFilterValidator::class);
 });
 
 it(
-    'should present an ErrorResponse when a generic exception is thrown',
+    'Should return an InvalidArgumentResponse When an hostgroup already exists with this name',
     function (): void {
-        $this->contact
+        $this->validator
             ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('nameAlreadyExists')
-            ->willThrowException(new \Exception());
+            ->method('assertNameDoesNotAlreadyExists')
+            ->willThrowException(HostGroupException::nameAlreadyExists($this->addHostGroupRequest->name));
 
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
+        $response = ($this->useCase)($this->addHostGroupRequest);
 
-        expect($this->presenter->getResponseStatus())
-            ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostGroupException::errorWhileAdding()->getMessage());
-    }
-);
-
-it(
-    'should present an ErrorResponse with a custom message when a HostGroupException is thrown',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('nameAlreadyExists')
-            ->willThrowException(new HostGroupException($msg = uniqid('fake message ', true)));
-
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
-
-        expect($this->presenter->getResponseStatus())
-            ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe($msg);
-    }
-);
-
-it(
-    'should present a ConflictResponse if the name already exists',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('nameAlreadyExists')
-            ->willReturn(true);
-
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
-
-        expect($this->presenter->getResponseStatus())
-            ->toBeInstanceOf(ConflictResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostGroupException::nameAlreadyExists($this->testedAddHostGroupRequest->name)->getMessage());
-    }
-);
-
-it(
-    'should present an InvalidArgumentResponse when a model field value is not valid',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('nameAlreadyExists')
-            ->willReturn(false);
-
-        $this->testedAddHostGroupRequest->name = '';
-        $expectedException = AssertionException::minLength(
-            $this->testedAddHostGroupRequest->name,
-            strlen($this->testedAddHostGroupRequest->name),
-            NewHostGroup::MIN_NAME_LENGTH,
-            'NewHostGroup::name'
-        );
-
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
-
-        expect($this->presenter->getResponseStatus())
+        expect($response)
             ->toBeInstanceOf(InvalidArgumentResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe($expectedException->getMessage());
+            ->and($response->getMessage())
+            ->toBe(HostGroupException::nameAlreadyExists($this->addHostGroupRequest->name)->getMessage());
+    }
+);
+
+it(
+    "Should return an InvalidArgumentResponse When a given host doesn't exist",
+    function (): void {
+        $this->validator
+            ->expects($this->once())
+            ->method('assertHostsExist')
+            ->willThrowException(HostException::idsDoNotExist('hosts', [2]));
+
+        $response = ($this->useCase)($this->addHostGroupRequest);
+
+        expect($response)
+            ->toBeInstanceOf(InvalidArgumentResponse::class)
+            ->and($response->getMessage())
+            ->toBe(HostException::idsDoNotExist('hosts', [2])->getMessage());
+    }
+);
+
+it(
+    "Should return an InvalidArgumentResponse When a given Resource Access Rule doesn't exist",
+    function (): void {
+        $this->validator
+            ->expects($this->once())
+            ->method('assertResourceAccessRulesExist')
+            ->willThrowException(RuleException::idsDoNotExist('rules', [2]));
+
+        $response = ($this->useCase)($this->addHostGroupRequest);
+
+        expect($response)
+            ->toBeInstanceOf(InvalidArgumentResponse::class)
+            ->and($response->getMessage())
+            ->toBe(RuleException::idsDoNotExist('rules', [2])->getMessage());
     }
 );
 
 it(
     'should present an InvalidArgumentResponse when the "geoCoords" field value is not valid',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('nameAlreadyExists')
-            ->willReturn(false);
+        $this->addHostGroupRequest->geoCoords = 'this,is,wrong';
 
-        $this->testedAddHostGroupRequest->geoCoords = 'this,is,wrong';
+        $response = ($this->useCase)($this->addHostGroupRequest);
 
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
-
-        expect($this->presenter->getResponseStatus())
+        expect($response)
             ->toBeInstanceOf(InvalidArgumentResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($response->getMessage())
             ->toBe(InvalidGeoCoordException::invalidFormat()->getMessage());
     }
 );
 
-foreach (['iconId', 'iconMapId'] as $iconField) {
-    it(
-        "should present a ConflictResponse if the {$iconField} does not exist",
-        function () use ($iconField): void {
-            $this->contact
-                ->expects($this->once())
-                ->method('isAdmin')
-                ->willReturn(true);
-            $this->readViewImgRepository
-                ->expects($this->once())
-                ->method('existsOne')
-                ->willReturn(false);
+it (
+    'should present an ErrorResponse when an error occured while creating the host group',
+    function (): void {
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('add')
+            ->willThrowException(new \Exception());
 
-            $this->testedAddHostGroupRequest->{$iconField} = 666;
-            ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
+            $response = ($this->useCase)($this->addHostGroupRequest);
 
-            expect($this->presenter->getResponseStatus())
-                ->toBeInstanceOf(ConflictResponse::class)
-                ->and($this->presenter->getResponseStatus()?->getMessage())
-                ->toBe(HostGroupException::iconDoesNotExist($iconField, 666)->getMessage());
+            expect($response)
+                ->toBeInstanceOf(ErrorResponse::class)
+                ->and($response->getMessage())
+                ->toBe(HostGroupException::errorWhileAdding()->getMessage());
+    }
+);
+
+it(
+    'should present an AddHostGroupResponse When everything is good',
+    function (): void {
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('add')
+            ->willReturn(7);
+
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('addHosts');
+
+        $this->readResourceAccessRepository
+            ->expects($this->once())
+            ->method('findLastLevelDatasetFilterByRuleIdsAndType')
+            ->willReturn([
+                [1 => [1,2,3]],
+                [2 => [4,5,6]]
+            ]);
+
+        $this->writeResourceAccessRepository
+            ->expects($this->exactly(2))
+            ->method('updateDatasetResources');
+
+        $hostGroup = new HostGroup(
+            id: 7,
+            name: $this->addHostGroupRequest->name,
+            alias: $this->addHostGroupRequest->alias,
+            notes: '',
+            notesUrl: '',
+            actionUrl: '',
+            iconId: null,
+            iconMapId: null,
+            rrdRetention: null,
+            geoCoords: GeoCoords::fromString($this->addHostGroupRequest->geoCoords),
+            comment: $this->addHostGroupRequest->comment,
+            isActivated: true
+        );
+
+
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findOne')
+            ->willReturn($hostGroup);
+
+        $this->readHostRepository
+            ->expects($this->once())
+            ->method('findByHostGroup')
+            ->willReturn([
+                new  SimpleEntity(1, new TrimmedString('host1'), 'Host'),
+                new  SimpleEntity(2, new TrimmedString('host2'), 'Host')
+            ]);
+
+        $filterTypes = [];
+        foreach ([
+            HostFilterType::class,
+            HostGroupFilterType::class,
+            HostCategoryFilterType::class,
+            ServiceFilterType::class,
+            ServiceGroupFilterType::class,
+            ServiceCategoryFilterType::class,
+            MetaServiceFilterType::class,
+        ] as $className) {
+            $filterTypes[] = new $className();
         }
-    );
-}
 
-it(
-    'should present an ErrorResponse if the newly created host group cannot be retrieved',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('nameAlreadyExists')
-            ->willReturn(false);
-        $this->writeHostGroupRepository
-            ->expects($this->once())
-            ->method('add')
-            ->willReturn($this->testedHostGroup->getId());
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('findOne')
-            ->willReturn(null); // the failure
+        $validator = new DatasetFilterValidator(new \ArrayObject($filterTypes));
 
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
-
-        expect($this->presenter->getResponseStatus())
-            ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostGroupException::errorWhileRetrievingJustCreated()->getMessage());
-    }
-);
-
-it(
-    'should present a ForbiddenResponse when the user does not have the correct role',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE, false],
-                ]
+        $this->readResourceAccessRepository
+            ->expects($this->exactly(3))
+            ->method('findById')
+            ->willReturnOnConsecutiveCalls(
+                new Rule(
+                    id: 1,
+                    name: 'rule1',
+                    applyToAllContacts: true,
+                    datasets: [new DatasetFilter('hostgroup', [1,2,3,7], $validator)]
+                ),
+                new Rule(
+                    id: 2,
+                    name: 'rule2',
+                    applyToAllContacts: true,
+                    datasets: [new DataSetFilter('hostgroup', [1,2,3,7], $validator)]
+                ),
+                new Rule(
+                    id: 3,
+                    name: 'rule3',
+                    applyToAllContacts: true,
+                    datasets: [new DataSetFilter('hostgroup', [1,2,3,7], $validator)]
+                ),
             );
 
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
+        dump($this->addHostGroupRequest);
+        $response = ($this->useCase)($this->addHostGroupRequest);
 
-        expect($this->presenter->getResponseStatus())
-            ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostGroupException::accessNotAllowedForWriting()->getMessage());
-    }
-);
-
-it(
-    'should present a CreatedResponse<AddHostGroupResponse> as admin',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('nameAlreadyExists')
-            ->willReturn(false);
-        $this->writeHostGroupRepository
-            ->expects($this->once())
-            ->method('add')
-            ->willReturn($this->testedHostGroup->getId());
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('findOne')
-            ->willReturn($this->testedHostGroup);
-
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
-
-        expect($this->presenter->getPresentedData())->toBeInstanceOf(AddHostGroupResponse::class);
-    }
-);
-
-it(
-    'should present a ForbiddenResponse as allowed READ user',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ, true],
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE, false],
-                ]
-            );
-
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
-
-        expect($this->presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
-    }
-);
-
-it(
-    'should present a CreatedResponse<AddHostGroupResponse> as allowed READ_WRITE user',
-    function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ, false],
-                    [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE, true],
-                ]
-            );
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('nameAlreadyExists')
-            ->willReturn(false);
-        $this->readAccessGroupRepository
-            ->expects($this->once())
-            ->method('findByContact')
-            ->willReturn([]);
-        $this->writeHostGroupRepository
-            ->expects($this->once())
-            ->method('add')
-            ->willReturn($this->testedHostGroup->getId());
-        $this->writeAccessGroupRepository
-            ->expects($this->once())
-            ->method('addLinksBetweenHostGroupAndAccessGroups');
-        $this->readHostGroupRepository
-            ->expects($this->once())
-            ->method('findOneByAccessGroups')
-            ->willReturn($this->testedHostGroup);
-
-        ($this->useCase)($this->testedAddHostGroupRequest, $this->presenter);
-
-        expect($this->presenter->getPresentedData())->toBeInstanceOf(AddHostGroupResponse::class);
+        expect($response)
+            ->toBeInstanceOf(AddHostGroupResponse::class)
+            ->and($response->getData())
+            ->toBeInstanceOf(HostGroupRelation::class);
     }
 );

@@ -59,14 +59,13 @@ final class AddHostGroupController extends AbstractController
     public function __invoke(
         #[MapRequestPayload()] AddHostGroupInput $request,
         AddHostGroup $useCase,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase(AddHostGroupRequestTransformer::transform($request, $this->isCloudPlatform));
 
         if ($response instanceof ResponseStatusInterface) {
             return $this->createResponse($response);
         }
-
-        return JsonResponse::fromJsonString($presenter->present($response));
+        return JsonResponse::fromJsonString($presenter->present($response, ['groups' => ['HostGroup:Add'], 'is_cloud_platform' => $this->isCloudPlatform]));
     }
 }
