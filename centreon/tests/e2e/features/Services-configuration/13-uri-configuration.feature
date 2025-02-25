@@ -25,6 +25,6 @@ Feature: URI
   Scenario: Add URI in comments
     When the user visits "Monitoring > Status Details > Services"
     And the user adds a comment to a configured passive service
-    Then the comment is displayed on "Monitoring > Downtimes > Comments " listing page
+    Then the comment is displayed on "Monitoring > Downtimes > Comments" listing page
     When the user clicks on the link
     Then a new tab is open to the link
