@@ -108,6 +108,12 @@ dnf install -y \
   php-pear \
   php-json
 
+###################
+# install plugins #
+###################
+
+dnf install -y centreon-plugin-Operatingsystems-Linux-Snmp
+
 sed -i "s#apache,nginx#apache#g" /etc/php-fpm.d/www.conf
 
 dnf clean all --enablerepo=*

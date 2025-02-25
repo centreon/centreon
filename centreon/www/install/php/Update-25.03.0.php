@@ -123,10 +123,119 @@ $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void 
     );
 };
 
+// -------------------------------------------- Dashboard Panel -------------------------------------------- //
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table dashboard_panel';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `dashboard_panel`
+            SET `layout_x` = `layout_x` * 2,
+                `layout_width` = `layout_width` * 2
+            SQL
+    );
+};
+
+// -------------------------------------------- Resource Status -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDBO
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add column flapping to table resources';
+    if (! $pearDBO->isColumnExist('resources', 'flapping')) {
+        $pearDBO->exec(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
+            SQL
+        );
+    }
+
+    $errorMessage = 'Unable to add column percent_state_change to table resources';
+    if (! $pearDBO->isColumnExist('resources', 'percent_state_change')) {
+        $pearDBO->exec(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
+            SQL
+        );
+    }
+};
+
+
+// -------------------------------------------- Broker I/O Configuration -------------------------------------------- //
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$removeConstraintFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    // prevent side effect on the $removeFieldFromBrokerConfiguration function
+    $errorMessage = 'Unable to update table cb_list_values';
+    $pearDB->executeQuery(
+        <<<SQL
+        ALTER TABLE cb_list_values DROP CONSTRAINT `fk_cb_list_values_1`
+        SQL
+    );
+};
+
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$removeFieldFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to remove data from cb_field';
+    $pearDB->executeQuery(
+        <<<SQL
+        DELETE FROM cb_field WHERE fieldname = 'check_replication'
+        SQL
+    );
+
+    $errorMessage = 'Unable to remove data from cfg_centreonbroker_info';
+    $pearDB->executeQuery(
+        <<<SQL
+        DELETE FROM cfg_centreonbroker_info WHERE config_key = 'check_replication'
+        SQL
+    );
+};
+
+// -------------------------------------------- Downtimes -------------------------------------------- //
+/**
+ * Create index for resources table.
+ *
+ * @param CentreonDB $realtimeDb
+ *
+ * @throws CentreonDbException
+ */
+$createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
+    if (! $realtimeDb->isIndexExists('downtimes', 'downtimes_end_time_index')) {
+        $errorMessage = 'Unable to create index for downtimes table';
+        $realtimeDb->executeQuery('CREATE INDEX `downtimes_end_time_index` ON downtimes (`end_time`)');
+    }
+};
+
 try {
     $createAgentInformationTable($pearDBO);
     $addConnectorToTopology($pearDB);
     $changeAccNameInTopology($pearDB);
+    $addColumnToResourcesTable($pearDBO);
+    $removeConstraintFromBrokerConfiguration($pearDB);
+    $createIndexForDowntimes($pearDBO);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -134,6 +243,10 @@ try {
     }
 
     $insertAccConnectors($pearDB);
+    $updatePanelsLayout($pearDB);
+    $removeFieldFromBrokerConfiguration($pearDB);
+
+    $pearDB->commit();
 
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
@@ -148,8 +261,17 @@ try {
         exception: $e
     );
 
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
+    try {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+    } catch (PDOException $ex) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+            customContext: ['error_message' => $ex->getMessage(), 'trace' => $e->getTraceAsString()],
+            exception: $ex
+        );
     }
 
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);

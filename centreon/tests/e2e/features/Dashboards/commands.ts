@@ -355,7 +355,12 @@ Cypress.Commands.add('applyAcl', () => {
 
 Cypress.Commands.add(
   'verifyLegendItemStyle',
-  (index, expectedColors, expectedValue) => {
+  (
+    index: number,
+    expectedColors: Array<string>,
+    expectedValues: Array<string>,
+    alternativeValues: Array<string> = []
+  ): Cypress.Chainable => {
     cy.get('[data-testid="Legend"] > *')
       .eq(index)
       .each(($legendItem) => {
@@ -364,22 +369,29 @@ Cypress.Commands.add(
           .then(($aTags) => {
             $aTags.each((i, aTag) => {
               cy.wrap(aTag)
-                .find('div')
-                .invoke('attr', 'style')
+                .find("div")
+                .invoke("attr", "style")
                 .then((style) => {
                   expect(style).to.contain(expectedColors[i]);
                 });
 
-              // Get the value of the <p> element next to the <a> tag
               cy.wrap(aTag)
-                .next('p')
-                .invoke('text')
+                .next("p")
+                .invoke("text")
                 .then((text) => {
-                  expect(text).to.contain(expectedValue[i]);
+                  const possibleValues = [expectedValues[i]];
+
+                  if (alternativeValues[i]) {
+                    possibleValues.push(alternativeValues[i]);
+                  }
+
+                  expect(text.trim()).to.match(new RegExp(possibleValues.join("|")));
                 });
             });
           });
       });
+
+    return cy;
   }
 );
 
@@ -685,7 +697,8 @@ declare global {
       verifyLegendItemStyle: (
         index: number,
         expectedColors: Array<string>,
-        expectedValue: Array<string>
+        expectedValue: Array<string>,
+        alternativeValues?: Array<string>
       ) => Cypress.Chainable;
       visitDashboard: (name: string) => Cypress.Chainable;
       visitDashboards: () => Cypress.Chainable;

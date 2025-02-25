@@ -523,13 +523,7 @@ const getYScalePerUnit = ({
 };
 
 const formatTime = (value: number): string => {
-  if (value < 1000) {
-    return `${numeral(value).format('0.[00]a')} ms`;
-  }
-
-  const t = numeral(value / 1000).format('0.[00]a');
-
-  return `${t} seconds`;
+  return `${numeral(value).format('0.[00]a')} ms`;
 };
 
 const registerMsUnitToNumeral = (): null => {

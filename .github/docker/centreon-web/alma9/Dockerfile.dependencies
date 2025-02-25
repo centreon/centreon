@@ -106,6 +106,12 @@ dnf install -y \
   php-pear \
   php-json
 
+###################
+# install plugins #
+###################
+
+dnf install -y centreon-plugin-Operatingsystems-Linux-Snmp
+
 dnf clean all --enablerepo=*
 
 EOF

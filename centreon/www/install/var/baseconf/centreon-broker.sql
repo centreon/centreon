@@ -33,7 +33,6 @@ INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`
 INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`) VALUES (1, 'read_timeout', '', 'output', 0);
 INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`) VALUES (1, 'interval', '60', 'output', 0);
 INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`) VALUES (1, 'length', '15552000', 'output', 0);
-INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`) VALUES (1, 'check_replication', 'no', 'output', 0);
 INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`) VALUES (1, 'rebuild_check_interval', '', 'output', 0);
 INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`) VALUES (1, 'store_in_data_bin', 'yes', 'output', 0);
 INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`) VALUES (1, 'insert_in_index_data', '1', 'output', 0);
