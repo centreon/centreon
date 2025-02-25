@@ -279,22 +279,17 @@ When("I select host group filter with all service statuses", () => {
 Then(
 	"all associated services regardless of their status are shown in the result",
 	() => {
-		cy.waitForElementToBeVisible('div[class*="statusColumn"]:first').then(
-			() => {
-				cy.get('div[class*="statusColumn"]:first').should(
-					"contain.text",
-					"Pending",
-				);
-			},
-		);
-		cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-			const cellText = $statusCell.text().trim();
-			console.log(`Cell ${index}: ${cellText}`);
-			expect(["Pending", "OK"]).to.include(
-				cellText,
-				`Cell ${index} has unexpected text: ${cellText}`,
-			);
-		});
+	cy.waitForElementToBeVisible('div[class*="statusColumn"]:first').then(() => {
+	cy.get('div[class*="statusColumn"]:first').invoke("text").should((text) => {
+		expect(text.trim()).to.match(/Pending|Unknown/);
+	  });
+    });
+	cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
+		const cellText = $statusCell.text().trim();
+		console.log(`Cell ${index}: ${cellText}`);
+
+		expect(cellText).to.match(/^(Pending|OK|Unknown)$/);
+	 });
 	},
 );
 

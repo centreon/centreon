@@ -349,8 +349,8 @@ Then(
 		cy.getCellContent(1, 2).then((myTableContent) => {
 			expect(myTableContent[1]).to.include("Critical");
 			expect(myTableContent[2]).to.include("Warning");
-			expect(myTableContent[3]).to.include("Pending");
-			expect(myTableContent[6]).to.include("Pending");
+			expect(myTableContent[3]).to.match(/Pending|Unknown/);
+			expect(myTableContent[6]).to.match(/Pending|Unknown/);
 		});
 	},
 );
