@@ -71,7 +71,7 @@ Given('a configured passive service linked to the host', () => {
     template: services.serviceOk.template,
   })
     .applyPollerConfiguration();
-  cy.setPassiveResource('/centreon/api/latest/configuration/services/31');
+  cy.setPassiveResource('/centreon/api/latest/configuration/services/27');
 })
 
 When(
