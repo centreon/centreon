@@ -313,8 +313,13 @@ jobs:
       - name: Display retries summary
         run: |
           ls -lR ${{ inputs.name }}-json-reports
+          echo "ok1"
           cat ${{ inputs.name }}-json-reports/*retries.json
-          cat ${{ inputs.name }}-json-reports/*retries.json | jq 'to_entries | reduce .[] as $item ({}; . * $item)' > retries.json
+          echo "ok2"
+          cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add
+          cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add > retries.json
+          # cat ${{ inputs.name }}-json-reports/*retries.json | jq 'to_entries | reduce .[] as $item ({}; . * $item)' > retries.json
+          echo "ok3"
           cat retries.json
           if [[ $(jq 'to_entries | length' retries.json) -gt 0 ]]; then
             retriesHtml="<h2>:warning:The following tests were retried during execution:</h2>\n"
