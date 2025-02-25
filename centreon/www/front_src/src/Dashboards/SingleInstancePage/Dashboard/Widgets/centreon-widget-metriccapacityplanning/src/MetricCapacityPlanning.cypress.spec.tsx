@@ -41,7 +41,7 @@ describe('Metric capacity planning widget', () => {
     cy.makeSnapshot();
   });
 
-  it('does not display a no resource message when the widget does not have selected metrics', () => {
+  it('does not display a no resource message when the widget have selected metrics', () => {
     initialize({
       panelData: {
         resources: [
