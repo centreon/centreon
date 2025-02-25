@@ -155,7 +155,7 @@ runs:
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
         # Get the list of failed jobs
-        run_id=$(gh run list --workflow "${{ github.workflow }}" --branch "${{ github.ref_name }}" --user "github-actions[bot]" --json databaseId -q '.[0].databaseId')
+        run_id=$(gh run list --workflow "${{ github.workflow }}" --branch "${{ github.ref_name }}" --json databaseId -q '.[0].databaseId')
         mapfile -t jobs_failed < <(gh run view $run_id --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name')
         echo "[DEBUG] - jobs failed on workflow ${{ github.workflow }}: $jobs_failed"
         BULLET_LIST_JOBS=$(for job in "${jobs_failed[@]}"; do
