@@ -202,7 +202,7 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findHostsCountByIds(array $hostGroupIds): HostsCountById
+    public function findHostsCountByIds(array $hostGroupIds): array
     {
         throw RepositoryException::notYetImplemented();
     }
@@ -210,7 +210,7 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): HostsCountById
+    public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): array
     {
         throw RepositoryException::notYetImplemented();
     }

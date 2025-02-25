@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\HostGroup\Application\UseCase\FindHostGroups;
 
 use Core\Application\Common\UseCase\ListingResponseInterface;
-use Core\HostGroup\Application\UseCase\FindHostGroups\Response\HostGroupResponse;
+use Core\HostGroup\Application\UseCase\FindHostGroups\HostGroupResponse;
 
 final class FindHostGroupsResponse implements ListingResponseInterface
 {

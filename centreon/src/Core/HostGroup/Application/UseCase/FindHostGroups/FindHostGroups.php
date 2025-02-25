@@ -30,8 +30,9 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
-use Core\HostGroup\Application\UseCase\FindHostGroups\Response\HostGroupResponse;
+use Core\HostGroup\Application\UseCase\FindHostGroups\HostGroupResponse;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\HostGroupRelationCount;
 use Core\HostGroup\Domain\Model\HostsCountById;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -143,30 +144,18 @@ final class FindHostGroups
 
     /**
      * @param iterable<HostGroup> $hostGroups
-     * @param ?HostsCountById $hostsCount
+     * @param array<HostGroupRelationCount> $hostsCount
      *
      * @return FindHostGroupsResponse
      */
-    private function createResponse(iterable $hostGroups, ?HostsCountById $hostsCount): FindHostGroupsResponse
+    private function createResponse(iterable $hostGroups, array $hostsCount): FindHostGroupsResponse
     {
         $response = new FindHostGroupsResponse();
 
-        foreach ($hostGroups as $hostGroup) {
+        foreach ($hostGroups as $hostgroup) {
             $response->hostgroups[] = new HostGroupResponse(
-                id: $hostGroup->getId(),
-                name: $hostGroup->getName(),
-                alias: $hostGroup->getAlias(),
-                notes: $hostGroup->getNotes(),
-                notesUrl: $hostGroup->getNotesUrl(),
-                actionUrl: $hostGroup->getActionUrl(),
-                iconId: $hostGroup->getIconId(),
-                iconMapId: $hostGroup->getIconMapId(),
-                rrdRetention: $hostGroup->getRrdRetention(),
-                geoCoords: $hostGroup->getGeoCoords(),
-                comment: $hostGroup->getComment(),
-                isActivated: $hostGroup->isActivated(),
-                enabledHostsCount: $hostsCount ? $hostsCount->getEnabledCount($hostGroup->getId()): 0,
-                disabledHostsCount: $hostsCount ? $hostsCount->getDisabledCount($hostGroup->getId()) : 0,
+                hostgroup: $hostgroup,
+                hostsCount: $hostsCount[$hostgroup->getId()] ?? null
             );
         }
 

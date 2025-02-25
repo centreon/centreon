@@ -19,33 +19,35 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\HostGroup\Application\UseCase\FindHostGroup;
+namespace Core\HostGroup\Domain\Model;
 
-final class FindHostGroupResponse
+class HostGroupRelationCount
 {
-    public int $id = 0;
+    public function __construct(
+        public int $enabledHostsCount = 0,
+        public int $disabledHostsCount = 0,
+    ) {
+    }
 
-    public string $name = '';
+    public function setEnabledHostsCount(int $count): void
+    {
+        $this->enabledHostsCount = $count;
+    }
 
-    public string $alias = '';
+    public function setDisabledHostsCount(int $count): void
+    {
+        $this->disabledHostsCount = $count;
+    }
 
-    public string $notes = '';
+    public function getEnabledHostsCount(): int
+    {
+        return $this->enabledHostsCount;
+    }
 
-    public string $notesUrl = '';
-
-    public string $actionUrl = '';
-
-    public ?int $iconId = null;
-
-    public ?int $iconMapId = null;
-
-    public ?int $rrdRetention = null;
-
-    public ?string $geoCoords = null;
-
-    public string $comment = '';
-
-    public bool $isActivated = true;
+    public function getDisabledHostsCount(): int
+    {
+        return $this->disabledHostsCount;
+    }
 }
