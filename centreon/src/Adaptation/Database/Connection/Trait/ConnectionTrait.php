@@ -54,6 +54,7 @@ trait ConnectionTrait
     {
         try {
             $databaseName = $this->fetchFirstColumn('SELECT DATABASE()')[0];
+
             return is_string($databaseName) ? $databaseName : null;
         } catch (\Throwable $exception) {
             $this->writeDbLog(
