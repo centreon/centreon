@@ -144,7 +144,6 @@ When('the user duplicates a host category', () => {
 });
 
 Then('a new host category is created with identical properties', () => {
-  throw new Error('test');
   cy.getIframeBody()
     .contains(`${hostCategories.default.name}_1`)
     .should('exist');
