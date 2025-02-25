@@ -1,9 +1,6 @@
 import fs from 'fs';
 
 const reportFile = process.argv[2];
-const repo = process.argv[3];
-const branch = process.argv[4];
-const urlFilePrefix = process.argv[5];
 
 if (!reportFile) {
   throw new Error('No report file provided');
@@ -65,7 +62,7 @@ const details =
             <br />`;
         }).join('')}
       </details>`;
-  });
+  }).join('');
 
 const newReportContent = `${summary}${details}`;
 

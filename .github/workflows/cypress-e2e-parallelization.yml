@@ -307,7 +307,6 @@ jobs:
           check_name: ${{ inputs.name }}-report
           path: mochawesome.json
           format: cypress
-          urlFilePrefix: centreon/tests/e2e
 
       - name: Display retries summary
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
