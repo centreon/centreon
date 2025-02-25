@@ -63,6 +63,7 @@ describe('About page', () => {
 
   it('displays the about page', () => {
     mountComponent();
+    throw new Error('kdu failed the test');
     cy.findByAltText('Centreon Logo').should('be.visible');
 
     projectLeaders.forEach((project) => {

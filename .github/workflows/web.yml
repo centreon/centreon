@@ -295,22 +295,22 @@ jobs:
   #       with:
   #         path: "centreon/junit.xml"
 
-  # frontend-component-test:
-  #   needs: [changes, get-environment]
-  #   if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
-  #   uses: ./.github/workflows/cypress-component-parallelization.yml
-  #   secrets:
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
-  #     jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-  #     jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-  #     jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-  #   with:
-  #     name: centreon
-  #     module_name: centreon
-  #     specs_path: www/**
-  #     dependencies_lock_file: centreon/pnpm-lock.yaml
-  #     is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+  frontend-component-test:
+    needs: [changes, get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+    with:
+      name: centreon
+      module_name: centreon
+      specs_path: www/**
+      dependencies_lock_file: centreon/pnpm-lock.yaml
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
   # backend-unit-test:
   #   runs-on: ubuntu-24.04
