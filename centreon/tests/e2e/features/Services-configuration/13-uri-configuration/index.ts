@@ -3,17 +3,17 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 const link = 'https://www.google.com/';
 const services = {
-	serviceCritical: {
-		host: "host3",
-		name: "service3",
-		template: "SNMP-Linux-Load-Average",
-	},
-	serviceOk: { host: "host2", name: "service_test_ok", template: "Ping-LAN" },
-	serviceWarning: {
-		host: "host2",
-		name: "service2",
-		template: "SNMP-Linux-Memory",
-	},
+  serviceCritical: {
+    host: "host3",
+    name: "service3",
+    template: "SNMP-Linux-Load-Average",
+  },
+  serviceOk: { host: "host2", name: "service_test_ok", template: "Ping-LAN" },
+  serviceWarning: {
+    host: "host2",
+    name: "service2",
+    template: "SNMP-Linux-Memory",
+  },
 };
 
 const visitStatusDetailPage = () => {
@@ -53,11 +53,11 @@ Given('a user is logged in a Centreon server', () => {
 
 Given('a configured passive host', () => {
   cy.addHost({
-		hostGroup: "Linux-Servers",
-		name: services.serviceOk.host,
-		template: "generic-host",
-	})
-	.applyPollerConfiguration();
+    hostGroup: "Linux-Servers",
+    name: services.serviceOk.host,
+    template: "generic-host",
+  })
+    .applyPollerConfiguration();
   cy.setPassiveResource('/centreon/api/latest/configuration/hosts/15');
 }
 );
@@ -70,7 +70,7 @@ Given('a configured passive service linked to the host', () => {
     name: services.serviceOk.name,
     template: services.serviceOk.template,
   })
-  .applyPollerConfiguration();
+    .applyPollerConfiguration();
   cy.setPassiveResource('/centreon/api/latest/configuration/services/31');
 })
 
@@ -103,8 +103,8 @@ Then('the user can access to the page "Monitoring > Status Details > Services"',
   visitStatusDetailPage();
   cy.waitForElementInIframe('#main-content', 'input[name="host_search"]');
   // Chose the 'All' option as Service Status filter
-  cy.getIframeBody().find('select#statusService') 
-  .select('All');
+  cy.getIframeBody().find('select#statusService')
+    .select('All');
 });
 
 When('the user submits result for the configured service', () => {
@@ -170,8 +170,8 @@ When('the user visits "Monitoring > Status Details > Services"', () => {
 When('the user adds a comment to a configured passive service', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="host_search"]');
   // Chose the 'All' option as Service Status filter
-  cy.getIframeBody().find('select#statusService') 
-  .select('All');
+  cy.getIframeBody().find('select#statusService')
+    .select('All');
   // Wait for the 'service_test_ok' to be visible in the DOM
   cy.waitForElementInIframe('#main-content', 'a:contains("service_test_ok")');
   // Click on the 'service_test_ok' passive service
@@ -190,16 +190,16 @@ When('the user adds a comment to a configured passive service', () => {
   cy.wait('@getTimeZone');
 });
 
-Then('the comment is displayed on "Monitoring > Downtimes > Comments " listing page', () => {
+Then('the comment is displayed on "Monitoring > Downtimes > Comments" listing page', () => {
   // Check that the user is redirected to the "Monitoring > Downtimes > Comments " listing page
   cy.url().should('eq', 'http://127.0.0.1:4000/centreon/main.php?p=21002');
   cy.waitUntil(
     () => {
       cy.waitForElementInIframe('#main-content', 'table.ListTable');
       return cy.getIframeBody()
-      .find('table.ListTable')
-      .eq(0) 
-      .find('tbody tr')
+        .find('table.ListTable')
+        .eq(0)
+        .find('tbody tr')
         .then(($elts) => {
           const count = $elts.length;
           if (count == 1) {
