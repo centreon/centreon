@@ -30,8 +30,9 @@ use Core\Common\Domain\Exception\CollectionException;
  *
  * @class      Collection
  * @package    Core\Common\Domain\Collection
- * @template   TItem of object
+ * @template   TItem of mixed
  * @implements CollectionInterface<TItem>
+ * @phpstan-consistent-constructor
  */
 abstract class Collection implements CollectionInterface
 {
@@ -47,6 +48,8 @@ abstract class Collection implements CollectionInterface
      *
      * @example $collection = new Collection(['key1' => new Item(), 'key2' => new Item()]);
      *          $collection = new Collection([0 => new Item(), 1 => new Item()]);
+     *          $collection = new Collection([0 => 'bar', 1 => 'foo']);
+     *          $collection = new Collection([0 => 4555, 1 => 9999]);
      */
     final public function __construct(array $items = [])
     {
@@ -60,20 +63,22 @@ abstract class Collection implements CollectionInterface
      * @param array<string|int,TItem> $items
      *
      * @throws CollectionException
-     * @return static
+     * @return Collection<TItem>
      *
      * @example $collection = Collection::create(['key1' => new Item(), 'key2' => new Item()]);
      *          $collection = Collection::create([0 => new Item(), 1 => new Item()]);
+     *          $collection = Collection::create([0 => 'foo', 1 => 'bar']);
+     *          $collection = Collection::create([0 => 4555, 1 => 9999]);
      */
-    final public static function create(array $items): static
+    final public static function create(array $items): CollectionInterface
     {
         return new static($items);
     }
 
     /**
-     * @return static
+     * @return Collection<TItem>
      */
-    public function clear(): static
+    public function clear(): CollectionInterface
     {
         $this->items = [];
 
@@ -143,9 +148,9 @@ abstract class Collection implements CollectionInterface
      * @param callable $callable
      *
      * @throws CollectionException
-     * @return static
+     * @return Collection<TItem>
      */
-    public function filter(callable $callable): static
+    public function filter(callable $callable): CollectionInterface
     {
         return new static(array_filter($this->items, $callable));
     }
@@ -156,9 +161,9 @@ abstract class Collection implements CollectionInterface
      * @param CollectionInterface<TItem> ...$collections
      *
      * @throws CollectionException
-     * @return static
+     * @return Collection<TItem>
      */
-    public function mergeWith(CollectionInterface ...$collections): static
+    public function mergeWith(CollectionInterface ...$collections): CollectionInterface
     {
         $itemsBackup = $this->items;
         foreach ($collections as $collection) {
@@ -258,33 +263,20 @@ abstract class Collection implements CollectionInterface
 
     /**
      * @throws CollectionException
-     * @return array<string,mixed>[]
-     */
-    public function jsonSerialize(): array
-    {
-        $serializedItems = [];
-        foreach ($this->items as $item) {
-            if (method_exists($item, 'jsonSerialize')) {
-                $serializedItems[] = $item->jsonSerialize();
-            } else {
-                $serializedItems[] = get_object_vars($item);
-            }
-        }
-
-        return $serializedItems;
-    }
-
-    /**
-     * @throws CollectionException
      * @return string
      */
     public function toJson(): string
     {
-        $json = json_encode($this->jsonSerialize());
-        if (! $json) {
+        try {
+            $json = json_encode($this->jsonSerialize(), JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
             throw new CollectionException(
-                'Stringify the collection to json failed',
-                ['serializedCollection' => $this->jsonSerialize()]
+                "Stringify the collection to json failed : {$exception->getMessage()}",
+                [
+                    'serializedCollection' => $this->jsonSerialize(),
+                    'json_last_error_message' => json_last_error_msg(),
+                ],
+                $exception
             );
         }
 
@@ -292,25 +284,15 @@ abstract class Collection implements CollectionInterface
     }
 
     /**
+     * @return array<string,mixed>
+     */
+    abstract public function jsonSerialize(): array;
+
+    /**
      * @param TItem $item
      *
      * @throws CollectionException
      * @return void
      */
-    protected function validateItem($item): void
-    {
-        $class = $this->itemClass();
-        if (! $item instanceof $class) {
-            throw new CollectionException(
-                sprintf('Item must be an instance of %s, %s given', $class, $item::class)
-            );
-        }
-    }
-
-    /**
-     * Return the name of item class in the collection
-     *
-     * @return class-string<TItem>
-     */
-    abstract protected function itemClass(): string;
+    abstract protected function validateItem($item): void;
 }

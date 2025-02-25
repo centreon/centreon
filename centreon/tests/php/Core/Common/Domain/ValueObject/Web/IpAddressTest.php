@@ -149,3 +149,8 @@ it('test IpAddress value object : magic method toString', function () {
     $ipAddress = new IpAddress("170.0.0.1");
     expect("$ipAddress")->toBe("170.0.0.1");
 });
+
+it('test IpAddress value object : json serialize', function () {
+    $ipAddress = new IpAddress("170.0.0.1");
+    expect($ipAddress->jsonSerialize())->toBe('170.0.0.1');
+});

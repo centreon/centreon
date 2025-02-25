@@ -26,6 +26,8 @@ namespace Adaptation\Database\Connection\Collection;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Collection\Collection;
+use Core\Common\Domain\Collection\CollectionInterface;
+use Core\Common\Domain\Collection\ObjectCollection;
 use Core\Common\Domain\Exception\CollectionException;
 
 /**
@@ -33,15 +35,15 @@ use Core\Common\Domain\Exception\CollectionException;
  *
  * @class   QueryParameters
  * @package Adaptation\Database\Connection\Collection
- * @extends Collection<QueryParameter>
+ * @extends ObjectCollection<QueryParameter>
  */
-class QueryParameters extends Collection
+class QueryParameters extends ObjectCollection
 {
     /**
      * @throws CollectionException
      * @return Collection<QueryParameter>
      */
-    public function getIntQueryParameters(): Collection
+    public function getIntQueryParameters(): CollectionInterface
     {
         return $this->filter(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::INTEGER
@@ -52,7 +54,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return Collection<QueryParameter>
      */
-    public function getStringQueryParameters(): Collection
+    public function getStringQueryParameters(): CollectionInterface
     {
         return $this->filter(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::STRING
@@ -63,7 +65,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return Collection<QueryParameter>
      */
-    public function getBoolQueryParameters(): Collection
+    public function getBoolQueryParameters(): CollectionInterface
     {
         return $this->filter(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::BOOLEAN
@@ -74,7 +76,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return Collection<QueryParameter>
      */
-    public function getNullQueryParameters(): Collection
+    public function getNullQueryParameters(): CollectionInterface
     {
         return $this->filter(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::NULL
@@ -85,7 +87,7 @@ class QueryParameters extends Collection
      * @throws CollectionException
      * @return Collection<QueryParameter>
      */
-    public function getLargeObjectQueryParameters(): Collection
+    public function getLargeObjectQueryParameters(): CollectionInterface
     {
         return $this->filter(
             fn(QueryParameter $queryParameter) => $queryParameter->type === QueryParameterTypeEnum::LARGE_OBJECT
