@@ -26,7 +26,10 @@ namespace Core\Common\Infrastructure\Validator\Constraints;
 use Core\Common\Domain\PlatformType;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Composite;
+use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
+use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Exception\LogicException;
+use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * Strongly Inspired by Symfony\Component\Validator\Constraints\When
@@ -44,6 +47,18 @@ use Symfony\Component\Validator\Exception\LogicException;
 )]
 final class WhenPlatform extends Composite
 {
+    /**
+     * @param string $platform
+     * @param Constraint[]|Constraint|null $constraints
+     * @param null|string[] $groups
+     * @param mixed $payload
+     * @param array<mixed> $options
+     *
+     * @throws LogicException
+     * @throws ConstraintDefinitionException
+     * @throws InvalidOptionsException
+     * @throws MissingOptionsException
+     */
     public function __construct(
         public string $platform,
         public array|Constraint|null $constraints = null,

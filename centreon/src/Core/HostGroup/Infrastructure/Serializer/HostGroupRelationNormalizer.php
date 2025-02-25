@@ -51,6 +51,7 @@ class HostGroupRelationNormalizer implements NormalizerInterface
             object: $object->getHostGroup(),
             context: $context
         );
+        /** @var array<string, mixed> $hostGroup */
         if (array_key_exists('geo_coords', $hostGroup)) {
             $hostGroup['geo_coords'] = (string) $object->getHostGroup()->getGeoCoords();
         }

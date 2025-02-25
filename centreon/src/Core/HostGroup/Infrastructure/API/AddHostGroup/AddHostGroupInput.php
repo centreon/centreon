@@ -29,6 +29,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class AddHostGroupInput
 {
+    /**
+     * Undocumented function
+     *
+     * @param string $name
+     * @param string|null $alias
+     * @param string|null $geoCoords
+     * @param string|null $comment
+     * @param int[] $hosts
+     * @param int[] $resourceAccessRules
+     */
     public function __construct(
         #[Assert\NotNull()]
         #[Assert\Type('string')]

@@ -25,17 +25,23 @@ namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
 final class AddHostGroupRequest
 {
-    public string $name = '';
-
-    public string $alias = '';
-
-    public ?string $geoCoords = null;
-
-    public string $comment = '';
-
-    /** @var int[] */
-    public array $hosts = [];
-
-    /** @var int[] */
-    public array $resourceAccessRules = [];
+    /**
+     *
+     * @param string $name
+     * @param string $alias
+     * @param null|string $geoCoords
+     * @param string $comment
+     * @param int[] $hosts
+     * @param int[] $resourceAccessRules
+     * @return void
+     */
+    public function __construct(
+        public string $name = '',
+        public string $alias = '',
+        public ?string $geoCoords = null,
+        public string $comment = '',
+        public array $hosts = [],
+        public array $resourceAccessRules = []
+    ) {
+    }
 }

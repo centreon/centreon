@@ -32,7 +32,6 @@ use Core\Application\Common\UseCase\{
     InvalidArgumentResponse,
     ResponseStatusInterface
 };
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -66,7 +65,6 @@ final class AddHostGroup
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
         private readonly ReadHostRepositoryInterface $readHostRepository,
-        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
@@ -104,7 +102,6 @@ final class AddHostGroup
 
             $this->writeHostGroupRepository->addHosts($newHostGroupId, $request->hosts);
             $this->linkHostGroupToRessourceAccess($request->resourceAccessRules, $newHostGroupId);
-            $this->storageEngine->commitTransaction();
 
             $newHostGroup = $this->readHostGroupRepository->findOne($newHostGroupId);
             if ($newHostGroup === null) {
@@ -113,10 +110,13 @@ final class AddHostGroup
             $linkedHosts = $this->readHostRepository->findByHostGroup($newHostGroupId);
             if ($this->isCloudPlatform) {
                 $linkedResourceAccessRules = array_map(
-                    fn (int $ruleId) => $this->readResourceAccessRepository->findById($ruleId),
+                    fn (int $ruleId) => $this->readResourceAccessRepository->findById($ruleId)
+                    ?? throw RuleException::errorWhileRetrievingARule(),
                     $request->resourceAccessRules
                 );
             }
+
+            $this->storageEngine->commitTransaction();
 
             return new AddHostGroupResponse(
                 new HostGroupRelation($newHostGroup, $linkedHosts, $linkedResourceAccessRules ?? [])
@@ -148,7 +148,7 @@ final class AddHostGroup
      *      For Cloud: Host Groups are added to Datasets's Resource Access Rules,
      *          only if the dataset Hostgroup has no parent
      *
-     * @param array $resourceAccessRuleIds
+     * @param int[] $resourceAccessRuleIds
      * @param int $hostGroupId
      *
      * @throws \Throwable
@@ -196,7 +196,7 @@ final class AddHostGroup
         if (! $this->user->isAdmin()) {
             $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndAccessGroups(
                 $hostGroupId,
-                $this->readAccessGroupRepository->findByContact($this->contact)
+                $this->readAccessGroupRepository->findByContact($this->user)
             );
         }
     }

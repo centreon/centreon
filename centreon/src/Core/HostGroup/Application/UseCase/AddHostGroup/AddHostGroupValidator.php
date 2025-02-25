@@ -49,7 +49,6 @@ class AddHostGroupValidator
     }
 
     /**
-     * @param AddHostGroupRequest $request
      * @param string $hostGroupName
      *
      * @throws HostGroupException
@@ -67,7 +66,7 @@ class AddHostGroupValidator
      * Assert that given host ids exists (filtered by access groups for non admin users)
      *
      * @param int[] $hostIds
-     * @throws Throwable|HostException
+     * @throws \Throwable|HostException
      */
     public function assertHostsExist(array $hostIds): void
     {

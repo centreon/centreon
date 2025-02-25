@@ -28,10 +28,13 @@ use Core\HostGroup\Domain\Model\HostGroupRelation;
 
 final readonly class AddHostGroupResponse implements StandardResponseInterface
 {
-    public function __construct(private readonly mixed $data)
+    public function __construct(private readonly HostGroupRelation $data)
     {
     }
 
+    /**
+     * @return HostGroupRelation
+     */
     public function getData(): HostGroupRelation
     {
         return $this->data;
