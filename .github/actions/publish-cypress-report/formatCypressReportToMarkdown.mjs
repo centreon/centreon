@@ -60,7 +60,7 @@ const details =
 <div>
   <h2>${file} :arrow_down_small:</h2>
   ${await mapSeries({ array: tests, callback: async ({ fullTitle, err, fail, duration }) => {
-    if (fail) {
+    if (! fail) {
       return;
     }
     const stackLines = err.estack ? err.estack.split('\n') : [];
