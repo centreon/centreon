@@ -63,22 +63,22 @@ abstract class Collection implements CollectionInterface
      * @param array<string|int,TItem> $items
      *
      * @throws CollectionException
-     * @return Collection<TItem>
+     * @return static
      *
      * @example $collection = Collection::create(['key1' => new Item(), 'key2' => new Item()]);
      *          $collection = Collection::create([0 => new Item(), 1 => new Item()]);
      *          $collection = Collection::create([0 => 'foo', 1 => 'bar']);
      *          $collection = Collection::create([0 => 4555, 1 => 9999]);
      */
-    final public static function create(array $items): CollectionInterface
+    final public static function create(array $items): static
     {
         return new static($items);
     }
 
     /**
-     * @return Collection<TItem>
+     * @return static
      */
-    public function clear(): CollectionInterface
+    public function clear(): static
     {
         $this->items = [];
 
@@ -148,9 +148,9 @@ abstract class Collection implements CollectionInterface
      * @param callable $callable
      *
      * @throws CollectionException
-     * @return Collection<TItem>
+     * @return static
      */
-    public function filter(callable $callable): CollectionInterface
+    public function filter(callable $callable): static
     {
         return new static(array_filter($this->items, $callable));
     }
@@ -161,9 +161,9 @@ abstract class Collection implements CollectionInterface
      * @param CollectionInterface<TItem> ...$collections
      *
      * @throws CollectionException
-     * @return Collection<TItem>
+     * @return static
      */
-    public function mergeWith(CollectionInterface ...$collections): CollectionInterface
+    public function mergeWith(CollectionInterface ...$collections): static
     {
         $itemsBackup = $this->items;
         foreach ($collections as $collection) {
@@ -199,9 +199,9 @@ abstract class Collection implements CollectionInterface
      * @param TItem $item
      *
      * @throws CollectionException
-     * @return Collection<TItem>
+     * @return static
      */
-    public function add(int|string $key, $item): CollectionInterface
+    public function add(int|string $key, $item): static
     {
         if (isset($this->items[$key])) {
             throw new CollectionException("Key {$key} already used in this collection");
@@ -217,9 +217,9 @@ abstract class Collection implements CollectionInterface
      * @param TItem $item
      *
      * @throws CollectionException
-     * @return Collection<TItem>
+     * @return static
      */
-    public function put(int|string $key, $item): CollectionInterface
+    public function put(int|string $key, $item): static
     {
         $this->validateItem($item);
         $this->items[$key] = $item;
