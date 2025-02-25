@@ -50,7 +50,7 @@ it('test query parameter value object : failed instanciation with create (bad ty
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with create (bad type for large object) ', function () {
-    \Adaptation\Database\Connection\ValueObject\QueryParameter::create('name', 0, QueryParameterTypeEnum::LARGE_OBJECT);
+    QueryParameter::create('name', 0, QueryParameterTypeEnum::LARGE_OBJECT);
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : success instanciation with string type', function () {
@@ -73,11 +73,11 @@ it('test query parameter value object : success instanciation with string type',
 });
 
 it('test query parameter value object : failed instanciation with string type (empty name) ', function () {
-    \Adaptation\Database\Connection\ValueObject\QueryParameter::string('', 'value');
+    QueryParameter::string('', 'value');
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with string type (bad value) ', function () {
-    \Adaptation\Database\Connection\ValueObject\QueryParameter::string('name', 0);
+    QueryParameter::string('name', 0);
 })->throws(\TypeError::class);
 
 it('test query parameter value object : success instanciation with int type', function () {
@@ -88,11 +88,11 @@ it('test query parameter value object : success instanciation with int type', fu
 });
 
 it('test query parameter value object : failed instanciation with int type (empty name) ', function () {
-    \Adaptation\Database\Connection\ValueObject\QueryParameter::int('', 1);
+    QueryParameter::int('', 1);
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with int type (bad value) ', function () {
-    \Adaptation\Database\Connection\ValueObject\QueryParameter::int('name', 'value');
+    QueryParameter::int('name', 'value');
 })->throws(\TypeError::class);
 
 it('test query parameter value object : success instanciation with bool type', function () {
@@ -111,7 +111,7 @@ it('test query parameter value object : failed instanciation with bool type (bad
 })->throws(\TypeError::class);
 
 it('test query parameter value object : success instanciation with null type', function () {
-    $param = \Adaptation\Database\Connection\ValueObject\QueryParameter::null('name');
+    $param = QueryParameter::null('name');
     expect($param->getName())->toBe('name')
         ->and($param->getValue())->toBeNull()
         ->and($param->getType())->toBe(QueryParameterTypeEnum::NULL);
@@ -122,7 +122,7 @@ it('test query parameter value object : failed instanciation with null type (emp
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : success instanciation with large object type', function () {
-    $param = \Adaptation\Database\Connection\ValueObject\QueryParameter::largeObject('name', 'value');
+    $param = QueryParameter::largeObject('name', 'value');
     expect($param->getName())->toBe('name')
         ->and($param->getValue())->toBe('value')
         ->and($param->getType())->toBe(QueryParameterTypeEnum::LARGE_OBJECT);
@@ -133,6 +133,16 @@ it('test query parameter value object : failed instanciation with large object t
 })->throws(ValueObjectException::class);
 
 it('test query parameter value object : failed instanciation with large object type (bad value) ', function () {
-    \Adaptation\Database\Connection\ValueObject\QueryParameter::largeObject('name', 1);
+    QueryParameter::largeObject('name', 1);
 })->throws(ValueObjectException::class);
 
+it('test query parameter value object : json serialize', function () {
+    $param = QueryParameter::string('name', 'value');
+    expect($param->jsonSerialize())->toBe(
+        [
+            'name' => 'name',
+            'value' => 'value',
+            'type' => QueryParameterTypeEnum::STRING,
+        ]
+    );
+});
