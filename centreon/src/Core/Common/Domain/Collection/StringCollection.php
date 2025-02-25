@@ -21,23 +21,40 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain\ValueObject;
+namespace Core\Common\Domain\Collection;
 
-use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Domain\Exception\CollectionException;
 
 /**
- * Interface
+ * Class
  *
- * @class   ValueObjectInterface
- * @package Core\Common\Domain\ValueObject
+ * @class StringCollection
+ * @package Core\Common\Domain\Collection
+ * @template   TItem of string
+ * @extends Collection<TItem>
  */
-interface ValueObjectInterface extends \JsonSerializable, \Stringable
+class StringCollection extends Collection
 {
     /**
-     * @param ValueObjectInterface $object
-     *
-     * @throws ValueObjectException
-     * @return bool
+     * @return array<int|string,string>
      */
-    public function equals(self $object): bool;
+    public function jsonSerialize(): array
+    {
+        return $this->items;
+    }
+
+    /**
+     * @param string $item
+     *
+     * @throws CollectionException
+     * @return void
+     */
+    protected function validateItem($item): void
+    {
+        if (! is_string($item)) {
+            throw new CollectionException(
+                sprintf('Item must be a string, %s given', gettype($item))
+            );
+        }
+    }
 }

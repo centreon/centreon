@@ -2,9 +2,9 @@
 
 namespace Tests\Core\Common\Domain\Collection;
 
-use Core\Common\Domain\Collection\Collection;
+use Core\Common\Domain\Collection\ObjectCollection;
 
-class CollectionStub extends Collection
+class ObjectCollectionStub extends ObjectCollection
 {
     protected function itemClass(): string
     {

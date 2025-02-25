@@ -165,3 +165,9 @@ it('test LiteralString value object : magic method toString', function () {
     $literalString = new LiteralString("foo");
     expect("$literalString")->toBe("foo");
 });
+
+it('test LiteralString value object : json serialize', function () {
+    $literalString = new LiteralString("foo");
+    expect($literalString->jsonSerialize())->toBe('foo');
+});
+

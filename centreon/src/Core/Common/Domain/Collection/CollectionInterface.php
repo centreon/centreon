@@ -28,7 +28,7 @@ namespace Core\Common\Domain\Collection;
  *
  * @class    CollectionInterface
  * @package  Core\Common\Domain\Collection
- * @template TItem of object
+ * @template TItem of mixed
  * @extends \IteratorAggregate<TItem>
  */
 interface CollectionInterface extends \IteratorAggregate, \JsonSerializable

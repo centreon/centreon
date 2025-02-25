@@ -191,3 +191,8 @@ it('test Email value object : get domain part', function () {
     $email = new Email("yoyo@toto.fr");
     expect($email->getDomainPart()->getValue())->toBe("toto.fr");
 });
+
+it('test Email value object : json serialize', function () {
+    $email = new Email("yoyo@toto.fr");
+    expect($email->jsonSerialize())->toBe('yoyo@toto.fr');
+});

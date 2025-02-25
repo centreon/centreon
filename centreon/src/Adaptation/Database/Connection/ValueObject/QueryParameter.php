@@ -203,6 +203,18 @@ final readonly class QueryParameter implements ValueObjectInterface
     }
 
     /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'name' => $this->name,
+            'value' => $this->value,
+            'type' => $this->type,
+        ];
+    }
+
+    /**
      * @return string
      */
     public function getName(): string

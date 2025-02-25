@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Connection\Collection;
 
-use Core\Common\Domain\Collection\Collection;
+use Core\Common\Domain\Collection\ObjectCollection;
 
 /**
  * Class
  *
  * @class   BatchInsertParameters
  * @package Adaptation\Database\Connection\Collection
- * @extends Collection<QueryParameters>
+ * @extends ObjectCollection<QueryParameters>
  */
-class BatchInsertParameters extends Collection
+class BatchInsertParameters extends ObjectCollection
 {
     /**
      * @return class-string<QueryParameters>

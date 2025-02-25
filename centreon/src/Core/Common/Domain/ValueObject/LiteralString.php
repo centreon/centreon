@@ -163,4 +163,12 @@ readonly class LiteralString implements ValueObjectInterface
 
         return $this->value === $object->getValue();
     }
+
+    /**
+     * @return string
+     */
+    public function jsonSerialize(): string
+    {
+        return $this->value;
+    }
 }

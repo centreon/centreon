@@ -21,23 +21,32 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain\ValueObject;
+namespace Core\Common\Domain\Collection;
 
-use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Domain\ValueObject\LiteralString;
 
 /**
- * Interface
+ * Class
  *
- * @class   ValueObjectInterface
- * @package Core\Common\Domain\ValueObject
+ * @class LiteralStringCollection
+ * @package Core\Common\Domain\Collection
+ * @extends ObjectCollection<LiteralString>
  */
-interface ValueObjectInterface extends \JsonSerializable, \Stringable
+class LiteralStringCollection extends ObjectCollection
 {
     /**
-     * @param ValueObjectInterface $object
-     *
-     * @throws ValueObjectException
-     * @return bool
+     * @return array<int|string,string>
      */
-    public function equals(self $object): bool;
+    public function jsonSerialize(): array
+    {
+        return array_map(fn ($item) => $item->jsonSerialize(), $this->items);
+    }
+
+    /**
+     * @return class-string<LiteralString>
+     */
+    protected function itemClass(): string
+    {
+        return LiteralString::class;
+    }
 }
