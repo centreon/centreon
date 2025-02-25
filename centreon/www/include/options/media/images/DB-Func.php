@@ -514,6 +514,63 @@ function isCorrectMIMEType(array $file): bool
             file_put_contents($file['tmp_name'], $cleanSVG);
             return true;
             break;
+        case 'image/jpeg':
+            /**
+             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             */
+            $image = @imagecreatefromjpeg($file['tmp_name']);
+            if (! $image) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    "Unable to validate image, your image may be corrupted",
+                    [
+                        'mime_type' => $mimeType,
+                        'filename' => $file['name'],
+                        'extension' => $fileExtension
+                    ]
+                );
+                return false;
+            }
+            return true;
+            break;
+        case 'image/png':
+            /**
+             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             */
+            $image = @imagecreatefrompng($file['tmp_name']);
+            if (! $image) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    "Unable to validate image, your image may be corrupted",
+                    [
+                        'mime_type' => $mimeType,
+                        'filename' => $file['name'],
+                        'extension' => $fileExtension
+                    ]
+                );
+                return false;
+            }
+            return true;
+            break;
+        case 'image/gif':
+            /**
+             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             */
+            $image = @imagecreatefromgif($file['tmp_name']);
+            if (! $image) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    "Unable to validate image, your image may be corrupted",
+                    [
+                        'mime_type' => $mimeType,
+                        'filename' => $file['name'],
+                        'extension' => $fileExtension
+                    ]
+                );
+                return false;
+            }
+            return true;
+            break;
         default:
             return true;
     }
@@ -605,11 +662,66 @@ function isValidMIMETypeFromArchive(
         ) {
             return false;
         }
-        if ($mimeType === "image/svg+xml") {
-            $sanitizer = new Sanitizer();
-            $uploadedSVG = file_get_contents($dir . '/' . $file);
-            $cleanSVG = $sanitizer->sanitize($uploadedSVG);
-            file_put_contents($dir . '/' . $file, $cleanSVG);
+        switch ($mimeType) {
+            case 'image/svg+xml':
+                $sanitizer = new Sanitizer();
+                $uploadedSVG = file_get_contents($file['tmp_name']);
+                $cleanSVG = $sanitizer->sanitize($uploadedSVG);
+                file_put_contents($file['tmp_name'], $cleanSVG);
+                break;
+            case 'image/jpeg':
+                /**
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 */
+                $image = @imagecreatefromjpeg($file['tmp_name']);
+                if (! $image) {
+                    CentreonLog::create()->error(
+                        CentreonLog::TYPE_BUSINESS_LOG,
+                        "Unable to validate image, your image may be corrupted",
+                        [
+                            'filename' => $file['name'],
+                            'extension' => $fileExtension
+                        ]
+                    );
+                    return false;
+                }
+                break;
+            case 'image/png':
+                /**
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 */
+                $image = @imagecreatefrompng($file['tmp_name']);
+                if (! $image) {
+                    CentreonLog::create()->error(
+                        CentreonLog::TYPE_BUSINESS_LOG,
+                        "Unable to validate image, your image may be corrupted",
+                        [
+                            'filename' => $file['name'],
+                            'extension' => $fileExtension
+                        ]
+                    );
+                    return false;
+                }
+                break;
+            case 'image/gif':
+                /**
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 */
+                $image = @imagecreatefromgif($file['tmp_name']);
+                if (! $image) {
+                    CentreonLog::create()->error(
+                        CentreonLog::TYPE_BUSINESS_LOG,
+                        "Unable to validate image, your image may be corrupted",
+                        [
+                            'filename' => $file['name'],
+                            'extension' => $fileExtension
+                        ]
+                    );
+                    return false;
+                }
+                break;
+            default:
+                return true;
         }
     }
     return true;

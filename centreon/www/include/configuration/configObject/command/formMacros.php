@@ -105,19 +105,8 @@ $subS = $form->addElement(
     array("onClick" => "closeBox();", "class" => "btc bt_default")
 );
 
-/*
- *  Smarty template
- */
-
-$tpl = new \SmartyBC();
-$tpl->setTemplateDir($path);
-$tpl->setCompileDir(_CENTREON_PATH_ . '/GPL_LIB/SmartyCache/compile');
-$tpl->setConfigDir(_CENTREON_PATH_ . '/GPL_LIB/SmartyCache/config');
-$tpl->setCacheDir(_CENTREON_PATH_ . '/GPL_LIB/SmartyCache/cache');
-$tpl->addPluginsDir(_CENTREON_PATH_ . '/GPL_LIB/smarty-plugins');
-$tpl->loadPlugin('smarty_function_eval');
-$tpl->setForceCompile(true);
-$tpl->setAutoLiteral(false);
+// Smarty template initialization
+$tpl = SmartyCentreon::createSmartyTemplate($path);
 
 $tpl->assign('nb_arg', $nb_arg);
 

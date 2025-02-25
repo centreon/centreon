@@ -20,6 +20,7 @@ on:
       - reopened
       - ready_for_review
     paths:
+      - ".version.centreon-web"
       - "centreon/**"
       - "!centreon/cypress/**"
       - "!centreon/features/**"
@@ -35,6 +36,7 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
+      - ".version.centreon-web"
       - "centreon/**"
       - "!centreon/cypress/**"
       - "!centreon/features/**"
@@ -167,7 +169,7 @@ jobs:
           done
         shell: bash
 
-      - uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      - uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -344,7 +346,7 @@ jobs:
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
       - name: Restore RPM files
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib_rpm }}
@@ -445,7 +447,7 @@ jobs:
         shell: bash
 
       - name: Store standard slim image in cache
-        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: /tmp/cache/docker-image
           key: docker-image-${{ matrix.project }}-slim-${{ matrix.distrib }}-${{ github.head_ref || github.ref_name }}
