@@ -82,7 +82,8 @@ trait ConnectionTrait
     public function getDatabaseName(): ?string
     {
         try {
-            return $this->fetchFirstColumn('SELECT DATABASE()')[0] ?? null;
+            $databaseName = $this->fetchFirstColumn('SELECT DATABASE()')[0];
+            return is_string($databaseName) ? $databaseName : null;
         } catch (\Throwable $exception) {
             $this->writeDbLog(
                 message: 'Unable to get database name',
