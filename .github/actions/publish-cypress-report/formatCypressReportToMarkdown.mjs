@@ -92,7 +92,7 @@ const details =
       const upstreamFile = await response.text();
       const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
       const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
-      return `<h3>${fail ? ':x:' : ':leftwards_arrow_with_hook:'} ${fullTitle}</h3>
+      return `<h3>${fullTitle}</h3>
         Duration: ${duration / 1000} seconds
         <div>${error}</div>
         <div>The following line fails the test: <code>${locatedLine}</code></div>
@@ -103,7 +103,7 @@ const details =
         <br />`;
     }}).then((v) => v.join(''))}
 </details>`;
-  }}).then((v) => v);
+  }});
 
 const newReportContent = `${summary}${details}`;
 

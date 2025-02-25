@@ -322,7 +322,7 @@ jobs:
               for (const testName in retries) {
                 const featureName = testName.split('>')[0];
                 const scenarioName = testName.split('>').slice(1).join('>');
-                outputTable.push([featureName, scenarioName, retries[testName]]);
+                outputTable.push([featureName, scenarioName, String(retries[testName])]);
               }
 
               core.summary
