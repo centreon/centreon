@@ -313,7 +313,8 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const retries = JSON.parse(fs.readFileSync('retries.json', 'utf8'));
+            const retriesFile = 'retries.json';
+            const retries = JSON.parse(fs.readFileSync(retriesFile, 'utf8'));
             if (Object.keys(retries).length > 0) {
               const outputTable = [
                 [{data: 'Feature', header: true}, {data: 'Scenario', header: true}, {data: 'Retries', header: true}],
@@ -327,32 +328,9 @@ jobs:
               core.summary
                 .addHeading(`Retries Summary`)
                 .addTable(outputTable)
-                .addDetails('retries.json content', fs.readFileSync('retries.json', 'utf8'))
+                .addDetails(`Content of ${retriesFile}`, fs.readFileSync(retriesFile, 'utf8'))
                 .write();
             }
-
-      # - name: Display retries summary
-      #   run: |
-      #     cat retries.json
-      #     if [[ $(jq 'to_entries | length' retries.json) -gt 0 ]]; then
-      #       retriesHtml="<h2>:warning:The following tests were retried during execution:</h2>\n"
-      #       retriesHtml+="| feature | scenario | retries |\n"
-      #       retriesHtml+="| - | - | - |\n"
-      #       jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
-      #         featureName=$(echo $testName | cut -d'>' -f-1)
-      #         scenarioName=$(echo $testName | cut -d'>' -f2-)
-      #         retries=$(jq ".$testName" $retriesFile)
-      #         retriesHtml+="| $featureName | $scenarioName | $retries |\n"
-      #       done
-      #       echo retriesHtml+="<details>"
-      #       echo retriesHtml+="<summary>retries.json content</summary>"
-      #       echo retriesHtml+="<pre>"
-      #       echo retriesHtml+=$(cat retries.json)
-      #       echo retriesHtml+="</pre>"
-      #       echo retriesHtml+="</details>"
-      #       echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
-      #     fi
-      #   shell: bash
 
   regroup-artifacts:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
