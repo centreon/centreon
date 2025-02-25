@@ -17,7 +17,6 @@
  * For more information : contact@centreon.com
  *
  */
-
 require_once __DIR__ . '/../../../bootstrap.php';
 
 $versionOfTheUpgrade = 'UPGRADE - 24.04.12: ';
