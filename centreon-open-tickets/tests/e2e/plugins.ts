@@ -35,36 +35,27 @@ export default (
   });
 
   on('after:run', (results) => {
-    const testRetries: { [key: string]: boolean } = {};
+    const testRetries: { [key: string]: Number } = {};
     if ('runs' in results) {
       results.runs.forEach((run) => {
         run.tests.forEach((test) => {
-          if (test.attempts && test.attempts.length > 1) {
+          console.log(test)
+          if (test.attempts && test.attempts.length > 1 && test.state === 'passed') {
             const testTitle = test.title.join(' > '); // Convert the array to a string
-            testRetries[testTitle] = true;
+            testRetries[testTitle] = test.attempts.length - 1;
           }
         });
       });
     }
 
-    console.log('After run results:', results);
-    console.log('Test retries:', testRetries);
-
     // Save the testRetries object to a file in the e2e/results directory
     const resultFilePath = path.join(
       __dirname,
-      'results',
-      'hasRetries.json'
+      '../../../../tests/e2e/results',
+      'retries.json'
     );
-    if (results.totalFailed > 0) {
-      fs.writeFileSync(resultFilePath, '{}');
-    } else if (Object.keys(testRetries).length > 0) {
-      // If tests succeeded but there were retries, write the retries to the file
-      fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
-    } else {
-      // If no retries, empty the file
-      fs.writeFileSync(resultFilePath, '{}');
-    }
+
+    fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
   });
 
   return config;
