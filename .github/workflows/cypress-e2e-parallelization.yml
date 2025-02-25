@@ -294,11 +294,10 @@ jobs:
           path: ${{ inputs.name }}-json-reports
           merge-multiple: true
 
-      - run: ls -lR ${{ inputs.name }}-json-reports
-        shell: bash
-
       - name: Merge reports
-        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+        run: |
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+          cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add > retries.json
         shell: bash
 
       - name: Publish report
@@ -311,28 +310,50 @@ jobs:
           urlFilePrefix: centreon
 
       - name: Display retries summary
-        run: |
-          cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add > retries.json
-          cat retries.json
-          if [[ $(jq 'to_entries | length' retries.json) -gt 0 ]]; then
-            retriesHtml="<h2>:warning:The following tests were retried during execution:</h2>\n"
-            retriesHtml+="| feature | scenario | retries |\n"
-            retriesHtml+="| - | - | - |\n"
-            jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
-              featureName=$(echo $testName | cut -d'>' -f-1)
-              scenarioName=$(echo $testName | cut -d'>' -f2-)
-              retries=$(jq ".$testName" $retriesFile)
-              retriesHtml+="| $featureName | $scenarioName | $retries |\n"
-            done
-            echo retriesHtml+="<details>"
-            echo retriesHtml+="<summary>retries.json content</summary>"
-            echo retriesHtml+="<pre>"
-            echo retriesHtml+=$(cat retries.json)
-            echo retriesHtml+="</pre>"
-            echo retriesHtml+="</details>"
-            echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
-          fi
-        shell: bash
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            const retries = JSON.parse(fs.readFileSync('retries.json', 'utf8'));
+            if (Object.keys(retries).length > 0) {
+              const outputTable = [
+                [{data: 'Feature', header: true}, {data: 'Scenario', header: true}, {data: 'Retries', header: true}],
+              ];
+              for (const testName in retries) {
+                const featureName = testName.split('>')[0];
+                const scenarioName = testName.split('>').slice(1).join('>');
+                outputTable.push([featureName, scenarioName, retries[testName]]);
+              }
+
+              core.summary
+                .addHeading(`Retries Summary`);
+                .addTable(outputTable)
+                .addDetails('retries.json content', fs.readFileSync('retries.json', 'utf8'))
+                .write();
+            }
+
+      # - name: Display retries summary
+      #   run: |
+      #     cat retries.json
+      #     if [[ $(jq 'to_entries | length' retries.json) -gt 0 ]]; then
+      #       retriesHtml="<h2>:warning:The following tests were retried during execution:</h2>\n"
+      #       retriesHtml+="| feature | scenario | retries |\n"
+      #       retriesHtml+="| - | - | - |\n"
+      #       jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
+      #         featureName=$(echo $testName | cut -d'>' -f-1)
+      #         scenarioName=$(echo $testName | cut -d'>' -f2-)
+      #         retries=$(jq ".$testName" $retriesFile)
+      #         retriesHtml+="| $featureName | $scenarioName | $retries |\n"
+      #       done
+      #       echo retriesHtml+="<details>"
+      #       echo retriesHtml+="<summary>retries.json content</summary>"
+      #       echo retriesHtml+="<pre>"
+      #       echo retriesHtml+=$(cat retries.json)
+      #       echo retriesHtml+="</pre>"
+      #       echo retriesHtml+="</details>"
+      #       echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
+      #     fi
+      #   shell: bash
 
   regroup-artifacts:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]

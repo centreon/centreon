@@ -60,31 +60,34 @@ const details =
 <div>
   <h2>${file} :arrow_down_small:</h2>
   ${await mapSeries({ array: tests, callback: async ({ fullTitle, err, fail, duration }) => {
+    if (fail) {
+      return;
+    }
     const stackLines = err.estack ? err.estack.split('\n') : [];
-      const localizableFile = stackLines.find((line) => line.includes(file));
+    const localizableFile = stackLines.find((line) => line.includes(file));
 
-      if (!localizableFile) {
-        const sanitizedEStack = err.estack ? `<pre>${err.estack}</pre>` : '';
-        return `<h3>${fail ? ':x:' : ':leftwards_arrow_with_hook:'} ${fullTitle}</h3>
-        Duration: ${duration / 1000} seconds
-        ${fail ? `Error stack: ${sanitizedEStack}` : '<br />'}
-        <br />`;
-      }
-      const [,,lineNumber] = localizableFile.split(':');
-      const errorMessage = err.message || '';
-      const response = await fetch(`https://raw.githubusercontent.com/${repo}/${branch}/${urlFilePrefix}/${file}`);
-      const upstreamFile = await response.text();
-      const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
-      const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
+    if (!localizableFile) {
+      const sanitizedEStack = err.estack ? `<pre>${err.estack}</pre>` : '';
       return `<h3>${fail ? ':x:' : ':leftwards_arrow_with_hook:'} ${fullTitle}</h3>
-        Duration: ${duration / 1000} seconds
-        <div>${error}</div>
-        <div>The following line fails the test: <code>${locatedLine}</code></div>
-        <details>
-          <summary>Complete logs</summary>
-          <pre>${errorMessage.split('\n')[0]}</pre>
-        </details>
-        <br />`;
+      Duration: ${duration / 1000} seconds
+      ${fail ? `Error stack: ${sanitizedEStack}` : '<br />'}
+      <br />`;
+    }
+    const [,,lineNumber] = localizableFile.split(':');
+    const errorMessage = err.message || '';
+    const response = await fetch(`https://raw.githubusercontent.com/${repo}/${branch}/${urlFilePrefix}/${file}`);
+    const upstreamFile = await response.text();
+    const locatedLine = upstreamFile.split('\n')[lineNumber - 1];
+    const error = `Located at: <a target="_blank" href="https://github.com/${repo}/tree/${branch}/${urlFilePrefix}/${file}#L${lineNumber}">${file}:${lineNumber}</a>`;
+    return `<h3>${fail ? ':x:' : ':leftwards_arrow_with_hook:'} ${fullTitle}</h3>
+      Duration: ${duration / 1000} seconds
+      <div>${error}</div>
+      <div>The following line fails the test: <code>${locatedLine}</code></div>
+      <details>
+        <summary>Complete logs</summary>
+        <pre>${errorMessage.split('\n')[0]}</pre>
+      </details>
+      <br />`;
   }}).then((v) => v.join(''))}
 </div>` }).then((v) => v);
 
