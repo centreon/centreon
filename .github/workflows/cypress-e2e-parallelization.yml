@@ -277,7 +277,7 @@ jobs:
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
-    if: always()
+    if: ! cancelled()
     runs-on: ubuntu-24.04
 
     steps:
@@ -302,7 +302,7 @@ jobs:
         shell: bash
 
       - name: Publish report
-        if: failure()
+        if: needs.cypress-e2e-test-run.result == 'failure'
         uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-report
@@ -312,14 +312,7 @@ jobs:
 
       - name: Display retries summary
         run: |
-          ls -lR ${{ inputs.name }}-json-reports
-          echo "ok1"
-          cat ${{ inputs.name }}-json-reports/*retries.json
-          echo "ok2"
-          cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add
           cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add > retries.json
-          # cat ${{ inputs.name }}-json-reports/*retries.json | jq 'to_entries | reduce .[] as $item ({}; . * $item)' > retries.json
-          echo "ok3"
           cat retries.json
           if [[ $(jq 'to_entries | length' retries.json) -gt 0 ]]; then
             retriesHtml="<h2>:warning:The following tests were retried during execution:</h2>\n"
@@ -337,7 +330,7 @@ jobs:
             echo retriesHtml+=$(cat retries.json)
             echo retriesHtml+="</pre>"
             echo retriesHtml+="</details>"
-            echo "$retriesHtml" >> $GITHUB_JOB_SUMMARY
+            echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
           fi
         shell: bash
 
