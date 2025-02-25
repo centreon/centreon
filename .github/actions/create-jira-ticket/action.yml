@@ -91,7 +91,7 @@ runs:
 
         if [[ $assign_to_current_sprint == true ]]; then
           response=$(curl --request GET \
-            --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/${{ ticket_board_id }}/sprint?state=active \
+            --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
             --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}")
           current_sprint=$(echo "$response" | head -c -4 | jq .values[0].name)
           echo "[DEBUG] current_sprint: $current_sprint"
@@ -110,6 +110,7 @@ runs:
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
         echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
+        echo "ticket_board_id=$ticket_board_id" >> $GITHUB_OUTPUT
         echo "ticket_squad_id=$ticket_squad_id" >> $GITHUB_OUTPUT
         echo "current_sprint=$current_sprint" >> $GITHUB_OUTPUT
         echo "json_template_file=$JSON_TEMPLATE_FILE" >> $GITHUB_OUTPUT
