@@ -269,4 +269,23 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         return (bool) $statement->fetchColumn();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAclResourcesByHostGroupId(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare(
+            <<<'SQL'
+                SELECT DISTINCT acl_res_id
+                FROM acl_resources_hg_relations
+                WHERE hg_hg_id = :hostGroupId
+                SQL
+        );
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
 }

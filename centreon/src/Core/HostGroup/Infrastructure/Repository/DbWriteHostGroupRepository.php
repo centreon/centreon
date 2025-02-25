@@ -216,6 +216,72 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
     }
 
     /**
+     * @inheritDoc
+     */
+    public function enableDisableHostGroup(int $hostGroupId, bool $isEnable): void
+    {
+        $update = <<<'SQL'
+            UPDATE `:db`.`hostgroup`
+            SET
+                hg_activate = :activate
+            WHERE
+                hg_id = :hostgroup_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($update));
+        $statement->bindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+        $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($isEnable));
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function duplicate(int $hostGroupId, int $duplicateIndex): int
+    {
+        $this->info('Duplicate host group', ['id' => $hostGroupId]);
+
+        $query = <<<'SQL'
+            INSERT INTO `:db`.`hostgroup`
+            (
+                hg_name,
+                hg_alias,
+                hg_notes,
+                hg_notes_url,
+                hg_action_url,
+                hg_icon_image,
+                hg_map_icon_image,
+                hg_rrd_retention,
+                geo_coords,
+                hg_comment,
+                hg_activate
+            )
+            SELECT
+                CONCAT(hg_name, '_', :duplicateIndex),
+                hg_alias,
+                hg_notes,
+                hg_notes_url,
+                hg_action_url,
+                hg_icon_image,
+                hg_map_icon_image,
+                hg_rrd_retention,
+                geo_coords,
+                hg_comment,
+                hg_activate
+            FROM `:db`.`hostgroup`
+            WHERE hg_id = :hostgroup_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+        $statement->bindValue(':duplicateIndex', $duplicateIndex, \PDO::PARAM_STR);
+
+        $statement->execute();
+
+        return (int) $this->db->lastInsertId();
+    }
+
+    /**
      * @param \PDOStatement $statement
      * @param HostGroup|NewHostGroup $newHostGroup
      */
