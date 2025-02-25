@@ -19796,7 +19796,7 @@ msgid "Apply resource access rules to the host group"
 msgstr "Appliquer des règle d'accès aux ressources au groupe d'hôtes"
 
 msgid "Geographic coordinates for MAP"
-msgstr "Coordonnées géographiques pour la carte"
+msgstr "Coordonnées géographiques pour MAP"
 
 msgid "Invalid geo-coordinate format"
 msgstr "Format de coordonnées géographiques invalide"
