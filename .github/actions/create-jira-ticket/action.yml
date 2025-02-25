@@ -111,7 +111,6 @@ runs:
         echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
         echo "ticket_squad_id=$ticket_squad_id" >> $GITHUB_OUTPUT
-        echo "ticket_board_id=$ticket_board_id" >> $GITHUB_OUTPUT
         echo "current_sprint=$current_sprint" >> $GITHUB_OUTPUT
         echo "json_template_file=$JSON_TEMPLATE_FILE" >> $GITHUB_OUTPUT
 
