@@ -29,5 +29,7 @@
     }
   },
   "singleResourceSelection": true,
-  "moduleName": "centreon-widget-batimeline"
+  "moduleName": "centreon-widget-batimeline",
+   "widgetType": "Real time widgets",
+   "canExpand": true
 }
