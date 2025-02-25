@@ -319,11 +319,16 @@ jobs:
               const outputTable = [
                 [{data: 'Feature', header: true}, {data: 'Scenario', header: true}, {data: 'Retries', header: true}],
               ];
+              let warning = `${Object.keys(retries).length} tests were retried during execution:\n`;
+
               for (const testName in retries) {
+                warning += `  - ${testName}: ${retries[testName]}\n`;
                 const featureName = testName.split('>')[0];
                 const scenarioName = testName.split('>').slice(1).join('>');
                 outputTable.push([featureName, scenarioName, String(retries[testName])]);
               }
+
+              core.warning(warning);
 
               core.summary
                 .addHeading(`Retries Summary`)
