@@ -33,13 +33,9 @@ final class AddHostGroupRequest
 
     public string $comment = '';
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     public array $hosts = [];
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     public array $resourceAccessRules = [];
 }

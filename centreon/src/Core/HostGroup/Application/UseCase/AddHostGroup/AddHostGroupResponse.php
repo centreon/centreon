@@ -28,7 +28,6 @@ use Core\HostGroup\Domain\Model\HostGroupRelation;
 
 final readonly class AddHostGroupResponse implements StandardResponseInterface
 {
-
     public function __construct(private readonly mixed $data)
     {
     }

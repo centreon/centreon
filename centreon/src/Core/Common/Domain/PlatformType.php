@@ -27,6 +27,5 @@ final class PlatformType
 {
     public const CLOUD = 'cloud';
     public const ON_PREM = 'on-premise';
-
     public const AVAILABLE_TYPES = [self::CLOUD, self::ON_PREM];
 }

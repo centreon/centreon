@@ -63,7 +63,7 @@ class HostGroupRelationNormalizer implements NormalizerInterface
         if ($context['is_cloud_platform'] === true) {
             $hostGroup['resource_access_rules'] = [];
             foreach ($object->getResourceAccessRules() as $resourceAccessRule) {
-                $hostGroup['resource_access_rules'][] =  $this->normalizer->normalize(
+                $hostGroup['resource_access_rules'][] = $this->normalizer->normalize(
                     object: $resourceAccessRule,
                     context: $context
                 );

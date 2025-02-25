@@ -129,7 +129,6 @@ final class AddHostGroup
                 ]
             );
 
-
             return new InvalidArgumentResponse($ex);
         } catch (\Throwable $ex) {
             $this->error(

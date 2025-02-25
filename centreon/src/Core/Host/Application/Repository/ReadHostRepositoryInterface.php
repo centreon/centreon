@@ -171,7 +171,6 @@ interface ReadHostRepositoryInterface
     public function findAll(): array;
 
     /**
-     *
      * @param int $hostGroupId
      *
      * @throws \Throwable

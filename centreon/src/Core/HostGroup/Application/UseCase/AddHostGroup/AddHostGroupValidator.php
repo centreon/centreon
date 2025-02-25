@@ -33,7 +33,6 @@ use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Throwable;
 
 class AddHostGroupValidator
 {
@@ -51,6 +50,7 @@ class AddHostGroupValidator
 
     /**
      * @param AddHostGroupRequest $request
+     * @param string $hostGroupName
      *
      * @throws HostGroupException
      *

@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\ResourceAccess\Infrastructure\Repository;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
@@ -100,14 +99,13 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
 
-
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                SELECT acl_group_id
-                FROM `:db`.acl_groups
-                WHERE acl_group_id IN ({$bindQuery})
-                    AND cloud_specific = 1
-            SQL
+                    SELECT acl_group_id
+                    FROM `:db`.acl_groups
+                    WHERE acl_group_id IN ({$bindQuery})
+                        AND cloud_specific = 1
+                SQL
         ));
 
         foreach ($bindValues as $key => $value) {
@@ -115,6 +113,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         }
 
         $statement->execute();
+
         return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
@@ -123,19 +122,19 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
      */
     public function existByContact(int $userId): array
     {
-        $query = <<<SQL
-            SELECT acl_group_id
-            FROM `:db`.acl_groups
-                WHERE cloud_specific = 1
-                AND (
-                    all_contacts = 1
-                    OR acl_group_id IN (
-                        SELECT acl_group_id
-                        FROM `:db`.acl_group_contacts_relations
-                        WHERE contact_contact_id = :userId
+        $query = <<<'SQL'
+                SELECT acl_group_id
+                FROM `:db`.acl_groups
+                    WHERE cloud_specific = 1
+                    AND (
+                        all_contacts = 1
+                        OR acl_group_id IN (
+                            SELECT acl_group_id
+                            FROM `:db`.acl_group_contacts_relations
+                            WHERE contact_contact_id = :userId
+                        )
                     )
-                )
-        SQL;
+            SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
@@ -158,18 +157,18 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         );
 
         $query = <<<SQL
-            SELECT acl_group_id
-            FROM `:db`.acl_groups
-                WHERE cloud_specific = 1
-                AND (
-                    all_contact_groups = 1
-                    OR acl_group_id IN (
-                        SELECT acl_group_id
-                        FROM `:db`.acl_group_contactgroups_relations
-                        WHERE cg_cg_id IN ({$bindQuery})
+                SELECT acl_group_id
+                FROM `:db`.acl_groups
+                    WHERE cloud_specific = 1
+                    AND (
+                        all_contact_groups = 1
+                        OR acl_group_id IN (
+                            SELECT acl_group_id
+                            FROM `:db`.acl_group_contactgroups_relations
+                            WHERE cg_cg_id IN ({$bindQuery})
+                        )
                     )
-                )
-        SQL;
+            SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));
         foreach ($bindValues as $key => $value) {

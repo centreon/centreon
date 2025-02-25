@@ -21,9 +21,8 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Infrastructure\API\AddHostGRoup;
+namespace Core\HostGroup\Infrastructure\API\AddHostGroup;
 
-use Core\Common\Domain\PlatformEnum;
 use Core\Common\Domain\PlatformType;
 use Core\Common\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -59,7 +58,7 @@ final class AddHostGroupInput
             new Assert\Type('array'),
             new Assert\All(
                 new Assert\Type('integer')
-            )
+            ),
         ])]
         public readonly mixed $resourceAccessRules,
     ) {

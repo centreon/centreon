@@ -35,7 +35,6 @@ final class HostGroupVoters extends Voter
 {
     public const HOSTGROUP_DELETE = 'hostgroup_delete';
     public const HOSTGROUP_ADD = 'hostgroup_add';
-
     public const ALLOWED_ATTRIBUTES = [
         self::HOSTGROUP_DELETE,
         self::HOSTGROUP_ADD,
@@ -46,7 +45,7 @@ final class HostGroupVoters extends Voter
      */
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return in_array($attribute, self::ALLOWED_ATTRIBUTES);
+        return in_array($attribute, self::ALLOWED_ATTRIBUTES, true);
     }
 
     /**

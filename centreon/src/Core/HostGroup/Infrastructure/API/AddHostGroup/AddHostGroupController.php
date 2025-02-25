@@ -49,7 +49,6 @@ final class AddHostGroupController extends AbstractController
     }
 
     /**
-     *
      * @param AddHostGroupInput $request
      * @param AddHostGroup $useCase
      * @param StandardPresenter $presenter
@@ -66,6 +65,7 @@ final class AddHostGroupController extends AbstractController
         if ($response instanceof ResponseStatusInterface) {
             return $this->createResponse($response);
         }
+
         return JsonResponse::fromJsonString($presenter->present($response, ['groups' => ['HostGroup:Add'], 'is_cloud_platform' => $this->isCloudPlatform]));
     }
 }

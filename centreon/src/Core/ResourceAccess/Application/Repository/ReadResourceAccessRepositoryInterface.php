@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\ResourceAccess\Application\Repository;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\ContactGroup;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\ResourceAccess\Domain\Model\Rule;
@@ -114,6 +113,8 @@ interface ReadResourceAccessRepositoryInterface
      * Retrieve Datasets by Rule IDs and Dataset type where there is no parent dataset.
      *
      * @param int $hostGroupId
+     * @param array $ruleIds
+     * @param string $type
      *
      * @throws \Throwable
      *

@@ -28,13 +28,10 @@ use Core\ResourceAccess\Domain\Model\Rule;
 
 /**
  * This class is designed to represent the relation between a hostgroup and its hosts and resource access.
- *
- * It could be improved 
  */
 final class HostGroupRelation
 {
     /**
-     *
      * @param HostGroup $hostGroup
      * @param SimpleEntity[] $hosts
      * @param Rule[] $resourceAccessRules
@@ -52,7 +49,6 @@ final class HostGroupRelation
     }
 
     /**
-     *
      * @return SimpleEntity[]
      */
     public function getHosts(): array

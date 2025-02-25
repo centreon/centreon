@@ -23,12 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Validator\Constraints;
 
-use Core\Common\Domain\PlatformEnum;
 use Core\Common\Domain\PlatformType;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\LogicException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 final class WhenPlatformValidator extends ConstraintValidator
@@ -39,7 +36,7 @@ final class WhenPlatformValidator extends ConstraintValidator
 
     public function validate(mixed $value, Constraint $constraint): void
     {
-        if (!$constraint instanceof WhenPlatform) {
+        if (! $constraint instanceof WhenPlatform) {
             throw new UnexpectedTypeException($constraint, WhenPlatform::class);
         }
 

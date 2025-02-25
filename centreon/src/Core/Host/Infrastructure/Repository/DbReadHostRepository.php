@@ -746,6 +746,66 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         return $this->findByRequestParametersAndAccessGroups($requestParameters, []);
     }
 
+    public function hasAccessToAllHosts(array $accessGroupIds): bool
+    {
+        if ($accessGroupIds === []) {
+            return false;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
+
+        $request = <<<SQL
+            SELECT res.all_hosts
+            FROM `:db`.acl_resources res
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON argr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON ag.acl_group_id = argr.acl_group_id
+            WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostGroup(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT host_id, host_name FROM host
+                INNER JOIN hostgroup_relation
+                WHERE hostgroup_hg_id = :hostGroupId
+                AND host.host_register = '1'
+                SQL
+        ));
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $hostsByHostGroup = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $hostsByHostGroup[] = $this->createSimpleEntity($result['host_id'], $result['host_name']);
+        }
+
+        return $hostsByHostGroup;
+    }
+
     /**
      * @param string $accessGroupIdsQuery
      * @param array<string, mixed> $accessGroupsBindValues
@@ -888,73 +948,12 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         );
     }
 
-    public function hasAccessToAllHosts(array $accessGroupIds): bool
-    {
-        if ($accessGroupIds === []) {
-            return false;
-        }
-
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-            SELECT res.all_hosts
-            FROM `:db`.acl_resources res
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON argr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON ag.acl_group_id = argr.acl_group_id
-            WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->execute();
-
-        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findByHostGroup(int $hostGroupId): array
-    {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT host_id, host_name FROM host
-                INNER JOIN hostgroup_relation
-                WHERE hostgroup_hg_id = :hostGroupId
-                AND host.host_register = '1'
-                SQL
-        ));
-
-        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        $hostsByHostGroup = [];
-        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $hostsByHostGroup[] = $this->createSimpleEntity($result['host_id'], $result['host_name']);
-        }
-
-        return $hostsByHostGroup;
-    }
-
     /**
      * @param int $id
      * @param string $name
      *
-     * @return SimpleEntity
-     *
      * @throws AssertionFailedException
+     * @return SimpleEntity
      */
     private function createSimpleEntity(int $id, string $name): SimpleEntity
     {

@@ -29,6 +29,7 @@ final class AddHostGroupRequestTransformer
 {
     /**
      * @param AddHostGroupInput $input
+     * @param bool $isCloudPlatform
      * @return AddHostGroupRequest
      */
     public static function transform(AddHostGroupInput $input, bool $isCloudPlatform): AddHostGroupRequest
