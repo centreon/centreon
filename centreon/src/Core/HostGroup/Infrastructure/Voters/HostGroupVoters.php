@@ -67,7 +67,7 @@ final class HostGroupVoters extends Voter
             self::HOSTGROUP_DELETE,
             self::HOSTGROUP_ADD,
             self::HOSTGROUP_ENABLE_DISABLE,
-            self::HOSTGROUP_DUPLICATE  => $this->checkUserRights($user),
+            self::HOSTGROUP_DUPLICATE => $this->checkUserRights($user),
             default => false,
         };
     }
