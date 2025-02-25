@@ -26,7 +26,6 @@ namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 final class AddHostGroupRequest
 {
     /**
-     *
      * @param string $name
      * @param string $alias
      * @param null|string $geoCoords

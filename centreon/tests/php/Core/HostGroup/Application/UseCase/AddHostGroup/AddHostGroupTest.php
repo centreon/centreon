@@ -73,7 +73,6 @@ beforeEach(function (): void {
         $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         $this->readResourceAccessRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
         $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
-        $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
         $this->writeResourceAccessRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
