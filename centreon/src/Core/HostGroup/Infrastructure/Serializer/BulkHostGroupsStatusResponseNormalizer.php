@@ -26,11 +26,13 @@ namespace Core\HostGroup\Infrastructure\Serializer;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\ResponseCodeEnum;
 use Core\HostGroup\Application\UseCase\DeleteHostGroups\DeleteHostGroupsStatusResponse;
+use Core\HostGroup\Application\UseCase\DuplicateHostGroups\DuplicateHostGroupsStatusResponse;
+use Core\HostGroup\Application\UseCase\EnableDisableHostGroups\EnableDisableHostGroupsStatusResponse;
 use Core\Infrastructure\Common\Api\Router;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class DeleteHostGroupsStatusResponseNormalizer implements NormalizerInterface
+class BulkHostGroupsStatusResponseNormalizer implements NormalizerInterface
 {
     use LoggerTrait;
     private const HOSTGROUP_ROUTE_NAME = 'FindHostGroup';
@@ -69,7 +71,9 @@ class DeleteHostGroupsStatusResponseNormalizer implements NormalizerInterface
      */
     public function supportsNormalization(mixed $data, ?string $format = null): bool
     {
-        return $data instanceof DeleteHostGroupsStatusResponse;
+        return $data instanceof DeleteHostGroupsStatusResponse
+            || $data instanceof DuplicateHostGroupsStatusResponse
+            || $data instanceof EnableDisableHostGroupsStatusResponse;
     }
 
     /**
