@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Infrastructure\Serializer;
 
+use Core\Common\Domain\SimpleEntity;
+use Core\HostGroup\Application\UseCase\FindHostGroup\FindHostGroupResponse;
 use Core\HostGroup\Application\UseCase\FindHostGroups\HostGroupResponse;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -40,11 +42,12 @@ final class HostGroupResponseNormalizer implements NormalizerInterface
 
     public function supportsNormalization(mixed $data, ?string $format = null)
     {
-        return $data instanceof HostGroupResponse;
+        return $data instanceof HostGroupResponse
+        || $data instanceof FindHostGroupResponse;
     }
 
     /**
-     * @param HostGroupResponse $object
+     * @param FindHostGroupResponse|HostGroupResponse $object
      * @param string|null $format
      * @param array<string, mixed> $context
      *
@@ -63,33 +66,39 @@ final class HostGroupResponseNormalizer implements NormalizerInterface
         if (isset($data['alias']) && $data['alias'] === '') {
             $data['alias'] = null;
         }
-        if (isset($data['notes']) && $data['notes'] === '') {
-            $data['notes'] = null;
-        }
-        if (isset($data['notes_url']) && $data['notes_url'] === '') {
-            $data['notes_url'] = null;
-        }
-        if (isset($data['action_url']) && $data['action_url'] === '') {
-            $data['action_url'] = null;
-        }
         if (isset($data['comment']) && $data['comment'] === '') {
             $data['comment'] = null;
         }
 
-        /** @var HostGroupResponse $object */
-        $data['icon'] = $object->icon !== null
+        if (in_array('HostGroup:List', $context['groups'], true)) {
+            $data['icon'] = $object->icon !== null
             ? [
                 'id' => $object->icon->getId(),
                 'name' => $object->icon->getFilename(),
                 'url' => $this->generateNormalizedIconUrl($object->icon->getDirectory() . '/' . $object->icon->getFilename()),
             ]
             : null;
-        $data['enabled_hosts_count'] = $object->hostsCount
-            ? $object->hostsCount->getEnabledHostsCount()
-            : 0;
-        $data['disabled_hosts_count'] = $object->hostsCount
-            ? $object->hostsCount->getDisabledHostsCount()
-            : 0;
+            $data['enabled_hosts_count'] = $object->hostsCount
+                ? $object->hostsCount->getEnabledHostsCount()
+                : 0;
+            $data['disabled_hosts_count'] = $object->hostsCount
+                ? $object->hostsCount->getDisabledHostsCount()
+                : 0;
+        }
+        if (in_array('HostGroup:Get', $context['groups'], true)) {
+            $data['hosts'] = array_map(
+                fn (SimpleEntity $host) => $this->normalizer->normalize($host, $format, $context),
+                $object->hosts
+            );
+
+            /** @var array{groups: string[]} $context */
+            if (true === ($context['is_cloud_platform'] ?? false)) {
+                // $data['resource_access_rules'] = array_map(
+                //     fn (SimpleEntity $accessRule) => $this->normalizer->normalize($accessRule, $format, $context),
+                //     $object->accessRules
+                // );
+            }
+        }
 
         return $data;
     }
