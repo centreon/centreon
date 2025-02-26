@@ -33,7 +33,6 @@ Cypress.Commands.add('deleteAllEventViewFilters', () => {
 
 Cypress.Commands.add('setPassiveResource', (url_string) => {
   const payload = {
-    active_check_enabled: 0,
     passive_check_enabled: 1
   };
   cy.request({
