@@ -321,7 +321,7 @@ jobs:
               ];
               const warningTitle = `${Object.keys(retries).length} tests were retried during execution`;
 
-              let warningBody = JSON.stringify(warningTitle, null, 2);
+              let warningBody = JSON.stringify(retries, null, 2);
               for (const testName in retries) {
                 const featureName = testName.split('>')[0];
                 const scenarioName = testName.split('>').slice(1).join('>');
