@@ -35,7 +35,7 @@ export default (
   });
 
   on('after:run', (results) => {
-    const testRetries: { [key: string]: Number } = {};
+    const testRetries: { [key: string]: number } = {};
     if ('runs' in results) {
       results.runs.forEach((run) => {
         run.tests.forEach((test) => {
