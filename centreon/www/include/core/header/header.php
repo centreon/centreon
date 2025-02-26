@@ -35,7 +35,7 @@
  */
 
 if (!defined('SMARTY_DIR')) {
-    define('SMARTY_DIR', realpath('../vendor/smarty/smarty/libs/') . '/');
+    define('SMARTY_DIR', realpath('../vendor/' . SmartyCentreon::PACKAGE_CENTREON_SMARTY_NAME . '/libs/') . '/');
 }
 
 /*
