@@ -132,6 +132,21 @@ When('the user save the modifications', () => {
 });
 
 Then('the status of the service is changed', () => {
+  // Wait until 2 services have the status 'OK'
+  cy.waitUntil(
+    () => {
+      return cy
+        .getByLabel({ label: 'OK status services', tag: 'a' })
+        .invoke('text')
+        .then((text) => {
+          if (text != '2') {
+            cy.exportConfig();
+          }
+          return text === '2';
+        });
+    },
+    { interval: 5000, timeout: 50000 }
+  );
   cy.visit('/');
   visitStatusDetailPage();
   // Wait for the 'service_test_ok' to be visible in the DOM
@@ -139,6 +154,7 @@ Then('the status of the service is changed', () => {
   // Click on the 'service_test_ok' passive service
   cy.getIframeBody().contains('a', 'service_test_ok').click();
   cy.wait('@getTimeZone');
+
   // Wait for the status to be 'OK' in the DOM
   cy.waitForElementInIframe('#main-content', 'span[class="badge service_ok"]');
   // Check that the 'Service Status' of the passive service is OK
