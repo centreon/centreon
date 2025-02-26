@@ -39,7 +39,6 @@ export default (
     if ('runs' in results) {
       results.runs.forEach((run) => {
         run.tests.forEach((test) => {
-          console.log(test)
           if (test.attempts && test.attempts.length > 1 && test.state === 'passed') {
             const testTitle = test.title.join(' > '); // Convert the array to a string
             testRetries[testTitle] = test.attempts.length - 1;
