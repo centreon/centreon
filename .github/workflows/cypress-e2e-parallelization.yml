@@ -265,7 +265,7 @@ jobs:
 
       - name: Merge reports
         run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
 
           if ${{ inputs.name }}-json-reports/*retries.json 1> /dev/null 2>&1; then
             cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add > retries.json
