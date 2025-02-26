@@ -189,33 +189,38 @@ function tidySearchKey($search, $advanced_search)
 /**
  * Allows to load Smarty's configuration in relation to a path
  *
- * @param {string} [$path=null] Path to the default template directory
- * @param {object} [$tpl=null] A Smarty instance
- * @param {string} [$subDir=null] A subdirectory of path
+ * @param null|string $path
+ * @param null|object $tpl
+ * @param null|string $subDir
  *
- * @return {empty|object} A Smarty instance with configuration parameters
+ * @throws \SmartyException
+ *
+ * @return SmartyCentreon A Smarty instance with configuration parameters
+ *
+ * @see        SmartyCentreon::createSmartyTemplate()
+ * @deprecated Instead use {@see SmartyCentreon::createSmartyTemplate()}
  */
-function initSmartyTpl($path = null, &$tpl = null, $subDir = null)
+function initSmartyTpl($path = null, &$tpl = null, $subDir = null): SmartyCentreon
 {
-    $tpl = new \SmartyBC();
-
-    $tpl->setTemplateDir($path . $subDir);
-    $tpl->setCompileDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/compile');
-    $tpl->setConfigDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/config');
-    $tpl->setCacheDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/cache');
-    $tpl->addPluginsDir(__DIR__ . '/../../../GPL_LIB/smarty-plugins');
-    $tpl->loadPlugin('smarty_function_eval');
-    $tpl->setForceCompile(true);
-    $tpl->setAutoLiteral(false);
-    $tpl->allow_ambiguous_resources = true;
-
-    return $tpl;
+    return SmartyCentreon::createSmartyTemplate($path, $subDir);
 }
 
 /**
  * This function is mainly used in widgets
+ *
+ * @param null|string $path
+ * @param null|object $tpl
+ * @param null|string $subDir
+ * @param null|string $centreonPath
+ *
+ * @throws \SmartyException
+ *
+ * @return SmartyCentreon A Smarty instance with configuration parameters
+ *
+ * @see        SmartyCentreon::createSmartyTemplate()
+ * @deprecated Instead use {@see SmartyCentreon::createSmartyTemplate()}
  */
-function initSmartyTplForPopup($path = null, $tpl = null, $subDir = null, $centreonPath = null)
+function initSmartyTplForPopup($path = null, $tpl = null, $subDir = null, $centreonPath = null): SmartyCentreon
 {
     return initSmartyTpl($path, $tpl, $subDir);
 }
@@ -505,11 +510,11 @@ function getMyHostExtendedInfoImage($host_id, $field, $flag1stLevel = null, $ant
         $htStatement->bindValue(':host_host_id', (int) $host_id, \PDO::PARAM_INT);
         $htStatement->execute();
         $rq2 = "SELECT `" . $field . "` " .
-               "FROM extended_host_information ehi " .
-               "WHERE ehi.host_host_id = :host_host_id LIMIT 1";
+            "FROM extended_host_information ehi " .
+            "WHERE ehi.host_host_id = :host_host_id LIMIT 1";
         $ehiStatement = $pearDB->prepare($rq2);
         $query = "SELECT img_path, dir_alias FROM view_img vi, view_img_dir vid, view_img_dir_relation vidr " .
-                 "WHERE vi.img_id = :img_id 
+            "WHERE vi.img_id = :img_id 
                  AND vidr.img_img_id = vi.img_id AND vid.dir_id = vidr.dir_dir_parent_id LIMIT 1";
         $imgStatement = $pearDB->prepare($query);
         while ($row = $htStatement->fetch(\PDO::FETCH_ASSOC)) {
@@ -1384,7 +1389,7 @@ function GetMyHostPoller($pearDB, $host_name = null)
     if (!isset($host_name)) {
         return 0;
     }
-     $statement = $pearDB->prepare("SELECT `id` FROM nagios_server, ns_host_relation, host " .
+    $statement = $pearDB->prepare("SELECT `id` FROM nagios_server, ns_host_relation, host " .
         "WHERE host.host_name = :host_name AND host.host_id = ns_host_relation.host_host_id " .
         "AND ns_host_relation.nagios_server_id = nagios_server.id LIMIT 1");
     $statement->bindValue(':host_name', $host_name, \PDO::PARAM_STR);

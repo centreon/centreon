@@ -9,10 +9,6 @@ import { SelectEntry } from '../..';
 import Option from '../../Option';
 
 const useStyles = makeStyles()((theme) => ({
-  checkbox: {
-    marginRight: theme.spacing(1),
-    padding: 0
-  },
   deleteIcon: {
     height: theme.spacing(1.5),
     width: theme.spacing(1.5)
@@ -33,6 +29,7 @@ export interface Props
       UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
       'multiple'
     > {
+  customRenderTags?: (tags: React.ReactNode) => React.ReactNode;
   disableSortedOptions?: boolean;
 }
 
@@ -40,11 +37,12 @@ const MultiAutocompleteField = ({
   value,
   options,
   disableSortedOptions = false,
+  customRenderTags,
   ...props
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const renderTags = (renderedValue, getTagProps): Array<JSX.Element> =>
+  const renderTags = (renderedValue, getTagProps): React.ReactNode =>
     renderedValue.map((option, index) => (
       <Chip
         classes={{
@@ -87,7 +85,11 @@ const MultiAutocompleteField = ({
           <Option checkboxSelected={selected}>{option.name}</Option>
         </li>
       )}
-      renderTags={renderTags}
+      renderTags={(renderedValue, getTagProps): React.ReactNode =>
+        customRenderTags
+          ? customRenderTags(renderTags(renderedValue, getTagProps))
+          : renderTags(renderedValue, getTagProps)
+      }
       value={value}
       {...props}
     />
