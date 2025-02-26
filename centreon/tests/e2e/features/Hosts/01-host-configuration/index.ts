@@ -92,9 +92,6 @@ When('a host is configured', () => {
 });
 
 When('the user changes the name of a host to "New Host Name"', () => {
-  if (Cypress.currentRetry === 0) {
-    throw new Error('test retry');
-  }
   cy.navigateTo({
     page: 'Hosts',
     rootItemNumber: 3,
@@ -142,9 +139,6 @@ Then('a new host is created with identical fields', () => {
 });
 
 When('the user deletes the host', () => {
-  if (Cypress.currentRetry === 0) {
-    throw new Error('test retry');
-  }
   cy.navigateTo({
     page: 'Hosts',
     rootItemNumber: 3,

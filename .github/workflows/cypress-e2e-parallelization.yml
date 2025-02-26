@@ -191,7 +191,7 @@ jobs:
 
       - name: Replace / with - in the feature path
         id: feature-path
-        if: always()
+        if: ${{ ! cancelled() }}
         run: |
           feature_name="${{ matrix.feature }}"
           feature_name_with_dash="${feature_name//\//-}"
@@ -207,7 +207,7 @@ jobs:
           retention-days: 1
 
       - name: Move retries.json to reports directory and display warnings
-        if: always()
+        if: ${{ ! cancelled() }}
         run: |
             retriesFile="${{ inputs.module_name }}/tests/e2e/results/retries.json"
             if [ -f "$retriesFile" ]; then
@@ -219,7 +219,7 @@ jobs:
         shell: bash
 
       - name: Upload test reports
-        if: always()
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
@@ -227,7 +227,7 @@ jobs:
           retention-days: 1
 
       - name: Upload xray reports
-        if: always()
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
@@ -237,7 +237,7 @@ jobs:
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
+    if: ${{ ! cancelled() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -328,6 +328,7 @@ jobs:
                 outputTable.push([featureName, scenarioName, String(retries[testName])]);
               }
 
+              // Display json to allow collect of metrics
               core.warning(warningBody, { title: warningTitle });
 
               core.summary
@@ -339,7 +340,7 @@ jobs:
 
   regroup-artifacts:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
-    if: always()
+    if: ${{ ! cancelled() }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
