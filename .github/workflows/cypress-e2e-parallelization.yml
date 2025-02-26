@@ -323,13 +323,12 @@ jobs:
 
               let warningBody = JSON.stringify(warningTitle, null, 2);
               for (const testName in retries) {
-                // warning += `  - ${testName}: ${retries[testName]}\n`;
                 const featureName = testName.split('>')[0];
                 const scenarioName = testName.split('>').slice(1).join('>');
                 outputTable.push([featureName, scenarioName, String(retries[testName])]);
               }
 
-              core.warning(warningTitle, { title: warningTitle });
+              core.warning(warningTitle, { title: warningBody });
 
               core.summary
                 .addHeading(`Retries Summary`)
