@@ -28,7 +28,7 @@ const internalWidgets: Array<
   {
     name: 'batimeline',
     panelDefaultHeight: 3,
-    panelDefaultWidth: 3,
+    panelDefaultWidth: 12,
     panelMinWidth: 3,
     panelMinHeight: 3
   },

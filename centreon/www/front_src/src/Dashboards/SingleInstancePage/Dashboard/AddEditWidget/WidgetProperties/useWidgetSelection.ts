@@ -104,11 +104,14 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
   const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
+
+
+
   const installedWidgets = useMemo(
-    () =>
-      federatedWidgetsProperties?.filter(({ moduleName }) =>
-        widgets?.includes(moduleName)
-      ),
+    () => federatedWidgetsProperties //temporairement
+      // federatedWidgetsProperties?.filter(({ moduleName }) =>
+      //   widgets?.includes(moduleName)
+      ,
     [federatedWidgetsProperties, widgets]
   );
 
