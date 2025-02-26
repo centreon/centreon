@@ -63,10 +63,6 @@ default:
       paths: [ "%paths.base%/features/AutologinOptions.feature" ]
       contexts: [ AutologinOptionsContext ]
 
-    ldap:
-      paths: [ "%paths.base%/features/Ldap.feature" ]
-      contexts: [ LdapContext ]
-
     custom_views_locked:
       paths: [ "%paths.base%/features/CustomViews/Locked.feature" ]
       contexts: [ CustomViewsContext ]
@@ -87,21 +83,9 @@ default:
       paths: [ "%paths.base%/features/RestApi.feature" ]
       contexts: [ RestApiContext ]
 
-    ldap_manual_import:
-      paths: [ "%paths.base%/features/LdapManualImport.feature" ]
-      contexts: [ LdapManualImportContext ]
-
-    connector_configuration:
-      paths: [ "%paths.base%/features/ConnectorConfiguration.feature" ]
-      contexts: [ ConnectorConfigurationContext ]
-
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]
       contexts: [ ClapiContext ]
-
-    uri:
-      paths: [ "%paths.base%/features/URI.feature" ]
-      contexts: [ URIContext ]
 
     centreon_module_api:
       paths: [ "%paths.base%/features/CentreonModuleAPI.feature" ]

@@ -29,7 +29,7 @@ runs:
       id: trigger_delivery
       run: |
         TRIGGER_DELIVERY='false'
-        if [[ ${{ inputs.is_nightly }} == 'false' && (${{ inputs.has_frontend_changes }} == 'true' || ${{ inputs.has_backend_changes }} == 'true') ]]; then
+        if [[ ${{ inputs.is_nightly }} == 'true' || ${{ inputs.has_frontend_changes }} == 'true' || ${{ inputs.has_backend_changes }} == 'true' ]]; then
           TRIGGER_DELIVERY='true'
         fi
         echo "trigger_delivery=$TRIGGER_DELIVERY"
