@@ -51,7 +51,7 @@ export default (
     // Save the testRetries object to a file in the e2e/results directory
     const resultFilePath = path.join(
       __dirname,
-      '../../../../tests/e2e/results',
+      'results',
       'retries.json'
     );
 
