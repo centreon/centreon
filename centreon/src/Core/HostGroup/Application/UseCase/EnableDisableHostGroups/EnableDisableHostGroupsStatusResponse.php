@@ -21,19 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Infrastructure\API\DeleteHostGroups;
+namespace Core\HostGroup\Application\UseCase\EnableDisableHostGroups;
 
-use Core\HostGroup\Application\UseCase\DeleteHostGroups\DeleteHostGroupsRequest;
+use Core\Common\Domain\ResponseCodeEnum;
 
-final class DeleteHostGroupsRequestTransformer
+final class EnableDisableHostGroupsStatusResponse
 {
-    /**
-     * @param DeleteHostGroupsInput $input
-     *
-     * @return DeleteHostGroupsRequest
-     */
-    public static function transform(DeleteHostGroupsInput $input): DeleteHostGroupsRequest
-    {
-        return new DeleteHostGroupsRequest($input->ids);
-    }
+    public int $id = 0;
+
+    public ResponseCodeEnum $status = ResponseCodeEnum::OK;
+
+    public ?string $message = null;
 }
