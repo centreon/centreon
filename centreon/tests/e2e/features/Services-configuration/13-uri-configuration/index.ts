@@ -53,25 +53,26 @@ Given('a user is logged in a Centreon server', () => {
 
 Given('a configured passive host', () => {
   cy.addHost({
-    hostGroup: "Linux-Servers",
+    passiveCheckEnabled: true,
+    activeCheckEnabled: false,
+    hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
-    template: "generic-host",
+    template: 'generic-host'
   })
     .applyPollerConfiguration();
-  cy.setPassiveResource('/centreon/api/latest/configuration/hosts/15');
 }
 );
 
 Given('a configured passive service linked to the host', () => {
   cy.addService({
+    passiveCheckEnabled: true,
     activeCheckEnabled: false,
     host: services.serviceOk.host,
     maxCheckAttempts: 1,
     name: services.serviceOk.name,
-    template: services.serviceOk.template,
+    template: services.serviceOk.template
   })
     .applyPollerConfiguration();
-  cy.setPassiveResource('/centreon/api/latest/configuration/services/27');
 })
 
 When(
