@@ -1,6 +1,6 @@
 post:
   tags:
-    - Host Group
+    - Host group
   summary: "Delete multiple host groups"
   requestBody:
     required: true
