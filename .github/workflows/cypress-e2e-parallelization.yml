@@ -328,7 +328,7 @@ jobs:
                 outputTable.push([featureName, scenarioName, String(retries[testName])]);
               }
 
-              core.warning(warningTitle, { title: warningBody });
+              core.warning(warningBody, { title: warningTitle });
 
               core.summary
                 .addHeading(`Retries Summary`)
