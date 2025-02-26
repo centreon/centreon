@@ -230,6 +230,35 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
     /**
      * @inheritDoc
      */
+    public function enableDisableHostGroup(int $hostGroupId, bool $isEnable): void
+    {
+        try {
+            $hostGroup = $this->readHostGroupRepository->findOne($hostGroupId);
+            if ($hostGroup === null) {
+                throw new RepositoryException('Cannot find hostgroup to enable/disable');
+            }
+
+            $this->writeHostGroupRepository->enableDisableHostGroup($hostGroupId, $isEnable);
+
+            $actionLog = new ActionLog(
+                ActionLog::OBJECT_TYPE_HOSTGROUP,
+                $hostGroupId,
+                $hostGroup->getName(),
+                $isEnable ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
+                $this->contact->getId()
+            );
+            $this->writeActionLogRepository->addAction($actionLog);
+
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function duplicate(int $hostGroupId, int $duplicateIndex): int
     {
         try {

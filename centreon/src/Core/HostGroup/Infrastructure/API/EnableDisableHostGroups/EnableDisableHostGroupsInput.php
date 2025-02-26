@@ -21,19 +21,22 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Infrastructure\API\DeleteHostGroups;
+namespace Core\HostGroup\Infrastructure\API\EnableDisableHostGroups;
 
-use Core\HostGroup\Application\UseCase\DeleteHostGroups\DeleteHostGroupsRequest;
+use Symfony\Component\Validator\Constraints as Assert;
 
-final class DeleteHostGroupsRequestTransformer
+final class EnableDisableHostGroupsInput
 {
     /**
-     * @param DeleteHostGroupsInput $input
-     *
-     * @return DeleteHostGroupsRequest
+     * @param int[] $ids
      */
-    public static function transform(DeleteHostGroupsInput $input): DeleteHostGroupsRequest
-    {
-        return new DeleteHostGroupsRequest($input->ids);
+    public function __construct(
+        #[Assert\NotNull()]
+        #[Assert\Type('array')]
+        #[Assert\All(
+            new Assert\Type('integer')
+        )]
+        public readonly mixed $ids
+    ) {
     }
 }
