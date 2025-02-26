@@ -131,7 +131,9 @@ const useListing = ({
       return;
     }
 
-    setPanelOptions?.({ provider: {} });
+    if (isFromPreview) {
+      setPanelOptions?.({ provider: {} });
+    }
   }, [isOpenTicketEnabled]);
 
   const isOpenTicketInstalled = useIsOpenTicketInstalled();
