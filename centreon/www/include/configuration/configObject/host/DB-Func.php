@@ -34,6 +34,8 @@
  *
  */
 
+use Core\ActionLog\Domain\Model\ActionLog;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -281,7 +283,12 @@ function enableHostInDB($host_id = null, $host_arr = array())
         $hostName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('host', (int) $hostId);
-        $centreon->CentreonLogAction->insertLog("host", $hostId, $hostName, "enable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $hostName,
+            action_type: ActionLog::ACTION_TYPE_ENABLE
+        );
     }
 }
 
@@ -306,7 +313,12 @@ function disableHostInDB($host_id = null, $host_arr = array())
         $hostName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('host', (int) $hostId, [], false);
-        $centreon->CentreonLogAction->insertLog("host", $hostId, $hostName, "disable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $hostName,
+            action_type: ActionLog::ACTION_TYPE_DISABLE
+        );
     }
 }
 
@@ -383,10 +395,10 @@ function deleteHostInDB($hosts = array())
                 $dbResult2 = $pearDB->query("DELETE FROM service
                                               WHERE service_id = '" . $row["service_service_id"] . "'");
                 $centreon->CentreonLogAction->insertLog(
-                    "service",
-                    $row["service_service_id"],
-                    $hostname['host_name'] . "/" . $svcname["service_description"],
-                    "d"
+                    object_type: ActionLog::OBJECT_TYPE_SERVICE,
+                    object_id: $row["service_service_id"],
+                    object_name: $hostname['host_name'] . "/" . $svcname["service_description"],
+                    action_type: ActionLog::ACTION_TYPE_DELETE
                 );
             }
         }
@@ -397,7 +409,12 @@ function deleteHostInDB($hosts = array())
         $dbResult = $pearDB->query("DELETE FROM contact_host_relation WHERE host_host_id = '" . (int) $hostId . "'");
 
         signalConfigurationChange('host', (int) $hostId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog("host", $hostId, $hostname['host_name'], "d");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOST,
+            object_id: $hostId,
+            object_name: $hostname['host_name'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
     }
 }
 
@@ -698,7 +715,12 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                     $statement->execute();
 
                     signalConfigurationChange('host', (int) $maxId["MAX(host_id)"]);
-                    $centreon->CentreonLogAction->insertLog("host", $maxId["MAX(host_id)"], $hostName, "a", $fields);
+                    $centreon->CentreonLogAction->insertLog(
+                        object_type: ActionLog::OBJECT_TYPE_HOST,
+                        object_id: $maxId["MAX(host_id)"],
+                        object_name: $hostName,
+                        action_type: ActionLog::ACTION_TYPE_ADD
+                    );
                 }
             }
             // if all duplication names are already used, next value is never set
@@ -1131,11 +1153,11 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "host",
-        $host_id["MAX(host_id)"],
-        CentreonDB::escape($ret["host_name"]),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_HOST,
+        object_id: $host_id["MAX(host_id)"],
+        object_name: $ret["host_name"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
 
     return ($host_id["MAX(host_id)"]);
@@ -1508,7 +1530,13 @@ function updateHost($host_id = null, $from_MC = false, $cfg = null)
      */
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("host", $host_id, CentreonDB::escape($ret["host_name"]), "c", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_HOST,
+        object_id: $host_id,
+        object_name: $ret["host_name"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
+    );
     $centreon->user->access->updateACL(array("type" => 'HOST', 'id' => $host_id, "action" => "UPDATE"));
 }
 
@@ -1613,7 +1641,13 @@ function updateHost_MC($host_id = null)
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("host", $host_id, $row["host_name"], "mc", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_HOST,
+        object_id: $host_id,
+        object_name: $row["host_name"],
+        action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
+        fields: $fields
+    );
 }
 
 function updateHostHostParent($host_id = null, $ret = array())

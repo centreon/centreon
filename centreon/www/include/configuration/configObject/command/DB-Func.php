@@ -34,6 +34,8 @@
  *
  */
 
+ use Core\ActionLog\Domain\Model\ActionLog;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -103,7 +105,12 @@ function deleteCommandInDB($commands = array())
         $dbResult2 = $pearDB->query($query);
         $row = $dbResult2->fetch();
         $pearDB->query("DELETE FROM `command` WHERE `command_id` = '" . (int)$key . "'");
-        $centreon->CentreonLogAction->insertLog("command", $key, $row['command_name'], "d");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_COMMAND,
+            object_id: $key,
+            object_name: $row['command_name'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
     }
 }
 
@@ -143,11 +150,11 @@ function multipleCommandInDB($commands = array(), $nbrDup = array())
                 $dbResult = $pearDB->query("SELECT MAX(command_id) FROM `command`");
                 $cmd_id = $dbResult->fetch();
                 $centreon->CentreonLogAction->insertLog(
-                    "command",
-                    $cmd_id["MAX(command_id)"],
-                    $command_name,
-                    "a",
-                    $fields
+                    object_type: ActionLog::OBJECT_TYPE_COMMAND,
+                    object_id: $cmd_id["MAX(command_id)"],
+                    object_name: $command_name,
+                    action_type: ActionLog::ACTION_TYPE_ADD,
+                    fields: $fields
                 );
 
                 /*
@@ -222,7 +229,13 @@ function updateCommand($cmd_id = null, $params = array())
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("command", $cmd_id, $pearDB->escape($ret["command_name"]), "c", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_COMMAND,
+        object_id: $cmd_id,
+        object_name: $ret["command_name"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
+    );
 }
 
 function insertCommandInDB($ret = array())
@@ -269,7 +282,13 @@ function insertCommand($ret = array())
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("command", $max_id, $pearDB->escape($ret["command_name"]), "a", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_COMMAND,
+        object_id: $max_id,
+        object_name: $ret["command_name"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
+    );
 
     insertArgDesc($max_id, $ret);
     insertMacrosDesc($max_id, $ret);
@@ -513,10 +532,10 @@ function changeCommandStatus($command_id, $commands, $status)
             "WHERE command_id = '" . $pearDB->escape($command_id) . "'";
         $pearDB->query($query);
         $centreon->CentreonLogAction->insertLog(
-            "command",
-            $command_id,
-            getCommandName($command_id),
-            $status ? "enable" : "disable"
+            object_type: ActionLog::OBJECT_TYPE_COMMAND,
+            object_id: $command_id,
+            object_name: getCommandName($command_id),
+            action_type: $status ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE
         );
     } else {
         foreach ($commands as $command_id => $flag) {
@@ -526,10 +545,10 @@ function changeCommandStatus($command_id, $commands, $status)
                 $pearDB->query($query);
 
                 $centreon->CentreonLogAction->insertLog(
-                    "command",
-                    $command_id,
-                    getCommandName($command_id),
-                    $status ? "enable" : "disable"
+                    object_type: ActionLog::OBJECT_TYPE_COMMAND,
+                    object_id: $command_id,
+                    object_name: getCommandName($command_id),
+                    action_type: $status ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE
                 );
             }
         }

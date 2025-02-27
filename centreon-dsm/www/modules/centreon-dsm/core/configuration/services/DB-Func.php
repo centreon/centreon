@@ -187,9 +187,9 @@ function enablePoolInDB($pool_id = null, $pool_arr = array())
             $statement = $pearDB->prepareQuery(
                 <<<'SQL'
                     UPDATE mod_dsm_pool
-                    SET pool_activate = 1
+                    SET pool_activate = '1'
                     WHERE pool_id = :pool_id
-                SQL
+                    SQL
             );
             $pearDB->executePreparedQuery($statement, [':pool_id' => [$id, PDO::PARAM_INT]], true);
             $pearDB->closeQuery($statement);
@@ -254,9 +254,9 @@ function disablePoolInDB($pool_id = null, $pool_arr = array())
             $statement = $pearDB->prepareQuery(
                 <<<'SQL'
                     UPDATE mod_dsm_pool
-                    SET pool_activate = 0
+                    SET pool_activate = '0'
                     WHERE pool_id = :pool_id
-                SQL
+                    SQL
             );
             $pearDB->executePreparedQuery($statement, [':pool_id' => [$id, PDO::PARAM_INT]], true);
             $pearDB->closeQuery($statement);
@@ -608,7 +608,7 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
 
                 if ($service_id != 0) {
                     $statementInsertHostRelation = $pearDB->prepareQuery(
-                        "INSERT INTO host_service_relation (service_service_id, host_host_id) 
+                        "INSERT INTO host_service_relation (service_service_id, host_host_id)
                         VALUES (:service_id, :host_id)"
                     );
                     $pearDB->executePreparedQuery($statementInsertHostRelation, [
@@ -920,14 +920,14 @@ function updatePool($pool_id = null)
             'pool_prefix' => PDO::PARAM_STR,
             'pool_cmd_id' => PDO::PARAM_INT,
             'pool_args' => PDO::PARAM_STR,
-            'pool_activate' => PDO::PARAM_INT,
+            'pool_activate' => PDO::PARAM_STR,
             'pool_service_template_id' => PDO::PARAM_INT,
         ];
 
         $parameters = [];
         foreach ($fields as $field => $type) {
-            $value = $ret[$field] ?? null;
-            $parameters[":$field"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
+            $field === 'pool_activate' ? $value = $ret[$field][$field] : $value = $ret[$field] ?? null;
+            $parameters[":{$field}"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
         }
 
         $parameters[':pool_id'] = [$pool_id, PDO::PARAM_INT];
@@ -945,7 +945,7 @@ function updatePool($pool_id = null)
             $oldPrefix
         );
 
-        if ($ret["pool_activate"] == 1) {
+        if ($ret['pool_activate']['pool_activate'] === '1') {
             enablePoolInDB($pool_id);
         } else {
             disablePoolInDB($pool_id);
@@ -959,7 +959,8 @@ function updatePool($pool_id = null)
             customContext: [
                 'pool_id' => $pool_id,
                 'pool_name' => $ret['pool_name'] ?? null,
-                'pool_prefix' => $ret['pool_prefix'] ?? null
+                'pool_prefix' => $ret['pool_prefix'] ?? null,
+                'pool_activate' => $ret['pool_activate'] ?? null,
             ],
             exception: $e
         );

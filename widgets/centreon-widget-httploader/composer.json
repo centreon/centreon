@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-widget-httploader",
   "description": "Widget to display the content of any URI in your custom view",
-  "version": "23.04.0",
+  "version": "23.10",
   "type": "project",
   "license": "GPL-2.0-only",
   "scripts": {
@@ -15,7 +15,7 @@
   "config": {
     "secure-http": false,
     "platform": {
-      "php": "7.2"
+      "php": "8.1"
     }
   }
 }

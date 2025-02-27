@@ -177,7 +177,10 @@ class CentreonCeip extends CentreonWebService
         // Get Instance information
         $instanceInformation = $this->getServerType();
 
-        $accountInformation = [
+        // Get LACCESS
+        $laccess = $this->getLaccess();
+
+        $accountInformation =  [
             'id' => $this->uuid,
             'name' => $licenseInfo['companyName'],
             'serverType' => $instanceInformation['type'],
@@ -197,6 +200,10 @@ class CentreonCeip extends CentreonWebService
         }
         if (isset($licenseInfo['fingerprint'])) {
             $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
+        }
+
+        if (!empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
+            $accountInformation['LACCESS'] = $laccess;
         }
 
         return $accountInformation;
@@ -229,6 +236,7 @@ class CentreonCeip extends CentreonWebService
                     $licenseInformation[$module] = $licenseObject->getData();
                     $licenseClientName = $licenseInformation[$module]['client']['name'];
                     $hostsLimitation = $licenseInformation[$module]['licensing']['hosts'];
+                    $licenseMode = $licenseInformation[$module]['platform']['mode'] ?? null;
                     $licenseStart = DateTime::createFromFormat(
                         'Y-m-d',
                         $licenseInformation[$module]['licensing']['start']
@@ -278,6 +286,10 @@ class CentreonCeip extends CentreonWebService
             $licenseInformation['fingerprint'] = $fingerprint;
         }
 
+        if (isset($licenseMode)) {
+            $licenseInformation['mode'] = $licenseMode;
+        }
+
         return $licenseInformation;
     }
 
@@ -309,6 +321,21 @@ class CentreonCeip extends CentreonWebService
         $sql = "SELECT `value` FROM `options` WHERE `key` = 'send_statistics' LIMIT 1";
 
         return '1' === $this->sqlFetchValue($sql);
+    }
+
+    /**
+     * Get LACCESS to complete the connection between Pendo and Salesforce.
+     *
+     * @return string LACCESS value from options table.
+     *
+     * @throws PDOException
+     *
+     */
+    private function getLaccess(): string
+    {
+        $sql = "SELECT `value` FROM `options` WHERE `key` = 'LACCESS' LIMIT 1";
+
+        return (string) $this->sqlFetchValue($sql);
     }
 
     /**

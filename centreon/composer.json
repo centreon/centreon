@@ -11,6 +11,7 @@
     "ext-openssl": "*",
     "ext-phar": "*",
     "beberlei/assert": "^3.3",
+    "centreon/smarty": "v3.1.48+1-centreon",
     "curl/curl": "^2.3",
     "doctrine/annotations": "^1.0",
     "dragonmantank/cron-expression": "3.1.0",
@@ -27,7 +28,6 @@
     "psr/container": "1.1.1",
     "sensio/framework-extra-bundle": "^6.2",
     "smarty-gettext/smarty-gettext": "^1.6",
-    "smarty/smarty": "^3.1",
     "symfony/config": "5.4.*",
     "symfony/console": "5.4.*",
     "symfony/dependency-injection": "5.4.*",
@@ -104,6 +104,7 @@
     ],
     "files": [
       "GPL_LIB/smarty-plugins/function.eval.php",
+      "GPL_LIB/smarty-plugins/SmartyCentreon.php",
       "www/api/exceptions.php",
       "www/api/class/webService.class.php",
       "www/lib/HTML/QuickForm/HTML_QuickFormCustom.php",
