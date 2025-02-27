@@ -23,10 +23,6 @@ default:
       paths: [ "%paths.base%/features/Partitioning.feature" ]
       contexts: [ PartitioningContext ]
 
-    knowledge_base:
-      paths: [ "%paths.base%/features/KnowledgeBase.feature" ]
-      contexts: [ KnowledgeBaseContext ]
-
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
