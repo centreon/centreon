@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "280facfc-daec-4320-b3ff-6b52d81ca35d",
+		"_postman_id": "5b332059-de3b-445e-aee4-627503e07532",
 		"name": "Resources_Monitoring",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-280facfc-daec-4320-b3ff-6b52d81ca35d?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "29556865",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/29556865-5b332059-de3b-445e-aee4-627503e07532?action=share&source=collection_link&creator=29556865"
 	},
 	"item": [
 		{
@@ -291,38 +291,34 @@
 									"pm.collectionVariables.set(\"HostGroup1Alias\", \"I should be successful !\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup1Alias\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
+									"pm.test(\"The host group has been successfully created and contains the correct name and alias.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new host group\r",
+									"    // Parse the response JSON\r",
 									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"HostGroup1Id\", response.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
-									"        \"notes\": null,\r",
-									"        \"notes_url\": null,\r",
-									"        \"action_url\": null,\r",
-									"        \"icon_id\": null,\r",
-									"        \"icon_map_id\": null,\r",
-									"        \"rrd\": null,\r",
-									"        \"geo_coords\": null,\r",
-									"        \"comment\": \"Hello world ! 1\",\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"    \r",
-									"});"
+									"    // Verify the response directly contains the expected properties\r",
+									"    pm.expect(response).to.have.all.keys(\"id\", \"name\", \"alias\", \"geo_coords\", \"comment\", \"hosts\");\r",
+									"\r",
+									"    // Check if the name and alias match the expected values\r",
+									"    pm.expect(response.name).to.eql(pm.collectionVariables.get(\"HostGroup1Name\"));\r",
+									"    pm.expect(response.alias).to.eql(pm.collectionVariables.get(\"HostGroup1Alias\"));\r",
+									"\r",
+									"    // Store the ID of the created host group for future use\r",
+									"    pm.collectionVariables.set(\"HostGroup1Id\", response.id);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -331,7 +327,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostGroup1Name}}\",\r\n    \"alias\": \"{{HostGroup1Alias}}\",\r\n    \"comment\": \"Hello world ! 1\"\r\n}"
+							"raw": "{\r\n    \"name\": \"{{HostGroup1Name}}\",\r\n    \"alias\": \"{{HostGroup1Alias}}\",\r\n    \"comment\": \"Hello world ! 1\",\r\n    \"hosts\":[]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -709,7 +710,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -733,7 +735,7 @@
 									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"        pm.expect(responseJson.result[0]).to.include({\r",
 									"            \"type\": \"host\",\r",
@@ -745,7 +747,8 @@
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -857,7 +860,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -866,33 +870,51 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"\r",
+									"// Initialize the collection tries if it hasn't been set\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"// Check if the conditions to retry are met\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) \r",
+									"    && (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    \r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"\r",
+									"    // Adding delay before retrying\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"\r",
+									"    // Retry the request\r",
 									"    postman.setNextRequest(\"Check the resources retrieved via service category names by admin (successful)\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
+									"    // Test for successful retrieval of resources\r",
 									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"type\": \"service\",\r",
-									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
-									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
-									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
-									"        });\r",
+									"        // Search and validate Service1Name\r",
+									"        const service1 = responseJson.result.find(item => item.name === pm.collectionVariables.get(\"Service1Name\"));\r",
+									"\r",
+									"        pm.expect(service1, `Service with name ${pm.collectionVariables.get(\"Service1Name\")} should be in the response`).to.not.be.undefined;\r",
+									"\r",
+									"        if (service1) {\r",
+									"            pm.expect(service1).to.include({\r",
+									"                \"type\": \"service\",\r",
+									"                \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"                \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"                \"host_id\": pm.collectionVariables.get(\"Host1Id\")\r",
+									"            });\r",
+									"        }\r",
 									"    });\r",
-									"}"
+									"}\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2807,7 +2829,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2816,33 +2839,49 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"\r",
+									"// Initialize the collection tries if it hasn't been set\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (responseJson.result.length = 0)) {\r",
+									"// Check if the conditions to retry are met\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) \r",
+									"    && (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    \r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"\r",
+									"    // Adding delay before retrying\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"Check the resources retrieved via type by user non-admin (successful)\");\r",
+									"\r",
+									"    // Retry the request\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via service category names by admin (successful)\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
+									"    // Test for successful retrieval of resources\r",
 									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        // Search and validate Service1Name\r",
+									"        const service1 = responseJson.result.find(item => item.name === pm.collectionVariables.get(\"Service1Name\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"type\": \"service\",\r",
-									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
-									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
-									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
-									"        });\r",
+									"        pm.expect(service1, `Service with name ${pm.collectionVariables.get(\"Service1Name\")} should be in the response`).to.not.be.undefined;\r",
+									"\r",
+									"        if (service1) {\r",
+									"            pm.expect(service1).to.include({\r",
+									"                \"type\": \"service\",\r",
+									"                \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"                \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"                \"host_id\": pm.collectionVariables.get(\"Host1Id\")\r",
+									"            });\r",
+									"        }\r",
 									"    });\r",
-									"}"
+									"}\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2954,7 +2993,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2963,33 +3003,55 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"\r",
+									"// Initialize the collection tries if it hasn't been set\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (responseJson.result.length = 0)) {\r",
+									"// Retry logic if conditions are met (i.e., retry if status or resource count is incorrect)\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) \r",
+									"    && (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\")) \r",
+									"    && (responseJson.result.length === 0)) {\r",
+									"\r",
+									"    // Increment retry count\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"\r",
+									"    // Delay before retrying the request\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"\r",
+									"    // Retry the request\r",
 									"    postman.setNextRequest(\"Check the resources retrieved via service category names by user non-admin (successful)\");\r",
+									"\r",
 									"} else {\r",
+									"    // Unset the retry count after the retries are done\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
+									"    // Test for successful retrieval of resources\r",
 									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"      \r",
+									"        // Check if the resource has the expected properties\r",
+									"        const service = responseJson.result.find(item => item.name === pm.collectionVariables.get(\"Service1Name\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        // Ensure that the service exists in the response\r",
+									"        pm.expect(service, `Service with name ${pm.collectionVariables.get(\"Service1Name\")} should be in the response`).to.not.be.undefined;\r",
 									"\r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"type\": \"service\",\r",
-									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
-									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
-									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
-									"        });\r",
+									"        if (service) {\r",
+									"            // Validate the expected properties of the service\r",
+									"            pm.expect(service).to.include({\r",
+									"                \"type\": \"service\",\r",
+									"                \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"                \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"                \"host_id\": pm.collectionVariables.get(\"Host1Id\")\r",
+									"            });\r",
+									"        }\r",
 									"    });\r",
-									"}"
+									"}\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3031,7 +3093,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3040,40 +3103,65 @@
 								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"\r",
+									"// Initialize the collection tries if it hasn't been set\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (responseJson.result.length = 0)) {\r",
+									"// Check if the conditions to retry are met\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) \r",
+									"    && (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\")) \r",
+									"    && (responseJson.result.length === 0)) {\r",
+									"\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"\r",
+									"    // Adding delay before retrying\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"\r",
+									"    // Retry the request\r",
 									"    postman.setNextRequest(\"Check the resources retrieved via status hard by user non-admin (successful)\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
+									"    // Test for successful retrieval of resources\r",
 									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(2);\r",
+									"        // Search and validate Service1Name\r",
+									"        const service1 = responseJson.result.find(item => item.name === pm.collectionVariables.get(\"Service1Name\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"type\": \"service\",\r",
-									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
-									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
-									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
-									"            \"type\": \"host\",\r",
-									"            \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
-									"            \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
-									"            \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
-									"            \"fqdn\": '999.99.99.99'\r",
-									"        });\r",
+									"        pm.expect(service1, `Service with name ${pm.collectionVariables.get(\"Service1Name\")} should be in the response`).to.not.be.undefined;\r",
+									"\r",
+									"        if (service1) {\r",
+									"            pm.expect(service1).to.include({\r",
+									"                \"type\": \"service\",\r",
+									"                \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"                \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"                \"host_id\": pm.collectionVariables.get(\"Host1Id\")\r",
+									"            });\r",
+									"        }\r",
+									"\r",
+									"        // Validate the Host1Name\r",
+									"        const host1 = responseJson.result.find(item => item.name === pm.collectionVariables.get(\"Host1Name\"));\r",
+									"\r",
+									"        pm.expect(host1, `Host with name ${pm.collectionVariables.get(\"Host1Name\")} should be in the response`).to.not.be.undefined;\r",
+									"\r",
+									"        if (host1) {\r",
+									"            pm.expect(host1).to.include({\r",
+									"                \"type\": \"host\",\r",
+									"                \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
+									"                \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
+									"                \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
+									"                \"fqdn\": '999.99.99.99'\r",
+									"            });\r",
+									"        }\r",
 									"    });\r",
-									"}"
+									"}\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],

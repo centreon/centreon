@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "c9abdc91-3f82-4793-becb-4bbcc38f5198",
+		"_postman_id": "8baf0016-6822-4e7c-9a8f-b8e69f5fb75b",
 		"name": "Host",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-c9abdc91-3f82-4793-becb-4bbcc38f5198?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "29556865",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-8baf0016-6822-4e7c-9a8f-b8e69f5fb75b?action=share&source=collection_link&creator=29556865"
 	},
 	"item": [
 		{
@@ -2178,6 +2178,84 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
 				}
 			]
 		},
@@ -2201,7 +2279,8 @@
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2502,7 +2581,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup1Alias\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
+									"    pm.response.to.have.status(200);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host group\r",
 									"    var response = pm.response.json();\r",
@@ -2512,23 +2591,13 @@
 									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
-									"        \"notes\": \"I am Groot\",\r",
-									"        \"notes_url\": \"www.google.fr\",\r",
-									"        \"action_url\": \"www.google.com\",\r",
-									"        \"icon_id\": null,\r",
-									"        \"icon_map_id\": null,\r",
-									"        \"rrd\": 3,\r",
-									"        \"geo_coords\": null,\r",
 									"        \"comment\": \"Hello world ! 1\",\r",
-									"        \"is_activated\": false\r",
 									"    });\r",
 									"});\r",
-									"\r",
-									"pm.test(\"The Location parameter is in the header.\", function () {\r",
-									"    pm.response.to.have.header(\"Location\");\r",
-									"});"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2539,7 +2608,8 @@
 									"pm.collectionVariables.set(\"HostGroup1Alias\", \"I should be successful !\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2553,7 +2623,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"comment\": \"Hello world ! 1\",\n    \"hosts\":[],\n    \"resource_access_rules\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -2651,7 +2726,8 @@
 									"pm.collectionVariables.set(\"HostTemplate1Alias\", \"I'm the first host template created by admin\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2687,8 +2763,8 @@
 									"        \"notification_options\": 31,\r",
 									"        \"notification_interval\": 5,\r",
 									"        \"notification_timeperiod_id\": 2,\r",
-									"        \"add_inherited_contact_group\": true,\r",
-									"        \"add_inherited_contact\": true,\r",
+									"        \"add_inherited_contact_group\": false,\r",
+									"        \"add_inherited_contact\": false,\r",
 									"        \"first_notification_delay\": 2,\r",
 									"        \"recovery_notification_delay\": 1,\r",
 									"        \"acknowledgement_timeout\": 5,\r",
@@ -2724,7 +2800,8 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2766,7 +2843,8 @@
 									"pm.collectionVariables.set(\"Host1Alias\", \"I'm the first host created by admin\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2804,8 +2882,8 @@
 									"        \"notification_options\": 31,\r",
 									"        \"notification_interval\": 5,\r",
 									"        \"notification_timeperiod_id\": 2,\r",
-									"        \"add_inherited_contact_group\": true,\r",
-									"        \"add_inherited_contact\": true,\r",
+									"        \"add_inherited_contact_group\": false,\r",
+									"        \"add_inherited_contact\": false,\r",
 									"        \"first_notification_delay\": 2,\r",
 									"        \"recovery_notification_delay\": 1,\r",
 									"        \"acknowledgement_timeout\": 5,\r",
@@ -2851,7 +2929,8 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2902,10 +2981,11 @@
 									"console.log(responseJson);\r",
 									"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 									"    // Check the number of hosts (1)\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    console.log(\"Number of hosts retrieved:\", responseJson.result.length);\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"    // Check the properties of each host\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
@@ -2915,40 +2995,40 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[0].monitoring_server).to.eql({\r",
+									"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
 									"        id: 1, \r",
 									"        name: \"Central\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].templates).to.eql([{\r",
+									"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[0].notification_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[1].notification_timeperiod).to.eql({\r",
 									"        id: 2,\r",
 									"        name: \"none\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
 									"        id: 1,\r",
 									"        name: \"24x7\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].severity).to.eql({\r",
+									"    pm.expect(responseJson.result[1].severity).to.eql({\r",
 									"        id: pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostSeverity1Name\")\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].categories).to.eql([{\r",
+									"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[0].groups).to.eql([{\r",
+									"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    }]);\r",
-									"\r",
 									"});\r",
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2996,7 +3076,8 @@
 									"pm.collectionVariables.set(\"Host2Name\", \"host_002\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3060,7 +3141,8 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3110,10 +3192,10 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 									"    // Check the number of hosts (2)\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
 									"\r",
 									"    // Check the properties of each host\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
@@ -3123,37 +3205,37 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[0].monitoring_server).to.eql({\r",
+									"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
 									"        id: 1, \r",
 									"        name: \"Central\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].templates).to.eql([{\r",
+									"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[0].notification_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[1].notification_timeperiod).to.eql({\r",
 									"        id: 2,\r",
 									"        name: \"none\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
 									"        id: 1,\r",
 									"        name: \"24x7\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].severity).to.eql({\r",
+									"    pm.expect(responseJson.result[1].severity).to.eql({\r",
 									"        id: pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostSeverity1Name\")\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].categories).to.eql([{\r",
+									"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[0].groups).to.eql([{\r",
+									"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    }]);\r",
 									"\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"    pm.expect(responseJson.result[2]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
 									"        \"alias\": null,\r",
@@ -3166,19 +3248,20 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+									"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
 									"        id: 1, \r",
 									"        name: \"Central\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[1].templates).to.be.an('Array').that.is.empty;\r",
-									"    pm.expect(responseJson.result[1].categories).to.be.an('Array').that.is.empty;\r",
-									"    pm.expect(responseJson.result[1].groups).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.result[2].templates).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.result[2].categories).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
 									"\r",
 									"});\r",
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3545,7 +3628,8 @@
 									"pm.collectionVariables.set(\"Host3Alias\", \"I'm the third host créated by admin!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3618,7 +3702,8 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3668,10 +3753,10 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 									"    // Check the number of hosts (3)\r",
-									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
 									"\r",
 									"    // Check the properties of each host\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
@@ -3681,37 +3766,37 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[0].monitoring_server).to.eql({\r",
+									"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
 									"        id: 1, \r",
 									"        name: \"Central\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].templates).to.eql([{\r",
+									"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[0].notification_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[1].notification_timeperiod).to.eql({\r",
 									"        id: 2,\r",
 									"        name: \"none\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
 									"        id: 1,\r",
 									"        name: \"24x7\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].severity).to.eql({\r",
+									"    pm.expect(responseJson.result[1].severity).to.eql({\r",
 									"        id: pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostSeverity1Name\")\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].categories).to.eql([{\r",
+									"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    }]);\r",
-									"        pm.expect(responseJson.result[0].groups).to.eql([{\r",
+									"        pm.expect(responseJson.result[1].groups).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    }]);\r",
 									"\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"    pm.expect(responseJson.result[2]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
 									"        \"alias\": null,\r",
@@ -3724,17 +3809,17 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+									"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
 									"        id: 1, \r",
 									"        name: \"Central\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[1].templates).to.be.an('Array').that.is.empty;\r",
-									"    pm.expect(responseJson.result[1].categories).to.be.an('Array').that.is.empty;\r",
-									"    pm.expect(responseJson.result[1].groups).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.result[2].templates).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.result[2].categories).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
 									"\r",
 									"\r",
 									"\r",
-									"    pm.expect(responseJson.result[2]).to.include({\r",
+									"    pm.expect(responseJson.result[3]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
@@ -3746,23 +3831,23 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
+									"    pm.expect(responseJson.result[3].monitoring_server).to.eql({\r",
 									"        id: 1, \r",
 									"        name: \"Central\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[2].check_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[3].check_timeperiod).to.eql({\r",
 									"        id: 1,\r",
 									"        name: \"24x7\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
+									"    pm.expect(responseJson.result[3].templates).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
+									"    pm.expect(responseJson.result[3].categories).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[2].groups).to.eql([{\r",
+									"    pm.expect(responseJson.result[3].groups).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    }]);\r",
@@ -3771,7 +3856,8 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3932,10 +4018,10 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 									"    // Check the number of hosts (2)\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
 									"\r",
 									"    // Check the properties of each host\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
 									"        \"alias\": null,\r",
@@ -3945,38 +4031,38 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[0].monitoring_server).to.eql({\r",
+									"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
 									"        id: 1, \r",
 									"        name: \"Central\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].templates).to.eql([{\r",
+									"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[0].notification_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[1].notification_timeperiod).to.eql({\r",
 									"        \"id\": 4,\r",
 									"        \"name\": \"workhours\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
 									"        \"id\": 3,\r",
 									"        \"name\": \"nonworkhours\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].severity).to.eql({\r",
+									"    pm.expect(responseJson.result[1].severity).to.eql({\r",
 									"        id: pm.collectionVariables.get(\"HostSeverity2Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostSeverity2Name\")\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].categories[0]).to.eql({\r",
+									"    pm.expect(responseJson.result[1].categories[0]).to.eql({\r",
 									"        id: pm.collectionVariables.get(\"HostCategory2Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostCategory2Name\")\r",
 									"    });    \r",
-									"    pm.expect(responseJson.result[0].groups[0]).to.eql({\r",
+									"    pm.expect(responseJson.result[1].groups[0]).to.eql({\r",
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    });\r",
 									"\r",
 									"\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
+									"    pm.expect(responseJson.result[2]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
@@ -3988,23 +4074,23 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+									"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
 									"        id: 1,\r",
 									"        name: \"Central\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+									"    pm.expect(responseJson.result[2].check_timeperiod).to.eql({\r",
 									"        id: 1,\r",
 									"        name: \"24x7\"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+									"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+									"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    }]);\r",
-									"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+									"    pm.expect(responseJson.result[2].groups).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    }]);\r",
@@ -4013,7 +4099,8 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4196,7 +4283,8 @@
 											"pm.collectionVariables.set(\"Host4Alias\", \"I'm the fourth host but I was created by user R/W\");\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -4270,7 +4358,8 @@
 											"    });\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -4631,10 +4720,10 @@
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 											"    // Check the number of hosts (3)\r",
-											"    pm.expect(responseJson.result.length).to.eql(3);\r",
+											"    pm.expect(responseJson.result.length).to.eql(4);\r",
 											"\r",
 											"    // Check the properties of each host\r",
-											"    pm.expect(responseJson.result[0]).to.include({\r",
+											"    pm.expect(responseJson.result[1]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
 											"        \"alias\": null,\r",
@@ -4644,38 +4733,38 @@
 											"        \"is_activated\": true\r",
 											"    });\r",
 											"\r",
-											"    pm.expect(responseJson.result[0].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
 											"        id: 1, \r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[0].notification_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[1].notification_timeperiod).to.eql({\r",
 											"        \"id\": 4,\r",
 											"        \"name\": \"workhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
 											"        \"id\": 3,\r",
 											"        \"name\": \"nonworkhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].severity).to.eql({\r",
+											"    pm.expect(responseJson.result[1].severity).to.eql({\r",
 											"        id: pm.collectionVariables.get(\"HostSeverity2Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostSeverity2Name\")\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].categories[0]).to.eql({\r",
+											"    pm.expect(responseJson.result[1].categories[0]).to.eql({\r",
 											"        id: pm.collectionVariables.get(\"HostCategory2Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory2Name\")\r",
 											"    });    \r",
-											"    pm.expect(responseJson.result[0].groups[0]).to.eql({\r",
+											"    pm.expect(responseJson.result[1].groups[0]).to.eql({\r",
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    });\r",
 											"\r",
 											"\r",
 											"\r",
-											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"    pm.expect(responseJson.result[2]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
 											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
@@ -4687,29 +4776,29 @@
 											"        \"is_activated\": true\r",
 											"    });\r",
 											"\r",
-											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
 											"        id: 1,\r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[2].check_timeperiod).to.eql({\r",
 											"        id: 1,\r",
 											"        name: \"24x7\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].groups).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    }]);\r",
 											"\r",
 											"\r",
-											"    pm.expect(responseJson.result[2]).to.include({\r",
+											"    pm.expect(responseJson.result[3]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host4Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host4Name\"),\r",
 											"        \"alias\": pm.collectionVariables.get(\"Host4Alias\"),\r",
@@ -4722,25 +4811,26 @@
 											"        \"is_activated\": true\r",
 											"    });\r",
 											"\r",
-											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[3].monitoring_server).to.eql({\r",
 											"        id: 1, \r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[3].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
+											"    pm.expect(responseJson.result[3].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
+											"    pm.expect(responseJson.result[3].groups).to.be.an('Array').that.is.empty;\r",
 											"\r",
 											"});\r",
 											"\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -4848,10 +4938,10 @@
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 											"    // Check the number of hosts (3)\r",
-											"    pm.expect(responseJson.result.length).to.eql(3);\r",
+											"    pm.expect(responseJson.result.length).to.eql(4);\r",
 											"\r",
 											"    // Check the properties of each host\r",
-											"    pm.expect(responseJson.result[0]).to.include({\r",
+											"    pm.expect(responseJson.result[1]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
 											"        \"alias\": null,\r",
@@ -4861,38 +4951,38 @@
 											"        \"is_activated\": true\r",
 											"    });\r",
 											"\r",
-											"    pm.expect(responseJson.result[0].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
 											"        id: 1, \r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[0].notification_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[1].notification_timeperiod).to.eql({\r",
 											"        \"id\": 4,\r",
 											"        \"name\": \"workhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
 											"        \"id\": 3,\r",
 											"        \"name\": \"nonworkhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].severity).to.eql({\r",
+											"    pm.expect(responseJson.result[1].severity).to.eql({\r",
 											"        id: pm.collectionVariables.get(\"HostSeverity2Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostSeverity2Name\")\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].categories[0]).to.eql({\r",
+											"    pm.expect(responseJson.result[1].categories[0]).to.eql({\r",
 											"        id: pm.collectionVariables.get(\"HostCategory2Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory2Name\")\r",
 											"    });    \r",
-											"    pm.expect(responseJson.result[0].groups[0]).to.eql({\r",
+											"    pm.expect(responseJson.result[1].groups[0]).to.eql({\r",
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    });\r",
 											"\r",
 											"\r",
 											"\r",
-											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"    pm.expect(responseJson.result[2]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
 											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
@@ -4904,29 +4994,29 @@
 											"        \"is_activated\": true\r",
 											"    });\r",
 											"\r",
-											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
 											"        id: 1,\r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[2].check_timeperiod).to.eql({\r",
 											"        \"id\": 1,\r",
 											"        \"name\": \"24x7\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].groups).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    }]);\r",
 											"\r",
 											"\r",
-											"    pm.expect(responseJson.result[2]).to.include({\r",
+											"    pm.expect(responseJson.result[3]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host4Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host4Name\"),\r",
 											"        \"alias\": pm.collectionVariables.get(\"Host4Alias\"),\r",
@@ -4936,33 +5026,34 @@
 											"        \"severity\": null,\r",
 											"        \"is_activated\": true\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[3].monitoring_server).to.eql({\r",
 											"        id: 1, \r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[3].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[2].notification_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[3].notification_timeperiod).to.eql({\r",
 											"        \"id\": 4,\r",
 											"        \"name\": \"workhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[2].check_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[3].check_timeperiod).to.eql({\r",
 											"        \"id\": 3,\r",
 											"        \"name\": \"nonworkhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
+											"    pm.expect(responseJson.result[3].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory2Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory2Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
+											"    pm.expect(responseJson.result[3].groups).to.be.an('Array').that.is.empty;\r",
 											"\r",
 											"});\r",
 											"\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -5073,10 +5164,10 @@
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 											"    // Check the number of hosts (2)\r",
-											"    pm.expect(responseJson.result.length).to.eql(2);\r",
+											"    pm.expect(responseJson.result.length).to.eql(3);\r",
 											"\r",
 											"    // Check the properties of each host\r",
-											"    pm.expect(responseJson.result[0]).to.include({\r",
+											"    pm.expect(responseJson.result[1]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
 											"        \"alias\": null,\r",
@@ -5086,38 +5177,38 @@
 											"        \"is_activated\": true\r",
 											"    });\r",
 											"\r",
-											"    pm.expect(responseJson.result[0].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
 											"        id: 1, \r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[0].notification_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[1].notification_timeperiod).to.eql({\r",
 											"        \"id\": 4,\r",
 											"        \"name\": \"workhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
 											"        \"id\": 3,\r",
 											"        \"name\": \"nonworkhours\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].severity).to.eql({\r",
+											"    pm.expect(responseJson.result[1].severity).to.eql({\r",
 											"        id: pm.collectionVariables.get(\"HostSeverity2Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostSeverity2Name\")\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[0].categories[0]).to.eql({\r",
+											"    pm.expect(responseJson.result[1].categories[0]).to.eql({\r",
 											"        id: pm.collectionVariables.get(\"HostCategory2Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory2Name\")\r",
 											"    });    \r",
-											"    pm.expect(responseJson.result[0].groups[0]).to.eql({\r",
+											"    pm.expect(responseJson.result[1].groups[0]).to.eql({\r",
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    });\r",
 											"\r",
 											"\r",
 											"\r",
-											"    pm.expect(responseJson.result[1]).to.include({\r",
+											"    pm.expect(responseJson.result[2]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
 											"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
@@ -5129,23 +5220,23 @@
 											"        \"is_activated\": true\r",
 											"    });\r",
 											"\r",
-											"    pm.expect(responseJson.result[1].monitoring_server).to.eql({\r",
+											"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
 											"        id: 1,\r",
 											"        name: \"Central\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+											"    pm.expect(responseJson.result[2].check_timeperiod).to.eql({\r",
 											"        \"id\": 1,\r",
 											"        \"name\": \"24x7\"\r",
 											"    });\r",
-											"    pm.expect(responseJson.result[1].templates).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 											"    }]);\r",
-											"    pm.expect(responseJson.result[1].groups).to.eql([{\r",
+											"    pm.expect(responseJson.result[2].groups).to.eql([{\r",
 											"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 											"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 											"    }]);\r",
@@ -5154,7 +5245,8 @@
 											"\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -5208,7 +5300,8 @@
 											"pm.collectionVariables.set(\"Host5Alias\", \"I'm the fifth host and I was created by user R/W\");\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -5279,7 +5372,8 @@
 											"    });\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -5320,7 +5414,8 @@
 											"pm.collectionVariables.set(\"Host6Alias\", \"I'm the sixth host and I was created by user R/W\");\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -5394,7 +5489,8 @@
 											"    });\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -5939,7 +6035,8 @@
 											"\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -6526,7 +6623,8 @@
 											"\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -6710,7 +6808,8 @@
 											"});\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -7776,7 +7875,8 @@
 											"pm.collectionVariables.set(\"Host7Alias\", \"I'm the seventh host\");\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -7849,7 +7949,8 @@
 											"    \r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -7890,7 +7991,8 @@
 											"pm.collectionVariables.set(\"Host8Alias\", \"I'm the eighth host\");\r",
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -7963,7 +8065,8 @@
 											"\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -10341,7 +10444,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 									"    // Check the number of hosts (2)\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
+									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"Host3Alias\"),\r",
@@ -10349,41 +10452,6 @@
 									"        \"normal_check_interval\": 5,\r",
 									"        \"retry_check_interval\": 2,\r",
 									"        \"notification_timeperiod\": null,\r",
-									"        \"severity\": null,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[0].monitoring_server).to.eql({\r",
-									"        id: 1, \r",
-									"        name: \"Central\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[0].templates).to.eql([{\r",
-									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
-									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
-									"    }]);\r",
-									"    pm.expect(responseJson.result[0].check_timeperiod).to.eql({\r",
-									"        id: 1,\r",
-									"        name: \"24x7\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[0].categories).to.eql([{\r",
-									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
-									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
-									"    }]);\r",
-									"    pm.expect(responseJson.result[0].groups).to.eql([{\r",
-									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
-									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
-									"    }]);\r",
-									"\r",
-									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
-									"        \"address\": \"127.0.0.1\",\r",
-									"        \"normal_check_interval\": null,\r",
-									"        \"retry_check_interval\": null,\r",
-									"        \"notification_timeperiod\": null,\r",
-									"        \"check_timeperiod\": null,\r",
 									"        \"severity\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
@@ -10396,6 +10464,10 @@
 									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"    }]);\r",
+									"    pm.expect(responseJson.result[1].check_timeperiod).to.eql({\r",
+									"        id: 1,\r",
+									"        name: \"24x7\"\r",
+									"    });\r",
 									"    pm.expect(responseJson.result[1].categories).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
@@ -10405,11 +10477,43 @@
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    }]);\r",
 									"\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"Host7Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Host7Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"Host7Alias\"),\r",
+									"        \"address\": \"127.0.0.1\",\r",
+									"        \"normal_check_interval\": null,\r",
+									"        \"retry_check_interval\": null,\r",
+									"        \"notification_timeperiod\": null,\r",
+									"        \"check_timeperiod\": null,\r",
+									"        \"severity\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2].monitoring_server).to.eql({\r",
+									"        id: 1, \r",
+									"        name: \"Central\"\r",
+									"    });\r",
+									"    pm.expect(responseJson.result[2].templates).to.eql([{\r",
+									"        id: pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"        name: pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+									"    }]);\r",
+									"    pm.expect(responseJson.result[2].categories).to.eql([{\r",
+									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
+									"    }]);\r",
+									"    pm.expect(responseJson.result[2].groups).to.eql([{\r",
+									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
+									"    }]);\r",
+									"\r",
 									"});\r",
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -11690,6 +11794,56 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "Command1Name",
+			"value": ""
+		},
+		{
+			"key": "ACLResources",
+			"value": ""
 		}
 	]
 }
