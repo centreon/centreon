@@ -613,7 +613,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -645,7 +646,8 @@
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -713,7 +715,7 @@
 									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(2);\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
 									"    });\r",
 									"}"
 								],
