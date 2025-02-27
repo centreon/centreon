@@ -1049,9 +1049,6 @@ function getPayload(bool $isCloudPlatform, array $formData): array
     $payload = [
         'name' => $formData['hg_name'],
         'alias' => $formData['hg_alias'] ?: null,
-        'icon_id' => '' !== $formData['hg_icon_image']
-            ? (int) $formData['hg_icon_image']
-            : null,
         'geo_coords' => $formData['geo_coords'] ?: null,
         'is_activated' => (bool) ($formData['hg_activate']['hg_activate'] ?: false),
     ];
@@ -1061,6 +1058,9 @@ function getPayload(bool $isCloudPlatform, array $formData): array
             'notes' => $formData['hg_notes'] ?: null,
             'notes_url' => $formData['hg_notes_url'] ?: null,
             'action_url' => $formData['hg_action_url'] ?: null,
+            'icon_id' => '' !== $formData['hg_icon_image']
+                ? (int) $formData['hg_icon_image']
+                : null,
             'icon_map_id' => '' !== $formData['hg_map_icon_image']
                 ? (int) $formData['hg_map_icon_image']
                 : null,
