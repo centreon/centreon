@@ -197,6 +197,7 @@ final class AddHostGroup
      * Link Host Groups to user Resource Access Groups
      *
      * @param int $hostGroupId
+     * @param int $datasetId
      *
      * @throws \Throwable
      */

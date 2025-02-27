@@ -30,6 +30,8 @@ final class UpdateHostGroupRequestTransformer
     /**
      * @param UpdateHostGroupInput $input
      * @param bool $isCloudPlatform
+     * @param int $hostGroupId
+     *
      * @return UpdateHostGroupRequest
      */
     public static function transform(

@@ -450,7 +450,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         $resourceIdPattern = '(^|,)' . $resourceId . '(,|$)';
         $statement = $this->db->prepare(
             $this->translateDbName(
-                <<<SQL
+                <<<'SQL'
                         SELECT DISTINCT acl_group_id
                         FROM `:db`.dataset_filters
                         WHERE type = :type
@@ -664,6 +664,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
             /** @var array<int, non-empty-list<_DatasetFilter>> $record */
             $datasets[$record['rule_id']][] = $record;
         }
+
         return $datasets;
     }
 
@@ -705,6 +706,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
 
     /**
      * @param int $ruleId
+     * @param array $ruleIds
      *
      * @throws \PDOException
      *

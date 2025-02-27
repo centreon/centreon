@@ -287,10 +287,10 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($hostIds, ':host_id_');
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                DELETE FROM `:db`.`hostgroup_relation`
-                WHERE hostgroup_hg_id = :hostgroup_id
-                AND host_host_id IN ({$bindQuery})
-            SQL
+                    DELETE FROM `:db`.`hostgroup_relation`
+                    WHERE hostgroup_hg_id = :hostgroup_id
+                    AND host_host_id IN ({$bindQuery})
+                SQL
         ));
         $statement->bindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
         foreach ($bindValues as $key => $value) {

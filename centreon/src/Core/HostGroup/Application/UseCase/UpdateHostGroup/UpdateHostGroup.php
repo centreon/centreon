@@ -72,7 +72,7 @@ final class UpdateHostGroup
      * @param ContactInterface $user
      * @param UpdateHostGroupValidator $validator
      * @param DataStorageEngineInterface $storageEngine
-     * @param boolean $isCloudPlatform
+     * @param bool $isCloudPlatform
      * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
      * @param ReadHostRepositoryInterface $readHostRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
@@ -132,7 +132,7 @@ final class UpdateHostGroup
 
             $this->updateHostGroup($request, $existingHostGroup);
             $this->updateHosts($request);
-            if($this->isCloudPlatform) {
+            if ($this->isCloudPlatform) {
                 $this->updateResourceAccess($request);
             }
 
@@ -298,9 +298,7 @@ final class UpdateHostGroup
             if (! empty($datasetFilterRelation->getResourceIds())) {
                 $resourceIdToUpdates = array_filter(
                     $datasetFilterRelation->getResourceIds(),
-                    function ($resourceId) use ($hostGroupId) {
-                        return $resourceId !== $hostGroupId;
-                    }
+                    fn ($resourceId) => $resourceId !== $hostGroupId
                 );
                 if (empty($resourceIdToUpdates)) {
                     $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterRelation->getDatasetFilterId());
@@ -347,6 +345,7 @@ final class UpdateHostGroup
      * Link Host Groups to user Resource Access Groups
      *
      * @param int $hostGroupId
+     * @param int $datasetId
      *
      * @throws \Throwable
      */

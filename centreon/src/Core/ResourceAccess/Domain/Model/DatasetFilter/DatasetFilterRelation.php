@@ -26,7 +26,6 @@ namespace Core\ResourceAccess\Domain\Model\DatasetFilter;
 final class DatasetFilterRelation
 {
     /**
-     *
      * @param int $datasetFilterId
      * @param string $datasetFilterType
      * @param null|int $parentId

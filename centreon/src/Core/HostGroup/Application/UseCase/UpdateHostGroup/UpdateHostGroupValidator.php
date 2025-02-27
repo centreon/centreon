@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\UseCase\UpdateHostgroup;
+namespace Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -35,7 +35,7 @@ use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-class UpdateHostgroupValidator
+class UpdateHostGroupValidator
 {
     use LoggerTrait;
 
@@ -53,6 +53,7 @@ class UpdateHostgroupValidator
      * Assert that the host group name is not already used.
      *
      * @param string $hostGroupName
+     * @param HostGroup $hostGroup
      *
      * @throws HostGroupException|\Throwable
      */
