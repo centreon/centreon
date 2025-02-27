@@ -97,28 +97,27 @@ $serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown
 
 // Prepare the base query
 $baseQuery = "FROM servicegroups ";
-$bindParams = [];
 
-if (isset($preferences['sg_name_search']) && trim($preferences['sg_name_search']) != "") {
+if (isset($preferences['sg_name_search']) && $preferences['sg_name_search'] != "") {
     $tab = explode(" ", $preferences['sg_name_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
         $search = $tab[1];
     }
-    if ($op && isset($search) && trim($search) != "") {
+    if ($op && isset($search) && $search != "") {
         $baseQuery = CentreonUtils::conditionBuilder(
             $baseQuery,
-            "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
+            "name " . CentreonUtils::operandToMysqlFormat($op) . " '" . $dbb->escape($search) . "' "
         );
-        $bindParams[':search'] = [$search, PDO::PARAM_STR];
     }
 }
-
 if (!$centreon->user->admin) {
-    [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getServiceGroups(), ':servicegroup_name_', PDO::PARAM_STR);
-    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ($bindQuery)");
-    $bindParams = array_merge($bindParams, $bindValues);
+    $baseQuery = CentreonUtils::conditionBuilder(
+        $baseQuery,
+        "name IN (" . $aclObj->getServiceGroupsString("NAME") . ")"
+    );
 }
+
 
 $orderby = "name ASC";
 
@@ -147,12 +146,7 @@ if ($orderByToAnalyse !== null) {
 try {
     // Query to count total rows
     $countQuery = "SELECT COUNT(*) " . $baseQuery;
-    if ($bindParams !== []) {
-        $countStatement = $dbb->prepareQuery($countQuery);
-        $dbb->executePreparedQuery($countStatement, $bindParams, true);
-    } else {
-        $countStatement = $dbb->executeQuery($countQuery);
-    }
+    $countStatement = $dbb->executeQuery($countQuery);
     $nbRows = (int) $dbb->fetchColumn($countStatement);
 
     // Sanitize and validate input
@@ -164,23 +158,20 @@ try {
     $offset = max(0, $page) * $entriesPerPage;
 
     // Main SELECT query with LIMIT
-    $query = "SELECT name, servicegroup_id " . $baseQuery;
+    $query = "SELECT DISTINCT 1 AS REALTIME, name, servicegroup_id " . $baseQuery;
     $query .= " ORDER BY $orderby";
     $query .= " LIMIT :offset, :entriesPerPage";
 
     $statement = $dbb->prepareQuery($query);
 
     // Bind parameters
-    $bindParams = array_merge(
-        $bindParams,
-        [
-            ':offset' => [$offset, PDO::PARAM_INT],
-            ':entriesPerPage' => [$entriesPerPage, PDO::PARAM_INT],
-        ]
-    );
+    $bindParameters = [
+        ':offset' => [$offset, PDO::PARAM_INT],
+        ':entriesPerPage' => [$entriesPerPage, PDO::PARAM_INT],
+    ];
 
     // Execute the query
-    $dbb->executePreparedQuery($statement, $bindParams, true);
+    $dbb->executePreparedQuery($statement, $bindParameters, true);
 
     $kernel = \App\Kernel::createForWeb();
     $resourceController = $kernel->getContainer()->get(
