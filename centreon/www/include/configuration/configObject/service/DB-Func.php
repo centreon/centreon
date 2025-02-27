@@ -40,11 +40,19 @@ if (!isset($centreon)) {
 
 use App\Kernel;
 Use Centreon\Domain\Log\Logger;
+use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Utility\Interfaces\UUIDGeneratorInterface;
 
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
@@ -266,6 +274,7 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
             $id = $arr["service_id"];
         }
         $hPars = $arr["service_hPars"] ?? [];
+        $hPars = is_array($hPars) ? $hPars : [$hPars];
         $hgPars = $arr["service_hgPars"] ?? [];
     }
 
@@ -355,7 +364,12 @@ function enableServiceInDB($service_id = null, $service_arr = [])
         $serviceDescription = $selectStatement->fetchColumn();
 
         signalConfigurationChange('service', (int) $serviceId);
-        $centreon->CentreonLogAction->insertLog("service", $serviceId, $serviceDescription, "enable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICE,
+            object_id: $serviceId,
+            object_name: $serviceDescription,
+            action_type: ActionLog::ACTION_TYPE_ENABLE
+        );
     }
 }
 
@@ -375,7 +389,12 @@ function disableServiceInDB($service_id = null, $service_arr = [])
         $row = $dbResult2->fetch();
 
         signalConfigurationChange('service', (int) $serviceId, [], false);
-        $centreon->CentreonLogAction->insertLog("service", $serviceId, $row['service_description'], "disable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICE,
+            object_id: $serviceId,
+            object_name: $row['service_description'],
+            action_type: ActionLog::ACTION_TYPE_DISABLE
+        );
     }
 }
 
@@ -408,7 +427,14 @@ function removeRelationLastServiceDependency(int $serviceId): void
     }
 }
 
-function deleteServiceInDB($services = [])
+/**
+ * Delete service in DB
+ *
+ * Keep this method as service deletion by hostgroup is not supported in APIv2 for the moment.
+ *
+ * @param array<int, int> $services The list of service IDs to delete (Ids are the keys)
+ */
+function deleteServiceInDB(array $services = []): void
 {
     global $pearDB, $centreon;
 
@@ -438,10 +464,15 @@ function deleteServiceInDB($services = [])
         $query = "SELECT service_description FROM `service` WHERE `service_id` = '" . $serviceId . "' LIMIT 1";
         $dbResult3 = $pearDB->query($query);
         $svcname = $dbResult3->fetch();
-        $centreon->CentreonLogAction->insertLog("service", $serviceId, $svcname['service_description'], "d");
         $pearDB->query("DELETE FROM service WHERE service_id = '" . $serviceId . "'");
         $pearDB->query("DELETE FROM on_demand_macro_service WHERE svc_svc_id = '" . $serviceId . "'");
         $pearDB->query("DELETE FROM contact_service_relation WHERE service_service_id = '" . $serviceId . "'");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICE,
+            object_id: $serviceId,
+            object_name: $svcname['service_description'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
 
         signalConfigurationChange('service', (int) $serviceId, $previousPollerIds);
     }
@@ -942,11 +973,11 @@ function multipleServiceInDB(
                             $row2 = $statement->fetch(PDO::FETCH_ASSOC);
                             $description = $row2['service_description'];
                             $centreon->CentreonLogAction->insertLog(
-                                "service",
-                                $maxId["MAX(service_id)"],
-                                $description,
-                                "a",
-                                $fields
+                                object_type: ActionLog::OBJECT_TYPE_SERVICE,
+                                object_id: $maxId["MAX(service_id)"],
+                                object_name: $description,
+                                action_type: ActionLog::ACTION_TYPE_ADD,
+                                fields: $fields
                             );
                         }
 
@@ -986,7 +1017,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     //Retrieve vault path before updating values in database.
     $vaultPath = null;
     if ($vaultConfiguration !== null ){
-        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
+        $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $serviceId);
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
@@ -1005,7 +1036,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null
         ? $rq .= "'" . $ret["timeperiod_tp_id"] . "', "
         : $rq .= "NULL, ";
-    $rq .= "command_command_id2 = null, ";
+
+    $rq .= "command_command_id2 = ";
+    isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
+        ? $rq .= "'" . $ret["command_command_id2"] . "', "
+        : $rq .= "NULL, ";
 
     // If we are doing a MC, we don't have to set name and alias field
     if (!$massiveChange) {
@@ -1033,7 +1068,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         : $rq .= "NULL, ";
     $rq .= "service_passive_checks_enabled = '2', service_obsess_over_service = '2', ";
     $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
-    $rq .= "service_event_handler_enabled = '2', ";
+    $rq .= "service_event_handler_enabled = ";
+    isset($ret["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $ret["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $rq .= "'" . $ret["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $rq .= "'2', ";
     $rq .= "service_low_flap_threshold = null, service_high_flap_threshold = null, ";
     $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
     $rq .= "service_retain_nonstatus_information = '2', service_notifications_enabled = '2', ";
@@ -1044,7 +1083,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     isset($ret["geo_coords"]) && $ret["geo_coords"] != null
         ? $rq .= "'" . CentreonDB::escape($ret["geo_coords"]) . "', "
         : $rq .= "NULL, ";
-    $rq .= "command_command_id_arg = null, ";
+    $ret["command_command_id_arg"] = getCommandArgs($_POST, $ret);
+    $rq .= "command_command_id_arg = ";
+    isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null
+        ? $rq .= "'" . CentreonDB::escape($ret["command_command_id_arg"]) . "', "
+        : $rq .= "NULL, ";
     $rq .= "command_command_id_arg2 = null, service_register = ";
     isset($ret["service_register"]) && $ret["service_register"] != null
         ? $rq .= "'" . $ret["service_register"] . "', "
@@ -1094,7 +1137,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
                 $writeVaultRepository,
                 $logger,
                 $vaultPath,
-                (int) $service_id,
+                (int) $serviceId,
                 $service->getFormattedMacros(),
             );
         } catch (\Throwable $ex) {
@@ -1111,11 +1154,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $serviceId,
-        CentreonDB::escape($ret["service_description"]),
-        "c",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $serviceId,
+        object_name: $ret["service_description"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
     );
 }
 
@@ -1143,11 +1186,17 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
     if ($vaultConfiguration !== null ){
-        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id);
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $serviceId);
     }
 
     if (isset($ret["sg_name"])) {
         $ret["sg_name"] = $centreon->checkIllegalChar($ret["sg_name"]);
+    }
+
+    if (isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null) {
+        $ret["command_command_id_arg"] = str_replace("\n", "//BR//", $ret["command_command_id_arg"]);
+        $ret["command_command_id_arg"] = str_replace("\t", "//T//", $ret["command_command_id_arg"]);
+        $ret["command_command_id_arg"] = str_replace("\r", "//R//", $ret["command_command_id_arg"]);
     }
 
     $rq = "UPDATE service SET ";
@@ -1160,7 +1209,11 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     if (isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null) {
         $rq .= "timeperiod_tp_id = '" . $ret["timeperiod_tp_id"] . "', ";
     }
-    $rq .= 'command_command_id2 = null, ';
+
+    $rq .= "command_command_id2 = ";
+    isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
+        ? $rq .= "'" . $ret["command_command_id2"] . "', "
+        : $rq .= "NULL, ";
 
     if (isset($ret["service_alias"]) && $ret["service_alias"] != null) {
         $rq .= "service_alias = '" . $ret["service_alias"] . "', ";
@@ -1180,7 +1233,14 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
     $rq .= "service_active_checks_enabled = '2', service_passive_checks_enabled = '2', ";
     $rq .= "service_obsess_over_service = '2', service_check_freshness = '2', ";
-    $rq .= "service_freshness_threshold = null, service_event_handler_enabled = '2', ";
+    $rq .= "service_freshness_threshold = null, ";
+
+    $rq .= "service_event_handler_enabled = ";
+    isset($ret["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $ret["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $rq .= "'" . $ret["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $rq .= "'2', ";
+
     $rq .= 'service_low_flap_threshold = null, service_high_flap_threshold = null, ';
     $rq .= "service_flap_detection_enabled = '2', service_retain_status_information = '2', ";
     $rq .= "service_retain_nonstatus_information = '2', ";
@@ -1189,7 +1249,12 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $rq .= 'service_stalking_options = null, service_comment = null, ';
 
 
-    $rq .= 'command_command_id_arg = null, command_command_id_arg2 = null, ';
+    $ret["command_command_id_arg"] = getCommandArgs($_POST, $ret);
+    $rq .= "command_command_id_arg = ";
+    isset($ret["command_command_id_arg"]) && $ret["command_command_id_arg"] != null
+        ? $rq .= "'" . CentreonDB::escape($ret["command_command_id_arg"]) . "', "
+        : $rq .= "NULL, ";
+    $rq .= "command_command_id_arg2 = null, ";
     if (isset($ret["service_register"]) && $ret["service_register"] != null) {
         $rq .= "service_register = '" . $ret["service_register"] . "', ";
     }
@@ -1242,7 +1307,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
                 $logger,
                 $uuidGenerator,
                 $uuid,
-                (int) $service_id,
+                (int) $serviceId,
                 $service->getFormattedMacros()
             );
         } catch (\Throwable $ex) {
@@ -1253,11 +1318,11 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $serviceId,
-        CentreonDB::escape($ret["service_description"] ?? ""),
-        "mc",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $serviceId,
+        object_name: $ret["service_description"] ?? "",
+        action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
+        fields: $fields
     );
 }
 
@@ -1659,6 +1724,454 @@ function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $
     signalConfigurationChange('service', $serviceId, $previousPollerIds);
 }
 
+/**
+ * Inserts a new service template into the database.
+ *
+ * @param array $submittedValues
+ *
+ * @throws \Exception
+ * @throws \LogicException
+ * @throws TransportExceptionInterface
+ * @throws RedirectionExceptionInterface
+ * @throws ClientExceptionInterface
+ * @throws ServerExceptionInterface
+ *
+ * @return int
+ */
+function insertServiceTemplate(array $submittedValues = []): int
+{
+    global $isCloudPlatform;
+
+    return $isCloudPlatform
+        ? insertServiceTemplateForCloud($submittedValues)
+        : insertServiceTemplateForOnPremise($submittedValues);
+}
+
+/**
+ * Inserts a new service template into the database for cloud.
+ *
+ * @param array $submittedValues
+ *
+ * @throws \Exception
+ * @throws \LogicException
+ * @throws TransportExceptionInterface
+ * @throws RedirectionExceptionInterface
+ * @throws ClientExceptionInterface
+ * @throws ServerExceptionInterface
+ *
+ * @return int
+ */
+function insertServiceTemplateForCloud(array $submittedValues): int
+{
+    global $centreon, $basePath;
+
+    try {
+        $serviceId = insertServiceTemplateByApi(
+            submittedValues: $submittedValues,
+            isCloudPlatform: true,
+            basePath: $basePath
+        );
+
+        updateServiceHost($serviceId, $submittedValues);
+        updateServiceServiceGroup($serviceId, $submittedValues);
+        signalConfigurationChange('service', $serviceId);
+        $centreon->user->access->updateACL(
+            [
+                'type' => 'SERVICE',
+                'id' => $serviceId,
+                'action' => 'ADD'
+            ]
+        );
+
+        return $serviceId;
+    } catch (\Exception $exception) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while creating service template: {$exception->getMessage()}",
+            customContext: ['service template Id' => $serviceId, 'basePath' => $basePath],
+            exception: $exception
+        );
+
+        throw $exception;
+    }
+}
+
+/**
+ * Inserts a new service template into the database for on-premise.
+ *
+ * @param array $submittedValues
+ *
+ * @throws \Exception
+ * @throws \LogicException
+ * @throws CentreonDbException
+ * @throws PDOException
+ * @throws TransportExceptionInterface
+ * @throws RedirectionExceptionInterface
+ * @throws ClientExceptionInterface
+ * @throws ServerExceptionInterface
+ *
+ * @return int
+ */
+function insertServiceTemplateForOnPremise(array $submittedValues = []) : int
+{
+    global $centreon, $basePath;
+
+    try {
+        $serviceId = insertServiceTemplateByApi(
+            submittedValues: $submittedValues,
+            isCloudPlatform: false,
+            basePath: $basePath
+        );
+
+        insertServiceTemplateAdditionalOptions($serviceId, $submittedValues);
+        updateServiceContactGroup($serviceId, $submittedValues);
+        updateServiceContact($serviceId, $submittedValues);
+        updateServiceNotifs($serviceId, $submittedValues);
+        updateServiceHost($serviceId, $submittedValues);
+        updateServiceServiceGroup($serviceId, $submittedValues);
+        updateServiceTrap($serviceId, $submittedValues);
+        signalConfigurationChange('service', $serviceId);
+        $centreon->user->access->updateACL(
+            [
+                'type' => 'SERVICE',
+                'id' => $serviceId,
+                'action' => 'ADD'
+            ]
+        );
+
+        return $serviceId;
+    } catch (\Exception $exception) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while creating service template: {$exception->getMessage()}",
+            customContext: ['service template Id' => $serviceId, 'basePath' => $basePath],
+            exception: $exception
+        );
+
+        throw $exception;
+    }
+}
+
+/**
+ * Inserts a new service template into the database by calling the API.
+ *
+ * @param array $submittedValues
+ * @param bool $isCloudPlatform
+ * @param string $basePath
+ *
+ * @throws \Exception
+ * @throws \LogicException
+ * @throws PDOException
+ * @throws TransportExceptionInterface
+ * @throws RedirectionExceptionInterface
+ * @throws ClientExceptionInterface
+ * @throws ServerExceptionInterface
+ *
+ * @return int
+ */
+function insertServiceTemplateByApi(
+    array $submittedValues = [],
+    bool $isCloudPlatform = false,
+    string $basePath
+): int {
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class) ?? throw new \LogicException('Router not found');
+
+    if ($isCloudPlatform) {
+        $payload = getServiceTemplatePayload($submittedValues, true);
+    } else {
+        $payload = getServiceTemplatePayload($submittedValues);
+    }
+
+    $url = $router->generate(
+        'AddServiceTemplate',
+        $basePath ? ['base_uri' => $basePath] : [],
+        UrlGeneratorInterface::ABSOLUTE_URL
+    );
+
+    $response = callApi($url, 'POST', $payload);
+    if ($response['status_code'] !== 201) {
+        throw new \Exception($response['message'] ?? 'Unexpected return code by API');
+    }
+
+    $serviceId = $response['content']['id'] ?? null;
+    if ($serviceId === null) {
+        throw new \Exception('Failed to create service template by API');
+    }
+
+    return $serviceId;
+}
+
+/**
+ * Constructs the payload for a service template.
+ *
+ * @param array $submittedValues
+ * @param bool $isCloudPlatform
+ *
+ * @throws PDOException
+ *
+ * @return array
+ */
+function getServiceTemplatePayload(
+    array $submittedValues,
+    bool $isCloudPlatform = false
+): array {
+    global $form, $pearDB;
+
+    $service = new CentreonService($pearDB);
+
+    $name = '';
+    if (isset($submittedValues['service_description'])) {
+        $name = preg_replace('/\s{2,}/', ' ', $service->checkIllegalChar($submittedValues['service_description']));
+    }
+
+    if (! $isCloudPlatform && isset($submittedValues['command_command_id_arg2'])) {
+        $submittedValues['command_command_id_arg2'] = str_replace(
+            ['\n', '\t', '\r'],
+            ['//BR//', '//T//', '//R//'],
+            $submittedValues['command_command_id_arg2']
+        );
+    }
+
+    $submittedValues['command_command_id_arg'] = getCommandArgs($_POST, $submittedValues);
+
+    if (isset($submittedValues['esi_icon_image']) && strrchr('REP_', (string) $submittedValues['esi_icon_image'])) {
+        $submittedValues['esi_icon_image'] = null;
+    }
+
+    $payload = [
+        'service_template_id' => $submittedValues['service_template_model_stm_id']
+            && is_numeric($submittedValues['service_template_model_stm_id'])
+            && (int) $submittedValues['service_template_model_stm_id'] > 0
+                ? (int) $submittedValues['service_template_model_stm_id']
+                : null,
+        'check_command_id' => $submittedValues['command_command_id']
+            && is_numeric($submittedValues['command_command_id'])
+            && (int) $submittedValues['command_command_id'] > 0
+                ? (int) $submittedValues['command_command_id']
+                : null,
+        'check_timeperiod_id' => $submittedValues['timeperiod_tp_id']
+            && is_numeric($submittedValues['timeperiod_tp_id'])
+            && (int) $submittedValues['timeperiod_tp_id'] > 0
+                ? (int) $submittedValues['timeperiod_tp_id']
+                : null,
+        'event_handler_command_id' => $submittedValues['command_command_id2']
+            && is_numeric($submittedValues['command_command_id2'])
+            && (int) $submittedValues['command_command_id2'] > 0
+                ? (int) $submittedValues['command_command_id2']
+                : null,
+        'name' => $name,
+        'alias' => $submittedValues['service_alias'] ?? null,
+        'max_check_attempts' => $submittedValues['service_max_check_attempts']
+            ? (int) $submittedValues['service_max_check_attempts']
+            : null,
+        'normal_check_interval' => $submittedValues['service_normal_check_interval']
+            ? (int) $submittedValues['service_normal_check_interval']
+            : null,
+        'retry_check_interval' => $submittedValues['service_retry_check_interval']
+            ? (int) $submittedValues['service_retry_check_interval'] : null,
+        'event_handler_enabled' =>
+            isset($submittedValues['service_event_handler_enabled']['service_event_handler_enabled'])
+            && $submittedValues['service_event_handler_enabled']['service_event_handler_enabled'] != 2
+                ? (int) $submittedValues['service_event_handler_enabled']['service_event_handler_enabled']
+                : 2,
+        'check_command_args' => !empty($submittedValues['command_command_id_arg'])
+            ? array_values(array_filter(
+                explode('!', $submittedValues['command_command_id_arg']),
+                function ($value) {
+                    return $value !== '';
+                }))
+            : [],
+        'severity_id' => $submittedValues['criticality_id']
+            && is_numeric($submittedValues['criticality_id'])
+            && (int) $submittedValues['criticality_id'] > 0
+                ? (int) $submittedValues['criticality_id']
+                : null,
+        'action_url' => !empty($submittedValues['esi_action_url']) ? $submittedValues['esi_action_url'] : null,
+        'icon_id' => $submittedValues['esi_icon_image']
+            && is_numeric($submittedValues['esi_icon_image'])
+            && (int) $submittedValues['esi_icon_image'] > 0
+                ? (int) $submittedValues['esi_icon_image']
+                : null,
+        'note' => !empty($submittedValues['esi_notes']) ? $submittedValues['esi_notes'] : null,
+        'note_url' => !empty($submittedValues['esi_notes_url']) ? $submittedValues['esi_notes_url'] : null,
+        'service_categories' => isset($submittedValues['service_categories'])
+            ? array_map('intval', $submittedValues['service_categories'])
+            : CentreonUtils::mergeWithInitialValues($form, 'service_categories'),
+    ];
+
+    if (! $isCloudPlatform) {
+        $additionalFields = [
+            'notification_timeperiod_id' => $submittedValues['timeperiod_tp_id2']
+                && is_numeric($submittedValues['timeperiod_tp_id2'])
+                && (int) $submittedValues['timeperiod_tp_id2'] > 0
+                    ? (int) $submittedValues['timeperiod_tp_id2']
+                    : null,
+            'volatility_enabled' => isset($submittedValues['service_is_volatile']['service_is_volatile'])
+                && $submittedValues['service_is_volatile']['service_is_volatile'] != 2
+                    ? (int) $submittedValues['service_is_volatile']['service_is_volatile']
+                    : 2,
+            'active_check_enabled' =>
+                isset($submittedValues['service_active_checks_enabled']['service_active_checks_enabled'])
+                && $submittedValues['service_active_checks_enabled']['service_active_checks_enabled'] != 2
+                    ? (int) $submittedValues['service_active_checks_enabled']['service_active_checks_enabled']
+                    : 2,
+            'passive_check_enabled' =>
+                isset($submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled'])
+                && $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled'] != 2
+                    ? (int) $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled']
+                    : 2,
+            'freshness_checked' => isset($submittedValues['service_check_freshness']['service_check_freshness'])
+                && $submittedValues['service_check_freshness']['service_check_freshness'] != 2
+                    ? (int) $submittedValues['service_check_freshness']['service_check_freshness']
+                    : 2,
+            'freshness_threshold' => $submittedValues['service_freshness_threshold']
+                ? (int) $submittedValues['service_freshness_threshold']
+                : null,
+            'low_flap_threshold' => $submittedValues['service_low_flap_threshold']
+                ? (int) $submittedValues['service_low_flap_threshold']
+                : null,
+            'high_flap_threshold' => $submittedValues['service_high_flap_threshold']
+                ? (int) $submittedValues['service_high_flap_threshold']
+                : null,
+            'flap_detection_enabled' =>
+                isset($submittedValues['service_flap_detection_enabled']['service_flap_detection_enabled'])
+                && $submittedValues['service_flap_detection_enabled']['service_flap_detection_enabled'] != 2
+                    ? (int) $submittedValues['service_flap_detection_enabled']['service_flap_detection_enabled']
+                    : 2,
+            'notification_interval' => $submittedValues['service_notification_interval']
+                ? (int) $submittedValues['service_notification_interval']
+                : null,
+            'notification_enabled' =>
+                isset($submittedValues['service_notifications_enabled']['service_notifications_enabled'])
+                && $submittedValues['service_notifications_enabled']['service_notifications_enabled'] != 2
+                    ? (int) $submittedValues['service_notifications_enabled']['service_notifications_enabled']
+                    : 2,
+            'is_contact_additive_inheritance' => isset($submittedValues['contact_additive_inheritance']) ? true : false,
+            'is_contact_group_additive_inheritance' => isset($submittedValues['cg_additive_inheritance']) ? true : false,
+            'first_notification_delay' => $submittedValues['service_first_notification_delay']
+                ? (int) $submittedValues['service_first_notification_delay']
+                : null,
+            'recovery_notification_delay' => $submittedValues['service_recovery_notification_delay']
+                ? (int) $submittedValues['service_recovery_notification_delay']
+                : null,
+            'comment' => !empty($submittedValues['service_comment']) ? $submittedValues['service_comment'] : null,
+            'event_handler_command_args' => !empty($submittedValues['command_command_id_arg2'])
+                ? array_values(array_filter(
+                    explode('!', $submittedValues['command_command_id_arg2']),
+                    function ($value) {
+                        return $value !== '';
+                    }))
+                : [],
+            'acknowledgement_timeout' => $submittedValues['service_acknowledgement_timeout']
+                ? (int) $submittedValues['service_acknowledgement_timeout']
+                : null,
+            'icon_alternative' => !empty($submittedValues['esi_icon_image_alt'])
+                ? $submittedValues['esi_icon_image_alt']
+                : null,
+            'graph_template_id' => $submittedValues['graph_id']
+                && is_numeric($submittedValues['graph_id'])
+                && (int) $submittedValues['graph_id'] > 0
+                    ? (int) $submittedValues['graph_id']
+                    : null,
+        ];
+
+        $payload = array_merge($payload, $additionalFields);
+    }
+
+    if (isset($submittedValues['macroInput']) && isset($submittedValues['macroValue'])) {
+        $macroDescription = [];
+        foreach ($submittedValues as $name => $value) {
+            if (preg_match_all("/^macroDescription_(\w+)$/", $name, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    $macroDescription[$match[1]] = $value;
+                }
+            }
+        }
+
+        foreach ($submittedValues['macroInput'] as $key => $macroName) {
+            $payload['macros'][] = [
+                'name' => $macroName,
+                'value' => $submittedValues['macroValue'][$key] ?? null,
+                'is_password' => isset($submittedValues['macroPassword'][$key]) ? true : false,
+                'description' => $macroDescription[$key] ?? null,
+            ];
+        }
+    }
+
+    return $payload;
+}
+
+/**
+ * Insert additional options for service template
+ *
+ * @param int $serviceId
+ * @param array $submittedValues
+ *
+ * @throws CentreonDbException
+ */
+function insertServiceTemplateAdditionalOptions(int $serviceId, array $submittedValues): void
+{
+    global $pearDB;
+
+    try {
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                UPDATE service SET
+                    service_use_only_contacts_from_host = :use_only_contacts_from_host,
+                    service_stalking_options = :stalking_options,
+                    service_obsess_over_service = :obsess_over_service,
+                    service_retain_nonstatus_information = :retain_nonstatus_information,
+                    service_retain_status_information = :retain_status_information
+                WHERE service_id = :service_id
+            SQL
+        );
+
+        $use_only_contacts_from_host =
+            isset($submittedValues['service_use_only_contacts_from_host']['service_use_only_contacts_from_host'])
+            && $submittedValues['service_use_only_contacts_from_host']['service_use_only_contacts_from_host'] != null
+                ? $submittedValues['service_use_only_contacts_from_host']['service_use_only_contacts_from_host']
+                : null;
+        $stalking_options =$submittedValues['service_stalOpts']
+            ? implode(',', array_keys($submittedValues['service_stalOpts']))
+            : null;
+        $obsess_over_service = isset($submittedValues['service_obsess_over_service']['service_obsess_over_service'])
+            && $submittedValues['service_obsess_over_service']['service_obsess_over_service'] != 2
+                ? $submittedValues['service_obsess_over_service']['service_obsess_over_service']
+                : '2';
+        $retain_nonstatus_information =
+            isset($submittedValues['service_retain_nonstatus_information']['service_retain_nonstatus_information'])
+            && $submittedValues['service_retain_nonstatus_information']['service_retain_nonstatus_information'] != 2
+                ? $submittedValues['service_retain_nonstatus_information']['service_retain_nonstatus_information']
+                : '2';
+        $retain_status_information =
+            isset($submittedValues['service_retain_status_information']['service_retain_status_information'])
+            && $submittedValues['service_retain_status_information']['service_retain_status_information'] != 2
+                ? $submittedValues['service_retain_status_information']['service_retain_status_information']
+                : '2';
+
+        $bindParams = [
+            ':use_only_contacts_from_host' => [$use_only_contacts_from_host, \PDO::PARAM_STR],
+            ':stalking_options' => [$stalking_options, \PDO::PARAM_STR],
+            ':obsess_over_service' => [$obsess_over_service, \PDO::PARAM_STR],
+            ':retain_nonstatus_information' => [$retain_nonstatus_information, \PDO::PARAM_STR],
+            ':retain_status_information' => [$retain_status_information, \PDO::PARAM_STR],
+            ':service_id' => [$serviceId, \PDO::PARAM_INT],
+        ];
+
+        $pearDB->executePreparedQuery($statement, $bindParams, true);
+    } catch (\PDOException $exception) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while creating service template: {$exception->getMessage()}",
+            customContext: ['service template Id' => $serviceId],
+            exception: $exception
+        );
+
+        throw $exception;
+    }
+}
+
 function insertServiceInDB($submittedValues = [], $onDemandMacro = null)
 {
     global $isCloudPlatform;
@@ -1766,7 +2279,11 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["timeperiod_tp_id"]) && $submittedValues["timeperiod_tp_id"] != null
         ? $request .= "'" . $submittedValues["timeperiod_tp_id"] . "', "
         : $request .= "NULL, ";
-    $request .= 'null, '; // command_command_id2 = null
+
+    isset($submittedValues["command_command_id2"]) && $submittedValues["command_command_id2"] != null
+        ? $request .= "'" . $submittedValues["command_command_id2"] . "', "
+        : $request .= "NULL, ";
+
     $request .= 'null, '; // timeperiod_tp_id2 => null
     isset($submittedValues["service_description"]) && $submittedValues["service_description"] != null
         ? $request .= "'" . CentreonDB::escape($submittedValues["service_description"]) . "', "
@@ -1792,7 +2309,12 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     $request .= "'2', ";  // service_obsess_over_service = '2' (default)
     $request .= "'2', ";  // service_check_freshness = '2' (default)
     $request .= 'null, '; // service_freshness_threshold = null
-    $request .= "'2', ";  // service_event_handler_enabled = '2' (default)
+
+    isset($submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"])
+    && $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] != 2
+        ? $request .= "'" . $submittedValues["service_event_handler_enabled"]["service_event_handler_enabled"] . "', "
+        : $request .= "'2', ";
+
     $request .= 'null, '; // service_low_flap_threshold = null
     $request .= 'null, '; // service_high_flap_threshold = null
     $request .= "'2', ";  // service_flap_detection_enabled = '2' (default)
@@ -1812,7 +2334,10 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["geo_coords"]) && $submittedValues["geo_coords"] != null
         ? $request .= "'" . CentreonDB::escape($submittedValues["geo_coords"]) . "', "
         : $request .= "NULL, ";
-    $request .= "null, "; // command_command_id_arg = null
+    $submittedValues['command_command_id_arg'] = getCommandArgs($_POST, $submittedValues);
+    isset($submittedValues["command_command_id_arg"]) && $submittedValues["command_command_id_arg"] != null
+        ? $request .= "'" . CentreonDB::escape($submittedValues["command_command_id_arg"]) . "', "
+        : $request .= "NULL, ";
     $request .= 'null, '; // command_command_id_arg2 = null
     isset($submittedValues["service_register"]) && $submittedValues["service_register"] != null
         ? $request .= "'" . $submittedValues["service_register"] . "', "
@@ -1901,11 +2426,11 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id["MAX(service_id)"],
-        CentreonDB::escape($submittedValues["service_description"]),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id["MAX(service_id)"],
+        object_name: $submittedValues["service_description"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
 
     return (["service_id" => $service_id["MAX(service_id)"], "fields" => $fields]);
@@ -2147,11 +2672,11 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id["MAX(service_id)"],
-        CentreonDB::escape($submittedValues["service_description"]),
-        "a",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id["MAX(service_id)"],
+        object_name: $submittedValues["service_description"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
     );
 
     return (["service_id" => $service_id["MAX(service_id)"], "fields" => $fields]);
@@ -2462,11 +2987,11 @@ function updateService($service_id = null, $from_MC = false, $params = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id,
-        CentreonDB::escape($ret["service_description"]),
-        "c",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id,
+        object_name: $ret["service_description"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
     );
 }
 
@@ -2703,11 +3228,11 @@ function updateService_MC($service_id = null, $params = [])
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
-        "service",
-        $service_id,
-        CentreonDB::escape($ret["service_description"] ?? ""),
-        "mc",
-        $fields
+        object_type: ActionLog::OBJECT_TYPE_SERVICE,
+        object_id: $service_id,
+        object_name: $ret["service_description"] ?? "",
+        action_type: ActionLog::ACTION_TYPE_MASS_CHANGE,
+        fields: $fields
     );
 }
 
@@ -2774,22 +3299,44 @@ function updateServiceContactGroup($service_id = null, $ret = [])
     }
 }
 
-
-function updateServiceNotifs($service_id = null, $ret = [])
+/**
+ * @param ?int $serviceId
+ * @param array $submittedValues
+ */
+function updateServiceNotifs(?int $serviceId = null, array $submittedValues = [])
 {
-    if (!$service_id) {
+    if (! $serviceId) {
         return;
     }
-    global $form;
-    global $pearDB;
 
-    $ret = $ret["service_notifOpts"] ?? $form->getSubmitValue("service_notifOpts");
+    global $form, $pearDB;
 
-    $rq = "UPDATE service SET ";
-    $rq .= "service_notification_options = ";
-    isset($ret) && $ret != null ? $rq .= "'" . implode(",", array_keys($ret)) . "' " : $rq .= "NULL ";
-    $rq .= "WHERE service_id = '" . $service_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $notificationOptions = $submittedValues["service_notifOpts"] ?? $form->getSubmitValue("service_notifOpts");
+
+    try {
+        $query = $pearDB->prepareQuery(
+            <<<'SQL'
+                UPDATE `service` SET `service_notification_options` = :service_notification_options
+                WHERE `service_id` = :service_id
+            SQL
+        );
+
+        $queryParams = [
+            'service_id' => $serviceId,
+            'service_notification_options' => $notificationOptions ? implode(",", array_keys($notificationOptions)) : null,
+        ];
+
+        $pearDB->executePreparedQuery($query, $queryParams);
+    } catch (PDOException $exception) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while updating notification options: {$exception->getMessage()}",
+            customContext: ['service Id' => $serviceId],
+            exception: $exception
+        );
+
+        throw $exception;
+    }
 }
 
 // For massive change. incremental mode
@@ -2889,15 +3436,15 @@ function updateServiceNotifOptionTimeperiod(int $serviceId, $ret = array())
         $queryParams['timeperiod_tp_id2'] = $ret['timeperiod_tp_id2'] ?? null;
 
         $pearDB->executePreparedQuery($stmt, $queryParams);
-    } catch (CentreonDbException $ex) {
+    } catch (CentreonDbException $exception) {
         CentreonLog::create()->error(
-            CentreonLog::LEVEL_ERROR,
-            'Error while updating service notification timeperiod: ' . $ex->getMessage(),
-            ['service_id' => $serviceId, 'ret' => $ret],
-            $ex
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: 'Error while updating service notification timeperiod: ' . $exception->getMessage(),
+            customContext: ['service_id' => $serviceId],
+            exception: $exception
         );
 
-        throw $ex;
+        throw $exception;
     }
 }
 
@@ -3659,4 +4206,127 @@ function findHostsOfService(int $serviceId): array
         $hostIds[] = $hostId;
     }
     return $hostIds;
+}
+
+// ------ API Configuration calls --------------------------------------------------------
+
+/**
+ * @param array<int, int> $services The list of service IDs to delete (Ids are the keys)
+ *
+ * @throws Exception
+ */
+function deleteServiceByApi(array $services = []): void
+{
+    global $basePath;
+
+    $serviceIds = array_keys($services);
+    if (empty($serviceIds)) {
+        return;
+    }
+
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class)
+        ?? throw new LogicException('Router not found in container');
+    $servicesWithError = [];
+    foreach ($serviceIds as $serviceId) {
+        $url = $router->generate(
+            'DeleteService',
+            ['base_uri' => $basePath, 'serviceId' => $serviceId],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+        $response = callApi($url, 'DELETE', []);
+        if ($response['status_code'] !== 204) {
+            $servicesWithError[] = [
+                'service_id' => $serviceId,
+                'message' => $response['content'] !== null
+                    ? json_encode($response['content'])
+                    : null
+            ];
+        }
+    }
+
+    if (! empty($servicesWithError)) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while deleting services',
+            ['service_ids' => $servicesWithError]
+        );
+    }
+}
+
+/**
+ * @param array<int, array> $serviceTemplates The list of service templates to delete (Ids are the keys)
+ *
+ * @throws Exception
+ */
+function deleteServiceTemplateByApi(array $serviceTemplates = []): void
+{
+    global $basePath;
+
+    $serviceTemplateIds = array_keys($serviceTemplates);
+    if (empty($serviceTemplateIds)) {
+        return;
+    }
+
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class)
+        ?? throw new LogicException('Router not found in container');
+    $serviceTemplatesWithError = [];
+    foreach ($serviceTemplateIds as $serviceTemplateId) {
+        $url = $router->generate(
+            'DeleteServiceTemplate',
+            ['base_uri' => $basePath, 'serviceTemplateId' => $serviceTemplateId],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+        $response = callApi($url, 'DELETE', []);
+        if ($response['status_code'] !== 204) {
+            $serviceTemplatesWithError[] = [
+                'service_template_id' => $serviceTemplateId,
+                'message' => $response['content'] !== null
+                    ? json_encode($response['content'])
+                    : null
+            ];
+        }
+    }
+
+    if (! empty($serviceTemplatesWithError)) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while deleting service templates',
+            ['service_ids' => $serviceTemplatesWithError]
+        );
+    }
+}
+
+/**
+ * @param string $url
+ * @param string $httpMethod
+ * @param array<string, mixed> $payload
+ *
+ * @throws TransportExceptionInterface
+ * @throws RedirectionExceptionInterface
+ * @throws ClientExceptionInterface
+ * @throws ServerExceptionInterface
+ *
+ * @return array{status_code: int, content: null|array} Return the status code of the request and its content.
+ */
+function callApi(string $url, string $httpMethod, array $payload): array
+{
+    $client = new CurlHttpClient();
+    $response = $client->request(
+        $httpMethod,
+        $url,
+        [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+            ],
+            'body' => json_encode($payload)
+        ]
+    );
+
+    $status = $response->getStatusCode();
+    $content = json_decode($response->getContent(false), true);
+
+    return ['status_code' => $status, 'content' => $content];
 }

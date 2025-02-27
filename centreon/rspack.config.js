@@ -51,9 +51,6 @@ module.exports = (enableCoverage = false) =>
         })
       ],
       resolve: {
-        alias: {
-          'centreon-widgets': path.resolve(__dirname, 'www', 'widgets', 'src')
-        },
         modules: [path.resolve(__dirname, '.'), 'node_modules']
       }
     }

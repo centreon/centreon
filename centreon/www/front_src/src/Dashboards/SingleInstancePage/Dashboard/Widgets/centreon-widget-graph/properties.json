@@ -32,8 +32,7 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required": true,
-      "excludedResourceTypes": ["meta-service"]
+      "required": true
     },
     "metrics": {
       "type": "metrics",
@@ -541,5 +540,7 @@
       }
     }
   },
-  "moduleName": "centreon-widget-graph"
+  "moduleName": "centreon-widget-graph",
+  "canExpand": true,
+  "widgetType": "Real time widgets"
 }

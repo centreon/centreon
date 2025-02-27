@@ -200,7 +200,7 @@ class CentreonAuthLDAP
      * @return bool If the DN is modified
      * @throws exception
      */
-    public function updateUserDn()
+    public function updateUserDn(): bool
     {
         $contactAlias = html_entity_decode($this->contactInfos['contact_alias'], ENT_QUOTES, 'UTF-8');
 
@@ -225,33 +225,25 @@ class CentreonAuthLDAP
 
             //getting user's email
             $userEmail = $this->contactInfos['contact_email'];
-            if (
-                isset($userInfos[$this->ldap->getAttrName('user', 'email')])
-                && trim($userInfos[$this->ldap->getAttrName('user', 'email')]) != ''
-            ) {
-                if (is_array($userInfos[$this->ldap->getAttrName('user', 'email')])) {
-                    // Get the first if there are multiple entries
-                    if ($userInfos[$this->ldap->getAttrName('user', 'email')][0]) {
-                        $userEmail = $userInfos[$this->ldap->getAttrName('user', 'email')][0];
-                    }
-                } elseif ($userInfos[$this->ldap->getAttrName('user', 'email')]) {
-                    $userEmail = $userInfos[$this->ldap->getAttrName('user', 'email')];
-                }
+            $ldapEmailValue = $userInfos[$this->ldap->getAttrName('user', 'email')];
+            if (isset($ldapEmailValue)) {
+                $userEmail = (trim(is_array($ldapEmailValue) && $ldapEmailValue !== [] ? current($ldapEmailValue) : $ldapEmailValue));
+            }
+
+            if ($userEmail === '') {
+                CentreonLog::create()->error(
+                    logTypeId: CentreonLog::TYPE_LDAP,
+                    message: 'LDAP AUTH - Error : Invalid user email : User email must be a non-empty string',
+                    customContext: ['contact_id' => $this->contactInfos['contact_id']]
+                );
+
+                return false;
             }
             //getting user's pager
             $userPager = $this->contactInfos['contact_pager'];
-            if (
-                isset($userInfos[$this->ldap->getAttrName('user', 'pager')])
-                && trim($userInfos[$this->ldap->getAttrName('user', 'pager')]) != ''
-            ) {
-                if (is_array($userInfos[$this->ldap->getAttrName('user', 'pager')])) {
-                    // Get the first if there are multiple entries
-                    if ($userInfos[$this->ldap->getAttrName('user', 'pager')][0]) {
-                        $userPager = $userInfos[$this->ldap->getAttrName('user', 'pager')][0];
-                    }
-                } elseif ($userInfos[$this->ldap->getAttrName('user', 'pager')]) {
-                    $userPager = $userInfos[$this->ldap->getAttrName('user', 'pager')];
-                }
+            $ldapUserPager = $userInfos[$this->ldap->getAttrName('user', 'pager')];
+            if (isset($ldapUserPager)) {
+                $userPager = (trim(is_array($ldapUserPager) && $ldapUserPager !== [] ? current($ldapUserPager) : $ldapUserPager));
             }
 
             /**

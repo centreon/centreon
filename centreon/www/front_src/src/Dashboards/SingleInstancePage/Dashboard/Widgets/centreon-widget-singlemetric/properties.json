@@ -52,7 +52,7 @@
       "type": "resources",
       "defaultValue": [],
       "required": true,
-      "excludedResourceTypes": ["meta-service"]
+      "restrictedResourceTypes": ["host", "meta-service"]
     },
     "metrics": {
       "type": "metrics",
@@ -62,5 +62,6 @@
   "singleResourceSelection": true,
   "singleMetricSelection": true,
   "customBaseColor": true,
-  "moduleName": "centreon-widget-singlemetric"
+  "moduleName": "centreon-widget-singlemetric",
+  "widgetType": "Real time widgets"
 }

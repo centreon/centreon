@@ -20,6 +20,7 @@ import { CollapsibleItem } from '@centreon/ui/components';
 import { FormMetric, ServiceMetric } from '../../../models';
 
 import { useMetricsStyles } from './Metrics.styles';
+import { formatMetricName } from './useMetrics';
 
 interface ChangeExcludedMetricsProps {
   currentExcludedMetrics: Array<number>;
@@ -289,7 +290,7 @@ export const useRenderOptions = ({
     const resources = getResourcesByMetricName(option.name);
 
     return (
-      <ListItem disableGutters>
+      <ListItem disableGutters key={option?.id}>
         <CollapsibleItem
           compact
           dataTestId={option.name}
@@ -305,7 +306,7 @@ export const useRenderOptions = ({
                 size="small"
                 onChange={selectMetric(option)}
               />
-              <Typography>{`${option.name} (${option.unit})`}</Typography>
+              <Typography>{formatMetricName(option)}</Typography>
             </div>
           }
         >
@@ -316,7 +317,8 @@ export const useRenderOptions = ({
                 key={`${parentName}_${name}_${uuid}`}
               >
                 <Typography>
-                  {parentName}:{name}
+                  {equals('_Module_Meta', parentName) ? '' : `${parentName}:`}
+                  {name}
                 </Typography>
               </div>
             ))}
@@ -345,7 +347,7 @@ export const useRenderOptions = ({
       !isEmpty(currentMetricValue?.excludedMetrics);
 
     return (
-      <ListItem disableGutters>
+      <ListItem disableGutters key={option?.id}>
         <CollapsibleItem
           compact
           dataTestId={option.name}
@@ -363,7 +365,9 @@ export const useRenderOptions = ({
               />
               <Typography
                 color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}
-              >{`${option.name} (${option.unit})`}</Typography>
+              >
+                {formatMetricName(option)}
+              </Typography>
             </div>
           }
         >
@@ -400,7 +404,8 @@ export const useRenderOptions = ({
                 <Typography
                   color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}
                 >
-                  {parentName}:{name}
+                  {equals('_Module_Meta', parentName) ? '' : `${parentName}:`}
+                  {name}
                 </Typography>
               </div>
             ))}

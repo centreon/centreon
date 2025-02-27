@@ -87,9 +87,9 @@ function format_popup(): void
         );
     }
 
+    // Smarty template initialization
     $path = $centreon_path . 'www/widgets/open-tickets/src/';
-    $template = new Smarty();
-    $template = initSmartyTplForPopup($path . 'templates/', $template, './', $centreon_path);
+    $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
 
     if (isset($_GET['rule_id'])) {
         $template->assign('provider_id', $rules[$_GET['rule_id']]['provider_id']);

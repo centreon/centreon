@@ -39,8 +39,7 @@ use Core\HostGroup\Domain\Model\NewHostGroup;
 class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implements WriteHostGroupRepositoryInterface
 {
     use LoggerTrait;
-    public const HOSTGROUP_OBJECT_TYPE = 'hostgroup';
-    private const HOST_PROPERTIES_MAP = [
+    private const HOSTGROUP_PROPERTIES_MAP = [
         'name' => 'hg_name',
         'alias' => 'hg_alias',
         'notes' => 'hg_notes',
@@ -85,7 +84,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
             $this->writeHostGroupRepository->deleteHostGroup($hostGroupId);
 
             $actionLog = new ActionLog(
-                self::HOSTGROUP_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOSTGROUP,
                 $hostGroupId,
                 $hostGroup->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
@@ -111,7 +110,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
             }
 
             $actionLog = new ActionLog(
-                self::HOSTGROUP_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_HOSTGROUP,
                 $hostGroupId,
                 $newHostGroup->getName(),
                 ActionLog::ACTION_TYPE_ADD,
@@ -153,7 +152,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     ? ActionLog::ACTION_TYPE_ENABLE
                     : ActionLog::ACTION_TYPE_DISABLE;
                 $actionLog = new ActionLog(
-                    self::HOSTGROUP_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_HOSTGROUP,
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     $action,
@@ -167,7 +166,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     ? ActionLog::ACTION_TYPE_ENABLE
                     : ActionLog::ACTION_TYPE_DISABLE;
                 $actionLog = new ActionLog(
-                    self::HOSTGROUP_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_HOSTGROUP,
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     $action,
@@ -176,7 +175,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                 $this->writeActionLogRepository->addAction($actionLog);
 
                 $actionLogChange = new ActionLog(
-                    self::HOSTGROUP_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_HOSTGROUP,
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
@@ -192,7 +191,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
 
             if (! array_key_exists('isActivated', $diff) && count($diff) >= 1) {
                 $actionLogChange = new ActionLog(
-                    self::HOSTGROUP_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_HOSTGROUP,
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
@@ -229,6 +228,73 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
     }
 
     /**
+     * @inheritDoc
+     */
+    public function enableDisableHostGroup(int $hostGroupId, bool $isEnable): void
+    {
+        try {
+            $hostGroup = $this->readHostGroupRepository->findOne($hostGroupId);
+            if ($hostGroup === null) {
+                throw new RepositoryException('Cannot find hostgroup to enable/disable');
+            }
+
+            $this->writeHostGroupRepository->enableDisableHostGroup($hostGroupId, $isEnable);
+
+            $actionLog = new ActionLog(
+                ActionLog::OBJECT_TYPE_HOSTGROUP,
+                $hostGroupId,
+                $hostGroup->getName(),
+                $isEnable ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
+                $this->contact->getId()
+            );
+            $this->writeActionLogRepository->addAction($actionLog);
+
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function duplicate(int $hostGroupId, int $duplicateIndex): int
+    {
+        try {
+            $newHostGroupId = $this->writeHostGroupRepository->duplicate($hostGroupId, $duplicateIndex);
+            $newHostGroup = $this->readHostGroupRepository->findOne($newHostGroupId);
+            if ($newHostGroupId === 0) {
+                throw new RepositoryException('Hostgroup ID cannot be 0');
+            }
+
+            if ($newHostGroup === null) {
+                throw new RepositoryException('Cannot find duplicated hostgroup');
+            }
+
+            $actionLog = new ActionLog(
+                ActionLog::OBJECT_TYPE_HOSTGROUP,
+                $newHostGroupId,
+                $newHostGroup->getName(),
+                ActionLog::ACTION_TYPE_ADD,
+                $this->contact->getId()
+            );
+
+            $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+            $actionLog->setId($actionLogId);
+
+            $details = $this->getHostGroupPropertiesAsArray($newHostGroup);
+            $this->writeActionLogRepository->addActionDetails($actionLog, $details);
+
+            return $newHostGroupId;
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw $ex;
+        }
+    }
+
+    /**
      * @param NewHostGroup $hostGroup
      *
      * @return array<string,int|bool|string>
@@ -241,7 +307,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         foreach ($hostGroupReflection->getProperties() as $property) {
             $propertyName = $property->getName();
 
-            $mappedName = self::HOST_PROPERTIES_MAP[$propertyName] ?? $propertyName;
+            $mappedName = self::HOSTGROUP_PROPERTIES_MAP[$propertyName] ?? $propertyName;
             $value = $property->getValue($hostGroup);
             if ($value === null) {
                 $value = '';

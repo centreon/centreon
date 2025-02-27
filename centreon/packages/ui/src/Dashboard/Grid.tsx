@@ -1,4 +1,4 @@
-import { MutableRefObject, ReactElement, useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { scaleLinear } from '@visx/scale';
 import { Grid as VisxGrid } from '@visx/visx';
@@ -13,15 +13,9 @@ interface Props {
   columns: number;
   height: number;
   width: number;
-  containerRef: MutableRefObject<HTMLDivElement | null>;
 }
 
-const Grid = ({
-  width,
-  height,
-  columns,
-  containerRef
-}: Props): ReactElement => {
+const Grid = ({ width, height, columns }: Props): ReactElement => {
   const theme = useTheme();
 
   const xScale = useMemo(
@@ -33,7 +27,7 @@ const Grid = ({
     [width]
   );
 
-  const numberOfRows = Math.floor(height / (rowHeight + 16));
+  const numberOfRows = Math.floor(height / (rowHeight + 8));
 
   const yScale = useMemo(
     () =>
@@ -64,8 +58,8 @@ const Grid = ({
           yScale={yScale}
           xScale={xScale}
           stroke={theme.palette.divider}
-          top={-10}
           width={width}
+          left={-8}
         />
       </svg>
     ),

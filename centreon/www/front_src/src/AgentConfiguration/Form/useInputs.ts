@@ -7,7 +7,7 @@ import { pollersEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
 import { AgentType } from '../models';
 import {
-  labelAgentConfiguration,
+  labelAgent,
   labelAgentType,
   labelCMA,
   labelCaCertificate,
@@ -47,7 +47,7 @@ export const useInputs = (): {
   return {
     groups: [
       {
-        name: t(labelAgentConfiguration),
+        name: t(labelAgent),
         order: 1
       },
       {
@@ -58,7 +58,7 @@ export const useInputs = (): {
     inputs: [
       {
         type: InputType.Grid,
-        group: t(labelAgentConfiguration),
+        group: t(labelAgent),
         fieldName: 'name_type',
         label: t(labelName),
         grid: {
@@ -88,18 +88,11 @@ export const useInputs = (): {
                         confCertificate: ''
                       }
                     : {
-                        isReverse: true,
+                        isReverse: false,
                         otelPublicCertificate: '',
                         otelCaCertificate: null,
                         otelPrivateKey: '',
-                        hosts: [
-                          {
-                            address: '',
-                            port: '',
-                            pollerCaCertificate: '',
-                            pollerCaName: ''
-                          }
-                        ]
+                        hosts: []
                       }
                 });
                 setTouched({}, false);
@@ -150,7 +143,26 @@ export const useInputs = (): {
                     fieldName: 'configuration.isReverse',
                     hideInput: (values) =>
                       equals(values?.type?.id, AgentType.Telegraf),
-                    label: t(labelConnectionInitiatedByPoller)
+                    label: t(labelConnectionInitiatedByPoller),
+                    change: ({ value, values, setValues }) => {
+                      setValues({
+                        ...values,
+                        configuration: {
+                          ...values.configuration,
+                          isReverse: value,
+                          hosts: value
+                            ? [
+                                {
+                                  address: '',
+                                  port: '',
+                                  pollerCaCertificate: '',
+                                  pollerCaName: ''
+                                }
+                              ]
+                            : []
+                        }
+                      });
+                    }
                   }
                 ]
               }

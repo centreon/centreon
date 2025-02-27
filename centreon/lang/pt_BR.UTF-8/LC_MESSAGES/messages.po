@@ -14757,7 +14757,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "End time"
 #  msgstr ""
 
-#  msgid "This Resource is flapping"
+#  msgid "This resource is flapping"
 #  msgstr ""
 
 #  msgid "Show criterias filters"
@@ -14964,7 +14964,7 @@ msgstr "Erro ao remover tokens de um contato"
 #  msgid "Filter saved"
 #  msgid ""
 
-#  msgid "Edit filters"
+#  msgid "Manage filters"
 #  msgstr ""
 
 #  msgid "Rename"
@@ -17927,7 +17927,7 @@ msgstr ""
 # msgid "Critical KPIs"
 # msgstr ""
 
-# msgid "Additional connector configurations"
+# msgid "Additional Configurations"
 # msgstr ""
 
 # msgid "Types"
@@ -17945,25 +17945,25 @@ msgstr ""
 # msgid "Pollers"
 # msgstr ""
 
-# msgid "Delete additional connector configuration"
+# msgid "Delete additional configuration"
 # msgstr ""
 
-# msgid "The {{name}} additional connector configuration will be permanently deleted."
+# msgid "The {{name}} additional configuration will be permanently deleted."
 # msgstr ""
 
 # msgid "The corresponding connectors will not work anymore."
 # msgstr ""
 
-# msgid "Additional connector configuration deleted"
+# msgid "Additional configuration deleted"
 # msgstr ""
 
-# msgid "Additional connector configuration duplicated"
+# msgid "Additional configuration duplicated"
 # msgstr ""
 
-# msgid "Additional connector configuration created"
+# msgid "Additional configuration created"
 # msgstr ""
 
-# msgid "Additional connector configuration updated"
+# msgid "Additional configuration updated"
 # msgstr ""
 
 # msgid "Duplicate connector configuration"
@@ -17975,10 +17975,10 @@ msgstr ""
 # msgid "The name should be at least 3 characters long"
 # msgstr ""
 
-# msgid "Create additional connector configuration"
+# msgid "Create additional configuration"
 # msgstr ""
 
-# msgid "Update additional connector configuration"
+# msgid "Update additional configuration"
 # msgstr ""
 
 # msgid "Select poller(s)"
@@ -18027,13 +18027,13 @@ msgstr ""
 # msgstr ""
 
 
-# msgid "Error while adding an additional connector configuration"
+# msgid "Error while adding an additional configuration"
 # msgstr ""
 
-# msgid "You are not allowed to access additional connector configurations"
+# msgid "You are not allowed to access additional configurations"
 # msgstr ""
 
-# msgid "An additional connector configuration configuration of type '%s' is already associated with poller ID(s) '%s'"
+# msgid "An additional configuration of type '%s' is already associated with poller ID(s) '%s'"
 # msgstr ""
 
 # msgid "Duplicates not allowed for property '%s'"
@@ -18042,19 +18042,19 @@ msgstr ""
 # msgid "'%s' must contain at least one element"
 # msgstr ""
 
-# msgid "Error while retrieving an additional connector configuration"
+# msgid "Error while retrieving an additional configuration"
 # msgstr ""
 
-# msgid "The additional connector configuration name '%s' already exists"
+# msgid "The additional configuration name '%s' already exists"
 # msgstr ""
 
-# msgid "Error while deleting an additional connector configuration"
+# msgid "Error while deleting an additional configuration"
 # msgstr ""
 
 #  msgid "You don't have sufficient permissions for this action"
 #  msgstr ""
 
-#  msgid "Error while searching for additional connector configurations"
+#  msgid "Error while searching for additional configurations"
 #  msgstr ""
 
 #  msgid "Error while searching for available pollers for type '%s'"
@@ -18096,10 +18096,10 @@ msgstr ""
 # msgid "Show date"
 # msgstr ""
 
-#  msgid "Error while updating an additional connector configuration"
+#  msgid "Error while updating an additional configuration"
 #  msgstr ""
 
-#  msgid "Changing type of an existing additional connector configuration is not allowed"
+#  msgid "Changing the type of an existing additional configuration is not allowed"
 #  msgstr ""
 
 # msgid "Vault configuration"
@@ -18165,11 +18165,47 @@ msgstr ""
 #  msgid "Web page preview"
 #  msgstr ""
 
+# msgid "Save your dashboard to generate a thumbnail"
+# msgstr ""
+
 #  msgid "If ticket management is enabled, only the “by service” view is available."
 #  msgstr ""
 
 #  msgid "Ticket management"
 #  msgstr ""
+
+#  msgid "year"
+#  msgstr ""
+
+#  msgid "month"
+#  msgstr ""
+
+#  msgid "hour"
+#  msgstr ""
+
+#  msgid "minute"
+#  msgstr ""
+
+# msgid "Select a Business Activity to display the preview."
+# msgstr ""
+
+# msgid "Breadcrumb copied"
+# msgstr ""
+
+# msgid "Failed to copy breadcrumb"
+# msgstr ""
+
+# msgid "Copy breadcrumb"
+# msgstr ""
+
+# msgid "Displays the time according to the selected time zone, or a timer."
+# msgstr ""
+
+# msgid "Clock / Timer"
+# msgstr ""
+
+# msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
+# msgstr ""
 
 # msgid "Agent configuration"
 # msgstr ""
@@ -18283,4 +18319,61 @@ msgstr ""
 #  msgstr ""
 
 # msgid "Sticky for any non-OK status"
+# msgstr ""
+
+# msgid "There are errors in the form."
+# msgstr ""
+
+# msgid "Show only dashboards added to favorites"
+# msgstr ""
+
+# msgid "The dashboard has been added to your favorites."
+# msgstr ""
+
+# msgid "The dashboard has been removed from your favorites."
+# msgstr ""
+
+# msgid "Remove from favorites"
+# msgstr ""
+
+# msgid "Add to favorites"
+# msgstr ""
+
+# msgid "PNG (as displayed)"
+# msgstr ""
+
+# msgid "PNG (medium size)"
+# msgstr ""
+
+# msgid "PNG (small size)"
+# msgstr ""
+
+# msgid "Export as"
+# msgstr ""
+
+# msgid "If you click on Discard, your changes will not be saved."
+# msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""
+
+# msgid "Do you want to leave this page?"
+# msgstr ""
+
+# msgid "Your changes will not be saved if you leave this page."
+# msgstr ""
+
+# msgid "Leave"
+# msgstr ""
+
+# msgid "Stay"
+# msgstr ""
+
+# msgid "Generic widgets"
+# msgstr ""
+
+# msgid "Real time widgets"
+# msgstr ""
+
+# msgid "MBI Reporting widgets"
 # msgstr ""

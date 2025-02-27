@@ -8,7 +8,7 @@ import EditFiltersPanel from '..';
 import useListing from '../../../Listing/useListing';
 import Context, { ResourceContext } from '../../../testUtils/Context';
 import useFilter from '../../../testUtils/useFilter';
-import { labelDelete, labelEditFilters } from '../../../translatedLabels';
+import { labelDelete, labelManageFilters } from '../../../translatedLabels';
 import { defaultSortField, defaultSortOrder } from '../../Criterias/default';
 import { Filter } from '../../models';
 
@@ -209,17 +209,17 @@ describe('Edit filter button', () => {
   it('displays the filters in the edition panel', () => {
     cy.waitForRequest('@getResourceRequest');
 
-    cy.findByLabelText(labelEditFilters).click();
+    cy.findByLabelText(labelManageFilters).click();
   });
 
   it('sends a put request when the filter is updated', () => {
     cy.waitForRequest('@getResourceRequest');
 
-    cy.findByLabelText(labelEditFilters).click();
+    cy.findByLabelText(labelManageFilters).click();
 
     cy.get('input').type('updated');
 
-    cy.contains(labelEditFilters).click();
+    cy.contains(labelManageFilters).click();
 
     cy.waitForRequest('@putFilterRequest');
   });
@@ -227,7 +227,7 @@ describe('Edit filter button', () => {
   it('sends a delete request when the filter is delete', () => {
     cy.waitForRequest('@getResourceRequest');
 
-    cy.findByLabelText(labelEditFilters).click();
+    cy.findByLabelText(labelManageFilters).click();
 
     cy.get('input').type('updated');
 

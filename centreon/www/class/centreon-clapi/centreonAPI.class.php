@@ -806,13 +806,13 @@ class CentreonAPI
             }
         } elseif (method_exists($this, $action)) {
             $this->return_code = $this->$action();
-            print "Return code end : " . $this->return_code . "\n";
         } else {
             print "Method not implemented into Centreon API.\n";
             $this->return_code = 1;
         }
 
         if ($exit) {
+            print "Return code end : " . $this->return_code . "\n";
             exit($this->return_code);
         } else {
             return $this->return_code;

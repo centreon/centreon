@@ -224,11 +224,8 @@ $form->addRule('tp_include', _('The selected template has the same time period a
 
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 if ($o == "w") {
     /*
@@ -284,12 +281,17 @@ $valid = false;
 if ($form->validate()) {
     $tpObj = $form->getElement('tp_id');
     if ($form->getSubmitValue("submitA")) {
-        $tpObj->setValue(insertTimeperiodInDB());
+        if (null !== $timeperiodId = insertTimePeriodInAPI()) {
+            $tpObj->setValue($timeperiodId);
+            $o = null;
+            $valid = true;
+        }
     } elseif ($form->getSubmitValue("submitC")) {
-        updateTimeperiodInDB($tpObj->getValue());
+        if (updateTimeperiodInAPI($tpObj->getValue())) {
+            $o = null;
+            $valid = true;
+        }
     }
-    $o = null;
-    $valid = true;
 }
 
 if ($valid) {

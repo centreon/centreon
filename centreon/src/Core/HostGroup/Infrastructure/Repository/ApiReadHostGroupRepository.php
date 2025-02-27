@@ -161,6 +161,14 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function nameAlreadyExistsByAccessGroups(string $hostGroupName, array $accessGroups): bool
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByHost(int $hostId): array
     {
         throw RepositoryException::notYetImplemented();
@@ -186,6 +194,14 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
      * @inheritDoc
      */
     public function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findLinkedHosts(int $hostGroupId): array
     {
         throw RepositoryException::notYetImplemented();
     }

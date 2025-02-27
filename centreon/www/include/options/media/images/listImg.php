@@ -71,10 +71,8 @@ $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 
 include("./include/common/checkPagination.php");
 
-/*
- * Smarty template Init
- */
-$tpl = initSmartyTpl($path, new Smarty());
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * start header menu
@@ -150,7 +148,16 @@ $tpl->assign(
 );
 
 ?>
-    <SCRIPT LANGUAGE="JavaScript">
+    <script type="text/javascript">
+        function openPopup(pageNumber) {
+            window.open(
+              './main.get.php?p=' + pageNumber + '&o=sd&min=1',
+              '',
+              'toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no,' +
+              'width=350,height=250'
+            )
+        }
+
         function setO(_i) {
             document.forms['form'].elements['o'].value = _i;
         }
@@ -189,7 +196,7 @@ $tpl->assign(
         }
 
 
-    </SCRIPT>
+    </script>
 <?php
 $actions = [null => _("More actions"), IMAGE_DELETE => _("Delete"), IMAGE_MOVE => _("Move images")];
 $form->addElement('select', 'o1', null, $actions, ['onchange' => "javascript:submitO('o1');"]);

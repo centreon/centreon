@@ -1,6 +1,7 @@
 import { Column, ColumnType } from '@centreon/ui';
-import { T, isNil, prop } from 'ramda';
+import { T, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { agentTypes } from '../../Form/useInputs';
 import {
   labelAction,
   labelAgentType,
@@ -25,7 +26,8 @@ export const useColumns = (): Array<Column> => {
       type: ColumnType.string,
       id: 'type',
       label: t(labelAgentType),
-      getFormattedString: prop('type')
+      getFormattedString: ({ type, pollers }) =>
+        isNil(pollers) ? '' : agentTypes.find(({ id }) => equals(id, type)).name
     },
     {
       type: ColumnType.component,

@@ -2,11 +2,11 @@ import { ChangeEvent, useCallback, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
 import {
+  path,
   equals,
   gt,
   isEmpty,
   not,
-  path,
   split,
   type as variableType
 } from 'ramda';
@@ -138,10 +138,14 @@ const Text = ({
         value={value || ''}
         onBlur={handleBlur(fieldName)}
         onChange={changeText}
-        inputProps={{
-          'data-testid': dataTestId || label,
-          'aria-label': label,
-          min: text?.min
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'data-testid': dataTestId || label,
+              'aria-label': label,
+              min: text?.min
+            }
+          }
         }}
       />
     ),

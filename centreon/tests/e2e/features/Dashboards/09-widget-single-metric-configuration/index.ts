@@ -11,7 +11,6 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 import metrics from '../../../fixtures/dashboards/creation/widgets/metrics.json';
 import singleMetricPayload from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
 import singleMetricPayloadRta from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadRta.json';
-import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoWidgets.json';
 
 before(() => {
   cy.startContainers();
@@ -137,12 +136,13 @@ Then("the Single metric widget is added in the dashboard's layout", () => {
   cy.get('[class*="graphContainer"]').should('be.visible');
 });
 
-Then('the information about the selected metric is displayed', () => {
-  cy.verifyGraphContainer(metrics);
-});
-
 Given('a dashboard featuring a single Single Metric widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    singleMetricPayload,
+    'centreon-widget-singlemetric',
+    '/widgets/singlemetric'
+  );
   cy.visitDashboards();
   cy.contains(dashboards.default.name).click();
 });
@@ -150,7 +150,6 @@ Given('a dashboard featuring a single Single Metric widget', () => {
 When(
   'the dashboard administrator user duplicates the Single Metric widget',
   () => {
-    cy.visitDashboards();
     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'RefreshIcon' }).click();
     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
@@ -158,27 +157,32 @@ When(
   }
 );
 
-// Then('a second Single Metric widget is displayed on the dashboard', () => {
-//   cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
-// });
+Then('a second Single Metric widget is displayed on the dashboard', () => {
+  cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
+});
 
-// Then('the second widget reports on the same metric as the first widget', () => {
-//   cy.get('[class*="MuiTypography-h2"]')
-//     .eq(1)
-//     .then(($element) => {
-//       const text = $element.text();
-//       expect(text).to.include('%');
-//     });
-// });
+Then('the second widget reports on the same metric as the first widget', () => {
+  cy.get('[class*="MuiTypography-h2"]')
+    .eq(1)
+    .then(($element) => {
+      const text = $element.text();
+      expect(text).to.include('%');
+    });
+});
 
-// Then('the second widget has the same properties as the first widget', () => {
-//   cy.verifyDuplicatesGraphContainer(metrics);
-// });
+Then('the second widget has the same properties as the first widget', () => {
+  cy.verifyDuplicatesGraphContainer(metrics);
+});
 
 Given(
   'a dashboard with a Single Metric widget displaying a human-readable value format',
   () => {
-    cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
+    cy.insertDashboardWithWidget(
+      dashboards.default,
+      singleMetricPayload,
+      'centreon-widget-singlemetric',
+      '/widgets/singlemetric'
+    );
   }
 );
 
@@ -206,7 +210,12 @@ Then(
 );
 
 Given('a dashboard containing a Single Metric widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    singleMetricPayloadRta,
+    'centreon-widget-singlemetric',
+    '/widgets/singlemetric'
+  );
 });
 
 When(
@@ -251,7 +260,12 @@ Then(
 );
 
 Given('a dashboard featuring a Single Metric widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    singleMetricPayloadRta,
+    'centreon-widget-singlemetric',
+    '/widgets/singlemetric'
+  );
 });
 
 When(
@@ -285,7 +299,13 @@ Then(
 );
 
 Given('a dashboard featuring two Single Metric widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, singleMetricDoubleWidgets);
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    singleMetricPayloadRta,
+    singleMetricPayloadRta,
+    'centreon-widget-singlemetric',
+    '/widgets/singlemetric'
+  );
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {

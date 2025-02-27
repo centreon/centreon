@@ -91,7 +91,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteTimeperiodInDB(is_array($select) ? $select : []);
+            deleteTimePeriodInAPI(is_array($select) ? array_keys($select) : []);
         } else {
             unvalidFormMessage();
         }

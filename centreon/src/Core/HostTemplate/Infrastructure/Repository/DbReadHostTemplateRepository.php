@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostTemplate\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -593,14 +594,15 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $request = $this->translateDbName(
             <<<'SQL'
                 WITH RECURSIVE parents AS (
-                    SELECT * FROM `:db`.`host_template_relation`
+                    SELECT 1 as counter, host_template_relation.* FROM `:db`.`host_template_relation`
                     WHERE `host_host_id` = :hostTemplateId
                     UNION
-                    SELECT rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
+                    SELECT p.counter + 1, rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
                     WHERE rel.`host_host_id` = p.`host_tpl_id`
                 )
-                SELECT `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
+                SELECT counter, `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
                 FROM parents
+                order by counter, `order`;
                 SQL
         );
         $statement = $this->db->prepare($request);
@@ -843,6 +845,41 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         }
 
         return $hostTemplates;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostId(int $hostId): array
+    {
+        try {
+            $request = $this->translateDbName(
+                <<<'SQL'
+                    SELECT host_tpl_id
+                    FROM host_template_relation
+                    WHERE host_host_id = :hostId
+                    ORDER BY `order` ASC
+                    SQL
+            );
+            $statement = $this->db->prepare($request);
+            $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+            $statement->execute();
+
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        } catch (\PDOException $exception) {
+            $errorMessage = 'Error while fetching host templates by host ID';
+            $this->error($errorMessage, [
+                'host_id' => $hostId,
+                'exception' => [
+                    'message' => $exception->getMessage(),
+                    'pdo_code' => $exception->getCode(),
+                    'pdo_info' => $exception->errorInfo,
+                    'trace' => $exception->getTraceAsString(),
+                ],
+            ]);
+
+            throw new RepositoryException(message: $errorMessage, previous: $exception);
+        }
     }
 
     /**

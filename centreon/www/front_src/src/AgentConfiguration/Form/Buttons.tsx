@@ -4,6 +4,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import { Box, CircularProgress } from '@mui/material';
 import { useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
+import { isEmpty, isNil } from 'ramda';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,6 +12,7 @@ import {
   askBeforeCloseFormModalAtom,
   openFormModalAtom
 } from '../atoms';
+import { AgentConfigurationForm } from '../models';
 import { labelCancel, labelSave } from '../translatedLabels';
 
 const Buttons = (): JSX.Element => {
@@ -22,11 +24,21 @@ const Buttons = (): JSX.Element => {
   const setOpenFormModal = useSetAtom(openFormModalAtom);
   const setAgentTypeForm = useSetAtom(agentTypeFormAtom);
 
-  const { isValid, dirty, isSubmitting, submitForm } = useFormikContext();
+  const { isValid, dirty, isSubmitting, submitForm, errors, values } =
+    useFormikContext<AgentConfigurationForm>();
 
   const isSubmitDisabled = useMemo(
-    () => !dirty || !isValid || isSubmitting,
-    [dirty, isValid, isSubmitting]
+    () =>
+      !dirty ||
+      (!isEmpty(errors) &&
+      (isNil(values.configuration?.hosts) ||
+        isEmpty(values.configuration?.hosts))
+        ? true
+        : errors.configuration?.hosts?.some?.(
+            (host) => !isNil(host) && !isEmpty(host)
+          )) ||
+      isSubmitting,
+    [dirty, isSubmitting, errors, values]
   );
 
   const discard = useCallback(() => {

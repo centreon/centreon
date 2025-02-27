@@ -498,6 +498,7 @@ class CentreonConfigCentreonBroker
         $cdata = CentreonData::getInstance();
         if (isset($this->arrayMultiple)) {
             foreach ($this->arrayMultiple as $key => $multipleGroup) {
+                ksort($multipleGroup);
                 $cdata->addJsData('clone-values-' . $key, htmlspecialchars(
                     json_encode($multipleGroup),
                     ENT_QUOTES
@@ -887,21 +888,25 @@ class CentreonConfigCentreonBroker
      * @param int $configId
      * @param string $configKey
      * @param int $fieldIndex
+     * @param int $configGroupId
      *
      * @return string|null
      * @throws PDOException
      */
-    private function findOriginalValueWithFieldIndex(int $configId, string $configKey, int $fieldIndex): ?string
+    private function findOriginalValueWithFieldIndex(int $configId, string $configKey, int $fieldIndex, int $configGroupId): ?string
     {
         $stmt = $this->db->prepare(
             'SELECT config_value FROM cfg_centreonbroker_info
             WHERE config_id = :configId
             AND config_key = :configKey
-            AND fieldIndex = :fieldIndex'
+            AND fieldIndex = :fieldIndex
+            AND config_group_id = :configGroupId'
         );
-        $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
-        $stmt->bindValue(':configKey', $configKey, PDO::PARAM_STR);
-        $stmt->bindValue(':fieldIndex', $fieldIndex, PDO::PARAM_STR);
+
+        $stmt->bindValue(':configId', $configId, \PDO::PARAM_INT);
+        $stmt->bindValue(':configKey', $configKey, \PDO::PARAM_STR);
+        $stmt->bindValue(':fieldIndex', $fieldIndex, \PDO::PARAM_INT);
+        $stmt->bindValue(':configGroupId', $configGroupId, \PDO::PARAM_INT);
         $stmt->execute();
 
         $row = $stmt->fetch();
@@ -919,16 +924,18 @@ class CentreonConfigCentreonBroker
      */
     private function revealLuaPasswords(int $configId, array &$values): void
     {
-        foreach ($values['output'] as &$output) {
+        foreach ($values['output'] as $configGroupId => &$output) {
             foreach (array_keys($output) as $key) {
                 if (
-                    preg_match('/^lua_parameter__value_(\\d+)$/', (string) $key, $matches)
+                    preg_match('/^lua_parameter__value_(\\d+)$/', (string) $key, $matches) === 1
+                    && array_key_exists("lua_parameter__value_{$matches[1]}", $output)
                     && $output["lua_parameter__value_{$matches[1]}"] === CentreonAuth::PWS_OCCULTATION
                 ) {
                     $originalPassword = $this->findOriginalValueWithFieldIndex(
                         $configId,
                         "lua_parameter__value",
-                        $matches[1]
+                        $matches[1],
+                        $configGroupId
                     );
                     $output["lua_parameter__value_{$matches[1]}"] = $originalPassword;
                 }
@@ -1059,9 +1066,8 @@ class CentreonConfigCentreonBroker
                     $this->getConfigFieldName($config_id, $tag, $row) . '_#index#]';
                 $suffix = preg_match('/__(.+)$/', $row['config_key'], $matches) ? $matches[1] : '';
                 $arrayMultipleValues[$fieldname]['suffix'] = $suffix;
-                $arrayMultipleValues[$fieldname]['values'][] =
+                $arrayMultipleValues[$fieldname]['values'][$row['fieldIndex']] =
                     $isTypePassword && $suffix === 'value' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
-
                 if ($suffix === 'type' && $row['config_value'] === 'password') {
                     $isTypePassword = true;
                 } elseif ($isTypePassword && $suffix === 'value') {
@@ -1089,7 +1095,6 @@ class CentreonConfigCentreonBroker
         }
         $forms = [];
         $isMultiple = false;
-
         foreach (array_keys($formsInfos) as $key) {
             $qf = $this->quickFormById($formsInfos[$key]['blockId'], $page, $key, $config_id);
             //Replace loaded configuration with defaults external values
@@ -1122,10 +1127,8 @@ class CentreonConfigCentreonBroker
         if (isset($arrayMultiple)) {
             foreach ($arrayMultiple as $key => $arrayMultipleS) {
                 foreach ($arrayMultipleS as $key2 => $oneElemArray) {
-                    $cnt = 0;
-                    foreach ($oneElemArray as $oneElem) {
-                        $this->arrayMultiple[$key][$cnt][$key2] = $oneElem;
-                        $cnt++;
+                    foreach ($oneElemArray as $index => $oneElem) {
+                        $this->arrayMultiple[$key][$index][$key2] = $oneElem;
                     }
                 }
             }

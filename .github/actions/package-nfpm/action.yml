@@ -106,10 +106,12 @@ runs:
           cd -
           mv $DIRNAME/*.${{ inputs.package_extension }} ./
         done
+
+        ls -lh ./*.${{ inputs.package_extension }}
       shell: bash
 
     - name: Cache packages
-      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
@@ -117,7 +119,7 @@ runs:
     # Update if condition to true to get packages as artifacts
     - if: ${{ false }}
       name: Upload package artifacts
-      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
       with:
         name: packages-${{ inputs.distrib }}
         path: ./*.${{ inputs.package_extension}}

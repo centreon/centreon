@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { useAtom } from 'jotai';
-import { equals, flatten, isNil, pluck, reject } from 'ramda';
+import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
@@ -16,6 +16,7 @@ import BarGroup from '../BarChart/BarGroup';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
+import { useComputeYAxisMaxCharacters } from '../common/BaseChart/useComputeYAxisMaxCharacters';
 import Thresholds from '../common/Thresholds/Thresholds';
 import type { Thresholds as ThresholdsModel } from '../common/models';
 import {
@@ -25,7 +26,6 @@ import {
   getYScalePerUnit
 } from '../common/timeSeries';
 import type { Line } from '../common/timeSeries/models';
-
 import Lines from './BasicComponents/Lines';
 import {
   canDisplayThreshold,
@@ -56,13 +56,24 @@ interface Props extends LineChartProps {
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
+  transformMatrix?: {
+    fx?: (pointX: number) => number;
+    fy?: (pointY: number) => number;
+  };
 }
 
-const filterLines = (lines: Array<Line>, displayThreshold): Array<Line> => {
+const filterLines = (
+  lines: Array<Line>,
+  displayThreshold: boolean
+): Array<Line> => {
   if (!displayThreshold) {
     return lines;
   }
   const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
+
+  if (isEmpty(lineOriginMetric)) {
+    return lines;
+  }
 
   const findLinesUpperLower = lines.map((line) =>
     equals(line.name, lowerLineName) || equals(line.name, upperLineName)
@@ -98,7 +109,8 @@ const Chart = ({
   thresholds,
   thresholdUnit,
   limitLegend,
-  skipIntersectionObserver
+  skipIntersectionObserver,
+  transformMatrix
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
@@ -128,13 +140,24 @@ const Chart = ({
     [displayedLines]
   );
 
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      graphData,
+      thresholds,
+      thresholdUnit,
+      axis,
+      firstUnit,
+      secondUnit
+    });
+
   const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
     hasSecondUnit: Boolean(secondUnit),
     height,
     legendDisplay: legend?.display,
     legendHeight: legend?.height,
     legendPlacement: legend?.placement,
-    width
+    width,
+    maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
   });
 
   const xScale = useMemo(
@@ -220,7 +243,7 @@ const Chart = ({
     [axis?.showGridLines]
   );
 
-  if (!isInViewport && !skipIntersectionObserver) {
+  if ((!isInViewport && !skipIntersectionObserver) || !height) {
     return (
       <Skeleton
         height={graphSvgRef?.current?.clientHeight ?? graphHeight}
@@ -271,39 +294,45 @@ const Chart = ({
                 svgRef={graphSvgRef}
                 timeSeries={timeSeries}
                 xScale={xScale}
+                maxAxisCharacters={maxLeftAxisCharacters}
+                hasSecondUnit={Boolean(secondUnit)}
               >
                 <>
-                  <BarGroup
-                    barStyle={barStyle}
-                    isTooltipHidden={false}
-                    lines={linesDisplayedAsBar}
-                    orientation="horizontal"
-                    size={graphHeight - margin.top - 5}
-                    timeSeries={timeSeries}
-                    xScale={xScaleBand}
-                    yScalesPerUnit={yScalesPerUnit}
-                  />
-                  <Lines
-                    areaTransparency={lineStyle?.areaTransparency}
-                    curve={lineStyle?.curve || 'linear'}
-                    dashLength={lineStyle?.dashLength}
-                    dashOffset={lineStyle?.dashOffset}
-                    displayAnchor={displayAnchor}
-                    displayedLines={linesDisplayedAsLine}
-                    dotOffset={lineStyle?.dotOffset}
-                    graphSvgRef={graphSvgRef}
-                    height={graphHeight - margin.top}
-                    lineWidth={lineStyle?.lineWidth}
-                    scale={axis?.scale}
-                    scaleLogarithmicBase={axis?.scaleLogarithmicBase}
-                    showArea={lineStyle?.showArea}
-                    showPoints={lineStyle?.showPoints}
-                    timeSeries={timeSeries}
-                    width={graphWidth}
-                    xScale={xScale}
-                    yScalesPerUnit={yScalesPerUnit}
-                    {...shapeLines}
-                  />
+                  {!isEmpty(linesDisplayedAsBar) && (
+                    <BarGroup
+                      barStyle={barStyle}
+                      isTooltipHidden={false}
+                      lines={linesDisplayedAsBar}
+                      orientation="horizontal"
+                      size={graphHeight - margin.top - 5}
+                      timeSeries={timeSeries}
+                      xScale={xScaleBand}
+                      yScalesPerUnit={yScalesPerUnit}
+                    />
+                  )}
+                  {!isEmpty(linesDisplayedAsLine) && (
+                    <Lines
+                      areaTransparency={lineStyle?.areaTransparency}
+                      curve={lineStyle?.curve || 'linear'}
+                      dashLength={lineStyle?.dashLength}
+                      dashOffset={lineStyle?.dashOffset}
+                      displayAnchor={displayAnchor}
+                      displayedLines={linesDisplayedAsLine}
+                      dotOffset={lineStyle?.dotOffset}
+                      graphSvgRef={graphSvgRef}
+                      height={graphHeight - margin.top}
+                      lineWidth={lineStyle?.lineWidth}
+                      scale={axis?.scale}
+                      scaleLogarithmicBase={axis?.scaleLogarithmicBase}
+                      showArea={lineStyle?.showArea}
+                      showPoints={lineStyle?.showPoints}
+                      timeSeries={timeSeries}
+                      width={graphWidth}
+                      xScale={xScale}
+                      yScalesPerUnit={yScalesPerUnit}
+                      {...shapeLines}
+                    />
+                  )}
                   <InteractionWithGraph
                     annotationData={{ ...annotationEvent }}
                     commonData={{
@@ -320,6 +349,7 @@ const Chart = ({
                       graphInterval
                     }}
                     zoomData={{ ...zoomPreview }}
+                    transformMatrix={transformMatrix}
                   />
                   {thresholds?.enabled && (
                     <Thresholds

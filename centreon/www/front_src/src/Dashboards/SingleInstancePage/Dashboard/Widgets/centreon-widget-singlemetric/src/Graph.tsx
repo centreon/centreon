@@ -11,7 +11,11 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import NoResources from '../../NoResources';
 import { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import useThresholds from '../../useThresholds';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import {
+  areResourcesFullfilled,
+  getIsMetaServiceSelected,
+  getWidgetEndpoint
+} from '../../utils';
 
 import SingleMetricRenderer from './SingleMetricRenderer';
 import { graphEndpoint } from './api/endpoints';
@@ -57,6 +61,8 @@ const Graph = ({
     refreshIntervalCustom
   });
 
+  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
+
   const metricId = metrics[0]?.id;
   const metricName = metrics[0]?.name;
 
@@ -85,14 +91,15 @@ const Graph = ({
     data: graphData,
     displayAsRaw,
     metricName,
-    thresholds: threshold
+    thresholds: threshold,
+    isMetaServiceSelected
   });
 
   const areResourcesOk = areResourcesFullfilled(resources);
 
   if (
     !areResourcesOk ||
-    isMetricsEmpty ||
+    (!isMetaServiceSelected && isMetricsEmpty) ||
     (isFromPreview && isGraphLoading && isNil(graphData))
   ) {
     return <NoResources />;
@@ -101,9 +108,11 @@ const Graph = ({
   const filteredGraphData = graphData
     ? {
         ...graphData,
-        metrics: graphData.metrics.filter((metric) =>
-          equals(metricId, metric.metric_id)
-        )
+        metrics: isMetaServiceSelected
+          ? graphData.metrics
+          : graphData.metrics.filter((metric) =>
+              equals(metricId, metric.metric_id)
+            )
       }
     : graphData;
 
@@ -117,7 +126,7 @@ const Graph = ({
   return (
     <ContentWithCircularLoading
       alignCenter
-      loading={isFromPreview && isGraphLoading}
+      loading={(isFromPreview && isGraphLoading) || false}
     >
       <SingleMetricRenderer
         graphProps={props}

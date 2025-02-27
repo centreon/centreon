@@ -37,9 +37,9 @@ if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 
+// Smarty template initialization
 $path = $centreon_path . 'www/widgets/open-tickets/src/templates/';
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, '/');
 
 try {
     $db = new CentreonDB();

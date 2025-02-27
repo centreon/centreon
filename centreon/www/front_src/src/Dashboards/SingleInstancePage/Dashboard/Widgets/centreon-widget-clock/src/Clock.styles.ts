@@ -2,7 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useClockStyles = makeStyles()((theme) => ({
   background: {
-    '&[data-hasDescription="true"]': {
+    '&[data-has-description="true"]': {
       top: 24
     },
     bottom: 0,
@@ -19,10 +19,10 @@ export const useClockStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   clockInformation: {
-    '&[data-isSmall="true"]': {
+    '&[data-is-small="true"]': {
       gridTemplateColumns: '0.8fr minmax(30px, 0.2fr) 1fr'
     },
-    '&[data-isSmall="true"][data-timer="true"]': {
+    '&[data-is-small="true"][data-timer="true"]': {
       gridTemplateColumns: '0.8fr minmax(30px, 0.2fr) 1fr'
     },
     '&[data-timer="true"]': {

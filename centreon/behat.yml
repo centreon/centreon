@@ -27,10 +27,6 @@ default:
       paths: [ "%paths.base%/features/KnowledgeBase.feature" ]
       contexts: [ KnowledgeBaseContext ]
 
-    disable_fields_on_blocked_objects:
-      paths: [ "%paths.base%/features/DisableFieldsOnBlockedObjects.feature" ]
-      contexts: [ DisableFieldsOnBlockedObjectsContext ]
-
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
@@ -42,14 +38,6 @@ default:
     limit_metric_in_chart:
       paths: [ "%paths.base%/features/LimitMetricInChart.feature" ]
       contexts: [ LimitMetricInChartContext ]
-
-    show_disabled_hosts_services:
-      paths: [ "%paths.base%/features/ShowDisabledHostsServices.feature" ]
-      contexts: [ ShowDisabledHostsServicesContext ]
-
-    save_search_filter:
-      paths: [ "%paths.base%/features/SaveSearchFilter.feature" ]
-      contexts: [ SaveSearchFilterContext ]
 
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
@@ -67,10 +55,6 @@ default:
       paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
       contexts: [ DowntimeRecurrentContext ]
 
-    command_arguments:
-      paths: [ "%paths.base%/features/CommandArguments.feature" ]
-      contexts: [ CommandArgumentsContext ]
-
     autologin:
       paths: [ "%paths.base%/features/Autologin.feature" ]
       contexts: [ AutologinContext ]
@@ -78,10 +62,6 @@ default:
     autologin_options:
       paths: [ "%paths.base%/features/AutologinOptions.feature" ]
       contexts: [ AutologinOptionsContext ]
-
-    ldap:
-      paths: [ "%paths.base%/features/Ldap.feature" ]
-      contexts: [ LdapContext ]
 
     custom_views_locked:
       paths: [ "%paths.base%/features/CustomViews/Locked.feature" ]
@@ -103,97 +83,9 @@ default:
       paths: [ "%paths.base%/features/RestApi.feature" ]
       contexts: [ RestApiContext ]
 
-    special_characters_in_contact:
-      paths: [ "%paths.base%/features/SpecialCharactersInContact.feature" ]
-      contexts: [ SpecialCharactersInContactContext ]
-
-    ldap_configuration:
-      paths: [ "%paths.base%/features/LdapConfiguration.feature" ]
-      contexts: [ LdapConfigurationContext ]
-
-    traps_snmp_configuration:
-      paths: [ "%paths.base%/features/TrapsSNMPConfiguration.feature" ]
-      contexts: [ TrapsSNMPConfigurationContext ]
-
-    ldap_manual_import:
-      paths: [ "%paths.base%/features/LdapManualImport.feature" ]
-      contexts: [ LdapManualImportContext ]
-
-    non_admin_contact_creation:
-      paths: [ "%paths.base%/features/NonAdminContactCreation.feature" ]
-      contexts: [ NonAdminContactCreationContext ]
-
-    massive_change_hosts:
-      paths: [ "%paths.base%/features/MassiveChangeHosts.feature" ]
-      contexts: [ MassiveChangeHostsContext ]
-
-    massive_change_services:
-      paths: [ "%paths.base%/features/MassiveChangeServices.feature" ]
-      contexts: [ MassiveChangeServicesContext ]
-
-    virtual_metric_handle:
-      paths: [ "%paths.base%/features/VirtualMetricHandle.feature" ]
-      contexts: [ VirtualMetricHandleContext ]
-
-    command_configuration:
-      paths: [ "%paths.base%/features/CommandConfiguration.feature" ]
-      contexts: [ CommandConfigurationContext ]
-
-    host_group_service_configuration:
-      paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
-      contexts: [ HostGroupServiceConfigurationContext ]
-
-    escalation_configuration:
-      paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]
-      contexts: [ EscalationConfigurationContext ]
-
-    host_group_dependency_configuration:
-      paths: [ "%paths.base%/features/HostGroupDependencyConfiguration.feature" ]
-      contexts: [ HostGroupDependencyConfigurationContext ]
-
-    service_submit_result:
-      paths: [ "%paths.base%/features/ServiceSubmitResult.feature" ]
-      contexts: [ ServiceSubmitResultContext ]
-
-    host_dependency_configuration:
-      paths: [ "%paths.base%/features/HostDependencyConfiguration.feature" ]
-      contexts: [ HostDependencyConfigurationContext ]
-
-    service_dependency_configuration:
-      paths: [ "%paths.base%/features/ServiceDependencyConfiguration.feature" ]
-      contexts: [ ServiceDependencyConfigurationContext ]
-
-    service_group_dependency_configuration:
-      paths: [ "%paths.base%/features/ServiceGroupDependencyConfiguration.feature" ]
-      contexts: [ ServiceGroupDependencyConfigurationContext ]
-
-    connector_configuration:
-      paths: [ "%paths.base%/features/ConnectorConfiguration.feature" ]
-      contexts: [ ConnectorConfigurationContext ]
-
-    vendor_configuration:
-      paths: [ "%paths.base%/features/VendorConfiguration.feature" ]
-      contexts: [ VendorConfigurationContext ]
-
-    meta_service_dependency_configuration:
-      paths: [ "%paths.base%/features/MetaServiceDependencyConfiguration.feature" ]
-      contexts: [ MetaServiceDependencyConfigurationContext ]
-
-    test_proxy_configuration:
-      paths: [ "%paths.base%/features/TestProxyConfiguration.feature" ]
-      contexts: [ TestProxyConfigurationContext ]
-
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]
       contexts: [ ClapiContext ]
-
-    traps_snmp_group_configuration:
-      paths: [ "%paths.base%/features/TrapsSNMPGroupConfiguration.feature" ]
-      contexts: [ TrapsSNMPGroupConfigurationContext ]
-
-    uri:
-      paths: [ "%paths.base%/features/URI.feature" ]
-      contexts: [ URIContext ]
 
     centreon_module_api:
       paths: [ "%paths.base%/features/CentreonModuleAPI.feature" ]

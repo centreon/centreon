@@ -82,7 +82,6 @@ echo _("DB password");
 echo _("DB name");
 echo _("Maximum queries per transaction");
 echo _("Transaction commit timeout");
-echo _("Replication enabled");
 echo _("Rebuild check interval in seconds");
 echo _("Store performance data in data_bin");
 echo _("Insert in index data");

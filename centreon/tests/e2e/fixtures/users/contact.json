@@ -46,5 +46,13 @@
         "isNotEnabled": "Default",
         "timePeriod": "none",
         "NotCommands": "service-notify-by-epager"
+    },
+    "contactWithSpecialAlias":{
+        "alias": "é-contact-àlias",
+        "name": "contact-name",
+        "email": "contact-email",
+        "pager": "contact-pager",
+        "template": "contact_template",
+        "isNotificationsEnabled": "No"
     }
 }

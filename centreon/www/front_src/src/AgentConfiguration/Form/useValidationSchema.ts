@@ -59,30 +59,29 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       .matches(certificateFilenameRegexp, t(labelInvalidFilename))
       .nullable(),
     otelPrivateKey: keyValidation,
-    hosts: array().when('isReverse', {
-      is: true,
-      // biome-ignore lint/suspicious/noThenProperty: <explanation>
-      then: (schema) =>
-        schema
-          .of(
-            object({
-              address: string()
-                .test({
-                  name: 'is-dns-ip-valid',
-                  exclusive: true,
-                  message: t(labelAddressInvalid),
-                  test: (address) =>
-                    address?.match(ipAddressRegex) || address?.match(urlRegex)
-                })
-                .required(t(labelRequired)),
-              port: portValidation,
-              pollerCaCertificate: certificateNullableValidation,
-              pollerCaName: string().nullable()
+    hosts: array()
+      .of(
+        object({
+          address: string()
+            .test({
+              name: 'is-dns-ip-valid',
+              exclusive: true,
+              message: t(labelAddressInvalid),
+              test: (address) =>
+                address?.match(ipAddressRegex) || address?.match(urlRegex)
             })
-          )
-          .min(1),
-      otherwise: (schema) => schema.min(0)
-    })
+            .required(t(labelRequired)),
+          port: portValidation,
+          pollerCaCertificate: certificateNullableValidation,
+          pollerCaName: string().nullable()
+        })
+      )
+      .when('isReverse', {
+        is: true,
+        // biome-ignore lint/suspicious/noThenProperty:
+        then: (schema) => schema.min(1),
+        otherwise: (schema) => schema.min(0)
+      })
   };
 
   return object<AgentConfigurationForm>({

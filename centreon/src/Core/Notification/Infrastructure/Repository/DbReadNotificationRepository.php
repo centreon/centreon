@@ -233,7 +233,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                         SELECT /* Finds users belonging to the same contact groups as the user */
                             contact2.contact_id, contact2.contact_alias, contact2.contact_name,
                             contact2.contact_email, contact2.contact_admin, contact.contact_activate
-                        FROM `centreon`.`contact`
+                        FROM `:db`.`contact`
                         INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel
                             ON c_cg_rel.contact_contact_id = contact.contact_id
                         INNER JOIN `:db`.`contactgroup_contact_relation` c_cg_rel2
@@ -494,7 +494,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                         AND cg.cg_activate = '1'
                         AND c.contact_register = '1'
                 ) AS cg
-                INNER JOIN `centreon`.notification_contactgroup_relation ncr
+                INNER JOIN `:db`.notification_contactgroup_relation ncr
                     ON ncr.contactgroup_id = cg.cg_id
                 WHERE ncr.notification_id = :notificationId
                 ORDER BY cg_name ASC
@@ -627,6 +627,37 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         }
 
         return $notificationsChannels;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findLastNotificationDependencyIdsByHostGroup(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+                FROM dependency_hostgroupParent_relation
+                WHERE dependency_dep_id IN
+                    (SELECT dependency_dep_id FROM dependency_hostgroupParent_relation
+                        WHERE hostgroup_hg_id =  :hostGroupId)
+                GROUP BY dependency_dep_id
+                SQL
+        ));
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $lastDependencyIds = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+            /**
+             * @var array{id:int,nb_dependency:int} $result
+             */
+            if ($result['nb_dependency'] === 1) {
+                $lastDependencyIds[] = $result['id'];
+            }
+        }
+
+        return $lastDependencyIds;
     }
 
     /**

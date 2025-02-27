@@ -27,8 +27,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
-use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
+use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -62,23 +62,24 @@ class ReloadAllConfigurations
     public function execute(): void
     {
         try {
-            if (
-                ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
-                && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
-            ) {
-                throw new AccessDeniedException(
-                    'Insufficient rights (required: ROLE_CONFIGURATION_MONITORING_SERVER_READ or ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)'
-                );
-            }
+            if ($this->contact->isAdmin()) {
+                $monitoringServers = $this->monitoringServerRepository->findServersWithoutRequestParameters();
+            } else {
+                if (
+                    ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
+                    && ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
+                ) {
+                    throw new AccessDeniedException(
+                        'Insufficient rights (required: ROLE_CONFIGURATION_MONITORING_SERVER_READ or '
+                            . 'ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)'
+                    );
+                }
 
-            if (! $this->contact->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
 
-                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParametersAndAccessGroups(
+                $monitoringServers = $this->monitoringServerRepository->findAllServersWithAccessGroups(
                     $accessGroups
                 );
-            } else {
-                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParameters();
             }
         } catch(AccessDeniedException $ex) {
             throw new AccessDeniedException($ex->getMessage());

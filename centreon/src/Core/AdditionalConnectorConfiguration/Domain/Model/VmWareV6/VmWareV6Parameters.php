@@ -34,6 +34,10 @@ use Security\Interfaces\EncryptionInterface;
  *      port:int,
  *      vcenters:array<array{name:string,url:string,username:string,password:string}>
  *  }
+ * @phpstan-type _VmWareV6ParametersRequest array{
+ *      port:int,
+ *      vcenters:array<array{name:string,url:string,scheme:string|null,username:string,password:string}>
+ *  }
  *  @phpstan-type _VmWareV6ParametersWithoutCredentials array{
  *      port:int,
  *      vcenters:array<array{name:string,url:string,username:null,password:null}>
@@ -59,7 +63,7 @@ class VmWareV6Parameters implements AccParametersInterface
         array $parameters,
         private readonly bool $isEncrypted = false
     ){
-        /** @var _VmWareV6Parameters $parameters */
+        /** @var _VmWareV6ParametersRequest $parameters */
         Assertion::range($parameters['port'], 0, 65535, 'parameters.port');
         foreach ($parameters['vcenters'] as $index => $vcenter) {
             // Validate min length
@@ -74,8 +78,14 @@ class VmWareV6Parameters implements AccParametersInterface
             Assertion::maxLength($vcenter['password'], self::MAX_LENGTH, "parameters.vcenters[{$index}].password");
             Assertion::maxLength($vcenter['url'], self::MAX_LENGTH, "parameters.vcenters[{$index}].url");
 
+            // This is a temporary fix to handle the case where the scheme should be not be a part of the URL.
+            // The scheme is removed after being reunified with the url to ensure this is not stored.
+            $parameters['vcenters'][$index]['url'] = isset($vcenter['scheme'])
+                ? $vcenter['scheme'] . '://' . $vcenter['url']
+                : $vcenter['url'];
+            unset($parameters['vcenters'][$index]['scheme']);
             // Validate specific format
-            Assertion::urlOrIpOrDomain($vcenter['url'], "parameters.vcenters[{$index}].url");
+            Assertion::urlOrIpOrDomain($parameters['vcenters'][$index]['url'], "parameters.vcenters[{$index}].url");
         }
         $this->parameters = $parameters;
 

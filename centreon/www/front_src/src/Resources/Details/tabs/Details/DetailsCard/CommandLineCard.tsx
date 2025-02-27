@@ -35,7 +35,7 @@ const CommandLineCard = ({ details }: Props): JSX.Element => {
   });
 
   const copyCommandLine = (): Promise<void> =>
-    copy(details.command_line as string);
+    copy(`sudo -u centreon-engine ${details.command_line}`);
 
   return (
     <Card className={classes.commandLineCard} elevation={0}>

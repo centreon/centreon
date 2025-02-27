@@ -179,8 +179,9 @@ abstract class AbstractProvider
      */
     protected function initSmartyTemplate($path = "providers/Abstract/templates")
     {
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup($this->centreon_open_tickets_path, $tpl, $path, $this->centreon_path);
+        // Smarty template initialization
+        $tpl = SmartyBC::createSmartyTemplate($this->centreon_open_tickets_path, $path);
+
         $tpl->loadPlugin('smarty_function_host_get_hostgroups');
         $tpl->loadPlugin('smarty_function_host_get_severity');
         $tpl->loadPlugin('smarty_function_host_get_hostcategories');

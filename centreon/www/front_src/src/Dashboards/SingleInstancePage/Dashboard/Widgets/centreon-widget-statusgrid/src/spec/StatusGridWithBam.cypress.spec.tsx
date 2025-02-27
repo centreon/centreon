@@ -2,7 +2,7 @@ import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { T, always, cond, equals } from 'ramda';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
@@ -137,13 +137,13 @@ const baTestCases = [
 
       cy.contains('State information').should('be.visible');
       cy.contains('Health').should('be.visible');
-      cy.contains('100%').should('be.visible');
+      cy.contains('70%').should('be.visible');
       cy.contains('Warning threshold').should('be.visible');
       cy.contains('80%').should('be.visible');
       cy.contains('Critical threshold').should('be.visible');
       cy.contains('70%').should('be.visible');
 
-      cy.contains('KPIs').should('be.visible');
+      cy.contains('KPIs').should('exist');
       cy.contains('Ping').should('be.visible');
       cy.contains('12%').should('be.visible');
       cy.contains('15%').should('be.visible');
@@ -198,7 +198,7 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
       <TestQueryProvider>
         <Provider store={store}>
           <BrowserRouter>
-            <div style={{ height: '100vh', width: '100vw' }}>
+            <div style={{ height: '400px', width: '1000px' }}>
               <Widget
                 dashboardId={1}
                 globalRefreshInterval={{

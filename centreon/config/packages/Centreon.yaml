@@ -37,6 +37,7 @@ services:
         exclude:
             - '../../src/Core/Media/*'
             - '../../src/Core/Command/*'
+            - '../../src/Core/Dashboard/*'
             - '../../src/Core/ResourceAccess/*'
             - '../../src/Core/TimePeriod/*'
             - '../../src/Core/Service/*'
@@ -44,19 +45,22 @@ services:
             - '../../src/Core/HostTemplate/*'
             - '../../src/Core/ServiceGroup/*'
             - '../../src/Core/ServiceTemplate/*'
+            - '../../src/Core/ServiceCategory/*'
             - '../../src/Core/Host/*'
             - '../../src/Core/Broker/*'
             - '../../src/Core/AdditionalConnectorConfiguration/*'
             - '../../src/Core/AgentConfiguration/*'
             - '../../src/Core/Security/Vault/*'
             - '../../src/Core/Contact/*'
+            - '../../src/Core/HostCategory'
+            - '../../src/Core/ServiceSeverity/*'
+            - '../../src/Core/HostSeverity/*'
+            - '../../src/Core/UserProfile/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Logger:
         class: Centreon\Domain\Log\Logger
-
-
 
     Core\Common\Infrastructure\FeatureFlags:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']

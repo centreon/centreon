@@ -43,7 +43,6 @@ use Core\Service\Infrastructure\Model\NotificationTypeConverter;
 class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements WriteServiceRepositoryInterface
 {
     use LoggerTrait;
-    public const SERVICE_OBJECT_TYPE = 'service';
 
     /**
      * @param WriteServiceRepositoryInterface $writeServiceRepository
@@ -72,11 +71,11 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
             if ($service === null) {
                 throw new RepositoryException(sprintf('Cannot find service to delete (ID: %d).', $serviceId));
             }
-            
+
             $this->writeServiceRepository->delete($serviceId);
 
             $actionLog = new ActionLog(
-                self::SERVICE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceId,
                 $service->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
@@ -88,7 +87,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
             throw $ex;
         }
-    } 
+    }
 
     /**
      * @inheritDoc
@@ -98,17 +97,19 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         $failedDeletions = [];
         foreach ($serviceIds as $serviceId) {
             try {
-                $service = $this->readServiceRepository->findById($serviceId);
-                if ($service === null) {
+                if (! $this->readServiceRepository->exists($serviceId)) {
                     throw new RepositoryException(sprintf('Cannot find service to delete (ID: %d).', $serviceId));
                 }
-                
+
+                $serviceName = $this->readServiceRepository->findNameById($serviceId)
+                    ?? throw new RepositoryException(sprintf('Cannot find service name (ID: %d).', $serviceId));
+
                 $this->writeServiceRepository->delete($serviceId);
 
                 $actionLog = new ActionLog(
-                    self::SERVICE_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_SERVICE,
                     $serviceId,
-                    $service->getName(),
+                    $serviceName,
                     ActionLog::ACTION_TYPE_DELETE,
                     $this->contact->getId()
                 );
@@ -136,7 +137,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
             }
 
             $actionLog = new ActionLog(
-                self::SERVICE_OBJECT_TYPE,
+                ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceId,
                 $newService->getName(),
                 ActionLog::ACTION_TYPE_ADD,
@@ -181,7 +182,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     : ActionLog::ACTION_TYPE_DISABLE;
 
                 $actionsToLog[] = new ActionLog(
-                    self::SERVICE_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_SERVICE,
                     $service->getId(),
                     $service->getName(),
                     $actionType,
@@ -193,7 +194,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
             if ($diff !== []) {
                 $actionsToLog[] = new ActionLog(
-                    self::SERVICE_OBJECT_TYPE,
+                    ActionLog::OBJECT_TYPE_SERVICE,
                     $service->getId(),
                     $service->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,

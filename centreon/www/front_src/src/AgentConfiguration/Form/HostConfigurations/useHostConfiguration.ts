@@ -23,8 +23,14 @@ interface UseHostConfigurationState {
 export const useHostConfiguration = ({
   index
 }: UseHostConfigurationProps): UseHostConfigurationState => {
-  const { setFieldValue, setFieldTouched, errors, touched, setFieldError } =
-    useFormikContext<AgentConfigurationForm>();
+  const {
+    setFieldValue,
+    setFieldTouched,
+    errors,
+    touched,
+    setFieldError,
+    values
+  } = useFormikContext<AgentConfigurationForm>();
 
   const selectHost = useCallback(
     (_, { address }) => {
@@ -44,25 +50,23 @@ export const useHostConfiguration = ({
       const port = value.match(portRegex);
 
       if (isNil(port) || isEmpty(port)) {
-        setFieldTouched(`configuration.hosts.${index}.address`, true, false);
+        setFieldTouched(`configuration.hosts.${index}.address`, true);
         setFieldValue(`configuration.hosts.${index}.address`, value);
         return;
       }
 
       const newAddress = value.replace(port[0], '');
-
       setFieldTouched(`configuration.hosts.${index}.address`, true, false);
       setFieldTouched(`configuration.hosts.${index}.port`, true, false);
-      setFieldValue(`configuration.hosts.${index}.address`, newAddress, false);
-      setFieldValue(
-        `configuration.hosts.${index}.port`,
-        port[0].substring(1),
-        false
-      );
       setFieldError(`configuration.hosts.${index}.address`, undefined);
       setFieldError(`configuration.hosts.${index}.port`, undefined);
+      setFieldValue(`configuration.hosts.${index}`, {
+        ...values.configuration.hosts[index],
+        address: newAddress,
+        port: port[0].substring(1)
+      });
     },
-    [index]
+    [index, values]
   );
 
   const changePort = useCallback((newValue: number) => {

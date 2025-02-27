@@ -1,0 +1,36 @@
+{
+    "default": {
+        "name" : "escalationName",
+        "alias" : "escalationAlias",
+        "first_notification" : "5",
+        "last_notification" : "15",
+        "notification_interval" : "8",
+        "escalation_period" : "24x7",
+        "contactgroups" : "Supervisors",
+        "comment" : "escalationComment",
+        "host_inheritance_to_services" : 1,
+        "hosts" : "Centreon-Server",
+        "services" : "Centreon-Server - Load",
+        "hostgroup_inheritance_to_services" : 0,
+        "hostgroups" : "Linux-Servers",
+        "servicegroups" : "service_group",
+        "metaservices" : "metaServiceName1"
+    },
+    "escalation1": {
+        "name" : "escalationNameChanged",
+        "alias" : "escalationAliasChanged",
+        "first_notification" : "12",
+        "last_notification" : "27",
+        "notification_interval" : "14",
+        "escalation_period" : "workhours",
+        "contactgroups" : "Supervisors",
+        "comment" : "escalationCommentChanged",
+        "host_inheritance_to_services" : 0,
+        "hosts" : "host2",
+        "services" : "Centreon-Server - Memory",
+        "hostgroup_inheritance_to_services" : 1,
+        "hostgroups" : "Networks",
+        "servicegroups" : "service_group_2",
+        "metaservices" : "metaServiceName2"
+    }
+}

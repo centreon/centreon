@@ -320,13 +320,20 @@ class CentreonGraph
             }
             $DBRESULT->closeCursor();
 
-            foreach ($odsm as $mid => $val) {
-                if (!isset($metrics_cache[$mid])) {
-                    $DBRESULT = $this->DB->query(
-                        "INSERT INTO `ods_view_details`
-                            (`metric_id`, `contact_id`, `all_user`, `index_id`)
-                            VALUES ('" . $mid . "', '" . $this->user_id . "', '0', '" . $this->index . "');"
-                    );
+            $insertViewDetailsStatement = $this->DB->prepareQuery(
+                <<<SQL
+                    INSERT INTO `ods_view_details`
+                    (`metric_id`, `contact_id`, `all_user`, `index_id`)
+                    VALUES (:metric_id, :user_id, '0', :index_id)
+                    SQL
+            );
+            foreach (array_keys($odsm) as $mid) {
+                if (! isset($metrics_cache[$mid])) {
+                    $this->DB->executePreparedQuery($insertViewDetailsStatement, [
+                        ':metric_id' => $mid,
+                        ':user_id' => $this->user_id,
+                        ':index_id' => $this->index
+                    ]);
                 }
             }
         }
@@ -1560,10 +1567,17 @@ class CentreonGraph
         }
         $lRndcolor = $this->getRandomWebColor();
         if (is_int($metricId)) {
-            $this->DB->query(
-                'INSERT INTO `ods_view_details` (rnd_color, index_id, metric_id) '
-                . 'VALUES ("' . $lRndcolor . '", ' . $this->index . ', ' . $metricId  . ')'
+            $insertViewDetailsStatement = $this->DB->prepareQuery(
+                <<<SQL
+                    INSERT INTO `ods_view_details` (rnd_color, index_id, metric_id)
+                    VALUES (:rnd_color, :index_id, :metric_id)
+                    SQL
             );
+            $this->DB->executePreparedQuery($insertViewDetailsStatement, [
+                'rnd_color' => $lRndcolor,
+                'index_id' => $this->index,
+                'metric_id' => $metricId,
+            ]);
         }
         return $lRndcolor;
     }
@@ -1662,24 +1676,33 @@ class CentreonGraph
             $lWhidden = " AND (hidden = '0' OR hidden IS NULL) AND vmetric_activate = '1'";
         }
 
+        $bindParams = [];
         if (is_null($vId)) {
-            $lWhere = "vmetric_name = '" . $vName . "' AND index_id ='" . $indexId . "'";
+            $lWhere = " vmetric_name = :vMetricName AND index_id = :indexId";
+            $bindParams = [
+                'vMetricName' => $vName,
+                'indexId' => $indexId
+            ];
         } else {
-            $lWhere = "vmetric_id = '" . $vId . "'" . $lWhidden;
+            $lWhere = " vmetric_id = :vMetricId" . $lWhidden;
+            $bindParams = [
+                'vMetricId' => $vId
+            ];
         }
-
-
-        $lPqy = $this->DB->query(
-            "SELECT vmetric_id metric_id, index_id, vmetric_name metric_name, unit_name,
-                replace(format(warn,9),',','') warn, replace(format(crit,9),',','') crit, def_type, rpn_function
-                FROM virtual_metrics WHERE " . $lWhere . " ORDER BY metric_name"
-        );
+        $query = <<<SQL
+            SELECT vmetric_id metric_id, index_id, vmetric_name metric_name, unit_name,
+            replace(format(warn,9),',','') warn, replace(format(crit,9),',','') crit, def_type, rpn_function
+            FROM virtual_metrics WHERE
+            SQL;
+        $query .= $lWhere . " ORDER BY metric_name";
+        $statement = $this->DB->prepareQuery($query);
+        $this->DB->executePreparedQuery($statement, $bindParams);
         /*
          * There is only one metric_id
          */
-        if ($lPqy->rowCount() == 1) {
-            $lVmetric = $lPqy->fetch();
-            $lPqy->closeCursor();
+        if ($statement->rowCount() === 1) {
+            $lVmetric = $this->DB->fetch($statement);
+            $this->DB->closeQuery($statement);
             if (!isset($this->mlist["v" . $lVmetric["metric_id"]])) {
                 if (is_null($vId)) {
                     $lVmetric["need"] = 1; /* 1 : Need this virtual metric : Hidden */
@@ -1687,28 +1710,45 @@ class CentreonGraph
                 /*
                  * Find Host/Service For this metric_id
                  */
-                $l_poqy = $this->DBC->query(
-                    "SELECT host_id, service_id FROM index_data WHERE id = '" . $lVmetric["index_id"] . "'"
+                $selectIndexDataStatement = $this->DBC->prepareQuery(
+                    <<<SQL
+                    SELECT host_id, service_id FROM index_data WHERE id = :indexId
+                    SQL
                 );
-                $l_indd = $l_poqy->fetch();
-                $l_poqy->closeCursor();
+                $this->DBC->executePreparedQuery(
+                    $selectIndexDataStatement,
+                    [
+                        'indexId' => $lVmetric["index_id"]
+                    ]
+                );
+                $l_indd = $this->DBC->fetch($selectIndexDataStatement);
+                $this->DBC->closeQuery($selectIndexDataStatement);
                 /* Check for real or virtual metric(s) in the RPN function */
                 $l_mlist = preg_split("/\,/", $lVmetric["rpn_function"]);
                 foreach ($l_mlist as $l_mnane) {
                     /*
                      * Check for a real metric
                      */
-                    $l_poqy = $this->DBC->query(
-                        "SELECT host_id, service_id, metric_id, metric_name, unit_name,
+                    $checkRealMetricStatement = $this->DBC->prepareQuery(
+                        <<<SQL
+                        SELECT host_id, service_id, metric_id, metric_name, unit_name,
                             replace(format(warn,9),',','') warn, replace(format(crit,9),',','') crit
                             FROM metrics AS m, index_data as i
-                            WHERE index_id = id AND index_id = '" . $lVmetric["index_id"] . "'
-                                AND metric_name = '" . $l_mnane . "'"
+                            WHERE index_id = id AND index_id = :indexId
+                                AND metric_name = :vMetricName
+                        SQL
                     );
-                    if ($l_poqy->rowCount() == 1) {
+                    $this->DBC->executePreparedQuery(
+                        $checkRealMetricStatement,
+                        [
+                            'indexId' => $lVmetric["index_id"],
+                            'vMetricName' => $l_mnane
+                        ]
+                    );
+                    if ($checkRealMetricStatement->rowCount() === 1) {
                         /* Find a real metric in the RPN function */
-                        $l_rmetric = $l_poqy->fetchrow();
-                        $l_poqy->closeCursor();
+                        $l_rmetric = $this->DB->fetch($checkRealMetricStatement);
+                        $this->DB->closeQuery($checkRealMetricStatement);
                         $l_rmetric["need"] = 1; /* 1 : Need this real metric - hidden */
                         if (!isset($this->mlist[$l_rmetric["metric_id"]])) {
                             $this->mlist[$l_rmetric["metric_id"]] = $this->mpointer[0]++;
@@ -1721,12 +1761,12 @@ class CentreonGraph
                                 $this->rmetrics[$l_pointer]["need"] = 0;
                             }
                         }
-                    } elseif ($l_poqy->rowCount() == 0) {
+                    } elseif ($checkRealMetricStatement->rowCount() === 0) {
                         /* key : id or vname and iid */
-                        $l_poqy->closeCursor();
+                        $this->DB->closeQuery($checkRealMetricStatement);
                         $this->manageVMetric(null, $l_mnane, $lVmetric["index_id"]);
                     } else {
-                        $l_poqy->closeCursor();
+                        $this->DB->closeQuery($checkRealMetricStatement);
                     }
                 }
                 $lVmetric["metric_id"] = "v" . $lVmetric["metric_id"];
@@ -1749,7 +1789,7 @@ class CentreonGraph
                 }
             }
         } else {
-            $lPqy->closeCursor();
+            $this->DB->closeQuery($statement);
         }
     }
 

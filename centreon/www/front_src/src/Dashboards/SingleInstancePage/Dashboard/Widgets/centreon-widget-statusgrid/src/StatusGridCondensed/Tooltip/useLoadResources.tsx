@@ -51,7 +51,9 @@ export const useLoadResources = ({
     if (!equals(resourceType, resource.resourceType)) {
       return {
         ...resource,
-        resourceType: `${resource.resourceType.replace('-', '_')}.name`
+        resourceType: equals(resource.resourceType, 'host')
+          ? 'parent_name'
+          : `${resource.resourceType.replace('-', '_')}.name`
       };
     }
 
@@ -63,7 +65,7 @@ export const useLoadResources = ({
       return resourcesToApply.map((resource) => ({
         field: type,
         values: {
-          $rg: `^${resource.name}$`
+          $rg: `^${resource.name}$`.replace('/', '\\/')
         }
       }));
     }

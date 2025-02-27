@@ -27,6 +27,7 @@ class DashboardException extends \Exception
 {
     public const CODE_NOT_FOUND = 1;
     public const CODE_FORBIDDEN = 2;
+    public const CODE_CONFLICT = 3;
 
     /**
      * @return self
@@ -34,6 +35,14 @@ class DashboardException extends \Exception
     public static function errorWhileSearching(): self
     {
         return new self(_('Error while searching for dashboards'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileSearchingFavorites(): self
+    {
+        return new self(_('Error while searching for user favorite dashboards'));
     }
 
     /**
@@ -126,6 +135,14 @@ class DashboardException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileThumbnailToDashboard(): self
+    {
+        return new self(_('Error while linking a dashboard to its thumbnail'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorTryingToUpdateAPanelWhichDoesNotBelongsToTheDashboard(): self
     {
         return new self(_('Error while trying to update a widget which belongs to another dashboard'));
@@ -139,6 +156,16 @@ class DashboardException extends \Exception
     public static function theDashboardDoesNotExist(int $dashboardId): self
     {
         return new self(sprintf(_('The dashboard [%d] does not exist'), $dashboardId), self::CODE_NOT_FOUND);
+    }
+
+    /**
+     * @param int $dashboardId
+     *
+     * @return self
+     */
+    public static function dashboardAlreadySetAsFavorite(int $dashboardId): self
+    {
+        return new self(sprintf(_('The dashboard [%d] is already set as favorite'), $dashboardId), self::CODE_CONFLICT);
     }
 
     /**
@@ -239,6 +266,19 @@ class DashboardException extends \Exception
         return new self(sprintf(
             _('The contact groups [%s] are not in your contact groups'),
             implode(', ', $contactGroupIds)
+        ));
+    }
+
+    /**
+     * @param int $dashboardId
+     *
+     * @return self
+     */
+    public static function thumbnailNotFound(int $dashboardId): self
+    {
+        return new self(sprintf(
+            _('The thumbnail provided for dashboard [%d] was not found'),
+            $dashboardId
         ));
     }
 }

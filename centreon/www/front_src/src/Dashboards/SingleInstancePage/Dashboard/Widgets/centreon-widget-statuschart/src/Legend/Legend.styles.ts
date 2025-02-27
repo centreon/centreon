@@ -4,11 +4,13 @@ export const useLegendStyles = makeStyles<{ direction: 'row' | 'column' }>()(
   (theme, { direction }) => ({
     legend: {
       border: `1px solid ${theme.palette.divider}`,
-      borderRadius: theme.spacing(1.5),
+      borderRadius: theme.shape.borderRadius,
       display: 'flex',
       flexDirection: direction,
-      gap: theme.spacing(1.5),
-      padding: theme.spacing(1.5)
+      gap: theme.spacing(1),
+      padding: theme.spacing(1),
+      width: 'fit-content',
+      height: 'fit-content'
     },
     legendItem: {
       borderRadius: theme.shape.borderRadius,
@@ -25,7 +27,8 @@ export const useLegendStyles = makeStyles<{ direction: 'row' | 'column' }>()(
       backgroundColor: theme.palette.background.paper,
       color: theme.palette.text.primary,
       padding: 0,
-      position: 'relative'
+      position: 'relative',
+      boxShadow: theme.shadows[3]
     }
   })
 );

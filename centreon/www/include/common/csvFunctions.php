@@ -20,139 +20,67 @@
  */
 
 /**
- * Transform plain CSV data in an associative array (first line acts as headers)
  *
- * @param array $records
+ * @param string $text
+ * @param string $delimiter (default ';')
+ *
+ * @return Generator
  */
-function csvToAssociativeArray(&$records)
+function readCsvLine(string &$text, string $delimiter = ';'): Generator
 {
-    $headers = array_shift($records);
-    foreach ($records as &$record) {
-        $record = array_combine($headers, $record);
+    $handle = @fopen('php://memory', 'r+');
+    if ($handle === false) {
+        throw new RuntimeException('Failed to create memory stream');
     }
+    if (fwrite($handle, $text) === false) {
+        fclose($handle);
+        throw new RuntimeException('Failed to write to memory stream');
+    }
+    rewind($handle);
+    while ($data = fgetcsv($handle, null, $delimiter, '"', '')) {
+        yield $data;
+    }
+    fclose($handle);
 }
 
 /**
- * Return array of parsed CSV
+ * @param $text
+ * @param bool $useCsvHeaderAsKey If true, the first line will be used as headers
+ * @param string $delimiter The delimiter used in the CSV file
  *
- * @param string $text
- * @param string $delim (default ';')
- * @param bool $ignoreEmptyLines (default true)
- *
- * @return bool|array False if there was a problem, otherwise the records
+ * @return array
  */
-function parseCsv(&$text, $delim = ';', $ignoreEmptyLines = true)
+function csvToArray(&$text, bool $useCsvHeaderAsKey, string $delimiter = ';'): array
 {
-    $records = [];
-    $record = [];
-
-    $posFieldStart = 0;
-    $posCur = 0;
-    $recNr = 0;
-    $prevCharIsDq = false;
-    $insideDq = 0; // 0: to determine, 1: no, 2: yes
-
-    $CR = "\r";
-    $LF = "\n";
-
-    $endersField = [
-        $delim => $delim,
-        $CR => $CR,
-        $LF => $LF,
-        '' => '',
-    ];
-    $endersRecord = [
-        $CR => $CR,
-        $LF => $LF,
-        '' => '',
-    ];
-
-    $lastCharEndsRecord = array_key_exists($text[-1], $endersRecord);
-    $textLen = strlen($text) + ($lastCharEndsRecord ? 0 : 1);
-    while ($posCur < $textLen) {
-        $c = $text[$posCur] ?? '';
-
-        switch ($insideDq) {
-            case 0:
-                if ($c == '"') {
-                    $insideDq = 2;
-                    $posFieldStart = $posCur + 1;
-                    break;
-                } else {
-                    $insideDq = 1;
-                }
-
-            case 1:
-                if (array_key_exists($c, $endersField)) {
-                    $insideDq = 0;
-                    $isEndRec = array_key_exists($c, $endersRecord);
-                    if (! ($isEndRec && $posFieldStart == $posCur && $ignoreEmptyLines && !$record)) {
-                        $record[] = substr($text, $posFieldStart, $posCur - $posFieldStart);
-                    }
-
-                    $posFieldStart = $posCur + 1;
-
-                    if ($isEndRec) {
-                        if ($c == $CR) {
-                            $posFieldStart++;
-                            $posCur++;
-                        }
-
-                        if ($record) {
-                            $records[$recNr] = $record;
-                            $record = [];
-                            $recNr++;
-                        }
-                    }
-                }
-                break;
-
-            case 2:
-                if ($prevCharIsDq) {
-                    if ($c == '"') {
-                        $prevCharIsDq = false;
-                    } elseif (array_key_exists($c, $endersField)) {
-                        $prevCharIsDq = false;
-                        $isEndRec = array_key_exists($c, $endersRecord);
-                        if (! ($isEndRec && $posFieldStart == $posCur && $ignoreEmptyLines && !$record)) {
-                            $record[] = str_replace('""', '"', substr($text, $posFieldStart, $posCur - $posFieldStart - 1));
-                        }
-
-                        $posFieldStart = $posCur + 1;
-
-                        if ($isEndRec) {
-                            if ($c == $CR) {
-                                $posFieldStart++;
-                                $posCur++;
-                            }
-
-                            if ($record) {
-                                $records[$recNr] = $record;
-                                $record = [];
-                                $recNr++;
-                            }
-                        }
-                        $insideDq = 0;
-                    } else {
-                        return false; // malformed csv
-                    }
-                    break;
-                }
-                if ($c == '"') {
-                    $prevCharIsDq = true;
-                } elseif ($c == '') {
-                    return false; // malformed csv
-                }
-                break;
+    $lineNumber = 0;
+    $delimiterNumber = 0;
+    $data = [];
+    $headers = [];
+    foreach (readCsvLine($text, $delimiter) as $record) {
+        if ($lineNumber++ === 0) {
+            $headers = $record;
+            $delimiterNumber = count($headers);
+            if (! $useCsvHeaderAsKey) {
+                $data[] = $headers;
+            }
+            continue;
         }
-
-        $posCur++;
+        $record = explode($delimiter, implode($delimiter, $record), $delimiterNumber);
+        if ($useCsvHeaderAsKey) {
+            if (count($record) !== count($headers)) {
+                throw new RuntimeException(
+                    sprintf(
+                        'CSV record on line %d has %d fields, expected %d',
+                        $lineNumber,
+                        count($record),
+                        count($headers)
+                    )
+                );
+            }
+            $data[] = array_combine($headers, $record);
+        } else {
+            $data[] = $record;
+        }
     }
-
-    // truncated input
-    if ($insideDq == 2) {
-        return false;
-    }
-
-    return $records;
+    return $data;
 }

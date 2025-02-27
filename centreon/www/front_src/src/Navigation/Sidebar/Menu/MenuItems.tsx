@@ -10,10 +10,7 @@ import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import {
-  Link as RouterLink,
-  LinkProps as RouterLinkProps
-} from 'react-router-dom';
+import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import { Chip, Theme } from '@mui/material';
@@ -182,7 +179,10 @@ const MenuItems = ({
                   />
                 )}
             </ListItemIcon>
-            <ListItemText className={classes.rootLabel} primary={data.label} />
+            <ListItemText
+              className={classes.rootLabel}
+              primary={t(data.label)}
+            />
             {optionalLabel}
           </>
         ) : (
@@ -192,7 +192,7 @@ const MenuItems = ({
                 <ArrowIcon isOpen={isOpen} size="small" />
               )}
             </ListItemIcon>
-            <ListItemText className={classes.label} secondary={data.label} />
+            <ListItemText className={classes.label} secondary={t(data.label)} />
             {optionalLabel}
           </>
         )}

@@ -83,7 +83,7 @@ class AgentConfiguration extends AbstractObjectJSON
             'private_key' => '/etc/pki/' . $data['otel_private_key'] . '.key',
             'ca_certificate' => $data['otel_ca_certificate'] !== null
                 ? '/etc/pki/' . $data['otel_ca_certificate'] . '.crt'
-                : null,
+                : '',
         ];
     }
 
@@ -111,7 +111,7 @@ class AgentConfiguration extends AbstractObjectJSON
                     'encryption' => true,
                     'ca_certificate' => $host['poller_ca_certificate'] !== null
                         ? '/etc/pki/' . $host['poller_ca_certificate'] . '.crt'
-                        : null,
+                        : '',
                     'ca_name' => $host['poller_ca_name'],
                 ],
                 $data['hosts']

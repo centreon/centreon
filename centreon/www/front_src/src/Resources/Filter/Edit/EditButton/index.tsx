@@ -9,8 +9,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { IconButton, useSnackbar } from '@centreon/ui';
 
 import {
-  labelEditFilters,
-  labelFilterCreated
+  labelFilterCreated,
+  labelManageFilters
 } from '../../../translatedLabels';
 import CreateFilterDialog from '../../Save/CreateFilterDialog';
 import { createFilter } from '../../api';
@@ -62,11 +62,11 @@ const EditFilterButton = (): JSX.Element => {
   return (
     <>
       <IconButton
-        aria-label={t(labelEditFilters) as string}
-        data-testid="Filter Edit filters"
+        aria-label={t(labelManageFilters) as string}
+        data-testid="Filter Manage filters"
         disabled={isEmpty(customFilters)}
         size="large"
-        title={t(labelEditFilters) as string}
+        title={t(labelManageFilters) as string}
         onClick={openEditPanel}
       >
         <SettingsIcon />

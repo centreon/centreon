@@ -415,6 +415,29 @@ if ($o === SERVICE_MASSIVE_CHANGE) {
 $form->addElement('text', 'command_command_id_arg', _('Args'), $attrsText);
 
 
+$serviceEHE = [
+        $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
+        $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
+        $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
+];
+$form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== SERVICE_MASSIVE_CHANGE) {
+    $form->setDefaults(['service_event_handler_enabled' => '2']);
+}
+
+$eventHandlerSelect = $form->addElement(
+        'select2',
+        'command_command_id2',
+        _('Event Handler'),
+        [],
+        $attributes['event_handlers']
+);
+$eventHandlerSelect->addJsCallback(
+        'change',
+        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+);
+
+
 if (! $isCloudPlatform) {
     $serviceIV = [
         $form->createElement('radio', 'service_is_volatile', null, _('Yes'), '1'),
@@ -425,28 +448,6 @@ if (! $isCloudPlatform) {
     if ($o !== SERVICE_MASSIVE_CHANGE) {
         $form->setDefaults(['service_is_volatile' => '2']);
     }
-
-    $serviceEHE = [
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
-    ];
-    $form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== SERVICE_MASSIVE_CHANGE) {
-        $form->setDefaults(['service_event_handler_enabled' => '2']);
-    }
-
-    $eventHandlerSelect = $form->addElement(
-        'select2',
-        'command_command_id2',
-        _('Event Handler'),
-        [],
-        $attributes['event_handlers']
-    );
-    $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
 
     $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
     $serviceACE = [
@@ -807,7 +808,9 @@ if ($form_service_type === 'BYHOST') {
             [],
             array_merge($attributes['hosts_cloud_specific'], ['defaultDataset' => $defaultDataset])
         );
-        $form->addRule('service_hPars', _("Host / Service Required"), 'required');
+        if ($o !== SERVICE_MASSIVE_CHANGE) {
+            $form->addRule('service_hPars', _("Host / Service Required"), 'required');
+        }
     } else {
         if (isset($service['service_hPars']) && count($service['service_hPars']) > 1) {
             $sgReadOnly = true;
@@ -1082,9 +1085,9 @@ if (isset($service['service_template_model_stm_id']) && ($service['service_templ
 //
 // #End of form definition
 //
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     'alert_check_interval',

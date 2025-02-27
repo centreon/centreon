@@ -1,17 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSetAtom } from 'jotai';
 import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 
-import {
-  ParentSize,
-  useMemoComponent
-} from '..';
+import { ParentSize, useMemoComponent } from '..';
 
 import { Box } from '@mui/material';
 import { useDashboardLayoutStyles } from './Dashboard.styles';
-import Grid from './Grid';
 import { isResizingItemAtom } from './atoms';
 import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
 
@@ -26,22 +22,20 @@ interface DashboardLayoutProps<T> {
   layout: Array<T>;
 }
 
-const bottom = (layout: Array<Layout>): number => {
-  let max = 0;
-  let bottomY = 0;
-
-  layout.forEach((panel) => {
-    bottomY = panel.y + panel.h;
-    if (bottomY > max) max = bottomY;
-  })
-
-  return max;
-}
+const Handle = (axis, ref) => {
+  return (
+    <span
+      className={`react-resizable-handle react-resizable-handle-${axis}`}
+      ref={ref}
+    >
+      <span className={`handle-content-${axis}`} />
+    </span>
+  );
+};
 
 const DashboardLayout = <T extends Layout>({
   children,
   changeLayout,
-  displayGrid,
   layout,
   isStatic = false,
   additionalMemoProps = []
@@ -66,16 +60,6 @@ const DashboardLayout = <T extends Layout>({
     setIsResizingItem(null);
   }, []);
 
-  const containerHeight = useMemo((): number | undefined => {
-      const nbRow = bottom(getLayout(layout));
-      const containerPaddingY = 4
-      return (
-        nbRow * rowHeight +
-        (nbRow - 1) * 20 +
-        containerPaddingY * 2
-      );
-    }, [layout, rowHeight])
-
   useEffect(() => {
     window.addEventListener('resize', resize);
 
@@ -86,38 +70,33 @@ const DashboardLayout = <T extends Layout>({
 
   return useMemoComponent({
     Component: (
-      <Box ref={dashboardContainerRef} sx={{ overflowY: 'auto', overflowX: 'hidden' }}>
-          <ParentSize>
-            {({ width, height }): JSX.Element => (
-              <Box className={classes.container}>
-                {displayGrid && (
-                  <Grid
-                    columns={columns}
-                    height={(containerHeight || 0) > height ? containerHeight : height}
-                    width={width}
-                    containerRef={dashboardContainerRef}
-                  />
-                )}
-                <ReactGridLayout
-                  cols={columns}
-                  containerPadding={[4, 0]}
-                  layout={getLayout(layout)}
-                  margin={[20, 20]}
-                  resizeHandles={['s', 'e', 'se']}
-                  rowHeight={rowHeight}
-                  width={width}
-                  onLayoutChange={changeLayout}
-                  onResizeStart={startResize}
-                  onResizeStop={stopResize}
-                >
-                  {children}
-                </ReactGridLayout>
-              </Box>
-            )}
-          </ParentSize>
-        </Box>
+      <Box
+        ref={dashboardContainerRef}
+        sx={{ overflowY: 'auto', overflowX: 'hidden' }}
+      >
+        <ParentSize>
+          {({ width }): JSX.Element => (
+            <Box className={classes.container}>
+              <ReactGridLayout
+                cols={columns}
+                layout={getLayout(layout)}
+                margin={[12, 12]}
+                resizeHandles={['s', 'e', 'se', 'sw', 'w']}
+                rowHeight={rowHeight}
+                width={width}
+                onLayoutChange={changeLayout}
+                onResizeStart={startResize}
+                onResizeStop={stopResize}
+                resizeHandle={Handle}
+              >
+                {children}
+              </ReactGridLayout>
+            </Box>
+          )}
+        </ParentSize>
+      </Box>
     ),
-    memoProps: [columns, layout, displayGrid, isStatic, ...additionalMemoProps]
+    memoProps: [columns, layout, isStatic, ...additionalMemoProps]
   });
 };
 

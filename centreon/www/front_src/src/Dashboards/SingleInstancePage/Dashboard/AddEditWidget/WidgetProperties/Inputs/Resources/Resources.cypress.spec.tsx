@@ -241,6 +241,7 @@ describe('Resources', () => {
     cy.waitForRequest('@getHosts');
     cy.contains('Host 0').click();
     cy.findByTestId('CancelIcon').click();
+    cy.findByTestId(labelSelectAResource).blur();
 
     cy.contains('Host 0').should('not.exist');
 
@@ -261,6 +262,7 @@ describe('Resources', () => {
     cy.contains('Host 0').should('be.visible');
 
     cy.findByTestId('CancelIcon').click();
+    cy.findByTestId(labelSelectAResource).blur();
 
     cy.contains('Host 0').should('not.exist');
   });
@@ -399,6 +401,7 @@ describe('Resources tree', () => {
     cy.findByTestId(labelSelectAResource).click();
     cy.waitForRequest('@getMetaService');
     cy.contains('Meta service 0').click();
+    cy.findByTestId(labelSelectAResource).blur();
 
     cy.contains(labelAddFilter).should('be.disabled');
 
@@ -435,5 +438,26 @@ describe('Resources tree', () => {
         expect(calls).to.have.length(2);
       });
     });
+  });
+
+  it('allows to select a meta-service or host as resource type when corresponding props and restricted resoource types are set', () => {
+    initialize({
+      restrictedResourceTypes: ['host', 'meta-service'],
+      singleMetricSelection: true,
+      singleResourceSelection: true
+    });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Meta service$/).click();
+
+    cy.contains('Service').should('not.exist');
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+
+    cy.contains('Service').should('be.visible');
+    cy.contains('Host').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });

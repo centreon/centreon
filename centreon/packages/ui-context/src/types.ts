@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 
 export enum ListingVariant {
   compact = 'compact',
@@ -88,6 +88,7 @@ export interface FeatureFlags {
   adExclusionPeriods?: boolean;
   notification?: boolean;
   vault?: boolean;
+  mapVisxViewer?: boolean;
 }
 
 export interface PlatformFeatures {
@@ -138,4 +139,9 @@ export interface PlatformVersions {
   modules: Record<string, Version>;
   web: Version;
   widgets: Record<string, Version | null>;
+}
+
+export interface UserPermissions {
+  top_counter: boolean;
+  poller_statistics: boolean;
 }

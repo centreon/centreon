@@ -2914,10 +2914,6 @@ msgstr "Activités métiers"
 msgid "Business Views"
 msgstr "Vues métiers"
 
-# centreon-web/www/install/menu_translation.php:121
-msgid "Monitoring Connectors Manager"
-msgstr "Gestionnaire de connecteurs de supervision"
-
 #: centreon-web/www/install/menu_translation.php:51
 msgid "By Host"
 msgstr "Par hôte"
@@ -9864,7 +9860,7 @@ msgstr "Récupération"
 #: centreon-web/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php:259
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:629
 msgid "Flapping"
-msgstr "Bagotant"
+msgstr "En bagotage"
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:777
 #: centreon-web/www/include/configuration/configObject/service/formService.php:700
@@ -15152,8 +15148,8 @@ msgstr "La date de fin doit être supérieure à la date de début"
 msgid "End time"
 msgstr "Heure de fin"
 
-msgid "This Resource is flapping"
-msgstr "Cette Ressource est bagottante"
+msgid "This resource is flapping"
+msgstr "Cette ressource est bagotante"
 
 msgid "Show criterias filters"
 msgstr "Montrer les critères de filtre"
@@ -15323,6 +15319,9 @@ msgstr "Le port ne peut être compris qu'entre 0 et 65535 inclus"
 msgid "No results found"
 msgstr "Aucun résultat trouvé"
 
+msgid "No result found"
+msgstr "Aucun résultat trouvé"
+
 msgid "Error when decoding sent data"
 msgstr "Erreur lors du décodage des données envoyées"
 
@@ -15374,8 +15373,8 @@ msgstr "Filtre créé"
 msgid "Filter saved"
 msgstr "Filtre sauvegardé"
 
-msgid "Edit filters"
-msgstr "Éditer les filtres"
+msgid "Manage filters"
+msgstr "Gérer les filtres"
 
 msgid "Rename"
 msgstr "Renommer"
@@ -17270,6 +17269,9 @@ msgstr "Erreur durant l'ajout d'un groupe d'hôtes"
 
 msgid "Error while updating a host group"
 msgstr "Erreur lors de la mise à jour d'un groupe d'hôtes"
+
+msgid "Error while duplicating a host group"
+msgstr "Erreur durant la duplication d'un groupe d'hôtes"
 
 msgid "The host group name '%s' already exists"
 msgstr "Le groupe d'hôtes '%s' existe déjà"
@@ -19230,8 +19232,8 @@ msgstr "Santé"
 msgid "Critical KPIs"
 msgstr "Indicateurs critiques"
 
-msgid "Additional connector configurations"
-msgstr "Configurations supplémentaires de connecteurs"
+msgid "Additional Configurations"
+msgstr "Configurations additionnelles"
 
 msgid "Types"
 msgstr "Types"
@@ -19245,26 +19247,26 @@ msgstr "Modifier la configuration de connecteur"
 msgid "More filters"
 msgstr "Plus de filtres"
 
-msgid "Delete additional connector configuration"
-msgstr "Supprimer la configuration supplémentaire de connecteur"
+msgid "Delete additional configuration"
+msgstr "Supprimer la configuration additionnelle"
 
-msgid "The {{name}} additional connector configuration will be permanently deleted."
-msgstr "La configuration supplémentaire de connecteur {{name}} sera définitivement supprimée."
+msgid "The {{name}} additional configuration will be permanently deleted."
+msgstr "La configuration additionnelle {{name}} sera définitivement supprimée."
 
 msgid "The corresponding connectors will not work anymore."
 msgstr "Les connecteurs correspondants ne fonctionneront plus."
 
-msgid "Additional connector configuration deleted"
-msgstr "Configuration supplémentaire de connecteur supprimée"
+msgid "Additional configuration deleted"
+msgstr "Configuration additionnelle supprimée"
 
-msgid "Additional connector configuration duplicated"
-msgstr "Configuration supplémentaire de connecteur dupliquée"
+msgid "Additional configuration duplicated"
+msgstr "Configuration additionnelle dupliquée"
 
-msgid "Additional connector configuration created"
-msgstr "Configuration supplémentaire de connecteur créée"
+msgid "Additional configuration created"
+msgstr "Configuration additionnelle créée"
 
-msgid "Additional connector configuration updated"
-msgstr "Configuration supplémentaire de connecteur mise à jour"
+msgid "Additional configuration updated"
+msgstr "Configuration additionnelle mise à jour"
 
 msgid "Duplicate connector configuration"
 msgstr "Dupliquer la configuration de connecteur"
@@ -19275,11 +19277,11 @@ msgstr "Le nom peut comporter au maximum 50 caractères"
 msgid "The name should be at least 3 characters long"
 msgstr "Le nom doit comporter au moins 3 caractères"
 
-msgid "Create additional connector configuration"
-msgstr "Créer une configuration supplémentaire de connecteur"
+msgid "Create additional configuration"
+msgstr "Créer une configuration additionnelle"
 
-msgid "Update additional connector configuration"
-msgstr "Mettre à jour la configuration supplémentaire de connecteur"
+msgid "Update additional configuration"
+msgstr "Mettre à jour la configuration additionnelle"
 
 msgid "Select poller(s)"
 msgstr "Sélectionner le(s) collecteur(s)"
@@ -19315,14 +19317,14 @@ msgid "Do you want to quit without saving the changes?"
 msgstr "Voulez-vous quitter sans enregistrer les modifications ?"
 
 
-msgid "Error while adding an additional connector configuration"
-msgstr "Erreur lors de l'ajout d'une configuration additionnelle de connecteur"
+msgid "Error while adding an additional configuration"
+msgstr "Erreur lors de l'ajout d'une configuration additionnelle"
 
-msgid "You are not allowed to access additional connector configurations"
-msgstr "Vous n'êtes pas autorisé à accéder aux configurations additionnelles de connecteurs"
+msgid "You are not allowed to access additional configurations"
+msgstr "Vous n'êtes pas autorisé à accéder aux configurations additionnelles"
 
-msgid "An additional connector configuration of type %s is already associated with poller ID(s) '%s'"
-msgstr "Une configuration additionnelle de connecteur de type %s est déjà associée au(x) ID(s) de collecteur(s) '%s'"
+msgid "An additional configuration of type %s is already associated with poller ID(s) '%s'"
+msgstr "Une configuration additionnelle de type %s est déjà associée au(x) ID(s) de collecteur(s) '%s'"
 
 msgid "Duplicates not allowed for property '%s'"
 msgstr "Doublons non autorisés pour la propriété '%'"
@@ -19330,29 +19332,29 @@ msgstr "Doublons non autorisés pour la propriété '%'"
 msgid "'%s' must contain at least one element"
 msgstr "'%s' doit contenir au moins un élément"
 
-msgid "Error while retrieving an additional connector configuration"
-msgstr "Erreur durant la récupération d'une configuration additionnelle de connecteur"
+msgid "Error while retrieving an additional configuration"
+msgstr "Erreur durant la récupération d'une configuration additionnelle"
 
-msgid "The additional connector configuration name '%s' already exists"
-msgstr "Le nom de configuration additionnelle de connecteur '%s' existe déjà"
+msgid "The additional configuration name '%s' already exists"
+msgstr "Le nom de configuration additionnelle '%s' existe déjà"
 
-msgid "Error while deleting an additional connector configuration"
-msgstr "Erreur lors de la suppression d'une configuration additionelle de connecteur"
+msgid "Error while deleting an additional configuration"
+msgstr "Erreur lors de la suppression d'une configuration additionnelle"
 
 msgid "You don't have sufficient permissions for this action"
 msgstr "Vous ne disposez pas de droits suffisants pour cette action"
 
-msgid "Error while searching for additional connector configurations"
-msgstr "Erreur lors de la recherche de configurations additionnelles de connecteurs"
+msgid "Error while searching for additional configurations"
+msgstr "Erreur lors de la recherche de configurations additionnelles"
 
 msgid "Error while searching for available pollers for type '%s'"
 msgstr "Erreur lors de la recherche de collecteurs disponibles pour le type '%s'"
 
-msgid "Error while updating an additional connector configuration"
-msgstr "Erreur lors de la mise à jour d'une configuration additionnelle de connecteur"
+msgid "Error while updating an additional configuration"
+msgstr "Erreur lors de la mise à jour d'une configuration additionnelle"
 
-msgid "Changing type of an existing additional connector configuration is not allowed"
-msgstr "Changer le type d'une configuration additionnelle de connecteur existante n'est pas autorisé"
+msgid "Changing the type of an existing additional configuration is not allowed"
+msgstr "Changer le type d'une configuration additionnelle existante n'est pas autorisé"
 
 msgid "Select time zone"
 msgstr "Sélectionner un fuseau horaire"
@@ -19456,20 +19458,35 @@ msgstr "Attention, les domaines en dehors de votre organisation doivent être au
 msgid "Web page preview"
 msgstr "Aperçu de la page web"
 
+msgid "Save your dashboard to generate a thumbnail"
+msgstr "Sauvegardez votre tableau de bord pour générer une vignette"
+
 msgid "If ticket management is enabled, only the “by service” view is available."
-msgstr "Si la gestion des tickets est activé, seule la vue par service est disponible."
+msgstr "Si la gestion des tickets est activée, seule la vue par service est disponible."
 
 msgid "Ticket management"
-msgstr "gestion des tickets"
+msgstr "Gestion des tickets"
 
 msgid "Displays the time according to the selected time zone, or a timer."
 msgstr "Affiche l'heure en fonction du fuseau horaire sélectionné, ou un minuteur."
 
 msgid "Clock / Timer"
-msgstr "Horloge/Minuteur"
+msgstr "Horloge / Minuteur"
+
+msgid "Thumbnails show a snapshot of your data, taken when the dashboard is saved"
+msgstr "Les vignettes affichent un instantané de vos données, pris au moment de la sauvegarde."
 
 msgid "Poller/agent configuration"
 msgstr "Configuration collecteur/agent"
+
+msgid "Breadcrumb copied"
+msgstr "Fil d'Ariane copié"
+
+msgid "Failed to copy breadcrumb"
+msgstr "Échec de la copie du fil d'Ariane"
+
+msgid "Copy breadcrumb"
+msgstr "Copier le fil d'Ariane"
 
 msgid "Welcome to the poller/agent configuration page"
 msgstr "Bienvenue sur la page des configurations collecteur/agent"
@@ -19478,7 +19495,7 @@ msgid "Agent type"
 msgstr "Type d'agent"
 
 msgid "Expand"
-msgstr "Étendre"
+msgstr "Agrandir"
 
 msgid "Collapse"
 msgstr "Réduire"
@@ -19547,7 +19564,7 @@ msgid "Update poller/agent configuration"
 msgstr "Mettre à jour la configuration collecteur/agent"
 
 msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
-msgstr "Un agent est une partie d'un logiciel que vous installez sur l'hôte que vous souhaitez superviser qui exécutes les vérifications."
+msgstr "Un agent est un logiciel que vous installez sur l’hôte à superviser, et qui exécute les contrôles."
 
 msgid "Error while adding a poller/agent configuration"
 msgstr "Erreur lors de l'ajout de la configuration collecteur/agent"
@@ -19584,3 +19601,81 @@ msgstr "Erreur durant la récupération de multiples configurations collecteur/a
 
 msgid "Sticky for any non-OK status"
 msgstr "Sticky pour tout statut non-OK"
+
+msgid "Select a Business Activity to display the preview."
+msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
+
+msgid "year"
+msgstr "année"
+
+msgid "month"
+msgstr "mois"
+
+msgid "hour"
+msgstr "heure"
+
+msgid "minute"
+msgstr "minute"
+
+msgid "There are errors in the form."
+msgstr "Il y a des erreurs dans le formulaire."
+
+msgid "Show only dashboards added to favorites"
+msgstr "Afficher uniquement les tableaux de bord ajoutés aux favoris"
+
+msgid "The dashboard has been added to your favorites."
+msgstr "Le tableau de bord a été ajouté aux favoris."
+
+msgid "The dashboard has been removed from your favorites."
+msgstr "Le tableau de bord a été retiré des favoris."
+
+msgid "Remove from favorites"
+msgstr "Retirer des favoris"
+
+msgid "Add to favorites"
+msgstr "Ajouter aux favoris"
+
+msgid "PNG (as displayed)"
+msgstr "PNG (tel qu'affiché)"
+
+msgid "PNG (medium size)"
+msgstr "PNG (taille moyenne)"
+
+msgid "PNG (small size)"
+msgstr "PNG (petite taille)"
+
+msgid "Export as"
+msgstr "Exporter en tant que"
+
+msgid "If you click on Discard, your changes will not be saved."
+msgstr "Si vous cliquez sur Annuler, vos changements ne seront pas sauvegardés."
+
+msgid "Do you want to leave this page?"
+msgstr "Voulez-vous quitter cette page?"
+
+msgid "Your changes will not be saved if you leave this page."
+msgstr "Vos changements ne seront pas sauvegardés si vous quittez la page."
+
+msgid "Leave"
+msgstr "Quitter"
+
+msgid "Stay"
+msgstr "Rester"
+
+msgid "Generic widgets"
+msgstr "Widgets génériques"
+
+msgid "Real time widgets"
+msgstr "Widgets temps réel"
+
+msgid "MBI Reporting widgets"
+msgstr "Widgets de reporting MBI"
+
+msgid "Agent configuration"
+msgstr "Configuration d'agent"
+
+msgid "The minimum allowed value is 10"
+msgstr "La valeur minimale autorisée est 10"
+
+msgid "Error while enabling/disabling host groups"
+msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"

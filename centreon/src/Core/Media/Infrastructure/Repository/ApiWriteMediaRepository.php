@@ -24,9 +24,11 @@ declare(strict_types = 1);
 namespace Core\Media\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Core\Common\Infrastructure\Repository\ApiRepositoryTrait;
 use Core\Common\Infrastructure\Repository\ApiResponseTrait;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
+use Core\Media\Domain\Model\Media;
 use Core\Media\Domain\Model\NewMedia;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
@@ -40,6 +42,22 @@ class ApiWriteMediaRepository implements WriteMediaRepositoryInterface
 
     public function __construct(readonly private HttpClientInterface $httpClient)
     {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(Media $media): void
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(Media $media): void
+    {
+        throw RepositoryException::notYetImplemented();
     }
 
     /**

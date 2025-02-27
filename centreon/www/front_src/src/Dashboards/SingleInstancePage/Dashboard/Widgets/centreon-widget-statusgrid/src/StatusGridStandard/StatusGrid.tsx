@@ -8,7 +8,7 @@ import { useTheme } from '@mui/material';
 
 import {
   HeatMap,
-  ListingModel,
+  type ListingModel,
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
@@ -21,11 +21,13 @@ import {
   labelNoKPIFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
-import { getWidgetEndpoint } from '../../../utils';
+import {
+  getStatusesByResourcesAndResourceType,
+  getWidgetEndpoint
+} from '../../../utils';
 import {
   buildBAsEndpoint,
   buildResourcesEndpoint,
-  hostsEndpoint,
   resourcesEndpoint
 } from '../api/endpoints';
 
@@ -34,9 +36,9 @@ import Tile from './Tile';
 import Tooltip from './Tooltip/Tooltip';
 import {
   IndicatorType,
-  ResourceData,
-  ResourceStatus,
-  StatusGridProps
+  type ResourceData,
+  type ResourceStatus,
+  type StatusGridProps
 } from './models';
 import { getColor } from './utils';
 
@@ -83,6 +85,12 @@ const StatusGrid = ({
     'business-activity'
   );
 
+  const statusesToUse = getStatusesByResourcesAndResourceType({
+    resources,
+    resourceType,
+    statuses
+  });
+
   const getLabelNoResourceFound = (): string => {
     if (isBAResourceType) {
       return t(labelNoKPIFound);
@@ -109,18 +117,16 @@ const StatusGrid = ({
                 limit: tiles,
                 resources: last(panelData?.resources)?.resources,
                 sortBy,
-                statuses,
+                statuses: statusesToUse,
                 type: lastSelectedResourceType
               })
             : buildResourcesEndpoint({
-                baseEndpoint: equals(resourceType, 'host')
-                  ? hostsEndpoint
-                  : resourcesEndpoint,
+                baseEndpoint: resourcesEndpoint,
                 limit: tiles,
                 resources,
                 sortBy,
                 states: [],
-                statuses,
+                statuses: statusesToUse,
                 type: resourceType
               }),
         isOnPublicPage,
@@ -158,6 +164,7 @@ const StatusGrid = ({
           status,
           is_in_downtime,
           is_acknowledged,
+          is_in_flapping,
           information,
           links,
           type,
@@ -178,6 +185,7 @@ const StatusGrid = ({
               id,
               information,
               is_acknowledged,
+              is_in_flapping,
               is_in_downtime,
               metricsEndpoint: links?.endpoints.metrics,
               name: name || resource_name,
@@ -219,7 +227,7 @@ const StatusGrid = ({
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
       tooltipContent={isOnPublicPage ? undefined : Tooltip()}
     >
-      {({ isSmallestSize, data: resourceData }) => (
+      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize }) => (
         <Tile
           data={resourceData}
           isBAResourceType={isBVResourceType || isBAResourceType}
@@ -227,6 +235,8 @@ const StatusGrid = ({
           resources={resources}
           statuses={statuses}
           type={resourceData?.type}
+          tileSize={tileSize}
+          isMediumSize={isMediumSize}
         />
       )}
     </HeatMap>

@@ -106,8 +106,13 @@ const initialize = ({
     alias: 'deleteNotificationtRequest',
     method: Method.DELETE,
     path: notificationEndpoint({ id: 1 }),
-    response: undefined,
-    statusCode: 204
+    response: {
+      data: [
+        {
+          status: 204
+        }
+      ]
+    }
   });
 
   cy.interceptAPIRequest({
@@ -507,7 +512,7 @@ describe('Edit Panel : Confirm Dialog', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editNotificationRequest').then(({ request }) => {
-      expect(JSON.parse(request.body).is_activated).to.equal(true);
+      expect(request.body.is_activated).to.equal(true);
     });
 
     cy.findByText(labelSuccessfulEditNotification).should('be.visible');

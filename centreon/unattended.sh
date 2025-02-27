@@ -205,18 +205,18 @@ function parse_subcommand_options() {
 				dbms=$requested_dbms
 			fi
 			;;
-    V)
-      vault=$OPTARG
-      oldIFS=$IFS
-      IFS=';' read -r -a array_vault <<<"$vault"
-      vault_address=${array_vault[0]}
-      vault_port=${array_vault[1]}
-      vault_root_path=${array_vault[2]}
-      vault_role_id=${array_vault[3]}
-      vault_secret_id=${array_vault[4]}
-      use_vault=1
-      IFS=$oldIFS
-      ;;
+		V)
+			vault=$OPTARG
+			oldIFS=$IFS
+			IFS=';' read -r -a array_vault <<<"$vault"
+			vault_address=${array_vault[0]}
+			vault_port=${array_vault[1]}
+			vault_root_path=${array_vault[2]}
+			vault_role_id=${array_vault[3]}
+			vault_secret_id=${array_vault[4]}
+			use_vault=1
+			IFS=$oldIFS
+			;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage

@@ -103,3 +103,80 @@ jobs:
             }
 
             core.setFailed("Timeout: some jobs are still in progress");
+
+  get-environment:
+    if: |
+      contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
+      (startsWith(github.base_ref, 'release-') || startsWith(github.base_ref, 'hotfix-'))
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  check-cherry-pick:
+    needs: [get-environment, check-status]
+    runs-on: ubuntu-24.04
+    if: |
+      contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) &&
+      needs.get-environment.outputs.target_stability == 'testing' &&
+      ! contains(needs.get-environment.outputs.labels, 'skip-cherry-pick')
+
+    steps:
+      - name: Check if the PR is a cherry-pick from dev branch
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            let linkedPrs = [];
+            let errorMessage = `This pull request is not a cherry-pick from ${{ needs.get-environment.outputs.linked_dev_branch }} or has no reference to a pull request which has been merged on ${{ needs.get-environment.outputs.linked_dev_branch }}\n`;
+
+            try {
+              const pull = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number
+              });
+
+              const { title, body } = pull.data;
+
+              [title, body].forEach((text) => {
+                const linkedPrMatches = text.matchAll(/(?:#|\/pull\/)(\d+)/g);
+                if (linkedPrMatches) {
+                  [...linkedPrMatches].forEach((match) => {
+                    linkedPrs.push(Number(match[1]));
+                  });
+                }
+              });
+
+              // remove duplicates
+              linkedPrs = [...new Set(linkedPrs)];
+              console.log(`Linked pull requests found in PR title and body: ${linkedPrs.join(', ')}`);
+            } catch (e) {
+              throw new Error(`Failed to get information of pull request #${context.issue.number}: ${e}`);
+            }
+
+            for await (const prNumber of linkedPrs) {
+              try {
+                const pull = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber
+                });
+
+                if (pull.data.base.ref === '${{ needs.get-environment.outputs.linked_dev_branch }}') {
+                  if (pull.data.state === 'closed' && pull.data.merged === true) {
+                    console.log(`This pull request is a cherry-pick from pull request #${prNumber} on ${{ needs.get-environment.outputs.linked_dev_branch }}`);
+                    return;
+                  } else {
+                    errorMessage += `This pull request seems to be a cherry-pick from pull request #${prNumber} on ${{ needs.get-environment.outputs.linked_dev_branch }} but it is not merged yet\n`;
+                  }
+                } else {
+                  errorMessage += `Pull request #${prNumber} is linked to ${pull.data.base.ref} instead of ${{ needs.get-environment.outputs.linked_dev_branch }}\n`;
+                }
+              } catch (e) {
+                errorMessage += `Failed to get information on pull request #${prNumber}: ${e}\n`;
+              }
+            }
+
+            errorMessage += `\nIf you are sure this PR does not need to be a cherry-pick from ${{ needs.get-environment.outputs.linked_dev_branch }} or must be merged urgently, `;
+            errorMessage += `open the pull request on ${{ needs.get-environment.outputs.linked_dev_branch }} and add label "skip-cherry-pick" to the PR and re-run all jobs of workflow check-status\n`;
+
+            throw new Error(errorMessage);

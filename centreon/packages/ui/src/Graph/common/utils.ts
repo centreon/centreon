@@ -8,16 +8,18 @@ import {
   gte,
   head,
   isNil,
+  last,
   length,
   lt,
   lte,
-  pluck,
-  last
+  pluck
 } from 'ramda';
 
 import { Theme, darken, getLuminance, lighten } from '@mui/material';
 
-import { Thresholds } from './models';
+import { Threshold, Thresholds } from './models';
+import { formatMetricValue } from './timeSeries';
+import { Line, TimeValue } from './timeSeries/models';
 
 interface GetColorFromDataAndThresholdsProps {
   baseColor?: string;
@@ -178,4 +180,50 @@ export const commonTickLabelProps = {
   fontFamily: 'Roboto, sans-serif',
   fontSize: 10,
   textAnchor: 'middle'
+};
+
+interface GetFormattedAxisValuesProps {
+  thresholdUnit?: string;
+  axisUnit: string;
+  base?: number;
+  timeSeries: Array<TimeValue>;
+  threshold: Array<Threshold>;
+  lines: Array<Line>;
+}
+
+export const getFormattedAxisValues = ({
+  thresholdUnit,
+  axisUnit,
+  timeSeries,
+  base = 1000,
+  lines,
+  threshold
+}: GetFormattedAxisValuesProps): Array<string> => {
+  const metricId = (lines.find(({ unit }) => equals(unit, axisUnit)) as Line)
+    ?.metric_id;
+
+  if (isNil(metricId)) {
+    return [];
+  }
+  const formattedData = timeSeries.map((data) =>
+    formatMetricValue({
+      value: data[metricId],
+      unit: axisUnit,
+      base
+    })
+  );
+
+  const formattedThresholdValues = equals(thresholdUnit, axisUnit)
+    ? threshold.map(({ value }) =>
+        formatMetricValue({
+          value,
+          unit: axisUnit,
+          base
+        })
+      ) || []
+    : [];
+
+  return formattedData
+    .concat(formattedThresholdValues)
+    .filter((v) => v) as Array<string>;
 };

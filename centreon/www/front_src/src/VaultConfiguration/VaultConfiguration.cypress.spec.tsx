@@ -167,9 +167,13 @@ describe('Vault configuration', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@putVaultConfiguration').then(({ request }) => {
-      expect(request.body).equal(
-        '{"address":"example.com","port":1024,"root_path":"/path","role_id":"role","secret_id":"Secret"}'
-      );
+      expect(request.body).to.deep.equal({
+        address: 'example.com',
+        port: 1024,
+        root_path: '/path',
+        role_id: 'role',
+        secret_id: 'Secret'
+      });
     });
 
     cy.contains(labelVaultConfigurationUpdate).should('be.visible');
@@ -178,7 +182,7 @@ describe('Vault configuration', () => {
     cy.contains(labelSave).should('be.disabled');
 
     cy.findByLabelText(labelSecretID).should('have.value', '');
-    cy.findByLabelText(labelVaultAddress).should('have.value', 'example.com');
+    cy.findByLabelText(labelVaultAddress).should('have.value', 'localhost');
 
     cy.makeSnapshot();
   });

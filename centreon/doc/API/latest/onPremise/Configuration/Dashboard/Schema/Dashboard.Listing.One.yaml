@@ -62,3 +62,8 @@ properties:
         type: integer
         nullable: true
         example: 10
+
+  is_favorite:
+    type: boolean
+    description: "Indicates if the dashboard is marked as favorite for current user"
+    example: true

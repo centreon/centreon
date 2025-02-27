@@ -6,15 +6,21 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     gap: theme.spacing(1),
     justifyContent: 'center',
-    width: '100%'
+    width: '100%',
+    height: '100%'
   },
   count: {
-    height: '32%',
-    textAlign: 'center',
-    width: '60%'
+    height: '35%',
+    width: '100%'
+  },
+  countParentSize: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'center'
   },
   countText: {
     fontWeight: theme.typography.fontWeightBold,
+    textAlign: 'center',
     lineHeight: 1
   },
   countTextContainer: {
@@ -23,9 +29,7 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
     justifyContent: 'center'
   },
   label: {
-    height: '20%',
-    textAlign: 'center',
-    width: '35%'
+    marginTop: '5%'
   },
   labelText: {
     fontWeight: theme.typography.fontWeightMedium,
@@ -34,7 +38,8 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
   labelTextContainer: {
     alignItems: 'center',
     display: 'flex',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    maxHeight: '50px'
   },
   link: {
     color: 'inherit',
@@ -42,7 +47,7 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
   },
   status: {
     borderRadius: theme.shape.borderRadius,
-    height: '138px'
+    height: '100%'
   },
   statusCard: {
     alignItems: 'center',
@@ -52,9 +57,11 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
   },
   statuses: {
     display: 'grid',
-    gap: theme.spacing(1),
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-    width: '100%'
+    gap: theme.spacing(0.5),
+    height: '100%',
+    width: '100%',
+    overflow: 'hidden',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 1fr))'
   },
   tooltip: {
     backgroundColor: theme.palette.background.paper,

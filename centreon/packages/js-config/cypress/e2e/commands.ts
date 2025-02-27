@@ -511,103 +511,111 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'getLogDirectory',
+  (): Cypress.Chainable => {
+    const logDirectory = `results/logs/${Cypress.spec.name.replace(
+        artifactIllegalCharactersMatcher,
+        '_'
+      )}/${Cypress.currentTest.title.replace(
+        artifactIllegalCharactersMatcher,
+        '_'
+      )}`;
+
+    return cy
+      .createDirectory(logDirectory)
+      .exec(`chmod -R 755 "${logDirectory}"`)
+      .wrap(logDirectory);
+  }
+);
+
+interface CopyWebContainerLogsProps {
+  name: string;
+}
+
+Cypress.Commands.add(
+  'copyWebContainerLogs',
+  ({ name }: CopyWebContainerLogsProps): Cypress.Chainable => {
+    cy.log(`Getting logs from container ${name} ...`);
+
+    return cy.getLogDirectory().then((logDirectory) => {
+      let sourcePhpLogs = '/var/log/php8.1-fpm-centreon-error.log';
+      let targetPhpLogs = `${logDirectory}/php8.1-fpm-centreon-error.log`;
+      let sourceApacheLogs = '/var/log/apache2';
+      let targetApacheLogs = `${logDirectory}/apache2`;
+      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+        sourcePhpLogs = '/var/log/php-fpm';
+        targetPhpLogs = `${logDirectory}/php`;
+        sourceApacheLogs = '/var/log/httpd';
+        targetApacheLogs = `${logDirectory}/httpd`;
+      }
+
+      return cy
+        .copyFromContainer({
+          destination: `${logDirectory}/broker`,
+          name,
+          source: '/var/log/centreon-broker'
+        })
+        .copyFromContainer({
+          destination: `${logDirectory}/engine`,
+          name,
+          source: '/var/log/centreon-engine'
+        })
+        .copyFromContainer({
+          destination: `${logDirectory}/centreon`,
+          name,
+          source: '/var/log/centreon'
+        })
+        .copyFromContainer({
+          destination: `${logDirectory}/centreon-gorgone`,
+          name,
+          source: '/var/log/centreon-gorgone'
+        })
+        .copyFromContainer({
+          destination: targetPhpLogs,
+          name,
+          source: sourcePhpLogs,
+        })
+        .copyFromContainer({
+          destination: targetApacheLogs,
+          name,
+          source: sourceApacheLogs,
+        })
+        .exec(`chmod -R 755 "${logDirectory}"`);
+      });
+});
+
 Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
   cy.log('Stopping containers ...');
-
-  const logDirectory = `results/logs/${Cypress.spec.name.replace(
-    artifactIllegalCharactersMatcher,
-    '_'
-  )}/${Cypress.currentTest.title.replace(
-    artifactIllegalCharactersMatcher,
-    '_'
-  )}`;
 
   const name = 'web';
 
   return cy
     .visitEmptyPage()
-    .createDirectory(logDirectory)
-    .getContainersLogs()
-    .then((containersLogs: Array<Array<string>>) => {
-      if (!containersLogs) {
-        return;
-      }
+    .getLogDirectory()
+    .then((logDirectory) => {
+      return cy
+        .getContainersLogs()
+        .then((containersLogs: Array<Array<string>>) => {
+          if (!containersLogs) {
+            return;
+          }
 
-      Object.entries(containersLogs).forEach(([containerName, logs]) => {
-        cy.writeFile(
-          `results/logs/${Cypress.spec.name.replace(
-            artifactIllegalCharactersMatcher,
-            '_'
-          )}/${Cypress.currentTest.title.replace(
-            artifactIllegalCharactersMatcher,
-            '_'
-          )}/container-${containerName}.log`,
-          logs
+          Object.entries(containersLogs).forEach(([containerName, logs]) => {
+            cy.writeFile(
+              `${logDirectory}/container-${containerName}.log`,
+              logs
+            );
+          });
+        })
+        .copyWebContainerLogs({ name })
+        .exec(`chmod -R 755 "${logDirectory}"`)
+        .task(
+          'stopContainers',
+          {},
+          { timeout: 600000 } // 10 minutes because docker pull can be very slow
         );
-      });
-    })
-    .copyFromContainer({
-      destination: `${logDirectory}/broker`,
-      name,
-      source: '/var/log/centreon-broker'
-    })
-    .copyFromContainer({
-      destination: `${logDirectory}/engine`,
-      name,
-      source: '/var/log/centreon-engine'
-    })
-    .copyFromContainer({
-      destination: `${logDirectory}/centreon`,
-      name,
-      source: '/var/log/centreon'
-    })
-    .copyFromContainer({
-      destination: `${logDirectory}/centreon-gorgone`,
-      name,
-      source: '/var/log/centreon-gorgone'
-    })
-    .then(() => {
-      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-        return cy.copyFromContainer({
-          destination: `${logDirectory}/php`,
-          name,
-          source: '/var/log/php-fpm'
-        });
-      }
-
-      return cy.copyFromContainer(
-        {
-          destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
-          name,
-          source: '/var/log/php8.1-fpm-centreon-error.log'
-        },
-        { failOnNonZeroExit: false }
-      );
-    })
-    .then(() => {
-      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-        return cy.copyFromContainer({
-          destination: `${logDirectory}/httpd`,
-          name,
-          source: '/var/log/httpd'
-        });
-      }
-
-      return cy.copyFromContainer(
-        {
-          destination: `${logDirectory}/apache2`,
-          name,
-          source: '/var/log/apache2'
-        },
-        { failOnNonZeroExit: false }
-      );
-    })
-    .exec(`chmod -R 755 "${logDirectory}"`)
-    .task(
-      'stopContainers',
-      {},
-      { timeout: 600000 } // 10 minutes because docker pull can be very slow
-    );
+    });
 });
 
 Cypress.Commands.add(
@@ -650,40 +658,52 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
-  'insertDashboardWithWidget',
-  (dashboardBody, patchBody) => {
-    cy.request({
-      body: {
-        ...dashboardBody
+Cypress.Commands.add('insertDashboardWithWidget', (dashboardBody, patchBody, widgetName, widgetType) => {
+  cy.request({
+    body: { ...dashboardBody },
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards'
+  }).then((response) => {
+    const dashboardId = response.body.id;
+
+    cy.waitUntil(
+      () => {
+        return cy.request({
+          method: 'GET',
+          url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+        }).then((getResponse) => {
+          return getResponse.body && getResponse.body.id === dashboardId;
+        });
       },
+      { timeout: 10000 }
+    );
+
+    const formData = new FormData();
+
+    formData.append('panels[0][name]', widgetName);
+    formData.append('panels[0][widget_type]', widgetType);
+
+    formData.append('panels[0][layout][x]', '0');
+    formData.append('panels[0][layout][y]', '0');
+    formData.append('panels[0][layout][width]', '12');
+    formData.append('panels[0][layout][height]', '3');
+    formData.append('panels[0][layout][min_width]', '2');
+    formData.append('panels[0][layout][min_height]', '2');
+
+    formData.append('panels[0][widget_settings]', JSON.stringify(patchBody));
+
+    cy.request({
       method: 'POST',
-      url: '/centreon/api/latest/configuration/dashboards'
-    }).then((response) => {
-      const dashboardId = response.body.id;
-      cy.waitUntil(
-        () => {
-          return cy
-            .request({
-              method: 'GET',
-              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-            })
-            .then((getResponse) => {
-              return getResponse.body && getResponse.body.id === dashboardId;
-            });
-        },
-        {
-          timeout: 10000
-        }
-      );
-      cy.request({
-        body: patchBody,
-        method: 'PATCH',
-        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-      });
+      url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`,
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then((patchResponse) => {
+      console.log('Widget added successfully:', patchResponse);
     });
-  }
-);
+  });
+});
 
 interface ShareDashboardToUserProps {
   dashboardName: string;
@@ -699,29 +719,48 @@ interface ListingRequestResult {
   };
 }
 
-interface PatchDashboardBody {
-  panels: Array<{
-    layout: {
-      height: number;
-      min_height: number;
-      min_width: number;
-      width: number;
-      x: number;
-      y: number;
-    };
-    name: string;
-    widget_settings: {
-      options: {
-        description: {
-          content: string;
-          enabled: boolean;
-        };
-        name: string;
+type PatchDashboardBody = {
+  widget_settings: {
+      data: {
+          resources: Array<{
+              resourceType: string;
+              resources: Array<{
+                  id: number;
+                  name: string;
+              }>;
+          }>;
+          metrics: Array<{
+              criticalHighThreshold: number;
+              criticalLowThreshold: number;
+              id: number;
+              name: string;
+              unit: string;
+              warningHighThreshold: number;
+              warningLowThreshold: number;
+          }>;
       };
-    };
-    widget_type: string;
-  }>;
-}
+      options: {
+          timeperiod: {
+              start: any;
+              end: any;
+              timePeriodType: number;
+          };
+          threshold: {
+              enabled: boolean;
+              customCritical: any;
+              criticalType: string;
+              customWarning: any;
+              warningType: string;
+          };
+          refreshInterval: string;
+          curveType: string;
+          description: {
+              content: string;
+              enabled: boolean;
+          };
+      };
+  };
+};
 
 Cypress.Commands.add(
   'shareDashboardToUser',
@@ -772,6 +811,71 @@ Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
     });
 });
 
+Cypress.Commands.add('insertDashboardWithDoubleWidget', (dashboardBody, patchBody1, patchBody2, widgetName, widgetType) => {
+  cy.request({
+    body: { ...dashboardBody },
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards'
+  }).then((response) => {
+    const dashboardId = response.body.id;
+
+    cy.waitUntil(
+      () => {
+        return cy.request({
+          method: 'GET',
+          url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+        }).then((getResponse) => {
+          return getResponse.body && getResponse.body.id === dashboardId;
+        });
+      },
+      { timeout: 10000 }
+    );
+
+    const formData = new FormData();
+
+    // Panel 1
+    formData.append('panels[0][name]', widgetName);
+    formData.append('panels[0][widget_type]', widgetType);
+    formData.append('panels[0][layout][x]', '0');
+    formData.append('panels[0][layout][y]', '0');
+    formData.append('panels[0][layout][width]', '12');
+    formData.append('panels[0][layout][height]', '3');
+    formData.append('panels[0][layout][min_width]', '2');
+    formData.append('panels[0][layout][min_height]', '2');
+    formData.append('panels[0][widget_settings]', JSON.stringify(patchBody1));
+
+    // Panel 2
+    formData.append('panels[1][name]', widgetName);
+    formData.append('panels[1][widget_type]', widgetType);
+    formData.append('panels[1][layout][x]', '0');
+    formData.append('panels[1][layout][y]', '3');
+    formData.append('panels[1][layout][width]', '12');
+    formData.append('panels[1][layout][height]', '3');
+    formData.append('panels[1][layout][min_width]', '2');
+    formData.append('panels[1][layout][min_height]', '2');
+    formData.append('panels[1][widget_settings]', JSON.stringify(patchBody2));
+
+    // Log form data
+    const dataToLog = {};
+    formData.forEach((value, key) => {
+      dataToLog[key] = value;
+    });
+
+    console.log('FormData before POST:', JSON.stringify(dataToLog, null, 2));
+
+    cy.request({
+      method: 'POST',
+      url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`,
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then((patchResponse) => {
+      console.log('Widget added successfully:', patchResponse);
+    });
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -784,6 +888,7 @@ declare global {
         props: CopyToContainerProps,
         options?: Partial<Cypress.ExecOptions>
       ) => Cypress.Chainable;
+      copyWebContainerLogs: (props: CopyWebContainerLogsProps) => Cypress.Chainable;
       createDirectory: (directoryPath: string) => Cypress.Chainable;
       execInContainer: (
         props: ExecInContainerProps,
@@ -803,6 +908,7 @@ declare global {
       getContainerIpAddress: (containerName: string) => Cypress.Chainable;
       getContainersLogs: () => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
+      getLogDirectory: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
@@ -810,7 +916,16 @@ declare global {
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
-        patch: PatchDashboardBody
+        patchBody:  Record<string, any>,
+        widgetName:string,
+        widgetType:string
+      ) => Cypress.Chainable;
+      insertDashboardWithDoubleWidget: (
+        dashboard: Dashboard,
+        patchBody1: Record<string, any>,
+        patchBody2: Record<string, any>,
+        widgetName: string,
+        widgetType: string
       ) => Cypress.Chainable;
       loginAsAdminViaApiV2: () => Cypress.Chainable;
       loginByTypeOfUser: ({

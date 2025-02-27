@@ -17,7 +17,7 @@ Feature: Configuring clock timer widget
   Scenario: Set a New Time Zone for the Clock timer Widget
     Given a dashboard with a Clock Timer widget
     When the dashboard administrator updates the time zone by selecting a new one
-    Then timezone should be updating in the widget
+    Then the timezone should be updated in the widget
 
   @TEST_MON-146795
   Scenario: Set a New Time Format for the Clock Timer Widget
@@ -38,9 +38,3 @@ Feature: Configuring clock timer widget
     Given a dashboard with a Clock Timer widget
     When the dashboard administrator user duplicates the Clock timer widget
     Then a second Clock timer widget is displayed on the dashboard
-
-  @TEST_MON-146799
-  Scenario: Update the Background Color of the Clock Timer Widget
-    Given a dashboard with a Clock Timer widget
-    When the dashboard administrator updates the background color of the Clock Timer widget
-    Then the background color of the Clock Timer widget should reflect the updated color

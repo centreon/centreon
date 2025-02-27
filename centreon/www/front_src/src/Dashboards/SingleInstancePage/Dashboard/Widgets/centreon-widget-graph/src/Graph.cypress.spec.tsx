@@ -8,7 +8,12 @@ import { getPublicWidgetEndpoint } from '../../utils';
 
 import WidgetLineChart from './LineChart';
 import { graphEndpoint } from './api/endpoints';
-import { Data, FormThreshold, FormTimePeriod, PanelOptions } from './models';
+import type {
+  Data,
+  FormThreshold,
+  FormTimePeriod,
+  PanelOptions
+} from './models';
 
 const serviceMetrics: Data = {
   metrics: [
@@ -39,6 +44,27 @@ const serviceMetrics: Data = {
 const emptyServiceMetrics: Data = {
   metrics: [],
   resources: []
+};
+
+const metaServiceData: Data = {
+  metrics: [
+    {
+      id: 1,
+      name: 'free',
+      unit: ''
+    }
+  ],
+  resources: [
+    {
+      resourceType: 'meta-service',
+      resources: [
+        {
+          id: 1,
+          name: 'M1'
+        }
+      ]
+    }
+  ]
 };
 
 const disabledThreshold: FormThreshold = {
@@ -83,6 +109,13 @@ const customTimePeriod: FormTimePeriod = {
   timePeriodType: -1
 };
 
+const legendPositions = ['left', 'bottom', 'right'] as const;
+
+const legendProperties = [
+  { mode: 'list' as const, positions: legendPositions },
+  { mode: 'grid' as const, positions: legendPositions }
+];
+
 interface InitializeComponentProps
   extends Partial<
     Pick<
@@ -114,6 +147,7 @@ interface InitializeComponentProps
   isPublic?: boolean;
   threshold?: FormThreshold;
   timePeriod?: FormTimePeriod;
+  graphDataPath?: string;
 }
 
 const initializeComponent = ({
@@ -121,6 +155,7 @@ const initializeComponent = ({
   threshold = defaultThreshold,
   timePeriod = defaultTimePeriod,
   isPublic = false,
+  graphDataPath = 'Widgets/Graph/lineChart.json',
   ...panelOptions
 }: InitializeComponentProps): void => {
   const store = createStore();
@@ -128,7 +163,7 @@ const initializeComponent = ({
 
   cy.viewport('macbook-13');
 
-  cy.fixture('Widgets/Graph/lineChart.json').then((lineChart) => {
+  cy.fixture(graphDataPath).then((lineChart) => {
     cy.interceptAPIRequest({
       alias: 'getLineChart',
       method: Method.GET,
@@ -198,7 +233,8 @@ describe('Graph Widget', () => {
     initializeComponent({});
 
     cy.waitForRequest('@getLineChart').then(({ request }) => {
-      expect(request.url.search).to.include('metric_names=[cpu,cpu%20AVG]');
+      expect(request.url.search).to.include('metric_names[]=cpu');
+      expect(request.url.search).to.include('metric_names[]=cpu%20AVG');
       expect(request.url.search).to.include(
         'search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D'
       );
@@ -380,5 +416,54 @@ describe('Graph Widget', () => {
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
+  });
+
+  it('sends a request with meta-service when the corresponding data is provided', () => {
+    initializeComponent({
+      data: metaServiceData
+    });
+
+    cy.waitForRequest('@getLineChart').then(({ request }) => {
+      const searchParameters = request.url.searchParams;
+
+      expect(searchParameters.get('search')).to.equal(
+        '{"$and":[{"metaservice.id":{"$in":[1]}}]}'
+      );
+      expect(searchParameters.get('metrics_names')).to.equal(null);
+    });
+  });
+
+  legendProperties.forEach(({ mode, positions }) => {
+    positions.forEach((position) => {
+      it(`displays the legend with a scrollbar for placement: ${position} and mode: ${mode}.`, () => {
+        cy.fixture(
+          'Widgets/Graph/legend/serviceMetricsForScrollableLegend.json'
+        ).then((data) => {
+          initializeComponent({
+            showLegend: true,
+            legendDisplayMode: mode,
+            legendPlacement: position,
+            data,
+            graphDataPath:
+              'Widgets/Graph/legend/lineChartForScrollableLegend.json'
+          });
+        });
+        cy.waitForRequest('@getLineChart');
+        cy.get('path').its('length').should('eq', 100);
+
+        cy.get('[class$="legend"]').as('legendContainer');
+        cy.get('@legendContainer').should('have.css', 'overflow-Y', 'auto');
+        cy.get('@legendContainer').should('have.css', 'overflow-X', 'hidden');
+
+        cy.findByText('Legend 1 Centreon-Server').should('exist');
+
+        cy.get('@legendContainer').scrollTo('bottom');
+
+        cy.findByText('Legend 99 Centreon-Server').should('exist');
+        cy.makeSnapshot(
+          `legend with a scrollbar for placement: ${position} and mode: ${mode}.`
+        );
+      });
+    });
   });
 });

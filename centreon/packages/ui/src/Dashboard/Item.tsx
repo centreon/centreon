@@ -9,13 +9,13 @@ import {
 } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { equals, isNil, prop } from 'ramda';
+import { equals, isNil, omit, type } from 'ramda';
 
 import { Card, useTheme } from '@mui/material';
-
 import LoadingSkeleton from '../LoadingSkeleton';
+import ExpandableContainer from '../components/ExpandableContainer';
+import { Parameters } from '../components/ExpandableContainer/models';
 import { useMemoComponent, useViewportIntersection } from '../utils';
-
 import { useDashboardItemStyles } from './Dashboard.styles';
 import { isResizingItemAtom } from './atoms';
 
@@ -25,7 +25,7 @@ interface DashboardItemProps {
   children: ReactElement;
   className?: string;
   disablePadding?: boolean;
-  header?: ReactElement;
+  header?: ReactElement | ((params: Parameters) => ReactElement);
   id: string;
   onMouseDown?: (e: MouseEvent<HTMLDivElement>) => void;
   onMouseUp?: (e: MouseEvent<HTMLDivElement>) => void;
@@ -79,12 +79,16 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
     const cardContainerListeners = !hasHeader ? listeners : {};
 
     useEffect(() => {
-      if (isNil(ref)) {
+      if (isNil(ref?.current)) {
         return;
       }
 
       setElement(ref.current);
     }, [ref]);
+
+    const newTransform =
+      style?.transform &&
+      `translate3d(${style.transform.match(/translate\(([a-z0-9\ \,\-]+)\)/)[1]}, 0px)`;
 
     return useMemoComponent({
       Component: (
@@ -93,44 +97,67 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
           className={sanitizedReactGridLayoutClassName}
           ref={ref}
           style={{
-            ...style,
-            width: `calc(${prop('width', style) || '0px'} - 12px)`
+            ...omit(['transform'], style || {}),
+            transform: newTransform
           }}
         >
-          <Card
-            className={classes.widgetContainer}
-            data-padding={!disablePadding}
-          >
-            {header && (
-              <div className={classes.widgetHeader} data-canMove={canMove}>
-                {canMove && (
-                  <div
-                    {...listeners}
-                    className={classes.widgetHeaderDraggable}
-                    data-testid={`${id}_move_panel`}
-                  />
-                )}
-                {header}
-              </div>
-            )}
-            <div
-              className={cx(
-                classes.widgetContent,
-                !disablePadding && classes.widgetPadding
-              )}
-            >
-              {!isInViewport ? (
-                <LoadingSkeleton
-                  animation={false}
-                  data-widget-skeleton={id}
-                  height="100%"
-                  width="100%"
-                />
-              ) : (
-                children
-              )}
-            </div>
-          </Card>
+          <ExpandableContainer>
+            {({ isExpanded, label, key, ...rest }) => {
+              const canControl = isExpanded ? false : canMove;
+
+              const childrenHeader = equals(type(header), 'Function')
+                ? (header as (params: Parameters) => ReactElement)({
+                    isExpanded,
+                    label,
+                    ref,
+                    key,
+                    ...rest
+                  })
+                : header;
+
+              return (
+                <div key={key} className={classes.widgetSubContainer}>
+                  <Card
+                    className={classes.widgetContainer}
+                    data-padding={!disablePadding}
+                  >
+                    {childrenHeader && (
+                      <div
+                        className={classes.widgetHeader}
+                        data-can-move={canControl}
+                      >
+                        {canControl && (
+                          <div
+                            {...listeners}
+                            className={classes.widgetHeaderDraggable}
+                            data-testid={`${id}_move_panel`}
+                          />
+                        )}
+                        {childrenHeader}
+                      </div>
+                    )}
+                    <div
+                      className={cx(
+                        classes.widgetContent,
+                        !disablePadding && classes.widgetPadding
+                      )}
+                    >
+                      {!isInViewport ? (
+                        <LoadingSkeleton
+                          animation={false}
+                          data-widget-skeleton={id}
+                          height="100%"
+                          width="100%"
+                        />
+                      ) : (
+                        children
+                      )}
+                    </div>
+                  </Card>
+                </div>
+              );
+            }}
+          </ExpandableContainer>
         </div>
       ),
       memoProps: isInViewport

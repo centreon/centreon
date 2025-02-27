@@ -30,7 +30,7 @@ const initialize = ({
   tooltip,
   axis,
   orientation,
-  barStyle,
+  barStyle
 }: Pick<
   BarChartProps,
   'data' | 'legend' | 'axis' | 'barStyle' | 'orientation' | 'tooltip' | 'start'
@@ -61,14 +61,14 @@ const checkWidth = (orientation): void => {
     cy.get('g[class*="visx-rows"] > line')
       .eq(0)
       .should('have.attr', 'x2')
-      .and('equal', '1135');
+      .and('equal', '1145');
 
     return;
   }
   cy.get('g[class*="visx-rows"] > line')
     .eq(0)
     .should('have.attr', 'x2')
-    .and('equal', '1170');
+    .and('equal', '1180');
 };
 
 describe('Bar chart', () => {

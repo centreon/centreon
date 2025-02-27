@@ -86,7 +86,7 @@ final class CallbackController extends AbstractController
                 }
 
                 return View::createRedirect(
-                    $this->getBaseUrl() . '/login',
+                    $this->getBaseUrl() . $response->getRedirectUri(),
                     headers: ['Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri() . ';Max-Age=10']
                 );
 

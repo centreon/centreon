@@ -1,67 +1,81 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useTileStyles = makeStyles()((theme) => ({
-  container: {
-    cursor: 'pointer',
-    height: '100%',
-    paddingTop: theme.spacing(4.5),
-    position: 'relative',
-    width: '100%'
-  },
-  icon: {
-    fontSize: theme.spacing(2)
-  },
-  iconContainer: {
-    alignItems: 'center',
-    display: 'flex',
-    height: theme.spacing(1.5),
-    justifyContent: 'end',
-    width: '100%'
-  },
-  link: {
-    all: 'unset',
-    display: 'block',
-    height: '100%'
-  },
-  resourceName: {
-    fontWeight: theme.typography.fontWeightMedium
-  },
-  resourceTypeIcon: {
-    position: 'absolute',
-    right: 8,
-    top: 4
-  },
-  seeMoreContainer: {
-    alignItems: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    justifyContent: 'center',
-    width: '100%'
-  },
-  stateContent: {
-    display: 'flex',
-    flexDirection: 'row',
-    height: '100%',
-    marginTop: theme.spacing(0.5),
-    width: '100%'
-  },
-  stateIcon: {
-    marginLeft: theme.spacing(0.5)
-  },
-  statusTile: {
-    '&[data-mode="compact"]': {
-      height: theme.spacing(2),
+interface Props {
+  tileSize?: number;
+  isMediumSize?: boolean;
+}
+
+export const useTileStyles = makeStyles<Props>()(
+  (theme, { tileSize = 0, isMediumSize } = {}) => ({
+    container: {
+      cursor: 'pointer',
+      height: '100%',
+      paddingTop: theme.spacing(4.5),
+      position: 'relative',
       width: '100%'
     },
-    borderRadius: theme.shape.borderRadius,
-    height: theme.spacing(3.5),
-    position: 'absolute',
-    right: '0%',
-    top: '0%',
-    width: '100%'
-  }
-}));
+    icon: {
+      fontSize: theme.spacing(2)
+    },
+    iconContainer: {
+      alignItems: 'center',
+      display: 'flex',
+      height: theme.spacing(1.5),
+      justifyContent: 'end',
+      width: '100%'
+    },
+    link: {
+      all: 'unset',
+      display: 'block',
+      height: '100%'
+    },
+    resourceName: {
+      fontWeight: theme.typography.fontWeightMedium
+    },
+    resourceTypeIcon: {
+      position: 'absolute',
+      right: 8,
+      top: 4
+    },
+    seeMoreContainer: {
+      alignItems: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      justifyContent: 'center',
+      width: '100%'
+    },
+    stateContent: {
+      display: 'flex',
+      flexDirection: 'row',
+      height: '100%',
+      marginTop: theme.spacing(0.5),
+      width: '100%'
+    },
+    stateIcon: {
+      marginLeft: theme.spacing(0.5)
+    },
+    statusTile: {
+      '&[data-mode="compact"]': {
+        height: theme.spacing(2),
+        width: '100%'
+      },
+      borderRadius: theme.shape.borderRadius,
+      height: theme.spacing(3.5),
+      position: 'absolute',
+      right: '0%',
+      top: '0%',
+      width: '100%'
+    },
+    seeMoreLabel: {
+      overflow: 'hidden',
+      display: '-webkit-box',
+      WebkitLineClamp: isMediumSize ? 1 : 3,
+      WebkitBoxOrient: 'vertical',
+      width: tileSize
+    }
+  })
+);
 
 export const useHostTooltipContentStyles = makeStyles()((theme) => ({
   baParent: {
