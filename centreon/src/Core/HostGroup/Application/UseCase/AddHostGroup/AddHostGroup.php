@@ -122,6 +122,9 @@ final class AddHostGroup
                 new HostGroupRelation($newHostGroup, $linkedHosts, $linkedResourceAccessRules ?? [])
             );
         } catch (HostGroupException|HostException|RuleException|AssertionFailedException $ex) {
+            if ($this->storageEngine->isAlreadyInTransaction()) {
+                $this->storageEngine->rollbackTransaction();
+            }
             $this->error(
                 "Error while adding host groups : {$ex->getMessage()}",
                 [
@@ -131,6 +134,9 @@ final class AddHostGroup
 
             return new InvalidArgumentResponse($ex);
         } catch (\Throwable $ex) {
+            if ($this->storageEngine->isAlreadyInTransaction()) {
+                $this->storageEngine->rollbackTransaction();
+            }
             $this->error(
                 "Error while adding host groups : {$ex->getMessage()}",
                 [
@@ -172,16 +178,19 @@ final class AddHostGroup
      */
     private function linkHostGroupToRAM(array $resourceAccessRuleIds, int $hostGroupId): void
     {
-        $datasetFilters = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
+        $datasetFilterRelations = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
             $resourceAccessRuleIds,
             HostGroupFilterType::TYPE_NAME
         );
-
-        foreach ($datasetFilters as $datasetId => $resourceIds) {
+        foreach ($datasetFilterRelations as $datasetFilterRelation) {
+            $resourceIds = $datasetFilterRelation->getResourceIds();
             $resourceIds[] = $hostGroupId;
-            $this->writeResourceAccessRepository->updateDatasetResources($datasetId, $resourceIds);
+            $this->writeResourceAccessRepository->updateDatasetResources(
+                $datasetFilterRelation->getDatasetFilterId(),
+                $resourceIds
+            );
+            $this->linkHostGroupToResourcesACL($hostGroupId, $datasetFilterRelation->getResourceAccessGroupId());
         }
-
     }
 
     /**
@@ -191,12 +200,12 @@ final class AddHostGroup
      *
      * @throws \Throwable
      */
-    private function linkHostGroupToResourcesACL(int $hostGroupId): void
+    private function linkHostGroupToResourcesACL(int $hostGroupId, int $datasetId): void
     {
         if (! $this->user->isAdmin()) {
-            $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndAccessGroups(
+            $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndResourceAccessGroup(
                 $hostGroupId,
-                $this->readAccessGroupRepository->findByContact($this->user)
+                $datasetId
             );
         }
     }

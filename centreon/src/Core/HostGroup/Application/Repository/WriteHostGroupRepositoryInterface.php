@@ -82,6 +82,15 @@ interface WriteHostGroupRepositoryInterface
     public function addHosts(int $hostGroupId, array $hostIds): void;
 
     /**
+     * Delete a list of hosts from an host group.
+     *
+     * @param int $hostGroupId
+     * @param array $hostIds
+     * @return void
+     */
+    public function deleteHosts(int $hostGroupId, array $hostIds): void;
+
+    /**
      * Set an host group as enabled or disabled.
      *
      * @param int $hostGroupId

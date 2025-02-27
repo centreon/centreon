@@ -299,6 +299,11 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         }
     }
 
+    public function deleteHosts(int $hostGroupId, array $hostIds): void
+    {
+        $this->writeHostGroupRepository->deleteHosts($hostGroupId, $hostIds);
+    }
+
     /**
      * @param NewHostGroup $hostGroup
      *

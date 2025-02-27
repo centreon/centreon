@@ -25,25 +25,24 @@ namespace Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
 final class UpdateHostGroupRequest
 {
-    public string $name = '';
+    /**
+     * @param int $id
+     * @param string $name
+     * @param string $alias
+     * @param string|null $geoCoords
+     * @param string $comment
+     * @param int[] $hosts
+     * @param int[] $resourceAccessRules
+     */
+    public function __construct(
+        public int $id = 0,
+        public string $name = '',
+        public string $alias = '',
+        public ?string $geoCoords = null,
+        public string $comment = '',
+        public array $hosts = [],
+        public array $resourceAccessRules = [],
+    ) {
 
-    public string $alias = '';
-
-    public string $notes = '';
-
-    public string $notesUrl = '';
-
-    public string $actionUrl = '';
-
-    public ?int $iconId = null;
-
-    public ?int $iconMapId = null;
-
-    public ?int $rrdRetention = null;
-
-    public ?string $geoCoords = null;
-
-    public string $comment = '';
-
-    public bool $isActivated = true;
+    }
 }

@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
@@ -35,8 +36,7 @@ use Utility\SqlConcatenator;
 
 class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteHostGroupRepositoryInterface
 {
-    use RepositoryTrait;
-    use LoggerTrait;
+    use RepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -180,12 +180,10 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
             'INSERT INTO `:db`.`hostgroup_relation` (host_host_id, hostgroup_hg_id) VALUES '
             . implode(', ', $subQuery)
         ));
-
         foreach ($bindValues as $key => $value) {
             $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
         $statement->bindValue(':group_id', $hostGroupId, \PDO::PARAM_INT);
-
         $statement->execute();
     }
 
@@ -279,6 +277,26 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
+    }
+
+    public function deleteHosts(int $hostGroupId, array $hostIds): void
+    {
+        if ($hostIds === []) {
+            return;
+        }
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($hostIds, ':host_id_');
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                DELETE FROM `:db`.`hostgroup_relation`
+                WHERE hostgroup_hg_id = :hostgroup_id
+                AND host_host_id IN ({$bindQuery})
+            SQL
+        ));
+        $statement->bindValue(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
     }
 
     /**
