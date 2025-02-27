@@ -55,13 +55,6 @@ interface ReadResourceAccessRepositoryInterface
     public function findById(int $ruleId): ?Rule;
 
     /**
-     * @param int[] $ruleIds
-     *
-     * @return Rule[]
-     */
-    public function findByIds(array $ruleIds): array;
-
-    /**
      * @param int $ruleId
      *
      * @return int[]

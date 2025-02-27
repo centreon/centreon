@@ -24,11 +24,9 @@ declare(strict_types=1);
 namespace Core\HostGroup\Infrastructure\API\UpdateHostGroup;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostGroup\Application\UseCase\UpdateHostGroup\UpdateHostGroup;
 use Core\HostGroup\Infrastructure\Voters\HostGroupVoters;
 use Core\Infrastructure\Common\Api\StandardPresenter;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -65,10 +63,6 @@ final class UpdateHostGroupController extends AbstractController
             $this->isCloudPlatform
         ));
 
-        if ($response instanceof ResponseStatusInterface) {
-            return $this->createResponse($response);
-        }
-
-        return JsonResponse::fromJsonString($presenter->present($response, ['groups' => ['HostGroup:Add'], 'is_cloud_platform' => $this->isCloudPlatform]));
+        return $this->createResponse($response);
     }
 }

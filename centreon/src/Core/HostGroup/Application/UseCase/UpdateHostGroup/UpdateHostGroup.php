@@ -36,7 +36,6 @@ use Core\Application\Common\UseCase\{
     ResponseStatusInterface,
 };
 use Core\Common\Domain\SimpleEntity;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
@@ -68,22 +67,6 @@ final class UpdateHostGroup
 {
     use LoggerTrait;
 
-    /**
-     * @param ContactInterface $user
-     * @param UpdateHostGroupValidator $validator
-     * @param DataStorageEngineInterface $storageEngine
-     * @param bool $isCloudPlatform
-     * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
-     * @param ReadHostRepositoryInterface $readHostRepository
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
-     * @param ReadResourceAccessRepositoryInterface $readResourceAccessRepository
-     * @param ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository
-     * @param ReadContactGroupRepositoryInterface $readContactGroupRepository
-     * @param WriteHostGroupRepositoryInterface $writeHostGroupRepository
-     * @param WriteResourceAccessRepositoryInterface $writeResourceAccessRepository
-     * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
-     * @param WriteAccessGroupRepositoryInterface $writeAccessGroupRepository
-     */
     public function __construct(
         private readonly ContactInterface $user,
         private readonly UpdateHostGroupValidator $validator,
@@ -94,7 +77,6 @@ final class UpdateHostGroup
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
-        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
@@ -103,9 +85,7 @@ final class UpdateHostGroup
     }
 
     /**
-     * @param int $hostGroupId
      * @param UpdateHostGroupRequest $request
-     * @param UpdateHostGroupPresenterInterface $presenter
      */
     public function __invoke(UpdateHostGroupRequest $request): ResponseStatusInterface
     {

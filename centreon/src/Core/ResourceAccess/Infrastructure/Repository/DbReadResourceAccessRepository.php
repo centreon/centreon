@@ -214,35 +214,6 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         );
     }
 
-    public function findByIds(array $ruleIds): array
-    {
-        $basicInformations = $this->findMultipleBasicInformation($ruleIds);
-        if (empty($basicInformations)) {
-            return [];
-        }
-        $linkedContacts = $this->findLinkedContactsToRules($ruleIds);
-        $linkedContactGroups = $this->findLinkedContactGroupsToRules($ruleIds);
-        $datasets = $this->findDatasetsByRules($ruleIds);
-
-        if ($datasets === null) {
-            return [];
-        }
-
-        $rules = [];
-        foreach ($basicInformations as $ruleId => $basicInformation) {
-            // dd($ruleId, $basicInformation, $linkedContacts[$ruleId], $linkedContactGroups[$ruleId] ?? [], $datasets[$ruleId]);
-            $rules[] = DbRuleFactory::createFromRecord(
-                $basicInformation,
-                $linkedContacts[$ruleId] ?? [],
-                $linkedContactGroups[$ruleId] ?? [],
-                $datasets[$ruleId],
-                $this->datasetValidator
-            );
-        }
-
-        return $rules;
-    }
-
     /**
      * @inheritDoc
      */
@@ -383,6 +354,9 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         return $datasetFilters;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findLastLevelDatasetFilterByRuleIdsAndType(array $ruleIds, string $type): array
     {
         if (empty($ruleIds)) {
@@ -417,19 +391,20 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         $statement->bindValue(':type', $type, \PDO::PARAM_STR);
         $statement->execute();
 
-        $datasetFilters = [];
+        $datasetFilterRelations = [];
 
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /**
              * @var array{
              *      id: int,
+             *      type: string,
              *      parent_id: int|null,
              *      acl_resource_id: int,
              *      acl_group_id: int,
              *      resource_ids: string
              * } $record
              */
-            $datasetFilters[] = new DatasetFilterRelation(
+            $datasetFilterRelations[] = new DatasetFilterRelation(
                 datasetFilterId: $record['id'],
                 datasetFilterType: $record['type'],
                 parentId: $record['parent_id'],
@@ -439,7 +414,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
             );
         }
 
-        return $datasetFilters;
+        return $datasetFilterRelations;
     }
 
     /**
@@ -487,43 +462,6 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
     }
 
     /**
-     * @param int[] $ruleIds
-     *
-     * @return array<int, int[]> Contact IDs indexed by rule ID
-     */
-    private function findLinkedContactsToRules(array $ruleIds): array
-    {
-        if (empty($ruleIds)) {
-            return [];
-        }
-
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
-
-        $statement = $this->db->prepare(
-            $this->translatedbname(
-                <<<SQL
-                        SELECT acl_group_id, contact_contact_id
-                        FROM `:db`.acl_group_contacts_relations
-                        WHERE acl_group_id IN ({$bindQuery})
-                    SQL
-            )
-        );
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->execute();
-
-        $contacts = [];
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $contacts[$record['acl_group_id']][] = (int) $record['contact_contact_id'];
-        }
-
-        return $contacts;
-    }
-
-    /**
      * @param int $ruleId
      *
      * @return int[]
@@ -542,43 +480,6 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         $statement->execute();
 
         return $statement->fetchAll(\PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * @param int[] $ruleIds
-     *
-     * @return array<int, int[]> Contact Group IDs indexed by rule ID
-     */
-    private function findLinkedContactGroupsToRules(array $ruleIds): array
-    {
-        if (empty($ruleIds)) {
-            return [];
-        }
-
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
-
-        $statement = $this->db->prepare(
-            $this->translatedbname(
-                <<<SQL
-                        SELECT acl_group_id, cg_cg_id
-                        FROM `:db`.acl_group_contactgroups_relations
-                        WHERE acl_group_id IN ({$bindQuery})
-                    SQL
-            )
-        );
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->execute();
-
-        $contactGroups = [];
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $contactGroups[$record['acl_group_id']][] = (int) $record['cg_cg_id'];
-        }
-
-        return $contactGroups;
     }
 
     /**
@@ -621,54 +522,6 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
     }
 
     /**
-     * @param int[] $ruleIds
-     *
-     * @throws \PDOException
-     *
-     * @return array<int, non-empty-list<_DatasetFilter>>|null
-     */
-    private function findDatasetsByRules(array $ruleIds): ?array
-    {
-        if (empty($ruleIds)) {
-            return null;
-        }
-
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
-
-        $request = $this->translateDbName(
-            <<<SQL
-                    SELECT
-                        dataset.acl_res_name AS dataset_name,
-                        id AS dataset_filter_id,
-                        parent_id AS dataset_filter_parent_id,
-                        type AS dataset_filter_type,
-                        resource_ids AS dataset_filter_resources,
-                        acl_resource_id AS dataset_id,
-                        acl_group_id AS rule_id
-                    FROM `:db`.dataset_filters
-                    INNER JOIN `:db`.acl_resources AS dataset
-                        ON dataset.acl_res_id = dataset_filters.acl_resource_id
-                    WHERE acl_group_id IN ({$bindQuery})
-                    ORDER BY dataset_name ASC
-                SQL
-        );
-
-        $statement = $this->db->prepare($request);
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        $datasets = [];
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /** @var array<int, non-empty-list<_DatasetFilter>> $record */
-            $datasets[$record['rule_id']][] = $record;
-        }
-
-        return $datasets;
-    }
-
-    /**
      * @param int $ruleId
      *
      * @throws \PDOException
@@ -702,49 +555,6 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         }
 
         return null;
-    }
-
-    /**
-     * @param int $ruleId
-     * @param array $ruleIds
-     *
-     * @throws \PDOException
-     *
-     * @return array<int, _TinyRule> TinyRules indexed by rule ID
-     */
-    private function findMultipleBasicInformation(array $ruleIds): array
-    {
-
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
-
-        $request = $this->translateDbName(
-            <<<SQL
-                    SELECT
-                        acl_groups.acl_group_id AS `id`,
-                        acl_group_name AS `name`,
-                        cloud_description AS `description`,
-                        acl_group_activate AS `is_enabled`,
-                        all_contacts,
-                        all_contact_groups
-                    FROM `:db`.acl_groups
-                    WHERE acl_groups.acl_group_id IN ({$bindQuery})
-                        AND cloud_specific = 1
-                SQL
-        );
-
-        $statement = $this->db->prepare($request);
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        $rules = [];
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /** @var _TinyRule $record */
-            $rules[$record['id']] = $record;
-        }
-
-        return $rules;
     }
 
     /**

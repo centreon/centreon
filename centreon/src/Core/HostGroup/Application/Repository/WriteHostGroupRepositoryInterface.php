@@ -85,7 +85,7 @@ interface WriteHostGroupRepositoryInterface
      * Delete a list of hosts from an host group.
      *
      * @param int $hostGroupId
-     * @param array $hostIds
+     * @param int[] $hostIds
      * @return void
      */
     public function deleteHosts(int $hostGroupId, array $hostIds): void;
