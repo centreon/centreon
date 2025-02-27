@@ -23,17 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\HostGroup\Application\UseCase\AddHostGroup;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
@@ -47,11 +42,11 @@ use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupValidator;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupRelation;
-use Core\HostGroup\Domain\Model\NewHostGroup;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterRelation;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
@@ -72,8 +67,8 @@ beforeEach(function (): void {
         $this->isCloudPlatform = true,
         $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         $this->readResourceAccessRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
-        $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
         $this->writeResourceAccessRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
@@ -188,8 +183,22 @@ it(
             ->expects($this->once())
             ->method('findLastLevelDatasetFilterByRuleIdsAndType')
             ->willReturn([
-                [1 => [1,2,3]],
-                [2 => [4,5,6]]
+                new DatasetFilterRelation(
+                    datasetFilterId: 1,
+                    datasetFilterType: 'hostgroup',
+                    parentId: null,
+                    resourceAccessGroupId: 1,
+                    aclGroupId: 1,
+                    resourceIds: [1,2,3]
+                ),
+                new DatasetFilterRelation(
+                    datasetFilterId: 2,
+                    datasetFilterType: 'hostgroup',
+                    parentId: null,
+                    resourceAccessGroupId: 2,
+                    aclGroupId: 2,
+                    resourceIds: [4,5,6]
+                ),
             ]);
 
         $this->writeResourceAccessRepository
@@ -264,9 +273,7 @@ it(
                 ),
             );
 
-        dump($this->addHostGroupRequest);
         $response = ($this->useCase)($this->addHostGroupRequest);
-
         expect($response)
             ->toBeInstanceOf(AddHostGroupResponse::class)
             ->and($response->getData())

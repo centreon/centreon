@@ -144,7 +144,7 @@ final class UpdateHostGroup
                 ]
             );
 
-            return new ErrorResponse(HostGroupException::errorWhileUpdating());
+            return new ErrorResponse($ex);
         }
     }
 
@@ -215,10 +215,11 @@ final class UpdateHostGroup
         );
 
         $rulesDifference = new BasicDifference($rulesByHostgroup, $request->resourceAccessRules);
-        $rulestoRemove = $rulesDifference->getRemoved();
-        $rulestoAdd = $rulesDifference->getAdded();
-        $this->unlinkHostGroupToRAM($rulestoRemove, $request->id);
-        $this->linkHostGroupToRAM($rulestoAdd, $request->id);
+        $rulesToRemove = $rulesDifference->getRemoved();
+        $rulesToAdd = $rulesDifference->getAdded();
+
+        $this->unlinkHostGroupToRAM($rulesToRemove, $request->id);
+        $this->linkHostGroupToRAM($rulesToAdd, $request->id);
     }
 
     /**
@@ -269,6 +270,7 @@ final class UpdateHostGroup
             $resourceAccessRuleIds,
             HostGroupFilterType::TYPE_NAME
         );
+
         foreach ($datasetFilterRelations as $datasetFilterRelation) {
             /**
              * Empty $resourceIds are dataset with "All Host Groups" Configured
@@ -278,7 +280,9 @@ final class UpdateHostGroup
             if (! empty($datasetFilterRelation->getResourceIds())) {
                 $resourceIdToUpdates = array_filter(
                     $datasetFilterRelation->getResourceIds(),
-                    fn ($resourceId) => $resourceId !== $hostGroupId
+                    function ($resourceId) use ($hostGroupId) {
+                        return $resourceId !== $hostGroupId;
+                    }
                 );
                 if (empty($resourceIdToUpdates)) {
                     $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterRelation->getDatasetFilterId());
