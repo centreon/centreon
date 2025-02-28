@@ -69,11 +69,11 @@ export const customRenderedTags = (): JSX.Element => {
 
   return (
     <MultiAutocompleteField
+      customRenderTags={customRender}
       label="Custom Tags Render"
       options={options}
       placeholder="Type here..."
       value={[options[0], options[1]]}
-      customRenderTags={customRender}
     />
   );
 };

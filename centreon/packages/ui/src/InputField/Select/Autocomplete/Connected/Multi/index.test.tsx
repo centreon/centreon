@@ -18,12 +18,12 @@ const renderMultiAutocompleteField = (customRenderTags?): RenderResult =>
     <TestQueryProvider>
       <MultiConnectedAutocompleteField
         baseEndpoint=""
+        customRenderTags={customRenderTags}
         field="host.name"
         getEndpoint={getEndpoint}
         label={label}
         placeholder="Type here..."
         value={[optionsData.result[0]]}
-        customRenderTags={customRenderTags}
       />
     </TestQueryProvider>
   );
