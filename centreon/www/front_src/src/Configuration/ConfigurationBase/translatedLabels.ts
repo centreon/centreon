@@ -29,8 +29,8 @@ export const labelDeleteResource = (type) => `Delete ${type}`;
 export const labelDuplicateResource = (type) => `Duplicate ${type}`;
 
 // API messages
-export const labelResourceDisabled = (type) => `${type} diabled`;
-export const labelResourceEnabled = (type) => `${type} diabled`;
+export const labelResourceDisabled = (type) => `${type} disabled`;
+export const labelResourceEnabled = (type) => `${type} enabled`;
 export const labelResourceDuplicated = (type) => `${type} duplicated`;
 export const labelResourceDeleted = (type) => `${type} deleted`;
 export const labelResourceCreated = (type) => `${type} created`;

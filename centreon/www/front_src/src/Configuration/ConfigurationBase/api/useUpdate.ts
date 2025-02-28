@@ -24,7 +24,6 @@ const useUpdate = (): UseUpdateProps => {
     method: Method.PUT,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listResources'] });
-      queryClient.resetQueries({ queryKey: ['getDetails'] });
     }
   });
   const updateMutation = (id: number) => (payload) => {
