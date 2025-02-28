@@ -13,7 +13,7 @@ import { baseEndpoint, getEndpoint, label, optionsData } from './utils';
 
 import MultiConnectedAutocompleteField from '.';
 
-const renderMultiAutocompleteField = (): RenderResult =>
+const renderMultiAutocompleteField = (customRenderTags?): RenderResult =>
   render(
     <TestQueryProvider>
       <MultiConnectedAutocompleteField
@@ -23,6 +23,7 @@ const renderMultiAutocompleteField = (): RenderResult =>
         label={label}
         placeholder="Type here..."
         value={[optionsData.result[0]]}
+        customRenderTags={customRenderTags}
       />
     </TestQueryProvider>
   );
@@ -40,6 +41,25 @@ describe(MultiConnectedAutocompleteField, () => {
 
     await waitFor(() => {
       expect(getFetchCall(0)).toEqual(`${baseEndpoint}?page=1`);
+    });
+  });
+
+  it('display tags when customTagsRender is defined', async () => {
+    const customRender = (tags: React.ReactNode): React.ReactNode => (
+      <div data-testid="custom-tags-wrapper">{tags}</div>
+    );
+
+    const { getByLabelText, getByTestId } =
+      renderMultiAutocompleteField(customRender);
+
+    fireEvent.click(getByLabelText('Open'));
+
+    await waitFor(() => {
+      const tagChip = getByTestId(
+        `tag-option-chip-${optionsData.result[0].id}`
+      );
+      expect(tagChip).toBeVisible();
+      expect(tagChip).toHaveTextContent(optionsData.result[0].name);
     });
   });
 });
