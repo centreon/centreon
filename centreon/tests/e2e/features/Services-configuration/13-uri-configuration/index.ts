@@ -132,7 +132,7 @@ When('the user save the modifications', () => {
 });
 
 Then('the status of the service is changed', () => {
-   // Wait until 2 services have the status 'OK'
+   // Wait until 4 services have the status 'OK'
    cy.waitUntil(
     () => {
       return cy
