@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import { Configuration, Filters } from '../models';
 import { ModalState } from './models';
 
@@ -9,7 +10,12 @@ export const configurationAtom = atom<Configuration | null>({
   defaultSelectedColumnIds: []
 });
 
-export const filtersAtom = atom<Filters>({ name: '' });
+export const filtersAtom = atomWithStorage<Filters>(
+  `filters_${window.location.pathname}`,
+  {
+    name: ''
+  }
+);
 
 export const modalStateAtom = atom<ModalState>({
   id: null,

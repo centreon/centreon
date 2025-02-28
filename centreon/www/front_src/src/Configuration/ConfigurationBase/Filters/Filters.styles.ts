@@ -28,5 +28,13 @@ export const useFilterStyles = makeStyles()((theme) => ({
   },
   statusFilterName: {
     fontWeight: theme.typography.fontWeightMedium
+  },
+  badge: {
+    '& .MuiBadge-badge': {
+      fontSize: theme.typography.caption.fontSize,
+      height: theme.spacing(1.75),
+      minWidth: theme.spacing(1.75),
+      padding: theme.spacing(0, 0.5)
+    }
   }
 }));

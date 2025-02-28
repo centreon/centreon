@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { isEmpty, not } from 'ramda';
 import { useEffect, useMemo } from 'react';
 import { ConfigurationBase } from '../models';
@@ -16,7 +16,7 @@ const Base = ({
   defaultSelectedColumnIds
 }: ConfigurationBase): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
-  const [filters, setFilters] = useAtom(filtersAtom);
+  const filters = useAtomValue(filtersAtom);
 
   useEffect(() => {
     setConfiguration({
@@ -26,11 +26,8 @@ const Base = ({
       filtersInitialValues,
       defaultSelectedColumnIds
     });
-
-    setFilters(filtersInitialValues);
   }, [
     setConfiguration,
-    setFilters,
     api,
     filtersConfiguration,
     defaultSelectedColumnIds,
