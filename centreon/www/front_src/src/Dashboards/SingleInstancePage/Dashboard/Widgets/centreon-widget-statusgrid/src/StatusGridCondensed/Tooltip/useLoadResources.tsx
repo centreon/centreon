@@ -47,7 +47,7 @@ export const useLoadResources = ({
     return resourcesEndpoint;
   };
 
-  const formattedResources = getFormattedResources(resources);
+  const formattedResources = getFormattedResources({ array: resources });
 
   const resourcesToApplyToSearch = formattedResources.map((resource) => {
     if (!equals(resourceType, resource.resourceType)) {

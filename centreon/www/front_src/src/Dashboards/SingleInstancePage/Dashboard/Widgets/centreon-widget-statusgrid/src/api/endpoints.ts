@@ -68,7 +68,7 @@ export const getListingCustomQueryParameters = ({
   states,
   resources
 }: GetCustomQueryParametersProps): Array<QueryParameter> => {
-  const formattedResources = getFormattedResources(resources);
+  const formattedResources = getFormattedResources({ array: resources });
 
   const resourcesToApplyToCustomParameters = formattedResources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
@@ -106,7 +106,7 @@ export const getListingQueryParameters = ({
   limit,
   page
 }: GetListingQueryParametersProps): ListingParameters => {
-  const formattedResources = getFormattedResources(resources);
+  const formattedResources = getFormattedResources({ array: resources });
   const resourcesToApplyToSearchParameters = formattedResources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
   );
@@ -181,7 +181,7 @@ export const buildCondensedViewEndpoint = ({
   baseEndpoint,
   statuses
 }: BuildResourcesEndpointProps): string => {
-  const formattedResources = getFormattedResources(resources);
+  const formattedResources = getFormattedResources({ array: resources });
 
   const resourcesToApply = formattedResources.map((resource) => {
     if (!equals(type, resource.resourceType)) {

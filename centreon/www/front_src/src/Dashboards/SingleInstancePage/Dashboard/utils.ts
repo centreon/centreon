@@ -215,11 +215,17 @@ export const getUrlForResourcesOnlyWidgets = ({
   )}&fromTopCounter=true`;
 };
 
-export const getFormattedResources = (
-  array: Array<Resource>
-): Array<Resource> => {
+interface GetFormattedResources {
+  array: Array<Resource>;
+  filterName?: string;
+}
+
+export const getFormattedResources = ({
+  array,
+  filterName = 'hostgroup'
+}: GetFormattedResources): Array<Resource> => {
   return array.map((item) => {
-    if (equals(item.resourceType, 'hostgroup')) {
+    if (equals(item.resourceType, filterName)) {
       return { ...item, resourceType: WidgetResourceType.hostGroup };
     }
     return item;
