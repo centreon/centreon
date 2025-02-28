@@ -854,6 +854,18 @@ function getPollersForConfigChangeFlagFromHostgroupId(int $hostgroupId): array
     return findPollersForConfigChangeFlagFromHostIds($hostIds);
 }
 
+
+function isHostGroupActivated(int $hgId): bool
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare("SELECT hg_activate FROM hostgroup WHERE hg_id = :hg_id");
+    $statement->bindValue(':hg_id', $hgId, \PDO::PARAM_INT);
+    $statement->execute();
+
+    return (bool) $statement->fetchColumn();
+}
+
 // ---------- API CALLs ----------
 
 /**
@@ -1050,8 +1062,14 @@ function getPayload(bool $isCloudPlatform, array $formData): array
         'name' => $formData['hg_name'],
         'alias' => $formData['hg_alias'] ?: null,
         'geo_coords' => $formData['geo_coords'] ?: null,
-        'is_activated' => (bool) ($formData['hg_activate']['hg_activate'] ?: false),
+        'is_activated'  => (bool) ($formData['hg_activate']['hg_activate'] ?? true),
     ];
+
+    if ($isCloudPlatform === true) {
+        $payload['is_activated'] = $formData['hg_id'] != ''
+            ? isHostGroupActivated((int) $formData['hg_id'])
+            : true;
+    }
 
     if ($isCloudPlatform === false) {
         $payloadOnPrem = [
