@@ -15,6 +15,7 @@ import {
   labelFailedToDisableSomeResources,
   labelFailedToEnableResources,
   labelFailedToEnableSomeResources,
+  labelResourceDisabled,
   labelResourceEnabled
 } from '../../../translatedLabels';
 
@@ -77,7 +78,7 @@ const useChangeStatus = (): UseChangeStatus => {
         data: results,
         labelWarning: t(labelFailedToDisableSomeResources),
         labelFailed: t(labelFailedToDisableResources(labelResourceType)),
-        labelSuccess: t(labelResourceEnabled(labelResourceType)),
+        labelSuccess: t(labelResourceDisabled(labelResourceType)),
         items: selectedRows
       });
 
