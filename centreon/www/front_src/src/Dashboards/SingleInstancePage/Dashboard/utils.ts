@@ -226,7 +226,7 @@ export const getFormattedResources = ({
   filterName = 'hostgroup',
   resourceType = WidgetResourceType.hostGroup
 }: GetFormattedResources): Array<Resource> => {
-  return array.map((item) => {
+  return array?.map((item) => {
     if (equals(item.resourceType, filterName)) {
       return { ...item, resourceType };
     }
