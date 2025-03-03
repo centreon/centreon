@@ -229,6 +229,33 @@ $createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage
     }
 };
 
+// -------------------------------------------- Widgets -------------------------------------------- //
+/**
+ * Insert the batimeline widget into the dashboard_widgets table.
+ *
+ * @param CentreonDB $realtimeDb
+ *
+ * @throws CentreonDbException
+ */
+$insertBatimelineWidget = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to select data into table dashboard_widgets';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-batimeline'
+            SQL
+    );
+
+    $errorMessage = 'Unable to insert data into table dashboard_widgets';
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                INSERT INTO `dashboard_widgets` (`name`)
+                VALUES ('centreon-widget-batimeline')
+                SQL
+        );
+    }
+};
+
 try {
     $createAgentInformationTable($pearDBO);
     $addConnectorToTopology($pearDB);
@@ -245,6 +272,7 @@ try {
     $insertAccConnectors($pearDB);
     $updatePanelsLayout($pearDB);
     $removeFieldFromBrokerConfiguration($pearDB);
+    $insertBatimelineWidget($pearDBO);
 
     $pearDB->commit();
 
