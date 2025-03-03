@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, not, pathEq, path } from 'ramda';
+import { path, equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -12,15 +12,16 @@ import {
   aclAtom,
   downtimeAtom,
   platformNameAtom,
-  refreshIntervalAtom
+  refreshIntervalAtom,
+  statisticsRefreshIntervalAtom
 } from '@centreon/ui-context';
 
-import { logoutEndpoint } from '../api/endpoint';
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
+import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
+import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
@@ -69,6 +70,10 @@ const useApp = (): UseAppState => {
   const [platformVersion] = useAtom(platformVersionsAtom);
   const setDowntime = useSetAtom(downtimeAtom);
   const setRefreshInterval = useSetAtom(refreshIntervalAtom);
+  const setStatisticsRefreshInterval = useSetAtom(
+    statisticsRefreshIntervalAtom
+  );
+
   const setAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
@@ -101,7 +106,7 @@ const useApp = (): UseAppState => {
     ])
       .then(([retrievedParameters, retrievedAcl]) => {
         setDowntime({
-          duration: parseInt(
+          duration: Number.parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
             10
           ),
@@ -110,7 +115,16 @@ const useApp = (): UseAppState => {
             retrievedParameters.monitoring_default_downtime_with_services
         });
         setRefreshInterval(
-          parseInt(retrievedParameters.monitoring_default_refresh_interval, 10)
+          Number.parseInt(
+            retrievedParameters.monitoring_default_refresh_interval,
+            10
+          )
+        );
+        setStatisticsRefreshInterval(
+          Number.parseInt(
+            retrievedParameters?.statistics_default_refresh_interval,
+            10
+          )
         );
         setAcl({ actions: retrievedAcl });
         setAcknowledgement({

@@ -260,6 +260,85 @@ type widgetJSONData =
   | textWidgetJSONData
   | topBottomWidgetJSONData;
 
+  interface HostDataType {
+    acknowledgement_timeout: number;
+    action_url: string;
+    active_check_enabled: number;
+    add_inherited_contact: boolean;
+    add_inherited_contact_group: boolean;
+    address: string;
+    alias: string;
+    categories: Array<number>;
+    check_command_args: Array<string>;
+    check_command_id: number;
+    check_timeperiod_id: number;
+    comment: string;
+    event_handler_command_args: Array<string>;
+    event_handler_command_id: number;
+    event_handler_enabled: number;
+    first_notification_delay: number;
+    flap_detection_enabled: number;
+    freshness_checked: number;
+    freshness_threshold: number;
+    geo_coords: string;
+    groups: Array<number>;
+    high_flap_threshold: number;
+    icon_alternative: string;
+    icon_id: number;
+    is_activated: boolean;
+    low_flap_threshold: number;
+    macros: Array<object>;
+    max_check_attempts: number;
+    monitoring_server_id: number;
+    name: string;
+    normal_check_interval: number;
+    note: string;
+    note_url: string;
+    notification_enabled: number;
+    notification_interval: number;
+    notification_options: number;
+    notification_timeperiod_id: number;
+    passive_check_enabled: number;
+    recovery_notification_delay: number;
+    retry_check_interval: number;
+    severity_id: number;
+    snmp_community: string;
+    snmp_version: string;
+    templates: Array<number>;
+    timezone_id: number;
+  }
+  
+  
+  Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
+    const defaultHostData = {
+      address: '127.0.0.1',
+      alias: 'generic-active-host',
+      groups: [53],
+      macros: [
+        {
+          description: 'Some text to describe the macro',
+          is_password: false,
+          name: 'MacroName',
+          value: 'macroValue'
+        }
+      ],
+      monitoring_server_id: 1,
+      name: 'generic-active-host',
+      templates: [2]
+    };
+  
+    const requestBody = { ...defaultHostData, ...hostData };
+  
+    cy.request({
+      body: requestBody,
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/hosts'
+    }).then((response) => {
+      expect(response.status).to.eq(201);
+      return response.body.id;
+    });
+  });
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -283,6 +362,9 @@ declare global {
         closeIconIndex?:number
       ) => Cypress.Chainable;
       waitUntilPingExists: () => Cypress.Chainable;
+      addNewHostAndReturnId: (
+        hostData?: Partial<HostDataType>
+      ) => Cypress.Chainable;
     }
   }
 }

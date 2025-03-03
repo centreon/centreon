@@ -17559,3 +17559,6 @@ msgstr ""
 
 # msgid "Export as"
 # msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""

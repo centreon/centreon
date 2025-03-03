@@ -59,10 +59,6 @@ default:
       paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
       contexts: [ DowntimeRecurrentContext ]
 
-    command_arguments:
-      paths: [ "%paths.base%/features/CommandArguments.feature" ]
-      contexts: [ CommandArgumentsContext ]
-
     autologin:
       paths: [ "%paths.base%/features/Autologin.feature" ]
       contexts: [ AutologinContext ]
@@ -99,22 +95,6 @@ default:
       paths: [ "%paths.base%/features/LdapManualImport.feature" ]
       contexts: [ LdapManualImportContext ]
 
-    command_configuration:
-      paths: [ "%paths.base%/features/CommandConfiguration.feature" ]
-      contexts: [ CommandConfigurationContext ]
-
-    host_group_service_configuration:
-      paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
-      contexts: [ HostGroupServiceConfigurationContext ]
-
-    escalation_configuration:
-      paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]
-      contexts: [ EscalationConfigurationContext ]
-
-    service_submit_result:
-      paths: [ "%paths.base%/features/ServiceSubmitResult.feature" ]
-      contexts: [ ServiceSubmitResultContext ]
-
     connector_configuration:
       paths: [ "%paths.base%/features/ConnectorConfiguration.feature" ]
       contexts: [ ConnectorConfigurationContext ]
@@ -122,10 +102,6 @@ default:
     vendor_configuration:
       paths: [ "%paths.base%/features/VendorConfiguration.feature" ]
       contexts: [ VendorConfigurationContext ]
-
-    test_proxy_configuration:
-      paths: [ "%paths.base%/features/TestProxyConfiguration.feature" ]
-      contexts: [ TestProxyConfigurationContext ]
 
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]

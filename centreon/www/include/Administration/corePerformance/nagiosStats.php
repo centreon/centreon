@@ -174,11 +174,8 @@ $title = array(
 
 $path = "./include/Administration/corePerformance/";
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl, "./");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path, "./");
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);

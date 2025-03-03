@@ -97,9 +97,9 @@ if ($centreon->user->admin == 0) {
     $grouplistStr = $access->getAccessGroupsString();
 }
 
+// Smarty template initialization
 $path = $centreon_path . "www/widgets/live-top10-cpu-usage/src/";
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 $data = array();
 

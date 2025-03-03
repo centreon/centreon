@@ -138,9 +138,8 @@ $attrBtnSuccess = array(
 );
 $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 
-//Init Smarty
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tabAction = array();
 $tabAction["a"] = _("Added");

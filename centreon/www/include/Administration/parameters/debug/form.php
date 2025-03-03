@@ -94,11 +94,8 @@ $form->addElement('hidden', 'gopt_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path.'debug/', $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . 'debug/');
 
 $form->setDefaults($gopt);
 

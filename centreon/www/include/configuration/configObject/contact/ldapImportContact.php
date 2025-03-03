@@ -67,11 +67,8 @@ $form->addElement('hidden', 'contact_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     'ldap_search_filter_help',

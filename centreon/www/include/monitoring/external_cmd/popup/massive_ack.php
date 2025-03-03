@@ -49,13 +49,9 @@ if (isset($_GET['select'])) {
     }
 }
 
+// Smarty template initialization
 $path = _CENTREON_PATH_ . "/www/include/monitoring/external_cmd/popup/";
-
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTplForPopup($path, $tpl, './templates/', _CENTREON_PATH_);
+$tpl = SmartyBC::createSmartyTemplate($path, './templates/');
 
 require_once _CENTREON_PATH_ . "www/include/monitoring/common-Func.php";
 

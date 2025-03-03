@@ -65,11 +65,8 @@ $rows = $tmp["COUNT(*)"];
 
 require "./include/common/checkPagination.php";
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * start header menu

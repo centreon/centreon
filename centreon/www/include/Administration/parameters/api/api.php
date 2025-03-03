@@ -81,11 +81,8 @@ $redirect->setValue($o);
 
 $form->applyFilter('__ALL__', 'myTrim');
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path . "/api", $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . "/api");
 
 $form->setDefaults($gopt);
 

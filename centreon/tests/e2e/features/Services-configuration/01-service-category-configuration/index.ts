@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 beforeEach(() => {
@@ -116,6 +115,22 @@ Then('the new service category has the same properties', () => {
     .find('table tbody')
     .contains('Ping_1')
     .should('be.visible');
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('table tbody')
+    .contains('Ping_1')
+    .click();
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('table > tbody > tr.list_one > td.FormRowValue')
+    .find('input[value="Ping_1"]')
+    .should('exist');
+  cy.getIframeBody()
+    .find('table tr.list_two td.FormRowValue')
+    .find('input[value="ping"]')
+    .should('exist');
+  cy.getIframeBody().contains('Ping-LAN').should('exist');
+  cy.getIframeBody().contains('Ping-WAN').should('exist');
 });
 
 When('the user delete a service category', () => {

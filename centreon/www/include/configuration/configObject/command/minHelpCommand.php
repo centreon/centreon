@@ -87,11 +87,8 @@ $form->addElement('header', 'information', _("Help"));
 $form->addElement('text', 'command_line', _("Command Line"), $attrsText);
 $form->addElement('text', 'command_help', _("Output"), $attrsText);
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * Apply a template definition

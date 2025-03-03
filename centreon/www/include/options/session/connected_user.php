@@ -74,11 +74,8 @@ if ($selectedUserId) {
     }
 }
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $session_data = array();
 $res = $pearDB->query(

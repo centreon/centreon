@@ -397,11 +397,9 @@ class CentreonLog
                 ]
             ];
 
-            // Add exception context and if possible the previous
+            // Add exception context with previous exception if exists
             if (! is_null($exception)) {
                 $exceptionContext = $this->getExceptionInfos($exception);
-                $exceptionContext['previous'] = ! is_null($exception->getPrevious()) ?
-                    $this->getExceptionInfos($exception) : null;
             }
 
             $context = [
@@ -435,11 +433,22 @@ class CentreonLog
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
             'code' => $exception->getCode(),
-            'message' => $exception->getMessage()
+            'message' => $exception->getMessage(),
+            'previous' => null
         ];
         $additonalOptions = $this->getExceptionOptions($exception);
         if (! empty($additonalOptions)) {
             $exceptionInfos['options'] = $additonalOptions;
+        }
+        if ($exception->getPrevious() !== null) {
+            $previousException = $exception->getPrevious();
+            $exceptionInfos['previous'] = [
+                'exception_type' => $previousException::class,
+                'file' => $previousException->getFile(),
+                'line' => $previousException->getLine(),
+                'code' => $previousException->getCode(),
+                'message' => $previousException->getMessage()
+            ];
         }
         return $exceptionInfos;
     }

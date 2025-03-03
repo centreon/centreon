@@ -13,6 +13,7 @@ on:
       - reopened
       - ready_for_review
     paths:
+      - ".version.centreon-open-tickets"
       - "centreon-open-tickets/**"
       - "!centreon-open-tickets/veracode.json"
       - "!centreon-open-tickets/.veracode-exclusions"
@@ -23,6 +24,7 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
+      - ".version.centreon-open-tickets"
       - "centreon-open-tickets/**"
       - "!centreon-open-tickets/veracode.json"
       - "!centreon-open-tickets/.veracode-exclusions"

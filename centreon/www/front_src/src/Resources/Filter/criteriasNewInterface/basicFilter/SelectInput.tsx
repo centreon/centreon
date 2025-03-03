@@ -12,9 +12,10 @@ import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
 import { selectedVisualizationAtom } from '../../../Actions/actionsAtoms';
 import { Visualization } from '../../../models';
+import { serviceNamesEndpoint } from '../../api/endpoint';
 
-import useSectionsData from './sections/useSections';
 import { useStyles } from './sections/sections.style';
+import useSectionsData from './sections/useSections';
 
 interface Props {
   changeCriteria: (data: ChangedCriteriaParams) => void;
@@ -132,6 +133,9 @@ const SelectInput = ({
 
   const getEndpoint = ({ search, page }): string => {
     return buildResourcesEndpoint({
+      endpoint: equals(resourceType, SectionType.service)
+        ? serviceNamesEndpoint
+        : undefined,
       limit: 10,
       page,
       resourceTypes: [resourceType],
