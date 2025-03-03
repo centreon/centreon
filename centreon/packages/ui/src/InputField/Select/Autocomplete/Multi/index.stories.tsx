@@ -58,3 +58,22 @@ export const popoverWithoutInput = (): JSX.Element => {
     />
   );
 };
+
+export const customRenderedTags = (): JSX.Element => {
+  const customRender = (tags: React.ReactNode): React.ReactNode => (
+    <div style={{ display: 'flex' }}>
+      {tags}
+      <span style={{ color: '#999' }}>Custom wrapper</span>
+    </div>
+  );
+
+  return (
+    <MultiAutocompleteField
+      customRenderTags={customRender}
+      label="Custom Tags Render"
+      options={options}
+      placeholder="Type here..."
+      value={[options[0], options[1]]}
+    />
+  );
+};
