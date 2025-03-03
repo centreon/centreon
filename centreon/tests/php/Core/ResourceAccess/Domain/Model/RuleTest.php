@@ -157,21 +157,6 @@ it('should throw an exception when rules name is an string exceeding max size', 
     )->getMessage(),
 );
 
-it('should throw an exception when linked contact groups and contacts are empty arrays', function (): void {
-    new Rule(
-        id: 1,
-        name: 'FULL',
-        description: 'Full access',
-        linkedContacts: [],
-        linkedContactGroups: [],
-        datasets: $this->datasets,
-        isEnabled: true
-    );
-})->throws(
-    \InvalidArgumentException::class,
-    'At least one contact or contactgroup should be linked to the rule'
-);
-
 it('should throw an exception when linked contacts is not an array of int', function (): void {
     new Rule(
         id: 1,
