@@ -1507,14 +1507,17 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON ssg.servicegroup_id = sg.servicegroup_id
                     INNER JOIN `:dbstg`.hosts h
                     ON h.host_id = ssg.host_id
-                    AND h.enabled = \'1\'';
+                    AND h.enabled = \'1\'
+                    AND h.name NOT LIKE \'\_Module\_%\'
+                INNER JOIN `:dbstg`.resources
+                    ON resources.id = h.host_id';
 
             if ($shouldJoinService) {
                 $subRequest .=
                 ' LEFT JOIN `:dbstg`.`services` srv
-                            ON srv.service_id = ssg.service_id
-                            AND srv.host_id = h.host_id
-                            AND srv.enabled = \'1\'';
+                    ON srv.service_id = ssg.service_id
+                    AND srv.host_id = h.host_id
+                    AND srv.enabled = \'1\'';
             }
 
             if (!$this->isAdmin()) {
