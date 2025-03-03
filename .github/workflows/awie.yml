@@ -147,7 +147,7 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
 
   deliver-sources:
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     needs: [get-environment, package]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
 
@@ -172,7 +172,7 @@ jobs:
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.repository == 'centreon/centreon'
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
 
     strategy:
       matrix:
@@ -202,7 +202,7 @@ jobs:
       needs.changes.outputs.trigger_delivery == 'true' &&
       github.repository == 'centreon/centreon' &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
 
     strategy:
       matrix:
@@ -233,7 +233,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.repository == 'centreon/centreon'
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     strategy:
       matrix:
         distrib: [el8, el9, bookworm]
