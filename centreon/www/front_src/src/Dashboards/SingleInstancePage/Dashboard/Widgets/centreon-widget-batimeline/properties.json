@@ -23,13 +23,11 @@
       "defaultValue": [],
       "useAdditionalResources": true,
       "required": true,
-      "restrictedResourceTypes": [
-        "business-activity"
-      ]
+      "restrictedResourceTypes": ["business-activity"]
     }
   },
   "singleResourceSelection": true,
   "moduleName": "centreon-widget-batimeline",
-   "widgetType": "Real time widgets",
-   "canExpand": true
+  "widgetType": "Real time widgets",
+  "canExpand": true
 }
