@@ -280,9 +280,7 @@ final class UpdateHostGroup
             if (! empty($datasetFilterRelation->getResourceIds())) {
                 $resourceIdToUpdates = array_filter(
                     $datasetFilterRelation->getResourceIds(),
-                    function ($resourceId) use ($hostGroupId) {
-                        return $resourceId !== $hostGroupId;
-                    }
+                    fn ($resourceId) => $resourceId !== $hostGroupId
                 );
                 if (empty($resourceIdToUpdates)) {
                     $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterRelation->getDatasetFilterId());
