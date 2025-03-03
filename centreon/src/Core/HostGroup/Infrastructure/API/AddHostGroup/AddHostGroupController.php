@@ -66,6 +66,15 @@ final class AddHostGroupController extends AbstractController
             return $this->createResponse($response);
         }
 
-        return JsonResponse::fromJsonString($presenter->present($response, ['groups' => ['HostGroup:Add'], 'is_cloud_platform' => $this->isCloudPlatform]));
+        return JsonResponse::fromJsonString(
+            $presenter->present(
+                $response,
+                [
+                    'groups' => ['HostGroup:Add'],
+                    'is_cloud_platform' => $this->isCloudPlatform,
+                ]
+            ),
+            Response::HTTP_CREATED
+        );
     }
 }
