@@ -34,7 +34,8 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
     }) => {
       const formattedResources = getFormattedResources({
         array: data?.resources,
-        filterName: 'WidgetResourceType.hostGroup'
+        filterName: 'WidgetResourceType.hostGroup',
+        resourceType: 'hostgroup'
       });
 
       return {
