@@ -64,13 +64,9 @@ while ($row = $DBRES->fetchRow()) {
     $arrayView[$row['custom_view_id']] = $row['name'];
 }
 
-
-/**
- * Smarty
- */
+// Smarty template initialization
 $path = "./include/home/customViews/";
-$template = new Smarty();
-$template = initSmartyTpl($path, $template, "./");
+$template = SmartyBC::createSmartyTemplate($path, "./");
 
 /**
  * Field templates

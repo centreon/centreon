@@ -1,0 +1,28 @@
+<style type="text/css">
+ {literal}
+ .smarty_error{
+    position: relative;
+    font-size: 1rem;
+    line-height: 1.43;
+    display: flex;
+    font-weight: 700;
+    background-color: rgb(211, 47, 47);
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    padding: 6px 16px;
+    width: 100%;
+    max-width: 1000px;
+ }
+ .smarty_error-text {
+    padding: 8px 0;
+    min-width: 0;
+    overflow: auto;
+  }
+ {/literal}
+</style>
+
+{if isset($error)}
+    <div class="smarty_error">
+        <p class="smarty_error-text">Error ! {$error}</p>
+    </div>
+{/if}

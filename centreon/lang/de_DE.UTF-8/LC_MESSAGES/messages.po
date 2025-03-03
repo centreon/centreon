@@ -17525,3 +17525,21 @@ msgstr "Erweiterter Modus"
 # msgid "Export as"
 # msgstr ""
 
+# msgid "If you click on Discard, your changes will not be saved."
+# msgstr ""
+
+# msgid "Do you want to leave this page?"
+# msgstr ""
+
+# msgid "Your changes will not be saved if you leave this page."
+# msgstr ""
+
+# msgid "Leave"
+# msgstr ""
+
+# msgid "Stay"
+# msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""
+

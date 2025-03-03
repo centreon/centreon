@@ -20,6 +20,7 @@ import {
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
 
+import { serviceNamesEndpoint } from '../../api/endpoint';
 import { useStyles } from './sections/sections.style';
 import useSectionsData from './sections/useSections';
 
@@ -139,6 +140,9 @@ const SelectInput = ({
 
   const getEndpoint = ({ search, page }): string => {
     return buildResourcesEndpoint({
+      endpoint: equals(resourceType, SectionType.service)
+        ? serviceNamesEndpoint
+        : undefined,
       limit: 10,
       page,
       resourceTypes: [resourceType],

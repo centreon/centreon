@@ -66,7 +66,6 @@ When('the user changes the properties of a service', () => {
 });
 
 Then('the properties are updated', () => {
-  cy.waitForElementInIframe('#main-content', 'a:contains("test")');
   cy.enterIframe('iframe#main-content')
     .find('table.ListTable')
     .find('tr.list_one')
@@ -94,42 +93,25 @@ When('the user duplicates a service', () => {
     rootItemNumber: 3,
     subMenu: 'Services'
   });
-  cy.enterIframe('iframe#main-content')
-    .find('table tbody')
-    .find('tr.list_one')
-    .each(($row) => {
-      cy.wrap($row)
-        .find('td.ListColLeft')
-        .then(($td) => {
-          if ($td.text().includes('host_1')) {
-            cy.wrap($row)
-              .find('td.ListColPicker')
-              .find('div.md-checkbox')
-              .click();
-          }
-        });
-    });
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
+  cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
+  cy.getIframeBody().find('input[name="searchH"]').clear().type('host_1');
+  cy.getIframeBody().find('input[name="Search"].btc.bt_success').click();
+  cy.reload();
+  cy.getIframeBody().find('#checkall').click({ force: true });
+  cy.getIframeBody()
+    .find('select[name="o1"]')
     .invoke(
       'attr',
       'onchange',
-      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
+      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
     );
-  cy.getIframeBody().find('select[name="o2"]').eq(0).select('Duplicate');
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.exportConfig();
 });
 
 Then('the new service has the same properties', () => {
   cy.waitForElementInIframe('#main-content', 'a:contains("test_1")');
-  cy.enterIframe('iframe#main-content')
-    .find('table.ListTable')
-    .find('tr.list_two')
-    .find('td.ListColLeft')
-    .contains('test_1')
-    .click();
+  cy.getIframeBody().contains('test_1').click();
   cy.enterIframe('iframe#main-content')
     .find('table.formTable')
     .find('tr.list_two')
@@ -174,8 +156,11 @@ When('the user deletes a service', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
     );
-  cy.getIframeBody().find('select[name="o2"]').eq(0).select('Delete');
-  cy.exportConfig();
+  cy.enterIframe('iframe#main-content')
+    .find('table.ToolbarTable tbody')
+    .find('td.Toolbar_TDSelectAction_Bottom')
+    .find('select')
+    .select('Delete');
 });
 
 Then('the deleted service is not displayed in the service list', () => {

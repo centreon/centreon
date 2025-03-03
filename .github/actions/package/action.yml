@@ -60,7 +60,7 @@ runs:
   steps:
     - name: Restore index file cache
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
-      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
@@ -68,7 +68,7 @@ runs:
 
     - name: Restore static directory cache
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
-      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
@@ -76,7 +76,7 @@ runs:
 
     - name: Restore widgets directory cache
       if: "${{ inputs.frontend_widgets_directory != '' && inputs.frontend_widgets_cache_key != '' }}"
-      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ${{ inputs.frontend_widgets_directory }}
         key: ${{ inputs.frontend_widgets_cache_key }}
@@ -90,7 +90,7 @@ runs:
 
     - name: Restore vendor directory cache
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
-      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
@@ -98,7 +98,7 @@ runs:
 
     - name: Restore translation directory cache
       if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
-      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ${{ inputs.translation_directory }}
         key: ${{ inputs.translation_cache_key }}
@@ -176,7 +176,7 @@ runs:
         retention-days: 1
 
     - name: Cache packaged files
-      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}

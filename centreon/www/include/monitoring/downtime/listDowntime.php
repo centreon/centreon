@@ -120,11 +120,8 @@ $resourceController = $kernel->getContainer()->get(
     \Centreon\Application\Controller\MonitoringResourceController::class
 );
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl('./include/monitoring/downtime/', $tpl, "template/");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate('./include/monitoring/downtime/', 'template/');
 
 $form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
 

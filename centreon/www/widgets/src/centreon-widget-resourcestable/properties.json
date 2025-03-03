@@ -45,6 +45,10 @@
         {
           "id": "in_downtime",
           "name": "In downtime"
+        },
+        {
+          "id": "in_flapping",
+          "name": "Flapping"
         }
       ],
       "defaultValue": ["unhandled_problems"]

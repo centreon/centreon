@@ -153,11 +153,9 @@ $form->applyFilter('RRDdatabase_path', 'slash');
 $form->applyFilter('RRDdatabase_status_path', 'slash');
 $form->applyFilter('RRDdatabase_nagios_stats_path', 'slash');
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path.'centstorage/', $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path.'centstorage/');
+
 $form->setDefaults($gopt);
 $centreon->initOptGen($pearDB);
 

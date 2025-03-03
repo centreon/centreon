@@ -67,28 +67,19 @@ Given(
     globalResourceType = resourceType;
     globalContactSettings = contactSettings;
 
-    switch (contactSettings) {
-      case 'one contact':
-        cy.addContact({
-          email: data.contacts.contact1.email,
-          name: data.contacts.contact1.name,
-          password: data.contacts.contact1.password
-        });
-        break;
-      case 'two contacts':
-        cy.addContact({
-          email: data.contacts.contact1.email,
-          name: data.contacts.contact1.name,
-          password: data.contacts.contact1.password
-        });
-        cy.addContact({
-          email: data.contacts.contact2.email,
-          name: data.contacts.contact2.name,
-          password: data.contacts.contact2.password
-        });
-        break;
-      default:
-        throw new Error(`${contactSettings} not managed`);
+    if (contactSettings === "two contacts") {
+      cy.addContact({
+        email: data.contacts.contact1.email,
+        name: data.contacts.contact1.name,
+        password: data.contacts.contact1.password,
+      });
+      cy.addContact({
+        email: data.contacts.contact2.email,
+        name: data.contacts.contact2.name,
+        password: data.contacts.contact2.password,
+      });
+    } else {
+      throw new Error(`${contactSettings} not managed`);
     }
 
     cy.addHostGroup({
@@ -158,26 +149,18 @@ When('the user defines a name for the rule', () => {
 When(
   'the user selects a {string} with associated events on which to notify',
   (resourceType: string) => {
-    switch (resourceType) {
-      case 'host group':
-        cy.get('#Searchhostgroups').click();
-        cy.contains(data.hostGroups.hostGroup1.name).click();
-        cy.get('#Recovery').click();
-        cy.get('#Down').click();
-        cy.get('#Unreachable').click();
-        break;
-      case 'host group and services for these hosts':
-        cy.get('#Searchhostgroups').click();
+     if (resourceType === "host group and services for these hosts"){
+       cy.get('#Searchhostgroups').click();
         cy.contains(data.hostGroups.hostGroup1.name).click();
         cy.get('#Searchhostgroups').blur();
         cy.contains('Include services for these hosts').click();
         cy.get('[data-testid="Extra events services"] >').each(($el) => {
           cy.wrap($el).click();
-        });
-        break;
-      default:
-        throw new Error(`${resourceType} not managed`);
+             });
+     } else {
+      throw new Error(`${resourceType} not managed`);
     }
+
   }
 );
 
@@ -188,20 +171,13 @@ When('the user defines a time period', () => {
 });
 
 When('the user selects the {string}', (contactSettings: string) => {
-  switch (contactSettings) {
-    case 'one contact':
-      cy.get('#Searchcontacts').click();
-      cy.wait('@getUsers');
-      cy.contains(data.contacts.contact1.name).click();
-      break;
-    case 'two contacts':
-      cy.get('#Searchcontacts').click();
-      cy.wait('@getUsers');
-      cy.contains(data.contacts.contact1.name).click();
-      cy.contains(data.contacts.contact2.name).click();
-      break;
-    default:
-      throw new Error(`${contactSettings} not managed`);
+  if (contactSettings === "two contacts") {
+    cy.get("#Searchcontacts").click();
+    cy.wait("@getUsers");
+    cy.contains(data.contacts.contact1.name).click();
+    cy.contains(data.contacts.contact2.name).click();
+  } else {
+    throw new Error(`${contactSettings} not managed`);
   }
 });
 
@@ -243,74 +219,46 @@ Then(
 When(
   'changes occur in the configured statuses for the selected {string}',
   (resourceType) => {
-    switch (resourceType) {
-      case 'host group':
-        cy.submitResults([
-          {
-            host: data.hosts.host2.name,
-            output: 'submit_status_1',
-            status: 'down'
-          }
-        ]);
+    if (resourceType === "host group and services for these hosts") {
+      cy.submitResults([
+        {
+          host: data.hosts.host1.name,
+          output: "submit_status_2",
+          service: data.services.service1.name,
+          status: "critical",
+        },
+      ]);
 
-        checkHostsAreMonitored([
-          {
-            name: data.hosts.host2.name,
-            status: 'down'
-          }
-        ]);
-        break;
-      case 'host group and services for these hosts':
-        cy.submitResults([
-          {
-            host: data.hosts.host1.name,
-            output: 'submit_status_2',
-            service: data.services.service1.name,
-            status: 'critical'
-          }
-        ]);
-
-        checkServicesAreMonitored([
-          {
-            name: data.services.service1.name,
-            status: 'critical'
-          }
-        ]);
-        break;
-      default:
-        throw new Error(`${resourceType} not managed`);
+      checkServicesAreMonitored([
+        {
+          name: data.services.service1.name,
+          status: "critical",
+        },
+      ]);
+    } else {
+      throw new Error(`${resourceType} not managed`);
     }
+
   }
 );
 
 When('the hard state has been reached', () => {
-  switch (globalResourceType) {
-    case 'host group':
-      checkHostsAreMonitored([
-        {
-          name: data.hosts.host2.name,
-          status: 'down',
-          statusType: 'hard'
-        }
-      ]);
-      break;
-    case 'host group and services for these hosts':
-      checkServicesAreMonitored([
-        {
-          name: data.services.service1.name,
-          status: 'critical',
-          statusType: 'hard'
-        }
-      ]);
-      break;
-    default:
-      checkServicesAreMonitored(
-        Array.from({ length: 1000 }, (_, i) => ({
-          name: `service_${i + 1}`,
-          status: 'ok',
-          statusType: 'hard'
-        }))
-      );
+  if (globalResourceType === "host group and services for these hosts") {
+    checkServicesAreMonitored([
+      {
+        name: data.services.service1.name,
+        status: "critical",
+        statusType: "hard",
+      },
+    ]);
+  } else {
+    checkServicesAreMonitored(
+      Array.from({ length: 1000 }, (_, i) => ({
+        name: `service_${i + 1}`,
+        status: "ok",
+        statusType: "hard",
+      })),
+    );
   }
 });
 
@@ -321,31 +269,19 @@ When('the notification refresh_delay has been reached', () => {
 Then(
   'an email is sent to the configured {string} with the configured format',
   (contactSettings) => {
-    switch (contactSettings) {
-      case 'one contact':
-        if (globalResourceType) {
-          notificationSentCheck({ logs: `<<${data.hosts.host2.name}>>` });
-        } else {
-          notificationSentCount(1000);
-        }
+    if (contactSettings === "two contacts") {
+      if (globalResourceType) {
         notificationSentCheck({
-          logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
+          logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`,
         });
-        break;
-      case 'two contacts':
-        if (globalResourceType) {
-          notificationSentCheck({
-            logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`
-          });
-        } else {
-          notificationSentCount(1000);
-        }
-        notificationSentCheck({
-          logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
-        });
-        break;
-      default:
-        throw new Error(`${contactSettings} not managed`);
+      } else {
+        notificationSentCount(1000);
+      }
+      notificationSentCheck({
+        logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`,
+      });
+    } else {
+      throw new Error(`${contactSettings} not managed`);
     }
   }
 );
@@ -353,28 +289,19 @@ Then(
 Given(
   'a minimum of 1000 services linked to a host group and {string}',
   (contactSettings) => {
-    switch (contactSettings) {
-      case 'one contact':
-        cy.addContact({
-          email: data.contacts.contact1.email,
-          name: data.contacts.contact1.name,
-          password: data.contacts.contact1.password
-        });
-        break;
-      case 'two contacts':
-        cy.addContact({
-          email: data.contacts.contact1.email,
-          name: data.contacts.contact1.name,
-          password: data.contacts.contact1.password
-        });
-        cy.addContact({
-          email: data.contacts.contact2.email,
-          name: data.contacts.contact2.name,
-          password: data.contacts.contact2.password
-        });
-        break;
-      default:
-        throw new Error(`${contactSettings} not managed`);
+    if (contactSettings === "two contacts") {
+      cy.addContact({
+        email: data.contacts.contact1.email,
+        name: data.contacts.contact1.name,
+        password: data.contacts.contact1.password,
+      });
+      cy.addContact({
+        email: data.contacts.contact2.email,
+        name: data.contacts.contact2.name,
+        password: data.contacts.contact2.password,
+      });
+    } else {
+      throw new Error(`${contactSettings} not managed`);
     }
 
     cy.addHostGroup({

@@ -12,7 +12,7 @@ import { Divider } from '@mui/material';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import type { Dashboard as DashboardType } from '../../api/models';
+import { resource, type Dashboard as DashboardType } from '../../api/models';
 import { isSharesOpenAtom } from '../../atoms';
 import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { DashboardConfigModal } from '../../components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
@@ -30,11 +30,15 @@ import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
 import DeleteWidgetModal from './components/DeleteWidgetModal';
 import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
+import { useQueryClient } from '@tanstack/react-query';
+
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
 
   const { dashboardId } = routerParams.useParams();
+  const queryClient = useQueryClient();
+
   const { dashboard, panels, refetch } = useDashboardDetails({
     dashboardId: dashboardId as string
   });
@@ -77,6 +81,11 @@ const Dashboard = (): ReactElement => {
     setIsSharesOpen(dashboard as DashboardType);
   };
 
+  const updateFavorites = (): void => {
+    refetch?.()
+    queryClient.invalidateQueries({ queryKey: [resource.dashboards] });
+  }
+
   useEffect(() => {
     return () => {
       setRefreshCounts({});
@@ -98,7 +107,7 @@ const Dashboard = (): ReactElement => {
                 <FavoriteAction
                   dashboardId={dashboard?.id as number}
                   isFavorite={dashboard?.isFavorite as boolean}
-                  refetch={refetch}
+                  refetch={updateFavorites}
                 />
               }
             />

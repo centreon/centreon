@@ -110,11 +110,8 @@ $form->addRule('tactical_refresh_interval', _("Refresh interval must be numeric"
 
 $form->addRule('interval_length', _("This value must be a numerical value."), 'isNum');
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path . "/engine", $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . "/engine");
 
 $form->setDefaults($gopt);
 
