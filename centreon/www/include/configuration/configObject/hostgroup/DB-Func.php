@@ -1046,30 +1046,20 @@ function callApi(string $url, string $httpMethod, array $payload): array
  */
 function getPayload(bool $isCloudPlatform, array $formData): array
 {
+    dump($formData);
     $payload = [
         'name' => $formData['hg_name'],
         'alias' => $formData['hg_alias'] ?: null,
-        'icon_id' => '' !== $formData['hg_icon_image']
-            ? (int) $formData['hg_icon_image']
-            : null,
         'geo_coords' => $formData['geo_coords'] ?: null,
         'is_activated' => (bool) ($formData['hg_activate']['hg_activate'] ?: false),
+        'hosts' => $formData['hg_hosts'] ? array_map('intval', $formData['hg_hosts'])  : [],
+        'comment' => $formData['hg_comment'] ?: null,
     ];
 
-    if ($isCloudPlatform === false) {
-        $payloadOnPrem = [
-            'notes' => $formData['hg_notes'] ?: null,
-            'notes_url' => $formData['hg_notes_url'] ?: null,
-            'action_url' => $formData['hg_action_url'] ?: null,
-            'icon_map_id' => '' !== $formData['hg_map_icon_image']
-                ? (int) $formData['hg_map_icon_image']
-                : null,
-            'rrd' => '' !== $formData['hg_rrd_retention']
-                ? (int) $formData['hg_rrd_retention']
-                : null,
-            'comment' => $formData['hg_comment'] ?: null,
-        ];
-        $payload = [...$payload, ...$payloadOnPrem];
+    if ($isCloudPlatform) {
+        $payload['resource_access_rules'] = $formData['resource_access_rules']
+            ? array_map('intval', $formData['resource_access_rules'])
+            : [];
     }
 
     return $payload;
