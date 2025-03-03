@@ -246,12 +246,6 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
             (
                 hg_name,
                 hg_alias,
-                hg_notes,
-                hg_notes_url,
-                hg_action_url,
-                hg_icon_image,
-                hg_map_icon_image,
-                hg_rrd_retention,
                 geo_coords,
                 hg_comment,
                 hg_activate
@@ -259,12 +253,6 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
             SELECT
                 CONCAT(hg_name, '_', :duplicateIndex),
                 hg_alias,
-                hg_notes,
-                hg_notes_url,
-                hg_action_url,
-                hg_icon_image,
-                hg_map_icon_image,
-                hg_rrd_retention,
                 geo_coords,
                 hg_comment,
                 hg_activate
