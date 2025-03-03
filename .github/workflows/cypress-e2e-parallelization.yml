@@ -123,7 +123,7 @@ jobs:
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
           key: ${{ inputs.package_cache_key }}
@@ -145,7 +145,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -191,7 +191,7 @@ jobs:
 
       - name: Replace / with - in the feature path
         id: feature-path
-        if: always()
+        if: ${{ ! cancelled() }}
         run: |
           feature_name="${{ matrix.feature }}"
           feature_name_with_dash="${feature_name//\//-}"
@@ -206,28 +206,20 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
-      - name: Check for test retries
-        id: check_retries
-        if: always()
+      - name: Move retries.json to reports directory and display warnings
+        if: ${{ ! cancelled() }}
         run: |
-            retriesFile="${{ inputs.module_name }}/tests/e2e/results/hasRetries.json"
+            retriesFile="${{ inputs.module_name }}/tests/e2e/results/retries.json"
             if [ -f "$retriesFile" ]; then
-              retries=$(jq '.' $retriesFile)
-              if [ "$retries" != "{}" ]; then
-                echo "Test retries: $retries"
-                retriesHtml="<h2>:warning:The following tests were retried during execution:</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
-                # Generate the HTML rows
-                retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>\(.key | split(" > ")[0])</td><td>\(.key | split(" > ")[1])</td></tr>"' $retriesFile)
-                retriesHtml+="</table>"
-                echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
-                retriesJson=$(echo "$retries" | jq -c '.')
-                echo "retries=$retriesJson" >> $GITHUB_OUTPUT
-              fi
+              jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
+                echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+              done
+              mv $retriesFile "${{ inputs.module_name }}/tests/e2e/results/reports/${{ steps.feature-path.outputs.feature_name_with_dash }}-retries.json"
             fi
         shell: bash
 
       - name: Upload test reports
-        if: failure()
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
@@ -235,7 +227,7 @@ jobs:
           retention-days: 1
 
       - name: Upload xray reports
-        if: always()
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
@@ -245,7 +237,7 @@ jobs:
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
+    if: ${{ ! cancelled() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -285,7 +277,7 @@ jobs:
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
-    if: failure()
+    if: ${{ ! cancelled() }}
     runs-on: ubuntu-24.04
 
     steps:
@@ -303,20 +295,57 @@ jobs:
           merge-multiple: true
 
       - name: Merge reports
-        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+        run: |
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+
+          if ls ${{ inputs.name }}-json-reports/*retries.json 1> /dev/null 2>&1; then
+            cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add > retries.json
+          else
+            echo "{}" > retries.json
+          fi
         shell: bash
 
       - name: Publish report
+        if: needs.cypress-e2e-test-run.result == 'failure'
         uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-report
           path: mochawesome.json
           format: cypress
-          urlFilePrefix: centreon
+
+      - name: Display retries summary
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            const retriesFile = 'retries.json';
+            const retries = JSON.parse(fs.readFileSync(retriesFile, 'utf8'));
+            if (Object.keys(retries).length > 0) {
+              const outputTable = [
+                [{data: 'Feature', header: true}, {data: 'Scenario', header: true}, {data: 'Retries', header: true}],
+              ];
+              const warningTitle = `${Object.keys(retries).length} tests were retried during execution`;
+
+              let warningBody = JSON.stringify(retries, null, 2);
+              for (const testName in retries) {
+                const featureName = testName.split('>')[0];
+                const scenarioName = testName.split('>').slice(1).join('>');
+                outputTable.push([featureName, scenarioName, String(retries[testName])]);
+              }
+
+              // Display json to allow collect of metrics
+              core.warning(warningBody, { title: warningTitle });
+
+              core.summary
+                .addHeading(`Retries Summary`)
+                .addTable(outputTable)
+                .addDetails(`Content of ${retriesFile}`, fs.readFileSync(retriesFile, 'utf8'))
+                .write();
+            }
 
   regroup-artifacts:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
-    if: always()
+    if: ${{ ! cancelled() }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

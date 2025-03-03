@@ -65,6 +65,7 @@ When('the user adds a virtual metric', () => {
 Then('all properties are saved', () => {
   cy.getIframeBody().contains(vms.default.name).should('exist');
   cy.getIframeBody().contains(vms.default.name).click();
+  cy.wait('@getTimeZone');
   cy.checkFieldsOfVM(vms.default);
   cy.getIframeBody()
     .find('.md-checkbox input[name="vhidden"]')

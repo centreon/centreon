@@ -131,11 +131,8 @@ $form->setDefaults($gopt);
 $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
 $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path . "/backup", $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . "/backup");
 
 // prepare help texts
 $helptext = "";

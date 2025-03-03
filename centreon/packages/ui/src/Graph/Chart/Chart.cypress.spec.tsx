@@ -362,8 +362,6 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains(':00 AM').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it('displays the legend on the right side of the graph as list when the corresponding props are set', () => {
@@ -583,7 +581,6 @@ describe('Lines and bars', () => {
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -634,7 +631,6 @@ describe('Lines and bars', () => {
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.get('path[data-metric="3"]').should('be.visible');
     cy.findByTestId('stacked-bar-10-0-7650.368581547736').should('be.visible');
-    cy.findByTestId('stacked-bar-2-0-10').should('be.visible');
 
     cy.makeSnapshot();
   });

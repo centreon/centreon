@@ -56,9 +56,7 @@ const useBATooltipContent = (
   const isPercentage = businessActivity?.calculationMethod.isPercentage;
   const total = businessActivity?.indicators?.length || 0;
 
-  const ProblematicKPIsCount = indicatorsWithProblems?.length || 0;
-
-  const health = Math.floor(((total - ProblematicKPIsCount) * 100) / total);
+  const health = businessActivity?.currentLevel || 0;
 
   const criticalKPIsCount =
     businessActivity?.indicators?.filter(({ status }) =>

@@ -69,8 +69,8 @@ try {
     $tickets = $ticket_log->getLog($get_information['form'], $centreon_bg, $get_information['pagination'], $get_information['current_page']);
     //fwrite($fp, print_r($tickets, true));
 
-    $tpl = new Smarty();
-    $tpl = initSmartyTplForPopup($centreon_open_tickets_path, $tpl, 'views/logs/templates', $centreon_path);
+    // Smarty template initialization
+    $tpl = SmartyBC::createSmartyTemplate($centreon_open_tickets_path, 'views/logs/templates');
 
     $tpl->assign("tickets", $tickets['tickets']);
     $resultat['data'] = $tpl->fetch('data.ihtml');

@@ -43,6 +43,7 @@ import { applyFilterDerivedAtom } from './filterAtoms';
 import { allFilter, unhandledProblemsFilter } from './models';
 
 import Filter from '.';
+import { serviceNamesEndpoint } from './api/endpoint';
 
 const emptyListData = {
   meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },
@@ -332,7 +333,7 @@ const initializeRequests = (): void => {
   setupIntercept({
     alias: 'GetResourcesByServiceType',
     fixtureFile: 'resources/filter/resourcesByServiceType.json',
-    path: `${resourcesEndpoint}**`,
+    path: `${serviceNamesEndpoint}**`,
     query: {
       name: 'types',
       value: '["service"]'

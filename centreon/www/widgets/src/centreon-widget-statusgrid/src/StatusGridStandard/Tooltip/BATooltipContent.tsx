@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { equals, isEmpty, isNotNil } from 'ramda';
+import { equals, isEmpty, isNil, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -32,6 +32,7 @@ import {
 import { getColor } from '../utils';
 
 import useBATooltipContent from './useBATooltipContent';
+import { useMemo } from 'react';
 
 interface Props {
   data: ResourceData;
@@ -75,6 +76,19 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
         })}`
       : `${threshold}%`;
   };
+
+  const healthSeverityCode = useMemo(
+    (): SeverityCode => {
+        if (isNil(criticalLevel) || isNil(warningLevel) || health <= criticalLevel) {
+        return SeverityCode.High;
+      }
+      if (health <= warningLevel) {
+        return SeverityCode.Medium;
+      }
+      return SeverityCode.OK;
+    },
+    [criticalLevel, warningLevel, health]
+  );
 
   return (
     <Box className={classes.container}>
@@ -121,7 +135,7 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
                   <Typography
                     sx={{
                       color: getColor({
-                        severityCode: isImpact ? 5 : 1,
+                        severityCode: isImpact ? healthSeverityCode : 1,
                         theme
                       })
                     }}

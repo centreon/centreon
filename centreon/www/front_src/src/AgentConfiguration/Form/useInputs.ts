@@ -7,7 +7,7 @@ import { pollersEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
 import { AgentType } from '../models';
 import {
-  labelAgentConfiguration,
+  labelAgent,
   labelAgentType,
   labelCMA,
   labelCaCertificate,
@@ -47,7 +47,7 @@ export const useInputs = (): {
   return {
     groups: [
       {
-        name: t(labelAgentConfiguration),
+        name: t(labelAgent),
         order: 1
       },
       {
@@ -58,7 +58,7 @@ export const useInputs = (): {
     inputs: [
       {
         type: InputType.Grid,
-        group: t(labelAgentConfiguration),
+        group: t(labelAgent),
         fieldName: 'name_type',
         label: t(labelName),
         grid: {

@@ -628,7 +628,7 @@ export default (): void => {
         cy.get('input[name="port"]').clear();
         cy.contains(labelCancel).click();
 
-        cy.contains('Do you want to resolve the errors?').should('be.visible');
+        cy.contains('Do you want to leave this page?').should('be.visible');
 
         cy.makeSnapshot();
       });
