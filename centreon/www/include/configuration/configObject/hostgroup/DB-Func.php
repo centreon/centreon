@@ -1046,7 +1046,6 @@ function callApi(string $url, string $httpMethod, array $payload): array
  */
 function getPayload(bool $isCloudPlatform, array $formData): array
 {
-    dump($formData);
     $payload = [
         'name' => $formData['hg_name'],
         'alias' => $formData['hg_alias'] ?: null,
