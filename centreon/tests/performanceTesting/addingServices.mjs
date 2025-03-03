@@ -1,7 +1,5 @@
-
 import dotenv from 'dotenv';
 import { connectToDatabase } from './dbConfig.mjs';
-
 
 dotenv.config();
 
@@ -19,6 +17,7 @@ async function getFilteredHostIds(connection) {
 async function injectServiceTemplate(connection, service, properties, injectedIds) {
     const [result] = await connection.execute("SELECT MAX(service_id) AS max FROM service");
     const firstId = ((result[0].max || 0) + 1);
+
     const query = `
         INSERT INTO service (service_description, service_alias, service_register, command_command_id)
         VALUES (?, ?, ?, ?)
@@ -31,7 +30,18 @@ async function injectServiceTemplate(connection, service, properties, injectedId
     ];
 
     await connection.execute(query, values);
+
+    // Vérification de l'existence du service
+    const [checkResult] = await connection.execute("SELECT service_id FROM service WHERE service_id = ?", [firstId]);
+
+    if (checkResult.length === 0) {
+        throw new Error(`❌ Échec de l'insertion du service template avec ID: ${firstId}`);
+    }
+
     console.log(`✅ Service template ajouté avec ID: ${firstId}`);
+
+    // Validation de la transaction avant d'ajouter les métriques
+    await connection.commit();
 
     await injectServiceMetrics(connection, firstId, properties);
     return firstId;

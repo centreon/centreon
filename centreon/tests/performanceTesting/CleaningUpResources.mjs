@@ -14,10 +14,14 @@ async function purgeDatabase() {
         const idsToKeep = first20Rows.map(row => row.hsr_id);
 
         // 🔹 Delete host-service relations, except for the first 20 rows
-        const [resultHostServiceRelations] = await connection.query(
-            `DELETE FROM host_service_relation WHERE hsr_id NOT IN (${idsToKeep.join(",")});`
-        );
-        console.log(`✅ Deleted ${resultHostServiceRelations.affectedRows} host-service relations, excluding the first 20.`);
+        if (idsToKeep.length > 0) {
+            const [resultHostServiceRelations] = await connection.query(
+                `DELETE FROM host_service_relation WHERE hsr_id NOT IN (${idsToKeep.join(",")});`
+            );
+            console.log(`✅ Deleted ${resultHostServiceRelations.affectedRows} host-service relations, excluding the first 20.`);
+        } else {
+            console.log("⚠️ No host-service relations found to keep. Skipping deletion.");
+        }
 
         // 🔹 Delete host-server relations
         const [resultHostServerRelations] = await connection.query(
