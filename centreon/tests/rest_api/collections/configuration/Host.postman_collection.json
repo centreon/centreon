@@ -2609,17 +2609,19 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup1Alias\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host group\r",
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"HostGroup1Id\", response.id);\r",
 									"\r",
-									"    pm.expect(response).to.include({\r",
+									"    pm.expect(response).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
+									"        \"geo_coords\": \"\",\r",
 									"        \"comment\": \"Hello world ! 1\",\r",
+									"        \"hosts\": []\r",
 									"    });\r",
 									"});\r",
 									""
@@ -2651,7 +2653,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"comment\": \"Hello world ! 1\",\n    \"hosts\":[],\n    \"resource_access_rules\": []\n}",
+							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"comment\": \"Hello world ! 1\",\n    \"hosts\":[]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
