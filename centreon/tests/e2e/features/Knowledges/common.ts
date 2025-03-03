@@ -1,9 +1,6 @@
 const configureKB = (url, account, password): void => {
-  cy.navigateTo({
-  page: 'Knowledge Base',
-  rootItemNumber: 4,
-  subMenu: 'Parameters'
-  });
+  // Visit the Configuration of 'Knowledge Base' page
+  cy.visit('/centreon/main.php?p=50133&o=knowledgeBase')
   cy.wait('@getTimeZone');
   // Wait until the 'knowledge base url' is visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="kb_wiki_url"]');
