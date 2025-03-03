@@ -71,7 +71,7 @@ final class AddHostGroupController extends AbstractController
                 $response,
                 [
                     'groups' => ['HostGroup:Add'],
-                    'is_cloud_platform' => $this->isCloudPlatform
+                    'is_cloud_platform' => $this->isCloudPlatform,
                 ]
             ),
             Response::HTTP_CREATED
