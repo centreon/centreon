@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Infrastructure\Common\Presenter\CsvFormatter;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesPresenterInterface;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesResponse;
 
@@ -40,17 +41,16 @@ use Core\Resources\Application\UseCase\ExportResources\ExportResourcesResponse;
  */
 class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportResourcesPresenterInterface
 {
-    private const EXPORT_VIEW_TYPE = 'all';
-
+    /** @var ExportResourcesViewModel */
+    private ExportResourcesViewModel $viewModel;
     /**
      * ExportResourcesPresenterCsv constructor
      *
      * @param CsvFormatter $presenterFormatter
-     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
-        CsvFormatter $presenterFormatter,
-        private readonly ExceptionHandler $exceptionHandler
+        PresenterFormatterInterface $presenterFormatter,
+        private readonly ExceptionHandler $exceptionHandler,
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -62,6 +62,8 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
      */
     public function presentResponse(ExportResourcesResponse|ResponseStatusInterface $response): void
     {
+        $this->viewModel = new ExportResourcesViewModel();
+
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
                 $this->exceptionHandler->log($response->getException());
@@ -71,15 +73,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
             return;
         }
 
-        // modify headers to download a csv file
-        $this->setResponseHeaders(
-            [
-                'Content-Type' => 'text/csv; charset=utf-8',
-                'Content-Disposition' => 'attachment; filename="' . $this->getCsvFileName() . '"',
-            ]
-        );
-
-        $this->present($this->transformToCsv($response->getResources()));
+        $this->viewModel->setResources($this->transformToCsv($response->getResources()));
     }
 
     /**
@@ -106,28 +100,17 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
                 'Parent alias' => $resource->getParent()?->getAlias() ?? '',
                 'FQDN / Address' => '',
                 'Monitoring Server' => $resource->getMonitoringServerName(),
+                'Notif' => '',
                 'Check' => '',
             ];
         }
     }
 
     /**
-     * @param string $viewType
-     *
-     * @return string
+     * @return ExportResourcesViewModel
      */
-    private function getCsvFileName(string $viewType = self::EXPORT_VIEW_TYPE): string
+    public function getViewModel(): ExportResourcesViewModel
     {
-        return "ResourceStatusExport_{$viewType}_{$this->getDateFormatted()}.csv";
-    }
-
-    /**
-     * @param string $format
-     *
-     * @return string
-     */
-    private function getDateFormatted(string $format = 'Y/m/d_H:i'): string
-    {
-        return (new \DateTime('now'))->format($format);
+        return $this->viewModel;
     }
 }

@@ -23,28 +23,33 @@ declare(strict_types=1);
 namespace Core\Resources\Infrastructure\API\ExportResources;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Resources\Application\UseCase\ExportResources\ExportResources;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
 
 /**
  * @phpstan-import-type _RequestParameters from RequestValidator
  */
 final class ExportResourcesController extends AbstractController
 {
-    use LoggerTrait;
+    private const EXPORT_VIEW_TYPE = 'all';
+    private const EXPORT_MAX_RESULTS = 10000;
 
     /**
      * ExportResourcesController constructor
      *
      * @param RequestValidator $validator
+     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
-        private readonly RequestValidator $validator
+        private readonly RequestValidator $validator,
+        private readonly ExceptionHandler $exceptionHandler,
     ) {}
 
     /**
@@ -57,13 +62,67 @@ final class ExportResourcesController extends AbstractController
     public function __invoke(
         ExportResources $useCase,
         ExportResourcesPresenterCsv $presenter,
-        Request $request
+        Request $request,
     ): Response {
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());
-        $useCaseRequest = new ExportResourcesRequest($this->createResourceFilter($filter));
+        $useCaseRequest = new ExportResourcesRequest(
+            $this->createResourceFilter($filter),
+            self::EXPORT_MAX_RESULTS
+        );
         $useCase($useCaseRequest, $presenter);
 
-        return $presenter->show();
+        // if a response status is set before iterating resources to export them, return it (in case of error)
+        if ($presenter->getResponseStatus() !== null) {
+            return $presenter->show();
+        }
+
+        $resources = $presenter->getViewModel()->getResources();
+
+        /* create a streamed response to avoid memory issues with large data. If an error occurs during the export,
+        the error message will be displayed in the csv file and logged (streamed response) */
+        $response = new StreamedResponse(function () use ($resources): void {
+            $csvEncoder = new CsvEncoder();
+            try {
+                foreach ($resources as $index => $resource) {
+                    echo $csvEncoder->encode($resource, CsvEncoder::FORMAT, [
+                        CsvEncoder::NO_HEADERS_KEY => $index > 0,
+                        CsvEncoder::DELIMITER_KEY => ';',
+                    ]);
+                }
+            } catch (\Throwable $throwable) {
+                $this->exceptionHandler->log($throwable);
+                echo $csvEncoder->encode("Oops ! An error occurred: {$throwable->getMessage()}", CsvEncoder::FORMAT);
+            }
+        });
+
+        // modify headers to download a csv file
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $this->getCsvFileName() . '"');
+
+        return $response;
+    }
+
+    /**
+     * @param string $exportView
+     * @param string $formatDate
+     *
+     * @return string
+     */
+    private function getCsvFileName(
+        string $exportView = self::EXPORT_VIEW_TYPE,
+        string $formatDate = 'Y-m-d_H-i'
+    ): string {
+        return "ResourceStatusExport_{$exportView}_{$this->getDateFormatted($formatDate)}.csv";
+    }
+
+    /**
+     * @param string $format
+     *
+     * @return string
+     */
+    private function getDateFormatted(string $format): string
+    {
+        return (new \DateTime('now'))->format($format);
     }
 
     /**
