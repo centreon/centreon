@@ -300,7 +300,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The host group has been successfully created and contains the correct name and alias.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Parse the response JSON\r",
 									"    var response = pm.response.json();\r",
@@ -735,7 +735,7 @@
 									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"        pm.expect(responseJson.result[0]).to.include({\r",
 									"            \"type\": \"host\",\r",
@@ -894,7 +894,7 @@
 									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"        // Search and validate Service1Name\r",
 									"        const service1 = responseJson.result.find(item => item.name === pm.collectionVariables.get(\"Service1Name\"));\r",
