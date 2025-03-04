@@ -1,3 +1,4 @@
+import { orange } from '@mui/material/colors';
 import { makeStyles } from 'tss-react/mui';
 
 const useExportCsvStyles = makeStyles()((theme) => ({
@@ -29,8 +30,14 @@ const useExportCsvStyles = makeStyles()((theme) => ({
   },
   warning: {
     width: '100%',
-    backgroundColor: '#FCC481',
+    backgroundColor: orange[100],
     padding: theme.spacing(1)
+  },
+  lines: {
+    fontWeight: 'bold'
+  },
+  error: {
+    color: theme.palette.error.main
   }
 }));
 

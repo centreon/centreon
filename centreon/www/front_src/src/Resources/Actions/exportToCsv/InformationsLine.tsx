@@ -16,7 +16,7 @@ interface Props {
 const maxResources = 10000;
 
 const InformationsLine = ({ isAllPagesChecked }: Props) => {
-  const { classes } = useExportCsvStyles();
+  const { classes, cx } = useExportCsvStyles();
   const listing = useAtomValue(listingAtom);
   const filteredCurrentLines = `${listing?.result?.length}/${maxResources}`;
   const currentLines = `${listing?.meta?.total} / ${maxResources}`;
@@ -27,7 +27,10 @@ const InformationsLine = ({ isAllPagesChecked }: Props) => {
   return (
     <div className={classes.information}>
       <Typography variant="body2">{labelFilteredResources}</Typography>
-      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+      <Typography
+        variant="body2"
+        className={cx(classes.lines, { [classes.error]: displayWarningMsg })}
+      >
         {labelNumerOfLines}:{' '}
         {isAllPagesChecked ? currentLines : filteredCurrentLines}
       </Typography>
