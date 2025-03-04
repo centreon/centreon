@@ -254,7 +254,7 @@ $insertBatimelineWidget = function (CentreonDB $pearDB) use (&$errorMessage): vo
     $errorMessage = 'Unable to select data into table dashboard_widgets';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
-            SELECT 1 FROM `centreon`.`dashboard_widgets` WHERE `name` = 'centreon-widget-batimeline'
+            SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-batimeline'
             SQL
     );
 
@@ -262,7 +262,7 @@ $insertBatimelineWidget = function (CentreonDB $pearDB) use (&$errorMessage): vo
     if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
         $pearDB->executeQuery(
             <<<'SQL'
-                INSERT INTO `centreon`.`dashboard_widgets` (`name`)
+                INSERT INTO `dashboard_widgets` (`name`)
                 VALUES ('centreon-widget-batimeline')
                 SQL
         );
@@ -288,7 +288,7 @@ try {
     $insertAccConnectors($pearDB);
     $updatePanelsLayout($pearDB);
     $removeFieldFromBrokerConfiguration($pearDB);
-    $insertBatimelineWidget($pearDBO);
+    $insertBatimelineWidget($pearDB);
 
     $pearDB->commit();
 
