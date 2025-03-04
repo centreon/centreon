@@ -43,7 +43,7 @@ class CsvFormatter implements PresenterFormatterInterface
      */
     public function format(mixed $data, array $headers): Response
     {
-        return new StreamedResponse(callback: function() use ($data, $headers): void {
+        return new StreamedResponse(callback: function () use ($data, $headers): void {
             if (! is_array($data) && ! $data instanceof \Traversable) {
                 throw new CsvFormatterException(
                     'Data to export in csv must be iterable,' . gettype($data) . ' given',

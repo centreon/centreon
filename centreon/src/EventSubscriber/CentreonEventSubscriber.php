@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace EventSubscriber;
 
-use Core\Common\Infrastructure\ExceptionHandler;
-use Psr\Log\LogLevel;
 use \Symfony\Bundle\SecurityBundle\Security;
 use Centreon\Application\ApiPlatform;
 use Centreon\Domain\Contact\Contact;
@@ -36,6 +34,8 @@ use Centreon\Domain\RequestParameters\{
     Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
 };
 use Centreon\Domain\VersionHelper;
+use Core\Common\Infrastructure\ExceptionHandler;
+use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;

@@ -100,7 +100,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
      * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
      * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
- */
+     */
     public function __construct(
         DatabaseConnection $db,
         private readonly QueryBuilderInterface $queryBuilder,
@@ -452,6 +452,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 $iconIds = $this->getIconIdsFromResources();
                 $icons = $this->getIconsDataForResources($iconIds);
                 $this->completeResourcesWithIcons($icons);
+
                 yield $this->resources[0];
             }
         } catch (AssertionFailedException|TransformerException|ConnectionException $exception) {

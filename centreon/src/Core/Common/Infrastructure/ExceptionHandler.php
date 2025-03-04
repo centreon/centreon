@@ -69,8 +69,8 @@ readonly class ExceptionHandler
                 'url' => $_SERVER['REQUEST'] ?? null,
                 'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
                 'server' => $_SERVER['SERVER_NAME'] ?? null,
-                'referrer' => $_SERVER['HTTP_REFERER'] ?? null
-            ]
+                'referrer' => $_SERVER['HTTP_REFERER'] ?? null,
+            ],
         ];
 
         if ($exception instanceof DomainException) {
@@ -168,7 +168,7 @@ readonly class ExceptionHandler
 
             // if an error occurs during JSON encoding, we put an empty array for the arguments in the log
             if ($encodedArgs) {
-                $traces[$idx]['args'] = substr($encodedArgs, 0, 100) . '[...]';
+                $traces[$idx]['args'] = mb_substr($encodedArgs, 0, 100) . '[...]';
             } else {
                 $traces[$idx]['args'] = '[]';
             }
@@ -176,5 +176,4 @@ readonly class ExceptionHandler
 
         return $traces;
     }
-
 }

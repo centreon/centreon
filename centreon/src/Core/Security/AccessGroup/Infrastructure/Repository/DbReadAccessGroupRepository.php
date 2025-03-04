@@ -129,7 +129,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
              * Retrieve all access group from contact
              * and contact groups linked to contact.
              */
-            $query = <<<SQL
+            $query = <<<'SQL'
                 SELECT *
                 FROM acl_groups
                 WHERE acl_group_activate = '1'
@@ -284,7 +284,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
      */
     public function hasAccessToResources(array $accessGroupIds): bool
     {
-        try{
+        try {
             if ([] === $accessGroupIds) {
                 return false;
             }

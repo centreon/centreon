@@ -32,7 +32,6 @@ use Core\Common\Domain\Exception\DomainException;
  * @package Core\Common\Infrastructure\Exception
  */
 class CsvFormatterException extends DomainException {
-
     /**
      * CsvFormatterException constructor
      *
@@ -48,5 +47,4 @@ class CsvFormatterException extends DomainException {
     {
         parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
     }
-
 }

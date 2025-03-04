@@ -80,7 +80,7 @@ final readonly class ExportResources
                     $accessGroupIds,
                     $request->maxResults
                 );
-            };
+            }
 
             $response->setResources($resources);
 
@@ -88,10 +88,10 @@ final readonly class ExportResources
         } catch (RepositoryException $exception) {
             $presenter->presentResponse(
                 new ErrorResponse(
-                    message: "An error occurred while exporting resources in CSV format",
+                    message: 'An error occurred while exporting resources in CSV format',
                     context: [
                         'user_is_admin' => $this->contact->isAdmin(),
-                        'resources_filter' => $request->resourceFilter
+                        'resources_filter' => $request->resourceFilter,
                     ],
                     exception: $exception
                 )

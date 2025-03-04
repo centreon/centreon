@@ -76,5 +76,4 @@ class ErrorResponse extends AbstractResponse
     {
         return $this->exception;
     }
-
 }

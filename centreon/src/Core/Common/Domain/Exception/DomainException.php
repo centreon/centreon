@@ -163,7 +163,7 @@ abstract class DomainException extends \Exception
 
             // if an error occurs during JSON encoding, we put an empty array for the arguments in the log
             if ($encodedArgs) {
-                $traces[$idx]['args'] = substr($encodedArgs, 0, 100) . '[...]';
+                $traces[$idx]['args'] = mb_substr($encodedArgs, 0, 100) . '[...]';
             } else {
                 $traces[$idx]['args'] = '[]';
             }

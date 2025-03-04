@@ -91,5 +91,4 @@ final class ExportResourcesController extends AbstractController
             ->setOnlyWithTicketsOpened($filter[RequestValidator::PARAM_RESOURCES_WITH_OPENED_TICKETS])
             ->setRuleId($filter[RequestValidator::PARAM_OPEN_TICKET_RULE_ID]);
     }
-
 }

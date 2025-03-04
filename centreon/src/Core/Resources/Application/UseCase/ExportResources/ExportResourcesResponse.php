@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Resources\Application\UseCase\ExportResources;
 
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+
 /**
  * Class
  *
@@ -30,11 +32,11 @@ namespace Core\Resources\Application\UseCase\ExportResources;
  * @package Core\Resources\Application\UseCase\ExportResources
  */
 final class ExportResourcesResponse {
-    /** @var \Traversable<Resource> */
+    /** @var \Traversable<ResourceEntity> */
     private \Traversable $resources;
 
     /**
-     * @return \Traversable<Resource>
+     * @return \Traversable<ResourceEntity>
      */
     public function getResources(): \Traversable
     {
@@ -42,13 +44,14 @@ final class ExportResourcesResponse {
     }
 
     /**
-     * @param \Traversable<Resource> $resources
+     * @param \Traversable<ResourceEntity> $resources
      *
-     * @return $this
+     * @return ExportResourcesResponse
      */
     public function setResources(\Traversable $resources): self
     {
         $this->resources = $resources;
+
         return $this;
     }
 }
