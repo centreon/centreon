@@ -25,6 +25,7 @@ namespace Core\Resources\Application\Repository;
 
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Common\Domain\Exception\RepositoryException;
 
 interface ReadResourceRepositoryInterface
 {
@@ -59,4 +60,27 @@ interface ReadResourceRepositoryInterface
      * @return ResourceEntity[]
      */
     public function findParentResourcesById(ResourceFilter $filter): array;
+
+    /**
+     * @param ResourceFilter $filter
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return \Traversable<ResourceEntity>
+     */
+    public function iterateResourcesByMaxResults(ResourceFilter $filter, int $maxResults = 0): \Traversable;
+
+    /**
+     * @param ResourceFilter $filter
+     * @param array $accessGroupIds
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return \Traversable<ResourceEntity>
+     */
+    public function iterateResourcesByAccessGroupIdsAndMaxResults(
+        ResourceFilter $filter,
+        array $accessGroupIds,
+        int $maxResults = 0
+    ): \Traversable;
 }
