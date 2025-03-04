@@ -1695,7 +1695,7 @@ CREATE TABLE `on_demand_macro_host` (
   PRIMARY KEY (`host_macro_id`),
   KEY `host_host_id` (`host_host_id`),
   CONSTRAINT `on_demand_macro_host_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the on-demand macros for hosts.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the on-demand macros for hosts/host templates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
