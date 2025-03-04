@@ -40,7 +40,7 @@ final readonly class ExportResourcesRequest {
      */
     public function __construct(
         public ResourceFilter $resourceFilter,
-        public int $maxResults = 10000
+        public int $maxResults
     )
     {}
 }

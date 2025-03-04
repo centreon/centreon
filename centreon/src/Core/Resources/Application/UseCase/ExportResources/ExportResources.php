@@ -25,6 +25,7 @@ namespace Core\Resources\Application\UseCase\ExportResources;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -63,39 +64,88 @@ final readonly class ExportResources
     ): void {
         $response = new ExportResourcesResponse();
 
-        try {
-            if ($this->contact->isAdmin()) {
+        if (! $this->validateRequest($request)) {
+            $presenter->presentResponse(
+                new InvalidArgumentResponse('Invalid request, maxResults must be equal or less than 10000')
+            );
+
+            return;
+        }
+
+        if ($this->contact->isAdmin()) {
+            try {
                 $resources = $this->readResourceRepository->iterateResourcesByMaxResults(
                     $request->resourceFilter,
                     $request->maxResults
                 );
-            } else {
+            } catch (RepositoryException $exception) {
+                $presenter->presentResponse(
+                    new ErrorResponse(
+                        message: 'An error occurred while iterating resources with admin rights',
+                        context: [
+                            'user_is_admin' => $this->contact->isAdmin(),
+                            'contact_id' => $this->contact->getId(),
+                            'resources_filter' => $request->resourceFilter,
+                        ],
+                        exception: $exception
+                    )
+                );
+
+                return;
+            }
+        } else {
+            try {
                 $accessGroupIds = array_map(
                     static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
                     $this->accessGroupRepository->findByContact($this->contact)
                 );
+            } catch (RepositoryException $exception) {
+                $presenter->presentResponse(
+                    new ErrorResponse(
+                        message: 'An error occurred while finding access groups for the contact',
+                        context: ['contact_id' => $this->contact->getId()],
+                        exception: $exception
+                    )
+                );
 
+                return;
+            }
+
+            try {
                 $resources = $this->readResourceRepository->iterateResourcesByAccessGroupIdsAndMaxResults(
                     $request->resourceFilter,
                     $accessGroupIds,
                     $request->maxResults
                 );
+            } catch (RepositoryException $exception) {
+                $presenter->presentResponse(
+                    new ErrorResponse(
+                        message: 'An error occurred while iterating resources by access group IDs',
+                        context: [
+                            'user_is_admin' => $this->contact->isAdmin(),
+                            'contact_id' => $this->contact->getId(),
+                            'resources_filter' => $request->resourceFilter,
+                        ],
+                        exception: $exception
+                    )
+                );
+
+                return;
             }
-
-            $response->setResources($resources);
-
-            $presenter->presentResponse($response);
-        } catch (RepositoryException $exception) {
-            $presenter->presentResponse(
-                new ErrorResponse(
-                    message: 'An error occurred while exporting resources in CSV format',
-                    context: [
-                        'user_is_admin' => $this->contact->isAdmin(),
-                        'resources_filter' => $request->resourceFilter,
-                    ],
-                    exception: $exception
-                )
-            );
         }
+
+        $response->setResources($resources);
+
+        $presenter->presentResponse($response);
+    }
+
+    /**
+     * @param ExportResourcesRequest $request
+     *
+     * @return bool
+     */
+    private function validateRequest(ExportResourcesRequest $request): bool
+    {
+        return $request->maxResults <= 10000;
     }
 }
