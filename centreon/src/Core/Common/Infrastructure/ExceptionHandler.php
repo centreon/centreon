@@ -84,6 +84,8 @@ readonly class ExceptionHandler
             $exceptionContext = $this->getExceptionContext($exception);
         }
 
+        $exceptionContext['trace'] = $this->getSerializedExceptionTraces($exception);
+
         return [
             'context' => ['default' => $defaultContext, 'custom' => $context],
             'exception' => $exceptionContext,
@@ -100,7 +102,6 @@ readonly class ExceptionHandler
         $exceptionContext = $this->getExceptionInfos($exception);
         $exceptionContext['previous'] = ($exception->getPrevious() !== null)
             ? $this->getExceptionInfos($exception->getPrevious()) : null;
-        $exceptionContext['trace'] = $this->getSerializedExceptionTraces($exception);
 
         return $exceptionContext;
     }
