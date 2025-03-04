@@ -23,11 +23,58 @@ declare(strict_types=1);
 
 namespace Core\Application\Common\UseCase;
 
+use Core\Common\Domain\Exception\DomainException;
+
 /**
- * This is standard Error Response which accepts
- * - a string which will be translated
- * - a Throwable from which we will get the message.
+ * Class
+ *
+ * @class ErrorResponse
+ * @package Core\Application\Common\UseCase
+ *
+ * @description This is a standard error response that has three properties to manage errors in the use cases:
+ * - message : accepts either a string to be translated, or a Throwable object from which to obtain the message
+ * - context : is an array to contain information of the use case
+ * - exception : is a DomainException object to throw the use case exceptions in the presenter
  */
 class ErrorResponse extends AbstractResponse
 {
+    /**
+     * ErrorResponse constructor
+     *
+     * @param string|\Throwable $message Only to have a message
+     * @param array<string,mixed> $context
+     * @param DomainException|null $exception
+     */
+    public function __construct(
+        string|\Throwable $message,
+        private readonly array $context = [],
+        private readonly ?DomainException $exception = null
+    ) {
+        parent::__construct($message);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasException(): bool
+    {
+        return $this->exception !== null;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getContext(): array
+    {
+        return $this->context;
+    }
+
+    /**
+     * @return DomainException|null
+     */
+    public function getException(): ?DomainException
+    {
+        return $this->exception;
+    }
+
 }
