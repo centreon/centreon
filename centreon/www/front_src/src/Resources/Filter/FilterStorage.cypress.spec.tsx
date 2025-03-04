@@ -1,4 +1,3 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
 import { useAtomValue } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
@@ -324,13 +323,6 @@ const FilterWithProvider = (): JSX.Element => (
     <FilterTest />
   </TestQueryProvider>
 );
-
-before(() => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-});
 
 describe('Filter storage', () => {
   beforeEach(() => {

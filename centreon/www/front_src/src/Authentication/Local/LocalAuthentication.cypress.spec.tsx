@@ -1,4 +1,3 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { useAtomValue } from 'jotai';
@@ -86,13 +85,6 @@ const setComponentBeforeEach = (): void => {
 
   cy.viewport(1200, 1000);
 };
-
-before(() => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-});
 
 describe('Authentication', () => {
   beforeEach(() => {

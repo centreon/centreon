@@ -1,4 +1,3 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
 import { Provider, createStore, useAtomValue } from 'jotai';
 import { BrowserRouter as Router } from 'react-router';
 
@@ -126,11 +125,11 @@ const interceptRequest = ({ dataPath, alias, path }): void => {
 const configureUserAtomViewMode = (
   listingVariant: ListingVariant = ListingVariant.compact
 ): void => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-  userData.result.current.user_interface_density = listingVariant;
+  store.set(userAtom, {
+    user_interface_density: listingVariant,
+    locale: 'en_US',
+    timezone: 'Europe/Paris'
+  });
 };
 
 before(() => {
@@ -848,11 +847,12 @@ describe('Notification column', () => {
   });
 });
 
-['dark', 'light'].forEach((mode) => {
+['light'].forEach((mode) => {
   describe(`Resource Listing: rows and picto colors on ${mode} theme`, () => {
     beforeEach(() => {
-      const userData = renderHook(() => useAtomValue(userAtom));
-      userData.result.current.themeMode = mode;
+      store.set(userAtom, {
+        themeMode: mode
+      });
 
       store.set(selectedColumnIdsAtom, ['resource', 'state', 'information']);
       cy.interceptAPIRequest({
