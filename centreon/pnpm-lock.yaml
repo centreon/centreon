@@ -214,8 +214,8 @@ importers:
         specifier: workspace:*
         version: link:packages/js-config
       '@cypress/code-coverage':
-        specifier: ^3.13.12
-        version: 3.13.12(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(babel-loader@9.2.1(@babel/core@7.26.9)(webpack@5.98.0(@swc/core@1.6.6)))(cypress@14.1.0)(webpack@5.98.0(@swc/core@1.6.6))
+        specifier: ^3.13.3
+        version: 3.13.3(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(babel-loader@9.2.1(@babel/core@7.26.9)(webpack@5.98.0(@swc/core@1.6.6)))(cypress@14.1.0)(webpack@5.98.0(@swc/core@1.6.6))
       '@cypress/react':
         specifier: ^9.0.0
         version: 9.0.0(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(cypress@14.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -1740,8 +1740,8 @@ packages:
   '@cucumber/tag-expressions@6.1.2':
     resolution: {integrity: sha512-xa3pER+ntZhGCxRXSguDTKEHTZpUUsp+RzTRNnit+vi5cqnk6abLdSLg5i3HZXU3c74nQ8afQC6IT507EN74oQ==}
 
-  '@cypress/code-coverage@3.13.12':
-    resolution: {integrity: sha512-JPNlzk9xgCXRIcFCGoSy0qx3FFcaJOGjGkRAPYewYWLukZbcFSjxfNuoK6IMkaJb+miWdzLV0tsAko9eQDNBiA==}
+  '@cypress/code-coverage@3.13.3':
+    resolution: {integrity: sha512-6cunouO0xYNoD6ZeS5392SC19RXbBstfuTrDG4PQsUwID2Gadg0wJdpeL0ZJUwBBq102COl2FxP8qzCfS1gWsg==}
     peerDependencies:
       '@babel/core': ^7.0.1
       '@babel/preset-env': ^7.0.0
@@ -6175,6 +6175,15 @@ packages:
 
   debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
+  debug@4.3.7:
+    resolution: {integrity: sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==}
+    engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
     peerDependenciesMeta:
@@ -13155,7 +13164,7 @@ snapshots:
 
   '@cucumber/tag-expressions@6.1.2': {}
 
-  '@cypress/code-coverage@3.13.12(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(babel-loader@9.2.1(@babel/core@7.26.9)(webpack@5.98.0(@swc/core@1.6.6)))(cypress@14.1.0)(webpack@5.98.0(@swc/core@1.6.6))':
+  '@cypress/code-coverage@3.13.3(@babel/core@7.26.9)(@babel/preset-env@7.26.9(@babel/core@7.26.9))(babel-loader@9.2.1(@babel/core@7.26.9)(webpack@5.98.0(@swc/core@1.6.6)))(cypress@14.1.0)(webpack@5.98.0(@swc/core@1.6.6))':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/preset-env': 7.26.9(@babel/core@7.26.9)
@@ -13164,7 +13173,7 @@ snapshots:
       chalk: 4.1.2
       cypress: 14.1.0
       dayjs: 1.11.13
-      debug: 4.4.0(supports-color@8.1.1)
+      debug: 4.3.7
       execa: 4.1.0
       globby: 11.1.0
       istanbul-lib-coverage: 3.2.2
@@ -18285,6 +18294,10 @@ snapshots:
       ms: 2.1.3
     optionalDependencies:
       supports-color: 8.1.1
+
+  debug@4.3.7:
+    dependencies:
+      ms: 2.1.3
 
   debug@4.4.0(supports-color@8.1.1):
     dependencies:
