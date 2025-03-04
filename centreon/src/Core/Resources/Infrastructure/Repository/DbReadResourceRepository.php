@@ -23,17 +23,22 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\Repository\RepositoryException;
+use Centreon\Domain\Repository\RepositoryException as LegacyRepositoryException;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\TransformerException;
+use Core\Common\Infrastructure\RequestParameters\Transformer\RequestParametersTransformer;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
@@ -87,16 +92,18 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     ];
 
     /**
+     * DbReadResourceRepository constructor
+     *
      * @param DatabaseConnection $db
+     * @param QueryBuilderInterface $queryBuilder
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
      * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
      * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
-     *
-     * @throws \InvalidArgumentException
-     */
+ */
     public function __construct(
         DatabaseConnection $db,
+        private readonly QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
         private readonly \Traversable $resourceACLProviders,
@@ -261,11 +268,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * This adds the subrequest filter for tags (servicegroups, hostgroups).
      *
      * @param ResourceFilter $filter
-     * @param StatementCollector $collector
+     * @param StatementCollector|null $collector
      *
      * @return string
      */
-    public function addResourceTagsSubRequest(ResourceFilter $filter, StatementCollector $collector): string
+    public function addResourceTagsSubRequest(ResourceFilter $filter, ?StatementCollector $collector): string
     {
         $subRequest = '';
         $searchedTagNames = [];
@@ -315,7 +322,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                     $key = ":tagName_{$index}";
                     $index++;
                     $tagKeys[] = $key;
-                    $collector->addValue($key, $name, \PDO::PARAM_STR);
+                    if (! is_null($collector)) {
+                        $collector->addValue($key, $name, \PDO::PARAM_STR);
+                    }
                 }
                 $literalTagKeys = implode(', ', $tagKeys);
 
@@ -367,17 +376,107 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
     /**
      * @param ResourceFilter $filter
-     * @param StatementCollector $collector
-     * @param string $accessGroupRequest
+     * @param int $maxResults
      *
      * @throws RepositoryException
+     * @return \Traversable
+     */
+    public function iterateResourcesByMaxResults(ResourceFilter $filter, int $maxResults = 0): \Traversable
+    {
+        $this->resources = [];
+
+        // For an export, there isn't pagination we limit the number of results
+        // page is always 1 and limit is the maxResults
+        $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+        $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+
+        try {
+            $request = $this->generateFindResourcesRequest($filter, null);
+        } catch (LegacyRepositoryException $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while generating the request : {$exception->getMessage()}",
+                previous: $exception
+            );
+        }
+
+        return $this->iterateResources($request, $maxResults);
+    }
+
+    /**
+     * @param ResourceFilter $filter
+     * @param array $accessGroupIds
+     * @param int $maxResults
      *
+     * @throws RepositoryException
+     * @return \Traversable
+     */
+    public function iterateResourcesByAccessGroupIdsAndMaxResults(ResourceFilter $filter, array $accessGroupIds, int $maxResults = 0): \Traversable
+    {
+        $this->resources = [];
+
+        // For an export, there isn't pagination we limit the number of results
+        // page is always 1 and limit is the maxResults
+        $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+        $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+
+        $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
+
+        try {
+            $request = $this->generateFindResourcesRequest($filter, null, $accessGroupRequest);
+        } catch (LegacyRepositoryException $e) {
+            throw new RepositoryException(
+                message: "An error occurred while generating the request : {$e->getMessage()}",
+                previous: $e
+            );
+        }
+
+        return $this->iterateResources($request, $maxResults);
+    }
+
+    /**
+     * @param string $query
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return \Traversable
+     */
+    private function iterateResources(string $query, int $maxResults = 0): \Traversable
+    {
+        try {
+            $queryResources = $this->translateDbName($query);
+            $queryParameters = RequestParametersTransformer::reverseToQueryParameters(
+                $this->sqlRequestTranslator->getSearchValues()
+            );
+            foreach ($this->db->iterateAssociative($queryResources, $queryParameters) as $resource) {
+                $this->resources = [DbResourceFactory::createFromRecord($resource, $this->resourceTypes)];
+                $iconIds = $this->getIconIdsFromResources();
+                $icons = $this->getIconsDataForResources($iconIds);
+                $this->completeResourcesWithIcons($icons);
+                yield $this->resources[0];
+            }
+        } catch (AssertionFailedException|TransformerException|ConnectionException $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while iterating resources : {$exception->getMessage()}",
+                context: ['maxResults' => $maxResults, 'resource' => $this->resources],
+                previous: $exception
+            );
+        }
+    }
+
+    // ------------------------------------- PRIVATE METHODS -------------------------------------
+
+    /**
+     * @param ResourceFilter $filter
+     * @param StatementCollector|null $collector
+     * @param string $accessGroupRequest
+     *
+     * @throws LegacyRepositoryException
      * @return string
      */
     private function generateFindResourcesRequest(
         ResourceFilter $filter,
-        StatementCollector $collector,
-        string $accessGroupRequest = ''
+        ?StatementCollector $collector,
+        string $accessGroupRequest = '',
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
@@ -456,7 +555,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         } catch (RequestParametersTranslatorException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
-            throw new RepositoryException($ex->getMessage(), 0, $ex);
+            throw new LegacyRepositoryException($ex->getMessage(), 0, $ex);
         }
 
         $request .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
@@ -722,11 +821,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
     /**
      * @param ResourceFilter $filter
-     * @param StatementCollector $collector
+     * @param StatementCollector|null $collector
      *
      * @return string
      */
-    private function addSeveritySubRequest(ResourceFilter $filter, StatementCollector $collector): string
+    private function addSeveritySubRequest(ResourceFilter $filter, ?StatementCollector $collector): string
     {
         $subRequest = '';
         $filteredNames = [];
@@ -740,19 +839,25 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         foreach ($names as $index => $name) {
             $key = ":severityName_{$index}";
             $filteredNames[] = $key;
-            $collector->addValue($key, $name, \PDO::PARAM_STR);
+            if (! is_null($collector)) {
+                $collector->addValue($key, $name, \PDO::PARAM_STR);
+            }
         }
 
         foreach ($levels as $index => $level) {
             $key = ":severityLevel_{$index}";
             $filteredLevels[] = $key;
-            $collector->addValue($key, $level, \PDO::PARAM_INT);
+            if (! is_null($collector)) {
+                $collector->addValue($key, $level, \PDO::PARAM_INT);
+            }
         }
 
         foreach ($types as $index => $type) {
             $key = ":severityType_{$index}";
             $filteredTypes[] = $key;
-            $collector->addValue($key, $type, \PDO::PARAM_INT);
+            if (! is_null($collector)) {
+                $collector->addValue($key, $type, \PDO::PARAM_INT);
+            }
         }
 
         if (
@@ -780,11 +885,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
     /**
      * @param ResourceFilter $filter
-     * @param StatementCollector $collector
+     * @param StatementCollector|null $collector
      *
      * @return string
      */
-    private function addResourceParentIdSubRequest(ResourceFilter $filter, StatementCollector $collector): string
+    private function addResourceParentIdSubRequest(ResourceFilter $filter, ?StatementCollector $collector): string
     {
         $subRequest = '';
         $filteredParentIds = [];
@@ -796,7 +901,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         foreach ($filter->getHostIds() as $index => $hostId) {
             $key = ":parentId_{$index}";
             $filteredParentIds[] = $key;
-            $collector->addValue($key, $hostId, \PDO::PARAM_INT);
+            if (! is_null($collector)) {
+                $collector->addValue($key, $hostId, \PDO::PARAM_INT);
+            }
         }
 
         $subRequest = ' AND (resources.parent_id IN (' . implode(', ', $filteredParentIds) . ')';
@@ -938,11 +1045,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * This adds the subrequest filter for Monitoring Server.
      *
      * @param ResourceFilter $filter
-     * @param StatementCollector $collector
+     * @param StatementCollector|null $collector
      *
      * @return string
      */
-    private function addMonitoringServerSubRequest(ResourceFilter $filter, StatementCollector $collector): string
+    private function addMonitoringServerSubRequest(ResourceFilter $filter, ?StatementCollector $collector): string
     {
         $subRequest = '';
         if (! empty($filter->getMonitoringServerNames())) {
@@ -952,7 +1059,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 $key = ":monitoringServerName_{$index}";
 
                 $monitoringServerNames[] = $key;
-                $collector->addValue($key, $monitoringServerName, \PDO::PARAM_STR);
+                if (! is_null($collector)) {
+                    $collector->addValue($key, $monitoringServerName, \PDO::PARAM_STR);
+                }
             }
 
             $subRequest .= ' AND instances.name IN (' . implode(', ', $monitoringServerNames) . ')';
