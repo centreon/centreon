@@ -17589,6 +17589,12 @@ msgstr "Vous n'êtes pas autorisé à consulter les droits d'accès du tableau d
 msgid "Error while retrieving a dashboard"
 msgstr "Erreur durant la récupération d'un tableau de bord"
 
+msgid "Error while retrieving contacts allowed to receive a dashboard share"
+msgstr "Erreur lors de la récupération des contacts autorisés à recevoir un partage de tableau de bord"
+
+msgid "Error while retrieving contact groups allowed to receive a dashboard share"
+msgstr "Erreur lors de la récupération des groupes de contact autorisés à recevoir un partage de tableau de bord"
+
 msgid "Error while deleting a dashboard"
 msgstr "Erreur durant la suppression d'un tableau de bord"
 
