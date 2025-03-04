@@ -74,7 +74,7 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
     value: '5'
   },
   {
-    selector: '#PasswordexpiresafterpasswordExpirationexpirationDelayDay',
+    selector: '[data-testid="local_passwordExpirationDays"]',
     value: '27'
   },
   {
@@ -103,18 +103,15 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
     value: '5'
   },
   {
-    selector:
-      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationDay',
+    selector: '[data-testid="local_blockingDurationDays"]',
     value: '0'
   },
   {
-    selector:
-      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationHour',
+    selector: '[data-testid="local_blockingDurationHours"]',
     value: '0'
   },
   {
-    selector:
-      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationMinute',
+    selector: '[data-testid="local_blockingDurationMinutes"]',
     value: '15'
   }
 ];
