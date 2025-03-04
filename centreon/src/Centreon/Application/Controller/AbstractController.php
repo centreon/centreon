@@ -52,6 +52,11 @@ abstract class AbstractController extends AbstractFOSRestController
     public const ROLE_API_CONFIGURATION = 'ROLE_API_CONFIGURATION';
     public const ROLE_API_CONFIGURATION_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
 
+    /**
+     * @param ResponseStatusInterface $response
+     *
+     * @return Response
+     */
     public function createResponse(ResponseStatusInterface $response): Response
     {
         $statusCode = match(true) {
