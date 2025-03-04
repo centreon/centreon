@@ -1,7 +1,4 @@
-import { useAtomValue } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';

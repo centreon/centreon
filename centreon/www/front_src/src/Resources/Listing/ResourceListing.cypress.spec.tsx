@@ -1,4 +1,4 @@
-import { Provider, createStore, useAtomValue } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter as Router } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';

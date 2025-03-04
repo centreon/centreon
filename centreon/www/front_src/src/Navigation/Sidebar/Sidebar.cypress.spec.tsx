@@ -1,12 +1,9 @@
-import { act, renderHook } from '@testing-library/react-hooks/dom';
-import { Provider, createStore, useAtom } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter as Router } from 'react-router';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
 import { labelCentreonLogo, labelMiniCentreonLogo } from '../translatedLabels';
-
-import { selectedNavigationItemsAtom } from './sideBarAtoms';
 
 import SideBar from './index';
 import menuData from './tests/menuData.json';

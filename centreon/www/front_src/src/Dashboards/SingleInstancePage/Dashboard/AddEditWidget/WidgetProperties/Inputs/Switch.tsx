@@ -31,7 +31,6 @@ const WidgetSwitch = ({
     () => getProperty({ obj: values, propertyName }),
     [getProperty({ obj: values, propertyName })]
   );
-  console.log(value, canEditField, propertyName);
 
   const changeSwitchValue = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldValue(`options.${propertyName}`, event.target.checked);

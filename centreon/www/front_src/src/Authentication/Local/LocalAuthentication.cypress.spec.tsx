@@ -1,11 +1,9 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { useAtomValue } from 'jotai';
 import { replace } from 'ramda';
 import { BrowserRouter as Router } from 'react-router';
 
 import { Method, TestQueryProvider, buildListingEndpoint } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
 import {
   authenticationProvidersEndpoint,
