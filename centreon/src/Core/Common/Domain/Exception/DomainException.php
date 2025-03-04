@@ -98,7 +98,7 @@ abstract class DomainException extends \Exception
         $exceptionContext = $this->getExceptionContext($this);
         $exceptionContext['previous'] = ($this->getPrevious() !== null)
             ? $this->getExceptionContext($this->getPrevious()) : null;
-        $exceptionContext['trace'] = $this->getTraceAsString();
+        $exceptionContext['trace'] = $this->getSerializedExceptionTraces();
         $this->addContextItem('exception', $exceptionContext);
     }
 
@@ -114,6 +114,7 @@ abstract class DomainException extends \Exception
             'message' => $throwable->getMessage(),
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
+            'code' => $throwable->getCode(),
         ];
 
         if (! empty($throwable->getTrace())) {
@@ -126,5 +127,48 @@ abstract class DomainException extends \Exception
         }
 
         return $exceptionContext;
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    private function getSerializedExceptionTraces(): array
+    {
+        // Retrieve traces but limit args to 100 characters to avoid bloating the logs
+        $traces = $this->getTrace();
+        for ($idx = 0, $idxMax = count($traces); $idx < $idxMax; $idx++) {
+            $traceArguments = [];
+            if (isset($traces[$idx]['args']) && is_countable($traces[$idx]['args'])) {
+                foreach ($traces[$idx]['args'] as $argKey => $arg) {
+                    // in the case of an object, convert it to an array with only public attributes
+                    if (is_object($arg)) {
+                        $arg = get_object_vars($arg);
+                    }
+                    // if it is an array, remove stream resources that prevent JSON encoding
+                    if (is_countable($arg)) {
+                        foreach ($arg as $attributeKey => $attribute) {
+                            if (is_resource($attribute)) {
+                                unset($arg[$attributeKey]);
+                            }
+                        }
+                    }
+                    // rewrite the transformed arguments into a new array to avoid modifying a variable by reference
+                    $traceArguments[$argKey] = $arg;
+                }
+            }
+            $encodedArgs = json_encode(
+                $traceArguments,
+                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            );
+
+            // if an error occurs during JSON encoding, we put an empty array for the arguments in the log
+            if ($encodedArgs) {
+                $traces[$idx]['args'] = substr($encodedArgs, 0, 100) . '[...]';
+            } else {
+                $traces[$idx]['args'] = '[]';
+            }
+        }
+
+        return $traces;
     }
 }
