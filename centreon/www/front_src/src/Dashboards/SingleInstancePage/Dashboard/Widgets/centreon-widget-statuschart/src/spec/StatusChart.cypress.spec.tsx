@@ -1,6 +1,6 @@
 import { Provider, createStore } from 'jotai';
 import { equals, last } from 'ramda';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';

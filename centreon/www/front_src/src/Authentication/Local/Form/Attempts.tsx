@@ -82,10 +82,14 @@ const Attempts = (): JSX.Element => {
           dataTestId={labelNumberOfAttemptsBeforeUserIsBlocked}
           error={attemptsError}
           helperText={attemptsError}
-          inputProps={{
-            'aria-label': t(labelNumberOfAttemptsBeforeUserIsBlocked),
-            'data-testid': 'local_numberOfAttemptsBeforeUserIsBlocked',
-            min: 1
+          textFieldSlotsAndSlotProps={{
+            slotProps: {
+              htmlInput: {
+                'aria-label': t(labelNumberOfAttemptsBeforeUserIsBlocked),
+                'data-testid': 'local_numberOfAttemptsBeforeUserIsBlocked',
+                min: 1
+              }
+            }
           }}
           label={t(labelNumberOfAttemptsBeforeUserIsBlocked)}
           name={attemptsFieldName}

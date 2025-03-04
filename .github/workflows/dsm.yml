@@ -13,6 +13,8 @@ on:
       - reopened
       - ready_for_review
     paths:
+      - ".version"
+      - ".version.centreon-dsm"
       - "centreon-dsm/**"
       - "!centreon-dsm/veracode.json"
       - "!centreon-dsm/.veracode-exclusions"
@@ -23,6 +25,8 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
+      - ".version"
+      - ".version.centreon-dsm"
       - "centreon-dsm/**"
       - "!centreon-dsm/veracode.json"
       - "!centreon-dsm/.veracode-exclusions"
@@ -42,7 +46,7 @@ jobs:
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
@@ -95,7 +99,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Change macro
         run: |
@@ -120,13 +124,13 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
 
   deliver-sources:
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     needs: [get-environment, package]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -140,8 +144,11 @@ jobs:
 
   deliver-rpm:
     needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
-    runs-on: [self-hosted, common]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon'
+    runs-on: centreon-common
 
     strategy:
       matrix:
@@ -149,7 +156,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -165,15 +172,19 @@ jobs:
 
   deliver-deb:
     needs: [get-environment, package]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
-    runs-on: [self-hosted, common]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      github.repository == 'centreon/centreon' &&
+      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
+    runs-on: centreon-common
 
     strategy:
       matrix:
-        distrib: [bookworm, jammy]
+        distrib: [bookworm]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -196,14 +207,14 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.repository == 'centreon/centreon'
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     strategy:
       matrix:
         distrib: [el8, el9, bookworm]
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

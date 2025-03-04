@@ -113,5 +113,7 @@
       "excludedResourceTypes": ["meta-service"]
     }
   },
-  "moduleName": "centreon-widget-statusgrid"
+  "moduleName": "centreon-widget-statusgrid",
+  "canExpand": true,
+  "widgetType": "Real time widgets"
 }

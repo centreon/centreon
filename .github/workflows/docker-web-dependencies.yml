@@ -8,12 +8,14 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - ".version"
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
   push:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
     paths:
+      - ".version"
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
   schedule:
     - cron: '0 2 * * *'
@@ -24,7 +26,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - run: |
           NIGHTLY_TARGETS=("dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
@@ -50,10 +52,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [alma8, alma9, bookworm, jammy]
+        distrib: [alma8, alma9, bookworm]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Login to registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
@@ -62,9 +64,13 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
-      - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
+      - uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
 
-      - uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+      - uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6.13.0
+        if: |
+          needs.get-environment.outputs.is_cloud == 'false' ||
+          ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
+          matrix.distrib != 'bookworm'
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -76,6 +82,7 @@ jobs:
           build-args: |
             "VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
+            "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}
@@ -83,7 +90,11 @@ jobs:
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
 
-      - uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+      - uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6.13.0
+        if: |
+          needs.get-environment.outputs.is_cloud == 'false' ||
+          ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
+          matrix.distrib != 'bookworm'
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -95,6 +106,7 @@ jobs:
           build-args: |
             "VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
+            "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}

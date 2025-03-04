@@ -133,9 +133,6 @@ const Resources = ({
                 <SingleConnectedAutocompleteField
                   exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
-                  chipProps={{
-                    color: 'primary'
-                  }}
                   className={classes.resources}
                   disableClearable={singleResourceSelection}
                   disabled={
@@ -156,7 +153,7 @@ const Resources = ({
                   label={t(labelSelectAResource)}
                   limitTags={2}
                   queryKey={`${resource.resourceType}-${index}`}
-                  value={resource.resources[0] || undefined}
+                  value={resource.resources[0] || null}
                   onChange={changeResource(index)}
                 />
               ) : (

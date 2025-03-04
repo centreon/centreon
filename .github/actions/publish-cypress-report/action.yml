@@ -4,14 +4,10 @@ inputs:
   path:
     description: "Path to the report files"
     required: true
-  urlFilePrefix:
-    description: "Prefix for the Github URL"
-    required: false
-    default: ''
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+    - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
       with:
         node-version: 20
 
@@ -21,6 +17,6 @@ runs:
 
     - name: Publish Cypress report
       run: |
-        node ./.github/actions/publish-cypress-report/formatCypressReportToMarkdown.mjs ${{ inputs.path }} ${{ github.repository }} ${{ github.head_ref || github.ref_name }} ${{ inputs.urlFilePrefix }} > cypress-report.md
+        node ./.github/actions/publish-cypress-report/formatCypressReportToMarkdown.mjs ${{ inputs.path }} > cypress-report.md
         cat cypress-report.md >> $GITHUB_STEP_SUMMARY
       shell: bash

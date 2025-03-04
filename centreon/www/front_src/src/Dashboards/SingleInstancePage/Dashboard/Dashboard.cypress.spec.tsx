@@ -7,7 +7,7 @@ import widgetWebpageProperties from './Widgets/centreon-widget-webpage/propertie
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
@@ -20,18 +20,32 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { equals } from 'ramda';
+import { federatedWidgets } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/federatedWidgets';
+import { federatedWidgetsProperties } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/federatedWidgetsProperties';
+import { version } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/version';
 import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
+  dashboardsFavoriteEndpoint,
   getDashboardEndpoint
 } from '../../api/endpoints';
 import { DashboardRole } from '../../api/models';
+import { FavoriteAction } from '../../models';
+import {
+  interceptDashboardsFavoriteDelete,
+  manageAFavorite
+} from '../../testsUtils';
 import {
   labelAddAContact,
+  labelDashboardAddedToFavorites,
   labelDashboardUpdated,
   labelDelete,
+  labelExpand,
+  labelReduce,
+  labelRemoveFromFavorites,
   labelSharesSaved,
   labelUpdate
 } from '../../translatedLabels';
@@ -98,6 +112,23 @@ interface InitializeAndMountProps {
   globalRole?: DashboardGlobalRole;
   isBlocked?: boolean;
   ownRole?: DashboardRole;
+  customDetailsPath?: string;
+  store?: ReturnType<typeof createStore>;
+}
+
+interface CheckElement {
+  isExpanded: boolean;
+  content: string;
+}
+
+interface TakeSnapshot {
+  widgetName: string;
+  titleSnapshot: string;
+}
+
+interface WaitWidgetData {
+  isExpanded: boolean;
+  widgetName: string;
 }
 
 const editorRoles = {
@@ -132,6 +163,87 @@ const viewerAdministratorRoles = {
   ownRole: DashboardRole.viewer
 };
 
+const interceptDetailsDashboard = ({
+  path,
+  own_role = DashboardRole.editor
+}) => {
+  cy.fixture(path).then((dashboardDetails) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboardDetails',
+      method: Method.GET,
+      path: getDashboardEndpoint('1'),
+      response: { ...dashboardDetails, own_role }
+    });
+  });
+};
+
+const checkElement = ({ isExpanded, content }: CheckElement) => {
+  if (!isExpanded) {
+    cy.contains(content, { timeout: 120000 });
+    return;
+  }
+
+  cy.findByRole('dialog').as('modal');
+
+  cy.get('@modal').contains(content, { timeout: 120000 });
+};
+
+const takeSnapshot = ({ widgetName, titleSnapshot }: TakeSnapshot) => {
+  if (equals(widgetName, 'centreon-widget-webpage')) {
+    return;
+  }
+  cy.makeSnapshot(titleSnapshot);
+};
+
+const waitWidgetData = ({ widgetName, isExpanded }: WaitWidgetData) => {
+  const suffix = 'centreon-widget-';
+  const fixturePath = `Dashboards/Dashboard/ExpandReduce/${widgetName.replace(suffix, '')}`;
+
+  if (equals(widgetName, 'centreon-widget-webpage')) {
+    return;
+  }
+
+  if (equals(widgetName, 'centreon-widget-statuschart')) {
+    cy.waitForRequest(`@${widgetName}Services`);
+    cy.waitForRequest(`@${widgetName}Hosts`);
+
+    cy.fixture(`${fixturePath}Services`).then((data) => {
+      checkElement({ content: data.total, isExpanded });
+    });
+
+    cy.fixture(`${fixturePath}Hosts`).then((data) => {
+      checkElement({ content: data.total, isExpanded });
+    });
+
+    return;
+  }
+
+  if (equals(widgetName, 'centreon-widget-graph')) {
+    cy.waitForRequest(`@${widgetName}`);
+    cy.fixture(fixturePath).then(({ metrics }) => {
+      checkElement({ content: metrics[0].legend, isExpanded });
+    });
+    return;
+  }
+
+  if (equals(widgetName, 'centreon-widget-topbottom')) {
+    cy.waitForRequest(`@${widgetName}`);
+    cy.fixture(fixturePath).then(({ resources }) => {
+      checkElement({
+        content: `${resources[0].parent_name}_${resources[0].name}`,
+        isExpanded
+      });
+    });
+    return;
+  }
+
+  cy.waitForRequest(`@${widgetName}`);
+
+  cy.fixture(fixturePath).then(({ result }) => {
+    checkElement({ content: result[0].name, isExpanded });
+  });
+};
+
 const initializeAndMount = ({
   ownRole = DashboardRole.editor,
   globalRole = DashboardGlobalRole.administrator,
@@ -139,14 +251,14 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   isBlocked = false,
-  detailsWithData = false
+  detailsWithData = false,
+  customDetailsPath,
+  store = initializeWidgets()
 }: InitializeAndMountProps): {
   blockNavigation;
   proceedNavigation;
   store: ReturnType<typeof createStore>;
 } => {
-  const store = initializeWidgets();
-
   store.set(userAtom, {
     alias: 'admin',
     dashboard: {
@@ -178,18 +290,11 @@ const initializeAndMount = ({
 
   cy.viewport('macbook-13');
 
-  cy.fixture(
-    `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`
-  ).then((dashboardDetails) => {
-    cy.interceptAPIRequest({
-      alias: 'getDashboardDetails',
-      method: Method.GET,
-      path: getDashboardEndpoint('1'),
-      response: {
-        ...dashboardDetails,
-        own_role: ownRole
-      }
-    });
+  interceptDetailsDashboard({
+    path:
+      customDetailsPath ??
+      `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`,
+    own_role: ownRole
   });
 
   cy.interceptAPIRequest({
@@ -225,6 +330,12 @@ const initializeAndMount = ({
     method: Method.PUT,
     path: `./api/latest${dashboardSharesEndpoint(1)}`,
     statusCode: 204
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'addFavorite',
+    method: Method.POST,
+    path: `./api/latest${dashboardsFavoriteEndpoint}`
   });
 
   const proceedNavigation = cy.stub();
@@ -357,6 +468,29 @@ const initializeDashboardWithWebpageWidgets = ({
   });
 };
 
+const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
+  initializeAndMount({ customDetailsPath });
+
+  cy.waitForRequest('@getDashboardDetails');
+
+  const path = equals(action, FavoriteAction.delete)
+    ? 'Dashboards/Dashboard/details.json'
+    : 'Dashboards/favorites/details.json';
+
+  const aliasRequestAction = equals(FavoriteAction.add, action)
+    ? '@addFavorite'
+    : '@removeFavorite';
+
+  interceptDetailsDashboard({ path });
+
+  cy.findByRole('button', { name: 'FavoriteIconButton' }).as('favoriteIcon');
+  manageAFavorite({
+    action,
+    buttonAlias: '@favoriteIcon',
+    requestsToWait: [aliasRequestAction, '@getDashboardDetails']
+  });
+};
+
 describe('Dashboard', () => {
   describe('Roles', () => {
     it('has access to the dashboard edition features when the user has the editor role', () => {
@@ -392,6 +526,137 @@ describe('Dashboard', () => {
       cy.waitForRequest('@getDashboardDetails');
 
       cy.contains(labelEditDashboard).should('be.visible');
+    });
+  });
+
+  describe('Expand-Reduce', () => {
+    beforeEach(() => {
+      const initializeWidgets = (): ReturnType<typeof createStore> => {
+        const store = createStore();
+        store.set(federatedWidgetsAtom, federatedWidgets);
+        store.set(federatedWidgetsPropertiesAtom, federatedWidgetsProperties);
+        store.set(platformVersionsAtom, version);
+
+        return store;
+      };
+
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/graph.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            path: './api/latest/monitoring/dashboard/metrics/performances/data?**',
+            response: data,
+            method: Method.GET,
+            alias: 'centreon-widget-graph'
+          });
+        }
+      );
+
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/topbottom.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            path: './api/latest/monitoring/dashboard/metrics/top?**',
+            response: data,
+            method: Method.GET,
+            alias: 'centreon-widget-topbottom'
+          });
+        }
+      );
+
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/resourcestable.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            path: './api/latest/monitoring/resources?**',
+            response: data,
+            method: Method.GET,
+            alias: 'centreon-widget-resourcestable'
+          });
+        }
+      );
+
+      cy.fixture(
+        'Dashboards/Dashboard/ExpandReduce/statuschartServices.json'
+      ).then((data) => {
+        cy.interceptAPIRequest({
+          path: './api/latest/monitoring/services/status?**',
+          response: data,
+          method: Method.GET,
+          alias: 'centreon-widget-statuschartServices'
+        });
+      });
+
+      cy.fixture(
+        'Dashboards/Dashboard/ExpandReduce/statuschartHosts.json'
+      ).then((data) => {
+        cy.interceptAPIRequest({
+          path: './api/latest/monitoring/hosts/status?**',
+          response: data,
+          method: Method.GET,
+          alias: 'centreon-widget-statuschartHosts'
+        });
+      });
+
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/statusgrid.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            path: './api/latest/monitoring/resources?**',
+            response: data,
+            method: Method.GET,
+            alias: 'centreon-widget-statusgrid'
+          });
+        }
+      );
+
+      cy.fixture('Dashboards/Dashboard/ExpandReduce/groupmonitoring.json').then(
+        (data) => {
+          cy.interceptAPIRequest({
+            path: './api/latest/monitoring/hostgroups?**',
+            response: data,
+            method: Method.GET,
+            alias: 'centreon-widget-groupmonitoring'
+          });
+        }
+      );
+
+      cy.viewport(1280, 590);
+
+      initializeAndMount({
+        ...editorRoles,
+        customDetailsPath: 'Dashboards/Dashboard/ExpandReduce/details.json',
+        store: initializeWidgets()
+      });
+
+      cy.waitForRequest('@getDashboardDetails');
+    });
+    it('expandes-reduces the widget when the corresponding button is clicked', () => {
+      federatedWidgets.forEach((widget) => {
+        const widgetName = widget.moduleName;
+
+        cy.findByLabelText(widgetName)
+          .parentsUntil('[data-can-move="false"]')
+          .last()
+          .as('header')
+          .scrollIntoView();
+        waitWidgetData({ widgetName, isExpanded: false });
+        cy.get('@header').findByLabelText(labelMoreActions).click();
+
+        takeSnapshot({
+          titleSnapshot: `${widgetName} with expand option`,
+          widgetName: widgetName
+        });
+
+        cy.findByRole('menuitem', { name: labelExpand }).click();
+        cy.findByRole('dialog').as('modal');
+        cy.get('@modal').should('be.visible');
+
+        waitWidgetData({ widgetName, isExpanded: true });
+        takeSnapshot({
+          titleSnapshot: `${widgetName} in mode expanded`,
+          widgetName: widgetName
+        });
+
+        cy.get('@modal').findByLabelText(labelReduce).click();
+        waitWidgetData({ widgetName, isExpanded: false });
+      });
     });
   });
 
@@ -439,10 +704,10 @@ describe('Dashboard', () => {
 
       cy.get('.react-grid-item')
         .eq(3)
-        .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 4, 252)');
-      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '585px');
+        .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 12, 240)');
+      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '593px');
 
-      cy.get('.react-grid-item').eq(3).should('have.css', 'height', '484px');
+      cy.get('.react-grid-item').eq(3).should('have.css', 'height', '444px');
     });
   });
 
@@ -484,11 +749,11 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.get('[data-canmove="true"]')
+      cy.get('[data-can-move="true"]')
         .eq(0)
         .parent()
         .should('have.css', 'height')
-        .and('equal', '232px');
+        .and('equal', '216px');
 
       cy.get('[class*="react-resizable-handle-se"]')
         .eq(0)
@@ -497,7 +762,7 @@ describe('Dashboard', () => {
         .realMouseMove(-70, -70)
         .realMouseUp();
 
-      cy.get('[data-canmove="true"]')
+      cy.get('[data-can-move="true"]')
         .eq(0)
         .parent()
         .should('have.css', 'height');
@@ -847,6 +1112,57 @@ describe('Dashboard', () => {
       cy.findAllByTestId('UpdateIcon').should('have.length', 2);
     });
   });
+
+  describe('Managment favorite dashboards', () => {
+    it('add a dashboard to favorites when clicking on the corresponding icon in the details view', () => {
+      runFavoriteManagementFromDetails({
+        action: FavoriteAction.add,
+        customDetailsPath: 'Dashboards/Dashboard/details.json'
+      });
+      cy.makeSnapshot();
+    });
+
+    it('remove a dashboard from favorites when clicking on the corresponding icon in the details view', () => {
+      interceptDashboardsFavoriteDelete(1);
+      runFavoriteManagementFromDetails({
+        action: FavoriteAction.delete,
+        customDetailsPath: 'Dashboards/favorites/details.json'
+      });
+      cy.makeSnapshot();
+    });
+
+    it('disable favorite icon button on click', () => {
+      initializeAndMount({
+        customDetailsPath: 'Dashboards/Dashboard/details.json'
+      });
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      interceptDetailsDashboard({ path: 'Dashboards/favorites/details.json' });
+
+      cy.findByRole('button', { name: 'FavoriteIconButton' }).as(
+        'favoriteIcon'
+      );
+      cy.get('@favoriteIcon').dblclick();
+      cy.get('@favoriteIcon').should('be.disabled');
+
+      const labelSuccess = labelDashboardAddedToFavorites;
+
+      const updatedTitle = labelRemoveFromFavorites;
+
+      cy.waitForRequest('@addFavorite');
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.get('@favoriteIcon').should('be.enabled');
+
+      cy.findByText(labelSuccess).should('be.visible');
+
+      cy.get('@favoriteIcon').trigger('mouseover');
+
+      cy.findByText(updatedTitle).should('be.visible');
+    });
+  });
 });
 
 describe('Dashboard with complex layout', () => {
@@ -922,7 +1238,7 @@ describe('Dashboard with complex layout', () => {
 
     cy.get('.react-grid-item')
       .eq(4)
-      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 315, 0)');
+      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 317, 12)');
 
     cy.makeSnapshot();
   });

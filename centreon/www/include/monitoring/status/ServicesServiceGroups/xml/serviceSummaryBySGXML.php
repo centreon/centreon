@@ -290,17 +290,17 @@ if ($numRows > 0) {
         $obj->XML->writeElement("sgn", CentreonUtils::escapeSecure($sg));
         $obj->XML->writeElement("o", $ct);
 
-        foreach ($h as $hostName => $hostInfos) {
+        foreach ($h as $host_name => $hostInfos) {
             $count++;
             $obj->XML->startElement("h");
             $obj->XML->writeAttribute("class", $obj->getNextLineClass());
-            $obj->XML->writeElement("hn", CentreonUtils::escapeSecure($hostName), false);
+            $obj->XML->writeElement("hn", CentreonUtils::escapeSecure($host_name), false);
             if ($hostInfos['icon_image']) {
                 $obj->XML->writeElement("hico", $hostInfos['icon_image']);
             } else {
                 $obj->XML->writeElement("hico", "none");
             }
-            $obj->XML->writeElement("hnl", CentreonUtils::escapeSecure(urlencode($hostName)));
+            $obj->XML->writeElement("hnl", CentreonUtils::escapeSecure(urlencode($host_name)));
             $obj->XML->writeElement("hcount", $count);
             $obj->XML->writeElement("hid", $hostInfos['host_id']);
             $obj->XML->writeElement("hs", _($obj->statusHost[$hostInfos['host_state']]));
@@ -308,10 +308,10 @@ if ($numRows > 0) {
             $obj->XML->writeElement(
                 "h_details_uri",
                 $useDeprecatedPages
-                    ? 'main.php?p=20202&o=hd&host_name=' . $hostName
+                    ? 'main.php?p=20202&o=hd&host_name=' . $host_name
                     : $resourceController->buildHostDetailsUri($hostInfos['host_id'])
             );
-            $serviceListingDeprecatedUri = 'main.php?p=20201&o=svc&host_search=' . $hostName;
+            $serviceListingDeprecatedUri = 'main.php?p=20201&o=svc&host_search=' . $host_name;
             $obj->XML->writeElement(
                 "s_listing_uri",
                 $useDeprecatedPages
@@ -319,7 +319,7 @@ if ($numRows > 0) {
                     : $resourceController->buildListingUri([
                         'filter' => json_encode([
                             'criterias' => [
-                                'search' => 'h.name:^' . $hostName . '$',
+                                'search' => 'h.name:^' . $host_name . '$',
                             ],
                         ]),
                     ])

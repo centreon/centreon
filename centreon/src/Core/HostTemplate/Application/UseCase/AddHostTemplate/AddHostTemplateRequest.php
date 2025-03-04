@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\UseCase\AddHostTemplate;
 
+use Core\Common\Domain\YesNoDefault;
+
 final class AddHostTemplateRequest
 {
     public string $name = '';
@@ -82,7 +84,7 @@ final class AddHostTemplateRequest
 
     public ?int $highFlapThreshold = null;
 
-    public int $eventHandlerEnabled = 2;
+    public YesNoDefault $eventHandlerEnabled = YesNoDefault::Default;
 
     public ?int $eventHandlerCommandId = null;
 

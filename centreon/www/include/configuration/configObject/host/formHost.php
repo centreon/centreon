@@ -546,37 +546,36 @@ $checkCommandSelect->addJsCallback(
 
 $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
 
-if (! $isCloudPlatform) {
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
-    $form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_event_handler_enabled' => '2']);
-    }
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
+$form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_event_handler_enabled' => '2']);
+}
 
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
-    $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
-    $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
+$eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
+$eventHandlerSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+);
 
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2');
-    $form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_active_checks_enabled' => '2']);
-    }
+$form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
 
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2');
-    $form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_passive_checks_enabled' => '2']);
-    }
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1');
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0');
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2');
+$form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_active_checks_enabled' => '2']);
+}
+
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1');
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0');
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2');
+$form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_passive_checks_enabled' => '2']);
 }
 
 $form->addElement('select2', 'timeperiod_tp_id', _('Check Period'), [], $attributes['check_periods']);
@@ -1048,9 +1047,8 @@ $macChecker->setValue(1);
 $form->registerRule('macHandler', 'callback', 'hostMacHandler');
 $form->addRule('macChecker', _('You cannot override reserved macros'), 'macHandler');
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     'alert_check_interval',
@@ -1144,42 +1142,21 @@ if ($o !== HOST_ADD && $o !== HOST_MODIFY) {
 $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        if (null !== $hostId = insertHostInAPI()) {
+        if (null !== $hostId = insertHostInAPI($formData)) {
             $hostObj->setValue($hostId);
             $o = HOST_WATCH;
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        /*
-         * Before saving, we check if a password macro has changed its name to be able to give it the right password
-         * instead of wildcards (PASSWORD_REPLACEMENT_VALUE).
-         */
-        if (isset($_REQUEST['macroInput'])) {
-            foreach ($_REQUEST['macroInput'] as $index => $macroName) {
-                if (array_key_exists('macroOriginalName_' . $index, $_REQUEST)) {
-                    $originalMacroName = $_REQUEST['macroOriginalName_' . $index];
-                    if ($_REQUEST['macroValue'][$index] === PASSWORD_REPLACEMENT_VALUE) {
-                        /*
-                         * The password has not been changed along with the name, so its value is equal to the wildcard.
-                         * We will therefore recover the password stored for its original name.
-                         */
-                        foreach ($aMacros as $indexMacro => $macroDetails) {
-                            if ($macroDetails['macroInput_#index#'] === $originalMacroName) {
-                                $_REQUEST['macroValue'][$index] = $macroPasswords[$indexMacro]['password'];
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+        if (false !== updateHostInApi((int) $hostObj->getValue(), $formData)) {
+            $o = HOST_WATCH;
+            $valid = true;
         }
-        updateHostInDB($hostObj->getValue());
-        $o = HOST_WATCH;
-        $valid = true;
     } elseif ($form->getSubmitValue('submitMC')) {
         foreach (array_keys($select) as $hostIdToUpdate) {
-            updateHostInDB($hostIdToUpdate, true);
+            updateHostInDB_MC($hostIdToUpdate);
         }
         $o = HOST_WATCH;
         $valid = true;
@@ -1208,12 +1185,12 @@ if ($valid) {
         $tpl->assign('Freshness_Control_options', _('Freshness Control options'));
         $tpl->assign('Flapping_Options', _('Flapping options'));
         $tpl->assign('History_Options', _('History Options'));
-        $tpl->assign('Event_Handler', _('Event Handler'));
         $tpl->assign('hostID', $host_id);
         $tpl->assign('add_mtp_label', _('Add a template'));
         $tpl->assign('tpl', 0);
         $tpl->assign('is_not_template', $host_register);
     }
+    $tpl->assign('Event_Handler', _('Event Handler'));
     $tpl->assign('inheritance', $inheritanceMode['value']);
     $tpl->assign('topdoc', _('Documentation'));
     $tpl->assign('custom_macro_label', _('Custom macros'));

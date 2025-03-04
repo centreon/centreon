@@ -33,18 +33,17 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
   return (
     <div className={classes.containerFilter}>
       {inputGroupsData?.map((item) => (
-        <>
+        <div key={item.name}>
           <MemoizedInputGroup
             changeCriteria={changeCriteria}
             data={data}
             filterName={item.name as ExtendedCriteria}
-            key={item.name}
           />
           <Divider
             className={classes.dividerInputs}
             key={`${item.name}-divider`}
           />
-        </>
+        </div>
       ))}
 
       {displayInformationFilter && (

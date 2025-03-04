@@ -21,12 +21,9 @@
 
 require_once './modules/centreon-open-tickets/centreon-open-tickets.conf.php';
 
-/*
- * Smarty template Init
- */
+// Smarty template initialization
 $path = "./modules/centreon-open-tickets/views/logs/templates/";
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * Form begin

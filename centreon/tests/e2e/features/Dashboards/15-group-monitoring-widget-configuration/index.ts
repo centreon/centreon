@@ -224,6 +224,10 @@ Then(
   }
 );
 
+Then('the Save button is disabled', () => {
+  cy.getByTestId({ testId: 'confirm' }).should('be.disabled');
+});
+
 When(
   'the dashboard administrator user selects resources for the widget',
   () => {
@@ -255,6 +259,10 @@ Then(
       .should('be.visible');
   }
 );
+
+Then('the Save button is enabled', () => {
+  cy.getByTestId({ testId: 'confirm' }).should('be.enabled');
+});
 
 When('the user saves the Group monitoring widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click();

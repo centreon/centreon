@@ -44,9 +44,6 @@ const ConnectedAutocomplete = ({
 
       {isSingleAutocomplete ? (
         <SingleConnectedAutocompleteField
-          chipProps={{
-            color: 'primary'
-          }}
           disableClearable={false}
           disabled={!canEditField}
           getEndpoint={getEndpoint}

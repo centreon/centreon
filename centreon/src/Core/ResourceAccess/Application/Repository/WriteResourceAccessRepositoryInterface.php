@@ -119,5 +119,20 @@ interface WriteResourceAccessRepositoryInterface
      * @param int[] $ids
      */
     public function deleteDatasets(array $ids): void;
+
+    /**
+     * @param int $datasetId
+     * @param int[] $resourceIds
+     *
+     * @throws \Throwable
+     */
+    public function updateDatasetResources(int $datasetId, array $resourceIds): void;
+
+    /**
+     * @param int $datasetFilterId
+     *
+     * @throws \Throwable
+     */
+    public function deleteDatasetFilter(int $datasetFilterId): void;
 }
 

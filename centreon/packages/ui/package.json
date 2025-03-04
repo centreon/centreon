@@ -142,7 +142,7 @@
     "ramda": "0.30.1",
     "react-grid-layout": "^1.5.0",
     "react-resizable": "^3.0.5",
-    "react-router-dom": "6",
+    "react-router": "7",
     "react-transition-group": "^4.4.5",
     "sanitize-html": "^2.13.1",
     "ulog": "^2.0.0-beta.19"

@@ -46,10 +46,12 @@ const TopBottomSettings = ({
         <TextField
           className={classes.input}
           disabled={!canEditField}
-          inputProps={{
-            'aria-label': t(labelNumberOfValues) as string,
-            max: 50,
-            min: 1
+          slotProps={{
+            htmlInput: {
+              'aria-label': t(labelNumberOfValues) as string,
+              max: 50,
+              min: 1
+            }
           }}
           size="compact"
           type="number"

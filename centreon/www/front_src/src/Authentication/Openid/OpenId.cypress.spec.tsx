@@ -325,17 +325,15 @@ describe('Open ID', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@updateOpenidConfiguration').then(({ request }) => {
-      expect(request.body).to.deep.equal(
-        JSON.stringify({
-          ...retrievedOpenidConfiguration,
-          base_url: 'http://localhost:8081/login',
-          groups_mapping: {
-            ...retrievedOpenidConfiguration.groups_mapping,
-            relations: [{ contact_group_id: 2, group_value: 'groupValue' }]
-          },
-          redirect_url: null
-        })
-      );
+      expect(request.body).to.deep.equal({
+        ...retrievedOpenidConfiguration,
+        base_url: 'http://localhost:8081/login',
+        groups_mapping: {
+          ...retrievedOpenidConfiguration.groups_mapping,
+          relations: [{ contact_group_id: 2, group_value: 'groupValue' }]
+        },
+        redirect_url: null
+      });
     });
 
     cy.makeSnapshot();

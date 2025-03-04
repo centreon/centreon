@@ -370,6 +370,23 @@ if ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
     $checkCommandSelect->addJsCallback('change', 'changeCommand(this.value);');
 }
 
+$serviceEHE = [
+        $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
+        $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
+        $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
+];
+$form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
+    $form->setDefaults(['service_event_handler_enabled' => '2']);
+}
+
+$eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
+$eventHandlerSelect->addJsCallback(
+        'change',
+        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+);
+$form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsTextLong);
+
 if (! $isCloudPlatform) {
     $serviceIV = [
         $form->createElement('radio', 'service_is_volatile', null, _('Yes'), '1'),
@@ -380,22 +397,6 @@ if (! $isCloudPlatform) {
     if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
         $form->setDefaults(['service_is_volatile' => '2']);
     }
-    $serviceEHE = [
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
-    ];
-    $form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-        $form->setDefaults(['service_event_handler_enabled' => '2']);
-    }
-
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
-    $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
-    $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsTextLong);
 
     $serviceACE = [
         $form->createElement('radio', 'service_active_checks_enabled', null, _('Yes'), '1'),
@@ -919,9 +920,8 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 // # End of form definition
 //
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path2, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path2);
 
 unset($service['service_template_model_stm_id']);
 // Just watch a host information
@@ -981,7 +981,7 @@ $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $serviceObj = $form->getElement('service_id');
     if ($form->getSubmitValue('submitA')) {
-        $serviceObj->setValue(insertServiceInDB());
+        $serviceObj->setValue(insertServiceTemplate($form->getSubmitValues()));
     } elseif ($form->getSubmitValue('submitC')) {
         /*
          * Before saving, we check if a password macro has changed its name to be able to give it the right password

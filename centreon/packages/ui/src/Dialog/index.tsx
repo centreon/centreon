@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogProps,
   DialogTitle,
+  DialogTitleProps,
   Dialog as MuiDialog
 } from '@mui/material';
 
@@ -37,6 +38,7 @@ export type Props = {
   className?: string;
   confirmDisabled?: boolean;
   contentWidth?: number;
+  dialogTitleProps?: DialogTitleProps;
   dialogActionsClassName?: string;
   dialogConfirmButtonClassName?: string;
   dialogContentClassName?: string;
@@ -68,6 +70,7 @@ const Dialog = ({
   confirmDisabled = false,
   cancelDisabled = false,
   submitting = false,
+  dialogTitleProps,
   dialogPaperClassName,
   dialogTitleClassName,
   dialogContentClassName,
@@ -90,7 +93,9 @@ const Dialog = ({
       {...rest}
     >
       {labelTitle && (
-        <DialogTitle className={dialogTitleClassName}>{labelTitle}</DialogTitle>
+        <DialogTitle className={dialogTitleClassName} {...dialogTitleProps}>
+          {labelTitle}
+        </DialogTitle>
       )}
       {children && (
         <DialogContent

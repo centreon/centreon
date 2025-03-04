@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import { ListItemText, Switch } from '@mui/material';

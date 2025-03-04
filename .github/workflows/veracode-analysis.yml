@@ -104,7 +104,7 @@ jobs:
           echo "skip_analysis=$SKIP_ANALYSIS" >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
 
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         if: steps.routing-mode.outputs.skip_analysis == 'false'
 
       - name: Generate binary file
@@ -118,13 +118,13 @@ jobs:
     needs: [build]
     name: Run a pipeline scan
     if: needs.build.outputs.skip_analysis == 'false'
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Get build binary
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
@@ -167,13 +167,13 @@ jobs:
           echo "create_baseline_from=$create_baseline_from" >> $GITHUB_ENV
           cat $GITHUB_ENV
 
-      - uses: actions/setup-java@b36c23c0d998641eff861008f374ee103c25ac73 # v4.4.0
+      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
         with:
           distribution: 'zulu'
           java-version: 8
 
       - name: Pipeline scan
-        uses: veracode/Veracode-pipeline-scan-action@fe0924c134a03ab5a74fcb9722ed8456efa48e17 # v1.0.16
+        uses: veracode/Veracode-pipeline-scan-action@d5dbb47cb0202d511be5fd10a04071d32f74ace6 # v1.0.18
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
@@ -264,7 +264,7 @@ jobs:
     if: ${{ needs.build.outputs.enable_qg == 'false' || ( needs.build.outputs.development_stage == 'Development' && failure() ) }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
@@ -296,7 +296,7 @@ jobs:
 
     steps:
       - name: Get build binary
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
@@ -345,7 +345,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Prepare analysis
         run: |
@@ -368,7 +368,7 @@ jobs:
 
       - name: install PHP
         if: env.is_php_project == 'true'
-        uses: shivammathur/setup-php@2e947f1f6932d141d076ca441d0e1e881775e95b # v2.31.0
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
           php-version: ${{ env.php_version }}
           extensions: none

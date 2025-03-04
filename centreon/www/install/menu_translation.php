@@ -33,7 +33,7 @@
  * For more information : contact@centreon.com
  *
  */
- 
+
 echo _("About");
 echo _("Access Groups");
 echo _("Access List");
@@ -119,7 +119,7 @@ echo _("Overview");
 echo _("Parameters");
 echo _("Performance Management");
 echo _("Performances");
-echo _("Monitoring Connectors Manager");
+echo _("Monitoring Connectors");
 echo _("Poller Statistics");
 echo _("Pollers");
 echo _("Reload ACL");

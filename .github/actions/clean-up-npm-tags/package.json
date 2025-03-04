@@ -9,6 +9,6 @@
   "type": "module",
   "dependencies": {
     "@actions/core": "^1.10.0",
-    "node-fetch": "2"
+    "node-fetch": "2.7.0"
   }
 }

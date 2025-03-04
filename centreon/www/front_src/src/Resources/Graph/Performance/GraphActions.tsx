@@ -3,7 +3,7 @@ import { type MouseEvent, type MutableRefObject, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import LaunchIcon from '@mui/icons-material/Launch';

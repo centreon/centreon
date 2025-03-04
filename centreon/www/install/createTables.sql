@@ -12,203 +12,203 @@
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_actions` (
-  `acl_action_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_action_name` varchar(255) DEFAULT NULL,
-  `acl_action_description` varchar(255) DEFAULT NULL,
-  `acl_action_activate` enum('0','1','2') DEFAULT NULL,
+  `acl_action_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the actions access rule',
+  `acl_action_name` varchar(255) DEFAULT NULL COMMENT 'Name given to the actions access rule',
+  `acl_action_description` varchar(255) DEFAULT NULL COMMENT 'Description of the actions access rule',
+  `acl_action_activate` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates if the actions access rule is active or not',
   PRIMARY KEY (`acl_action_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that defines the actions that can be performed for a given ACL Group';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_actions_rules` (
-  `aar_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_action_rule_id` int(11) DEFAULT NULL,
-  `acl_action_name` varchar(255) DEFAULT NULL,
+  `aar_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the action',
+  `acl_action_rule_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the actions access rule to which the action is linked',
+  `acl_action_name` varchar(255) DEFAULT NULL COMMENT 'Name of the action ex: host_schedule_check',
   PRIMARY KEY (`aar_id`),
   KEY `acl_action_rule_id` (`acl_action_rule_id`),
   CONSTRAINT `acl_actions_rules_ibfk_1` FOREIGN KEY (`acl_action_rule_id`) REFERENCES `acl_actions` (`acl_action_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table containing all the actions linked to an actions access rule';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_actions_relations` (
-  `acl_action_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
+  `acl_action_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the actions access rule',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
   KEY `acl_action_id` (`acl_action_id`),
   KEY `acl_group_id` (`acl_group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL Groups and Actions Access Rule';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_contactgroups_relations` (
-  `cg_cg_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
+  `cg_cg_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the contact group',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
   KEY `cg_cg_id` (`cg_cg_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_group_contactgroups_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_group_contactgroups_relations_ibfk_1` FOREIGN KEY (`cg_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL Groups and Contact Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_contacts_relations` (
-  `contact_contact_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
+  `contact_contact_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the contact',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
   KEY `contact_contact_id` (`contact_contact_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_group_contacts_relations_ibfk_1` FOREIGN KEY (`contact_contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_group_contacts_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL Groups and Contacts';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_topology_relations` (
-  `acl_group_id` int(11) DEFAULT NULL,
-  `acl_topology_id` int(11) DEFAULT NULL,
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
+  `acl_topology_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL menu access rule',
   KEY `acl_group_id` (`acl_group_id`),
   KEY `acl_topology_id` (`acl_topology_id`),
   CONSTRAINT `acl_group_topology_relations_ibfk_1` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_group_topology_relations_ibfk_2` FOREIGN KEY (`acl_topology_id`) REFERENCES `acl_topology` (`acl_topo_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL Groups and ACL menu access rule';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_groups` (
-  `acl_group_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_group_name` varchar(255) DEFAULT NULL,
-  `acl_group_alias` varchar(255) DEFAULT NULL,
-  `acl_group_changed` int(11) NOT NULL DEFAULT 1,
-  `acl_group_activate` enum('0','1','2') DEFAULT NULL,
-  `cloud_description` TEXT DEFAULT NULL,
-  `cloud_specific` boolean NOT NULL DEFAULT 0,
-  `all_contacts` TINYINT DEFAULT 0 NOT NULL,
-  `all_contact_groups` TINYINT DEFAULT 0 NOT NULL,
+  `acl_group_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier of the ACL group',
+  `acl_group_name` varchar(255) DEFAULT NULL COMMENT 'Name of the ACL group',
+  `acl_group_alias` varchar(255) DEFAULT NULL COMMENT 'Alias of the ACL group',
+  `acl_group_changed` int(11) NOT NULL DEFAULT 1 COMMENT 'Indicates if accesses were updated / created (menu, action, resources). Used by centACL for calculation',
+  `acl_group_activate` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates if the ACL group is active or not',
+  `cloud_description` TEXT DEFAULT NULL COMMENT 'Specific field for Cloud environments (Resource Access Management)',
+  `cloud_specific` boolean NOT NULL DEFAULT 0 COMMENT 'Specific field for Cloud environments. 0: on premise, 1: cloud',
+  `all_contacts` TINYINT DEFAULT 0 NOT NULL COMMENT 'Specific cloud for Resource Access Management. 1: means all contacts (old and new) are linked to the ACL group',
+  `all_contact_groups` TINYINT DEFAULT 0 NOT NULL COMMENT 'Specific cloud for Resource Access Management. 1: means all contact groups (old and new) are linked to the ACL group',
   PRIMARY KEY (`acl_group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that gathers all the accesses (action, menu, resources) given to selected contacts and contact groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_res_group_relations` (
-  `acl_res_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the resource access rule',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
   `order` int(11) NOT NULL DEFAULT 0,
   KEY `acl_res_id` (`acl_res_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_res_group_relations_ibfk_1` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_res_group_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL groups and resource access rules';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources` (
-  `acl_res_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_res_name` varchar(255) DEFAULT NULL,
-  `acl_res_alias` varchar(255) DEFAULT NULL,
-  `all_hosts` enum('0','1') DEFAULT NULL,
-  `all_hostgroups` enum('0','1') DEFAULT NULL,
-  `all_servicegroups` enum('0','1') DEFAULT NULL,
-  `acl_res_activate` enum('0','1','2') DEFAULT NULL,
-  `acl_res_comment` text,
-  `acl_res_status` enum('0','1') DEFAULT NULL,
-  `changed` int(11) DEFAULT NULL,
+  `acl_res_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier of the resource access rule',
+  `acl_res_name` varchar(255) DEFAULT NULL COMMENT 'Name of the resource access rule',
+  `acl_res_alias` varchar(255) DEFAULT NULL COMMENT 'Alias of the resource access rule',
+  `all_hosts` enum('0','1') DEFAULT NULL COMMENT '0: means a list of specific hosts were selected. 1: means all hosts (old and new)',
+  `all_hostgroups` enum('0','1') DEFAULT NULL COMMENT '0: means a list of specific host groups were selected. 1: means all host groups (old and new)',
+  `all_servicegroups` enum('0','1') DEFAULT NULL COMMENT '0: means a list of specific service groups were selected. 1: means all service groups (old and new)',
+  `acl_res_activate` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates if the resource access rule is active or not',
+  `acl_res_comment` text COMMENT 'Comment on the resource access rule',
+  `acl_res_status` enum('0','1') DEFAULT NULL COMMENT 'Indicates if the resource access rule is locked or not',
+  `changed` int(11) DEFAULT NULL COMMENT 'Indicates if the resource access rule was updated / created. Used by centACL for calculation',
   `locked` tinyint(1) NOT NULL DEFAULT 0,
-  `cloud_specific` boolean NOT NULL DEFAULT 0,
+  `cloud_specific` boolean NOT NULL DEFAULT 0 COMMENT 'Specific field for Cloud environments. 0: on premise, 1: cloud',
   PRIMARY KEY (`acl_res_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that defines the resources (host, service, hg, sg...) that can be accessed by a given ACL Group';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dataset_filters` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) DEFAULT NULL,
-  `type` VARCHAR(255) DEFAULT NULL,
-  `acl_resource_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
-  `resource_ids` TEXT DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier of the dataset filter',
+  `parent_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the parent dataset filter',
+  `type` VARCHAR(255) DEFAULT NULL COMMENT 'Type of the dataset filter. ex: host, hostgroup...',
+  `acl_resource_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
+  `resource_ids` TEXT DEFAULT NULL COMMENT 'List of resource ids. ex: 1,2,3,4',
   PRIMARY KEY (`id`),
   CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that defines the filters for the dataset (specific Resource Access Management)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_hc_relations` (
-  `hc_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `hc_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the host category',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `hc_id` (`hc_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_hc_relations_pk` UNIQUE (`hc_id`, `acl_res_id`),
   CONSTRAINT `acl_resources_hc_relations_ibfk_1` FOREIGN KEY (`hc_id`) REFERENCES `hostcategories` (`hc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and host categories (filter - exclusion)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_hg_relations` (
-  `hg_hg_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `hg_hg_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the host group',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `hg_hg_id` (`hg_hg_id`),
   KEY `acl_res_id` (`acl_res_id`),
   KEY `hg_hg_id_2` (`hg_hg_id`,`acl_res_id`),
   CONSTRAINT `acl_resources_hg_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hg_relations_ibfk_1` FOREIGN KEY (`hg_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and host groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_host_relations` (
-  `host_host_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the host',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `host_host_id` (`host_host_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_host_relations_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_host_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and hosts';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_hostex_relations` (
-  `host_host_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the host',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `host_host_id` (`host_host_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_hostex_relations_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hostex_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and hosts (filter - exclusion)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_meta_relations` (
-  `meta_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `meta_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the meta service',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `meta_id` (`meta_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_meta_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_meta_relations_ibfk_1` FOREIGN KEY (`meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and meta services';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_poller_relations` (
-  `poller_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `poller_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the poller',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `poller_id` (`poller_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_poller_relations_ibfk_1` FOREIGN KEY (`poller_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_poller_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and pollers (filter - exclusion)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_sc_relations` (
-  `sc_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `sc_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the service category',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `sc_id` (`sc_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_sc_relations_ibfk_1` FOREIGN KEY (`sc_id`) REFERENCES `service_categories` (`sc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_sc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and service categories (filter - exclusion)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -224,38 +224,38 @@ CREATE TABLE `acl_resources_service_relations` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_sg_relations` (
-  `sg_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `sg_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the service group',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `sg_id` (`sg_id`),
   KEY `acl_res_id` (`acl_res_id`),
   KEY `sg_id_2` (`sg_id`,`acl_res_id`),
   CONSTRAINT `acl_resources_sg_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_sg_relations_ibfk_1` FOREIGN KEY (`sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and service groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_topology` (
-  `acl_topo_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_topo_name` varchar(255) DEFAULT NULL,
-  `acl_topo_alias` varchar(255) DEFAULT NULL,
-  `acl_comments` text,
-  `acl_topo_activate` enum('0','1') DEFAULT NULL,
+  `acl_topo_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier of the ACL menu access rule',
+  `acl_topo_name` varchar(255) DEFAULT NULL COMMENT 'Name of the ACL menu access rule',
+  `acl_topo_alias` varchar(255) DEFAULT NULL COMMENT 'Alias of the ACL menu access rule',
+  `acl_comments` text COMMENT 'Comment on the ACL menu access rule',
+  `acl_topo_activate` enum('0','1') DEFAULT NULL COMMENT 'Indicates if the ACL menu access rule is active or not',
   PRIMARY KEY (`acl_topo_id`),
   KEY `acl_topo_id` (`acl_topo_id`,`acl_topo_activate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that defines all the menus that can be accessed by a given ACL Group';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_topology_relations` (
-  `topology_topology_id` int(11) DEFAULT NULL,
-  `acl_topo_id` int(11) DEFAULT NULL,
-  `access_right` tinyint(4) NOT NULL DEFAULT '1',
+  `topology_topology_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the menu (topology)',
+  `acl_topo_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL menu access rule',
+  `access_right` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'Access right given on the menu. 1: read/write, 2: read only',
   KEY `topology_topology_id` (`topology_topology_id`),
   KEY `acl_topo_id` (`acl_topo_id`),
   CONSTRAINT `acl_topology_relations_ibfk_2` FOREIGN KEY (`topology_topology_id`) REFERENCES `topology` (`topology_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_topology_relations_ibfk_3` FOREIGN KEY (`acl_topo_id`) REFERENCES `acl_topology` (`acl_topo_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL menu access rule and menus (topologies) and the access level';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -346,8 +346,7 @@ CREATE TABLE `cb_list_values` (
   `value_name` varchar(255) NOT NULL,
   `value_value` varchar(255) NOT NULL,
   PRIMARY KEY (`cb_list_id`,`value_name`),
-  KEY `fk_cb_list_values_1` (`cb_list_id`),
-  CONSTRAINT `fk_cb_list_values_1` FOREIGN KEY (`cb_list_id`) REFERENCES `cb_list` (`cb_list_id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  KEY `fk_cb_list_values_1` (`cb_list_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -2556,15 +2555,15 @@ CREATE TABLE IF NOT EXISTS `notification_sg_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(200) NOT NULL,
-  `description` text,
-  `created_by` int(11) NULL,
-  `updated_by` int(11) NULL,
-  `created_at` int(11) NOT NULL,
-  `updated_at` int(11) NOT NULL,
-  `refresh_type` enum('global', 'manual') NOT NULL DEFAULT 'global',
-  `refresh_interval` int(11) NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Dashboard ID',
+  `name` VARCHAR(200) NOT NULL COMMENT 'Dashboard name (mandatory)',
+  `description` text COMMENT 'Dashboard description',
+  `created_by` int(11) NULL COMMENT 'ID of the user which created the dashboard',
+  `updated_by` int(11) NULL COMMENT 'ID of the user which last updated the dashboard',
+  `created_at` int(11) NOT NULL COMMENT 'Creation date in timestamp format',
+  `updated_at` int(11) NOT NULL COMMENT 'Last update date in timestamp format',
+  `refresh_type` enum('global', 'manual') NOT NULL DEFAULT 'global' COMMENT 'Type of refresh for the dashboard',
+  `refresh_interval` int(11) NULL COMMENT 'Refresh interval in seconds for the dashboard',
   PRIMARY KEY (`id`),
   KEY `name_index` (`name`),
   CONSTRAINT `contact_created_by`
@@ -2573,32 +2572,32 @@ CREATE TABLE IF NOT EXISTS `dashboard` (
   CONSTRAINT `contact_updated_by`
     FOREIGN KEY (`updated_by`)
     REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing dashboard configurations' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard_panel` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `dashboard_id` INT UNSIGNED NOT NULL,
-  `name` VARCHAR(200) NOT NULL,
-  `widget_type` VARCHAR(200) NOT NULL,
-  `widget_settings` text NOT NULL,
-  `layout_x` smallint(6) NOT NULL,
-  `layout_y` smallint(6) NOT NULL,
-  `layout_width` smallint(6) NOT NULL,
-  `layout_height` smallint(6) NOT NULL,
-  `layout_min_width` smallint(6) NOT NULL,
-  `layout_min_height` smallint(6) NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the widget',
+  `dashboard_id` INT UNSIGNED NOT NULL COMMENT 'ID of the dashboard to which the widget belongs',
+  `name` VARCHAR(200) NOT NULL COMMENT 'Name of the widget',
+  `widget_type` VARCHAR(200) NOT NULL COMMENT 'Type of the widget. List of available widgets is in the `dashboard_widgets` table',
+  `widget_settings` text NOT NULL COMMENT 'Settings of the widget in JSON format',
+  `layout_x` smallint(6) NOT NULL COMMENT 'X position of the widget in the dashboard',
+  `layout_y` smallint(6) NOT NULL COMMENT 'Y position of the widget in the dashboard',
+  `layout_width` smallint(6) NOT NULL COMMENT 'Width of the widget in the dashboard',
+  `layout_height` smallint(6) NOT NULL COMMENT 'Height of the widget in the dashboard',
+  `layout_min_width` smallint(6) NOT NULL COMMENT 'Minimum width of the widget in the dashboard',
+  `layout_min_height` smallint(6) NOT NULL COMMENT 'Minimum height of the widget in the dashboard',
   PRIMARY KEY (`id`),
   KEY `name_index` (`name`),
   CONSTRAINT `parent_dashboard_id`
     FOREIGN KEY (`dashboard_id`)
     REFERENCES `dashboard` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing widget configurations linked to dashboards' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard_contact_relation` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `dashboard_id` INT UNSIGNED NOT NULL,
-  `contact_id` int(11) NOT NULL,
-  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',
+  `dashboard_id` INT UNSIGNED NOT NULL COMMENT 'ID of the dashboard to wich the contact is related',
+  `contact_id` int(11) NOT NULL COMMENT 'ID of the contact related to the dashboard',
+  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer' COMMENT 'Role of the contact in the dashboard',
   PRIMARY KEY (`id`),
   KEY `role_index` (`role`),
   UNIQUE KEY `dashboard_contact_relation_unique` (`dashboard_id`,`contact_id`),
@@ -2608,13 +2607,13 @@ CREATE TABLE IF NOT EXISTS `dashboard_contact_relation` (
   CONSTRAINT `dashboard_contact_relation_contact_id`
     FOREIGN KEY (`contact_id`)
     REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing dashboard contact shares' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `dashboard_id` INT UNSIGNED NOT NULL,
-  `contactgroup_id` int(11) NOT NULL,
-  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',
+  `dashboard_id` INT UNSIGNED NOT NULL COMMENT 'ID of the dashboard to wich the contactgroup is related',
+  `contactgroup_id` int(11) NOT NULL COMMENT 'ID of the contactgroup related to the dashboard',
+  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer' COMMENT 'Contactgroup role. Role applies to all contacts in the contactgroup',
   PRIMARY KEY (`id`),
   KEY `role_index` (`role`),
   UNIQUE KEY `dashboard_contactgroup_relation_unique` (`dashboard_id`,`contactgroup_id`),
@@ -2624,13 +2623,13 @@ CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
   CONSTRAINT `dashboard_contactgroup_relation_contactgroup_id`
     FOREIGN KEY (`contactgroup_id`)
     REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing dashboard contactgroups shares' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the widget model',
+  `name` varchar(255) NOT NULL COMMENT 'Name of the widget model',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) COMMENT='Table storing available widget models for dashboards' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -2665,9 +2664,9 @@ CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `dashboard_id` INT UNSIGNED NOT NULL,
-  `img_id` int(11) NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',
+  `dashboard_id` INT UNSIGNED NOT NULL COMMENT 'ID of the dashboard to which the thumbnail is related',
+  `img_id` int(11) NOT NULL COMMENT 'ID of the media used as thumbnail and stored in view_img table',
   PRIMARY KEY (`id`),
   UNIQUE KEY `dashboard_thumbnail_relation_unique` (`dashboard_id`,`img_id`),
   CONSTRAINT `dashboard_thumbnail_relation_dashboard_id`
@@ -2697,6 +2696,27 @@ CREATE TABLE IF NOT EXISTS `ac_poller_relation` (
   CONSTRAINT `ac_poller_id_contraint`
     FOREIGN KEY (`poller_id`)
     REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `user_profile` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `contact_id` INT(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_profile` (`id`, `contact_id`),
+  CONSTRAINT `fk_user_profile_contact_id`
+    FOREIGN KEY (`contact_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
+  `profile_id` INT UNSIGNED NOT NULL,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  CONSTRAINT `fk_user_profile_favorite_dashboards_profile_id`
+    FOREIGN KEY (`profile_id`)
+    REFERENCES `user_profile` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_profile_favorite_dashboards_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

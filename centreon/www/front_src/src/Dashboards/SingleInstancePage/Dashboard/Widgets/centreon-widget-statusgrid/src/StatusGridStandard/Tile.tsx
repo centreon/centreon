@@ -1,6 +1,6 @@
 import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 
 import DvrIcon from '@mui/icons-material/Dvr';
 import { Box, CardActionArea, Typography } from '@mui/material';
@@ -111,7 +111,8 @@ const Tile = ({
     );
   }
 
-  const displayStatusTile = data.is_acknowledged || data.is_in_downtime;
+  const displayStatusTile =
+    data.is_acknowledged || data.is_in_downtime || data.is_in_flapping;
 
   if (isSmallestSize && !isNil(data)) {
     return (
@@ -127,6 +128,7 @@ const Tile = ({
               isAcknowledged={data.is_acknowledged}
               isCompact={isSmallestSize}
               isInDowntime={data.is_in_downtime}
+              isInFlapping={data.is_in_flapping}
               type={type}
             />
           )}
@@ -148,6 +150,7 @@ const Tile = ({
             isAcknowledged={data.is_acknowledged}
             isCompact={isSmallestSize}
             isInDowntime={data.is_in_downtime}
+            isInFlapping={data.is_in_flapping}
           />
         )}
         <div className={classes.resourceTypeIcon}>

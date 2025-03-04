@@ -23,11 +23,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Download actionlint
         id: get_actionlint
-        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/v1.7.1/scripts/download-actionlint.bash)
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash)
         shell: bash
 
       - name: Check workflow files
@@ -35,10 +35,8 @@ jobs:
           SHELLCHECK_OPTS: "--severity=error"
         run: |
           ${{ steps.get_actionlint.outputs.executable }} \
-            -ignore 'label "ubuntu-24.04" is unknown' \
-            -ignore 'label "common" is unknown' \
-            -ignore 'label "veracode" is unknown' \
-            -ignore 'label "infra" is unknown' \
+            -ignore 'label "centreon-(ubuntu-22.04|common)" is unknown' \
+            -ignore 'label "infrastructure" is unknown' \
             -ignore '"github.head_ref" is potentially untrusted' \
             -pyflakes= \
             -color
@@ -48,9 +46,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: '3.12'
 

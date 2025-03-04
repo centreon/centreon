@@ -60,6 +60,15 @@ properties:
     type: boolean
     description: "Indicates whether resource is acknowledged"
     example: false
+  is_in_flapping:
+    type: boolean
+    description: "Indicates whether resource is in flapping"
+    example: false
+  percent_state_change:
+    type: float
+    nullable: true
+    description: "Percentage of state change"
+    example: "10.4"
   duration:
     type: string
     nullable: true

@@ -7,7 +7,9 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Typography
+  AccordionSummaryProps,
+  Typography,
+  TypographyProps
 } from '@mui/material';
 
 import { useCollapsibleItemStyles } from './useCollapsibleItemStyles';
@@ -18,6 +20,7 @@ export interface Props {
   dataTestId?: string;
   defaultExpanded?: boolean;
   title: string | JSX.Element;
+  titleProps?: TypographyProps;
 }
 
 export const CollapsibleItem = ({
@@ -25,8 +28,10 @@ export const CollapsibleItem = ({
   children,
   defaultExpanded,
   compact = false,
-  dataTestId = ''
-}: Props): JSX.Element => {
+  dataTestId = '',
+  titleProps,
+  ...rest
+}: Props & AccordionSummaryProps): JSX.Element => {
   const { classes, cx } = useCollapsibleItemStyles();
 
   const isStringTitle = equals(type(title), 'String');
@@ -56,9 +61,10 @@ export const CollapsibleItem = ({
           }}
           data-testid={`${dataTestId}-summary`}
           expandIcon={<ExpandMoreIcon color="primary" />}
+          {...rest}
         >
           {isStringTitle && (
-            <Typography color="primary" variant="h6">
+            <Typography color="primary" variant="h6" {...titleProps}>
               {title}
             </Typography>
           )}
