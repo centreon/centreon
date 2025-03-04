@@ -1,21 +1,38 @@
 import { Typography } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import { memo } from 'react';
-import { labelNumerOfLines } from '../../translatedLabels';
+import { listingAtom } from '../../Listing/listingAtoms';
+import {
+  labelFilterRessources,
+  labelFilteredResources,
+  labelNumerOfLines
+} from '../../translatedLabels';
+import useExportCsvStyles from './exportCsv.styles';
 
-const InformationsLine = ({ data }) => {
+interface Props {
+  isAllPagesChecked: boolean;
+}
+
+const maxResources = 10000;
+
+const InformationsLine = ({ isAllPagesChecked }: Props) => {
+  const { classes } = useExportCsvStyles();
+  const listing = useAtomValue(listingAtom);
+  const filteredCurrentLines = `${listing?.result?.length}/${maxResources}`;
+  const currentLines = `${listing?.meta?.total} / ${maxResources}`;
+  const displayWarningMsg = isAllPagesChecked
+    ? listing?.meta?.total > maxResources
+    : listing?.result?.length > maxResources;
+
   return (
-    <div
-      style={{
-        background: '#EDEDED',
-        flex: 0.5,
-        borderRadius: 8,
-        justifyContent: 'center',
-        display: 'flex',
-        alignItems: 'center'
-      }}
-    >
+    <div className={classes.information}>
+      <Typography variant="body2">{labelFilteredResources}</Typography>
       <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-        {labelNumerOfLines}
+        {labelNumerOfLines}:{' '}
+        {isAllPagesChecked ? currentLines : filteredCurrentLines}
+      </Typography>
+      <Typography variant="body2">
+        {displayWarningMsg && labelFilterRessources}
       </Typography>
     </div>
   );

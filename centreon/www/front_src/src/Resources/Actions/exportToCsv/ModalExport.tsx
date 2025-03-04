@@ -40,7 +40,7 @@ const ModalExport = ({ onCancel }: Props): JSX.Element => {
   };
 
   return (
-    <Modal open hasCloseButton={false}>
+    <Modal open hasCloseButton={false} size="medium">
       <Modal.Header>{labelExportToCSV}</Modal.Header>
       <Modal.Body>
         <div className={classes.container}>
@@ -72,7 +72,7 @@ const ModalExport = ({ onCancel }: Props): JSX.Element => {
                 getData={getSelectedPagesData}
               />
             </div>
-            <InformationsLine data="" />
+            <InformationsLine isAllPagesChecked={isAllPagesChecked} />
           </div>
           <div className={classes.spacing} />
           <Warning />

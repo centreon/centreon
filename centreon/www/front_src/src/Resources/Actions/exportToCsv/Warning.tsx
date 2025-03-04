@@ -1,13 +1,12 @@
 import Typography from '@mui/material/Typography';
 import { memo } from 'react';
 import { labelWarningExportToCsv } from '../../translatedLabels';
+import useExportCsvStyles from './exportCsv.styles';
 
 const Warning = () => {
+  const { classes } = useExportCsvStyles();
   return (
-    <Typography
-      style={{ width: '100%', backgroundColor: '#FCC481', padding: 8 }}
-      variant="body2"
-    >
+    <Typography className={classes.warning} variant="body2">
       {labelWarningExportToCsv}
     </Typography>
   );

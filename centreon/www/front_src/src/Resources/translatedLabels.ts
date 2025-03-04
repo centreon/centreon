@@ -321,3 +321,7 @@ export const labelNumerOfLines = 'Number of lines';
 export const labelWarningExportToCsv =
   'Export processing might take some time. The real time data displayed at the output may have changed since the start of processing.';
 export const labelExportProcessingInProgress = 'Export processing in progress';
+export const labelFilteredResources =
+  'You are about to export the status of the resources you have filtered. You can export up to 10,000 lines.';
+export const labelFilterRessources =
+  'Please filter your resources to reduce the number of lines.';

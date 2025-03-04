@@ -45,7 +45,7 @@ const CheckBoxScope = ({
 
   return (
     <>
-      <Typography variant="subtitle2" sx={{ paddingBottom: 0.25 }}>
+      <Typography variant="subtitle2" sx={{ paddingBottom: 0.5 }}>
         {title}
       </Typography>
       <Checkbox
