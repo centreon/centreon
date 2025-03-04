@@ -27,7 +27,8 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     borderBottom: `1px solid ${theme.palette.header.page.border}`,
     display: 'flex',
-    gap: theme.spacing(4)
+    gap: theme.spacing(4),
+    paddingBottom: theme.spacing(1)
   },
   pageHeaderActions: {
     '& > button': {
@@ -46,8 +47,7 @@ const useStyles = makeStyles()((theme) => ({
   pageHeaderMain: {
     display: 'flex',
     flexGrow: 1,
-    gap: theme.spacing(1),
-    minHeight: theme.spacing(4.5)
+    gap: theme.spacing(1)
   },
   pageHeaderMenu: {
     alignItems: 'flex-start',
@@ -95,7 +95,7 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     alignSelf: 'flex-start',
     h1: {
-      ...theme.typography.h5,
+      ...theme.typography.h6,
       fontWeight: theme.typography.fontWeightBold,
       margin: theme.spacing(0),
       lineHeight: '1'
