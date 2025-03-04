@@ -64,14 +64,7 @@ final class FindResources
         ResourceFilter $filter
     ): void {
         try {
-            $resources = [];
-            if ($this->contact->isAdmin()) {
-                $resources = $this->findResourcesAsAdmin($filter);
-                $this->info('Find resources', ['request' => $this->requestParameters->toArray()]);
-            } else {
-                $resources = $this->findResourcesAsUser($filter);
-                $this->info('Find resources', ['request' => $this->requestParameters->toArray()]);
-            }
+            $resources = $this->contact->isAdmin() ? $this->findResourcesAsAdmin($filter) : $this->findResourcesAsUser($filter);
 
             $extraData = [];
             foreach (iterator_to_array($this->extraDataProviders) as $provider) {
@@ -88,6 +81,7 @@ final class FindResources
     /**
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
      * @return ResourceEntity[]
      */
     private function findResourcesAsAdmin(ResourceFilter $filter): array
@@ -99,7 +93,6 @@ final class FindResources
      * @param ResourceFilter $filter
      *
      * @throws \Throwable
-     *
      * @return ResourceEntity[]
      */
     private function findResourcesAsUser(ResourceFilter $filter): array
