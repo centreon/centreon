@@ -33,7 +33,7 @@ use Psr\Log\LogLevel;
  * @class ExceptionHandler
  * @package Core\Common\Infrastructure
  */
-readonly class ExceptionHandler
+final readonly class ExceptionHandler
 {
     /**
      * ExceptionHandler constructor
