@@ -49,7 +49,7 @@ const getBaseConfiguration = ({
           },
           {
             react: {
-              requiredVersion: '18.x',
+              requiredVersion: '19.x',
               singleton: true
             }
           },
