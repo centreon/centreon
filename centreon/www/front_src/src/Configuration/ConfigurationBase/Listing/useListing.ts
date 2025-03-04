@@ -8,7 +8,6 @@ import { useSnackbar } from '@centreon/ui';
 import { useTheme } from '@mui/material';
 import { useNavigate } from 'react-router';
 import { configurationAtom } from '../../atoms';
-import { dialogStateAtom } from '../Modal/atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
@@ -39,7 +38,6 @@ const useListing = (): UseListing => {
     defaultSelectedColumnIds
   );
 
-  const setDialogState = useSetAtom(dialogStateAtom);
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
@@ -69,13 +67,7 @@ const useListing = (): UseListing => {
   };
 
   const openEditModal = (row) => {
-    navigate(`?id=${row.id}`);
-
-    setDialogState({
-      isOpen: true,
-      variant: 'update',
-      id: row.id
-    });
+    navigate(`/main.php?p=60102&o=c&hg_id=${row.id}`);
   };
 
   const rowColorConditions = [
