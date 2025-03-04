@@ -1,0 +1,5 @@
+ExportResources:
+    methods: GET
+    path: /monitoring/resources/export/csv
+    controller: 'Core\Resources\Infrastructure\API\ExportResources\ExportResourcesController'
+    condition: "request.attributes.get('version') >= 24.10"
