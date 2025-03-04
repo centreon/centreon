@@ -17,7 +17,9 @@
     "cypress:run:coverage": "cypress run --component --browser=chrome --env codeCoverageTasksRegistered=true",
     "cypress:run": "cypress run --component --browser=chrome",
     "cypress:install": "cypress install",
-    "tokens:transform": "TS_NODE_PROJECT=tsconfig.node.json ts-node style-dictionary.transform.ts"
+    "cypress:cli": "./cypress/scripts/cypress-cli.sh",
+    "tokens:transform": "TS_NODE_PROJECT=tsconfig.node.json ts-node style-dictionary.transform.ts",
+    "install:arm:binaries": "pnpm i -D @swc/core-linux-arm64-gnu@1.6.6 @rspack/binding-linux-arm64-gnu@1.1.6 -w && pnpm remove @swc/core-linux-arm64-gnu @rspack/binding-linux-arm64-gnu"
   },
   "type": "module",
   "sideEffects": false,
@@ -88,8 +90,8 @@
     "mochawesome": "^7.1.3",
     "msw": "2.7.3",
     "msw-storybook-addon": "^2.0.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-test-renderer": "^19.0.0",
     "remark-gfm": "^4.0.1",
     "speed-measure-vite-plugin": "^1.1.0",
