@@ -145,7 +145,7 @@ abstract class DomainException extends \Exception
                         $arg = get_object_vars($arg);
                     }
                     // if it is an array, remove stream resources that prevent JSON encoding
-                    if (is_countable($arg)) {
+                    if (is_iterable($arg)) {
                         foreach ($arg as $attributeKey => $attribute) {
                             if (is_resource($attribute)) {
                                 unset($arg[$attributeKey]);
@@ -156,15 +156,14 @@ abstract class DomainException extends \Exception
                     $traceArguments[$argKey] = $arg;
                 }
             }
-            $encodedArgs = json_encode(
-                $traceArguments,
-                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-            );
-
             // if an error occurs during JSON encoding, we put an empty array for the arguments in the log
-            if ($encodedArgs) {
+            try {
+                $encodedArgs = json_encode(
+                    $traceArguments,
+                    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
+                );
                 $traces[$idx]['args'] = mb_substr($encodedArgs, 0, 100) . '[...]';
-            } else {
+            } catch (\JsonException) {
                 $traces[$idx]['args'] = '[]';
             }
         }

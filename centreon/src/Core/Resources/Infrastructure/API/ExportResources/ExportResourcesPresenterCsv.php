@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\ExportResources;
 
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
@@ -62,7 +63,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
     public function presentResponse(ExportResourcesResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
-            if ($response instanceof ErrorResponse && $response->hasException()) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
                 $this->exceptionHandler->log($response->getException());
             }
             $this->setResponseStatus($response);
@@ -82,9 +83,9 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
     }
 
     /**
-     * @param \Traversable $resources
+     * @param \Traversable<ResourceEntity> $resources
      *
-     * @return \Traversable
+     * @return \Traversable<array<string,mixed>>
      */
     private function transformToCsv(\Traversable $resources): \Traversable
     {

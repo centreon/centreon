@@ -56,11 +56,13 @@ readonly class ExceptionHandler
         $this->logger->log($level, $exception->getMessage(), $this->getContext($context, $exception));
     }
 
+    // ----------------------------------------- PRIVATE METHODS -----------------------------------------
+
     /**
      * @param array<string,mixed> $context
      * @param \Throwable $exception
      *
-     * @return array
+     * @return array<string,mixed>
      */
     private function getContext(array $context, \Throwable $exception): array
     {
@@ -87,8 +89,6 @@ readonly class ExceptionHandler
             'exception' => $exceptionContext,
         ];
     }
-
-    // ----------------------------------------- PRIVATE METHODS -----------------------------------------
 
     /**
      * @param \Throwable $exception
@@ -150,7 +150,7 @@ readonly class ExceptionHandler
                         $arg = get_object_vars($arg);
                     }
                     // if it is an array, remove stream resources that prevent JSON encoding
-                    if (is_countable($arg)) {
+                    if (is_iterable($arg)) {
                         foreach ($arg as $attributeKey => $attribute) {
                             if (is_resource($attribute)) {
                                 unset($arg[$attributeKey]);
@@ -161,15 +161,15 @@ readonly class ExceptionHandler
                     $traceArguments[$argKey] = $arg;
                 }
             }
-            $encodedArgs = json_encode(
-                $traceArguments,
-                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-            );
-
             // if an error occurs during JSON encoding, we put an empty array for the arguments in the log
-            if ($encodedArgs) {
+            try {
+                $encodedArgs = json_encode(
+                    $traceArguments,
+                    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
+                );
                 $traces[$idx]['args'] = mb_substr($encodedArgs, 0, 100) . '[...]';
-            } else {
+            } catch (\JsonException $exception) {
+                $this->logger->error('Error while encoding trace arguments', ['exception' => $exception]);
                 $traces[$idx]['args'] = '[]';
             }
         }

@@ -496,13 +496,4 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             ->setTheme($user->getTheme() ?? 'light')
             ->setUserInterfaceDensity($user->getUserInterfaceDensity());
     }
-
-    /**
-     * @param \Throwable $exception
-     *
-     * @return void
-     */
-    private function serializeException(\Throwable $exception) {
-
-    }
 }

@@ -95,7 +95,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * DbReadResourceRepository constructor
      *
      * @param DatabaseConnection $db
-     * @param QueryBuilderInterface $queryBuilder
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
      * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
@@ -103,7 +102,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      */
     public function __construct(
         DatabaseConnection $db,
-        private readonly QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
         private readonly \Traversable $resourceACLProviders,
@@ -379,7 +377,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @param int $maxResults
      *
      * @throws RepositoryException
-     * @return \Traversable
+     * @return \Traversable<ResourceEntity>
      */
     public function iterateResourcesByMaxResults(ResourceFilter $filter, int $maxResults = 0): \Traversable
     {
@@ -404,11 +402,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
     /**
      * @param ResourceFilter $filter
-     * @param array $accessGroupIds
+     * @param array<int> $accessGroupIds
      * @param int $maxResults
      *
      * @throws RepositoryException
-     * @return \Traversable
+     * @return \Traversable<ResourceEntity>
      */
     public function iterateResourcesByAccessGroupIdsAndMaxResults(ResourceFilter $filter, array $accessGroupIds, int $maxResults = 0): \Traversable
     {
@@ -423,10 +421,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         try {
             $request = $this->generateFindResourcesRequest($filter, null, $accessGroupRequest);
-        } catch (LegacyRepositoryException $e) {
+        } catch (LegacyRepositoryException $exception) {
             throw new RepositoryException(
-                message: "An error occurred while generating the request : {$e->getMessage()}",
-                previous: $e
+                message: "An error occurred while generating the request : {$exception->getMessage()}",
+                previous: $exception
             );
         }
 
@@ -438,7 +436,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @param int $maxResults
      *
      * @throws RepositoryException
-     * @return \Traversable
+     * @return \Traversable<ResourceEntity>
      */
     private function iterateResources(string $query, int $maxResults = 0): \Traversable
     {

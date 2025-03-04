@@ -34,7 +34,7 @@ use Core\Common\Domain\Exception\DomainException;
  * @description This is a standard error response that has three properties to manage errors in the use cases:
  * - message : accepts either a string to be translated, or a Throwable object from which to obtain the message
  * - context : is an array to contain information of the use case
- * - exception : is a DomainException object to throw the use case exceptions in the presenter
+ * - exception : is a \Throwable object to throw the use case exceptions in the presenter
  */
 class ErrorResponse extends AbstractResponse
 {
@@ -43,22 +43,14 @@ class ErrorResponse extends AbstractResponse
      *
      * @param string|\Throwable $message Only to have a message
      * @param array<string,mixed> $context
-     * @param DomainException|null $exception
+     * @param \Throwable|null $exception
      */
     public function __construct(
         string|\Throwable $message,
         private readonly array $context = [],
-        private readonly ?DomainException $exception = null
+        private readonly ?\Throwable $exception = null
     ) {
         parent::__construct($message);
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasException(): bool
-    {
-        return $this->exception !== null;
     }
 
     /**
@@ -70,9 +62,9 @@ class ErrorResponse extends AbstractResponse
     }
 
     /**
-     * @return DomainException|null
+     * @return \Throwable|null
      */
-    public function getException(): ?DomainException
+    public function getException(): ?\Throwable
     {
         return $this->exception;
     }

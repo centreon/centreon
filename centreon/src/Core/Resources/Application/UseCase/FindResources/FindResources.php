@@ -42,14 +42,12 @@ final class FindResources
     /**
      * @param ReadResourceRepositoryInterface $repository
      * @param ContactInterface $contact
-     * @param RequestParametersInterface $requestParameters
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      */
     public function __construct(
         private readonly ReadResourceRepositoryInterface $repository,
         private readonly ContactInterface $contact,
-        private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly \Traversable $extraDataProviders
     ) {

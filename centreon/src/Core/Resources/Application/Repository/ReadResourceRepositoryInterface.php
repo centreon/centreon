@@ -72,7 +72,7 @@ interface ReadResourceRepositoryInterface
 
     /**
      * @param ResourceFilter $filter
-     * @param array $accessGroupIds
+     * @param array<int> $accessGroupIds
      * @param int $maxResults
      *
      * @throws RepositoryException
