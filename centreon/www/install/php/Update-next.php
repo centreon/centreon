@@ -194,15 +194,28 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
  * @return void
  */
 $removeConstraintFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    // prevent side effect on the $removeFieldFromBrokerConfiguration function
-    $errorMessage = 'Unable to update table cb_list_values';
-    $pearDB->executeQuery(
-        <<<SQL
-        ALTER TABLE cb_list_values
-        DROP CONSTRAINT IF EXISTS `fk_cb_list_values_1`;
+    $errorMessage = 'Unable to drop constraint from cb_list_values table';
+
+    // 1) Check whether the foreign key constraint "fk_cb_list_values_1" exists.
+    $constraintCount = (int) $pearDB->executeQuery(<<<'SQL'
+            SELECT COUNT(*)
+            FROM information_schema.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_SCHEMA = DATABASE()
+            AND TABLE_NAME = 'cb_list_values'
+            AND CONSTRAINT_NAME = 'fk_cb_list_values_1'
         SQL
-    );
+    )->fetch(\PDO::FETCH_COLUMN);
+
+    // 2) If it exists, drop it using DROP FOREIGN KEY (works on older MySQL & MariaDB).
+    if ($constraintCount > 0) {
+        $pearDB->executeQuery(<<<'SQL'
+                ALTER TABLE cb_list_values
+                DROP FOREIGN KEY fk_cb_list_values_1
+            SQL
+        );
+    }
 };
+
 
 /**
  * @param CentreonDB $pearDB
