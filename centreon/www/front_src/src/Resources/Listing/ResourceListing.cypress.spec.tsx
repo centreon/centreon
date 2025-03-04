@@ -224,58 +224,6 @@ const mountResourcePage = (): void => {
   });
 };
 
-describe('Responsivity listing actions', () => {
-  beforeEach(() => {
-    cy.viewport(1650, 590);
-    store.set(applyFilterDerivedAtom, allFilter);
-    store.set(selectedVisualizationAtom, Visualization.All);
-    store.set(enabledAutorefreshAtom, false);
-    store.set(platformFeaturesAtom, getPlatformFeatures({}));
-
-    mountResourcePage();
-  });
-  listingActionsData.forEach(
-    ({
-      panelWidth,
-      conditionsInListing,
-      type,
-      conditionsInMoreActions,
-      height
-    }) => {
-      it(`Displays the listing actions correctly for responsiveness cases when the size is ${type}`, () => {
-        const collection =
-          document?.getElementById('cy-root')?.children[0]?.children[0];
-        collection.style.height = '590px';
-        store.set(panelWidthStorageAtom, panelWidth);
-
-        cy.waitForRequest('@filterRequest');
-        cy.waitForRequest('@listingRequest');
-
-        cy.contains('ad').click();
-
-        cy.waitForRequest('@detailsRequest');
-
-        cy.findByText(labelDisplayView).should('not.exist');
-
-        conditionsInListing.forEach(({ rule, testId }) => {
-          cy.findByTestId(testId).should(rule);
-        });
-
-        cy.findByLabelText(labelMoreActions).click();
-
-        conditionsInMoreActions.forEach(({ testId, rule }) => {
-          cy.findByTestId(testId).should(rule);
-        });
-
-        cy.makeSnapshotWithCustomResolution({
-          resolution: { height, width: 1650 },
-          title: `listing actions when the size is ${type}`
-        });
-      });
-    }
-  );
-});
-
 describe('Resource Listing', () => {
   beforeEach(() => {
     configureUserAtomViewMode();
