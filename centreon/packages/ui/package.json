@@ -27,7 +27,10 @@
     "type": "git",
     "url": "git+https://github.com/centreon/centreon.git"
   },
-  "keywords": ["centreon", "react"],
+  "keywords": [
+    "centreon",
+    "react"
+  ],
   "author": {
     "name": "centreon@centreon.com"
   },
@@ -43,7 +46,12 @@
     "./fonts/*": "./src/fonts/*",
     "./test/testRenderer": "./test/testRenderer.tsx"
   },
-  "files": ["package.json", "src/*", "public/*", "test/*"],
+  "files": [
+    "package.json",
+    "src/*",
+    "public/*",
+    "test/*"
+  ],
   "devDependencies": {
     "@cypress/react": "^9.0.0",
     "@cypress/webpack-dev-server": "^4.0.1",
@@ -82,8 +90,8 @@
     "mochawesome": "^7.1.3",
     "msw": "2.7.3",
     "msw-storybook-addon": "^2.0.4",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-test-renderer": "^19.0.0",
     "remark-gfm": "^4.0.1",
     "speed-measure-vite-plugin": "^1.1.0",
@@ -145,6 +153,8 @@
     "output": "./junit.xml"
   },
   "msw": {
-    "workerDirectory": ["public"]
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

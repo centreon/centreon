@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks/dom';
-import { Provider, createStore, useAtom, useAtomValue } from 'jotai';
+import { Provider, createStore, useAtom } from 'jotai';
 import { BrowserRouter as Router } from 'react-router';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
@@ -9,43 +9,34 @@ import { labelCentreonLogo, labelMiniCentreonLogo } from '../translatedLabels';
 import { selectedNavigationItemsAtom } from './sideBarAtoms';
 
 import SideBar from './index';
+import menuData from './tests/menuData.json';
+import menuDataWithAdditionalLabel from './tests/menuDataWithAdditionalLabel.json';
 
 const modes = [ThemeMode.dark, ThemeMode.light];
 
 modes.forEach((mode) => {
   describe(`Navigation menu in ${mode} theme`, () => {
     beforeEach(() => {
-      cy.fixture('menuData').then((data) => {
-        const userData = renderHook(() => useAtomValue(userAtom));
-        userData.result.current.themeMode = mode;
-
-        const store = createStore();
-        store.set(userAtom, {
-          alias: 'admin',
-          defaultPage: '/monitoring/resources',
-          isExportButtonEnabled: true,
-          locale: 'en',
-          name: 'admin',
-          themeMode: mode,
-          timezone: 'Europe/Paris',
-          useDeprecatedPages: false
-        });
-
-        return cy.mount({
-          Component: (
-            <Provider store={store}>
-              <Router>
-                <SideBar navigationData={data.result} />
-              </Router>
-            </Provider>
-          )
-        });
+      const store = createStore();
+      store.set(userAtom, {
+        alias: 'admin',
+        defaultPage: '/monitoring/resources',
+        isExportButtonEnabled: true,
+        locale: 'en',
+        name: 'admin',
+        themeMode: mode,
+        timezone: 'Europe/Paris',
+        useDeprecatedPages: false
       });
 
-      const { result } = renderHook(() => useAtom(selectedNavigationItemsAtom));
-
-      act(() => {
-        result.current[1](null);
+      cy.mount({
+        Component: (
+          <Provider store={store}>
+            <Router>
+              <SideBar navigationData={menuData.result} />
+            </Router>
+          </Provider>
+        )
       });
     });
 
@@ -121,34 +112,26 @@ modes.forEach((mode) => {
 
 describe('Navigation with additional label', () => {
   beforeEach(() => {
-    cy.fixture('menuDataWithAdditionalLabel').then((data) => {
-      const store = createStore();
-      store.set(userAtom, {
-        alias: 'admin',
-        defaultPage: '/monitoring/resources',
-        isExportButtonEnabled: true,
-        locale: 'en',
-        name: 'admin',
-        themeMode: ThemeMode.light,
-        timezone: 'Europe/Paris',
-        useDeprecatedPages: false
-      });
-
-      return cy.mount({
-        Component: (
-          <Provider store={store}>
-            <Router>
-              <SideBar navigationData={data.result} />
-            </Router>
-          </Provider>
-        )
-      });
+    const store = createStore();
+    store.set(userAtom, {
+      alias: 'admin',
+      defaultPage: '/monitoring/resources',
+      isExportButtonEnabled: true,
+      locale: 'en',
+      name: 'admin',
+      themeMode: ThemeMode.light,
+      timezone: 'Europe/Paris',
+      useDeprecatedPages: false
     });
 
-    const { result } = renderHook(() => useAtom(selectedNavigationItemsAtom));
-
-    act(() => {
-      result.current[1](null);
+    cy.mount({
+      Component: (
+        <Provider store={store}>
+          <Router>
+            <SideBar navigationData={menuDataWithAdditionalLabel.result} />
+          </Router>
+        </Provider>
+      )
     });
   });
 
