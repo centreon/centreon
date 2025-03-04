@@ -23,38 +23,80 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Presenter;
 
+use Core\Infrastructure\Common\Exception\CsvFormatterException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * Class
+ *
+ * @class CsvFormatter
+ * @package Core\Infrastructure\Common\Presenter
+ */
 class CsvFormatter implements PresenterFormatterInterface
 {
     /**
-     * @inheritDoc
+     * @param mixed $data
+     * @param array<string, mixed> $headers
+     *
+     * @return Response
      */
     public function format(mixed $data, array $headers): Response
     {
-        $response = new StreamedResponse(null, Response::HTTP_OK, $headers);
-        $response->setCallback(function () use ($data): void {
-            $handle = fopen('php://output', 'r+');
-            if ($handle === false) {
-                throw new \RuntimeException('Unable to open the output buffer');
+        return new StreamedResponse(callback: function() use ($data, $headers): void {
+            if (! is_array($data) && ! $data instanceof \Traversable) {
+                throw new CsvFormatterException(
+                    'Data to export in csv must be iterable,' . gettype($data) . ' given',
+                    ['csv_data' => $data, 'http_headers' => $headers]
+                );
             }
+
             $lineHeadersCreated = false;
-            if (is_iterable($data)) {
-                foreach ($data as $oneData) {
-                    if (! $lineHeadersCreated) {
-                        $columnNames = array_keys($oneData);
-                        fputcsv($handle, $columnNames, ';');
-                        $lineHeadersCreated = true;
+
+            $handle = fopen('php://output', 'r+');
+
+            if ($handle === false) {
+                throw new CsvFormatterException(
+                    'Unable to open the output buffer to export csv',
+                    ['http_headers' => $headers]
+                );
+            }
+
+            foreach ($data as $dataItem) {
+                if (! is_array($dataItem) && ! $data instanceof \Traversable) {
+                    throw new CsvFormatterException(
+                        'Data to export in csv must be an array, ' . gettype($dataItem) . ' given',
+                        ['csv_data' => $dataItem, 'http_headers' => $headers]
+                    );
+                }
+                if (! $lineHeadersCreated) {
+                    $columnNames = array_keys($dataItem);
+                    if (fputcsv($handle, $columnNames, ';') === false) {
+                        throw new CsvFormatterException(
+                            'Unable to write the headers in the csv file',
+                            ['csv_header' => $columnNames, 'http_headers' => $headers]
+                        );
                     }
-                    $columnValues = array_values($oneData);
-                    fputcsv($handle, $columnValues, ';');
+                    $lineHeadersCreated = true;
+                }
+
+                $columnValues = array_values($dataItem);
+
+                if (fputcsv($handle, $columnValues, ';') === false) {
+                    throw new CsvFormatterException(
+                        'Unable to write the data in the csv file',
+                        ['csv_data' => $dataItem, 'csv_header' => $headers, 'http_headers' => $headers]
+                    );
                 }
             }
 
-            fclose($handle);
-        });
-
-        return $response;
+            if (fclose($handle) === false) {
+                throw new CsvFormatterException(
+                    'Unable to close the output buffer to export csv',
+                    ['http_headers' => $headers]
+                );
+            }
+        }, headers: $headers);
     }
 }
+
