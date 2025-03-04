@@ -9,7 +9,7 @@ interface Props {
   defaultCheckedLabel: CheckedLabel;
   labels: Label;
   title: string;
-  getData: (params: CheckedLabel) => void;
+  getData: (label: string) => void;
 }
 
 const CheckBoxScope = ({
@@ -33,20 +33,15 @@ const CheckBoxScope = ({
 
     setCheckedLabel({
       label: event?.target?.id,
-      value: event?.target?.checked
+      isChecked: event?.target?.checked
     });
   };
 
-  const getCheckedValue = (label: string) => {
-    if (!equals(checkedLabel.label, label)) {
-      return false;
-    }
-    return checkedLabel.value;
-  };
+  const getCheckedValue = (label: string) => equals(checkedLabel.label, label);
 
   useEffect(() => {
-    getData(checkedLabel);
-  }, [checkedLabel.label, checkedLabel.value]);
+    getData(checkedLabel.label);
+  }, [checkedLabel.label]);
 
   return (
     <>

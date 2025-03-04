@@ -10,7 +10,7 @@ export interface Label {
 
 export interface CheckedLabel {
   label: string;
-  value: boolean;
+  isChecked: boolean;
 }
 
 export type CheckedValue = {

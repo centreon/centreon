@@ -320,3 +320,4 @@ export const labelSelecetPages = 'Select pages';
 export const labelNumerOfLines = 'Number of lines';
 export const labelWarningExportToCsv =
   'Export processing might take some time. The real time data displayed at the output may have changed since the start of processing.';
+export const labelExportProcessingInProgress = 'Export processing in progress';

@@ -1,6 +1,7 @@
 import { Modal } from '@centreon/ui/components';
 import { equals } from 'ramda';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   labelAllColumns,
   labelAllPages,
@@ -16,44 +17,26 @@ import CheckBoxScope from './CheckBoxScope';
 import InformationsLine from './InformationsLine';
 import Warning from './Warning';
 import useExportCsvStyles from './exportCsv.styles';
-import { CheckedValue } from './models';
 import useExportCSV from './useExportCsv';
 
 interface Props {
   onCancel: () => void;
 }
 
-const ModalExport = ({ onCancel }: Props) => {
+const ModalExport = ({ onCancel }: Props): JSX.Element => {
+  const { t } = useTranslation();
   const { classes } = useExportCsvStyles();
-  const [allPages, setAllPages] = useState(true);
-  const [allColumns, setAllColumns] = useState(true);
+  const [isAllPagesChecked, setIsAllPagesChecked] = useState(true);
+  const [isAllColumnsChecked, setIsAllColumnsChecked] = useState(true);
 
-  const exportCsv = useExportCSV({ allColumns, allPages });
+  const exportCsv = useExportCSV({ isAllColumnsChecked, isAllPagesChecked });
 
-  const getCheckedValue = ({
-    defaultLabel,
-    label,
-    value
-  }: CheckedValue): boolean => {
-    return equals(defaultLabel, label) ? value : false;
+  const getSelectedColumnsData = (label: string) => {
+    setIsAllColumnsChecked(equals(labelAllColumns, label));
   };
 
-  const getSelectedColumnsData = ({ label, value }) => {
-    const checkedValue = getCheckedValue({
-      label,
-      value,
-      defaultLabel: labelAllColumns
-    });
-    setAllColumns(checkedValue);
-  };
-
-  const getSelectedPagesData = ({ label, value }) => {
-    const checkedValue = getCheckedValue({
-      label,
-      value,
-      defaultLabel: labelAllPages
-    });
-    setAllPages(checkedValue);
+  const getSelectedPagesData = (label: string) => {
+    setIsAllPagesChecked(equals(labelAllPages, label));
   };
 
   return (
@@ -64,22 +47,28 @@ const ModalExport = ({ onCancel }: Props) => {
           <div className={classes.subContainer}>
             <div className={classes.checkBoxContainer}>
               <CheckBoxScope
-                defaultCheckedLabel={{ label: labelAllColumns, value: true }}
-                labels={{
-                  firstLabel: labelVisibleColumnsOnly,
-                  secondLabel: labelAllColumns
+                defaultCheckedLabel={{
+                  label: t(labelAllColumns),
+                  isChecked: true
                 }}
-                title={labelSelectColumns}
+                labels={{
+                  firstLabel: t(labelVisibleColumnsOnly),
+                  secondLabel: t(labelAllColumns)
+                }}
+                title={t(labelSelectColumns)}
                 getData={getSelectedColumnsData}
               />
               <div className={classes.spacing} />
               <CheckBoxScope
-                defaultCheckedLabel={{ label: labelAllPages, value: true }}
-                labels={{
-                  firstLabel: labelCurrentPageOnly,
-                  secondLabel: labelAllPages
+                defaultCheckedLabel={{
+                  label: t(labelAllPages),
+                  isChecked: true
                 }}
-                title={labelSelecetPages}
+                labels={{
+                  firstLabel: t(labelCurrentPageOnly),
+                  secondLabel: t(labelAllPages)
+                }}
+                title={t(labelSelecetPages)}
                 getData={getSelectedPagesData}
               />
             </div>
@@ -90,7 +79,7 @@ const ModalExport = ({ onCancel }: Props) => {
         </div>
       </Modal.Body>
       <Modal.Actions
-        labels={{ cancel: labelCancel, confirm: labelExport }}
+        labels={{ cancel: t(labelCancel), confirm: t(labelExport) }}
         onConfirm={exportCsv}
         onCancel={onCancel}
       />

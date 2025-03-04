@@ -3,19 +3,24 @@ import { buildListingEndpoint, useSnackbar } from 'packages/ui/src';
 import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getColumns } from '../../Listing/columns';
+import { getColumns as getAllColumns } from '../../Listing/columns';
 import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
 import useGetCriteriaName from '../../Listing/useLoadResources/useGetCriteriaName';
 import { getSearch } from '../../Listing/useLoadResources/utils';
-import {} from '../../translatedLabels';
+import { labelExportProcessingInProgress } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { ListSearch } from './models';
+
+const unauthorizedColumn = 'graph';
 interface Parameters {
-  allPages: boolean;
-  allColumns: boolean;
+  isAllPagesChecked: boolean;
+  isAllColumnsChecked: boolean;
 }
 
-const useExportCsv = ({ allPages, allColumns }: Parameters): (() => void) => {
+const useExportCsv = ({
+  isAllColumnsChecked,
+  isAllPagesChecked
+}: Parameters): (() => void) => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
   const { getCriteriaNames, getCriteriaValue } = useGetCriteriaName();
@@ -23,8 +28,6 @@ const useExportCsv = ({ allPages, allColumns }: Parameters): (() => void) => {
   const selectedColumnIds = useAtomValue(selectedColumnIdsAtom);
 
   const listing = useAtomValue(listingAtom);
-
-  const unauthorizedColumn = 'graph';
 
   const getListSearch = ({ array, field }: ListSearch) => {
     return array.map((name) => ({
@@ -36,7 +39,7 @@ const useExportCsv = ({ allPages, allColumns }: Parameters): (() => void) => {
   };
 
   const columns = useMemo(() => {
-    return getColumns({
+    return getAllColumns({
       actions: {},
       t,
       visualization
@@ -87,21 +90,21 @@ const useExportCsv = ({ allPages, allColumns }: Parameters): (() => void) => {
     return { filtersParameters, queryParameters };
   };
 
-  const getColumnsId = () => {
-    if (allColumns) {
+  const getColumns = () => {
+    if (isAllColumnsChecked) {
       const authorizedColumns = columns?.filter(
         ({ id }) => !equals(id, unauthorizedColumn)
       );
-      return authorizedColumns?.map(({ id }) => ({ id }));
+      return authorizedColumns?.map(({ id }) => id);
     }
 
-    return selectedColumnIds
-      ?.filter(({ id }) => !equals(id, unauthorizedColumn))
-      ?.map(({ id }) => ({ id }));
+    return selectedColumnIds?.filter(
+      (item) => !equals(item, unauthorizedColumn)
+    );
   };
 
   const getPages = () => {
-    if (allPages) {
+    if (isAllPagesChecked) {
       return { total: listing?.meta?.total };
     }
 
@@ -109,12 +112,13 @@ const useExportCsv = ({ allPages, allColumns }: Parameters): (() => void) => {
   };
 
   const exportCsv = () => {
-    showSuccessMessage('Export processing in progress');
+    showSuccessMessage(t(labelExportProcessingInProgress));
     const { filtersParameters, queryParameters } = getCurrentFilterParameters();
+
     const parameters = { ...filtersParameters, ...getPages() };
     const customQueryParameters = [
-      ...queryParameters
-      // ...getColumnsId() // sous forme name, value??
+      ...queryParameters,
+      { name: 'columns', value: getColumns() }
     ];
 
     const endpoint = buildListingEndpoint({
