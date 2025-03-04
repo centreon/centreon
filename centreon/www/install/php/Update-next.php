@@ -117,23 +117,14 @@ $changeAccNameInTopology = function (CentreonDB $pearDB) use (&$errorMessage): v
  * @return void
  */
 $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to select data from connector table';
-    $statement = $pearDB->executeQuery(
-        <<<'SQL'
-            SELECT 1 FROM `connector` WHERE `name` = 'Centreon Monitoring Agent'
-            SQL
-    );
-
     $errorMessage = 'Unable to add data to connector table';
-    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
-        $pearDB->executeQuery(
-            <<<SQL
-            INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
-            (null,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-            (null, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
-            SQL
-        );
-    }
+    $pearDB->executeQuery(
+        <<<SQL
+        INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
+        (null,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+        (null, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+        SQL
+    );
 };
 
 // -------------------------------------------- Dashboard Panel -------------------------------------------- //
@@ -194,28 +185,14 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
  * @return void
  */
 $removeConstraintFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to drop constraint from cb_list_values table';
-
-    // 1) Check whether the foreign key constraint "fk_cb_list_values_1" exists.
-    $constraintCount = (int) $pearDB->executeQuery(<<<'SQL'
-            SELECT COUNT(*)
-            FROM information_schema.TABLE_CONSTRAINTS
-            WHERE CONSTRAINT_SCHEMA = DATABASE()
-            AND TABLE_NAME = 'cb_list_values'
-            AND CONSTRAINT_NAME = 'fk_cb_list_values_1'
+    // prevent side effect on the $removeFieldFromBrokerConfiguration function
+    $errorMessage = 'Unable to update table cb_list_values';
+    $pearDB->executeQuery(
+        <<<SQL
+        ALTER TABLE cb_list_values DROP CONSTRAINT `fk_cb_list_values_1`
         SQL
-    )->fetch(\PDO::FETCH_COLUMN);
-
-    // 2) If it exists, drop it using DROP FOREIGN KEY (works on older MySQL & MariaDB).
-    if ($constraintCount > 0) {
-        $pearDB->executeQuery(<<<'SQL'
-                ALTER TABLE cb_list_values
-                DROP FOREIGN KEY fk_cb_list_values_1
-            SQL
-        );
-    }
+    );
 };
-
 
 /**
  * @param CentreonDB $pearDB
