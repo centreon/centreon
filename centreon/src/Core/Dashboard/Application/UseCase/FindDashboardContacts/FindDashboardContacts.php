@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,11 @@ namespace Core\Dashboard\Application\UseCase\FindDashboardContacts;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
@@ -51,6 +53,7 @@ final class FindDashboardContacts
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ReadContactRepositoryInterface $readContactRepository
      * @param bool $isCloudPlatform
+     * @param ReadContactGroupRepositoryInterface $readContactGroupRepository
      */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
@@ -59,40 +62,48 @@ final class FindDashboardContacts
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly bool $isCloudPlatform
     ) {
     }
 
     /**
-     * @param FindDashboardContactsPresenterInterface $presenter
+     * @return FindDashboardContactsResponse|ResponseStatusInterface
      */
-    public function __invoke(FindDashboardContactsPresenterInterface $presenter): void
+    public function __invoke(): FindDashboardContactsResponse|ResponseStatusInterface
     {
         try {
-            if ($this->isUserAdmin()) {
-                $users = $this->findContactAsAdmin();
-            }
-            elseif ($this->rights->canAccess()) {
-                $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                $users = $this->findContactsAsNonAdmin();
-            } else {
-                $this->error(
-                    "User doesn't have sufficient rights to see dashboards",
-                    ['user_id' => $this->contact->getId()]
-                );
-                $presenter->presentResponse(new ForbiddenResponse(DashboardException::accessNotAllowed()));
+            return $this->isUserAdmin()
+                ? $this->createResponse($this->findContactAsAdmin())
+                : $this->createResponse($this->findContactsAsNonAdmin());
+        } catch (RepositoryException $ex) {
+            $this->error(
+                $ex->getMessage(),
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => [
+                        'message' => $ex->getPrevious()?->getMessage(),
+                        'trace' => $ex->getPrevious()?->getTraceAsString(),
+                    ],
+                ]
+            );
 
-                return;
-            }
+            return new ErrorResponse(DashboardException::errorWhileSearchingSharableContacts());
+        } catch (\Throwable $ex) {
+            $this->error(
+                "Error while retrieving contacts allowed to receive a dashboard share : {$ex->getMessage()}",
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => [
+                        'message' => $ex->getMessage(),
+                        'trace' => $ex->getTraceAsString(),
+                    ],
+                ]
+            );
 
-            $presenter->presentResponse($this->createResponse($users));
-        } catch (\UnexpectedValueException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            }
-        catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            return new ErrorResponse(DashboardException::errorWhileSearchingSharableContacts());
         }
     }
 
@@ -117,6 +128,8 @@ final class FindDashboardContacts
 
     /**
      * Find contacts with their Dashboards roles.
+     * Cloud - Return all users with Dashboard access rights (including cloud administrators linked to customer_admin_acl).
+     * OnPremise - Return all users with Dashboard access rights and administrators (not link with ACL Groups onPremise).
      *
      * @throws \Throwable
      *
@@ -125,29 +138,35 @@ final class FindDashboardContacts
     private function findContactAsAdmin(): array
     {
         $users = $this->readDashboardShareRepository->findContactsWithAccessRightByRequestParameters(
-            $this->requestParameters,
-            $this->isCloudPlatform
-        );
-        $total = $this->requestParameters->getTotal();
-        $admins = $this->readContactRepository->findAdminWithRequestParameters(
             $this->requestParameters
         );
-        $this->requestParameters->setTotal($total + $this->requestParameters->getTotal());
-        $adminContactRoles = [];
-        foreach ($admins as $admin) {
-            $adminContactRoles[] = new DashboardContactRole(
-                $admin->getId(),
-                $admin->getName(),
-                $admin->getEmail(),
-                [DashboardGlobalRole::Administrator]
+
+        if ($this->isCloudPlatform === false ) {
+            $total = $this->requestParameters->getTotal();
+            $admins = $this->readContactRepository->findAdminWithRequestParameters(
+                $this->requestParameters
             );
+            $this->requestParameters->setTotal($total + $this->requestParameters->getTotal());
+            $adminContactRoles = [];
+            foreach ($admins as $admin) {
+                $adminContactRoles[] = new DashboardContactRole(
+                    $admin->getId(),
+                    $admin->getName(),
+                    $admin->getEmail(),
+                    [DashboardGlobalRole::Administrator]
+                );
+            }
+
+            return [...$users, ...$adminContactRoles];
         }
 
-        return [...$users, ...$adminContactRoles];
+        return $users;
     }
 
     /**
      * Find contacts with their Dashboards roles.
+     * Cloud - Return users that are part of the same contact groups as the current user.
+     * OnPrem - Return users that are part of the same access groups as the current user.
      *
      * @throws \Throwable
      *
@@ -155,6 +174,15 @@ final class FindDashboardContacts
      */
     private function findContactsAsNonAdmin(): array
     {
+        if ($this->isCloudPlatform === true) {
+            $contactGroups = $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
+
+            return $this->readDashboardShareRepository->findContactsWithAccessRightsByContactGroupsAndRequestParameters(
+                $contactGroups,
+                $this->requestParameters
+            );
+        }
+
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
         $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
 
