@@ -104,17 +104,17 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
   },
   {
     selector:
-      '[aria-label="Time that must pass before new connection is allowed Day"]',
+      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationDay',
     value: '0'
   },
   {
     selector:
-      '[aria-label="Time that must pass before new connection is allowed Hour"]',
+      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationHour',
     value: '0'
   },
   {
     selector:
-      '[aria-label="Time that must pass before new connection is allowed Minutes"]',
+      '#TimethatmustpassbeforenewconnectionisallowedblockingDurationMinute',
     value: '15'
   }
 ];
