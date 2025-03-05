@@ -31,7 +31,7 @@ namespace Core\Resources\Infrastructure\API\CountResources;
  */
 class CountResourcesViewModel {
     /** @var int */
-    private int $total;
+    private int $total = 0;
 
     /**
      * @return int

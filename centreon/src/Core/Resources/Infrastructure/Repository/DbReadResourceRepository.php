@@ -630,7 +630,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         $request .=
-            'FROM `:dbstg`.`resources`
+            ' FROM `:dbstg`.`resources`
                 LEFT JOIN `:dbstg`.`resources` parent_resource
                     ON parent_resource.id = resources.parent_id
                     AND parent_resource.type = ' . self::RESOURCE_TYPE_HOST
