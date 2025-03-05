@@ -20,6 +20,7 @@ info:
     + Added new endpoint to bulk delete services
     + Added new endpoint to bulk delete hostgroups
     + Added new endpoint to bulk enable/disable hostgroups
+    + Added new endpoint to bulk duplicate hostgroups
     +
     # Information
     All dates are in **ISO 8601** format
