@@ -51,14 +51,6 @@ default:
       paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
       contexts: [ DowntimeRecurrentContext ]
 
-    autologin:
-      paths: [ "%paths.base%/features/Autologin.feature" ]
-      contexts: [ AutologinContext ]
-
-    autologin_options:
-      paths: [ "%paths.base%/features/AutologinOptions.feature" ]
-      contexts: [ AutologinOptionsContext ]
-
     custom_views_locked:
       paths: [ "%paths.base%/features/CustomViews/Locked.feature" ]
       contexts: [ CustomViewsContext ]
