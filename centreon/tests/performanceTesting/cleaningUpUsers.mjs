@@ -4,7 +4,7 @@ import { CENTREON_API_URL, LOGIN, PASSWORD,API_BASE_URL} from './config.mjs';
 
 // Function to log in and retrieve a token
 async function login() {
-    const loginResponse = await fetch(CENTREON_API_URL+ '/centreon/api/latest/login', {
+    const loginResponse = await fetch(CENTREON_API_URL+ '/api/latest/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
