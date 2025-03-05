@@ -36,9 +36,9 @@ final class AddHostGroupRequestTransformer
     {
         return new AddHostGroupRequest(
             name: $input->name,
-            alias: $input->alias,
+            alias: (string) $input->alias,
             geoCoords: $input->geoCoords,
-            comment: $input->comment,
+            comment: (string) $input->comment,
             iconId: ! $isCloudPlatform ? $input->iconId: null,
             hosts: $input->hosts,
             resourceAccessRules: $isCloudPlatform ? $input->resourceAccessRules : []
