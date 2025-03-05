@@ -578,8 +578,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         if ($onlyCount) {
             $request =
-                'SELECT COUNT(DISTINCT resources.resource_id) 
-                    1 AS REALTIME';
+                'SELECT COUNT(DISTINCT resources.resource_id), 1 AS REALTIME';
         } else {
             $request =
                 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
@@ -716,16 +715,18 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
          */
         $request .= $this->addSeveritySubRequest($filter, $collector);
 
-        /**
-         * Handle sort parameters.
-         */
-        $request .= $this->sqlRequestTranslator->translateSortParameterToSql()
-            ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+        if (! $onlyCount) {
+            /**
+             * Handle sort parameters.
+             */
+            $request .= $this->sqlRequestTranslator->translateSortParameterToSql()
+                ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
 
-        /**
-         * Handle pagination.
-         */
-        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+            /**
+             * Handle pagination.
+             */
+            $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+        }
 
         return $request;
     }
