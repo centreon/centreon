@@ -76,10 +76,7 @@ final readonly class ExceptionHandler
         ];
 
         if ($exception instanceof DomainException) {
-            $exceptionContext = $exception->getContext()['exception'];
-            $customContextFromException = $exception->getContext();
-            unset($customContextFromException['exception']);
-            $context = array_merge($context, $customContextFromException);
+            $exceptionContext = $exception->getContext();
         } else {
             $exceptionContext = $this->getExceptionContext($exception);
         }

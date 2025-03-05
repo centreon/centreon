@@ -47,6 +47,7 @@ abstract class DomainException extends \Exception
     {
         parent::__construct($message, $code, $previous);
         $this->addExceptionContext();
+        $this->addContext($context);
     }
 
     /**
@@ -96,9 +97,14 @@ abstract class DomainException extends \Exception
     private function addExceptionContext(): void
     {
         $exceptionContext = $this->getExceptionContext($this);
-        $exceptionContext['previous'] = ($this->getPrevious() !== null)
-            ? $this->getExceptionContext($this->getPrevious()) : null;
-        $this->addContextItem('exception', $exceptionContext);
+        if ($this->getPrevious() !== null) {
+            if ($this->getPrevious() instanceof self) {
+                $exceptionContext['previous'] = $this->getPrevious()->getContext();
+            } else {
+                $exceptionContext['previous'] = $this->getExceptionContext($this->getPrevious());
+            }
+        }
+        $this->setContext($exceptionContext);
     }
 
     /**
