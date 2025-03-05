@@ -92,21 +92,23 @@ interface ReadResourceAccessRepositoryInterface
      * Check if a rule exists by contact.
      * Existing rules are linked to the user ID or has "all_contacts" flag.
      *
+     * @param int[] $ruleIds
      * @param int $userId
      *
      * @return int[]
      */
-    public function existByContact(int $userId): array;
+    public function existByContact(array $ruleIds, int $userId): array;
 
     /**
      * Check if a rule exists by contact groups.
      * Existing rules are linked to the contact group IDs or has "all_contact_groups" flag.
      *
+     * @param int[] $ruleIds
      * @param ContactGroup[] $contactGroups
      *
      * @return int[]
      */
-    public function existByContactGroup(array $contactGroups): array;
+    public function existByContactGroup(array $ruleIds, array $contactGroups): array;
 
     /**
      * Retrieve Datasets by Rule IDs and Dataset type where there is no parent dataset.

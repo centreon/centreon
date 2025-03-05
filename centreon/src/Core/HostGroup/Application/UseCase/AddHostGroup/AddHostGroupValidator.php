@@ -110,9 +110,13 @@ class AddHostGroupValidator
             throw RuleException::idsDoNotExist('rules', $unexistentAccessRules);
         }
 
-        $existentRulesByContact = $this->readResourceAccessRepository->existByContact($this->user->getId());
+        $existentRulesByContact = $this->readResourceAccessRepository->existByContact(
+            ruleIds: $resourceAccessRuleIds,
+            userId: $this->user->getId()
+        );
         $existentRulesByContactGroup = $this->readResourceAccessRepository->existByContactGroup(
-            $this->readContactGroupRepository->findAllByUserId($this->user->getId())
+            ruleIds: $resourceAccessRuleIds,
+            contactGroups: $this->readContactGroupRepository->findAllByUserId($this->user->getId())
         );
 
         $existentRules = array_unique(
