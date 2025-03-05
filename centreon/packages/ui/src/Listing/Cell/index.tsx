@@ -59,17 +59,24 @@ interface StylesProps extends Props {
 interface GetRowHighlightStyleProps {
   isRowHighlighted?: boolean;
   theme: Theme;
+  disableRowCondition;
+  row;
 }
 
-const getRowHighlightStyle = ({
+const getRowTextColor = ({
   isRowHighlighted,
-  theme
-}: GetRowHighlightStyleProps): CSSObject | undefined =>
-  isRowHighlighted
-    ? {
-        color: theme.palette.text.primary
-      }
-    : undefined;
+  theme,
+  disableRowCondition,
+  row
+}: GetRowHighlightStyleProps): CSSObject | undefined => {
+  if (disableRowCondition(row)) {
+    return { color: alpha(theme.palette.text.secondary, 0.5) };
+  }
+
+  if (isRowHighlighted) {
+    return { color: theme.palette.text.primary };
+  }
+};
 
 const useStyles = makeStyles<StylesProps>()(
   (
@@ -112,7 +119,7 @@ const useStyles = makeStyles<StylesProps>()(
       height: '100%',
       overflow: 'hidden',
       ...getTextStyleByViewMode({ listingVariant, theme }),
-      p: getRowHighlightStyle({ isRowHighlighted, theme }),
+      p: getRowTextColor({ isRowHighlighted, disableRowCondition, row, theme }),
       padding: theme.spacing(0, 1),
       whiteSpace: 'nowrap'
     }

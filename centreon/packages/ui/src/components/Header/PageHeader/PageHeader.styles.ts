@@ -25,10 +25,10 @@ const useStyles = makeStyles()((theme) => ({
   },
   pageHeader: {
     alignItems: 'center',
-    borderBottom: `1px solid ${theme.palette.header.page.border}`,
+    borderBottom: `2px solid ${theme.palette.header.page.border}`,
     display: 'flex',
     gap: theme.spacing(4),
-    paddingBottom: theme.spacing(1)
+    paddingBottom: theme.spacing(0.5)
   },
   pageHeaderActions: {
     '& > button': {
@@ -95,7 +95,7 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     alignSelf: 'flex-start',
     h1: {
-      ...theme.typography.h6,
+      ...theme.typography.h5,
       fontWeight: theme.typography.fontWeightBold,
       margin: theme.spacing(0),
       lineHeight: '1'
