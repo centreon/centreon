@@ -11,6 +11,7 @@ import { Menu } from '@mui/material';
 
 import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
 
+import { useActionsStyles } from '../Actions.styles';
 import useMassiveActions from './useMassiveActions';
 
 import {
@@ -19,7 +20,6 @@ import {
   labelDuplicate,
   labelEnable
 } from '../../../translatedLabels';
-import { useActionsStyles } from '../Actions.styles';
 
 interface Props {
   anchor: HTMLElement | null;
