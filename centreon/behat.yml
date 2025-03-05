@@ -27,10 +27,6 @@ default:
       paths: [ "%paths.base%/features/DowntimeService.feature" ]
       contexts: [ DowntimeServiceContext ]
 
-    limit_metric_in_chart:
-      paths: [ "%paths.base%/features/LimitMetricInChart.feature" ]
-      contexts: [ LimitMetricInChartContext ]
-
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
       contexts: [ DowntimeStartAndStopContext ]
