@@ -29,15 +29,14 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # Récupère le code source
-
+        uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4.2.0
         with:
           node-version: 20
 
       - name: Install Dependencies
-        run: npm ci  # Installation des dépendances en mode clean
+        run: npm ci
 
       - name: Display test input
         run: |
@@ -92,7 +91,7 @@ jobs:
         shell: bash
 
       - name: Adding hosts
-        run: node addingHosts.mjs
+        run: node hosts.mjs
 
       - name: Adding users
         run: node AddingUsers.mjs

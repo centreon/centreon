@@ -9,42 +9,34 @@ async function getFilteredHostIds(connection) {
     const [rows] = await connection.execute(
         "SELECT host_id, host_name FROM host WHERE host_name LIKE 'host_%'"
     );
-    console.log("✅ Hôtes filtrés récupérés :");
+    console.log("✅ Retrieved filtered hosts:");
     rows.forEach(row => console.log(`Host ID: ${row.host_id}, Host Name: ${row.host_name}`));
     return rows.map(row => row.host_id);
 }
 
 async function injectServiceTemplate(connection, service, properties, injectedIds) {
-    const [result] = await connection.execute("SELECT MAX(service_id) AS max FROM service");
-    const firstId = ((result[0].max || 0) + 1);
+    try {
+        const query = `
+            INSERT INTO service (service_description, service_alias, service_register, command_command_id)
+            VALUES (?, ?, ?, ?)
+        `;
+        const values = [
+            `${service.description}_template`,
+            `${service.alias}_template`,
+            '0',
+            injectedIds.command[Math.floor(Math.random() * injectedIds.command.length)]
+        ];
 
-    const query = `
-        INSERT INTO service (service_description, service_alias, service_register, command_command_id)
-        VALUES (?, ?, ?, ?)
-    `;
-    const values = [
-        `${service.description}_template`,
-        `${service.alias}_template`,
-        '0',
-        injectedIds.command[Math.floor(Math.random() * injectedIds.command.length)]
-    ];
+        const [result] = await connection.execute(query, values);
+        const serviceId = result.insertId; // Retrieve the auto-incremented ID
 
-    await connection.execute(query, values);
-
-    // Vérification de l'existence du service
-    const [checkResult] = await connection.execute("SELECT service_id FROM service WHERE service_id = ?", [firstId]);
-
-    if (checkResult.length === 0) {
-        throw new Error(`❌ Échec de l'insertion du service template avec ID: ${firstId}`);
+        console.log(`✅ Service template added with ID: ${serviceId}`);
+        await injectServiceMetrics(connection, serviceId, properties);
+        return serviceId;
+    } catch (error) {
+        console.error(`❌ Error inserting service template: ${error.message}`);
+        throw error;
     }
-
-    console.log(`✅ Service template ajouté avec ID: ${firstId}`);
-
-    // Validation de la transaction avant d'ajouter les métriques
-    await connection.commit();
-
-    await injectServiceMetrics(connection, firstId, properties);
-    return firstId;
 }
 
 async function injectServiceMetrics(connection, firstId, properties) {
@@ -62,7 +54,7 @@ async function injectServiceMetrics(connection, firstId, properties) {
         VALUES ?
     `;
     await connection.query(query, [values]);
-    console.log(`✅ Metrics ajoutés pour le service ID: ${firstId}`);
+    console.log(`✅ Metrics added for service ID: ${firstId}`);
 }
 
 async function injectServices(connection, service, properties, injectedIds) {
@@ -107,7 +99,7 @@ async function injectServices(connection, service, properties, injectedIds) {
         `, [values]);
     }
 
-    console.log(`✅ ${count} services ajoutés.`);
+    console.log(`✅ ${count} services added.`);
 
     await injectServiceHostRelations(connection, firstId, maxId, injectedIds, ids);
     return ids;
@@ -118,7 +110,7 @@ async function injectServiceHostRelations(connection, firstId, maxId, injectedId
     let insertCount = 0;
 
     if (injectedIds.host.length === 0) {
-        console.error("❌ Aucun hôte correspondant trouvé !");
+        console.error("❌ No matching hosts found!");
         return;
     }
 
@@ -147,7 +139,7 @@ async function injectServiceHostRelations(connection, firstId, maxId, injectedId
         `, [values]);
     }
 
-    console.log("✅ Relations service-host ajoutées.");
+    console.log("✅ Service-host relationships added.");
 }
 
 async function main() {
@@ -156,7 +148,7 @@ async function main() {
     try {
         console.log("🚀 Starting service injection");
         const hostIds = await getFilteredHostIds(connection);
-        console.log("✅ Host IDs récupérés :", hostIds);
+        console.log("✅ Retrieved host IDs:", hostIds);
 
         const service = { description: "TestService", alias: "TS" };
         const properties = {

@@ -68,6 +68,12 @@ async function purgeDatabase() {
         const [resultServiceGroups] = await connection.query("DELETE FROM servicegroup WHERE sg_name LIKE 'MyServiceGroup_%';");
         console.log(`✅ Deleted ${resultServiceGroups.affectedRows} service groups starting with 'MyServiceGroup_'.`);
 
+        // 🔹 Delete the inserted commands
+        const [resultCommands] = await connection.query(
+            "DELETE FROM command WHERE command_name LIKE 'check_%' OR command_name LIKE 'host-notify-%' OR command_name LIKE 'service-notify-%' OR command_name LIKE 'submit-%' OR command_name LIKE 'process-%';"
+        );
+        console.log(`✅ Deleted ${resultCommands.affectedRows} commands.`);
+
         console.log("🔄 Re-enabling foreign key checks...");
         await connection.query('SET FOREIGN_KEY_CHECKS=1;');
 

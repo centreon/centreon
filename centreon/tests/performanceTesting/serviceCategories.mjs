@@ -21,7 +21,8 @@ async function executeQuery(connection, query, params = []) {
 
 // Retrieve existing services from the database
 async function getServiceIds(connection) {
-    const rows = await executeQuery(connection, 'SELECT service_id, service_description FROM service WHERE service_register = 2 AND service_activate = 1');
+    const rows = await executeQuery(connection, 'SELECT service_id, service_description FROM service');
+    console.log("🔍 Services:", rows);
     return rows.map(row => ({
         service_id: row.service_id,
         service_description: row.service_description
