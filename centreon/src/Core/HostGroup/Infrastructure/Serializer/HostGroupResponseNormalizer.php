@@ -24,9 +24,10 @@ declare(strict_types=1);
 namespace Core\HostGroup\Infrastructure\Serializer;
 
 use Core\Common\Domain\SimpleEntity;
-use Core\HostGroup\Application\UseCase\FindHostGroup\FindHostGroupResponse;
 use Core\HostGroup\Application\UseCase\FindHostGroups\HostGroupResponse;
+use Core\HostGroup\Application\UseCase\GetHostGroup\GetHostGroupResponse;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
+use Core\ResourceAccess\Domain\Model\TinyRule;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
@@ -43,11 +44,11 @@ final class HostGroupResponseNormalizer implements NormalizerInterface
     public function supportsNormalization(mixed $data, ?string $format = null)
     {
         return $data instanceof HostGroupResponse
-        || $data instanceof FindHostGroupResponse;
+        || $data instanceof GetHostGroupResponse;
     }
 
     /**
-     * @param FindHostGroupResponse|HostGroupResponse $object
+     * @param GetHostGroupResponse|HostGroupResponse $object
      * @param string|null $format
      * @param array<string, mixed> $context
      *
@@ -59,7 +60,7 @@ final class HostGroupResponseNormalizer implements NormalizerInterface
     {
         /**
          * @var array<string, bool|float|int|string> $data
-         * @var array{groups?: string[]} $context
+         * @var array{groups?: string[],is_cloud_platform?: bool} $context
          */
         $data = $this->normalizer->normalize($object->hostgroup, $format, $context);
 
@@ -70,7 +71,8 @@ final class HostGroupResponseNormalizer implements NormalizerInterface
             $data['comment'] = null;
         }
 
-        if (in_array('HostGroup:List', $context['groups'], true)) {
+        if (in_array('HostGroup:List', $context['groups'] ?? [], true)) {
+            /** @var HostGroupResponse $object */
             $data['icon'] = $object->icon !== null
             ? [
                 'id' => $object->icon->getId(),
@@ -85,18 +87,18 @@ final class HostGroupResponseNormalizer implements NormalizerInterface
                 ? $object->hostsCount->getDisabledHostsCount()
                 : 0;
         }
-        if (in_array('HostGroup:Get', $context['groups'], true)) {
+        if (in_array('HostGroup:Get', $context['groups'] ?? [], true)) {
+            /** @var GetHostGroupResponse $object */
             $data['hosts'] = array_map(
-                fn (SimpleEntity $host) => $this->normalizer->normalize($host, $format, $context),
+                fn (SimpleEntity $host) => $this->normalizer->normalize($host, $format),
                 $object->hosts
             );
 
-            /** @var array{groups: string[]} $context */
             if (true === ($context['is_cloud_platform'] ?? false)) {
-                // $data['resource_access_rules'] = array_map(
-                //     fn (SimpleEntity $accessRule) => $this->normalizer->normalize($accessRule, $format, $context),
-                //     $object->accessRules
-                // );
+                $data['resource_access_rules'] = array_map(
+                    fn (TinyRule $rule) => $this->normalizer->normalize($rule, $format, $context),
+                    $object->rules
+                );
             }
         }
 

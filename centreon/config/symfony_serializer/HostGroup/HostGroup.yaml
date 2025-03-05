@@ -12,7 +12,8 @@ Core\HostGroup\Domain\Model\HostGroup:
     comment:
       groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
     iconId:
-      groups: ['HostGroup:Add']
+      serialized_name: 'icon_id'
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
     isActivated:
       serialized_name: 'is_activated'
       groups: ['HostGroup:List', 'HostGroup:Get']

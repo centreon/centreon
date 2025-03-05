@@ -774,6 +774,54 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): array
+    {
+        if ($accessGroups === []) {
+            return [];
+        }
+
+        [$accessGroupsBindValues, $accessGroupIdsQuery] = $this->createMultipleBindQuery(
+            array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups),
+            ':acl_'
+        );
+        $aclQuery = <<<SQL
+            INNER JOIN `:dbstg`.centreon_acl acl
+                ON acl.host_id = h.host_id
+                AND acl.service_id IS NULL
+                AND acl.group_id IN ({$accessGroupIdsQuery})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT h.host_id, h.host_name
+                FROM host h
+                INNER JOIN hostgroup_relation hgr
+                    ON hgr.host_host_id = h.host_id
+                {$aclQuery}
+                WHERE hostgroup_hg_id = :hostGroupId
+                AND h.host_register = '1'
+                GROUP BY h.host_id
+                SQL
+        ));
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        foreach ($accessGroupsBindValues as $bindKey => $accessGroupId) {
+            $statement->bindValue($bindKey, $accessGroupId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $hostsByHostGroup = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_id: int, host_name: string} $result */
+            $hostsByHostGroup[] = $this->createSimpleEntity($result['host_id'], $result['host_name']);
+        }
+
+        return $hostsByHostGroup;
+    }
+
+    /**
      * @param string $accessGroupIdsQuery
      * @param array<string, mixed> $accessGroupsBindValues
      *
