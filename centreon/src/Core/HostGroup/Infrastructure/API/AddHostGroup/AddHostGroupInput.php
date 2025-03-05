@@ -30,12 +30,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class AddHostGroupInput
 {
     /**
-     * Undocumented function
-     *
      * @param string $name
      * @param string|null $alias
      * @param string|null $geoCoords
      * @param string|null $comment
+     * @param int|null $iconId
      * @param int[] $hosts
      * @param int[] $resourceAccessRules
      */
@@ -53,6 +52,14 @@ final class AddHostGroupInput
         #[Assert\Type('string')]
         public readonly mixed $comment,
 
+        /**
+         * This field MUST NOT be used outside of a ON PREM Platform Context.
+         */
+        #[WhenPlatform(PlatformType::ON_PREM, [
+            new Assert\Type('integer'),
+        ])]
+        public readonly mixed $iconId,
+
         #[Assert\NotNull()]
         #[Assert\Type('array')]
         #[Assert\All(
@@ -61,7 +68,7 @@ final class AddHostGroupInput
         public readonly mixed $hosts,
 
         /**
-         * This field MUST NOT be used outside of a Cloud Platform Context.
+         * This field MUST NOT be used outside of a CLOUD Platform Context.
          */
         #[WhenPlatform(PlatformType::CLOUD, [
             new Assert\NotNull(),

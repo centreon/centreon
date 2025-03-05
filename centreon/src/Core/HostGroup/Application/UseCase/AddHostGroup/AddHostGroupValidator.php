@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
+use Centreon\Domain\Configuration\Icon\IconException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
@@ -33,6 +34,7 @@ use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 class AddHostGroupValidator
 {
@@ -44,6 +46,7 @@ class AddHostGroupValidator
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
         private readonly ContactInterface $user
     ) {
     }
@@ -125,6 +128,20 @@ class AddHostGroupValidator
 
         if ([] !== $unexistentAccessRulesByContact = array_diff($resourceAccessRuleIds, $existentRules)) {
             throw RuleException::idsDoNotExist('rules', $unexistentAccessRulesByContact);
+        }
+    }
+
+    /**
+     * Assert that given icon id exists.
+     *
+     * @param int $iconId
+     *
+     * @throws IconException
+     */
+    public function assertIconExists(int $iconId): void
+    {
+        if (! $this->readViewImgRepository->existsOne($iconId)) {
+            throw IconException::iconDoesNotExists($iconId);
         }
     }
 }

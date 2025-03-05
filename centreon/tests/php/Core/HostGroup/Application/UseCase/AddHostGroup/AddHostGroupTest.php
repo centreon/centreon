@@ -86,6 +86,7 @@ beforeEach(function (): void {
     $this->addHostGroupRequest->comment = 'A New Hostgroup';
     $this->addHostGroupRequest->hosts = [1,2];
     $this->addHostGroupRequest->resourceAccessRules = [1,2,3];
+    $this->addHostGroupRequest->iconId = 1;
 
     $this->datasetFilterValidator = $this->createMock(DatasetFilterValidator::class);
 });

@@ -35,12 +35,13 @@ final class AddHostGroupRequestTransformer
     public static function transform(AddHostGroupInput $input, bool $isCloudPlatform): AddHostGroupRequest
     {
         return new AddHostGroupRequest(
-            name: (string) $input->name,
-            alias: (string) $input->alias,
-            geoCoords: (string) $input->geoCoords,
-            comment: (string) $input->comment,
-            hosts: (array) $input->hosts,
-            resourceAccessRules: $isCloudPlatform ?  (array) $input->resourceAccessRules : []
+            name: $input->name,
+            alias: $input->alias,
+            geoCoords: $input->geoCoords,
+            comment: $input->comment,
+            iconId: ! $isCloudPlatform ? $input->iconId: null,
+            hosts: $input->hosts,
+            resourceAccessRules: $isCloudPlatform ? $input->resourceAccessRules : []
         );
     }
 }

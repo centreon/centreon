@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Configuration\Icon\IconException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
@@ -82,12 +83,15 @@ final class AddHostGroup
             $this->validator->assertHostsExist($request->hosts);
             if ($this->isCloudPlatform) {
                 $this->validator->assertResourceAccessRulesExist($request->resourceAccessRules);
+            } elseif ($request->iconId !== null) {
+                $this->validator->assertIconExists($request->iconId);
             }
 
             $hostGroup = new NewHostGroup(
                 name: $request->name,
                 alias: $request->alias,
                 comment: $request->comment,
+                iconId: $request->iconId,
                 geoCoords: match ($request->geoCoords) {
                     null, '' => null,
                     default => GeoCoords::fromString($request->geoCoords),
@@ -121,7 +125,10 @@ final class AddHostGroup
             return new AddHostGroupResponse(
                 new HostGroupRelation($newHostGroup, $linkedHosts, $linkedResourceAccessRules ?? [])
             );
-        } catch (HostGroupException|HostException|RuleException|AssertionFailedException $ex) {
+        } catch (HostGroupException|HostException|RuleException|AssertionFailedException|IconException $ex) {
+            if ($this->storageEngine->isAlreadyInTransaction()) {
+                $this->storageEngine->rollbackTransaction();
+            }
             $this->error(
                 "Error while adding host groups : {$ex->getMessage()}",
                 [
@@ -131,6 +138,9 @@ final class AddHostGroup
 
             return new InvalidArgumentResponse($ex);
         } catch (\Throwable $ex) {
+            if ($this->storageEngine->isAlreadyInTransaction()) {
+                $this->storageEngine->rollbackTransaction();
+            }
             $this->error(
                 "Error while adding host groups : {$ex->getMessage()}",
                 [

@@ -10,3 +10,5 @@ Core\HostGroup\Domain\Model\HostGroup:
       groups: ['HostGroup:Add']
     comment:
       groups: ['HostGroup:Add']
+    iconId:
+      groups: ['HostGroup:Add']
