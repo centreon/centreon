@@ -30,10 +30,8 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
-use Core\HostGroup\Application\UseCase\FindHostGroups\HostGroupResponse;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupRelationCount;
-use Core\HostGroup\Domain\Model\HostsCountById;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -90,7 +88,7 @@ final class FindHostGroups
 
         return $this->createResponse(
             $hostGroups,
-            $hostGroupIds ? $this->readHostGroupRepository->findHostsCountByIds($hostGroupIds) : null,
+            $hostGroupIds ? $this->readHostGroupRepository->findHostsCountByIds($hostGroupIds) : [],
         );
     }
 
@@ -138,7 +136,7 @@ final class FindHostGroups
             $hostGroups,
             $accessGroupIds !== [] && $hostGroupIds !== []
                 ? $this->readHostGroupRepository->findHostsCountByAccessGroupsIds($hostGroupIds, $accessGroupIds)
-                : null,
+                : [],
         );
     }
 

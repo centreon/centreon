@@ -21,17 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\UseCase\FindHostGroups;
+namespace Core\HostGroup\Application\UseCase\GetHostGroup;
 
-use Core\Application\Common\UseCase\ListingResponseInterface;
+use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\Common\Domain\SimpleEntity;
+use Core\HostGroup\Domain\Model\HostGroup;
+use Core\ResourceAccess\Domain\Model\TinyRule;
 
-final class FindHostGroupsResponse implements ListingResponseInterface
+final class GetHostGroupResponse implements StandardResponseInterface
 {
     /**
-     * @param HostGroupResponse[] $hostgroups
+     * @param HostGroup $hostgroup
+     * @param SimpleEntity[] $hosts
+     * @param TinyRule[] $rules
      */
     public function __construct(
-        public array $hostgroups = [],
+        readonly public HostGroup $hostgroup,
+        readonly public array $hosts = [],
+        readonly public array $rules = [],
     )
     {
     }
@@ -41,6 +48,6 @@ final class FindHostGroupsResponse implements ListingResponseInterface
      */
     public function getData(): mixed
     {
-        return $this->hostgroups;
+        return $this;
     }
 }

@@ -39,7 +39,6 @@ use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupNamesById;
 use Core\HostGroup\Domain\Model\HostGroupRelationCount;
-use Core\HostGroup\Domain\Model\HostsCountById;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -541,7 +540,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             /** @var array{count:int, hostgroup_hg_id:int, is_activated:bool} $record */
             $hostGroupId = $record['hostgroup_hg_id'];
             $count = $record['count'];
-            $results[$hostGroupId] = $results[$hostGroupId] ?? new HostGroupRelationCount();
+            $results[$hostGroupId] ??= new HostGroupRelationCount();
 
             if ($record['is_activated']) {
                 $results[$hostGroupId]->setEnabledHostsCount($count);
@@ -594,7 +593,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             /** @var array{count:int, hostgroup_hg_id:int, is_activated:bool} $record */
             $hostGroupId = $record['hostgroup_hg_id'];
             $count = $record['count'];
-            $results[$hostGroupId] = $results[$hostGroupId] ?? new HostGroupRelationCount();
+            $results[$hostGroupId] ??= new HostGroupRelationCount();
 
             if ($record['is_activated']) {
                 $results[$hostGroupId]->setEnabledHostsCount($count);
