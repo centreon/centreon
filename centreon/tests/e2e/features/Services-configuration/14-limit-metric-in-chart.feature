@@ -7,7 +7,7 @@ Feature: Limit metrics in chart
     Given a user is logged in a Centreon server
     And many virtual metrics are linked to a configured service
 
-  @TEST_MON-1
+  @TEST_MON-161643
   Scenario: Display message and button in performance page
     When the user displays the chart in performance page
     Then a message says that the chart will not be displayed is visible
