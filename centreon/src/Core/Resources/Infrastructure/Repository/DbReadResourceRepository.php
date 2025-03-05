@@ -49,6 +49,7 @@ use Core\Tag\RealTime\Domain\Model\Tag;
 class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadResourceRepositoryInterface
 {
     use LoggerTrait;
+
     private const RESOURCE_TYPE_HOST = 1;
 
     /** @var ResourceEntity[] */
@@ -408,8 +409,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @throws RepositoryException
      * @return \Traversable<ResourceEntity>
      */
-    public function iterateResourcesByAccessGroupIdsAndMaxResults(ResourceFilter $filter, array $accessGroupIds, int $maxResults = 0): \Traversable
-    {
+    public function iterateResourcesByAccessGroupIdsAndMaxResults(
+        ResourceFilter $filter,
+        array $accessGroupIds,
+        int $maxResults = 0
+    ): \Traversable {
         $this->resources = [];
 
         // For an export, there isn't pagination we limit the number of results
@@ -462,12 +466,104 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
     }
 
+    /**
+     * @param ResourceFilter $filter
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countResourcesByMaxResults(ResourceFilter $filter, int $maxResults = 0): int
+    {
+        // For a count, there isn't pagination we limit the number of results
+        // page is always 1 and limit is the maxResults in case of an export
+        $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+        $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+
+        try {
+            $request = $this->generateFindResourcesRequest(
+                filter: $filter,
+                collector: null,
+                onlyCount: true
+            );
+        } catch (LegacyRepositoryException $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while generating the request : {$exception->getMessage()}",
+                previous: $exception
+            );
+        }
+
+        return $this->countResources($request, $maxResults);
+    }
+
+    /**
+     * @param ResourceFilter $filter
+     * @param array<int> $accessGroupIds
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countResourcesByAccessGroupIdsAndByMaxResults(
+        ResourceFilter $filter,
+        array $accessGroupIds,
+        int $maxResults = 0
+    ): int {
+        // For a count, there isn't pagination we limit the number of results
+        // page is always 1 and limit is the maxResults in case of an export
+        $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+        $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+
+        $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
+
+        try {
+            $request = $this->generateFindResourcesRequest(
+                filter: $filter,
+                collector: null,
+                accessGroupRequest: $accessGroupRequest,
+                onlyCount: true
+            );
+        } catch (LegacyRepositoryException $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while generating the request : {$exception->getMessage()}",
+                previous: $exception
+            );
+        }
+
+        return $this->countResources($request, $maxResults);
+    }
+
+    /**
+     * @param string $query
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return int
+     */
+    private function countResources(string $query, int $maxResults = 0): int
+    {
+        try {
+            $queryResources = $this->translateDbName($query);
+            $queryParameters = RequestParametersTransformer::reverseToQueryParameters(
+                $this->sqlRequestTranslator->getSearchValues()
+            );
+            return $this->db->fetchOne($queryResources, $queryParameters);
+        } catch (TransformerException|ConnectionException $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while counting resources : {$exception->getMessage()}",
+                context: ['maxResults' => $maxResults],
+                previous: $exception
+            );
+        }
+    }
+
     // ------------------------------------- PRIVATE METHODS -------------------------------------
 
     /**
      * @param ResourceFilter $filter
      * @param StatementCollector|null $collector
      * @param string $accessGroupRequest
+     * @param bool $onlyCount
      *
      * @throws LegacyRepositoryException
      * @return string
@@ -476,64 +572,74 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         ResourceFilter $filter,
         ?StatementCollector $collector,
         string $accessGroupRequest = '',
+        bool $onlyCount = false
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
-        $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
-            1 AS REALTIME,
-            resources.resource_id,
-            resources.name,
-            resources.alias,
-            resources.address,
-            resources.id,
-            resources.internal_id,
-            resources.parent_id,
-            resources.parent_name,
-            parent_resource.resource_id AS `parent_resource_id`,
-            parent_resource.status AS `parent_status`,
-            parent_resource.alias AS `parent_alias`,
-            parent_resource.status_ordered AS `parent_status_ordered`,
-            parent_resource.address AS `parent_fqdn`,
-            severities.id AS `severity_id`,
-            severities.level AS `severity_level`,
-            severities.name AS `severity_name`,
-            severities.type AS `severity_type`,
-            severities.icon_id AS `severity_icon_id`,
-            resources.type,
-            resources.status,
-            resources.status_ordered,
-            resources.status_confirmed,
-            resources.in_downtime,
-            resources.acknowledged,
-            resources.flapping,
-            resources.percent_state_change,
-            resources.passive_checks_enabled,
-            resources.active_checks_enabled,
-            resources.notifications_enabled,
-            resources.last_check,
-            resources.last_status_change,
-            resources.check_attempts,
-            resources.max_check_attempts,
-            resources.notes,
-            resources.notes_url,
-            resources.action_url,
-            resources.output,
-            resources.poller_id,
-            resources.has_graph,
-            instances.name AS `monitoring_server_name`,
-            resources.enabled,
-            resources.icon_id,
-            resources.severity_id
-        FROM `:dbstg`.`resources`
-        LEFT JOIN `:dbstg`.`resources` parent_resource
-            ON parent_resource.id = resources.parent_id
-            AND parent_resource.type = ' . self::RESOURCE_TYPE_HOST
+        if ($onlyCount) {
+            $request =
+                'SELECT COUNT(DISTINCT resources.resource_id) 
+                    1 AS REALTIME';
+        } else {
+            $request =
+                'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                1 AS REALTIME,
+                resources.resource_id,
+                resources.name,
+                resources.alias,
+                resources.address,
+                resources.id,
+                resources.internal_id,
+                resources.parent_id,
+                resources.parent_name,
+                parent_resource.resource_id AS `parent_resource_id`,
+                parent_resource.status AS `parent_status`,
+                parent_resource.alias AS `parent_alias`,
+                parent_resource.status_ordered AS `parent_status_ordered`,
+                parent_resource.address AS `parent_fqdn`,
+                severities.id AS `severity_id`,
+                severities.level AS `severity_level`,
+                severities.name AS `severity_name`,
+                severities.type AS `severity_type`,
+                severities.icon_id AS `severity_icon_id`,
+                resources.type,
+                resources.status,
+                resources.status_ordered,
+                resources.status_confirmed,
+                resources.in_downtime,
+                resources.acknowledged,
+                resources.flapping,
+                resources.percent_state_change,
+                resources.passive_checks_enabled,
+                resources.active_checks_enabled,
+                resources.notifications_enabled,
+                resources.last_check,
+                resources.last_status_change,
+                resources.check_attempts,
+                resources.max_check_attempts,
+                resources.notes,
+                resources.notes_url,
+                resources.action_url,
+                resources.output,
+                resources.poller_id,
+                resources.has_graph,
+                instances.name AS `monitoring_server_name`,
+                resources.enabled,
+                resources.icon_id,
+                resources.severity_id';
+        }
+
+        $request .=
+            'FROM `:dbstg`.`resources`
+                LEFT JOIN `:dbstg`.`resources` parent_resource
+                    ON parent_resource.id = resources.parent_id
+                    AND parent_resource.type = ' . self::RESOURCE_TYPE_HOST
             . ' LEFT JOIN `:dbstg`.`severities`
-            ON `severities`.severity_id = `resources`.severity_id
-        LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-            ON `rtags`.resource_id = `resources`.resource_id
-        INNER JOIN `:dbstg`.`instances`
-            ON `instances`.instance_id = `resources`.poller_id';
+                    ON `severities`.severity_id = `resources`.severity_id
+                LEFT JOIN `:dbstg`.`resources_tags` AS rtags
+                    ON `rtags`.resource_id = `resources`.resource_id
+                INNER JOIN `:dbstg`.`instances`
+                    ON `instances`.instance_id = `resources`.poller_id';
 
         /**
          * Resource tag filter by name
@@ -632,7 +738,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
         $orConditions = array_map(
-            static fn (ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
+            static fn(ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
             iterator_to_array($this->resourceACLProviders)
         );
 
@@ -722,11 +828,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithIcons = array_filter(
             $this->resources,
-            static fn (ResourceEntity $resource): bool => null !== $resource->getIcon()
+            static fn(ResourceEntity $resource): bool => null !== $resource->getIcon()
         );
 
         return array_map(
-            static fn (ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
+            static fn(ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
             $resourcesWithIcons
         );
     }
@@ -738,11 +844,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithSeverities = array_filter(
             $this->resources,
-            static fn (ResourceEntity $resource): bool => null !== $resource->getSeverity()
+            static fn(ResourceEntity $resource): bool => null !== $resource->getSeverity()
         );
 
         return array_map(
-            static fn (ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
+            static fn(ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
             $resourcesWithSeverities
         );
     }

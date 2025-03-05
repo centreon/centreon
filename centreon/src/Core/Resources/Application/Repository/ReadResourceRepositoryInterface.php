@@ -83,4 +83,27 @@ interface ReadResourceRepositoryInterface
         array $accessGroupIds,
         int $maxResults = 0
     ): \Traversable;
+
+    /**
+     * @param ResourceFilter $filter
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countResourcesByMaxResults(ResourceFilter $filter, int $maxResults): int;
+
+    /**
+     * @param ResourceFilter $filter
+     * @param array<int> $accessGroupIds
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countResourcesByAccessGroupIdsAndByMaxResults(
+        ResourceFilter $filter,
+        array $accessGroupIds,
+        int $maxResults
+    ): int;
 }
