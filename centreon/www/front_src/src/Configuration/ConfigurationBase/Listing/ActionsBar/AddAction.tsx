@@ -21,7 +21,7 @@ const Add = (): JSX.Element => {
       data-testid="add-resource"
       icon={<AddIcon />}
       iconVariant="start"
-      size="medium"
+      size="small"
       variant="primary"
       onClick={openCreatetModal}
     >
