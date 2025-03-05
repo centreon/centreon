@@ -505,8 +505,8 @@ jobs:
 
       - name: Store standard slim image in local archive
         run: |
-          mkdir -p /tmp/cache/docker-image
-          docker save --output /tmp/cache/docker-image/${{ matrix.project }}-slim-${{ matrix.os }}.tar ${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          mkdir -p docker-image
+          docker save --output ./docker-image/${{ matrix.project }}-slim-${{ matrix.os }}.tar ${{ matrix.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Clear previous docker image from cache
@@ -521,7 +521,7 @@ jobs:
       - name: Store standard slim image in cache
         uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
-          path: /tmp/cache/docker-image
+          path: ./docker-image
           key: docker-image-${{ matrix.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
@@ -630,7 +630,7 @@ jobs:
           retention-days: 1
 
   deliver-sources:
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     needs:
       [
         get-environment,
@@ -664,7 +664,7 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   publish-openapi-documentation:
-    runs-on: [self-hosted, infra]
+    runs-on: infrastructure
     needs: [get-environment]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
     steps:
@@ -742,7 +742,7 @@ jobs:
           retention-days: 1
 
   deliver-rpm:
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     needs:
       [
         changes,
@@ -796,7 +796,7 @@ jobs:
           ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
 
   deliver-deb:
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     needs:
       [
         changes,
@@ -858,7 +858,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.repository == 'centreon/centreon'
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     strategy:
       matrix:
         distrib: [el8, el9, bullseye]
@@ -891,7 +891,7 @@ jobs:
         deliver-rpm
       ]
     if: ${{ github.event_name == 'schedule' && contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) }}
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
