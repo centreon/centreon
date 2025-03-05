@@ -74,31 +74,33 @@ jobs:
           done
 
 
-      - name: Login to Docker Registry
-        uses: docker/login-action@v3.3.0
-        with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      # - name: Login to Docker Registry
+      #   uses: docker/login-action@v3.3.0
+      #   with:
+      #     registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+      #     username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      #     password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
-      - name: Start Centreon Web and Database Containers
-        env:
-          WEB_IMAGE: 'docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979'
-          MYSQL_IMAGE: 'bitnami/mariadb:10.11'
-        run: |
-            docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
+      # - name: Start Centreon Web and Database Containers
+      #   env:
+      #     WEB_IMAGE: 'docker.centreon.com/centreon/centreon-web-slim-alma9:MON-159979'
+      #     MYSQL_IMAGE: 'bitnami/mariadb:10.11'
+      #   run: |
+      #       docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
 
-            if [[ -f "../../../.github/docker/setup.sh" ]]; then
-            echo "Running setup.sh ..."
-            bash -ex "../../../.github/docker/setup.sh"
-            fi
+      #       if [[ -f "../../../.github/docker/setup.sh" ]]; then
+      #       echo "Running setup.sh ..."
+      #       bash -ex "../../../.github/docker/setup.sh"
+      #       fi
 
-            if [[ -f "../../../.github/docker/setup-web.sh" ]]; then
-            echo "Running setup-web.sh ..."
-            docker compose -f ../../../.github/docker/docker-compose.yml cp ../../../.github/docker/setup-web.sh web:/tmp/setup-web.sh
-            docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
-            fi
-        shell: bash
+      #       if [[ -f "../../../.github/docker/setup-web.sh" ]]; then
+      #       echo "Running setup-web.sh ..."
+      #       docker compose -f ../../../.github/docker/docker-compose.yml cp ../../../.github/docker/setup-web.sh web:/tmp/setup-web.sh
+      #       docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
+      #       fi
+      #   shell: bash
+      - name: Adding commands
+        run: node commands.mjs
 
       - name: Adding hosts
         run: node hosts.mjs
