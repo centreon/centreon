@@ -83,6 +83,7 @@ final readonly class ExportResources
                     new ErrorResponse(
                         message: 'An error occurred while iterating resources with admin rights',
                         context: [
+                            'use_case' => 'ExportResources',
                             'user_is_admin' => $this->contact->isAdmin(),
                             'contact_id' => $this->contact->getId(),
                             'resources_filter' => $request->resourceFilter,
@@ -103,7 +104,10 @@ final readonly class ExportResources
                 $presenter->presentResponse(
                     new ErrorResponse(
                         message: 'An error occurred while finding access groups for the contact',
-                        context: ['contact_id' => $this->contact->getId()],
+                        context: [
+                            'use_case' => 'ExportResources',
+                            'contact_id' => $this->contact->getId()
+                        ],
                         exception: $exception
                     )
                 );
@@ -122,6 +126,7 @@ final readonly class ExportResources
                     new ErrorResponse(
                         message: 'An error occurred while iterating resources by access group IDs',
                         context: [
+                            'use_case' => 'ExportResources',
                             'user_is_admin' => $this->contact->isAdmin(),
                             'contact_id' => $this->contact->getId(),
                             'resources_filter' => $request->resourceFilter,
