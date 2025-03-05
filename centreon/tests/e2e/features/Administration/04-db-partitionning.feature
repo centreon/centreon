@@ -1,4 +1,3 @@
-@REQ_MON-161526
 Feature: Database partitioning
   As a Centreon user
   I want to clean database tables quickly
