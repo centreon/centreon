@@ -19,28 +19,35 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\HostGroup\Application\UseCase\FindHostGroups;
+namespace Core\HostGroup\Domain\Model;
 
-use Core\Application\Common\UseCase\ListingResponseInterface;
-
-final class FindHostGroupsResponse implements ListingResponseInterface
+class HostGroupRelationCount
 {
-    /**
-     * @param HostGroupResponse[] $hostgroups
-     */
     public function __construct(
-        public array $hostgroups = [],
-    )
-    {
+        public int $enabledHostsCount = 0,
+        public int $disabledHostsCount = 0,
+    ) {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getData(): mixed
+    public function setEnabledHostsCount(int $count): void
     {
-        return $this->hostgroups;
+        $this->enabledHostsCount = $count;
+    }
+
+    public function setDisabledHostsCount(int $count): void
+    {
+        $this->disabledHostsCount = $count;
+    }
+
+    public function getEnabledHostsCount(): int
+    {
+        return $this->enabledHostsCount;
+    }
+
+    public function getDisabledHostsCount(): int
+    {
+        return $this->disabledHostsCount;
     }
 }

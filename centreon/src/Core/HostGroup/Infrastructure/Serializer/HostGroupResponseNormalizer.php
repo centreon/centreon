@@ -23,14 +23,18 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Infrastructure\Serializer;
 
-use Core\HostGroup\Application\UseCase\FindHostGroups\Response\HostGroupResponse;
+use Core\HostGroup\Application\UseCase\FindHostGroups\HostGroupResponse;
+use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 final class HostGroupResponseNormalizer implements NormalizerInterface
 {
+    use HttpUrlTrait;
+    private const IMAGE_DIRECTORY = '/img/media/';
+
     public function __construct(
-        private readonly ObjectNormalizer $normalizer,
+        private readonly ObjectNormalizer $normalizer
     ) {
     }
 
@@ -50,8 +54,11 @@ final class HostGroupResponseNormalizer implements NormalizerInterface
      */
     public function normalize(mixed $object, ?string $format = null, array $context = [])
     {
-        /** @var array<string, bool|float|int|string> $data */
-        $data = $this->normalizer->normalize($object, $format, $context);
+        /**
+         * @var array<string, bool|float|int|string> $data
+         * @var array{groups?: string[]} $context
+         */
+        $data = $this->normalizer->normalize($object->hostgroup, $format, $context);
 
         if (isset($data['alias']) && $data['alias'] === '') {
             $data['alias'] = null;
@@ -69,6 +76,33 @@ final class HostGroupResponseNormalizer implements NormalizerInterface
             $data['comment'] = null;
         }
 
+        /** @var HostGroupResponse $object */
+        $data['icon'] = $object->icon !== null
+            ? [
+                'id' => $object->icon->getId(),
+                'name' => $object->icon->getFilename(),
+                'url' => $this->generateNormalizedIconUrl($object->icon->getDirectory() . '/' . $object->icon->getFilename()),
+            ]
+            : null;
+        $data['enabled_hosts_count'] = $object->hostsCount
+            ? $object->hostsCount->getEnabledHostsCount()
+            : 0;
+        $data['disabled_hosts_count'] = $object->hostsCount
+            ? $object->hostsCount->getDisabledHostsCount()
+            : 0;
+
         return $data;
+    }
+
+    /**
+     * @param string|null $url
+     *
+     * @return string|null
+     */
+    private function generateNormalizedIconUrl(?string $url): ?string
+    {
+        return $url !== null
+            ? $this->getBaseUri() . self::IMAGE_DIRECTORY . $url
+            : $url;
     }
 }
