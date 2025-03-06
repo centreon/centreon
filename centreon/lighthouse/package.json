@@ -6,9 +6,9 @@
     "update:deps": "pnpx npm-check-updates -i --format group",
     "start:docker": "docker run -d -p 4000:80 --platform linux/amd64 --name centreon-dev docker.centreon.com/centreon/centreon-web-alma9:develop",
     "kill:docker": "docker stop centreon-dev && docker rm centreon-dev",
-    "run:lighthouse": "pnpm install:chrome && swc src/ -d build --strip-leading-paths && node --import=extensionless/register ./build/lighthouseReport.js",
+    "run:lighthouse": "npm run install:chrome && swc src/ -d build --strip-leading-paths && node --import=extensionless/register ./build/lighthouseReport.js",
     "start": "npm run start:docker && npm run run:lighthouse && npm run kill:docker",
-    "install:chrome": "pnpx puppeteer browsers install chrome",
+    "install:chrome": "npx puppeteer browsers install chrome",
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "eslint:fix": "pnpm eslint --fix"
   },
