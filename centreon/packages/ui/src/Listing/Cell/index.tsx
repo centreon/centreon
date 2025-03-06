@@ -25,6 +25,18 @@ interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
   theme: Theme;
 }
 
+interface StylesProps extends Props {
+  isRowHighlighted?: boolean;
+  listingVariant?: ListingVariant;
+}
+
+interface GetRowHighlightStyleProps {
+  isRowHighlighted?: boolean;
+  theme: Theme;
+  disableRowCondition;
+  row;
+}
+
 const getBackgroundColor = ({
   isRowHovered,
   row,
@@ -51,30 +63,18 @@ const getBackgroundColor = ({
   return 'unset';
 };
 
-interface StylesProps extends Props {
-  isRowHighlighted?: boolean;
-  listingVariant?: ListingVariant;
-}
-
-interface GetRowHighlightStyleProps {
-  isRowHighlighted?: boolean;
-  theme: Theme;
-  disableRowCondition;
-  row;
-}
-
 const getRowTextColor = ({
   isRowHighlighted,
   theme,
   disableRowCondition,
   row
 }: GetRowHighlightStyleProps): CSSObject | undefined => {
-  if (disableRowCondition(row)) {
-    return { color: alpha(theme.palette.text.secondary, 0.5) };
-  }
-
   if (isRowHighlighted) {
     return { color: theme.palette.text.primary };
+  }
+
+  if (disableRowCondition(row)) {
+    return { color: alpha(theme.palette.text.secondary, 0.5) };
   }
 };
 
