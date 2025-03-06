@@ -83,6 +83,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
      */
     private function transformToCsv(\Traversable $resources): \Traversable
     {
+        /** @var ResourceEntity $resource */
         foreach ($resources as $resource) {
             yield [
                 'Status' => $resource->getStatus()?->getName() ?? '',
@@ -93,12 +94,12 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
                 'Information' => $resource->getInformation() ?? '',
                 'Tries' => $resource->getTries() ?? '',
                 'Severity' => $resource->getSeverity()?->getName() ?? '',
-                'Notes' => '',
-                'Action' => '',
+                'Notes' => $resource->getLinks()->getExternals()->getNotes() ?? '',
+                'Action' => $resource->getLinks()->getExternals()->getActionUrl() ?? '',
                 'State' => '',
                 'Alias' => $resource->getAlias() ?? '',
                 'Parent alias' => $resource->getParent()?->getAlias() ?? '',
-                'FQDN / Address' => '',
+                'FQDN / Address' => $resource->getFqdn() ?? '',
                 'Monitoring Server' => $resource->getMonitoringServerName(),
                 'Notif' => '',
                 'Check' => '',
