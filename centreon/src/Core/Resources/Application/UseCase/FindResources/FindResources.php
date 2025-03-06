@@ -29,6 +29,7 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
@@ -70,16 +71,26 @@ final class FindResources
             }
 
             $presenter->presentResponse(FindResourcesFactory::createResponse($resources, $extraData));
-        } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(ResourceException::errorWhileSearching()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        } catch (RepositoryException $exception) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: ResourceException::errorWhileSearching(),
+                    context: [
+                        'use_case' => 'FindResources',
+                        'user_is_admin' => $this->contact->isAdmin(),
+                        'contact_id' => $this->contact->getId(),
+                        'resources_filter' => $filter,
+                    ],
+                    exception: $exception
+                )
+            );
         }
     }
 
     /**
      * @param ResourceFilter $filter
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      * @return ResourceEntity[]
      */
     private function findResourcesAsAdmin(ResourceFilter $filter): array
@@ -90,7 +101,7 @@ final class FindResources
     /**
      * @param ResourceFilter $filter
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      * @return ResourceEntity[]
      */
     private function findResourcesAsUser(ResourceFilter $filter): array

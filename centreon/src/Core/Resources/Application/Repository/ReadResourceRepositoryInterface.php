@@ -34,7 +34,7 @@ interface ReadResourceRepositoryInterface
      *
      * @param ResourceFilter $filter
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return ResourceEntity[]
      */
@@ -46,7 +46,7 @@ interface ReadResourceRepositoryInterface
      * @param ResourceFilter $filter
      * @param int[] $accessGroupIds
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return ResourceEntity[]
      */
@@ -55,7 +55,7 @@ interface ReadResourceRepositoryInterface
     /**
      * @param ResourceFilter $filter
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return ResourceEntity[]
      */
