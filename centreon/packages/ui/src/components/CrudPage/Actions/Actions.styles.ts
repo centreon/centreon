@@ -3,6 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 export const useActionsStyles = makeStyles()((theme) => ({
   search: {
     maxWidth: theme.spacing(60),
+    minWidth: theme.spacing(20),
     width: '100%'
   },
   filters: {
