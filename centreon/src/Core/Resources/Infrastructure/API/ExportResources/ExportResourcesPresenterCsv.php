@@ -87,14 +87,14 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
         foreach ($resources as $resource) {
             yield [
                 'Status' => $resource->getStatus()?->getName() ?? '',
-                'Resource Type' => $resource->getType() ?? '',
-                'Parent resource status' => $resource->getParent()?->getStatus()?->getName() ?? '',
+                'Resource Type' => $this->formatLabel($resource->getType() ?? ''),
+                'Parent resource status' => $this->formatLabel($resource->getParent()?->getStatus()?->getName() ?? ''),
                 'Duration' => $resource->getDuration() ?? '',
                 'Last Check' => $resource->getLastCheck()?->format('Y-m-d H:i:s') ?? '',
                 'Information' => $resource->getInformation() ?? '',
                 'Tries' => $resource->getTries() ?? '',
                 'Severity' => $resource->getSeverity()?->getName() ?? '',
-                'Notes' => $resource->getLinks()->getExternals()->getNotes() ?? '',
+                'Notes' => $resource->getLinks()->getExternals()->getNotes()?->getUrl() ?? '',
                 'Action' => $resource->getLinks()->getExternals()->getActionUrl() ?? '',
                 'State' => '',
                 'Alias' => $resource->getAlias() ?? '',
@@ -113,5 +113,12 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
     public function getViewModel(): ExportResourcesViewModel
     {
         return $this->viewModel;
+    }
+
+    // ---------------------------------- PRIVATE METHODS ---------------------------------- //
+
+    private function formatLabel(string $label): string
+    {
+        return ucfirst(strtolower($label));
     }
 }
