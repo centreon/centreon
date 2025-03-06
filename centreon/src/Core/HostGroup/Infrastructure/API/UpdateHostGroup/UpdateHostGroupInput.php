@@ -36,6 +36,7 @@ final class UpdateHostGroupInput
      * @param string|null $alias
      * @param string|null $geoCoords
      * @param string|null $comment
+     * @param int|null $iconId
      * @param int[] $hosts
      * @param int[] $resourceAccessRules
      */
