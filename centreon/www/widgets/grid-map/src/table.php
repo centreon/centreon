@@ -44,6 +44,7 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'bootstrap.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
 CentreonSession::start(1);
 
@@ -63,7 +64,8 @@ $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
 /* INIT */
 $colors = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'unknown', 4 => 'pending'];
-
+$accessGroups = [];
+$arrayKeysAccessGroups = [];
 try {
     if ($widgetId === false) {
         throw new InvalidArgumentException('Widget ID must be an integer');
@@ -74,8 +76,8 @@ try {
 
     if ($centreon->user->admin == 0) {
         $access = new CentreonACL($centreon->user->get_id());
-        $grouplist = $access->getAccessGroups();
-        $grouplistStr = $access->getAccessGroupsString();
+        $accessGroups = $access->getAccessGroups();
+        $arrayKeysAccessGroups = array_keys($accessGroups);
     }
 
     $widgetObj = new CentreonWidget($centreon, $db_centreon);
@@ -89,8 +91,8 @@ try {
         'dark' => "Centreon-Dark",
         default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
     };
-} catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+} catch (Exception $exception) {
+    echo $exception->getMessage() . "<br/>";
     exit;
 }
 
@@ -104,93 +106,171 @@ $template = SmartyBC::createSmartyTemplate(getcwd() . "/", './');
 
 $data = [];
 $data_service = [];
-$data_check = [];
-$inc = 0;
 
-if ($preferences['host_group']) {
-    /* Query 1 */
-    $query1 = "SELECT DISTINCT 1 AS REALTIME, T1.name, T2.host_id
-        FROM hosts T1, hosts_hostgroups T2 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
-        WHERE T1.host_id = T2.host_id
-            AND T1.enabled = 1
-            AND T2.hostgroup_id = " . $preferences['host_group'] .
-        ($centreon->user->admin == 0
-            ? " AND T1.host_id = acl.host_id AND T2.host_id = acl.host_id AND acl.group_id IN (" .
-            ($grouplistStr != "" ? $grouplistStr : 0) . ")"
-            : ""
-        ) . "
-        ORDER BY T1.name";
-
-    /* Query 2 */
-    $query2 = "SELECT distinct 1 AS REALTIME, T1.description
-        FROM services T1 " . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
-        WHERE T1.enabled = 1 " . ($centreon->user->admin == 0
-            ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
-            ($grouplistStr != "" ? $grouplistStr : 0) . ") AND ("
-            : " AND ("
+// Only process if a host group has been selected in the preferences
+if (!empty($preferences['host_group'])) {
+    $aclJoin = '';
+    $aclSubRequest = '';
+    $bindParams1 = [];
+    $bindValuesAcl = [];
+    /* ---------------------------
+     * Query 1: Host Listing
+     * ---------------------------
+     * Uses the built conditions and filter access groups if needed.
+     */
+    if ($accessGroups !== []) {
+        $aclJoin = $centreon->user->admin == 0 ? " INNER JOIN centreon_acl acl ON T1.host_id = acl.host_id" : "";
+        [$bindValuesAcl, $bindQueryAcl] = createMultipleBindQuery(
+            list: $arrayKeysAccessGroups,
+            prefix: ':access_group_id_host_',
+            bindType: \PDO::PARAM_INT
         );
-    foreach (explode(",", $preferences['service']) as $elem) {
-        if (!$inc) {
-            $query2 .= "T1.description LIKE '$elem'";
-        } else {
-            $query2 .= " OR T1.description like '$elem'";
-        }
-        $inc++;
+        $aclSubRequest = ' AND acl.group_id IN (' . $bindQueryAcl . ')';
     }
-    $query2 .= ");";
 
-    /* Query 3 */
-    $query3 = "SELECT DISTINCT 1 AS REALTIME, T1.service_id, T1.description, T1.state, T1.host_id, T2.name, T2.host_id
-        FROM services T1, hosts T2" . ($centreon->user->admin == 0 ? ", centreon_acl acl " : "") . "
-        WHERE T1.enabled = 1 AND T1.host_id = T2.host_id
-            AND T1.description NOT LIKE 'ba\_%' AND T1.description NOT LIKE 'meta\_%' " .
-        ($centreon->user->admin == 0
-            ? " AND T1.service_id = acl.service_id AND acl.group_id IN (" .
-            ($grouplistStr != "" ? $grouplistStr : 0) . ")"
-            : ""
+    $query1 = <<<SQL
+            SELECT DISTINCT 1 AS REALTIME, T1.name, T2.host_id
+            FROM hosts T1
+            INNER JOIN hosts_hostgroups T2 ON T1.host_id = T2.host_id
+            $aclJoin
+            WHERE T1.enabled = 1
+                AND T2.hostgroup_id = :hostgroup_id
+                $aclSubRequest
+            ORDER BY T1.name
+        SQL;
+    $bindParams1[':hostgroup_id'] = [$preferences['host_group'], PDO::PARAM_INT];
+    $bindParams1 = array_merge($bindParams1, $bindValuesAcl);
+
+    try {
+        $stmt1 = $db->prepareQuery($query1);
+        $db->executePreparedQuery($stmt1, $bindParams1, true);
+        while ($row = $stmt1->fetch()) {
+            $row['details_uri'] = $useDeprecatedPages
+                ? '../../main.php?p=20202&o=hd&host_name=' . $row['name']
+                : $resourceController->buildHostDetailsUri($row['host_id']);
+            $data[] = $row;
+        }
+    } catch (PDOException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching host listing for widget',
+            [
+                'query' => $query1,
+                'bindParams' => $bindParams1,
+                'exception' => [
+                    'message' => $exception->getMessage(),
+                    'trace' => $exception->getTrace(),
+                ],
+            ]
         );
-    $inc = 0;
+    }
 
-    $services = explode(",", $preferences['service']);
-    if ($services !== []) {
-        $query3 .= " AND (";
-        foreach ($services as $elem) {
-            if (!$inc) {
-                $query3 .= "T1.description LIKE '$elem'";
-            } else {
-                $query3 .= " OR T1.description like '$elem'";
+    /* ---------------------------
+     * Prepare service filter conditions
+     * ---------------------------
+     * The preferences['service'] is a comma-separated list. We build an array of conditions
+     * with proper bound parameters.
+     */
+    $serviceList = array_map('trim', explode(",", $preferences['service']));
+
+    // For Query 2 (service listing)
+    $bindParams2 = [];
+    [$bindValues, $bindQuery] = createMultipleBindQuery(
+        list: $serviceList,
+        prefix: ':service_description_',
+        bindType: \PDO::PARAM_STR
+    );
+    $whereService2 = 'T1.description IN (' . $bindQuery . ')';
+
+    /* ---------------------------
+     * Query 2: Service Listing
+     * ---------------------------
+     * Uses the built conditions and binds each service filter.
+     */
+    if ($accessGroups !== []) {
+        $aclJoin = $centreon->user->admin == 0 ? " INNER JOIN centreon_acl acl ON T1.service_id = acl.service_id" : "";
+    }
+    $query2 = <<<SQL
+            SELECT DISTINCT 1 AS REALTIME, T1.description
+            FROM services T1
+            $aclJoin
+            WHERE T1.enabled = 1
+                $aclSubRequest
+                AND $whereService2
+        SQL;
+    $bindParams2 = array_merge($bindValues, $bindValuesAcl);
+
+    try {
+        $stmt2 = $db->prepareQuery($query2);
+        $db->executePreparedQuery($stmt2, $bindParams2, true);
+        while ($row = $stmt2->fetch()) {
+            $data_service[$row['description']] = [
+                'description' => $row['description'],
+                'hosts' => [],
+                'hostsStatus' => [],
+                'details_uri' => []
+            ];
+        }
+    } catch (PDOException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching service listing for widget',
+            [
+                'query' => $query2,
+                'bindParams' => $bindParams2,
+                'exception' => [
+                    'message' => $exception->getMessage(),
+                    'trace' => $exception->getTrace(),
+                ],
+            ]
+        );
+    }
+
+    /* ---------------------------
+     * Query 3: Host Service Statuses
+     * ---------------------------
+     * Almost the same filter as Query 2 but with additional conditions on description.
+     */
+    $whereService3 = $whereService2;
+
+    $query3 = <<<SQL
+            SELECT DISTINCT 1 AS REALTIME, T1.service_id, T1.description, T1.state, T1.host_id, T2.name
+            FROM services T1
+            INNER JOIN hosts T2 ON T1.host_id = T2.host_id
+            $aclJoin
+            WHERE T1.enabled = 1
+                AND T1.description NOT LIKE 'ba\\_%'
+                AND T1.description NOT LIKE 'meta\\_%'
+                $aclSubRequest
+                AND $whereService3
+        SQL;
+    $bindParams3 = $bindParams2;
+
+    try {
+        $stmt3 = $db->prepareQuery($query3);
+        $db->executePreparedQuery($stmt3, $bindParams3, true);
+        while ($row = $stmt3->fetch()) {
+            if (isset($data_service[$row['description']])) {
+                $data_service[$row['description']]['hosts'][] = $row['host_id'];
+                $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
+                $data_service[$row['description']]['details_uri'][$row['host_id']] = $useDeprecatedPages
+                    ? '../../main.php?p=20201&o=svcd&host_name=' . $row['name'] . '&service_description=' . $row['description']
+                    : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
             }
-            $inc++;
         }
-        $query3 .= ")";
-    }
-
-    /* Get host listing */
-    $res = $db->query($query1);
-    while ($row = $res->fetch()) {
-        $row['details_uri'] = $useDeprecatedPages
-        ? '../../main.php?p=20202&o=hd&host_name=' . $row['name']
-        : $resourceController->buildHostDetailsUri($row['host_id']);
-        $data[] = $row;
-    }
-
-    /* Get service listing */
-    $res2 = $db->query($query2);
-    while ($row = $res2->fetch()) {
-        $data_service[$row['description']] = ['description' => $row['description'], 'hosts' => [], 'hostsStatus' => [], 'details_uri' => []];
-    }
-
-    /* Get host service statuses */
-    $res3 = $db->query($query3);
-    while ($row = $res3->fetch()) {
-        if (isset($data_service[$row['description']])) {
-            $data_service[$row['description']]['hosts'][] = $row['host_id'];
-            $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
-            $data_service[$row['description']]['details_uri'][$row['host_id']] = $useDeprecatedPages
-                ? '../../main.php?p=20201&o=svcd&host_name=' . $row['name']
-                    . '&service_description=' . $row['description']
-                : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
-        }
+    } catch (PDOException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching host service statuses for widget',
+            [
+                'query' => $query3,
+                'bindParams' => $bindParams3,
+                'exception' => [
+                    'message' => $exception->getMessage(),
+                    'trace' => $exception->getTrace(),
+                ],
+            ]
+        );
     }
 }
 
