@@ -23,18 +23,24 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\TransformerException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Transformer\RequestParametersTransformer;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
@@ -43,7 +49,7 @@ use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLPro
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
-class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadResourceRepositoryInterface
+class DbReadResourceRepository extends DatabaseRepository implements ReadResourceRepositoryInterface
 {
     use LoggerTrait;
 
@@ -93,19 +99,21 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * DbReadResourceRepository constructor
      *
      * @param DatabaseConnection $db
+     * @param QueryBuilderInterface $queryBuilder
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
      * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
      * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      */
     public function __construct(
-        DatabaseConnection $db,
+        ConnectionInterface $db,
+        QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
         private readonly \Traversable $resourceACLProviders,
         \Traversable $extraDataProviders
     ) {
-        $this->db = $db;
+        parent::__construct($db, $queryBuilder);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
@@ -218,14 +226,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 $this->sqlRequestTranslator->getSearchValues()
             );
 
-            foreach ($this->db->iterateAssociative($queryResources, $queryParameters) as $resourceRecord) {
+            foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resourceRecord) {
                 /** @var array<string,int|string|null> $resourceRecord */
                 $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
             }
 
             // get total without pagination
             $queryTotal = $this->translateDbName('SELECT FOUND_ROWS() AS REALTIME from `:dbstg`.`resources`');
-            if (($total = $this->db->fetchOne($queryTotal)) !== false) {
+            if (($total = $this->connection->fetchOne($queryTotal)) !== false) {
                 $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
             }
         } catch (AssertionFailedException|TransformerException|ConnectionException $exception) {
@@ -339,9 +347,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
 
         $request = $this->generateFindResourcesRequest(
-                filter: $filter,
-                onlyCount: true
-            );
+            filter: $filter,
+            onlyCount: true
+        );
 
         return $this->countResources($request, $maxResults);
     }
@@ -367,10 +375,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
 
         $request = $this->generateFindResourcesRequest(
-                filter: $filter,
-                accessGroupRequest: $accessGroupRequest,
-                onlyCount: true
-            );
+            filter: $filter,
+            accessGroupRequest: $accessGroupRequest,
+            onlyCount: true
+        );
 
         return $this->countResources($request, $maxResults);
     }
@@ -686,14 +694,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 $this->sqlRequestTranslator->getSearchValues()
             );
 
-            foreach ($this->db->iterateAssociative($queryResources, $queryParameters) as $resourceRecord) {
+            foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resourceRecord) {
                 /** @var array<string,int|string|null> $resourceRecord */
                 $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
             }
 
             // get total without pagination
             $queryTotal = $this->translateDbName('SELECT FOUND_ROWS() AS REALTIME from `:dbstg`.`resources`');
-            if (($total = $this->db->fetchOne($queryTotal)) !== false) {
+            if (($total = $this->connection->fetchOne($queryTotal)) !== false) {
                 $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
             }
         } catch (AssertionFailedException|TransformerException|ConnectionException $exception) {
@@ -723,7 +731,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 $this->sqlRequestTranslator->getSearchValues()
             );
 
-            return $this->db->fetchOne($queryResources, $queryParameters);
+            return $this->connection->fetchOne($queryResources, $queryParameters);
         } catch (TransformerException|ConnectionException $exception) {
             throw new RepositoryException(
                 message: "An error occurred while counting resources : {$exception->getMessage()}",
@@ -747,7 +755,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $queryParameters = RequestParametersTransformer::reverseToQueryParameters(
                 $this->sqlRequestTranslator->getSearchValues()
             );
-            foreach ($this->db->iterateAssociative($queryResources, $queryParameters) as $resource) {
+            foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resource) {
                 $this->resources = [DbResourceFactory::createFromRecord($resource, $this->resourceTypes)];
                 $iconIds = $this->getIconIdsFromResources();
                 $icons = $this->getIconsDataForResources($iconIds);
@@ -1138,44 +1146,66 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      *
      * @param array<int, int|null> $iconIds
      *
-     * @throws \PDOException
-     *
+     * @throws RepositoryException
      * @return array<int, array<string, string>>
      */
     private function getIconsDataForResources(array $iconIds): array
     {
-        $icons = [];
-        if ($iconIds !== []) {
-            $request = 'SELECT
-                img_id AS `icon_id`,
-                img_name AS `icon_name`,
-                img_path AS `icon_path`,
-                imgd.dir_name AS `icon_directory`
-            FROM `:db`.view_img img
-            LEFT JOIN `:db`.view_img_dir_relation imgdr
-                ON imgdr.img_img_id = img.img_id
-            INNER JOIN `:db`.view_img_dir imgd
-                ON imgd.dir_id = imgdr.dir_dir_parent_id
-            WHERE img.img_id IN (' . str_repeat('?, ', count($iconIds) - 1) . '?)';
+        try {
+            $icons = [];
 
-            $statement = $this->db->prepare($this->translateDbName($request));
-            $statement->execute(array_values($iconIds));
+            if ($iconIds !== []) {
 
-            while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                /** @var array{
-                 *     icon_id: int,
-                 *     icon_name: string,
-                 *     icon_path: string,
-                 *     icon_directory: string
-                 * } $record
-                 */
-                $icons[(int) $record['icon_id']] = [
-                    'name' => $record['icon_name'],
-                    'url' => $record['icon_directory'] . DIRECTORY_SEPARATOR . $record['icon_path'],
-                ];
+                $iconIds = array_values($iconIds);
+
+                $queryParameters = new QueryParameters();
+                for ($i = 0, $iMax = count($iconIds); $i < $iMax; $i++) {
+                    $queryParameter = null;
+                    $queryParameterName = "icon_id_{$i}";
+                    if (is_null($iconIds[$i])) {
+                        $queryParameter = QueryParameter::null($queryParameterName);
+                    } elseif (is_int($iconIds[$i])) {
+                        $queryParameter = QueryParameter::int($queryParameterName, $iconIds[$i]);
+                    } else {
+                        $queryParameter = QueryParameter::string($queryParameterName, $iconIds[$i]);
+                    }
+                    $queryParameters->add($queryParameter->getName(), $queryParameter);
+                }
+
+                $query = 'SELECT
+                            img_id AS `icon_id`,
+                            img_name AS `icon_name`,
+                            img_path AS `icon_path`,
+                            imgd.dir_name AS `icon_directory`
+                        FROM `:db`.view_img img
+                        LEFT JOIN `:db`.view_img_dir_relation imgdr
+                            ON imgdr.img_img_id = img.img_id
+                        INNER JOIN `:db`.view_img_dir imgd
+                            ON imgd.dir_id = imgdr.dir_dir_parent_id
+                        WHERE img.img_id IN (' . implode(',', $queryParameters->keys()) . ')';
+
+                foreach ($this->connection->iterateAssociative($query, $queryParameters) as $record) {
+                    /** @var array{
+                     *     icon_id: int,
+                     *     icon_name: string,
+                     *     icon_path: string,
+                     *     icon_directory: string
+                     * } $record
+                     */
+                    $icons[(int) $record['icon_id']] = [
+                        'name' => $record['icon_name'],
+                        'url' => $record['icon_directory'] . DIRECTORY_SEPARATOR . $record['icon_path'],
+                    ];
+                }
             }
-        }
 
-        return $icons;
+            return $icons;
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while fetching icons data for resources",
+                context: ['iconIds' => $iconIds],
+                previous: $exception
+            );
+        }
     }
 }
