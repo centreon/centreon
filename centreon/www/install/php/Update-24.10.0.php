@@ -96,7 +96,7 @@ $fixNamingAndActivateAccTopology = function (CentreonDB $pearDB) use (&$errorMes
         <<<'SQL'
             UPDATE `topology`
             SET `topology_show` = :show,
-                `topology_name` = 'Additional Connector Configurations',
+                `topology_name` = 'Additional connector configurations',
                 `topology_order` = 91
             WHERE `topology_url` = '/configuration/additional-connector-configurations'
             SQL
@@ -104,6 +104,7 @@ $fixNamingAndActivateAccTopology = function (CentreonDB $pearDB) use (&$errorMes
     $pearDB->executePreparedQuery($constraintStatement, [':show' => $isCentral === 'yes' ? '1' : '0']);
 };
 
+// Nagios Macros
 $updateNagiosMacros = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to check for existing macros in nagios_macro table';
     $statement = $pearDB->executeQuery(

@@ -80,7 +80,7 @@ describe('Form list', () => {
 
     cy.findByLabelText('sort-0').should('be.visible');
     cy.findByLabelText('delete-0').should('be.visible');
-    cy.contains('Christelle (Schinner - Wiegand)').should('be.visible');
+    cy.contains('Lavinia (Wiegand LLC)').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -94,18 +94,18 @@ describe('Form list', () => {
 
     cy.findByLabelText('sort-0').should('be.visible');
     cy.findByLabelText('delete-0').should('be.visible');
-    cy.contains('Carley (Satterfield, Miller and Metz)').should('be.visible');
+    cy.contains('Sammie (Crist - Beer)').should('be.visible');
     cy.findByLabelText('sort-1').should('be.visible');
     cy.findByLabelText('delete-1').should('be.visible');
-    cy.contains('Anderson (Crist - Bradtke)').should('be.visible');
+    cy.contains('Waino (Quigley Group)').should('be.visible');
 
     cy.moveSortableElementUsingAriaLabel({
       ariaLabel: 'sort-0',
       direction: 'down'
     });
 
-    cy.contains('Carley (Satterfield, Miller and Metz)').should('be.visible');
-    cy.contains('Anderson (Crist - Bradtke)').should('be.visible');
+    cy.contains('Waino (Quigley Group)').should('be.visible');
+    cy.contains('Sammie (Crist - Beer)').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -119,14 +119,53 @@ describe('Form list', () => {
 
     cy.findByLabelText('sort-0').should('be.visible');
     cy.findByLabelText('delete-0').should('be.visible');
-    cy.contains('Lea (Streich - Hartmann)').should('be.visible');
+    cy.contains('Elliott (Effertz, Deckow and Deckow)').should('be.visible');
     cy.findByLabelText('sort-1').should('be.visible');
     cy.findByLabelText('delete-1').should('be.visible');
-    cy.contains('Akeem (Quigley LLC)').should('be.visible');
+    cy.contains('Leopoldo (Kemmer Inc)').should('be.visible');
 
     cy.findByLabelText('delete-0').click();
 
-    cy.contains('Lea (Streich - Hartmann)').should('not.exist');
+    cy.contains('Elliott (Effertz, Deckow and Deckow)').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+});
+
+const initializeFile = (): void => {
+  cy.mount({
+    Component: (
+      <Form
+        initialValues={{
+          list: []
+        }}
+        inputs={[
+          {
+            fieldName: 'file',
+            group: '',
+            label: 'json',
+            type: InputType.File,
+            file: {
+              accept: '.json'
+            }
+          }
+        ]}
+        submit={cy.stub()}
+        validationSchema={object()}
+      />
+    )
+  });
+};
+
+describe('File', () => {
+  it('uploads a file when a file is selected', () => {
+    initializeFile();
+
+    cy.contains('Drop or select a file').should('be.visible');
+    cy.findByLabelText('select a file').selectFile('package.json', {
+      force: true
+    });
+    cy.contains('package.json').should('be.visible');
 
     cy.makeSnapshot();
   });

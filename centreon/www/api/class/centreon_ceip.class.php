@@ -158,7 +158,6 @@ class CentreonCeip extends CentreonWebService
             } else {
                 $role = 'User';
             }
-
             $dependencyInjector = LegacyContainer::getInstance();
             $licenseService = $dependencyInjector['lm.license'];
 

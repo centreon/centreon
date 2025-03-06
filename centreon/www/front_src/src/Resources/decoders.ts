@@ -222,6 +222,11 @@ const resourceTypeDecoder = JsonDecoder.enumeration<ResourceType>(
   'resourceType'
 );
 
+const dateDecoder = JsonDecoder.oneOf<string | undefined | number>(
+  [JsonDecoder.optional(JsonDecoder.string), JsonDecoder.isExactly(0)],
+  'date'
+);
+
 const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
   {
     acknowledgement: JsonDecoder.optional(acknowledgementDecoder),
@@ -245,15 +250,15 @@ const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
     information: JsonDecoder.optional(JsonDecoder.string),
     is_acknowledged: JsonDecoder.boolean,
     is_in_downtime: JsonDecoder.boolean,
-    last_check: JsonDecoder.optional(JsonDecoder.string),
-    last_notification: JsonDecoder.optional(JsonDecoder.string),
-    last_status_change: JsonDecoder.optional(JsonDecoder.string),
-    last_time_with_no_issue: JsonDecoder.optional(JsonDecoder.string),
+    last_check: dateDecoder,
+    last_notification: dateDecoder,
+    last_status_change: dateDecoder,
+    last_time_with_no_issue: dateDecoder,
     latency: JsonDecoder.optional(JsonDecoder.number),
     links: JsonDecoder.optional(resourceLinksDecoder),
     monitoring_server_name: JsonDecoder.optional(JsonDecoder.string),
     name: JsonDecoder.string,
-    next_check: JsonDecoder.optional(JsonDecoder.string),
+    next_check: dateDecoder,
     notification_number: JsonDecoder.optional(JsonDecoder.number),
     parent: JsonDecoder.optional(
       JsonDecoder.object<Parent>(commonDecoders, 'ResourceDetailsParent')

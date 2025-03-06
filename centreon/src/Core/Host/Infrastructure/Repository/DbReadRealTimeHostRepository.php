@@ -66,13 +66,12 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                 AND hosts.enabled = 1
                 AND hosts.name NOT LIKE "_Module_%"
             SQL;
-        $request .= ' GROUP BY hosts.name';
+
+        $request .= ' GROUP BY hosts.id, hosts.name, hosts.status ';
 
         $sort = $sqlTranslator->translateSortParameterToSql();
 
         $request .= $sort ?? ' ORDER BY hosts.name ASC';
-
-        $request .= $sqlTranslator->translatePaginationToSql();
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);
@@ -115,8 +114,6 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
         $sort = $sqlTranslator->translateSortParameterToSql();
 
         $request .= $sort ?? ' ORDER BY hosts.name ASC';
-
-        $request .= $sqlTranslator->translatePaginationToSql();
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $sqlTranslator->bindSearchValues($statement);
@@ -203,9 +200,9 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                     hosts.id AS `id`,
                     hosts.name AS `name`,
                     hosts.status AS `status`
-                FROM `:dbstg`.resources AS services
-                INNER JOIN `:dbstg`.resources AS hosts
-                    ON hosts.id = services.parent_id
+                FROM `:dbstg`.resources AS hosts
+                LEFT JOIN `:dbstg`.resources AS services
+                    ON services.parent_id = hosts.id
                 LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
                     ON hosts.resource_id = rtags_host_groups.resource_id
                 LEFT JOIN `:dbstg`.tags host_groups

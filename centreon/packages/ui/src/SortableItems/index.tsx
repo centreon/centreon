@@ -185,6 +185,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
     >
       <SortableContext items={sortableItemsIds} strategy={sortingStrategy}>
         <RootComponent>
+          {/* biome-ignore lint: */}
           <>
             {sortableItemsIds.map((sortableItemId, index) => {
               const item = getItemById(sortableItemId) as

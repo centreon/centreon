@@ -14,9 +14,6 @@ export const useParameterStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   parameterItem: {
-    display: 'grid',
-    gap: theme.spacing(2),
-    gridTemplateColumns: `${theme.spacing(22)} 1fr`,
     marginBottom: theme.spacing(0.5)
   }
 }));

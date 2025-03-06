@@ -47,7 +47,7 @@ interface StyleProps {
   currentWidth: number;
 }
 
-const collapseWidth = 24;
+const collapseWidth = 26;
 
 const useStyles = makeStyles<StyleProps>()(
   (

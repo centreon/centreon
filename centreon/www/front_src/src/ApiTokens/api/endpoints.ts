@@ -1,6 +1,6 @@
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { BuildListEndpoint, TokenEndpoint } from './models';
+import { BuildListEndpoint, Parameters, TokenEndpoint } from './models';
 
 export const baseTokenEndpoint = '/administration/tokens';
 
@@ -19,7 +19,9 @@ export const buildListEndpoint = ({
     parameters
   });
 
-export const getEndpointConfiguredUser = (dataConfiguredUser): string => {
+export const getEndpointConfiguredUser = (
+  dataConfiguredUser: Parameters
+): string => {
   return buildListEndpoint({
     endpoint: listConfiguredUser,
     parameters: { ...dataConfiguredUser, limit: 10 }

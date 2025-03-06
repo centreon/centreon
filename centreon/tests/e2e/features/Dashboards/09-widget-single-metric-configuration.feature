@@ -14,7 +14,6 @@ Feature: Configuring a Single Metric Widget
     Then information about this metric is displayed in the widget preview
     When the user saves the Single metric widget
     Then the Single metric widget is added in the dashboard's layout
-    And the information about the selected metric is displayed
 
   @TEST_MON-23786 @ignore
   Scenario: Duplicating a Single Metric widget

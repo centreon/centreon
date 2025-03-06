@@ -1,6 +1,6 @@
 import '@testing-library/cypress/add-commands';
 import { mergeDeepRight } from 'ramda';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 

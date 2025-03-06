@@ -27,7 +27,13 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboard;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    'dashboard_access',
+    null,
+    'You do not have sufficient rights to access the dashboard'
+)]
 final class FindDashboardController extends AbstractController
 {
     /**

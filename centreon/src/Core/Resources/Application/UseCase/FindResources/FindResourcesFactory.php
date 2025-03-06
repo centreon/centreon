@@ -82,6 +82,7 @@ final class FindResourcesFactory
             $resourceDto->hasGraphData = $resource->hasGraph();
             $resourceDto->lastCheck = self::createNullableDateTimeImmutable($resource->getLastCheck());
             $resourceDto->lastStatusChange = self::createNullableDateTimeImmutable($resource->getLastStatusChange());
+            $resourceDto->areNotificationsEnabled = $resource->isNotificationEnabled();
 
             $response->resources[] = $resourceDto;
         }

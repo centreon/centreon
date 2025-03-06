@@ -32,7 +32,7 @@ runs:
         version: 8
         run_install: false
 
-    - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+    - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
       with:
         node-version: 20
         cache: pnpm
@@ -54,13 +54,13 @@ runs:
 
     - name: Cache index.html file
       if: ${{ inputs.index_cache_key != '' && inputs.index_file != '' }}
-      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ${{ inputs.index_file }}
         key: ${{ inputs.index_cache_key }}
 
     - name: Cache static directory
-      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
         path: ${{ inputs.static_directory }}
         key: ${{ inputs.static_cache_key }}

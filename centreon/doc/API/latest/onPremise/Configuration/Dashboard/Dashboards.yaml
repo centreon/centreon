@@ -4,15 +4,15 @@ get:
   summary: "List all dashboards"
   description: |
     Return all dashboard configurations.
-    
+
     The available parameters to **search** / **sort_by** are:
-    
+
     * id
     * name
     * created_by
     * created_at
     * updated_at
-    
+
     `Since Centreon web 23.10`
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'
@@ -42,11 +42,11 @@ post:
   summary: "Add a dashboard"
   description: |
     Add a new dashboard configuration.
-    
+
     Mandatory body properties are:
-    
+
     * name
-    
+
     `Since Centreon web 23.10`
   requestBody:
     required: true

@@ -325,6 +325,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
                     $errorCode = $statusCode;
                 }
+            } else if ($event->getThrowable() instanceof HttpException) {
+                    $errorCode = $event->getThrowable()->getStatusCode();
+                    $statusCode = $event->getThrowable()->getStatusCode();
+
             } else {
                 $errorCode = $event->getThrowable()->getCode();
                 $statusCode = $event->getThrowable()->getCode()

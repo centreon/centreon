@@ -13,7 +13,11 @@ info:
     + Added new filters for /monitoring/resources /monitoring/resources/hosts related to Open Tickets
     + Added new key 'extra' that contains extra data from modules installed for resources endpoints
     + Update /configuration/contacts/groups endpoint by adding new listing properties
-    
+    + Content-type changed from application/json to multipart/form-data for dashboard partial update endpoint which is now a POST and not a PATCH
+    + Added new 'thumbnail' key to dashboard listing endpoint, that contains thumbnail information
+    + Added new 'thumbnail' key to dashboard update payload endpoint, that contains thumbnail information
+    + Added new 'thumbnail_data' key to dashboard update payload endpoint, that contains thumbnail contents
+    +
     # Information
     All dates are in **ISO 8601** format
     # Authentication
@@ -28,7 +32,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: "24.04"
+  version: "24.10"
 externalDocs:
   description: You can contact us on our community platform The Watch
   url: 'https://thewatch.centreon.com/'
@@ -254,11 +258,15 @@ paths:
     $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/AddAndFindAccs.yaml"
   /configuration/additional-connector-configurations/{acc_id}:
     $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/DeleteUpdateAndFindAcc.yaml"
-  /configuration/additional-connector-configurations/pollers/{type}:
-    $ref: "./latest/onPremise/Configuration/AdditionalConnectorConfiguration/FindPollers.yaml"
-  /configuration/broker/{brokerId}/{tag}:
+  /configuration/agent-configurations:
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/AddOrFindAc.yaml"
+  /configuration/agent-configurations/{ac_id}:
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAndFindDetailAc.yaml"
+  /configuration/agent-configurations/{ac_id}/pollers/{poller_id}:
+    $ref: "./latest/onPremise/Configuration/AgentConfiguration/DeleteAcPollerLink.yaml"
+  /configuration/broker/{broker_id}/{tag}:
     $ref: "./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml"
-  /configuration/broker/{brokerId}/outputs/{outputId}/file:
+  /configuration/broker/{broker_id}/outputs/{output_id}/file:
     $ref: "./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:
     $ref: "./latest/onPremise/Configuration/Command/AddAndFindCommands.yaml"
@@ -629,6 +637,8 @@ paths:
       summary: "Get a host severity"
       description: |
         Get a host severity configuration
+      parameters:
+        - $ref: '#/components/parameters/HostSeverityId'
       responses:
         "200":
           description: "OK"
@@ -980,6 +990,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/medias:
     $ref: './latest/onPremise/Configuration/Media/AddAndFindMedia.yaml'
+  /configuration/medias/{media_id}/content:
+    $ref: './latest/onPremise/Configuration/Media/UpdateMedia.yaml'
   /configuration/proxy:
     get:
       tags:
@@ -1519,6 +1531,10 @@ paths:
     $ref: './latest/onPremise/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
     $ref: './latest/onPremise/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/favorites:
+    $ref: './latest/onPremise/Configuration/Dashboard/DeleteDashboardFromFavorites.yaml'
+  /configuration/dashboards/favorites:
+    $ref: './latest/onPremise/Configuration/Dashboard/FavoriteDashboards.yaml'
   /configuration/dashboards/{dashboard_id}/shares:
     $ref: './latest/onPremise/Configuration/Dashboard/ShareDashboard.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
@@ -5872,7 +5888,7 @@ components:
         snmp_version:
           type: string
           nullable: true
-          enum: [1, 2c, 3]
+          enum: ["1", "2c", "3"]
           description: |
             Version of the SNMP agent.
 
@@ -6627,6 +6643,7 @@ components:
              * `3` - UNKNOWN
           example: 1
     Acknowledgement.Service:
+      type: object
       nullable: true
       allOf:
         - $ref: '#/components/schemas/Acknowledgement.Host'
@@ -6916,7 +6933,7 @@ components:
       properties:
         status:
           type: string
-          enum: [0, 1, 2, 3]
+          enum: ["0", "1", "2", "3"]
           description: |
             Service status code that can be submitted
             * `0` - OK

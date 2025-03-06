@@ -353,38 +353,4 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 
-    /**
-     * @return array
-     * @throws Exception
-     * @throws RestBadRequestException
-     */
-    public function getDefaultEscalationValues()
-    {
-        $defaultValues = [];
-        // Get Object targeted
-        if (isset($this->arguments['id']) && !empty($this->arguments['id'])) {
-            $id = $this->arguments['id'];
-        } else {
-            throw new RestBadRequestException("Bad parameters id");
-        }
-
-        $queryService = 'SELECT distinct host_host_id, host_name, service_service_id, service_description ' .
-            'FROM service s, escalation_service_relation esr, host h ' .
-            'WHERE s.service_id = esr.service_service_id ' .
-            'AND esr.host_host_id = h.host_id ' .
-            'AND h.host_register = "1" ' .
-            'AND esr.escalation_esc_id = :id';
-        $stmt = $this->db->prepare($queryService); //FIXME to check because db is not initialised
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
-        }
-        while ($data = $stmt->fetch()) {
-            $serviceCompleteName = $data['host_name'] . ' - ' . $data['service_description'];
-            $serviceCompleteId = $data['host_host_id'] . '-' . $data['service_service_id'];
-            $defaultValues[] = ['id' => htmlentities($serviceCompleteId), 'text' => $serviceCompleteName];
-        }
-        return $defaultValues;
-    }
 }

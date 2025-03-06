@@ -8,11 +8,11 @@ import {
   gte,
   head,
   isNil,
+  last,
   length,
   lt,
   lte,
-  pluck,
-  last
+  pluck
 } from 'ramda';
 
 import { Theme, darken, getLuminance, lighten } from '@mui/material';

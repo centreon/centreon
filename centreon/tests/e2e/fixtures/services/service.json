@@ -1,0 +1,33 @@
+{
+  "hostGroups": {
+    "hostGroup1": {
+      "name": "host_group_1"
+    }
+  },
+
+  "services": {
+    "service1": {
+      "name": "service_1"
+    },
+    "service2": {
+      "name": "service_2"
+    }
+  },
+
+  "hosts": {
+    "host1": {
+      "name": "host_1",
+      "hostGroup": "host_group_1"
+    },
+    "host2": {
+      "name": "host_2",
+      "hostGroup": "host_group_1"
+    }
+  },
+
+  "service_group": {
+    "service1": {
+      "name": "service_group"
+    }
+  }
+}

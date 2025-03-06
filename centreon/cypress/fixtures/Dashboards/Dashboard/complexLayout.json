@@ -1,0 +1,149 @@
+{
+  "id": 2,
+  "name": "Complex dashboard",
+  "description": null,
+  "created_by": {
+    "id": 1,
+    "name": "admin admin"
+  },
+  "updated_by": {
+    "id": 1,
+    "name": "admin admin"
+  },
+  "created_at": "2024-11-27T16:31:39+00:00",
+  "updated_at": "2024-11-28T08:46:20+00:00",
+  "panels": [
+    {
+      "id": 30,
+      "name": "centreon-widget-clock",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 2,
+        "min_height": 2
+      },
+      "widget_type": "/widgets/clock",
+      "widget_settings": {
+        "data": [],
+        "options": {
+          "displayType": "clock",
+          "showTimezone": true,
+          "showDate": true,
+          "timeFormat": "12",
+          "description": {
+            "content": "{\u0022root\u0022:{\u0022children\u0022:[{\u0022children\u0022:[],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022paragraph\u0022,\u0022version\u0022:1,\u0022textStyle\u0022:\u0022\u0022}],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022root\u0022,\u0022version\u0022:1}}",
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "id": 31,
+      "name": "centreon-widget-clock",
+      "layout": {
+        "x": 6,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 2,
+        "min_height": 2
+      },
+      "widget_type": "/widgets/clock",
+      "widget_settings": {
+        "data": [],
+        "options": {
+          "displayType": "clock",
+          "showTimezone": true,
+          "showDate": true,
+          "timeFormat": "12",
+          "description": {
+            "content": "{\u0022root\u0022:{\u0022children\u0022:[{\u0022children\u0022:[],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022paragraph\u0022,\u0022version\u0022:1,\u0022textStyle\u0022:\u0022\u0022}],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022root\u0022,\u0022version\u0022:1}}",
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "id": 32,
+      "name": "centreon-widget-clock",
+      "layout": {
+        "x": 8,
+        "y": 3,
+        "width": 3,
+        "height": 3,
+        "min_width": 2,
+        "min_height": 2
+      },
+      "widget_type": "/widgets/clock",
+      "widget_settings": {
+        "data": [],
+        "options": {
+          "displayType": "clock",
+          "showTimezone": true,
+          "showDate": true,
+          "timeFormat": "12",
+          "description": {
+            "content": "{\u0022root\u0022:{\u0022children\u0022:[{\u0022children\u0022:[],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022paragraph\u0022,\u0022version\u0022:1,\u0022textStyle\u0022:\u0022\u0022}],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022root\u0022,\u0022version\u0022:1}}",
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "id": 33,
+      "name": "centreon-widget-clock",
+      "layout": {
+        "x": 0,
+        "y": 3,
+        "width": 5,
+        "height": 3,
+        "min_width": 2,
+        "min_height": 2
+      },
+      "widget_type": "/widgets/clock",
+      "widget_settings": {
+        "data": {
+          "resources": [
+            {
+              "resourceType": "",
+              "resources": []
+            }
+          ]
+        },
+        "options": {
+          "displayType": "clock",
+          "showTimezone": true,
+          "showDate": true,
+          "timeFormat": "12",
+          "description": {
+            "content": "{\u0022root\u0022:{\u0022children\u0022:[{\u0022children\u0022:[],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022paragraph\u0022,\u0022version\u0022:1,\u0022textStyle\u0022:\u0022\u0022}],\u0022direction\u0022:null,\u0022format\u0022:\u0022\u0022,\u0022indent\u0022:0,\u0022type\u0022:\u0022root\u0022,\u0022version\u0022:1}}",
+            "enabled": true
+          }
+        }
+      }
+    }
+  ],
+  "own_role": "editor",
+  "refresh": {
+    "type": "global",
+    "interval": null
+  },
+  "shares": {
+    "contacts": [
+      {
+        "id": 1,
+        "name": "admin admin",
+        "email": "admin@centreon.com",
+        "role": "editor"
+      }
+    ],
+    "contact_groups": []
+  },
+  "thumbnail": {
+    "id": 4,
+    "name": "dashboard-2.png",
+    "directory": "dashboards"
+  }
+}

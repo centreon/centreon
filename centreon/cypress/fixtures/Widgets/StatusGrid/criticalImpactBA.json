@@ -14,6 +14,7 @@
        "critical_threshold":70,
        "is_percentage":true
     },
+    "current_level":70,
     "indicators":[
        {
           "id":10,

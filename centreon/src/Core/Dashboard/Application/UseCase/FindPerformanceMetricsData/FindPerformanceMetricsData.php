@@ -58,7 +58,7 @@ final class FindPerformanceMetricsData
 
     public function __invoke(
         FindPerformanceMetricsDataPresenterInterface $presenter,
-        FindPerformanceMetricsDataRequest $request
+        FindPerformanceMetricsDataRequestDto $request
     ): void {
         try {
             if ($this->isUserAdmin()) {
@@ -96,7 +96,7 @@ final class FindPerformanceMetricsData
     /**
      * find Performance Metrics Data for an admin user.
      *
-     * @param FindPerformanceMetricsDataRequest $request
+     * @param FindPerformanceMetricsDataRequestDto $request
      *
      * @throws MetricException
      * @throws \Throwable
@@ -104,7 +104,7 @@ final class FindPerformanceMetricsData
      * @return PerformanceMetricsData
      */
     private function findPerformanceMetricsDataAsAdmin(
-        FindPerformanceMetricsDataRequest $request
+        FindPerformanceMetricsDataRequestDto $request
     ): PerformanceMetricsData {
         $services = $this->metricRepository->findServicesByMetricNamesAndRequestParameters(
             $request->metricNames,
@@ -117,7 +117,7 @@ final class FindPerformanceMetricsData
     /**
      * find Performance Metrics Data for an admin user.
      *
-     * @param FindPerformanceMetricsDataRequest $request
+     * @param FindPerformanceMetricsDataRequestDto $request
      * @param AccessGroup[] $accessGroups
      *
      * @throws MetricException
@@ -126,7 +126,7 @@ final class FindPerformanceMetricsData
      * @return PerformanceMetricsData
      */
     private function findPerformanceMetricsDataAsNonAdmin(
-        FindPerformanceMetricsDataRequest $request,
+        FindPerformanceMetricsDataRequestDto $request,
         array $accessGroups
     ): PerformanceMetricsData {
         $services = $this->metricRepository->findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
@@ -150,7 +150,7 @@ final class FindPerformanceMetricsData
 
     /**
      * @param Service[] $services
-     * @param FindPerformanceMetricsDataRequest $request
+     * @param FindPerformanceMetricsDataRequestDto $request
      *
      * @throws MetricException|\Exception
      *
@@ -158,7 +158,7 @@ final class FindPerformanceMetricsData
      */
     private function createPerformanceMetricsData(
         array $services,
-        FindPerformanceMetricsDataRequest $request
+        FindPerformanceMetricsDataRequestDto $request
     ): PerformanceMetricsData {
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);

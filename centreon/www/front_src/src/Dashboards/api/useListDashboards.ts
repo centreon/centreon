@@ -10,14 +10,16 @@ import {
   sortOrderAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
 
+import { onlyFavoriteDashboardsAtom } from '../components/DashboardLibrary/DashboardListing/Actions/favoriteFilter/atoms';
 import { dashboardListDecoder } from './decoders';
-import { dashboardsEndpoint } from './endpoints';
+import { dashboardsEndpoint, dashboardsFavoriteEndpoint } from './endpoints';
 import { List } from './meta.models';
 import { Dashboard, resource } from './models';
 
 type UseListDashboards = {
   data?: List<Omit<Dashboard, 'refresh'>>;
   isLoading: boolean;
+  refetch: () => void;
 };
 
 const useListDashboards = (): UseListDashboards => {
@@ -26,6 +28,7 @@ const useListDashboards = (): UseListDashboards => {
   const sortField = useAtomValue(sortFieldAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const searchValue = useAtomValue(searchAtom);
+  const onlyFavoriteDashboards = useAtomValue(onlyFavoriteDashboardsAtom);
 
   const sort = { [sortField]: sortOrder };
   const search = {
@@ -35,28 +38,34 @@ const useListDashboards = (): UseListDashboards => {
     }
   };
 
-  const { data, isLoading, isFetching } = useFetchQuery<
+  const getEndpoint = () => {
+    return buildListingEndpoint({
+      baseEndpoint: onlyFavoriteDashboards
+        ? dashboardsFavoriteEndpoint
+        : dashboardsEndpoint,
+      parameters: {
+        limit: limit || 10,
+        page: page || 1,
+        search,
+        sort
+      }
+    });
+  };
+
+  const { data, isLoading, isFetching, refetch } = useFetchQuery<
     List<Omit<Dashboard, 'refresh'>>
   >({
     decoder: dashboardListDecoder,
     doNotCancelCallsOnUnmount: true,
-    getEndpoint: () =>
-      buildListingEndpoint({
-        baseEndpoint: dashboardsEndpoint,
-        parameters: {
-          limit: limit || 10,
-          page: page || 1,
-          search,
-          sort
-        }
-      }),
+    getEndpoint,
     getQueryKey: () => [
       resource.dashboards,
       sortField,
       sortOrder,
       page,
       limit,
-      search
+      search,
+      onlyFavoriteDashboards
     ],
     queryOptions: {
       suspense: false
@@ -65,7 +74,8 @@ const useListDashboards = (): UseListDashboards => {
 
   return {
     data,
-    isLoading: isLoading || isFetching
+    isLoading: isLoading || isFetching,
+    refetch
   };
 };
 

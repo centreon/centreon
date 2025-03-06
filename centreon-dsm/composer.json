@@ -4,9 +4,10 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require-dev": {
+    "ext-json": "*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "24.10.x-dev",
-    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
+    "centreon/centreon-test-lib": "dev-master",
+    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",
@@ -24,6 +25,9 @@
     "sort-packages": true,
     "platform": {
       "php": "8.2"
+    },
+    "preferred-install": {
+      "*": "dist"
     },
     "allow-plugins": {
       "symfony/flex": false,

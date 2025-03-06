@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 import { path, equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 
 import type { Actions } from '@centreon/ui';
 import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';

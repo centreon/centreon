@@ -35,6 +35,7 @@ use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Throwable;
@@ -51,6 +52,7 @@ final class DeleteDashboard
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly WriteMediaRepositoryInterface $mediaRepository,
         private readonly bool $isCloudPlatform
     ) {
     }
@@ -87,6 +89,10 @@ final class DeleteDashboard
     private function deleteDashboardAsAdmin(int $dashboardId): ResponseStatusInterface
     {
         if ($this->readDashboardRepository->existsOne($dashboardId)) {
+            if (($thumbail = $this->readDashboardRepository->findThumbnailByDashboardId($dashboardId)) !== null) {
+                $this->mediaRepository->delete($thumbail);
+            }
+
             $this->writeDashboardRepository->delete($dashboardId);
 
             return new NoContentResponse();
@@ -116,6 +122,10 @@ final class DeleteDashboard
         $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
         if (! $this->rights->canDelete($sharingRoles)) {
             return new ForbiddenResponse(DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboardId));
+        }
+
+        if (($thumbail = $this->readDashboardRepository->findThumbnailByDashboardId($dashboardId)) !== null) {
+            $this->mediaRepository->delete($thumbail);
         }
 
         $this->writeDashboardRepository->delete($dashboardId);

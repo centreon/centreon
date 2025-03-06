@@ -56,7 +56,7 @@ Feature: Configuring metrics graph widget
 
   @TEST_MON-119753
   Scenario: Filtering service list by selected host
-    Given a dashboard having Metrics Graph widget with multiple hosts
+    Given a dashboard having a Metrics Graph widget with multiple hosts
     When the dashboard administrator opens service list
     Then only the services associated with the selected hosts should be displayed
 

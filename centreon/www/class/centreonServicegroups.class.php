@@ -38,7 +38,7 @@
  *
  * @class CentreonServicegroups
  */
-class CentreonServicegroups// FIXME CentreonServiceGroups exists too
+class CentreonServicegroups
 {
     /** @var CentreonDB */
     private $DB;
@@ -221,10 +221,14 @@ class CentreonServicegroups// FIXME CentreonServiceGroups exists too
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
-        global $centreon;
         $items = [];
-        $sgAcl = [];
 
+        if (empty($values)) {
+            return $items;
+        }
+
+        global $centreon;
+        $sgAcl = [];
         # get list of authorized servicegroups
         if (
             ! $centreon->user->access->admin

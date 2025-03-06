@@ -3,7 +3,7 @@ properties:
   monitoring_server_id:
     type: integer
     description: "ID of the host's monitoring server"
-    exmaple: 1
+    example: 1
   name:
     type: string
     description: "Host name"
@@ -23,7 +23,7 @@ properties:
   snmp_version:
     type: string
     nullable: true
-    enum: [1, 2c, 3]
+    enum: ["1", "2c", "3"]
     description: |
       Version of the SNMP agent.
 

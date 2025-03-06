@@ -36,9 +36,25 @@ class MediaException extends \Exception
     /**
      * @return self
      */
+    public static function updateNotAllowed(): self
+    {
+        return new self(_('You are not allowed to update media'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileAddingMedia(): self
     {
         return new self(_('Error while adding a media'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileUpdatingMedia(): self
+    {
+        return new self(_('Error while updating a media'));
     }
 
     /**

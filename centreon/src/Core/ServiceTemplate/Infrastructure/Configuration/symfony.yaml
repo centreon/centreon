@@ -1,0 +1,25 @@
+services:
+  _defaults:
+    public: false
+    autowire: true
+    autoconfigure: true
+
+  Core\ServiceTemplate\:
+    resource: '../../../../Core/ServiceTemplate/*'
+    bind:
+      $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+  Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface:
+    class: Core\ServiceTemplate\Infrastructure\Repository\DbReadServiceTemplateRepository
+
+  Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface:
+    class: Core\ServiceTemplate\Infrastructure\Repository\DbWriteServiceTemplateRepository
+
+  Core\ServiceTemplate\Infrastructure\Repository\DbWriteServiceTemplateActionLogRepository:
+    decorates: Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface
+    arguments:
+      - '@.inner'
+      - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+      - '@Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface'
+      - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+      - '@Centreon\Infrastructure\DatabaseConnection'

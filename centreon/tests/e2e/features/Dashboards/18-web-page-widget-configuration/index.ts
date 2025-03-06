@@ -3,7 +3,6 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import webPageWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithWebPageWidget.json';
-import webPageWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoWebPageWidget.json';
 
 const validUrl = 'https://docs.centreon.com/fr/';
 const invalidUrl = 'http://docss.Centreon.com/fr/';
@@ -128,7 +127,13 @@ Then("the web page widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard having a configured web page widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, webPageWidget);
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    webPageWidget,
+    'centreon-widget-webpage',
+    '/widgets/webpage'
+  );
+
   cy.editDashboard(dashboards.default.name);
 });
 
@@ -150,7 +155,13 @@ Then('a second web page widget is displayed on the dashboard', () => {
 });
 
 Given('a dashboard featuring two web page widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, webPageWidgets);
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    webPageWidget,
+    webPageWidget,
+    'centreon-widget-webpage',
+    '/widgets/webpage'
+  );
   cy.editDashboard(dashboards.default.name);
 });
 
@@ -172,14 +183,11 @@ When('the dashboard administrator attempts to add an invalid URL', () => {
   cy.getByLabel({ label: 'URL' }).clear().type(invalidUrl);
   cy.getByTestId({ testId: 'confirm' }).click({ force: true });
   cy.get('.MuiAlert-message').should('not.exist');
-}
-);
+});
 
 Then(
   'an error message should be displayed, indicating that the URL is invalid',
   () => {
-    cy.get('iframe')
-      .its('0.contentDocument.body')
-      .should('be.empty')
+    cy.get('iframe').its('0.contentDocument.body').should('be.empty');
   }
 );

@@ -1,9 +1,12 @@
 import type { SelectEntry } from '@centreon/ui';
+import { ComponentType, LazyExoticComponent } from 'react';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
   panelMinHeight?: number;
   panelMinWidth?: number;
+  panelDefaultWidth?: number;
+  panelDefaultHeight?: number;
   path: string;
   title?: string;
 }
@@ -16,6 +19,7 @@ export interface FederatedModule {
   preloadScript?: string;
   remoteEntry: string;
   remoteUrl?: string;
+  Component?: LazyExoticComponent<ComponentType<{ [key: string]: unknown }>>;
 }
 
 export interface PageComponent {
@@ -132,4 +136,5 @@ export interface FederatedWidgetProperties {
     label: string;
     icon?: string;
   };
+  canExpand?: boolean;
 }

@@ -98,8 +98,19 @@ if ($whereConditions) {
 }
 
 $orderBy = "name ASC";
-if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
-    $orderBy = $preferences['order_by'];
+
+$allowedOrderColumns = ['name'];
+
+$allowedDirections = ['ASC', 'DESC'];
+
+if (isset($preferences['order_by']) && trim($preferences['order_by']) !== '') {
+    $aOrder = explode(' ', trim($preferences['order_by']));
+    $column = $aOrder[0] ?? '';
+    $direction = isset($aOrder[1]) ? strtoupper($aOrder[1]) : 'ASC';
+
+    if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+        $orderBy = $column . ' ' . $direction;
+    }
 }
 
 $query .= " ORDER BY $orderBy";

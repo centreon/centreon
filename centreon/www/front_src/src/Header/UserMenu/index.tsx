@@ -2,7 +2,7 @@ import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 import { __, equals, gt, isNil, not } from 'ramda';
 import { useTranslation, withTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import CheckIcon from '@mui/icons-material/Check';

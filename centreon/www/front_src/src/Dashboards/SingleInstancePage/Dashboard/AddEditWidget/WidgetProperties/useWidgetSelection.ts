@@ -1,4 +1,4 @@
-import { type ChangeEvent, useState } from 'react';
+import { type ChangeEvent, useMemo, useState } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -35,6 +35,7 @@ import {
 import type { Widget } from '../models';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
+import usePlatformVersions from '../../../../../Main/usePlatformVersions';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -93,11 +94,23 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
   const { setValues, values, setTouched } = useFormikContext<Widget>();
 
+  const { getWidgets } = usePlatformVersions();
+
+  const widgets = useMemo(() => getWidgets(), []);
+
   const isCloudPlatform = platformFeatures?.isCloudPlatform;
+
+  const installedWidgets = useMemo(
+    () =>
+      federatedWidgetsProperties?.filter(({ moduleName }) =>
+        widgets?.includes(moduleName)
+      ),
+    [federatedWidgetsProperties, widgets]
+  );
 
   const availableWidgetsProperties = reject((widget) => {
     return isCloudPlatform && widget?.availableOnPremOnly;
-  }, federatedWidgetsProperties || []);
+  }, installedWidgets || []);
 
   const filteredWidgets = filter(
     ({ title }) => title?.includes(search),
