@@ -2908,7 +2908,7 @@
 									"    const cleanedMessage = responseJson.message.replace(/\\s+/g, ' ').trim();\r",
 									"\r",
 									"    pm.expect(cleanedMessage).to.eql(\r",
-									"        \"name: This value should be of type string. alias: This value should be of type string. geoCoords: This value should be of type string. comment: This value should be of type string.\"\r",
+									"        \"name: This value should be of type string. alias: This value should be of type string. geoCoords: This value should be of type string. iconId: This value should be of type int. comment: This value should be of type string.\"\r",
 									"    );\r",
 									"});\r",
 									""
@@ -2938,7 +2938,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": true,\n    \"alias\": true,\n    \"notes\": 0,\n    \"notes_url\": false,\n    \"action_url\": 1,\n    \"icon_id\": null,\n    \"icon_map_id\": \"ç\",\n    \"rrd\": true,\n    \"geo_coords\": true,\n    \"is_activated\": \"true\",\n    \"comment\": 3\n}",
+							"raw": "{\n    \"name\": true,\n    \"alias\": true,\n    \"notes\": 0,\n    \"notes_url\": false,\n    \"action_url\": 1,\n    \"icon_id\": \"8\",\n    \"icon_map_id\": \"ç\",\n    \"rrd\": true,\n    \"geo_coords\": true,\n    \"is_activated\": \"true\",\n    \"comment\": 3\n}",
 							"options": {
 								"raw": {
 									"language": "json"
