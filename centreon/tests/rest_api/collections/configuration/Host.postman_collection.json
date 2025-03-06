@@ -2619,7 +2619,7 @@
 									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
-									"        \"icon_id\": null\r",
+									"        \"icon_id\": null,\r",
 									"        \"geo_coords\": \"\",\r",
 									"        \"comment\": \"Hello world ! 1\",\r",
 									"        \"hosts\": []\r",
