@@ -34,7 +34,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   allowUniqOption?: boolean;
   baseEndpoint?: string;
   changeIdValue: (item: TData) => number | string;
-  conditionField?: keyof SelectEntry;
+  exclusionOptionProperty?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
   getRenderedOptionText: (option: TData) => string;
@@ -55,7 +55,7 @@ const ConnectedAutocompleteField = (
     field,
     labelKey,
     open,
-    conditionField = 'id',
+    exclusionOptionProperty = 'id',
     searchConditions = [],
     getRenderedOptionText = (option): string => option.name?.toString(),
     getRequestHeaders,
@@ -106,7 +106,7 @@ const ConnectedAutocompleteField = (
       ],
       isPaginated: true,
       queryOptions: {
-        cacheTime: 0,
+        gcTime: 0,
         enabled: false,
         staleTime: 0,
         suspense: false
@@ -134,10 +134,11 @@ const ConnectedAutocompleteField = (
         : [selectedValue];
 
       return {
-        field: conditionField,
+        operator: '$and',
+        field,
         values: {
           $ni: map(
-            prop(conditionField),
+            prop(exclusionOptionProperty),
             selectedValues as Array<
               Record<keyof SelectEntry, string | undefined>
             >
@@ -154,6 +155,7 @@ const ConnectedAutocompleteField = (
       }
 
       return {
+        operator: '$and',
         field,
         values: {
           $lk: `%${searchedValue}%`
@@ -322,12 +324,13 @@ const ConnectedAutocompleteField = (
       <AutocompleteField
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
-        open={optionsOpen}
         options={
           allowUniqOption ? uniqBy(getRenderedOptionText, options) : options
         }
         renderOption={renderOptions}
-        onChange={(_, value) => setAutocompleteChangedValue(value)}
+        onChange={(_, value) => {
+          setAutocompleteChangedValue(value);
+        }}
         onClose={(): void => setOptionsOpen(false)}
         onOpen={(): void => setOptionsOpen(true)}
         onTextChange={changeText}

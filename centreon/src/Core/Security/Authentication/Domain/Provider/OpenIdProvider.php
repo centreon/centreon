@@ -27,7 +27,7 @@ use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use CentreonUserLog;
+use CentreonLog;
 use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -49,7 +49,6 @@ use Core\Security\ProviderConfiguration\Domain\SecurityAccess\RolesMapping;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use DateInterval;
 use Exception;
-use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -84,9 +83,6 @@ class OpenIdProvider implements OpenIdProviderInterface
     /** @var Centreon */
     private Centreon $legacySession;
 
-    /** @var CentreonUserLog */
-    private CentreonUserLog $centreonLog;
-
     /**
      * Array of information store in id_token JWT Payload.
      *
@@ -108,7 +104,6 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @param HttpClientInterface $client
      * @param UrlGeneratorInterface $router
      * @param ContactServiceInterface $contactService
-     * @param Container $dependencyInjector
      * @param WriteUserRepositoryInterface $userRepository
      * @param Conditions $conditions
      * @param RolesMapping $rolesMapping
@@ -121,7 +116,6 @@ class OpenIdProvider implements OpenIdProviderInterface
         private HttpClientInterface $client,
         private UrlGeneratorInterface $router,
         private ContactServiceInterface $contactService,
-        private Container $dependencyInjector,
         private WriteUserRepositoryInterface $userRepository,
         private readonly Conditions $conditions,
         private readonly RolesMapping $rolesMapping,
@@ -130,8 +124,6 @@ class OpenIdProvider implements OpenIdProviderInterface
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly bool $isCloudPlatform
     ) {
-        $pearDB = $this->dependencyInjector['configuration_db'];
-        $this->centreonLog = new CentreonUserLog(-1, $pearDB);
     }
 
     /**
@@ -343,8 +335,11 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         // Get the status code and throw an Exception if not a 200
         $statusCode = $response->getStatusCode();
+        $content = json_decode($response->getContent(false), true, 512, JSON_THROW_ON_ERROR) ?: [];
         if ($statusCode !== Response::HTTP_OK) {
             $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
+            $this->logErrorInLoginLogFile('Refresh Token Request Error:', $content);
+            $this->logErrorFromExternalProvider($content);
             $this->logExceptionInLoginLogFile(
                 'Unable to get Refresh Token Information: %s, message: %s',
                 SSOAuthenticationException::requestForRefreshTokenFail()
@@ -352,13 +347,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForRefreshTokenFail();
         }
-        $content = json_decode($response->getContent(false), true) ?: [];
-        if (empty($content) || array_key_exists('error', $content)) {
-            $this->logErrorInLoginLogFile('Refresh Token Info:', $content);
-            $this->logErrorFromExternalProvider($content);
 
-            throw SSOAuthenticationException::errorFromExternalProvider($this->configuration->getName());
-        }
         $this->logAuthenticationDebug('Token Access Information:', $content);
         $creationDate = new \DateTimeImmutable();
         $providerTokenExpiration
@@ -495,8 +484,11 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         // Get the status code and throw an Exception if not a 200
         $statusCode = $response->getStatusCode();
+        $content = json_decode($response->getContent(false), true, 512, JSON_THROW_ON_ERROR) ?: [];
         if ($statusCode !== Response::HTTP_OK) {
             $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
+            $this->logErrorInLoginLogFile('Connection Token Request Error: ', $content);
+            $this->logErrorFromExternalProvider($content);
             $this->logExceptionInLoginLogFile(
                 'Unable to get Token Access Information: %s, message: %s',
                 SSOAuthenticationException::requestForConnectionTokenFail()
@@ -504,13 +496,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             throw SSOAuthenticationException::requestForConnectionTokenFail();
         }
-        $content = json_decode($response->getContent(false), true) ?: [];
-        if (empty($content) || array_key_exists('error', $content)) {
-            $this->logErrorInLoginLogFile('Connection Token Info: ', $content);
-            $this->logErrorFromExternalProvider($content);
 
-            throw SSOAuthenticationException::errorFromExternalProvider($this->configuration->getName());
-        }
         $this->logAuthenticationDebug('Token Access Information:', $content);
         $this->connectionTokenResponseContent = $content;
     }
@@ -630,21 +616,17 @@ class OpenIdProvider implements OpenIdProviderInterface
         }
 
         $statusCode = $response->getStatusCode();
+        $content = json_decode($response->getContent(false), true, 512, JSON_THROW_ON_ERROR) ?: [];
         if ($statusCode !== Response::HTTP_OK) {
             $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
+            $this->logErrorInLoginLogFile('Introspection Token Info: ', $content);
+            $this->logErrorFromExternalProvider($content);
             $this->logExceptionInLoginLogFile(
                 'Unable to get Introspection Information: %s, message: %s',
                 SSOAuthenticationException::requestForIntrospectionTokenFail()
             );
 
             throw SSOAuthenticationException::requestForIntrospectionTokenFail();
-        }
-        $content = json_decode($response->getContent(false), true) ?: [];
-        if (empty($content) || array_key_exists('error', $content)) {
-            $this->logErrorInLoginLogFile('Introspection Token Info: ', $content);
-            $this->logErrorFromExternalProvider($content);
-
-            throw SSOAuthenticationException::errorFromExternalProvider($this->configuration->getName());
         }
 
         $this->logAuthenticationInfo('Token Introspection Information: ', $content);
@@ -703,21 +685,17 @@ class OpenIdProvider implements OpenIdProviderInterface
         }
 
         $statusCode = $response->getStatusCode();
+        $content = json_decode($response->getContent(false), true, 512, JSON_THROW_ON_ERROR) ?: [];
         if ($statusCode !== Response::HTTP_OK) {
             $this->logErrorForInvalidStatusCode($statusCode, Response::HTTP_OK);
+            $this->logErrorInLoginLogFile('User Information Info: ', $content);
+            $this->logErrorFromExternalProvider($content);
             $this->logExceptionInLoginLogFile(
                 'Unable to get User Information: %s, message: %s',
                 SSOAuthenticationException::requestForUserInformationFail()
             );
 
             throw SSOAuthenticationException::requestForUserInformationFail();
-        }
-        $content = json_decode($response->getContent(false), true) ?: [];
-        if (empty($content) || array_key_exists('error', $content)) {
-            $this->logErrorInLoginLogFile('User Information Info: ', $content);
-            $this->logErrorFromExternalProvider($content);
-
-            throw SSOAuthenticationException::errorFromExternalProvider($this->configuration->getName());
         }
 
         $this->logAuthenticationDebug('User Information: ', $content);
@@ -838,9 +816,9 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->getUserInformationFromUserInfoEndpoint();
         }
         if (! array_key_exists($loginClaim, $this->userInformations)) {
-            $this->centreonLog->insertLog(
-                CentreonUserLog::TYPE_LOGIN,
-                '[Openid] [Error] Unable to get login from claim: ' . $loginClaim
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_LOGIN,
+                '[Openid] Unable to get login from claim: ' . $loginClaim
             );
             $this->error('Login Claim not found', ['login_claim' => $loginClaim]);
 
@@ -968,8 +946,8 @@ class OpenIdProvider implements OpenIdProviderInterface
     private function logErrorFromExternalProvider(array $content): void
     {
         $this->error(
-            'error from external provider :' . (array_key_exists('error', $content)
-                ? $content['error']
+            'error from external provider :' . (array_key_exists('error_description', $content)
+                ? $content['error_description']
                 : 'No content in response')
         );
     }
@@ -999,10 +977,10 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function logErrorInLoginLogFile(string $message, array $content): void
     {
-        if (array_key_exists('error', $content)) {
-            $this->centreonLog->insertLog(
-                CentreonUserLog::TYPE_LOGIN,
-                "[Openid] [Error] {$message}" . json_encode($content)
+        if (array_key_exists('error_description', $content)) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_LOGIN,
+                "[Openid] {$message} " . $content['error_description']
             );
         }
     }
@@ -1030,9 +1008,9 @@ class OpenIdProvider implements OpenIdProviderInterface
         if (isset($content['provider_token'])) {
             $content['provider_token'] = mb_substr($content['provider_token'], -10);
         }
-        $this->centreonLog->insertLog(
-            CentreonUserLog::TYPE_LOGIN,
-            "[Openid] [Debug] {$message} " . json_encode($content)
+        CentreonLog::create()->debug(
+            CentreonLog::TYPE_LOGIN,
+            "[Openid] {$message} " . json_encode($content, JSON_THROW_ON_ERROR)
         );
         $this->debug('Authentication information : ', $content);
     }
@@ -1045,9 +1023,10 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function logAuthenticationInfo(string $message, ?array $content = null): void
     {
-        $this->centreonLog->insertLog(
-            CentreonUserLog::TYPE_LOGIN,
-            "[openid] [INFO] {$message}" . ($content !== null ? ' : ' . json_encode($content) : '')
+        CentreonLog::create()->info(
+            CentreonLog::TYPE_LOGIN,
+            "[Openid] {$message}" . ($content !== null ? ' : ' . json_encode($content, JSON_THROW_ON_ERROR) : ''),
+            $content ?: []
         );
 
         $this->info("{$message} : ", $content ?: []);
@@ -1061,13 +1040,15 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function logExceptionInLoginLogFile(string $message, Exception $exception): void
     {
-        $this->centreonLog->insertLog(
-            CentreonUserLog::TYPE_LOGIN,
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_LOGIN,
             sprintf(
-                "[Openid] [Error] {$message}",
+                "[Openid] {$message}",
                 $exception::class,
                 $exception->getMessage()
-            )
+            ),
+            ['exception' => $exception],
+            $exception
         );
     }
 

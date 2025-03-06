@@ -1,0 +1,58 @@
+{
+    "default":{
+        "alias": "contact-alias",
+        "name": "contact-name",
+        "email": "contact-email",
+        "pager": "contact-pager",
+        "template": "contact_template",
+        "isNotificationsEnabled": "No"
+    },
+    "contactForUpdate":{
+        "alias": "contact-alias-1",
+        "name": "contact-name-1",
+        "email": "contact-email-1",
+        "pager": "contact-pager-1",
+        "template": "contact_template",
+        "isNotificationsEnabled": "Default"
+    },
+    "defaultGroup":{
+        "name": "contactGroup-name",
+        "alias": "contactGroup-alias",
+        "linkedContact": "admin admin",
+        "status":"Enabled",
+        "comment": "this contact group is used as default group contact for test!"
+    },
+    "GroupForUpdate":{
+        "name": "contactGroup-name-1",
+        "alias": "contactGroup-alias-1",
+        "linkedContact": "Guest",
+        "status":"Disabled",
+        "comment": "this contact group is used for update test case!"
+    },
+    "defaultTemplate":{
+        "alias": "contactTemplate-alias",
+        "name": "contactTemplate-name",
+        "usedCTemplate": "19",
+        "defaultPage": "104",
+        "isNotEnabled": "No",
+        "timePeriod": "24x7",
+        "NotCommands": "host-notify-by-email"
+    },
+    "templateForUpdate":{
+        "alias": "contactTemplate-alias-1",
+        "name": "contactTemplate-name-1",
+        "usedCTemplate": "19",
+        "defaultPage": "103",
+        "isNotEnabled": "Default",
+        "timePeriod": "none",
+        "NotCommands": "service-notify-by-epager"
+    },
+    "contactWithSpecialAlias":{
+        "alias": "é-contact-àlias",
+        "name": "contact-name",
+        "email": "contact-email",
+        "pager": "contact-pager",
+        "template": "contact_template",
+        "isNotificationsEnabled": "No"
+    }
+}

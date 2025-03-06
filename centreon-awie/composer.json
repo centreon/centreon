@@ -4,17 +4,18 @@
   "type": "project",
   "license": "Apache-2.0",
   "require-dev": {
-    "behat/behat": "^3.10",
-    "behat/mink-selenium2-driver": "^1.5",
+    "ext-json": "*",
+    "behat/behat": "3.15.*",
+    "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "24.10.x-dev",
-    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
-    "friends-of-behat/mink": "^1.9",
-    "friends-of-behat/mink-extension": "^2.5",
+    "centreon/centreon-test-lib": "dev-master",
+    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
+    "friends-of-behat/mink": "1.11.*",
+    "friends-of-behat/mink-extension": "2.7.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpcompatibility/php-compatibility": "9.3.*",
     "phpstan/phpstan": "1.12.*",
-    "psr/container": "1.1.1",
+    "psr/container": "1.1.*",
     "rector/rector": "1.2.*",
     "squizlabs/php_codesniffer": "3.10.*"
   },
@@ -29,6 +30,9 @@
     "sort-packages": true,
     "platform": {
       "php": "8.2"
+    },
+    "preferred-install": {
+      "*": "dist"
     },
     "allow-plugins": {
       "symfony/flex": false,

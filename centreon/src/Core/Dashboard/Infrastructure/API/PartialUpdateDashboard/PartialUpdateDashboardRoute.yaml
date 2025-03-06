@@ -1,5 +1,5 @@
 PartialUpdateDashboard:
-  methods: PATCH
+  methods: POST
   path: /configuration/dashboards/{dashboardId}
   requirements:
     dashboardId: '\d+'

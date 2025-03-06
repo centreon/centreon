@@ -1,0 +1,16 @@
+{
+    "default":{
+        "name": "ldapacceptancetest",
+        "desc": "default ldap used for creation",
+        "userBaseSearch": "dc=centreon,dc=com",
+        "groupBaseSearch": "dc=centreon,dc=com",
+        "userGrpAttribute": "memberOf"
+    },
+    "ldap1":{
+        "name": "ldapacceptancetestChanged",
+        "desc": "default ldap used for update",
+        "userBaseSearch": "dc=centreon,dc=com",
+        "groupBaseSearch": "dc=centreon,dc=com",
+        "userGrpAttribute": "memberOf"
+    }
+}

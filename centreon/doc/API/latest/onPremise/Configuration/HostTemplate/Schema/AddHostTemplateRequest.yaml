@@ -16,7 +16,7 @@ properties:
   snmp_version:
     type: string
     nullable: true
-    enum: [1, 2c, 3]
+    enum: ["1", "2c", "3"]
     description: |
       Version of the SNMP agent.
 

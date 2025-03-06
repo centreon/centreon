@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import {
   Method,
@@ -56,13 +56,14 @@ import {
   labelSetDowntime,
   labelStatusChangePercentage,
   labelStatusInformation,
-  labelSticky,
+  labelStickyForAnyNonOkStatus,
   labelTimezone,
   labelTo,
   labelYourCommentSent
 } from '../translatedLabels';
 
 import {
+  openDetailsTabIdAtom,
   panelWidthStorageAtom,
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
@@ -101,6 +102,7 @@ const serviceDetailsUrlParameters = {
   type: 'service',
   uuid: 'h1-s1'
 };
+
 const mockAcl = {
   actions: {
     host: {
@@ -135,6 +137,14 @@ const mockAcl = {
 
 const mockRefreshInterval = 60;
 
+const cardsProperties = [
+  { property: 'last_status_change', label: labelLastStatusChange },
+  { property: 'last_check', label: labelLastCheck },
+  { property: 'last_time_with_no_issue', label: labelLastCheckWithOkStatus },
+  { property: 'next_check', label: labelNextCheck },
+  { property: 'last_notification', label: labelLastNotification }
+];
+
 const DetailsTest = (): JSX.Element => {
   useDetails();
   useLoadDetails();
@@ -146,12 +156,22 @@ const DetailsTest = (): JSX.Element => {
   );
 };
 
-const getStore = (): unknown => {
+const getStore = ({
+  detailsTab = serviceDetailsUrlParameters,
+  tabId = 0
+} = {}): unknown => {
   const store = createStore();
   store.set(userAtom, retrievedUser);
   store.set(aclAtom, mockAcl);
   store.set(refreshIntervalAtom, mockRefreshInterval);
   store.set(selectedResourcesDetailsAtom, selectedResource);
+  store.set(openDetailsTabIdAtom, tabId);
+  setUrlQueryParameters([
+    {
+      name: 'details',
+      value: detailsTab
+    }
+  ]);
 
   return store;
 };
@@ -174,13 +194,6 @@ const interceptDetailsRequest = ({ store, dataPath, alias }): void => {
 const initialize = (store): void => {
   cy.viewport('macbook-13');
 
-  setUrlQueryParameters([
-    {
-      name: 'details',
-      value: serviceDetailsUrlParameters
-    }
-  ]);
-
   cy.mount({
     Component: (
       <SnackbarProvider>
@@ -196,10 +209,13 @@ const initialize = (store): void => {
   });
 };
 
-const initializeTimeLine = ({
+const initializeTimeLineTab = ({
   fixtureDetails = 'resources/details/tabs/details/details.json'
 }): void => {
-  const store = getStore();
+  const store = getStore({
+    detailsTab: { ...serviceDetailsUrlParameters, tab: 'timeline' },
+    tabId: 2
+  });
 
   interceptDetailsRequest({
     alias: 'getDetails',
@@ -383,7 +399,7 @@ describe('Details', () => {
     cy.contains(labelComment).should('be.visible');
     cy.contains(labelNotify).should('be.visible');
     cy.contains(labelNotifyHelpCaption).should('be.visible');
-    cy.contains(labelSticky);
+    cy.contains(labelStickyForAnyNonOkStatus);
 
     cy.makeSnapshot(
       'displays the acknowledgment modal when the "Acknowledge" button is clicked'
@@ -587,9 +603,8 @@ describe('Details', () => {
   });
 
   it('displays the comment area when the corresponding button is clicked', () => {
-    initializeTimeLine({});
-    cy.waitForRequest('@getDetails');
-    cy.findByTestId(2).click();
+    initializeTimeLineTab({});
+
     cy.waitForRequest('@getTimeLine');
     cy.contains('Critical').should('be.visible');
 
@@ -622,15 +637,14 @@ describe('Details', () => {
     }
   ].forEach(({ resourceType, fixtureDetails }) => {
     it(`submits the comment  for the resource of type ${resourceType} when the comment textfield is typed into and the corresponding button is clicked`, () => {
-      initializeTimeLine({ fixtureDetails });
+      initializeTimeLineTab({ fixtureDetails });
+
       cy.interceptAPIRequest({
         alias: 'sendsCommentRequest',
         method: Method.POST,
         path: commentEndpoint,
         statusCode: 204
       });
-      cy.waitForRequest('@getDetails');
-      cy.findByTestId(2).click();
 
       cy.waitForRequest('@getTimeLine');
       cy.contains('Critical').should('be.visible');
@@ -661,9 +675,7 @@ describe('Details', () => {
   });
 
   it('hides the comment area when the cancel button is clicked', () => {
-    initializeTimeLine({});
-    cy.waitForRequest('@getDetails');
-    cy.findByTestId(2).click();
+    initializeTimeLineTab({});
 
     cy.waitForRequest('@getTimeLine');
     cy.contains('Critical').should('be.visible');
@@ -682,4 +694,25 @@ describe('Details', () => {
       .click();
     cy.findByTestId('commentArea').should('not.exist');
   });
+
+  for (const data of cardsProperties) {
+    const { property, label } = data;
+
+    it(`masks the card for ${property} when the returned value is 0`, () => {
+      const store = getStore();
+
+      interceptDetailsRequest({
+        alias: 'getDetailsCards',
+        dataPath: 'resources/details/tabs/details/cards.json',
+        store
+      });
+      initialize(store);
+      cy.waitForRequest('@getDetailsCards');
+      cy.contains('Details');
+      cy.contains('Downtime duration');
+      cy.findByText(label).should('not.exist');
+
+      cy.makeSnapshot();
+    });
+  }
 });

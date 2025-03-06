@@ -1,5 +1,5 @@
 @execTimeout(300000)
-@REQ_MON-22196 @system
+@REQ_MON-22196 @system @upgrade
 Feature: Upgrade platform from major version A to major version B
 
   @TEST_MON-22198
@@ -14,6 +14,5 @@ Feature: Upgrade platform from major version A to major version B
     Then Poller configuration should be fully generated
 
     Examples:
-      | major_from | version_from    |
-      | n - 1      | last stable     |
-      | n - 1      | last stable - 1 |
+      | major_from | version_from |
+      | n - 1      | last stable  |

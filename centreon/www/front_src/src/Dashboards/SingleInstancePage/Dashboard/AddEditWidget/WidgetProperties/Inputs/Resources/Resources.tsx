@@ -62,7 +62,8 @@ const Resources = ({
     isLastResourceInTree,
     changeIdValue,
     hasSelectedHostForSingleMetricwidget,
-    isValidatingResources
+    isValidatingResources,
+    hideResourceDeleteButton
   } = useResources({
     excludedResourceTypes,
     propertyName,
@@ -107,9 +108,11 @@ const Resources = ({
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
               deleteButtonHidden={
-                deleteButtonHidden || getResourceStatic(resource.resourceType)
+                deleteButtonHidden ||
+                getResourceStatic(resource.resourceType) ||
+                hideResourceDeleteButton()
               }
-              key={`${index}${resource.resources[0]}`}
+              key={`${index}${resource.resourceType}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteResource(index)}
             >
@@ -128,6 +131,7 @@ const Resources = ({
               />
               {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
+                  exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary'
@@ -157,6 +161,7 @@ const Resources = ({
                 />
               ) : (
                 <MultiConnectedAutocompleteField
+                  exclusionOptionProperty="name"
                   changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary',

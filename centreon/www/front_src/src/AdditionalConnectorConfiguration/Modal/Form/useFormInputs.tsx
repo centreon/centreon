@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { InputProps, InputType } from '@centreon/ui';
-
-import { getPollersForConnectorTypeEndpoint } from '../../api/endpoints';
+import { pollersEndpoint } from '../../api/endpoints';
 import {
   labelDescription,
   labelName,
@@ -62,7 +61,7 @@ const useFormInputs = (): FormInputsState => {
       connectedAutocomplete: {
         additionalConditionParameters: [],
         chipColor: 'primary',
-        endpoint: getPollersForConnectorTypeEndpoint({})
+        endpoint: pollersEndpoint
       },
       fieldName: 'pollers',
       group: 'main',

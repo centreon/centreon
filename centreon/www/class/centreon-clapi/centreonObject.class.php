@@ -565,8 +565,10 @@ abstract class CentreonObject
      * @param $objName
      * @param array $objValues
      * @param null $objectType
-     * @return null
+     *
+     * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
     public function addAuditLog($actionType, $objId, $objName, $objValues = [], $objectType = null)
     {
@@ -617,7 +619,7 @@ abstract class CentreonObject
                 throw $e;
             }
         }
-    }// FIXME no return
+    }
 
 
     /**

@@ -1,12 +1,24 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: Centreon Web RestAPI for Cloud
   description: |
-    # New features
-    + Added endpoint to deploy services in a host based on associated host template(s)
-    # Updated features
-    +
-    +
+
+    <blockquote style="
+      color: #3a87ad;
+      background-color: #d9edf7;
+      border-color: #bce8f1;
+      padding: 14px;
+      margin-top: 1em;
+    ">
+      <p style="
+        margin: auto;
+      ">
+        Many more endpoints are available but not included in this document yet.
+        Please refer to the <a href="https://docs-api.centreon.com/api/centreon-web/24.10/">OnPrem API page</a> if you are looking for a specific endpoint.
+        Bear in mind that not all endpoints described in the OnPrem API page are available on a cloud platform, in particular those related to the administration of the Centreon platform.
+      </p>
+    </blockquote>
+
     # Information
     All dates are in **ISO 8601** format
     # Authentication

@@ -1,7 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -25,21 +25,26 @@ import {
   labelEditWidget,
   labelViewProperties
 } from '../../translatedLabels';
+import { ExpandableData } from './models';
 
 interface Props {
   anchor: HTMLElement | null;
   close: () => void;
   duplicate: (event) => void;
   id: string;
+  expandableData?: ExpandableData;
 }
 
 const MorePanelActions = ({
   anchor,
   close,
   id,
-  duplicate
+  duplicate,
+  expandableData
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+
+  const { Icon, label: labelExpand, toggleExpand } = expandableData || {};
   const [searchParams, setSearchParams] = useSearchParams(
     window.location.search
   );
@@ -74,9 +79,14 @@ const MorePanelActions = ({
     });
   };
 
+  const handleExpandableAction = () => {
+    toggleExpand?.();
+    close();
+  };
+
   const displayEditButtons = canEdit;
 
-  const editActions = [
+  const defaultEditActions = [
     {
       Icon: EditIcon,
       label: t(labelEditWidget),
@@ -87,7 +97,10 @@ const MorePanelActions = ({
       Icon: ContentCopyIcon,
       label: t(labelDuplicate),
       onClick: duplicate
-    },
+    }
+  ];
+
+  const deleteAction = [
     ActionsListActionDivider.divider,
     {
       Icon: DeleteIcon,
@@ -97,13 +110,30 @@ const MorePanelActions = ({
     }
   ];
 
-  const viewActions = [
+  const expandableAction = [
+    ActionsListActionDivider.divider,
+    {
+      Icon,
+      label: t(labelExpand as string),
+      onClick: handleExpandableAction
+    }
+  ];
+
+  const editActions = !expandableData
+    ? [...defaultEditActions, ...deleteAction]
+    : [...defaultEditActions, ...expandableAction, ...deleteAction];
+
+  const defaultViewActions = [
     {
       Icon: VisibilityOutlinedIcon,
       label: t(labelViewProperties),
       onClick: edit
     }
   ];
+
+  const viewActions = !expandableData
+    ? defaultViewActions
+    : [...defaultViewActions, ...expandableAction];
 
   return (
     <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>

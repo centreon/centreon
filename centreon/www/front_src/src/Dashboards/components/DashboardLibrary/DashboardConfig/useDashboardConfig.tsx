@@ -6,7 +6,7 @@ import {
   createSearchParams,
   generatePath,
   useNavigate
-} from 'react-router-dom';
+} from 'react-router';
 
 import { useSnackbar } from '@centreon/ui';
 
@@ -18,7 +18,7 @@ import { useUpdateDashboard } from '../../../api/useUpdateDashboard';
 import { DashboardLayout } from '../../../models';
 import { labelDashboardUpdated } from '../../../translatedLabels';
 
-const dialogStateAtom = atom<{
+export const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
   isOpen: boolean;
   status: 'idle' | 'loading' | 'success' | 'error';

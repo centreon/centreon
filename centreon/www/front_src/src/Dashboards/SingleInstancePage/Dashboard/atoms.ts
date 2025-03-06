@@ -1,18 +1,15 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import {
-  collectBy,
   equals,
   find,
   inc,
+  isEmpty,
   length,
   lensIndex,
   lensProp,
-  lte,
   map,
-  prop,
   propEq,
-  reduce,
   reject,
   set
 } from 'ramda';
@@ -34,6 +31,7 @@ export const dashboardAtom = atom<Dashboard>({
 });
 
 export const isEditingAtom = atom(false);
+
 export const widgetToDeleteAtom = atom<Partial<SelectEntry> | null>(null);
 export const isRedirectionBlockedAtom = atom(false);
 
@@ -87,7 +85,63 @@ const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
 export const panelsLengthAtom = atom(0);
 
 const strictMinWidgetSize = 2;
-const preferredWidgetSize = 3;
+const preferredWidgetSize = 4;
+
+interface PanelPosition {
+  x: number;
+  y: number;
+}
+
+interface GetNewPanelPositionProps {
+  maxHeight: number;
+  columns: number;
+  panelWidth: number;
+  panelHeight: number;
+  dashboard: Dashboard;
+}
+
+const getNewPanelPosition = ({
+  maxHeight,
+  columns,
+  dashboard,
+  panelWidth,
+  panelHeight
+}: GetNewPanelPositionProps): PanelPosition => {
+  let position: PanelPosition | undefined = undefined;
+
+  if (equals(maxHeight, 0)) {
+    return { x: 0, y: 0 };
+  }
+
+  Array(maxHeight)
+    .fill(0)
+    .forEach((_, positionY) => {
+      Array(columns)
+        .fill(0)
+        .forEach((_, positionX) => {
+          if (!position) {
+            const collidesWithPanel = dashboard.layout.filter(
+              ({ x, y, w, h }) => {
+                if (positionX + panelWidth <= x) return false;
+                if (positionX >= x + w) return false;
+                if (positionY + panelHeight <= y) return false;
+                if (positionY >= y + h) return false;
+                return true;
+              }
+            );
+
+            if (
+              isEmpty(collidesWithPanel) &&
+              positionX + panelWidth <= columns
+            ) {
+              position = { x: positionX, y: positionY };
+            }
+          }
+        });
+    });
+
+  return position || { x: 0, y: maxHeight + 1 };
+};
 
 export const addPanelDerivedAtom = atom(
   null,
@@ -109,27 +163,23 @@ export const addPanelDerivedAtom = atom(
 
     const increasedPanelsLength = inc(panelsLength);
 
+    const columnsFromScreenSize = getColumnsFromScreenSize();
+
     const id =
       fixedId ||
       `panel_${panelConfiguration.path}_${length(
         dashboard.layout
       )}_${increasedPanelsLength}`;
 
-    const columnsFromScreenSize = getColumnsFromScreenSize();
-    const maxPanelWidth = equals(columnsFromScreenSize, 1)
-      ? preferredWidgetSize
-      : columnsFromScreenSize;
-
     const panelWidth =
-      width || panelConfiguration?.panelMinWidth || maxPanelWidth;
+      width || panelConfiguration?.panelDefaultWidth || preferredWidgetSize;
 
-    const widgetHeight =
-      height ||
-      Math.max(panelConfiguration?.panelMinHeight || 1, preferredWidgetSize);
+    const panelHeight =
+      height || panelConfiguration?.panelDefaultHeight || preferredWidgetSize;
 
     const basePanelLayout = {
       data,
-      h: widgetHeight,
+      h: panelHeight,
       i: id,
       minH: panelConfiguration?.panelMinHeight || strictMinWidgetSize,
       minW: panelConfiguration?.panelMinWidth || strictMinWidgetSize,
@@ -139,48 +189,26 @@ export const addPanelDerivedAtom = atom(
       static: false
     };
 
-    const collectPanelsByLine = collectBy(prop('y'), dashboard.layout);
-
-    const lineWithEngouhSpaceToReceivePanel = collectPanelsByLine.findIndex(
-      (panels) => {
-        const widthsCumulated = reduce(
-          (widthAccumulator, { w }) => widthAccumulator + w,
-          0,
-          panels
-        );
-
-        return lte(widthsCumulated + panelWidth, maxPanelWidth);
-      }
+    const maxHeight = Math.max(
+      ...map(({ y, h }) => y + h, dashboard.layout),
+      0
     );
 
-    const shouldAddPanelAtTheBottom = equals(
-      lineWithEngouhSpaceToReceivePanel,
-      -1
-    );
-
-    const x = shouldAddPanelAtTheBottom
-      ? 0
-      : reduce(
-          (widthAccumulator, { w }) => widthAccumulator + w,
-          0,
-          collectPanelsByLine[lineWithEngouhSpaceToReceivePanel]
-        );
-
-    const maxHeight = reduce(
-      (heightAccumulator, { y, h }) => heightAccumulator + y + h,
-      0,
-      dashboard.layout
-    );
+    const panelPosition = getNewPanelPosition({
+      dashboard,
+      maxHeight,
+      columns: columnsFromScreenSize,
+      panelWidth,
+      panelHeight
+    });
 
     const newLayout = [
       ...dashboard.layout,
       {
         ...basePanelLayout,
         w: panelWidth,
-        x,
-        y: shouldAddPanelAtTheBottom
-          ? maxHeight
-          : collectPanelsByLine[lineWithEngouhSpaceToReceivePanel][0].y
+        x: panelPosition.x,
+        y: panelPosition.y
       }
     ];
 

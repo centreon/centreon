@@ -77,7 +77,7 @@ $insertIntoTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to insert data into table topology';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
-            SELECT 1 FROM `topology` WHERE `topology_name` = 'Additional Connector Configurations'
+            SELECT 1 FROM `topology` WHERE `topology_name` = 'Additional connector configurations'
             SQL
     );
 
@@ -85,7 +85,7 @@ $insertIntoTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
         $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_show`)
-                VALUES ( 'Additional Connector Configurations', '/configuration/additional-connector-configurations', '1', '1', 6, 618, 1, 1, '0')
+                VALUES ( 'Additional connector configurations', '/configuration/additional-connector-configurations', '1', '1', 6, 618, 1, 1, '0')
                 SQL
         );
     }

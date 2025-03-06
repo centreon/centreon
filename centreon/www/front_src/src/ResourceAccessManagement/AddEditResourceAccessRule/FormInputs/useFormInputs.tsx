@@ -58,7 +58,6 @@ const useFormInputs = (): UseFormInputsState => {
     {
       fieldName: '',
       grid: {
-        alignItems: 'center',
         columns: [
           {
             fieldName: 'ruleProperties',

@@ -1,0 +1,28 @@
+{
+    "default": {
+        "name": "host-severity-name",
+        "alias": "host-severity-alias",
+        "level": 2,
+        "icon_id": 1
+    },
+    "changed_severity": {
+        "name": "host-severity-name-changed",
+        "alias": "host-severity-alias-changed",
+        "level": 2,
+        "icon_id": 1
+    },
+    "disabled_severity": {
+        "name": "host-severity-name",
+        "alias": "host-severity-alias",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": false
+    },
+    "enabled_severity": {
+        "name": "host-severity-name",
+        "alias": "host-severity-alias",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": true
+    }
+}

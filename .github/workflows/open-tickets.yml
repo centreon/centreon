@@ -13,6 +13,8 @@ on:
       - reopened
       - ready_for_review
     paths:
+      - ".version"
+      - ".version.centreon-open-tickets"
       - "centreon-open-tickets/**"
       - "!centreon-open-tickets/veracode.json"
       - "!centreon-open-tickets/.veracode-exclusions"
@@ -23,6 +25,8 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
+      - ".version"
+      - ".version.centreon-open-tickets"
       - "centreon-open-tickets/**"
       - "!centreon-open-tickets/veracode.json"
       - "!centreon-open-tickets/.veracode-exclusions"
@@ -31,34 +35,20 @@ env:
   module: open-tickets
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
+  get-environment:
+    uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
 
-  veracode-analysis:
-    needs: [get-version]
-    uses: ./.github/workflows/veracode-analysis.yml
-    with:
-      module_directory: centreon-open-tickets
-      module_name: centreon-open-tickets
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
-      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-
   backend-lint:
-    runs-on: ubuntu-22.04
-    needs: [get-version]
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
@@ -66,7 +56,7 @@ jobs:
           php-version: 8.2
           coverage: none
         env:
-          runner: ubuntu-22.04
+          runner: ubuntu-24.04
 
       - name: Install Dependencies
         run: composer install --optimize-autoloader
@@ -82,12 +72,14 @@ jobs:
         working-directory: centreon-open-tickets
 
   backend-unit-test:
-    runs-on: ubuntu-22.04
-    needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
@@ -95,7 +87,7 @@ jobs:
           php-version: 8.2
           coverage: none
         env:
-          runner: ubuntu-22.04
+          runner: ubuntu-24.04
 
       - name: Install dependencies
         uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
@@ -116,11 +108,13 @@ jobs:
   package:
     needs:
       [
-        get-version,
+        get-environment,
         backend-lint,
         backend-unit-test
       ]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
 
     strategy:
       fail-fast: false
@@ -140,10 +134,10 @@ jobs:
             image: packaging-nfpm-jammy
             distrib: jammy
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
       credentials:
         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -152,7 +146,14 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
+      - name: Remove some providers from cloud version
+        if: ${{ needs.get-environment.outputs.is_cloud == 'true' }}
+        run: |
+          rm -rf centreon-open-tickets/www/modules/centreon-open-tickets/providers/{BmcItsm,Mail,Serena}
+          sed -i '/\(BmcItsm\|Mail\|Serena\)/d' centreon-open-tickets/www/modules/centreon-open-tickets/providers/register.php
+        shell: bash
 
       - name: Package
         uses: ./.github/actions/package-nfpm
@@ -160,25 +161,134 @@ jobs:
           nfpm_file_pattern: "centreon-open-tickets/packaging/*.yaml"
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          release: ${{ needs.get-version.outputs.release }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          release: ${{ needs.get-environment.outputs.release }}
           arch: all
           commit_hash: ${{ github.sha }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
-          stability: ${{ needs.get-version.outputs.stability }}
+          stability: ${{ needs.get-environment.outputs.stability }}
 
-  deliver-sources:
-    runs-on: [self-hosted, common]
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+  dockerize:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, package]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.repository == 'centreon/centreon'
+
+    env:
+      project: centreon-open-tickets
+    strategy:
+      fail-fast: false
+      matrix:
+        operating_system: [alma9]
+
+    name: dockerize ${{ matrix.operating_system }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+
+      - name: Generate information according to matrix os
+        id: matrix_include
+        run: |
+          if [ "${{ matrix.operating_system }}" = "alma8" ]; then
+            DISTRIB=el8
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
+            DISTRIB=el9
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
+            DISTRIB=bookworm
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
+            DISTRIB=jammy
+            PACKAGE_EXTENSION=deb
+          else
+            echo "::error::${{ matrix.operating_system }} is not managed"
+            exit 1
+          fi
+
+          echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
+          echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Login to registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Get FROM image tag
+        id: from_image_version
+        run: |
+          FROM_IMAGE_VERSION=$(git ls-remote -h https://github.com/centreon/centreon.git | grep -E "refs/heads/dev-${{ needs.get-environment.outputs.major_version }}\.x$" >/dev/null 2>&1 && echo "dev-${{ needs.get-environment.outputs.major_version }}.x" || echo develop)
+          FROM_IMAGE="centreon-web-${{ matrix.operating_system }}"
+          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+            FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
+            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+          else
+            IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+            if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+              FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
+              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+            fi
+          fi
+
+          echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ./*.${{ steps.matrix_include.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
+          fail-on-cache-miss: true
+
+      - run: |
+          mkdir packages-centreon
+          mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
+        shell: bash
+
+      - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
+
+      - name: Build and push web image
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        env:
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          file: .github/docker/${{ env.project }}/Dockerfile
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
+          pull: true
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+
+  deliver-sources:
+    runs-on: [self-hosted, common]
+    needs: [get-environment, package]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch' &&
+      github.repository == 'centreon/centreon'
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -186,15 +296,89 @@ jobs:
           bucket_directory: centreon-open-tickets
           module_directory: centreon-open-tickets
           module_name: centreon-open-tickets
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
+  create-xray-test-plan-and-test-execution:
+    needs: [get-environment, dockerize]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' )
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
+
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    with:
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      os: ${{ matrix.operating_system }}
+    secrets:
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
+  e2e-test:
+    needs: [get-environment, create-xray-test-plan-and-test-execution, dockerize]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
+
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
+    with:
+      name: e2e
+      module_name: centreon-open-tickets
+      image_name: centreon-open-tickets
+      database_image: bitnami/${{ matrix.database }}
+      os: ${{ matrix.operating_system }}
+      features_path: tests/e2e/features
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      stability: ${{ needs.get-environment.outputs.stability }}
+      target_stability: ${{ needs.get-environment.outputs.target_stability }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
+      package_directory: centreon-open-tickets/tests/e2e/fixtures/packages
+      test_tags: ${{ matrix.test_tags }}
+      dependencies_lock_file: centreon-open-tickets/tests/e2e/pnpm-lock.yaml
+      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+      is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+    secrets:
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      artifactory_internal_repo_username: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}
+      artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
   deliver-rpm:
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [get-environment, package]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
       matrix:
@@ -202,52 +386,60 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: open-tickets
           distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
+          version: ${{ needs.get-environment.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          stability: ${{ needs.get-version.outputs.stability }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   deliver-deb:
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [get-environment, package]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon' &&
+      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
       matrix:
         distrib: [bookworm]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
           module_name: open-tickets
           distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-version.outputs.major_version }}
+          version: ${{ needs.get-environment.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: ${{ needs.get-version.outputs.stability }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   promote:
-    needs: [get-version, deliver-rpm, deliver-deb]
+    needs: [get-environment, deliver-rpm, deliver-deb]
     if: |
-      (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability)) &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability)) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.repository == 'centreon/centreon'
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -255,7 +447,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
@@ -263,9 +455,19 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           module: open-tickets
           distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          minor_version: ${{ needs.get-version.outputs.minor_version }}
-          stability: ${{ needs.get-version.outputs.stability }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
           github_ref_name: "master"
           release_type: "release"
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          # is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          is_cloud: true
+
+  set-skip-label:
+    needs: [get-environment, deliver-rpm, deliver-deb, promote]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml

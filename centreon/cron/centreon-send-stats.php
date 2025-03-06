@@ -123,6 +123,7 @@ if ($isRemote === false) {
         $authentication['api_token'] = $oStatistics->getApiTokensInfo();
         $additional = [];
         $acc = $oStatistics->getAccData();
+        $pac = $oStatistics->getAgentConfigurationData();
 
         /*
          * Only send statistics if user using a free version has enabled this option
@@ -145,7 +146,8 @@ if ($isRemote === false) {
             'timezone' => $timezone,
             'authentication' => $authentication,
             'additional' => $additional,
-            'acc' => $acc
+            'acc' => $acc,
+            'poller-agent-configuration' => $pac
         ];
 
         if ( isset($options["d"]) || isset($options["debug"]) ) {

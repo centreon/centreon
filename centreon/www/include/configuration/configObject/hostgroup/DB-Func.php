@@ -34,6 +34,8 @@
  *
  */
 
+use Core\ActionLog\Domain\Model\ActionLog;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -101,7 +103,12 @@ function enableHostGroupInDB($hg_id = null, $hg_arr = [])
         $hostgroupName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('hostgroup', $hostgroupId);
-        $centreon->CentreonLogAction->insertLog("hostgroup", $hostgroupId, $hostgroupName, "enable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+            object_id: $hostgroupId,
+            object_name: $hostgroupName,
+            action_type: ActionLog::ACTION_TYPE_ENABLE
+        );
     }
 }
 
@@ -127,7 +134,12 @@ function disableHostGroupInDB($hg_id = null, $hg_arr = [])
         $hostgroupName = $selectStatement->fetchColumn();
 
         signalConfigurationChange('hostgroup', $hostgroupId, [], false);
-        $centreon->CentreonLogAction->insertLog("hostgroup", $hostgroupId, $hostgroupName, "disable");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+            object_id: $hostgroupId,
+            object_name: $hostgroupName,
+            action_type: ActionLog::ACTION_TYPE_DISABLE
+        );
     }
 }
 
@@ -257,7 +269,12 @@ function deleteHostGroupInDB(bool $isCloudPlatform, array $hostGroups = [])
         $statement->execute();
 
         signalConfigurationChange('hostgroup', (int) $hostgroupId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog("hostgroup", $hostgroupId, $row['hg_name'], "d");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+            object_id: $hostgroupId,
+            object_name: $row['hg_name'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
     }
     $centreon->user->access->updateACL();
 }
@@ -338,7 +355,13 @@ function multipleHostGroupInDB($hostGroups = [], $nbrDup = [])
                     }
 
                     signalConfigurationChange('hostgroup', (int) $maxId["MAX(hg_id)"]);
-                    $centreon->CentreonLogAction->insertLog("hostgroup", $maxId["MAX(hg_id)"], $hg_name, "a", $fields);
+                    $centreon->CentreonLogAction->insertLog(
+                        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
+                        object_id: $maxId["MAX(hg_id)"],
+                        object_name: $hg_name,
+                        action_type: ActionLog::ACTION_TYPE_ADD,
+                        fields: $fields
+                    );
                 }
             }
         }
@@ -381,10 +404,10 @@ function insertHostGroupInDBForCloud(array $submittedValues = []): int
     $record = $statement->fetch(\PDO::FETCH_ASSOC);
 
     $centreon->CentreonLogAction->insertLog(
-        object_type: 'hostgroup',
+        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
         object_id: $record['MAX(hg_id)'],
-        object_name: CentreonDB::escape($submittedValues['hg_name']),
-        action_type: 'a',
+        object_name: $submittedValues['hg_name'],
+        action_type: ActionLog::ACTION_TYPE_ADD,
         fields: CentreonLogAction::prepareChanges($submittedValues)
     );
 
@@ -503,10 +526,10 @@ function insertHostGroupInDBForOnPrem(array $submittedValues = []): int
     $record = $statement->fetch(\PDO::FETCH_ASSOC);
 
     $centreon->CentreonLogAction->insertLog(
-        object_type: 'hostgroup',
+        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
         object_id: $record['MAX(hg_id)'],
-        object_name: CentreonDB::escape($submittedValues['hg_name']),
-        action_type: 'a',
+        object_name: $submittedValues['hg_name'],
+        action_type: ActionLog::ACTION_TYPE_ADD,
         fields: CentreonLogAction::prepareChanges($submittedValues)
     );
 
@@ -874,10 +897,10 @@ function updateHostGroupInDBForCloud(int $hostGroupId, array $submittedValues, b
     $statement->execute();
 
     $centreon->CentreonLogAction->insertLog(
-        object_type: 'hostgroup',
+        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
         object_id: $hostGroupId,
-        object_name: $pearDB->escape($submittedValues['hg_name']),
-        action_type: 'c',
+        object_name: $submittedValues['hg_name'],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
         fields: CentreonLogAction::prepareChanges($submittedValues)
     );
 }
@@ -1002,10 +1025,10 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
     $statement->execute();
 
     $centreon->CentreonLogAction->insertLog(
-        object_type: 'hostgroup',
+        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
         object_id: $hostGroupId,
-        object_name: $pearDB->escape($submittedValues['hg_name']),
-        action_type: 'c',
+        object_name: $submittedValues['hg_name'],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
         fields: CentreonLogAction::prepareChanges($submittedValues)
     );
 }

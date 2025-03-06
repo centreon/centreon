@@ -3,8 +3,9 @@ import { makeStyles } from 'tss-react/mui';
 export const useStyles = makeStyles()((theme) => ({
   pageLayout: {
     display: 'grid',
-    gridTemplateRows: 'min-content',
-    overflow: 'hidden'
+    gridTemplateRows: 'auto 1fr',
+    overflow: 'hidden',
+    height: '100%'
   },
   pageLayoutActions: {
     '& > span': {
@@ -22,8 +23,11 @@ export const useStyles = makeStyles()((theme) => ({
     '&[data-has-background="true"]': {
       backgroundColor: theme.palette.layout.body.background
     },
+    '&[data-has-actions="true"]': {
+      gridTemplateRows: 'min-content auto'
+    },
     display: 'grid',
-    gridTemplateRows: 'min-content',
+    gridTemplateRows: 'auto',
     overflow: 'hidden',
     padding: theme.spacing(1.5, 3, 5)
   },

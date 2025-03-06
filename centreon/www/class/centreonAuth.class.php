@@ -410,7 +410,6 @@ class CentreonAuth
             /*
              * Check password matching
              */
-            $this->getCryptFunction(); // FIXME expression not used
             $this->checkPassword($password, $token);
             if ($this->passwdOk == self::PASSWORD_VALID) {
                 $this->CentreonLog->setUID($this->userInfos["contact_id"]);
@@ -463,24 +462,6 @@ class CentreonAuth
             }
         } else {
             $this->setAuthenticationError(self::AUTH_TYPE_LOCAL, $username, 'not found');
-        }
-    }
-
-    /**
-     * Check crypt system
-     * @return string
-     */
-    protected function getCryptFunction()
-    {
-        if (isset($this->cryptEngine)) {
-            switch ($this->cryptEngine) {
-                case self::ENCRYPT_SHA1:
-                    return "SHA1";
-                default:
-                    return "MD5";
-            }
-        } else {
-            return "MD5";
         }
     }
 
