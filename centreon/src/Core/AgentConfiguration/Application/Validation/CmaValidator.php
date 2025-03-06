@@ -83,10 +83,7 @@ class CmaValidator implements TypeValidatorInterface
      */
     private function validateFilename(string $name, ?string $value): void
     {
-        if (
-            $value !== null
-            && 1 === preg_match('/\.\/|\.\.\/|\.cert$|\.crt$|\.key$/', $value)
-        ) {
+        if ($value === null || preg_match('/\.\/|\.\.\/|\/\/|^(?!.*\.(cer|crt|key)$).+$/', $value)) {
             throw AgentConfigurationException::invalidFilename($name, (string) $value);
         }
     }

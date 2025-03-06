@@ -90,7 +90,7 @@ foreach (
         'otel_private_key'
     ] as $field
 ) {
-    $tooLong = str_repeat('a', CmaConfigurationParameters::MAX_LENGTH + 1);
+    $tooLong = str_repeat('a', CmaConfigurationParameters::MAX_LENGTH);
     it(
         "should throw an exception when a {$field} is too long",
         function () use ($field, $tooLong) : void {
@@ -100,8 +100,8 @@ foreach (
         }
     )->throws(
         AssertionException::maxLength(
-            $tooLong,
-            CmaConfigurationParameters::MAX_LENGTH + 1,
+            CmaConfigurationParameters::CERTIFICATE_BASE_PATH . $tooLong,
+            CmaConfigurationParameters::MAX_LENGTH+ strlen(CmaConfigurationParameters::CERTIFICATE_BASE_PATH),
             CmaConfigurationParameters::MAX_LENGTH,
             "configuration.{$field}"
         )->getMessage()

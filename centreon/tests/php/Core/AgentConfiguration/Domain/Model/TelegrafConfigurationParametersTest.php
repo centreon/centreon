@@ -88,7 +88,7 @@ foreach (
         'conf_private_key',
     ] as $field
 ) {
-    $tooLong = str_repeat('a', TelegrafConfigurationParameters::MAX_LENGTH + 1);
+    $tooLong = str_repeat('a', TelegrafConfigurationParameters::MAX_LENGTH);
     it(
         "should throw an exception when a {$field} is too long",
         function () use ($field, $tooLong) : void {
@@ -98,8 +98,8 @@ foreach (
         }
     )->throws(
         AssertionException::maxLength(
-            $tooLong,
-            TelegrafConfigurationParameters::MAX_LENGTH + 1,
+            TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . $tooLong,
+            TelegrafConfigurationParameters::MAX_LENGTH + strlen(TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH),
             TelegrafConfigurationParameters::MAX_LENGTH,
             "configuration.{$field}"
         )->getMessage()
