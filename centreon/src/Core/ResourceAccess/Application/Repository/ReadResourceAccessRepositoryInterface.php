@@ -84,7 +84,7 @@ interface ReadResourceAccessRepositoryInterface
      * Retrieve rules by host group ID.
      *
      * @param string $type dataset filter type
-     * @param int $hostGroupId
+     * @param int $resourceId
      *
      * @throws \Throwable
      *
@@ -97,7 +97,7 @@ interface ReadResourceAccessRepositoryInterface
      * Exclude rules that have dataset with type "All resources" and with "all [type]" checked.
      *
      * @param string $type dataset filter type
-     * @param int $hostGroupId
+     * @param int $resourceId
      * @param int $userId
      *
      * @throws \Throwable
@@ -111,8 +111,8 @@ interface ReadResourceAccessRepositoryInterface
      * Exclude rules that have dataset with type "All resources" and with "all [type]" checked.
      *
      * @param string $type dataset filter type
-     * @param int $hostGroupId
-     * @param ContactGroup[] $contacGroups
+     * @param ContactGroup[] $contactGroups
+     * @param int $resourceId
      *
      * @throws \Throwable
      *
