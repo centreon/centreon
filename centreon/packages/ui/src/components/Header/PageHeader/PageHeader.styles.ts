@@ -96,7 +96,7 @@ const useStyles = makeStyles()((theme) => ({
     alignSelf: 'flex-start',
     h1: {
       ...theme.typography.h5,
-      fontWeight: theme.typography.fontWeightMedium,
+      fontWeight: theme.typography.fontWeightBold,
       margin: theme.spacing(0),
       lineHeight: '1'
     }

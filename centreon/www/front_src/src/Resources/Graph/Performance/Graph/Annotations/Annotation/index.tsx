@@ -4,9 +4,9 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Tooltip, Typography } from '@mui/material';
 
+import { truncate } from '@centreon/ui';
 import { TimelineEvent } from '../../../../../Details/tabs/Timeline/models';
 import { labelBy } from '../../../../../translatedLabels';
-import truncate from '../../../../../truncate';
 import { annotationHoveredAtom } from '../../annotationsAtoms';
 
 const yMargin = -32;
@@ -43,7 +43,7 @@ const Annotation = ({
 
   const setAnnotationHovered = useSetAtom(annotationHoveredAtom);
 
-  const content = `${truncate(event.content)} (${t(labelBy)} ${
+  const content = `${truncate({ content: event.content })} (${t(labelBy)} ${
     event.contact?.name
   })`;
 

@@ -23,24 +23,24 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\UseCase\FindHostGroups;
 
-final class FindHostGroupsResponse
+use Core\Application\Common\UseCase\ListingResponseInterface;
+
+final class FindHostGroupsResponse implements ListingResponseInterface
 {
-    /** @var array<
-     *     array{
-     *         id: int,
-     *         name: string,
-     *         alias: string,
-     *         notes: string,
-     *         notesUrl: string,
-     *         actionUrl: string,
-     *         iconId: ?int,
-     *         iconMapId: ?int,
-     *         rrdRetention: ?int,
-     *         geoCoords: ?string,
-     *         comment: string,
-     *         isActivated: bool
-     *     }
-     * >
+    /**
+     * @param HostGroupResponse[] $hostgroups
      */
-    public array $hostgroups = [];
+    public function __construct(
+        public array $hostgroups = [],
+    )
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getData(): mixed
+    {
+        return $this->hostgroups;
+    }
 }

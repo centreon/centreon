@@ -26,8 +26,6 @@ namespace Tests\Core\HostGroup\Application\UseCase\AddHostGroup;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupPresenterInterface;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
-use Core\HostGroup\Application\UseCase\FindHostGroup\FindHostGroupPresenterInterface;
-use Core\HostGroup\Application\UseCase\FindHostGroup\FindHostGroupResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 
 class AddHostGroupTestPresenterStub extends DefaultPresenter implements AddHostGroupPresenterInterface

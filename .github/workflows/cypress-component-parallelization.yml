@@ -256,7 +256,6 @@ jobs:
           check_name: ${{ inputs.name }}-report
           path: mochawesome.json
           format: cypress
-          urlFilePrefix: centreon
 
   regroup-artifacts:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
