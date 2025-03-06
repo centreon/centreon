@@ -10,7 +10,7 @@ export const useActionsStyles = makeStyles()((theme) => ({
   },
   searchBar: {
     width: '100%',
-    paddingInline: theme.spacing(2),
+    paddingInline: theme.spacing(1),
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
@@ -21,6 +21,6 @@ export const useActionsStyles = makeStyles()((theme) => ({
     }
   },
   ActionsList: {
-    width: theme.spacing(18)
+    width: theme.spacing(19)
   }
 }));
