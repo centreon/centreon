@@ -28,8 +28,8 @@
     },
     "vmForMemory":{
         "name": "vmtestname",
-        "linkedHostServices": "Centreon-Server - Memory",
-        "knownMetric": "buffer",
+        "linkedHostServices": "Centreon-Server - Disk-/",
+        "knownMetric": "count",
         "unit": "%",
         "warning_threshold": "200",
         "critical_threshold": "400",
