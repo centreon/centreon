@@ -160,8 +160,8 @@ const Dashboard = (): ReactElement => {
               </div>
             )}
           </PageLayout.Actions>
-          <Layout />
         </div>
+        <Layout />
       </PageLayout.Body>
       <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />
