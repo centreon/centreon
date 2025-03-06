@@ -14,6 +14,8 @@ import { centreonBaseURL } from '@centreon/ui';
 
 import { getIsMetaServiceSelected } from './AddEditWidget/WidgetProperties/Inputs/utils';
 import { WidgetResourceType } from './AddEditWidget/models';
+import { Resource } from './Widgets/models';
+import { getIsMetaServiceSelected } from './Widgets/utils';
 
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
 export const isRichTextEditorEmpty = (editorState: string): boolean => {
@@ -75,8 +77,12 @@ export const getResourcesUrlForMetricsWidgets = ({
       };
     }
 
+    const field = equals(resourceType, 'hostgroup')
+      ? resourcesCriteriasMapping[WidgetResourceType.hostGroup]
+      : resourcesCriteriasMapping[resourceType];
+
     return {
-      name: resourcesCriteriasMapping[resourceType],
+      name: field,
       value: uniq(
         resources.map(({ name, id }) => ({
           id,
@@ -208,4 +214,23 @@ export const getUrlForResourcesOnlyWidgets = ({
   return `/monitoring/resources?filter=${encodeURIComponent(
     JSON.stringify(filterQueryParameter)
   )}&fromTopCounter=true`;
+};
+
+interface GetFormattedResources {
+  array: Array<Resource>;
+  filterName?: string;
+  resourceType?: string;
+}
+
+export const getFormattedResources = ({
+  array,
+  filterName = 'hostgroup',
+  resourceType = WidgetResourceType.hostGroup
+}: GetFormattedResources): Array<Resource> => {
+  return array?.map((item) => {
+    if (equals(item.resourceType, filterName)) {
+      return { ...item, resourceType };
+    }
+    return item;
+  });
 };
