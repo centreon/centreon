@@ -104,6 +104,8 @@ final class UpdateHostGroup
             $this->validator->assertHostsExist($request->hosts);
             if ($this->isCloudPlatform) {
                 $this->validator->assertResourceAccessRulesExist($request->resourceAccessRules);
+            } elseif ($request->iconId !== null) {
+                $this->validator->assertIconExists($request->iconId);
             }
 
             if (! $this->storageEngine->isAlreadyInTransaction()) {
@@ -163,6 +165,7 @@ final class UpdateHostGroup
             name: $request->name,
             alias: $request->alias,
             comment: $request->comment,
+            iconId: $request->iconId,
             geoCoords: match ($request->geoCoords) {
                 null, '' => null,
                 default => GeoCoords::fromString($request->geoCoords),

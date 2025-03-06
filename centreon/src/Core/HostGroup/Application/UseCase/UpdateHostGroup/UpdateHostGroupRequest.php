@@ -31,6 +31,7 @@ final class UpdateHostGroupRequest
      * @param string $alias
      * @param string|null $geoCoords
      * @param string $comment
+     * @param int|null $iconId
      * @param int[] $hosts
      * @param int[] $resourceAccessRules
      */
@@ -40,6 +41,7 @@ final class UpdateHostGroupRequest
         public string $alias = '',
         public ?string $geoCoords = null,
         public string $comment = '',
+        public ?int $iconId = null,
         public array $hosts = [],
         public array $resourceAccessRules = [],
     ) {

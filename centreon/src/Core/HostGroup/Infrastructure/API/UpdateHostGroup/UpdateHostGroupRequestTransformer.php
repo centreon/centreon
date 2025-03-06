@@ -41,12 +41,13 @@ final class UpdateHostGroupRequestTransformer
     ): UpdateHostGroupRequest {
         return new UpdateHostGroupRequest(
             id: $hostGroupId,
-            name: (string) $input->name,
+            name: $input->name,
             alias: (string) $input->alias,
-            geoCoords: (string) $input->geoCoords,
+            geoCoords: $input->geoCoords,
             comment: (string) $input->comment,
-            hosts: (array) $input->hosts,
-            resourceAccessRules: $isCloudPlatform ?  (array) $input->resourceAccessRules : []
+            iconId: $isCloudPlatform ? null : $input->iconId,
+            hosts: $input->hosts,
+            resourceAccessRules: $isCloudPlatform ? $input->resourceAccessRules : []
         );
     }
 }
