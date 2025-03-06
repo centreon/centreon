@@ -300,7 +300,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"The host group has been successfully created and contains the correct name and alias.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Parse the response JSON\r",
 									"    var response = pm.response.json();\r",

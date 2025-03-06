@@ -1059,6 +1059,8 @@ function getPayload(bool $isCloudPlatform, array $formData): array
         $payload['resource_access_rules'] = $formData['resource_access_rules']
             ? array_map('intval', $formData['resource_access_rules'])
             : [];
+    } else {
+        $payload['icon_id'] = $formData['hg_icon_image'] !== '' ? (int) $formData['hg_icon_image'] : null;
     }
 
     return $payload;

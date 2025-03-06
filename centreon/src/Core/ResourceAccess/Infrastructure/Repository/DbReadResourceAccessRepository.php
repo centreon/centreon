@@ -121,9 +121,14 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
-    public function existByContact(int $userId): array
+    public function existByContact(array $ruleIds, int $userId): array
     {
-        $query = <<<'SQL'
+        if ($ruleIds === []) {
+            return [];
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':ruleIds');
+        $query = <<<SQL
                 SELECT acl_group_id
                 FROM `:db`.acl_groups
                     WHERE cloud_specific = 1
@@ -135,10 +140,16 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
                             WHERE contact_contact_id = :userId
                         )
                     )
+                    AND (
+                        acl_group_id IN ({$bindQuery})
+                    )
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         return $statement->fetchAll(\PDO::FETCH_COLUMN);
@@ -147,13 +158,12 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
-    public function existByContactGroup(array $contactGroups): array
+    public function existByContactGroup(array $ruleIds, array $contactGroups): array
     {
-        if (empty($contactGroups)) {
+        if ($ruleIds === [] || $contactGroups === []) {
             return [];
         }
-
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+        [$bindValueContactGroups, $bindQueryContactGroups] = $this->createMultipleBindQuery(
             array_map(
                 fn (ContactGroup $contactGroup) => $contactGroup->getId(),
                 $contactGroups
@@ -161,6 +171,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
             ':contactgroup_'
         );
 
+        [$bindValueRules, $bindQueryRules] = $this->createMultipleBindQuery($ruleIds, ':ruleIds');
         $query = <<<SQL
                 SELECT acl_group_id
                 FROM `:db`.acl_groups
@@ -170,13 +181,19 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
                         OR acl_group_id IN (
                             SELECT acl_group_id
                             FROM `:db`.acl_group_contactgroups_relations
-                            WHERE cg_cg_id IN ({$bindQuery})
+                            WHERE cg_cg_id IN ({$bindQueryContactGroups})
                         )
+                    )
+                    AND (
+                        acl_group_id IN ({$bindQueryRules})
                     )
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));
-        foreach ($bindValues as $key => $value) {
+        foreach ($bindValueContactGroups as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        foreach ($bindValueRules as $key => $value) {
             $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
         $statement->execute();
