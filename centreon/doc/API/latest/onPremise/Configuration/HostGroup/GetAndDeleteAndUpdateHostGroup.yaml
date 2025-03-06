@@ -3,7 +3,10 @@ get:
     - Host group
   summary: "Get a host group"
   description: |
-    Find an existing host group.
+    Get an existing host group.
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
   parameters:
     - $ref: 'QueryParameter/HostGroupId.yaml'
   responses:
@@ -12,7 +15,24 @@ get:
       content:
         application/json:
           schema:
-            $ref: 'Schema/AddHostGroupResponse.yaml'
+            $ref: 'Schema/GetHostGroupResponse.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+delete:
+  tags:
+    - Host group
+  summary: "Delete a host group"
+  description: |
+    Delete host group.
+  parameters:
+    - $ref: 'QueryParameter/HostGroupId.yaml'
+  responses:
+    '204':
+      $ref: '../../../Common/Response/NoContent.yaml'
     '403':
       $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
@@ -24,7 +44,10 @@ put:
     - Host group
   summary: "Update a host group"
   description: |
-    Update an existing host group.
+    Update host group.
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
   parameters:
     - $ref: 'QueryParameter/HostGroupId.yaml'
   requestBody:
@@ -32,7 +55,7 @@ put:
     content:
       application/json:
         schema:
-          $ref: 'Schema/FindAndUpdateHostGroup.yaml'
+          $ref: 'Schema/UpdateHostGroupRequest.yaml'
   responses:
     '204':
       $ref: '../../../Common/Response/NoContent.yaml'
@@ -46,4 +69,3 @@ put:
       $ref: '../../../Common/Response/Conflict.yaml'
     '500':
       $ref: '../../../Common/Response/InternalServerError.yaml'
-
