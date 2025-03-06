@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,11 @@
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-$versionOfTheUpgrade = 'UPGRADE - 25.03.0: ';
+/**
+ * This file contains changes to be included in the next version.
+ * The actual version number should be added in the variable $version.
+ */
+$version = '';
 $errorMessage = '';
 
 // -------------------------------------------- CEIP Agent Information -------------------------------------------- //
@@ -171,7 +175,6 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     }
 };
 
-
 // -------------------------------------------- Broker I/O Configuration -------------------------------------------- //
 
 /**
@@ -229,13 +232,43 @@ $createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage
     }
 };
 
+// -------------------------------------------- Widgets -------------------------------------------- //
+/**
+ * Insert the batimeline widget into the dashboard_widgets table.
+ *
+ * @param CentreonDB $realtimeDb
+ *
+ * @throws CentreonDbException
+ */
+$insertBatimelineWidget = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to select data into table dashboard_widgets';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-batimeline'
+            SQL
+    );
+
+    $errorMessage = 'Unable to insert data into table dashboard_widgets';
+    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+        $pearDB->executeQuery(
+            <<<'SQL'
+                INSERT INTO `dashboard_widgets` (`name`)
+                VALUES ('centreon-widget-batimeline')
+                SQL
+        );
+    }
+};
+
 try {
+    // DDL statements for real time database
     $createAgentInformationTable($pearDBO);
+    $addColumnToResourcesTable($pearDBO);
+    $createIndexForDowntimes($pearDBO);
+
+    // DDL statements for configuration database
     $addConnectorToTopology($pearDB);
     $changeAccNameInTopology($pearDB);
-    $addColumnToResourcesTable($pearDBO);
     $removeConstraintFromBrokerConfiguration($pearDB);
-    $createIndexForDowntimes($pearDBO);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -245,34 +278,44 @@ try {
     $insertAccConnectors($pearDB);
     $updatePanelsLayout($pearDB);
     $removeFieldFromBrokerConfiguration($pearDB);
+    $insertBatimelineWidget($pearDB);
 
     $pearDB->commit();
 
-} catch (CentreonDbException $e) {
+} catch (\Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: $versionOfTheUpgrade . $errorMessage
-            . ' - Code : ' . (int) $e->getCode()
-            . ' - Error : ' . $e->getMessage(),
+        message: "UPGRADE - {$version}: " . $errorMessage,
         customContext: [
-            'exception' => $e->getOptions(),
-            'trace' => $e->getTraceAsString(),
+            'exception' => [
+                'error_message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString()
+            ]
         ],
-        exception: $e
+        exception: $exception
     );
-
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (PDOException $ex) {
+    } catch (\PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
-            customContext: ['error_message' => $ex->getMessage(), 'trace' => $e->getTraceAsString()],
-            exception: $ex
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            customContext: [
+                'error_to_rollback' => $errorMessage,
+                'exception' => [
+                    'error_message' => $rollbackException->getMessage(),
+                    'trace' => $rollbackException->getTraceAsString()
+                ]
+            ],
+            exception: $rollbackException
+        );
+        throw new \Exception(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            (int) $rollbackException->getCode(),
+            $rollbackException
         );
     }
-
-    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

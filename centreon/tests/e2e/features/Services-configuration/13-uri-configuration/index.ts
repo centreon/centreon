@@ -132,6 +132,21 @@ When('the user save the modifications', () => {
 });
 
 Then('the status of the service is changed', () => {
+   // Wait until 4 services have the status 'OK'
+   cy.waitUntil(
+    () => {
+      return cy
+        .getByLabel({ label: 'OK status services', tag: 'a' })
+        .invoke('text')
+        .then((text) => {
+          if (text != '4') {
+            cy.exportConfig();
+          }
+          return text === '4';
+        });
+    },
+    { interval: 6000, timeout: 600000 }
+  );
   cy.visit('/');
   visitStatusDetailPage();
   // Wait for the 'service_test_ok' to be visible in the DOM
