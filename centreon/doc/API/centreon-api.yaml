@@ -691,7 +691,7 @@ paths:
   /configuration/hosts/groups:
     $ref: './latest/onPremise/Configuration/HostGroup/AddAndFindHostGroups.yaml'
   /configuration/hosts/groups/{hostgroup_id}:
-    $ref: './latest/onPremise/Configuration/HostGroup/FindAndDeleteAndUpdateHostGroup.yaml'
+    $ref: './latest/onPremise/Configuration/HostGroup/GetAndDeleteAndUpdateHostGroup.yaml'
   /configuration/hosts/groups/_delete:
     $ref: "./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml"
   /configuration/hosts/groups/{action}:
