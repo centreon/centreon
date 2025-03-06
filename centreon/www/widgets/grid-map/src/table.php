@@ -239,8 +239,8 @@ if (!empty($preferences['host_group'])) {
             INNER JOIN hosts T2 ON T1.host_id = T2.host_id
             $aclJoin
             WHERE T1.enabled = 1
-                AND T1.description NOT LIKE 'ba\\_%'
-                AND T1.description NOT LIKE 'meta\\_%'
+                AND T1.description NOT LIKE 'ba\_%'
+                AND T1.description NOT LIKE 'meta\_%'
                 $aclSubRequest
                 AND $whereService3
         SQL;
