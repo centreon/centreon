@@ -1,4 +1,4 @@
-Cypress.Commands.add('addOrUpdateVirtualMetric', (body: VirtualMetric) => {
+Cypress.Commands.add('addOrUpdateVirtualMetric', (body: VirtualMetric, showGraph: boolean) => {
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="vmetric_name"]');
     cy.getIframeBody()
@@ -69,7 +69,9 @@ Cypress.Commands.add('addOrUpdateVirtualMetric', (body: VirtualMetric) => {
       .find('input[name="crit"]')
       .clear()
       .type(body.critical_threshold); 
-    cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(0).click();
+    if(!showGraph){
+      cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(0).click();
+    }
     cy.getIframeBody()
       .find('textarea[name="comment"]')
       .clear()
@@ -573,7 +575,7 @@ interface HtmlElt {
 declare global {
   namespace Cypress {
     interface Chainable {
-      addOrUpdateVirtualMetric: (body: VirtualMetric) => Cypress.Chainable;
+      addOrUpdateVirtualMetric: (body: VirtualMetric, showGraph: boolean) => Cypress.Chainable;
       checkFieldsOfVM: (body: VirtualMetric) => Cypress.Chainable;
       addMetaService: (body: MetaService) => Cypress.Chainable;
       addMSDependency: (body:MetaServiceDependency) => Cypress.Chainable;
