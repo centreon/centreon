@@ -306,7 +306,7 @@
 									"    var response = pm.response.json();\r",
 									"\r",
 									"    // Verify the response directly contains the expected properties\r",
-									"    pm.expect(response).to.have.all.keys(\"id\", \"name\", \"alias\", \"geo_coords\", \"comment\", \"hosts\");\r",
+									"    pm.expect(response).to.have.all.keys(\"id\", \"name\", \"alias\", \"geo_coords\", \"comment\", \"icon_id\", \"hosts\");\r",
 									"\r",
 									"    // Check if the name and alias match the expected values\r",
 									"    pm.expect(response.name).to.eql(pm.collectionVariables.get(\"HostGroup1Name\"));\r",
@@ -327,7 +327,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostGroup1Name}}\",\r\n    \"alias\": \"{{HostGroup1Alias}}\",\r\n    \"comment\": \"Hello world ! 1\",\r\n    \"hosts\":[]\r\n}",
+							"raw": "{\r\n    \"name\": \"{{HostGroup1Name}}\",\r\n    \"alias\": \"{{HostGroup1Alias}}\",\r\n    \"comment\": \"Hello world ! 1\",\r\n    \"icon_id\": null,\r\n    \"hosts\":[]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
