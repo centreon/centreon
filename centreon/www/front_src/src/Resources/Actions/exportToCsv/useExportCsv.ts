@@ -1,5 +1,5 @@
+import { buildListingEndpoint, useFetchQuery, useSnackbar } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
-import { buildListingEndpoint, useSnackbar } from 'packages/ui/src';
 import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { getColumns as getAllColumns } from '../../Listing/columns';
 import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
 import useGetCriteriaName from '../../Listing/useLoadResources/useGetCriteriaName';
 import { getSearch } from '../../Listing/useLoadResources/utils';
+import { resourcesEndpoint } from '../../api/endpoint';
 import { labelExportProcessingInProgress } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { ListSearch } from './models';
@@ -17,10 +18,12 @@ interface Parameters {
   isAllColumnsChecked: boolean;
 }
 
+const maxResources = 10000;
+
 const useExportCsv = ({
   isAllColumnsChecked,
   isAllPagesChecked
-}: Parameters): (() => void) => {
+}: Parameters) => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
   const { getCriteriaNames, getCriteriaValue } = useGetCriteriaName();
@@ -111,8 +114,7 @@ const useExportCsv = ({
     return { page: listing?.meta?.page, limit: listing?.meta?.limit };
   };
 
-  const exportCsv = () => {
-    showSuccessMessage(t(labelExportProcessingInProgress));
+  const getEndpoint = (baseEndpoint: string) => {
     const { filtersParameters, queryParameters } = getCurrentFilterParameters();
 
     const parameters = { ...filtersParameters, ...getPages() };
@@ -121,16 +123,41 @@ const useExportCsv = ({
       { name: 'columns', value: getColumns() }
     ];
 
-    const endpoint = buildListingEndpoint({
+    return buildListingEndpoint({
       parameters,
-      baseEndpoint: 'test',
+      baseEndpoint,
       customQueryParameters
     });
+  };
+
+  const { data } = useFetchQuery({
+    getEndpoint: () => getEndpoint(resourcesEndpoint),
+    getQueryKey: () => ['exportedLines'],
+    queryOptions: {
+      suspense: false
+    }
+  });
+
+  const filteredCurrentLines = `${data?.result?.length}/${maxResources}`;
+  const currentLines = `${data?.meta?.total} / ${maxResources}`;
+
+  const numberExportedLines = isAllPagesChecked
+    ? currentLines
+    : filteredCurrentLines;
+
+  const disableExport = isAllPagesChecked
+    ? data?.meta?.total > maxResources
+    : data?.result?.length > maxResources;
+
+  const exportCsv = () => {
+    showSuccessMessage(t(labelExportProcessingInProgress));
+
+    const endpoint = getEndpoint('csvEndpoint');
 
     window.open(endpoint);
   };
 
-  return exportCsv;
+  return { exportCsv, disableExport, numberExportedLines };
 };
 
 export default useExportCsv;

@@ -21,15 +21,19 @@ import useExportCSV from './useExportCsv';
 
 interface Props {
   onCancel: () => void;
+  open: boolean;
 }
 
-const ModalExport = ({ onCancel }: Props): JSX.Element => {
+const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useExportCsvStyles();
   const [isAllPagesChecked, setIsAllPagesChecked] = useState(true);
   const [isAllColumnsChecked, setIsAllColumnsChecked] = useState(true);
 
-  const exportCsv = useExportCSV({ isAllColumnsChecked, isAllPagesChecked });
+  const { exportCsv, disableExport, numberExportedLines } = useExportCSV({
+    isAllColumnsChecked,
+    isAllPagesChecked
+  });
 
   const getSelectedColumnsData = (label: string) => {
     setIsAllColumnsChecked(equals(labelAllColumns, label));
@@ -40,7 +44,7 @@ const ModalExport = ({ onCancel }: Props): JSX.Element => {
   };
 
   return (
-    <Modal open hasCloseButton={false} size="medium">
+    <Modal open={open} hasCloseButton={false} size="medium">
       <Modal.Header>{labelExportToCSV}</Modal.Header>
       <Modal.Body>
         <div className={classes.container}>
@@ -72,7 +76,10 @@ const ModalExport = ({ onCancel }: Props): JSX.Element => {
                 getData={getSelectedPagesData}
               />
             </div>
-            <InformationsLine isAllPagesChecked={isAllPagesChecked} />
+            <InformationsLine
+              numberExportedLines={numberExportedLines}
+              disableExport={disableExport}
+            />
           </div>
           <div className={classes.spacing} />
           <Warning />
@@ -82,6 +89,7 @@ const ModalExport = ({ onCancel }: Props): JSX.Element => {
         labels={{ cancel: t(labelCancel), confirm: t(labelExport) }}
         onConfirm={exportCsv}
         onCancel={onCancel}
+        disabled={disableExport}
       />
     </Modal>
   );

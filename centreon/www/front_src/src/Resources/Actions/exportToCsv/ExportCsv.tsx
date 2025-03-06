@@ -27,7 +27,7 @@ const ExportCsv = () => {
       >
         <SaveIcon />
       </IconButton>
-      {display && <ModalExport onCancel={closeModalExport} />}
+      <ModalExport onCancel={closeModalExport} open={display} />
     </>
   );
 };
