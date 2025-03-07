@@ -132,24 +132,24 @@ jobs:
     runs-on: centreon-common
 
     strategy:
-        matrix:
-          distrib: [bookworm]
+      matrix:
+        distrib: [bookworm]
 
-      steps:
-        - name: Checkout sources
-          uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-        - name: Delivery
-          uses: ./.github/actions/deb-delivery
-          with:
-            module_name: ha
-            distrib: ${{ matrix.distrib }}
-            version: ${{ needs.get-environment.outputs.major_version }}
-            artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-            cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-            stability: ${{ needs.get-environment.outputs.stability }}
-            release_type: ${{ needs.get-environment.outputs.release_type }}
-            is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          module_name: ha
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-environment.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
 #   promote:
 #     needs: [get-environment]
