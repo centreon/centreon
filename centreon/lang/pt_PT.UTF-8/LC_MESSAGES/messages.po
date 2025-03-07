@@ -18331,6 +18331,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Export as"
 # msgstr ""
 
+# msgid "Select a Business Activity to display the preview."
+# msgstr ""
+
+# msgid "Displays the distribution of current statuses on a BA, as a chronological timeline for a given time period."
+# msgstr ""
+
+# msgid "Business Activity status timeline"
+# msgstr ""
+
 # msgid "If you click on Discard, your changes will not be saved."
 # msgstr ""
 
@@ -18357,3 +18366,4 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "The minimum allowed value is 10"
 # msgstr ""
+
