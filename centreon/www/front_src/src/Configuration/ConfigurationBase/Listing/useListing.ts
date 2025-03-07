@@ -4,8 +4,6 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
-
-import { useTheme } from '@mui/material';
 import { useNavigate } from 'react-router';
 import { configurationAtom } from '../../atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
@@ -22,12 +20,11 @@ interface UseListing {
   sortf: string;
   sorto: 'asc' | 'desc';
   openEditModal: (row) => void;
-  rowColorConditions;
+  disableRowCondition: (row) => boolean;
 }
 
 const useListing = (): UseListing => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { showWarningMessage } = useSnackbar();
   const navigate = useNavigate();
 
@@ -70,13 +67,7 @@ const useListing = (): UseListing => {
     navigate(`/main.php?p=60102&o=c&hg_id=${row.id}`);
   };
 
-  const rowColorConditions = [
-    {
-      color: theme.palette.action.disabledBackground,
-      condition: ({ isActivated }): boolean => !isActivated,
-      name: 'is_enabled'
-    }
-  ];
+  const disableRowCondition = ({ isActivated }): boolean => !isActivated;
 
   return {
     changePage,
@@ -89,7 +80,7 @@ const useListing = (): UseListing => {
     sortf,
     sorto,
     openEditModal,
-    rowColorConditions
+    disableRowCondition
   };
 };
 

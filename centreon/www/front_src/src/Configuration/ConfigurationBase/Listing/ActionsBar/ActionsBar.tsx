@@ -7,7 +7,7 @@ const ActionsBar = (): JSX.Element => {
   const { classes } = useActionsStyles();
 
   return (
-    <div className={classes.actions}>
+    <div className={classes.bar}>
       <div className={classes.actions}>
         <AddHostGroups />
         <MassiveActions />

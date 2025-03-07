@@ -21,7 +21,6 @@ export default (resourceType: ResourceType) => {
       cy.waitForRequest('@getAll');
 
       cy.findAllByPlaceholderText(labelSearch)
-        .eq(1)
         .clear()
         .type(`${resourceType} 1`);
 
@@ -45,7 +44,7 @@ export default (resourceType: ResourceType) => {
 
       cy.waitForRequest('@getAll');
 
-      cy.get(`[data-testid="${labelFilters}"]`).eq(1).click();
+      cy.get(`[data-testid="${labelFilters}"]`).click();
       cy.get('[data-testid="advanced-filters"]').should('be.visible');
 
       cy.get(`[data-testid="${labelName}"]`)
@@ -83,7 +82,7 @@ export default (resourceType: ResourceType) => {
 
       cy.waitForRequest('@getAll');
 
-      cy.get(`[data-testid="${labelFilters}"]`).eq(1).click();
+      cy.get(`[data-testid="${labelFilters}"]`).click();
       cy.get('[data-testid="advanced-filters"]').should('be.visible');
 
       cy.get(`[data-testid="${labelName}"]`)

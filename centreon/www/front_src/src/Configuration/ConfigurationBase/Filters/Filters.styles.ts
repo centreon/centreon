@@ -18,6 +18,7 @@ export const useFilterStyles = makeStyles()((theme) => ({
   },
   filters: {
     maxWidth: theme.spacing(60),
+    minWidth: theme.spacing(20),
     width: '100%'
   },
   statusFilter: {

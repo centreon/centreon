@@ -4,7 +4,6 @@ import { ConfigurationBase } from '../models';
 
 import { PageHeader, PageLayout } from '@centreon/ui/components';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
-import Filters from './Filters';
 import { Listing } from './Listing';
 import { Modal } from './Modal';
 import { useStyles } from './Page.styles';
@@ -30,11 +29,6 @@ const Page = ({
           <PageHeader.Main>
             <PageHeader.Title title={labelTitle} />
           </PageHeader.Main>
-          <PageHeader.Actions>
-            <Box className={classes.searchBar}>
-              <Filters />
-            </Box>
-          </PageHeader.Actions>
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
@@ -43,7 +37,6 @@ const Page = ({
           <Modal Form={Form} />
         </Box>
       </PageLayout.Body>
-
       <DeleteDialog />
       <DuplicateDialog />
     </PageLayout>

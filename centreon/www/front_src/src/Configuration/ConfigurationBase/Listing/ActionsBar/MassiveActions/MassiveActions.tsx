@@ -1,97 +1,44 @@
 import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import {
-  DeleteOutlineOutlined as DeleteIcon,
-  ContentCopyOutlined as DuplicateIcon,
-  MoreHoriz as MoreIcon
-} from '@mui/icons-material';
-
-import { IconButton } from '@centreon/ui';
-import { Button } from '@centreon/ui/components';
+import { MoreHoriz as MoreIcon } from '@mui/icons-material';
 
 import MoreActions from './MoreActions';
-import useMassiveActions from './useMassiveActions';
 
-import {
-  labelDelete,
-  labelDuplicate,
-  labelMoreActions
-} from '../../../translatedLabels';
-
+import { Button } from '@centreon/ui/components';
 import { useActionsStyles } from '../Actions.styles';
+
+import { useAtomValue } from 'jotai';
+import { useState } from 'react';
+import { labelMoreActions } from '../../../translatedLabels';
+import { selectedRowsAtom } from '../../atoms';
 
 const MassiveActions = (): JSX.Element => {
   const { t } = useTranslation();
-  const { cx, classes } = useActionsStyles();
+  const { classes } = useActionsStyles();
 
-  const {
-    openMoreActions,
-    closeMoreActions,
-    openDeleteModal,
-    openDuplicateModal,
-    selectedRowsIds,
-    moreActionsOpen
-  } = useMassiveActions();
+  const [moreActionsOpen, setMoreActionsOpen] = useState(null);
+
+  const selectedRows = useAtomValue(selectedRowsAtom);
+  const selectedRowsIds = selectedRows?.map((row) => row.id);
+
+  const openMoreActions = (event): void => setMoreActionsOpen(event.target);
+  const closeMoreActions = (): void => setMoreActionsOpen(null);
 
   return (
     <div className={classes.actions}>
-      <div className={cx(classes.actions, classes.buttons)}>
-        <Button
-          aria-label={t(labelDuplicate)}
-          data-testid={labelDuplicate}
-          icon={<DuplicateIcon className={classes.duplicateIcon} />}
-          iconVariant="start"
-          size="medium"
-          variant="secondary"
-          onClick={openDuplicateModal}
-          disabled={isEmpty(selectedRowsIds)}
-        >
-          {t(labelDuplicate)}
-        </Button>
-
-        <Button
-          aria-label={t(labelDelete)}
-          data-testid={labelDelete}
-          icon={<DeleteIcon className={classes.removeIcon} />}
-          iconVariant="start"
-          size="medium"
-          variant="secondary"
-          onClick={openDeleteModal}
-          disabled={isEmpty(selectedRowsIds)}
-          isDanger
-        >
-          {t(labelDelete)}
-        </Button>
-      </div>
-      <div className={cx(classes.actions, classes.iconButtons)}>
-        <IconButton
-          ariaLabel={t(labelDuplicate)}
-          title={t(labelDuplicate)}
-          onClick={openDuplicateModal}
-          disabled={isEmpty(selectedRowsIds)}
-        >
-          <DuplicateIcon className={classes.duplicateIcon} />
-        </IconButton>
-        <IconButton
-          ariaLabel={t(labelDelete)}
-          title={t(labelDelete)}
-          onClick={openDeleteModal}
-          className={classes.removeButton}
-          disabled={isEmpty(selectedRowsIds)}
-        >
-          <DeleteIcon className={classes.removeIcon} />
-        </IconButton>
-      </div>
-
-      <IconButton
-        ariaLabel={t(labelMoreActions)}
-        title={t(labelMoreActions)}
+      <Button
+        aria-label={t(labelMoreActions)}
+        data-testid={labelMoreActions}
+        icon={<MoreIcon />}
+        iconVariant="start"
+        size="small"
+        variant="ghost"
         onClick={openMoreActions}
         disabled={isEmpty(selectedRowsIds)}
       >
-        <MoreIcon className={classes.duplicateIcon} />
-      </IconButton>
+        <div className={classes.moreActions}>{t(labelMoreActions)}</div>
+      </Button>
 
       <MoreActions anchor={moreActionsOpen} close={closeMoreActions} />
     </div>
