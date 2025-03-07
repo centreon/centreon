@@ -24,34 +24,38 @@ declare(strict_types=1);
 namespace Core\HostGroup\Infrastructure\API\FindHostGroups;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostGroup\Application\UseCase\FindHostGroups\FindHostGroups;
+use Core\Infrastructure\Common\Api\StandardPresenter;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    'hostgroup_list',
+    null,
+    'You are not allowed to access host groups',
+    Response::HTTP_FORBIDDEN
+)]
 final class FindHostGroupsController extends AbstractController
 {
-    /**
-     * @param FindHostGroups $useCase
-     * @param FindHostGroupsPresenterSaas $saasPresenter
-     * @param FindHostGroupsPresenterOnPrem $onPremPresenter
-     * @param bool $isCloudPlatform
-     *
-     * @throws AccessDeniedException
-     *
-     * @return Response
-     */
     public function __invoke(
         FindHostGroups $useCase,
-        FindHostGroupsPresenterSaas $saasPresenter,
-        FindHostGroupsPresenterOnPrem $onPremPresenter,
+        StandardPresenter $presenter,
         bool $isCloudPlatform,
     ): Response {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $response = $useCase();
 
-        $presenter = $isCloudPlatform ? $saasPresenter : $onPremPresenter;
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
 
-        $useCase($presenter);
-
-        return $presenter->show();
+        return JsonResponse::fromJsonString($presenter->present(
+            $response,
+            ['groups' => [
+                $isCloudPlatform ? 'FindHostGroups:Saas' : 'FindHostGroups:OnPrem',
+            ],
+            ]
+        ));
     }
 }

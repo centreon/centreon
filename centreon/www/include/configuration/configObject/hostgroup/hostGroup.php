@@ -160,6 +160,10 @@ switch ($o) {
         require_once $path . 'listHostGroup.php';
         break; // Delete n Host group
     default:
-        require_once $path . 'listHostGroup.php';
+        ?>
+            <script type="text/javascript">
+                window.parent.location.href = './configuration/hosts/groups';
+            </script>
+        <?php
         break;
 }
