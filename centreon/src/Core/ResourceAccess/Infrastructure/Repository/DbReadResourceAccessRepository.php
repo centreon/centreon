@@ -28,6 +28,8 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
@@ -55,7 +57,7 @@ use Core\ResourceAccess\Domain\Model\TinyRule;
  */
 final class DbReadResourceAccessRepository extends AbstractRepositoryRDB implements ReadResourceAccessRepositoryInterface
 {
-    use LoggerTrait;
+    use LoggerTrait, SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -87,6 +89,115 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    public function exist(array $ruleIds): array
+    {
+        if ($ruleIds === []) {
+            return [];
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    SELECT acl_group_id
+                    FROM `:db`.acl_groups
+                    WHERE acl_group_id IN ({$bindQuery})
+                        AND cloud_specific = 1
+                SQL
+        ));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existByContact(array $ruleIds, int $userId): array
+    {
+        if ($ruleIds === []) {
+            return [];
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':ruleIds');
+        $query = <<<SQL
+                SELECT acl_group_id
+                FROM `:db`.acl_groups
+                    WHERE cloud_specific = 1
+                    AND (
+                        all_contacts = 1
+                        OR acl_group_id IN (
+                            SELECT acl_group_id
+                            FROM `:db`.acl_group_contacts_relations
+                            WHERE contact_contact_id = :userId
+                        )
+                    )
+                    AND (
+                        acl_group_id IN ({$bindQuery})
+                    )
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existByContactGroup(array $ruleIds, array $contactGroups): array
+    {
+        if ($ruleIds === [] || $contactGroups === []) {
+            return [];
+        }
+        [$bindValueContactGroups, $bindQueryContactGroups] = $this->createMultipleBindQuery(
+            array_map(
+                fn (ContactGroup $contactGroup) => $contactGroup->getId(),
+                $contactGroups
+            ),
+            ':contactgroup_'
+        );
+
+        [$bindValueRules, $bindQueryRules] = $this->createMultipleBindQuery($ruleIds, ':ruleIds');
+        $query = <<<SQL
+                SELECT acl_group_id
+                FROM `:db`.acl_groups
+                    WHERE cloud_specific = 1
+                    AND (
+                        all_contact_groups = 1
+                        OR acl_group_id IN (
+                            SELECT acl_group_id
+                            FROM `:db`.acl_group_contactgroups_relations
+                            WHERE cg_cg_id IN ({$bindQueryContactGroups})
+                        )
+                    )
+                    AND (
+                        acl_group_id IN ({$bindQueryRules})
+                    )
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($bindValueContactGroups as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        foreach ($bindValueRules as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     /**
@@ -244,6 +355,48 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         ));
 
         $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $datasetFilters = [];
+
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /**
+             * @var array{id: int, resource_ids: string} $record
+             */
+            $datasetFilters[$record['id']] = array_map('intval', explode(',', $record['resource_ids']));
+        }
+
+        return $datasetFilters;
+    }
+
+    public function findLastLevelDatasetFilterByRuleIdsAndType(array $ruleIds, string $type): array
+    {
+        if (empty($ruleIds)) {
+            return [];
+        }
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                        SELECT
+                            id,
+                            resource_ids
+                        FROM `:db`.dataset_filters
+                        INNER JOIN `:db`.acl_resources AS dataset
+                            ON dataset.acl_res_id = dataset_filters.acl_resource_id
+                        WHERE acl_group_id IN ({$bindQuery})
+                            AND type = :type
+                            AND parent_id IS NULL
+                    SQL
+            )
+        );
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->bindValue(':type', $type, \PDO::PARAM_STR);
         $statement->execute();
 
         $datasetFilters = [];
