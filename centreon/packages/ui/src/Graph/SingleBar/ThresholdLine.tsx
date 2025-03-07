@@ -63,7 +63,7 @@ export const ThresholdLine = ({
         strokeDasharray="6, 6"
         strokeWidth={2}
         x1={scaledValue}
-        x2={scaledValue}
+        x2={scaledValue + 1}
         y1={
           isSmall
             ? groupMargin - lineMargin + 6
@@ -80,7 +80,7 @@ export const ThresholdLine = ({
         stroke="transparent"
         strokeWidth={5}
         x1={scaledValue}
-        x2={scaledValue}
+        x2={scaledValue + 1}
         y1={
           isSmall
             ? groupMargin - lineMargin + 5

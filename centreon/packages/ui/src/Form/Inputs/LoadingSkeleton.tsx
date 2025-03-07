@@ -1,6 +1,6 @@
 import { always, cond, equals } from 'ramda';
 
-import { LoadingSkeleton } from '../..';
+import LoadingSkeleton from '../../LoadingSkeleton';
 
 import { InputProps, InputType } from './models';
 
