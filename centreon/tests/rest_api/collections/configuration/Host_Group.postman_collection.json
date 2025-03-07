@@ -4238,7 +4238,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostGroup5Name}}\",\n    \"alias\": \"{{HostGroup5Alias}}\",\n    \"comment\": \"I was created by the Read/Write user\",\n    \"hosts\": []\n}",
+							"raw": "{\n    \"name\": \"{{HostGroup5Name}}\",\n    \"alias\": \"{{HostGroup5Alias}}\",\n    \"comment\": \"I was created by the Read/Write user\",\n    \"hosts\": [14]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -4706,7 +4706,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{HostGroup4Name}}\",\n    \"alias\":\"{{HostGroup4Alias}}\",\n    \"geo_coords\":\"\",\n    \"comment\":null,\n    \"icon_id\":null,\n    \"hosts\":[]\n    }"
+							"raw": "{\n    \"name\":\"{{HostGroup4Name}}\",\n    \"alias\":\"{{HostGroup4Alias}}\",\n    \"geo_coords\":\"\",\n    \"comment\":null,\n    \"icon_id\":null,\n    \"hosts\":[]\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
