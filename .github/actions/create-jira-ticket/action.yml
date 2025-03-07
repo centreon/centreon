@@ -18,6 +18,10 @@ inputs:
     required: true
     description: ticket labels, usually Pipeline + Nightly/Veracode + x
     default: 'Pipeline'
+  ticket_squad:
+    required: true
+    description: id of the squad to assign the ticket to
+    default: 'DevSecOps'
 
 runs:
   using: "composite"
@@ -57,6 +61,45 @@ runs:
           exit 1
         fi
 
+        case "${{ inputs.ticket_squad }}" in
+          "DevSecOps")
+            ticket_squad_id=10524
+            ticket_board_id=184
+            assign_to_current_sprint=true
+            ;;
+          "Collect")
+            ticket_squad_id=10255
+            ticket_board_id=118
+            assign_to_current_sprint=true
+            ;;
+          "MAP")
+            ticket_squad_id=10258
+            ticket_board_id=149
+            assign_to_current_sprint=true
+            ;;
+          "Product Backlog")
+            ticket_squad_id=10623
+            ticket_board_id=211
+            assign_to_current_sprint=false
+            ;;
+          *)
+            echo "::error::Cannot find a valid squad for value ${{ inputs.ticket_squad }}."
+            exit 1
+            ;;
+        esac
+        echo "Ticket will be assigned to the ${{ inputs.ticket_squad }} team."
+
+        if [[ $assign_to_current_sprint == true ]]; then
+          response=$(curl --request GET \
+            --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
+            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}")
+          current_sprint=$(echo "$response" | head -c -4 | jq .values[0].name)
+          echo "[DEBUG] current_sprint: $current_sprint"
+        else
+          current_sprint="null"
+        fi
+
+        # General updates on all template files
         sed -i \
           -e 's|@GITHUB_BRANCH@|${{ github.base_ref || github.ref_name }}|g' \
           -e 's|@GITHUB_SERVER_URL@|${{ github.server_url }}|g' \
@@ -67,6 +110,9 @@ runs:
         echo "parent_epic_id=$parent_epic_id" >> $GITHUB_OUTPUT
         echo "parent_epic_key=$parent_epic_key" >> $GITHUB_OUTPUT
         echo "ticket_summary=$ticket_summary" >> $GITHUB_OUTPUT
+        echo "ticket_board_id=$ticket_board_id" >> $GITHUB_OUTPUT
+        echo "ticket_squad_id=$ticket_squad_id" >> $GITHUB_OUTPUT
+        echo "current_sprint=$current_sprint" >> $GITHUB_OUTPUT
         echo "json_template_file=$JSON_TEMPLATE_FILE" >> $GITHUB_OUTPUT
 
         cat $JSON_TEMPLATE_FILE
@@ -93,9 +139,11 @@ runs:
             }'
           )
         echo "[DEBUG] $response"
+
         if [[ $(echo "$response" | tr -d '\n' | tail -c 3) -ne 200 ]]; then
           echo "::error:: Jira API request was not completed properly."
         fi
+
         check_if_ticket_exists=$(echo "$response" | head -c -4 | jq .issues[0].key)
         if [[ "$check_if_ticket_exists" != "null" ]]; then
           echo "abort_ticket_creation=true" >> $GITHUB_ENV
@@ -106,6 +154,41 @@ runs:
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
+        # Get the list of failed jobs
+        run_id=$(gh run list --workflow "${{ github.workflow }}" --branch "${{ github.ref_name }}" --json databaseId -q '.[0].databaseId')
+        mapfile -t jobs_failed < <(gh run view $run_id --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name')
+        echo "[DEBUG] - jobs failed on workflow ${{ github.workflow }}: $jobs_failed"
+        BULLET_LIST_JOBS=$(for job in "${jobs_failed[@]}"; do
+          cat <<EOF
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "$job"
+                }
+              ]
+            }
+          ]
+        }
+        EOF
+          done | jq -s '.'
+        )
+        echo "[DEBUG] - BULLET_LIST_JOBS: $BULLET_LIST_JOBS"
+
+        CONTENT_TO_ADD_TO_TEMPLATE_FILE="{
+          \"type\": \"bulletList\",
+          \"content\": $BULLET_LIST_JOBS
+        }"
+
+        TEMPLATE_FILE=$(cat ${{ steps.get_context.outputs.json_template_file }})
+        UPDATED_TEMPLATE_FILE=$(jq --argjson NEW_CONTENT "$CONTENT_TO_ADD_TO_TEMPLATE_FILE" '.content += [$NEW_CONTENT]' <<< "$TEMPLATE_FILE")
+
+        echo "[DEBUG] - BULLET_LIST_JOBS: $BULLET_LIST_JOBS"
+
         # Creating a new incident ticket on Jira
         DATA=$( cat <<-EOF
         {
@@ -115,14 +198,19 @@ runs:
             "issuetype": {"id": "10209"},
             "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
             "labels": ${{ inputs.ticket_labels }},
+            "priority": {"id": "1"},
             "components":[{"name": "${{ inputs.module_name }}"}],
-            "customfield_10902": {"id": "10524", "value": "DevSecOps"},
-            "customfield_10005": 1.0,
+            "customfield_10902": {"id": "${{ steps.get_context.outputs.ticket_squad_id }}", "value": "${{ inputs.ticket_squad }}"},
             "description": $(cat ${{ steps.get_context.outputs.json_template_file }})
           }
         }
         EOF
         )
+
+        if [[ ${{ steps.get_context.outputs.current_sprint }} != "null" ]]; then
+          DATA=$(echo "$DATA" | jq '.fields.sprint = "${{ steps.get_context.outputs.current_sprint }}")
+        fi
+        echo "[DEBUG] $DATA"
 
         response=$(curl \
           --request POST \
@@ -131,7 +219,7 @@ runs:
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
           --data "$DATA")
-        echo $response
+
         if [ $? -ne 0 ]; then
           echo "::error::Failed to create ticket: $response"
           exit 1
@@ -140,3 +228,5 @@ runs:
         ticket_key=$(echo "$response" | jq -r .key)
         echo "::notice::Created ticket: $ticket_key"
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
