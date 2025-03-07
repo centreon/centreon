@@ -49,7 +49,11 @@ export const labelAgentConfigurationUpdated =
   'Poller/agent configuration updated';
 export const labelUpdateAgentConfiguration =
   'Update poller/agent configuration';
+export const labelRelativePathAreNotAllowed = 'Relative paths are not allowed';
+export const labelInvalidPath = 'Invalid path';
+export const labelInvalidExtension = 'Invalid extension';
 export const labelInvalidFilename = 'Invalid filename';
+
 export const labelWelcomeDescription =
   'An agent is a piece of software you install on the host you want to monitor, that executes the checks.';
 export const labelCMA = 'Centreon Monitoring Agent';

@@ -19685,3 +19685,12 @@ msgstr "La valeur minimale autorisée est 10"
 
 msgid "Error while enabling/disabling host groups"
 msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
+
+msgid "Relative paths are not allowed"  
+msgstr "Les chemins relatifs ne sont pas autorisés"  
+
+msgid "Invalid path"  
+msgstr "Chemin invalide"  
+
+msgid "Invalid extension"  
+msgstr "Extension invalide"  

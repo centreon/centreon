@@ -34,7 +34,8 @@ import {
   labelDeleteAgent,
   labelDeletePoller,
   labelHostConfigurations,
-  labelInvalidFilename,
+  labelInvalidExtension,
+  labelInvalidPath,
   labelName,
   labelOTLPReceiver,
   labelPoller,
@@ -42,6 +43,7 @@ import {
   labelPort,
   labelPrivateKey,
   labelPublicCertificate,
+  labelRelativePathAreNotAllowed,
   labelRequired,
   labelSave,
   labelWelcomeToTheAgentsConfigurationPage
@@ -136,12 +138,12 @@ const initialize = ({ isListingEmpty = false }) => {
       configuration: {
         otel_server_address: '127.0.0.1',
         otel_server_port: 8080,
-        otel_public_certificate: 'coucou',
-        otel_ca_certificate: 'coucou',
-        otel_private_key: 'coucou',
+        otel_public_certificate: 'test.cer',
+        otel_ca_certificate: 'test.crt',
+        otel_private_key: 'test.key',
         conf_server_port: 9090,
-        conf_certificate: 'coucou',
-        conf_private_key: 'coucou'
+        conf_certificate: '/sub/test.crt',
+        conf_private_key: 'test.crt'
       }
     }
   });
@@ -357,7 +359,7 @@ describe('Agent configurations', () => {
     cy.makeSnapshot();
   });
 
-  it('deletes an when the corresponding action icon is clicked and the corresponding button is clicked', () => {
+  it('deletes an agent when the corresponding action icon is clicked and the corresponding button is clicked', () => {
     initialize({});
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
@@ -385,7 +387,7 @@ describe('Agent configurations', () => {
     cy.makeSnapshot();
   });
 
-  it('deletes an agent when the corresponding icon is clicked and the corresponding is clicked', () => {
+  it('deletes a poller when the corresponding icon is clicked and the corresponding is clicked', () => {
     initialize({});
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
@@ -434,17 +436,19 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPollers).focus();
     cy.findByLabelText(labelPollers).blur();
     cy.findAllByLabelText(labelPort).eq(0).type('123456');
-    cy.findByLabelText(labelPublicCertificate).type('test.cert');
-    cy.findByLabelText(labelCaCertificate).type('test.crt');
-    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.key');
-    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.key');
+    cy.findByLabelText(labelPublicCertificate).type('./test.cer');
+    cy.findByLabelText(labelCaCertificate).type('//test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.abc');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.xyz');
     cy.findByLabelText(labelCertificate).type('test.cer');
     cy.findByLabelText(labelCertificate).blur();
 
     cy.findByLabelText(labelAgentType).should('have.value', 'Telegraf');
     cy.findAllByText(labelRequired).should('have.length', 2);
-    cy.findAllByText(labelInvalidFilename).should('have.length', 5);
     cy.findAllByText(labelPortExpectedAtMost).should('have.length', 1);
+    cy.findAllByText(labelRelativePathAreNotAllowed).should('have.length', 1);
+    cy.findAllByText(labelInvalidPath).should('have.length', 1);
+    cy.findAllByText(labelInvalidExtension).should('have.length', 2);
     cy.contains(labelSave).should('be.disabled');
 
     cy.makeSnapshot();
@@ -492,10 +496,10 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
     cy.findAllByLabelText(labelPort).eq(0).clear().type('1234');
-    cy.findByLabelText(labelPublicCertificate).type('test');
-    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test');
-    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test');
-    cy.findByLabelText(labelCertificate).type('test');
+    cy.findByLabelText(labelPublicCertificate).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('/sub/test.key');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('/sub/test.key');
+    cy.findByLabelText(labelCertificate).type('test.cer');
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
@@ -503,11 +507,11 @@ describe('Agent configurations modal', () => {
         name: 'agent',
         type: 'telegraf',
         configuration: {
-          otel_private_key: 'test',
+          otel_private_key: '/sub/test.key',
           otel_ca_certificate: null,
-          otel_public_certificate: 'test',
-          conf_certificate: 'test',
-          conf_private_key: 'test',
+          otel_public_certificate: 'test.crt',
+          conf_certificate: 'test.cer',
+          conf_private_key: '/sub/test.key',
           conf_server_port: 1234
         },
         poller_ids: [1]
@@ -535,11 +539,11 @@ describe('Agent configurations modal', () => {
         name: 'agent updated',
         type: 'telegraf',
         configuration: {
-          otel_private_key: 'coucou',
-          otel_ca_certificate: 'coucou',
-          otel_public_certificate: 'coucou',
-          conf_certificate: 'coucou',
-          conf_private_key: 'coucou',
+          otel_private_key: 'test.key',
+          otel_ca_certificate: 'test.crt',
+          otel_public_certificate: 'test.cer',
+          conf_certificate: '/sub/test.crt',
+          conf_private_key: 'test.crt',
           conf_server_port: 9090
         },
         poller_ids: [1, 2]
@@ -565,11 +569,11 @@ describe('Agent configurations modal', () => {
         name: 'agent updated',
         type: 'telegraf',
         configuration: {
-          otel_private_key: 'coucou',
-          otel_ca_certificate: 'coucou',
-          otel_public_certificate: 'coucou',
-          conf_certificate: 'coucou',
-          conf_private_key: 'coucou',
+          otel_private_key: 'test.key',
+          otel_ca_certificate: 'test.crt',
+          otel_public_certificate: 'test.cer',
+          conf_certificate: '/sub/test.crt',
+          conf_private_key: 'test.crt',
           conf_server_port: 9090
         },
         poller_ids: [1, 2]
@@ -608,17 +612,17 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPublicCertificate).type('something').clear();
     cy.findByLabelText(labelPublicCertificate).blur();
-    cy.findAllByLabelText(labelPrivateKey).eq(0).type('filename.key').blur();
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('filename.abc').blur();
 
     cy.contains(labelRequired).should('be.visible');
-    cy.contains(labelInvalidFilename).should('be.visible');
+    cy.contains(labelInvalidExtension).should('be.visible');
 
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="0"]').click();
 
     cy.contains(labelHostConfigurations).should('not.exist');
     cy.contains(labelRequired).should('not.exist');
-    cy.contains(labelInvalidFilename).should('not.exist');
+    cy.contains(labelInvalidExtension).should('not.exist');
     cy.findByLabelText(labelName).should('have.value', 'My agent');
     cy.contains(labelConfigurationServer).should('be.visible');
 
@@ -631,16 +635,17 @@ describe('Agent configurations modal', () => {
     cy.contains(labelAdd).click();
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
-    cy.findByLabelText(labelConnectionInitiatedByPoller).click();
-    cy.findByTestId('delete-host-configuration-0').click();
-    cy.findByLabelText(labelName).type('My agent');
-    cy.findByLabelText(labelPublicCertificate).type('test');
-    cy.findByLabelText(labelCaCertificate).type('test');
-    cy.findByLabelText(labelPrivateKey).type('key');
+
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPublicCertificate).type('test.crt');
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findByLabelText(labelPrivateKey).type('test.key');
 
-    cy.contains(labelSave).should('be.disabled');
+    cy.findByLabelText(labelConnectionInitiatedByPoller).click();
+
+    cy.contains(labelSave).scrollIntoView().should('be.disabled');
 
     cy.makeSnapshot();
   });
@@ -654,9 +659,10 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
-    cy.findByLabelText(labelPublicCertificate).type('test');
-    cy.findByLabelText(labelCaCertificate).type('test');
-    cy.findByLabelText(labelPrivateKey).type('key');
+
+    cy.findByLabelText(labelPublicCertificate).type('/certificate/test.crt');
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findByLabelText(labelPrivateKey).type('privateKey.key');
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
@@ -666,9 +672,9 @@ describe('Agent configurations modal', () => {
         poller_ids: [1],
         configuration: {
           is_reverse: false,
-          otel_ca_certificate: 'test',
-          otel_public_certificate: 'test',
-          otel_private_key: 'key',
+          otel_ca_certificate: 'test.crt',
+          otel_public_certificate: '/certificate/test.crt',
+          otel_private_key: 'privateKey.key',
           hosts: []
         }
       });
@@ -752,13 +758,13 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
-    cy.findByLabelText(labelPublicCertificate).type('test');
-    cy.findAllByLabelText(labelCaCertificate).eq(0).type('test');
-    cy.findAllByLabelText(labelCaCertificate).eq(1).type('test');
-    cy.findAllByLabelText(labelPrivateKey).eq(0).type('key');
+    cy.findByLabelText(labelPublicCertificate).type('/test.cer');
+    cy.findAllByLabelText(labelCaCertificate).eq(0).type('test.crt');
+    cy.findAllByLabelText(labelCaCertificate).eq(1).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('private.key');
     cy.findByLabelText(labelAddHost).click();
     cy.contains('central').click();
-    cy.findByLabelText(labelCertificate).type('test');
+    cy.findByLabelText(labelCertificate).type('test.crt');
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
@@ -768,15 +774,15 @@ describe('Agent configurations modal', () => {
         poller_ids: [1],
         configuration: {
           is_reverse: true,
-          otel_ca_certificate: 'test',
-          otel_public_certificate: 'test',
-          otel_private_key: 'key',
+          otel_ca_certificate: 'test.crt',
+          otel_public_certificate: '/test.cer',
+          otel_private_key: 'private.key',
           hosts: [
             {
               address: '127.0.0.2',
               port: 4317,
-              poller_ca_name: 'test',
-              poller_ca_certificate: 'test'
+              poller_ca_name: 'test.crt',
+              poller_ca_certificate: 'test.crt'
             }
           ]
         }

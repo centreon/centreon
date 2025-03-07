@@ -17916,3 +17916,12 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "The minimum allowed value is 10"
 # msgstr ""
+
+# msgid "Relative paths are not allowed"
+# msgstr ""
+
+# msgid "Invalid path"
+# msgstr ""
+
+# msgid "Invalid extension"
+# msgstr ""

@@ -18377,3 +18377,12 @@ msgstr ""
 
 # msgid "MBI Reporting widgets"
 # msgstr ""
+
+# msgid "Relative paths are not allowed"
+# msgstr ""
+
+# msgid "Invalid path"
+# msgstr ""
+
+# msgid "Invalid extension"
+# msgstr ""
