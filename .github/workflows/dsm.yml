@@ -148,11 +148,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       github.repository == 'centreon/centreon'
-<<<<<<< HEAD
     runs-on: centreon-common
-=======
-    runs-on: [self-hosted, common]
->>>>>>> master
 
     strategy:
       matrix:
@@ -181,11 +177,7 @@ jobs:
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       github.repository == 'centreon/centreon' &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
-<<<<<<< HEAD
     runs-on: centreon-common
-=======
-    runs-on: [self-hosted, common]
->>>>>>> master
 
     strategy:
       matrix:
