@@ -1182,9 +1182,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                             ON imgdr.img_img_id = img.img_id
                         INNER JOIN `:db`.view_img_dir imgd
                             ON imgd.dir_id = imgdr.dir_dir_parent_id
-                        WHERE img.img_id IN (' . implode(',', $queryParameters->keys()) . ')';
+                        WHERE img.img_id IN (:' . implode(',:', $queryParameters->keys()) . ')';
 
-                foreach ($this->connection->iterateAssociative($query, $queryParameters) as $record) {
+                foreach (
+                    $this->connection->iterateAssociative(
+                        $this->translateDbName($query),
+                        $queryParameters
+                    ) as $record
+                ) {
                     /** @var array{
                      *     icon_id: int,
                      *     icon_name: string,
