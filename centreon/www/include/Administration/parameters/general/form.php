@@ -209,12 +209,20 @@ $form->registerRule('is_executable_binary', 'callback', 'is_executable_binary');
 $form->registerRule('is_writable_path', 'callback', 'is_writable_path');
 $form->registerRule('is_writable_file', 'callback', 'is_writable_file');
 $form->registerRule('is_writable_file_if_exist', 'callback', 'is_writable_file_if_exist');
+$form->registerRule('greaterthan', 'callback', 'isGreaterThan');
+
 $form->addRule('oreon_path', _('Mandatory field'), 'required');
 $form->addRule('oreon_path', _("Can't write in directory"), 'is_valid_path');
+
 $form->addRule('AjaxTimeReloadMonitoring', _('Mandatory field'), 'required');
 $form->addRule('AjaxTimeReloadMonitoring', _('Must be a number'), 'numeric');
+$form->addRule('AjaxTimeReloadMonitoring', _('The minimum allowed value is 10'), 'greaterthan', 10);
+
 $form->addRule('AjaxTimeReloadStatistic', _('Mandatory field'), 'required');
 $form->addRule('AjaxTimeReloadStatistic', _('Must be a number'), 'numeric');
+$form->addRule('AjaxTimeReloadStatistic', _('The minimum allowed value is 10'), 'greaterthan', 10);
+
+
 $form->addRule('selectPaginationSize', _('Mandatory field'), 'required');
 $form->addRule('selectPaginationSize', _('Must be a number'), 'numeric');
 $form->addRule('maxGraphPerformances', _('Mandatory field'), 'required');
@@ -232,11 +240,8 @@ $form->addRule(
     'isSessionDurationValid'
 );
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path . 'general/', $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . 'general/');
 
 $form->setDefaults($gopt);
 

@@ -24,6 +24,7 @@ import {
   labelDisplayView,
   labelInDowntime,
   labelMoreActions,
+  labelResourceFlapping,
   labelViewByHost,
   labelViewByService
 } from '../translatedLabels';
@@ -47,6 +48,7 @@ import useLoadDetails from './useLoadResources/useLoadDetails';
 
 import {
   __,
+  equals,
   filter,
   find,
   head,
@@ -860,16 +862,14 @@ describe('Notification column', () => {
         response: fakeData
       });
 
-      cy.fixture('resources/listing/listingWithInDowntimeAndAck.json').then(
-        (data) => {
-          cy.interceptAPIRequest({
-            alias: 'listing',
-            method: Method.GET,
-            path: '**/resources?*',
-            response: data
-          });
-        }
-      );
+      cy.fixture('resources/listing/listingWithStates.json').then((data) => {
+        cy.interceptAPIRequest({
+          alias: 'listing',
+          method: Method.GET,
+          path: '**/resources?*',
+          response: data
+        });
+      });
       cy.mount({
         Component: (
           <Router>
@@ -879,11 +879,77 @@ describe('Notification column', () => {
       });
     });
 
-    it('displays listing when some resources are in downtime/acknowledged', () => {
+    it('displays listing with state icons when the resource is in one or more states', () => {
       cy.waitForRequest('@filterRequest');
       cy.waitForRequest('@listing');
-
       cy.contains('Memory').should('be.visible');
+
+      cy.findByRole('table').within(() => {
+        cy.findAllByTestId('DowntimeIcon').should('have.length', 2);
+        cy.findAllByTestId('PersonIcon').should('have.length', 2);
+      });
+
+      cy.findAllByTestId('FlappingIcon').should('have.length', 4);
+      cy.findAllByTestId('FlappingIcon').first().trigger('mouseover');
+      cy.contains(labelResourceFlapping).should('be.visible');
+    });
+
+    it('displays the listing row in downtime color when the resource is in downtime state', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findAllByRole('row').should('have.length', 6);
+
+      cy.findAllByRole('row')
+        .eq(1)
+        .children()
+        .first()
+        .should(
+          'have.css',
+          'background-color',
+          equals(mode, 'dark') ? 'rgb(81, 41, 128)' : 'rgb(229, 216, 243)'
+        );
+
+      cy.makeSnapshot();
+    });
+    it('displays the listing row in acknowledge color when the resource is in acknowledge state but not in downtime', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findAllByRole('row').should('have.length', 6);
+
+      cy.findAllByRole('row')
+        .eq(2)
+        .children()
+        .first()
+        .should(
+          'have.css',
+          'background-color',
+          equals(mode, 'dark') ? 'rgb(116, 95, 53)' : 'rgb(223, 210, 185)'
+        );
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the listing row in flapping color when the resource is in flapping state only', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findAllByRole('row').should('have.length', 6);
+
+      cy.findAllByRole('row')
+        .eq(4)
+        .children()
+        .first()
+        .should(
+          'have.css',
+          'background-color',
+          equals(mode, 'dark') ? 'rgb(6, 74, 63)' : 'rgb(216, 243, 239)'
+        );
+
       cy.makeSnapshot();
     });
   });

@@ -196,9 +196,8 @@ $form->registerRule('exist', 'callback', 'testHostGroupExistence');
 $form->addRule('hg_name', _('Name is already in use'), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 if ($o === HOST_GROUP_WATCH) {
     // Just watch a HostGroup information
@@ -276,6 +275,8 @@ if ($form->validate()) {
         $hgObj->setValue(
             insertHostGroupInDB(isCloudPlatform: $isCloudPlatform)
         );
+        $hgs = $acl->getHostGroupAclConf();
+        $hostGroupIds = array_keys($hgs);
     } elseif ($form->getSubmitValue('submitC')) {
         updateHostGroupInDB(
             hostGroupId: $hgObj->getValue(),

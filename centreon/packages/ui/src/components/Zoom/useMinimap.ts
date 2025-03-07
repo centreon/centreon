@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { Point } from '@visx/point';
 import { ProvidedZoom, Translate } from '@visx/zoom/lib/types';
-import { equals, gt, isNil, pick } from 'ramda';
+import { equals, gt, pick } from 'ramda';
 
 import { ZoomState } from './models';
 
@@ -62,8 +62,8 @@ export const useMinimap = ({
   );
 
   const transformTo = useCallback(
-    (e): void => {
-      if (!isNil(e.nativeEvent.which) && !equals(e.nativeEvent.which, 1)) {
+    (e: MouseEvent): void => {
+      if (!equals(e.buttons, 1)) {
         return;
       }
       const { x, y } = getMatrixPoint(e);
@@ -76,11 +76,8 @@ export const useMinimap = ({
     [zoom.transformMatrix, scale]
   );
 
-  const dragStart = (e): void => {
-    if (
-      (!isNil(e.nativeEvent.which) && !equals(e.nativeEvent.which, 1)) ||
-      isDraggingFromContainer
-    ) {
+  const dragStart = (e: MouseEvent): void => {
+    if (!equals(e.buttons, 1) || isDraggingFromContainer) {
       return;
     }
     setStartPoint(getMatrixPoint(e));

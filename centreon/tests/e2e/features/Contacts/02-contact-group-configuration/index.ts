@@ -78,14 +78,27 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('input[name="cg_alias"]')
     .should('have.value', groups.GroupForUpdate.alias);
-  cy.getIframeBody().find('#cg_contacts').find('option:selected').then($selectedOptions => {
-    const selectedTexts = Array.from($selectedOptions).map(option => option.text);
-    expect(selectedTexts).to.include.members([groups.defaultGroup.linkedContact, groups.GroupForUpdate.linkedContact]);
-  });
-  cy.getIframeBody().find('#cg_acl_groups').find('option:selected').then($selectedOptions => {
-    const selectedTexts = Array.from($selectedOptions).map(option => option.text);
-    expect(selectedTexts).to.include.members(['ALL']);
-  });
+  cy.getIframeBody()
+    .find('#cg_contacts')
+    .find('option:selected')
+    .then(($selectedOptions) => {
+      const selectedTexts = Array.from($selectedOptions).map(
+        (option) => option.text
+      );
+      expect(selectedTexts).to.include.members([
+        groups.defaultGroup.linkedContact,
+        groups.GroupForUpdate.linkedContact
+      ]);
+    });
+  cy.getIframeBody()
+    .find('#cg_acl_groups')
+    .find('option:selected')
+    .then(($selectedOptions) => {
+      const selectedTexts = Array.from($selectedOptions).map(
+        (option) => option.text
+      );
+      expect(selectedTexts).to.include.members(['ALL']);
+    });
   cy.checkLegacyRadioButton(groups.GroupForUpdate.status);
   cy.getIframeBody()
     .find('textarea[name="cg_comment"]')
@@ -110,14 +123,26 @@ Then('a new contact group is created with identical properties', () => {
   cy.getIframeBody()
     .find('input[name="cg_alias"]')
     .should('have.value', groups.defaultGroup.alias);
-  cy.getIframeBody().find('#cg_contacts').find('option:selected').then($selectedOptions => {
-    const selectedTexts = Array.from($selectedOptions).map(option => option.text);
-    expect(selectedTexts).to.include.members([groups.defaultGroup.linkedContact]);
-  });
-  cy.getIframeBody().find('#cg_acl_groups').find('option:selected').then($selectedOptions => {
-    const selectedTexts = Array.from($selectedOptions).map(option => option.text);
-    expect(selectedTexts).to.include.members(['ALL']);
-  });
+  cy.getIframeBody()
+    .find('#cg_contacts')
+    .find('option:selected')
+    .then(($selectedOptions) => {
+      const selectedTexts = Array.from($selectedOptions).map(
+        (option) => option.text
+      );
+      expect(selectedTexts).to.include.members([
+        groups.defaultGroup.linkedContact
+      ]);
+    });
+  cy.getIframeBody()
+    .find('#cg_acl_groups')
+    .find('option:selected')
+    .then(($selectedOptions) => {
+      const selectedTexts = Array.from($selectedOptions).map(
+        (option) => option.text
+      );
+      expect(selectedTexts).to.include.members(['ALL']);
+    });
   cy.checkLegacyRadioButton(groups.defaultGroup.status);
   cy.getIframeBody()
     .find('textarea[name="cg_comment"]')
@@ -131,6 +156,9 @@ When('the user deletes the configured contact group', () => {
   cy.exportConfig();
 });
 
-Then('the deleted contact group is not visible anymore on the contact group page', () => {
-  cy.getIframeBody().contains(groups.defaultGroup.name).should('not.exist');
-});
+Then(
+  'the deleted contact group is not visible anymore on the contact group page',
+  () => {
+    cy.getIframeBody().contains(groups.defaultGroup.name).should('not.exist');
+  }
+);

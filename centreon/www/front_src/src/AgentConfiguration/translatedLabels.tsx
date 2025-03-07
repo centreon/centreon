@@ -18,7 +18,6 @@ export const labelDeletePoller = 'Delete poller';
 export const labelDeleteAgent = 'Delete agent';
 export const labelCancel = 'Cancel';
 export const labelDelete = 'Delete';
-export const labelAgentConfiguration = 'Agent configuration';
 export const labelPollerConfiguration = 'Poller configuration';
 export const labelRequired = 'Required';
 export const labelAddAgentConfiguration = 'Add poller/agent configuration';

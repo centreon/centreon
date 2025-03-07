@@ -25,5 +25,14 @@
         "warning_threshold": "100",
         "critical_threshold": "200",
         "comments": "Used for modification or duplication!"
+    },
+    "vmForMemory":{
+        "name": "vmtestname",
+        "linkedHostServices": "Centreon-Server - Disk-/",
+        "knownMetric": "count",
+        "unit": "%",
+        "warning_threshold": "200",
+        "critical_threshold": "400",
+        "comments": "comment!"
     }
 }

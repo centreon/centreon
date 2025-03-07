@@ -59,12 +59,13 @@ When('the user adds a virtual metric', () => {
   });
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
-  cy.addOrUpdateVirtualMetric(vms.default);
+  cy.addOrUpdateVirtualMetric(vms.default, false);
 });
 
 Then('all properties are saved', () => {
   cy.getIframeBody().contains(vms.default.name).should('exist');
   cy.getIframeBody().contains(vms.default.name).click();
+  cy.wait('@getTimeZone');
   cy.checkFieldsOfVM(vms.default);
   cy.getIframeBody()
     .find('.md-checkbox input[name="vhidden"]')
@@ -82,7 +83,7 @@ Given('an existing virtual metric', () => {
 
 When('the user changes the properties of the configured virtual metric', () => {
     cy.getIframeBody().contains(vms.default.name).click();
-    cy.addOrUpdateVirtualMetric(vms.vmForUpdate);
+    cy.addOrUpdateVirtualMetric(vms.vmForUpdate, false);
 });
 
 Then('these properties are updated', () => {

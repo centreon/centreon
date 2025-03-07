@@ -47,3 +47,4 @@ EXPOSE 80
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 ENV CENTREON_DATASET="1"
+ENV CENTREON_LANG="en_US"

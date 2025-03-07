@@ -137,9 +137,8 @@ if ($template) {
     $mainQueryParameters[':host_tpl_id'] = [\PDO::PARAM_INT => $template];
 }
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 

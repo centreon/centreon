@@ -18,7 +18,7 @@ import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
 import { SelectEntry } from '..';
 import { getNormalizedId } from '../../../utils';
 import TextField from '../../Text';
-import { searchLabel } from '../../translatedLabels';
+import { labelClear, labelOpen, searchLabel } from '../../translatedLabels';
 import Option from '../Option';
 
 export type Props = {
@@ -286,6 +286,14 @@ const AutocompleteField = forwardRef(
           );
         }}
         size="small"
+        slotProps={{
+          clearIndicator: {
+            title: t(labelClear)
+          },
+          popupIndicator: {
+            title: t(labelOpen)
+          }
+        }}
         {...autocompleteProps}
       />
     );

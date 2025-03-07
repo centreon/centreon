@@ -168,7 +168,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            applytpl($select ?? []);
+            applytpl(array_keys($select) ?? []);
         } else {
             unvalidFormMessage();
         }
