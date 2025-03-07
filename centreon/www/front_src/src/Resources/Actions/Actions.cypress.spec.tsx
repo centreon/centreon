@@ -176,6 +176,17 @@ const initialize = (): ReturnType<typeof createStore> => {
 };
 
 describe('Actions', () => {
+  it('', () => {
+    cy.window().then((win) => {
+      cy.stub(win, 'open').as('windowOpen'); // Stub window.open
+    });
+
+    cy.findByRole('button', { name: '' }).click();
+    cy.findByRole('').as('modal').should('be.visible');
+    // const expectedUrl = getE
+
+    cy.get('@windowOpen').should('be.calledWith', 'expected-url');
+  });
   it('sends a submit status request when a Resource is selected and the Submit status action is clicked', () => {
     const store = initialize();
     store.set(selectedResourcesAtom, [host]);

@@ -10,6 +10,7 @@ import useMediaQueryListing from './Resource/useMediaQueryListing';
 import ResourceActionsSkeleton from './ResourceActionsSkeleton';
 import VisualizationActions from './Visualization';
 import { useStyles } from './Visualization/Visualization.styles';
+import ExportCsv from './exportToCsv';
 import { Type } from './model';
 
 const WrapperResourceActions = lazy(() => import('./WrapperResourceActions'));
@@ -57,11 +58,14 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
       </Grid>
       <Grid
         item
+        wrap="nowrap"
         className={cx({
-          [classes.large]: !smallSize
+          [classes.large]: !smallSize,
+          [classes.small]: smallSize
         })}
       >
         <VisualizationActions displayCondensed={displayCondensed} />
+        <ExportCsv />
       </Grid>
     </Grid>
   );
