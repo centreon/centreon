@@ -37,11 +37,13 @@ final class HostGroupVoters extends Voter
     public const HOSTGROUP_ADD = 'hostgroup_add';
     public const HOSTGROUP_ENABLE_DISABLE = 'hostgroup_enable_disable';
     public const HOSTGROUP_DUPLICATE = 'hostgroup_duplicate';
+    public const HOSTGROUP_UPDATE = 'hostgroup_update';
     private const ALLOWED_ATTRIBUTES = [
         self::HOSTGROUP_ADD,
         self::HOSTGROUP_DELETE,
         self::HOSTGROUP_ENABLE_DISABLE,
         self::HOSTGROUP_DUPLICATE,
+        self::HOSTGROUP_UPDATE,
     ];
 
     /**
@@ -67,7 +69,8 @@ final class HostGroupVoters extends Voter
             self::HOSTGROUP_DELETE,
             self::HOSTGROUP_ADD,
             self::HOSTGROUP_ENABLE_DISABLE,
-            self::HOSTGROUP_DUPLICATE => $this->checkUserRights($user),
+            self::HOSTGROUP_DUPLICATE,
+            self::HOSTGROUP_UPDATE => $this->checkUserRights($user),
             default => false,
         };
     }

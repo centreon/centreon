@@ -25,6 +25,7 @@ namespace Core\ResourceAccess\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Contact\Domain\Model\ContactGroup;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterRelation;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\ResourceAccess\Domain\Model\TinyRule;
 
@@ -118,7 +119,16 @@ interface ReadResourceAccessRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return array<int, array<int>> [datasetId => [ResourceId1,ResourceId2, ...]]
+     * @return DatasetFilterRelation[]
      */
     public function findLastLevelDatasetFilterByRuleIdsAndType(array $ruleIds, string $type): array;
+
+    /**
+     * Check if rules exists by type and resource ID.
+     *
+     * @param string $type
+     * @param int $resourceId
+     * @return int[] array of Rule IDs
+     */
+    public function existByTypeAndResourceId(string $type, int $resourceId): array;
 }

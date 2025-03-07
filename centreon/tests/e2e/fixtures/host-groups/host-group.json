@@ -15,5 +15,13 @@
         "rrd": 2,
         "comment": "comment!",
         "is_activated": true
+    },
+    "forDuplicate": {
+        "name": "host_group_changed",
+        "alias": "host_group_changed",
+        "icon_id": 1,
+        "geo_coords": "2.3522219,48.856614",
+        "comment": "comment!",
+        "hosts": [15]
     }
 }

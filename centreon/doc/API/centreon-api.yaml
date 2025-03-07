@@ -20,6 +20,8 @@ info:
     + Added new endpoint to bulk delete services
     + Added new endpoint to bulk delete hostgroups
     + Added new endpoint to bulk enable/disable hostgroups
+    + Updated endpoint to add an hostgroup
+    + Updated endpoint to update an hostgroup
     + Added new endpoint to bulk duplicate hostgroups
     +
     # Information
@@ -6156,7 +6158,7 @@ components:
           description: "List of host IDs"
           items:
             type: integer
-          example: [1, 2, 3]
+            example: 1
     Configuration.Service.Group:
       allOf:
         - $ref: '#/components/schemas/Configuration.Service.Group.Add'

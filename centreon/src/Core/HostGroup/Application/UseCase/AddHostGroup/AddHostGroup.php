@@ -65,8 +65,8 @@ final class AddHostGroup
         private readonly bool $isCloudPlatform,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
-        private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
@@ -183,32 +183,42 @@ final class AddHostGroup
      */
     private function linkHostGroupToRAM(array $resourceAccessRuleIds, int $hostGroupId): void
     {
-        $datasetFilters = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
+        $datasetFilterRelations = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
             $resourceAccessRuleIds,
             HostGroupFilterType::TYPE_NAME
         );
-
-        foreach ($datasetFilters as $datasetId => $resourceIds) {
+        foreach ($datasetFilterRelations as $datasetFilterRelation) {
+            $resourceIds = $datasetFilterRelation->getResourceIds();
             $resourceIds[] = $hostGroupId;
-            $this->writeResourceAccessRepository->updateDatasetResources($datasetId, $resourceIds);
+            $this->writeResourceAccessRepository->updateDatasetResources(
+                $datasetFilterRelation->getDatasetFilterId(),
+                $resourceIds
+            );
+            $this->linkHostGroupToResourcesACL($hostGroupId, $datasetFilterRelation->getResourceAccessGroupId());
         }
-
     }
 
     /**
      * Link Host Groups to user Resource Access Groups
      *
      * @param int $hostGroupId
+     * @param int $datasetId
      *
      * @throws \Throwable
      */
-    private function linkHostGroupToResourcesACL(int $hostGroupId): void
+    private function linkHostGroupToResourcesACL(int $hostGroupId, ?int $datasetId = null): void
     {
-        if (! $this->user->isAdmin()) {
-            $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndAccessGroups(
+        if ($this->user->isAdmin()) {
+            return;
+        }
+        $datasetId !== null
+            ? $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndResourceAccessGroup(
+                $hostGroupId,
+                $datasetId
+            )
+            : $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndAccessGroups(
                 $hostGroupId,
                 $this->readAccessGroupRepository->findByContact($this->user)
             );
-        }
     }
 }
