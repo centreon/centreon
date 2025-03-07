@@ -4704,7 +4704,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{HostGroup4Name}}\",\n    \"alias\":\"{{HostGroup4Alias}}\",\n    \"notes_url\":\"I was created by the Read/Write user\"\n}"
+							"raw": "{\n    \"name\":\"{{HostGroup4Name}}\",\n    \"alias\":\"{{HostGroup4Alias}}\",\n    \"geo_coords\":\"\",\n    \"comment\":null,\n    \"icon_id\":null,\n    \"hosts\":[]\n    }"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
