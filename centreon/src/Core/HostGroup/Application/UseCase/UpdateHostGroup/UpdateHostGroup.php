@@ -102,10 +102,12 @@ final class UpdateHostGroup
             }
             $this->validator->assertNameDoesNotAlreadyExists($existingHostGroup, $request->name);
             $this->validator->assertHostsExist($request->hosts);
+            if ($request->iconId !== null) {
+                $this->validator->assertIconExists($request->iconId);
+            }
+
             if ($this->isCloudPlatform) {
                 $this->validator->assertResourceAccessRulesExist($request->resourceAccessRules);
-            } elseif ($request->iconId !== null) {
-                $this->validator->assertIconExists($request->iconId);
             }
 
             if (! $this->storageEngine->isAlreadyInTransaction()) {

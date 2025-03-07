@@ -54,12 +54,6 @@ final class UpdateHostGroupInput
         #[Assert\Type('string')]
         public readonly mixed $comment,
 
-        /**
-         * This field MUST NOT be used outside of a ON PREM Platform Context.
-         */
-        #[WhenPlatform(PlatformType::ON_PREM, [
-            new Assert\Type('integer'),
-        ])]
         public readonly mixed $iconId,
 
         #[Assert\NotNull()]
