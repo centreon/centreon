@@ -1,15 +1,31 @@
 import { Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { path, all, equals, isNil, map, not, nth, pipe, prop } from 'ramda';
+import {
+  path,
+  all,
+  equals,
+  isNil,
+  map,
+  not,
+  nth,
+  pipe,
+  prop,
+  type
+} from 'ramda';
 
 import { getDates, getTime } from '../../../../common/timeSeries';
 import { Line, TimeValue } from '../../../../common/timeSeries/models';
-import { getPointRadius, getStrokeDashArray } from '../../../../common/utils';
+import {
+  getPointRadius,
+  getStrokeDashArray,
+  getStyle
+} from '../../../../common/utils';
 import StackedAnchorPoint, {
   getYAnchorPoint
 } from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
 import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
 import { getCurveFactory, getFillColor } from '../../../common';
+import { LineStyle } from '../../../models';
 import Point from '../Point';
 
 interface Props {
@@ -26,6 +42,7 @@ interface Props {
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
+  lineStyle: LineStyle | Array<LineStyle>;
 }
 
 const StackLines = ({
@@ -34,19 +51,13 @@ const StackLines = ({
   yScale,
   xScale,
   displayAnchor,
-  curve,
-  showPoints,
-  showArea,
-  areaTransparency,
-  lineWidth,
-  dashLength,
-  dashOffset,
-  dotOffset
+  lineStyle
 }: Props): JSX.Element => {
-  const curveType = getCurveFactory(curve);
-
-  const formattedLineWidth = lineWidth ?? 2;
-
+  const curveType = getCurveFactory(
+    (equals(type(lineStyle), 'Array')
+      ? lineStyle?.[0].curve
+      : lineStyle?.curve) || 'linear'
+  );
   return (
     <Shape.AreaStack
       curve={curveType}
@@ -69,15 +80,21 @@ const StackLines = ({
           const { areaColor, transparency, lineColor, highlight, metric_id } =
             nth(index, lines) as Line;
 
-          const formattedTransparency = isNil(areaTransparency)
+          const style = getStyle({
+            style: lineStyle,
+            metricId: metric_id
+          }) as LineStyle;
+          const formattedLineWidth = style?.lineWidth ?? 2;
+
+          const formattedTransparency = isNil(style?.areaTransparency)
             ? transparency || 80
-            : areaTransparency;
+            : style.areaTransparency;
 
           return (
             <g key={`stack-${prop('key', stack)}`}>
               {displayAnchor && (
                 <StackedAnchorPoint
-                  areaColor={areaColor}
+                  areaColor={style?.areaColor}
                   lineColor={lineColor}
                   stackValues={stack as unknown as Array<StackValue>}
                   timeSeries={timeSeries}
@@ -86,13 +103,13 @@ const StackLines = ({
                   yScale={yScale}
                 />
               )}
-              {showPoints &&
+              {style?.showPoints &&
                 getDates(timeSeries).map((timeTick) => (
                   <Point
                     key={timeTick.toString()}
                     lineColor={lineColor}
                     metric_id={metric_id}
-                    radius={getPointRadius(lineWidth)}
+                    radius={getPointRadius(style?.lineWidth)}
                     timeSeries={timeSeries}
                     timeTick={timeTick}
                     xScale={xScale}
@@ -108,7 +125,7 @@ const StackLines = ({
                 d={linePath(stack) || ''}
                 data-metric={metric_id}
                 fill={
-                  equals(showArea, false)
+                  equals(style?.showArea, false)
                     ? 'transparent'
                     : getFillColor({
                         areaColor: areaColor || lineColor,
@@ -118,10 +135,10 @@ const StackLines = ({
                 opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
                 strokeDasharray={getStrokeDashArray({
-                  dashLength,
-                  dashOffset,
-                  dotOffset,
-                  lineWidth: formattedLineWidth
+                  dashLength: style?.dashLength,
+                  dashOffset: style?.dashOffset,
+                  dotOffset: style?.dotOffset,
+                  lineWidth: style?.lineWidth ?? 2
                 })}
                 strokeWidth={
                   highlight

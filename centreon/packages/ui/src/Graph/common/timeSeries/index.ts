@@ -581,7 +581,7 @@ const formatMetricValue = ({
 
   const formattedMetricValue = numeral(Math.abs(value))
     .format(`0.[00]${formatSuffix}`)
-    .replace(/iB/g, unit);
+    .replace(/(iB|B)/g, unit);
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;

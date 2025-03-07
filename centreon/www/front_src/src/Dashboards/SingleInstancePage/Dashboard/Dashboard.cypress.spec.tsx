@@ -627,7 +627,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
     });
-    it('expandes-reduces the widget when the corresponding button is clicked', () => {
+    it('expands-reduces the widget when the corresponding button is clicked', () => {
       federatedWidgets.forEach((widget) => {
         const widgetName = widget.moduleName;
 

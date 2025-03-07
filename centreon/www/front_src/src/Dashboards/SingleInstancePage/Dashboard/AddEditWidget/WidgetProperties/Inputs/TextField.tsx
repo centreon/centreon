@@ -4,7 +4,7 @@ import { useFormikContext } from 'formik';
 import { clamp, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { TextField } from '@centreon/ui';
+import { TextField, usePluralizedTranslation } from '@centreon/ui';
 
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 import type { Widget, WidgetPropertyProps } from '../../models';
@@ -25,6 +25,7 @@ const WidgetTextField = ({
   secondaryLabel
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
+  const { pluralizedT } = usePluralizedTranslation();
 
   const { classes } = useTextFieldStyles({ hasMarginBottom: !!secondaryLabel });
 
@@ -70,33 +71,47 @@ const WidgetTextField = ({
   return (
     <div className={classes.container}>
       {secondaryLabel && <Label>{t(secondaryLabel)}</Label>}
-      <TextField
-        fullWidth
-        autoSize={text?.autoSize}
-        autoSizeDefaultWidth={8}
-        className={className}
-        dataTestId={label}
-        disabled={!canEditField || disabled}
-        error={isTouched && error}
-        helperText={isTouched && error}
-        textFieldSlotsAndSlotProps={{
-          slotProps: {
-            htmlInput: {
-              'aria-label': t(label) as string,
-              max: text?.max,
-              min: text?.min,
-              step: text?.step || '1'
+      <div className={classes.inputContainer}>
+        <TextField
+          fullWidth
+          autoSize={text?.autoSize}
+          autoSizeDefaultWidth={8}
+          className={className}
+          dataTestId={label}
+          disabled={!canEditField || disabled}
+          error={isTouched && error}
+          helperText={isTouched && error}
+          textFieldSlotsAndSlotProps={{
+            slotProps: {
+              htmlInput: {
+                'aria-label': t(label) as string,
+                max: text?.max,
+                min: text?.min,
+                step: text?.step || '1'
+              }
             }
-          }
-        }}
-        label={t(label) || ''}
-        multiline={text?.multiline || false}
-        required={required}
-        size={text?.size || 'small'}
-        type={text?.type || 'text'}
-        value={value ?? ''}
-        onChange={change}
-      />
+          }}
+          label={t(label) || ''}
+          e
+          multiline={text?.multiline || false}
+          required={required}
+          size={text?.size || 'small'}
+          type={text?.type || 'text'}
+          value={value ?? ''}
+          onChange={change}
+        />
+        {text?.unit && (
+          <Typography>
+            {pluralizedT({
+              label: text.unit,
+              count:
+                equals(text.type, 'number') && text?.pluralize
+                  ? Number(value)
+                  : 1
+            })}
+          </Typography>
+        )}
+      </div>
     </div>
   );
 };

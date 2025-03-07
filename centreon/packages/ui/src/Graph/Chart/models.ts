@@ -110,12 +110,12 @@ export interface LineStyle {
 export interface LineChartProps {
   annotationEvent?: AnnotationEvent;
   axis?: ChartAxis;
-  barStyle?: BarStyle;
+  barStyle?: BarStyle | Array<BarStyle & { metricId: number }>;
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;
   legend?: LegendModel;
-  lineStyle?: LineStyle;
+  lineStyle?: LineStyle | Array<LineStyle & { metricId: number }>;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;

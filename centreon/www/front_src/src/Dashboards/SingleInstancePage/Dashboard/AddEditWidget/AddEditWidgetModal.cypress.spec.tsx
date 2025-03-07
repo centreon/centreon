@@ -28,8 +28,10 @@ import {
   labelCancel,
   labelDelete,
   labelEditWidget,
+  labelGenericWidgets,
   labelMetrics,
   labelPleaseChooseAWidgetToActivatePreview,
+  labelRealTimeWidgets,
   labelResourceType,
   labelSave,
   labelSelectAResource,
@@ -199,11 +201,13 @@ const generateResources = (resourceLabel: string): object => ({
 const availableWidgetsType = [
   {
     category: WidgetType.Generic,
-    wigetsTitle: ['Clock / Timer', 'Generic text', 'Web page']
+    categoryTitle: labelGenericWidgets,
+    widgetsTitle: ['Clock / Timer', 'Generic text', 'Web page']
   },
   {
     category: WidgetType.RealTime,
-    wigetsTitle: [
+    categoryTitle: labelRealTimeWidgets,
+    widgetsTitle: [
       'Group monitoring',
       'Metrics graph',
       'Resource table',
@@ -361,20 +365,24 @@ describe('AddEditWidgetModal', () => {
 
       it('displays widgets grouped under the appropriate category', () => {
         cy.findByTestId(labelWidgetType).click();
-        availableWidgetsType.forEach(({ category, wigetsTitle }) => {
-          cy.findByTestId(`${category}-accordion`).as('container');
-          cy.get('@container').findByText(category);
+        availableWidgetsType.forEach(
+          ({ category, categoryTitle, widgetsTitle }) => {
+            cy.findByTestId(`${category}-accordion`).as('container');
+            cy.get('@container').findByText(categoryTitle);
 
-          cy.get('@container').findByTestId(`${category}-summary`).as('header');
-          cy.get('@header').should('have.attr', 'aria-expanded', 'true');
-          wigetsTitle?.forEach((title) => {
-            cy.get('@container').findByText(title);
-          });
-          cy.get('@container').scrollIntoView();
-          cy.makeSnapshot(
-            `displays widgets grouped under the category ${category}`
-          );
-        });
+            cy.get('@container')
+              .findByTestId(`${category}-summary`)
+              .as('header');
+            cy.get('@header').should('have.attr', 'aria-expanded', 'true');
+            widgetsTitle?.forEach((title) => {
+              cy.get('@container').findByText(title);
+            });
+            cy.get('@container').scrollIntoView();
+            cy.makeSnapshot(
+              `displays widgets grouped under the category ${category}`
+            );
+          }
+        );
       });
     });
 

@@ -542,5 +542,5 @@
   },
   "moduleName": "centreon-widget-graph",
   "canExpand": true,
-  "widgetType": "Real time widgets"
+  "widgetType": "realtime"
 }

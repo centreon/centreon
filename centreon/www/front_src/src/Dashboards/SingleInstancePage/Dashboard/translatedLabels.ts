@@ -138,3 +138,6 @@ export const label12Hours = '12 hours';
 export const label24Hours = '24 hours';
 export const labelLast14Days = 'Last 14 days';
 export const labelLast2Months = 'Last 2 months';
+export const labelGenericWidgets = 'Generic widgets';
+export const labelRealTimeWidgets = 'Real time widgets';
+export const labelMBIReportingWidgets = 'MBI reporting widgets';

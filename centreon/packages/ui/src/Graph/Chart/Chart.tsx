@@ -150,15 +150,16 @@ const Chart = ({
       secondUnit
     });
 
-  const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
-    hasSecondUnit: Boolean(secondUnit),
-    height,
-    legendDisplay: legend?.display,
-    legendHeight: legend?.height,
-    legendPlacement: legend?.placement,
-    width,
-    maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
-  });
+  const { legendRef, graphWidth, graphHeight, titleRef } =
+    useComputeBaseChartDimensions({
+      hasSecondUnit: Boolean(secondUnit),
+      height,
+      legendDisplay: legend?.display,
+      legendHeight: legend?.height,
+      legendPlacement: legend?.placement,
+      width,
+      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
+    });
 
   const xScale = useMemo(
     () =>
@@ -273,6 +274,7 @@ const Chart = ({
           lines={linesGraph}
           setLines={setLinesGraph}
           title={title}
+          titleRef={titleRef}
         >
           <GraphValueTooltip
             baseAxis={baseAxis}
@@ -312,20 +314,13 @@ const Chart = ({
                   )}
                   {!isEmpty(linesDisplayedAsLine) && (
                     <Lines
-                      areaTransparency={lineStyle?.areaTransparency}
-                      curve={lineStyle?.curve || 'linear'}
-                      dashLength={lineStyle?.dashLength}
-                      dashOffset={lineStyle?.dashOffset}
+                      lineStyle={lineStyle}
                       displayAnchor={displayAnchor}
                       displayedLines={linesDisplayedAsLine}
-                      dotOffset={lineStyle?.dotOffset}
                       graphSvgRef={graphSvgRef}
                       height={graphHeight - margin.top}
-                      lineWidth={lineStyle?.lineWidth}
                       scale={axis?.scale}
                       scaleLogarithmicBase={axis?.scaleLogarithmicBase}
-                      showArea={lineStyle?.showArea}
-                      showPoints={lineStyle?.showPoints}
                       timeSeries={timeSeries}
                       width={graphWidth}
                       xScale={xScale}
