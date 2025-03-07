@@ -65,6 +65,7 @@ class CentreonConfigPoller
 {
     public const MISSING_POLLER_ID = "Missing poller ID";
     public const UNKNOWN_POLLER_ID = "Unknown poller ID";
+    public const CENTREON_SYSTEM_USER = 'centreon';
 
     /** @var CentreonDB */
     private $DB;
@@ -75,9 +76,11 @@ class CentreonConfigPoller
     /** @var int[] */
     private $resultTest = ["warning" => 0, "errors" => 0];
     /** @var string */
-    private $brokerCachePath;
+    private $brokerCachePath = _CENTREON_CACHEDIR_ . "/config/broker/";
     /** @var string */
-    private $engineCachePath;
+    private $engineCachePath = _CENTREON_CACHEDIR_ . "/config/engine/";
+    /** @var string */
+    private $vmWareCachePath = _CENTREON_CACHEDIR_ . "/config/vmware/";
     /** @var string */
     private $centreon_path;
     /** @var EngineCommandGenerator|null */
@@ -98,8 +101,6 @@ class CentreonConfigPoller
         $this->dependencyInjector = $dependencyInjector;
         $this->DB = $this->dependencyInjector["configuration_db"];
         $this->DBC = $this->dependencyInjector["realtime_db"];
-        $this->brokerCachePath = _CENTREON_CACHEDIR_ . "/config/broker/";
-        $this->engineCachePath = _CENTREON_CACHEDIR_ . "/config/engine/";
         $this->centreon_path = $centreon_path;
 
         $kernel = new Kernel('prod', false);
@@ -451,6 +452,20 @@ class CentreonConfigPoller
             foreach (glob($this->brokerCachePath . "/$poller_id/*.{xml,json,cfg}", GLOB_BRACE) as $file) {
                 chown($file, $apacheUser);
                 chgrp($file, $apacheUser);
+            }
+
+            /* Change VMWare Path mod */
+            chown($this->vmWareCachePath . "/$poller_id", $apacheUser);
+            chgrp($this->vmWareCachePath . "/$poller_id", self::CENTREON_SYSTEM_USER);
+
+            /**
+             * Change VMWare files owner to '660 apache centreon'
+             * RW for centreon group are necessary for Gorgone Daemon.
+             */
+            foreach (glob($this->vmWareCachePath . "/$poller_id/*.{json}", GLOB_BRACE) as $file) {
+                chmod($file, 0660);
+                chown($file, $apacheUser);
+                chgrp($file, self::CENTREON_SYSTEM_USER);
             }
         } else {
             $setFilesOwner = 0;
