@@ -18,12 +18,19 @@ interface Parameters {
   isAllColumnsChecked: boolean;
 }
 
+interface UseExportCsv {
+  exportCsv: () => void;
+  disableExport: boolean;
+  numberExportedLines: string;
+  getEndpoint: (enpoint: string) => string;
+}
+
 const maxResources = 10000;
 
 const useExportCsv = ({
   isAllColumnsChecked,
   isAllPagesChecked
-}: Parameters) => {
+}: Parameters): UseExportCsv => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
   const { getCriteriaNames, getCriteriaValue } = useGetCriteriaName();
@@ -106,27 +113,31 @@ const useExportCsv = ({
     );
   };
 
-  const getPages = () => {
-    if (isAllPagesChecked) {
-      return { total: listing?.meta?.total };
-    }
+  const getParameters = () => {
+    const { filtersParameters, queryParameters } = getCurrentFilterParameters();
 
-    return { page: listing?.meta?.page, limit: listing?.meta?.limit };
+    const paginationParameters = {
+      page: listing?.meta?.page,
+      limit: listing?.meta?.limit
+    };
+
+    const parameters = { ...filtersParameters, ...paginationParameters };
+
+    return { parameters, customQueryParameters: [...queryParameters] };
   };
 
   const getEndpoint = (baseEndpoint: string) => {
-    const { filtersParameters, queryParameters } = getCurrentFilterParameters();
-
-    const parameters = { ...filtersParameters, ...getPages() };
-    const customQueryParameters = [
-      ...queryParameters,
-      { name: 'columns', value: getColumns() }
-    ];
+    const { parameters, customQueryParameters } = getParameters();
 
     return buildListingEndpoint({
       parameters,
       baseEndpoint,
-      customQueryParameters
+      customQueryParameters: [
+        ...customQueryParameters,
+
+        { name: 'columns', value: getColumns() },
+        { name: 'isAllPages', value: isAllPagesChecked }
+      ]
     });
   };
 
@@ -153,11 +164,12 @@ const useExportCsv = ({
     showSuccessMessage(t(labelExportProcessingInProgress));
 
     const endpoint = getEndpoint('csvEndpoint');
+    console.log({ endpoint });
 
-    window.open(endpoint);
+    // window.open(endpoint, 'noopener', 'noreferrer');
   };
 
-  return { exportCsv, disableExport, numberExportedLines };
+  return { exportCsv, disableExport, numberExportedLines, getEndpoint };
 };
 
 export default useExportCsv;
