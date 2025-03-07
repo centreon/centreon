@@ -6137,6 +6137,11 @@ components:
           maxLength: 200
           description: "Host group alias"
           example: "All MySQL Servers"
+        icon_id:
+          type: integer
+          nullable: true
+          description: "Define the image ID that should be associated with this host group"
+          example: 1
         geo_coords:
           type: string
           nullable: true

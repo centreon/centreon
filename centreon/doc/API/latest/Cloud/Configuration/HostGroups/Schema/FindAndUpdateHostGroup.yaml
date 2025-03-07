@@ -17,6 +17,11 @@ properties:
     maxLength: 32
     description: "Geographical coordinates use by Centreon Map module to position element on map"
     example: "48.51,2.20"
+  comment:
+    type: string
+    nullable: true
+    description: "Host group comment"
+    example: "This is a comment"
   hosts:
     type: array
     description: "Hosts linked to this host group"
@@ -29,5 +34,3 @@ properties:
     items:
       type: integer
       description: "Resource access rule ID"
-
-
