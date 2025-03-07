@@ -57,7 +57,7 @@ Given('many virtual metrics are linked to a configured service', () => {
   // Wait until the 'Virtual metrics' is visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchVM"]');
   cy.getIframeBody().contains('a', 'Add').click();
-  cy.addOrUpdateVirtualMetric(vms.vmForMemory, true);
+  cy.addOrUpdateVirtualMetric(vms.default, true);
   //Type a value in 'Options' field for duplicate
   cy.getIframeBody().find('input[name="dupNbr[1]"]').clear().type('50');
   checkFirstVMFromListing();
@@ -76,9 +76,9 @@ When('the user displays the chart in performance page', () => {
   // Wait until the 'Chart' field is visible in the DOM
   cy.waitForElementInIframe('#main-content', '#select-chart');
   // Search for a chart to display
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).type('disk');
+  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).type('ping');
   // Chose memory service to display its graph
-  cy.getIframeBody().contains('div', 'Centreon-Server - Disk-/').click();
+  cy.getIframeBody().contains('div', 'Centreon-Server - Ping').click();
   cy.wait('@getGraphMetrics');
 })
 
