@@ -81,7 +81,9 @@ final class AddHostGroup
         try {
             $this->validator->assertNameDoesNotAlreadyExists($request->name);
             $this->validator->assertHostsExist($request->hosts);
-            $this->validator->assertIconExists($request->iconId);
+            if ($request->iconId !== null) {
+                $this->validator->assertIconExists($request->iconId);
+            }
             if ($this->isCloudPlatform) {
                 $this->validator->assertResourceAccessRulesExist($request->resourceAccessRules);
             }
