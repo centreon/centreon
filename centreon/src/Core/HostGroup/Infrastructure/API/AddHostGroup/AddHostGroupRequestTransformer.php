@@ -39,7 +39,7 @@ final class AddHostGroupRequestTransformer
             alias: (string) $input->alias,
             geoCoords: $input->geoCoords,
             comment: (string) $input->comment,
-            iconId: ! $isCloudPlatform ? $input->iconId: null,
+            iconId: $input->iconId,
             hosts: $input->hosts,
             resourceAccessRules: $isCloudPlatform ? $input->resourceAccessRules : []
         );
