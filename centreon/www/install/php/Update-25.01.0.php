@@ -25,6 +25,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 $versionOfTheUpgrade = 'UPGRADE - 25.01.0: ';
 $errorMessage = '';
 
+<<<<<<< HEAD
 // -------------------------------------------- Dashboard -------------------------------------------- //
 
 /**
@@ -33,6 +34,9 @@ $errorMessage = '';
  * @throws CentreonDbException
  * @return void
  */
+=======
+// dashboard user profile
+>>>>>>> master
 $createUserProfileTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table user_profile';
     $pearDB->executeQuery(
@@ -74,7 +78,11 @@ $createUserProfileFavoriteDashboards = function (CentreonDB $pearDB) use (&$erro
     );
 };
 
+<<<<<<< HEAD
 // -------------------------------------------- Dahsboard thumbnail -------------------------------------------- //
+=======
+// dashboard thumbail
+>>>>>>> master
 $createDashboardThumbnailTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add table dashboard_thumbnail_relation';
     $pearDB->executeQuery(
@@ -96,7 +104,11 @@ $createDashboardThumbnailTable = function (CentreonDB $pearDB) use (&$errorMessa
     );
 };
 
+<<<<<<< HEAD
 // -------------------------------------------- Agent configuration -------------------------------------------- //
+=======
+// Agent Configuration
+>>>>>>> master
 $createAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to create agent_configuration table';
     $pearDB->executeQuery(
@@ -172,11 +184,19 @@ try {
 
     $insertAgentConfigurationTopology($pearDB);
 
+<<<<<<< HEAD
     $pearDB->commit();
 } catch (CentreonDbException $e) {
     CentreonLog::create()->critical(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: $versionOfTheUpgrade . $errorMessage
+=======
+} catch (Exception $e) {
+    $centreonLog->log(
+        CentreonLog::TYPE_UPGRADE,
+        CentreonLog::LEVEL_ERROR,
+        $versionOfTheUpgrade . $errorMessage
+>>>>>>> master
         . ' - Code : ' . (int) $e->getCode()
         . ' - Error : ' . $e->getMessage()
         . ' - Trace : ' . $e->getTraceAsString(),
@@ -191,5 +211,9 @@ try {
         $pearDB->rollBack();
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
     throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
