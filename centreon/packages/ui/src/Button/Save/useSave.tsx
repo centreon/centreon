@@ -1,4 +1,7 @@
+import CheckIcon from '@mui/icons-material/Check';
+import SaveIcon from '@mui/icons-material/Save';
 import {
+  T,
   always,
   any,
   cond,
@@ -7,13 +10,10 @@ import {
   not,
   or,
   pipe,
-  propEq,
-  T
+  propEq
 } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import CheckIcon from '@mui/icons-material/Check';
-import SaveIcon from '@mui/icons-material/Save';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Props } from '.';
 
 interface StartIconConfigProps {
