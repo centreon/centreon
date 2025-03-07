@@ -3810,7 +3810,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostGroup3Name}}\",\n    \"alias\": \"{{HostGroup3Alias}}\",\n    \"comment\":\"Transformmattiooonnnnnn!!!!!\",\n     \"geo_coords\":\"\",\n     \"icon_id\":null,\n     \"hosts\":[],\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup3Name}}\",\n    \"alias\": \"{{HostGroup3Alias}}\",\n    \"comment\":\"Transformmattiooonnnnnn!!!!!\",\n     \"geo_coords\":null,\n     \"icon_id\":null,\n     \"hosts\":[]\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup3Id}}",
