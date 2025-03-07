@@ -52,9 +52,7 @@ final class FindHostGroupsController extends AbstractController
 
         return JsonResponse::fromJsonString($presenter->present(
             $response,
-            ['groups' => [
-                $isCloudPlatform ? 'FindHostGroups:Saas' : 'FindHostGroups:OnPrem',
-            ],
+            ['groups' => [$isCloudPlatform ? 'HostGroup:List:Saas' : 'HostGroup:List:OnPrem'],
             ]
         ));
     }

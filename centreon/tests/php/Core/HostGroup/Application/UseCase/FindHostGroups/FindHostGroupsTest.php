@@ -31,10 +31,12 @@ use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\UseCase\FindHostGroups\FindHostGroups;
 use Core\HostGroup\Application\UseCase\FindHostGroups\FindHostGroupsResponse;
+use Core\HostGroup\Application\UseCase\FindHostGroups\HostGroupResponse;
 use Core\HostGroup\Domain\Model\HostGroup;
-use Core\HostGroup\Domain\Model\HostsCountById;
+use Core\HostGroup\Domain\Model\HostGroupRelationCount;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -43,44 +45,32 @@ beforeEach(function (): void {
     $this->useCase = new FindHostGroups(
         $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readMediaRepository = $this->createMock(ReadMediaRepositoryInterface::class),
         $this->createMock(RequestParametersInterface::class),
         $this->contact = $this->createMock(ContactInterface::class),
     );
 
-    $this->hostsCountById = new HostsCountById();
-    $this->hostsCountById->setEnabledCount(1, 1);
-    $this->hostsCountById->setDisabledCount(1, 2);
+     $this->hostCounts = new HostGroupRelationCount(1, 2);
 
     $this->hostGroup = new HostGroup(
-        1,
-        'hg-name',
-        'hg-alias',
-        '',
-        '',
-        '',
-        12,
-        null,
-        null,
-        $this->geoCoords = GeoCoords::fromString('-2,100'),
-        '',
-        true
+        id: 1,
+        name: 'hg-name',
+        alias: 'hg-alias',
+        notes: '',
+        notesUrl: '',
+        actionUrl: '',
+        iconId: null,
+        iconMapId: null,
+        rrdRetention: null,
+        geoCoords: $this->geoCoords = GeoCoords::fromString('-2,100'),
+        comment: '',
+        isActivated: true,
     );
-    $this->hostGroupResponse = [
-        'id' => 1,
-        'name' => 'hg-name',
-        'alias' => 'hg-alias',
-        'notes' => '',
-        'notesUrl' => '',
-        'actionUrl' => '',
-        'iconId' => 12,
-        'iconMapId' => null,
-        'rrdRetention' => null,
-        'geoCoords' => $this->geoCoords,
-        'comment' => '',
-        'isActivated' => true,
-        'enabledHostsCount' => 1,
-        'disabledHostsCount' => 2,
-    ];
+
+    $this->hostGroupResponse = new HostGroupResponse(
+        $this->hostGroup,
+        $this->hostCounts,
+    );
 });
 
 it(
@@ -118,40 +108,16 @@ it(
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findHostsCountByIds')
-            ->willReturn($this->hostsCountById);
+            ->willReturn([$this->hostGroup->getId() => $this->hostCounts]);
 
         $response = ($this->useCase)();
 
         expect($response)
             ->toBeInstanceOf(FindHostGroupsResponse::class)
-            ->and($response->hostgroups[0]->id)
-            ->toBe($this->hostGroupResponse['id'])
-            ->and($response->hostgroups[0]->name)
-            ->toBe($this->hostGroupResponse['name'])
-            ->and($response->hostgroups[0]->alias)
-            ->toBe($this->hostGroupResponse['alias'])
-            ->and($response->hostgroups[0]->notes)
-            ->toBe($this->hostGroupResponse['notes'])
-            ->and($response->hostgroups[0]->notesUrl)
-            ->toBe($this->hostGroupResponse['notesUrl'])
-            ->and($response->hostgroups[0]->actionUrl)
-            ->toBe($this->hostGroupResponse['actionUrl'])
-            ->and($response->hostgroups[0]->iconId)
-            ->toBe($this->hostGroupResponse['iconId'])
-            ->and($response->hostgroups[0]->iconMapId)
-            ->toBe($this->hostGroupResponse['iconMapId'])
-            ->and($response->hostgroups[0]->rrdRetention)
-            ->toBe($this->hostGroupResponse['rrdRetention'])
-            ->and($response->hostgroups[0]->geoCoords)
-            ->toBe($this->hostGroupResponse['geoCoords'])
-            ->and($response->hostgroups[0]->comment)
-            ->toBe($this->hostGroupResponse['comment'])
-            ->and($response->hostgroups[0]->isActivated)
-            ->toBe($this->hostGroupResponse['isActivated'])
-            ->and($response->hostgroups[0]->enabledHostsCount)
-            ->toBe($this->hostGroupResponse['enabledHostsCount'])
-            ->and($response->hostgroups[0]->disabledHostsCount)
-            ->toBe($this->hostGroupResponse['disabledHostsCount']);
+            ->and($response->hostgroups[0]->hostgroup)
+            ->toBe($this->hostGroup)
+            ->and($response->hostgroups[0]->hostsCount)
+            ->toBe($this->hostCounts);
     }
 );
 
@@ -178,39 +144,15 @@ it(
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findHostsCountByAccessGroupsIds')
-            ->willReturn($this->hostsCountById);
+            ->willReturn([$this->hostGroup->getId() => $this->hostCounts]);
 
         $response = ($this->useCase)();
 
         expect($response)
             ->toBeInstanceOf(FindHostGroupsResponse::class)
-            ->and($response->hostgroups[0]->id)
-            ->toBe($this->hostGroupResponse['id'])
-            ->and($response->hostgroups[0]->name)
-            ->toBe($this->hostGroupResponse['name'])
-            ->and($response->hostgroups[0]->alias)
-            ->toBe($this->hostGroupResponse['alias'])
-            ->and($response->hostgroups[0]->notes)
-            ->toBe($this->hostGroupResponse['notes'])
-            ->and($response->hostgroups[0]->notesUrl)
-            ->toBe($this->hostGroupResponse['notesUrl'])
-            ->and($response->hostgroups[0]->actionUrl)
-            ->toBe($this->hostGroupResponse['actionUrl'])
-            ->and($response->hostgroups[0]->iconId)
-            ->toBe($this->hostGroupResponse['iconId'])
-            ->and($response->hostgroups[0]->iconMapId)
-            ->toBe($this->hostGroupResponse['iconMapId'])
-            ->and($response->hostgroups[0]->rrdRetention)
-            ->toBe($this->hostGroupResponse['rrdRetention'])
-            ->and($response->hostgroups[0]->geoCoords)
-            ->toBe($this->hostGroupResponse['geoCoords'])
-            ->and($response->hostgroups[0]->comment)
-            ->toBe($this->hostGroupResponse['comment'])
-            ->and($response->hostgroups[0]->isActivated)
-            ->toBe($this->hostGroupResponse['isActivated'])
-            ->and($response->hostgroups[0]->enabledHostsCount)
-            ->toBe($this->hostGroupResponse['enabledHostsCount'])
-            ->and($response->hostgroups[0]->disabledHostsCount)
-            ->toBe($this->hostGroupResponse['disabledHostsCount']);
+            ->and($response->hostgroups[0]->hostgroup)
+            ->toBe($this->hostGroup)
+            ->and($response->hostgroups[0]->hostsCount)
+            ->toBe($this->hostCounts);
     }
 );
