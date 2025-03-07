@@ -219,6 +219,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
                 hg_alias,
                 geo_coords,
                 hg_comment,
+                hg_icon_image,
                 hg_activate
             )
             SELECT
@@ -226,6 +227,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
                 hg_alias,
                 geo_coords,
                 hg_comment,
+                hg_icon_image,
                 hg_activate
             FROM `:db`.`hostgroup`
             WHERE hg_id = :hostgroup_id
