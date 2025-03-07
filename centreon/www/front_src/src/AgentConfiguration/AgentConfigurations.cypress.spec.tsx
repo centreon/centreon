@@ -434,7 +434,7 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPollers).focus();
     cy.findByLabelText(labelPollers).blur();
     cy.findAllByLabelText(labelPort).eq(0).type('123456');
-    cy.findByLabelText(labelPublicCertificate).type('test.cert');
+    cy.findByLabelText(labelPublicCertificate).type('test.cer');
     cy.findByLabelText(labelCaCertificate).type('test.crt');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.key');
     cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.key');

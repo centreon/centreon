@@ -5,60 +5,69 @@ import { Schema, array, boolean, mixed, number, object, string } from 'yup';
 import { AgentConfigurationForm, AgentType } from '../models';
 import {
   labelAddressInvalid,
-  labelInvalidFilename,
+  labelInvalidExtension,
+  labelInvalidPath,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
+  labelRelativePathAreNotAllowed,
   labelRequired
 } from '../translatedLabels';
 
 const ipAddressRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
 const urlRegex = /^[a-zA-Z0-9_-]+\.?[a-zA-Z0-9-_.]+\.?[a-zA-Z0-9-_]+$/;
 export const portRegex = /:[0-9]+$/;
-export const certificateFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.crt|cert|cer)$/;
 export const keyFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.key)$/;
+
+const invalidPath = /^(?!.*\/\/).+$/;
+const validExtensionRegex = /\.(crt|key|cer)$/;
+const relativePathRegex = /^\.{1,2}\//;
 
 export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const { t } = useTranslation();
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
+
   const certificateValidation = useMemo(
     () =>
       string()
-        .matches(certificateFilenameRegexp, t(labelInvalidFilename))
-        .required(t(labelRequired)),
+        .test({
+          name: 'invalid-path',
+          message: t(labelInvalidPath),
+          test: (value) => !value || invalidPath.test(value)
+        })
+        .test({
+          name: 'is-not-relative-path',
+          message: t(labelRelativePathAreNotAllowed),
+          test: (value) => !value || !relativePathRegex.test(value)
+        })
+        .test({
+          name: 'has-valid-extension',
+          message: t(labelInvalidExtension),
+          test: (value) => !value || validExtensionRegex.test(value)
+        }),
     []
   );
-  const keyValidation = useMemo(
-    () =>
-      string()
-        .matches(keyFilenameRegexp, t(labelInvalidFilename))
-        .required(t(labelRequired)),
-    []
-  );
+
   const portValidation = number()
     .min(1, t(labelPortMustStartFrom1))
     .max(65535, t(labelPortExpectedAtMost))
     .required(t(labelRequired));
-  const certificateNullableValidation = string()
-    .matches(certificateFilenameRegexp, t(labelInvalidFilename))
-    .nullable();
+  const certificateNullableValidation = certificateValidation.nullable();
 
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
-    otelPublicCertificate: certificateValidation,
+    otelPublicCertificate: certificateValidation.required(t(labelRequired)),
     otelCaCertificate: certificateNullableValidation,
-    otelPrivateKey: keyValidation,
-    confCertificate: certificateValidation,
-    confPrivateKey: keyValidation
+    otelPrivateKey: certificateValidation.required(t(labelRequired)),
+    confCertificate: certificateValidation.required(t(labelRequired)),
+    confPrivateKey: certificateValidation.required(t(labelRequired))
   };
 
   const CMAConfigurationSchema = {
     isReverse: boolean(),
-    otelPublicCertificate: certificateValidation,
-    otelCaCertificate: string()
-      .matches(certificateFilenameRegexp, t(labelInvalidFilename))
-      .nullable(),
-    otelPrivateKey: keyValidation,
+    otelPublicCertificate: certificateValidation.required(t(labelRequired)),
+    otelCaCertificate: certificateValidation.nullable(),
+    otelPrivateKey: certificateValidation.required(t(labelRequired)),
     hosts: array()
       .of(
         object({
@@ -73,7 +82,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             .required(t(labelRequired)),
           port: portValidation,
           pollerCaCertificate: certificateNullableValidation,
-          pollerCaName: string().nullable()
+          pollerCaName: certificateNullableValidation
         })
       )
       .when('isReverse', {
