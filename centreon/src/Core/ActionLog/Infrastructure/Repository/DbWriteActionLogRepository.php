@@ -23,17 +23,32 @@ declare(strict_types=1);
 
 namespace Core\ActionLog\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
+/**
+ * Class
+ *
+ * @class   DbWriteActionLogRepository
+ * @package Core\ActionLog\Infrastructure\Repository
+ */
 class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteActionLogRepositoryInterface
 {
     use LoggerTrait;
 
     /**
+     * DbWriteActionLogRepository constructor
+     *
      * @param DatabaseConnection $db
      */
     public function __construct(DatabaseConnection $db)
@@ -42,7 +57,10 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
     }
 
     /**
-     * @inheritDoc
+     * @param ActionLog $actionLog
+     *
+     * @throws RepositoryException
+     * @return int
      */
     public function addAction(ActionLog $actionLog): int
     {
@@ -65,22 +83,40 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
                 )
                 SQL
         );
+        try {
+            $this->db->insert($request, QueryParameters::create([
+                QueryParameter::int('creation_date', $actionLog->getCreationDate()->getTimestamp()),
+                QueryParameter::string('object_type', $actionLog->getObjectType()),
+                QueryParameter::int('object_id', $actionLog->getObjectId()),
+                QueryParameter::string('object_name', $actionLog->getObjectName()),
+                QueryParameter::string('action_type', $actionLog->getActionType()),
+                QueryParameter::int('contact_id', $actionLog->getContactId()),
+            ]));
 
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':creation_date', $actionLog->getCreationDate()->getTimestamp(), \PDO::PARAM_INT);
-        $statement->bindValue(':object_type', $actionLog->getObjectType(), \PDO::PARAM_STR);
-        $statement->bindValue(':object_id', $actionLog->getObjectId(), \PDO::PARAM_INT);
-        $statement->bindValue(':object_name', $actionLog->getObjectName(), \PDO::PARAM_STR);
-        $statement->bindValue(':action_type', $actionLog->getActionType(), \PDO::PARAM_STR);
-        $statement->bindValue(':contact_id', $actionLog->getContactId(), \PDO::PARAM_INT);
+            return (int) $this->db->getLastInsertId();
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            $this->error(
+                "Add action log failed : {$exception->getMessage()}",
+                [
+                    'action_log' => $actionLog,
+                    'exception' => $exception->getContext(),
+                ]
+            );
 
-        $statement->execute();
-
-        return (int) $this->db->lastInsertId();
+            throw new RepositoryException(
+                "Add action log failed : {$exception->getMessage()}",
+                ['action_log' => $actionLog],
+                $exception
+            );
+        }
     }
 
     /**
-     * @inheritDoc
+     * @param ActionLog $actionLog
+     * @param array<string,mixed> $details
+     *
+     * @throws RepositoryException
+     * @return void
      */
     public function addActionDetails(ActionLog $actionLog, array $details): void
     {
@@ -88,47 +124,69 @@ class DbWriteActionLogRepository extends AbstractRepositoryRDB implements WriteA
             return;
         }
 
-        $aleadyInTransction = $this->db->inTransaction();
-        if (! $aleadyInTransction) {
-            $this->db->beginTransaction();
+        if ($actionLog->getId() === null) {
+            throw new RepositoryException('Action log id is required to add details');
         }
 
+        $isTransactionActive = $this->db->isTransactionActive();
+
         try {
-            $request = $this->translateDbName(
-                <<<'SQL'
-                    INSERT INTO `:dbstg`.`log_action_modification` (
-                        `field_name`,
-                        `field_value`,
-                        `action_log_id`
-                    ) VALUES (
-                        :field_name,
-                        :field_value,
-                        :action_log_id
-                    )
-                    SQL
+            if (! $isTransactionActive) {
+                $this->db->startTransaction();
+            }
+
+            $batchQueryParameters = [];
+            foreach ($details as $fieldName => $fieldValue) {
+                $batchQueryParameters[] = QueryParameters::create([
+                    QueryParameter::string('field_name', $fieldName),
+                    QueryParameter::string('field_value', (string) $fieldValue),
+                    QueryParameter::int('action_log_id', (int) $actionLog->getId()),
+                ]);
+            }
+
+            $this->db->batchInsert(
+                $this->translateDbName('`:dbstg`.`log_action_modification`'),
+                ['`field_name`', '`field_value`', '`action_log_id`'],
+                BatchInsertParameters::create($batchQueryParameters)
             );
 
-            $statement = $this->db->prepare($request);
+            if (! $isTransactionActive) {
+                $this->db->commitTransaction();
+            }
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            $this->error(
+                "Add action log failed : {$exception->getMessage()}",
+                [
+                    'action_log' => $actionLog,
+                    'exception' => $exception->getContext(),
+                ]
+            );
 
-            foreach ($details as $fieldName => $fieldValue) {
-                $statement->bindValue(':field_name', $fieldName, \PDO::PARAM_STR);
-                $statement->bindValue(':field_value', $fieldValue, \PDO::PARAM_STR);
-                $statement->bindValue(':action_log_id', $actionLog->getId(), \PDO::PARAM_INT);
+            if (! $isTransactionActive) {
+                try {
+                    $this->db->rollBackTransaction();
+                } catch (ConnectionException $rollbackException) {
+                    $this->error(
+                        "Rollback failed for action logs: {$rollbackException->getMessage()}",
+                        [
+                            'action_log' => $actionLog,
+                            'exception' => $rollbackException->getContext(),
+                        ]
+                    );
 
-                $statement->execute();
+                    throw new RepositoryException(
+                        "Rollback failed for action logs: {$rollbackException->getMessage()}",
+                        ['action_log' => $actionLog],
+                        $rollbackException
+                    );
+                }
             }
 
-            if (! $aleadyInTransction) {
-                $this->db->commit();
-            }
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-            if (! $aleadyInTransction) {
-                $this->db->rollBack();
-            }
-
-            throw $ex;
+            throw new RepositoryException(
+                "Add action log failed : {$exception->getMessage()}",
+                ['action_log' => $actionLog],
+                $exception
+            );
         }
     }
 }

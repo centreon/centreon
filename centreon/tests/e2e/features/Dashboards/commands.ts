@@ -395,6 +395,7 @@ Cypress.Commands.add(
   }
 );
 
+
 Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
   const defaultHostData = {
     address: '127.0.0.1',
