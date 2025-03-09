@@ -4,5 +4,6 @@ export const defaultValues = {
   comment: '',
   geoCoords: '',
   hosts: [],
-  resourceAccessRules: []
+  resourceAccessRules: [],
+  icon: null
 };

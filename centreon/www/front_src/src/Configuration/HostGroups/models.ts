@@ -8,6 +8,7 @@ export interface HostGroupListItem extends NamedEntity {
   enabledHostsCount: number;
   disabledHostsCount: number;
   isActivated: boolean;
+  icon: null | (NamedEntity & { url: string });
 }
 
 export type ListMeta = {
@@ -27,4 +28,5 @@ export interface HostGroupItem extends NamedEntity {
   isActivated: boolean;
   hosts: Array<NamedEntity>;
   resourceAccessRules?: Array<NamedEntity>;
+  icon: null | (NamedEntity & { url: string });
 }

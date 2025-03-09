@@ -27,7 +27,7 @@ interface UseHostGroupsState {
 
 const adaptFormToApiPayload =
   ({ isCloudPlatform }) =>
-  ({ name, alias, comment, geoCoords, hosts, resourceAccessRules }) => {
+  ({ name, alias, comment, geoCoords, hosts, resourceAccessRules, icon }) => {
     const cloudProperties = isCloudPlatform
       ? { resource_access_rules: pluck('id', resourceAccessRules) }
       : {};
@@ -38,6 +38,7 @@ const adaptFormToApiPayload =
       comment,
       geo_coords: geoCoords,
       hosts: pluck('id', hosts),
+      icon_id: icon?.id || null,
       ...cloudProperties
     };
 

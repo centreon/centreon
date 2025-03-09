@@ -8,13 +8,19 @@ const namedEntityDecoder = {
   name: JsonDecoder.string
 };
 
+const iconDecoder = {
+  ...namedEntityDecoder,
+  url: JsonDecoder.string
+};
+
 const hostGroupsDecoder = JsonDecoder.object<HostGroupListItem>(
   {
     ...namedEntityDecoder,
     alias: JsonDecoder.nullable(JsonDecoder.string),
     enabledHostsCount: JsonDecoder.number,
     disabledHostsCount: JsonDecoder.number,
-    isActivated: JsonDecoder.boolean
+    isActivated: JsonDecoder.boolean,
+    icon: JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
   },
   'Host group',
   {
@@ -46,7 +52,8 @@ export const hostGroupDecoder = JsonDecoder.object<HostGroupItem>(
         JsonDecoder.object(namedEntityDecoder, 'Access Rule'),
         'Access Rules'
       )
-    )
+    ),
+    icon: JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
   },
   'Host group',
   {

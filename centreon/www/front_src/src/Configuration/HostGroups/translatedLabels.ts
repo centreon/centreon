@@ -26,3 +26,5 @@ export const labelGeographicCoordinates = 'Geographic coordinates for MAP';
 
 export const labelRequired = 'Required';
 export const labelInvalidCoordinateFormat = 'Invalid geo-coordinate format';
+
+export const labelIcon = 'Icon';

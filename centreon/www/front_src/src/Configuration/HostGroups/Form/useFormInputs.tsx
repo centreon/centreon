@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
+import IconFiled from './IconFiled';
+
 import {
   hostListEndpoint,
   resourceAccessRulesEndpoint
@@ -110,10 +112,21 @@ const useFormInputs = (): FormInputsState => {
       type: InputType.MultiConnectedAutocomplete
     },
     {
-      fieldName: 'geoCoords',
+      type: InputType.Grid,
       group: t(labelExtendedInformation),
-      label: t(labelGeographicCoordinates),
-      type: InputType.Text
+      grid: {
+        columns: [
+          {
+            fieldName: 'geoCoords',
+            label: t(labelGeographicCoordinates),
+            type: InputType.Text
+          },
+          {
+            custom: { Component: IconFiled },
+            type: InputType.Custom
+          }
+        ]
+      }
     },
     {
       fieldName: 'comment',
