@@ -21,7 +21,7 @@ export const hostListEndpoint = '/configuration/hosts';
 export const resourceAccessRulesEndpoint =
   '/administration/resource-access/rules';
 
-const listImagesEndpoint = '/configuration/icons';
+export const listImagesEndpoint = '/configuration/icons';
 
 export const getListImagesSearchEndpoint = ({ search, page }): string =>
   buildListingEndpoint({

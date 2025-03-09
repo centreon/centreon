@@ -6,6 +6,9 @@ import {
   labelResourceAccessRule
 } from '../translatedLabels';
 
+import centreonWallpaper from './assets/centreon-wallpaper.jpg';
+import cypressLogo from './assets/cypress-logo.jpg';
+
 export const getListingResponse = (resourceType) => ({
   result: Array.from({ length: 8 }, (_, i) => ({
     id: i,
@@ -15,7 +18,14 @@ export const getListingResponse = (resourceType) => ({
       : `alias for  ${resourceType} ${i}`,
     enabled_hosts_count: i % 2 ? 0 : 3 * i,
     disabled_hosts_count: i % 2 ? 5 * i : 0,
-    is_activated: !!(i % 2)
+    is_activated: !!(i % 2),
+    icon: equals(i, 0)
+      ? {
+          id: 1,
+          name: 'cypress_logo',
+          url: cypressLogo
+        }
+      : null
   })),
   meta: {
     limit: 10,
@@ -52,7 +62,12 @@ export const getDetailsResponse = ({ isCloudPlatform = false }) => ({
     : {}),
   geo_coords: '-40.16,98.22',
   comment: 'host group 1 comment',
-  is_activated: true
+  is_activated: true,
+  icon: {
+    id: 1,
+    name: 'cypress_logo',
+    url: cypressLogo
+  }
 });
 
 export const getPayload = ({ isCloudPlatform = false }) => ({
@@ -61,7 +76,8 @@ export const getPayload = ({ isCloudPlatform = false }) => ({
   hosts: [1, 2, 3],
   ...(isCloudPlatform ? { resource_access_rules: [1, 2] } : {}),
   geo_coords: '-40.16,98.22',
-  comment: 'host group 1 comment'
+  comment: 'host group 1 comment',
+  icon_id: 1
 });
 
 export const getGroups = ({ isCloudPlatform = false }) => [
@@ -80,3 +96,27 @@ export const getGroups = ({ isCloudPlatform = false }) => [
     : []),
   { name: labelExtendedInformation }
 ];
+
+export const listImagesResponse = {
+  meta: {
+    limit: 10,
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: 1
+  },
+  result: [
+    {
+      directory: 'ppm',
+      id: 1,
+      name: 'cypress_logo',
+      url: cypressLogo
+    },
+    {
+      directory: 'ppm',
+      id: 2,
+      name: 'centreon_wallpaper',
+      url: centreonWallpaper
+    }
+  ]
+};

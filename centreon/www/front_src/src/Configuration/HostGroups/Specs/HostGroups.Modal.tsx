@@ -8,6 +8,7 @@ import {
   labelApplyResourceAccessRule,
   labelComment,
   labelGeographicCoordinates,
+  labelIcon,
   labelInvalidCoordinateFormat,
   labelName,
   labelSelectHosts
@@ -138,6 +139,10 @@ export default () => {
 
             cy.findByTestId('Modal-header').click();
           }
+
+          cy.findByTestId(labelIcon).click();
+          cy.waitForRequest('@getImagesList');
+          cy.contains('cypress_logo').click();
 
           cy.get(`button[data-testid="submit"`).click();
 

@@ -11,13 +11,14 @@ import {
   getHostGroupEndpoint,
   hostGroupsListEndpoint,
   hostListEndpoint,
+  listImagesEndpoint,
   resourceAccessRulesEndpoint
 } from '../api/endpoints';
-import {} from '../translatedLabels';
 import {
   getDetailsResponse,
   getListingResponse,
-  hostsListEmptyResponse
+  hostsListEmptyResponse,
+  listImagesResponse
 } from './utils';
 
 const initialize = ({
@@ -64,6 +65,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${resourceAccessRulesEndpoint}?**`,
     response: getListingResponse('rule')
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getImagesList',
+    method: Method.GET,
+    path: `**${listImagesEndpoint}**`,
+    response: listImagesResponse
   });
 
   cy.interceptAPIRequest({
