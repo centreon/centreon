@@ -8,6 +8,7 @@ import {
   labelDuplicate,
   labelEnableDisable,
   labelFilters,
+  labelMoreActions,
   labelName
 } from '../translatedLabels';
 
@@ -50,11 +51,10 @@ export default (resourceType: string): void => {
       cy.contains(labelAlias).should('be.visible');
     });
 
-    it('displays massive actions', () => {
+    it('displays more actions', () => {
       cy.waitForRequest('@getAll');
 
-      cy.get(`[data-testid="${labelDuplicate}"]`).should('be.visible');
-      cy.get(`[data-testid="${labelDelete}"]`).should('be.visible');
+      cy.get(`[data-testid="${labelMoreActions}"]`).should('be.visible');
     });
 
     it('displays and interacts with filters', () => {
@@ -62,7 +62,7 @@ export default (resourceType: string): void => {
 
       cy.get('[data-testid="search-bar"]').should('be.visible');
 
-      cy.get(`[data-testid="${labelFilters}"]`).eq(1).click();
+      cy.get(`[data-testid="${labelFilters}"]`).click();
 
       cy.get('[data-testid="advanced-filters"]').should('be.visible');
 

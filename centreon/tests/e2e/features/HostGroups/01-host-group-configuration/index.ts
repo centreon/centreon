@@ -46,6 +46,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/hosts/groups?page=1&limit=*'
   }).as('getGroups');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=defaultValues&target=hostgroups&field=hg_hosts&id*'
+  }).as('getHosts');
 });
 
 afterEach(() => {
@@ -179,6 +183,8 @@ Then('these properties are updated', () => {
   cy.getIframeBody()
     .find('input[name="hg_alias"]')
     .should('have.value', hostGroups.forTest.alias);
+  cy.wait('@getHosts');
+  cy.waitForElementInIframe('#main-content', `span[title="${services.serviceOk.host}"]`);
   cy.getIframeBody()
     .find('select[name="hg_hosts[]"]')
     .find('option')
@@ -223,7 +229,7 @@ When('the user duplicates the configured host group', () => {
     subMenu: 'Hosts'
   });
   cy.wait('@getGroups');
-  cy.getByTestId({testId: 'ContentCopyOutlinedIcon'}).eq(3).click();
+  cy.getByTestId({testId: 'ContentCopyOutlinedIcon'}).eq(1).click();
   cy.get('[type="submit"][aria-label="Duplicate"]')
     .click();
   cy.wait('@getGroups');

@@ -162,7 +162,7 @@ describe('Host groups configuration: ', () => {
 
     cy.get('[data-testid="search-bar"]').should('be.visible');
 
-    cy.get(`[data-testid="Filters"]`).eq(1).click();
+    cy.get(`[data-testid="Filters"]`).click();
 
     cy.get('[data-testid="advanced-filters"]').should('be.visible');
 
