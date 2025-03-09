@@ -29,7 +29,7 @@ const Listing = ({ columns }: Props): JSX.Element => {
     sorto,
     selectedColumnIds,
     openEditModal,
-    rowColorConditions
+    disableRowCondition
   } = useListing();
 
   return (
@@ -40,7 +40,7 @@ const Listing = ({ columns }: Props): JSX.Element => {
         selectedColumnIds,
         sortable: true
       }}
-      rowColorConditions={rowColorConditions}
+      disableRowCondition={disableRowCondition}
       columns={[...columns, ...staticColumns]}
       currentPage={(page || 1) - 1}
       limit={data?.meta.limit}

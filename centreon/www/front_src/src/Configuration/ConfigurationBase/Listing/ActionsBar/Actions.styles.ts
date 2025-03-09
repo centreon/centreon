@@ -1,41 +1,26 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useActionsStyles = makeStyles()((theme) => ({
+  bar: {
+    display: 'flex'
+  },
   actions: {
     display: 'flex',
-    gap: theme.spacing(1.5),
-    alignItems: 'center'
-  },
-  removeButton: {
-    '& :hover': {
-      color: theme.palette.error.main
-    }
-  },
-  removeIcon: {
-    fontSize: theme.spacing(3)
-  },
-  duplicateIcon: {
-    fontSize: theme.spacing(2.5)
-  },
-  buttons: {
-    [theme.breakpoints.down('lg')]: {
-      display: 'none'
-    }
-  },
-  iconButtons: {
-    [theme.breakpoints.up('lg')]: {
-      display: 'none'
-    }
+    gap: theme.spacing(1.5)
   },
   searchBar: {
     width: '100%',
-    paddingInline: theme.spacing(2.5),
+    paddingInline: theme.spacing(1),
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-
+    justifyContent: 'center'
+  },
+  moreActions: {
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
+  },
+  ActionsList: {
+    width: theme.spacing(19)
   }
 }));

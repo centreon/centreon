@@ -33,6 +33,18 @@ export default (resourceType) => {
       mockActionsRequests(resourceType.replace(' ', '_'));
     });
 
+    it('enables the more actions button when selecting resources', () => {
+      cy.waitForRequest('@getAll');
+
+      cy.findAllByTestId(labelMoreActions).eq(0).should('be.disabled');
+
+      cy.findByLabelText('Select row 1').click();
+      cy.findByLabelText('Select row 2').click({ force: true });
+      cy.findByLabelText('Select row 3').click();
+
+      cy.findAllByTestId(labelMoreActions).eq(0).should('not.be.disabled');
+    });
+
     describe('Delete', () => {
       it('displays the confirmation dialog when the inline delete button is clicked', () => {
         cy.waitForRequest('@getAll');
@@ -49,26 +61,14 @@ export default (resourceType) => {
         );
       });
 
-      it('enables the massive delete button when selecting resources', () => {
+      it('displays the confirmation dialog when the massive delete button is clicked', () => {
         cy.waitForRequest('@getAll');
 
-        cy.findAllByTestId(labelDelete).eq(0).should('be.disabled');
-
         cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
+        cy.findByLabelText('Select row 2').click({ force: true });
         cy.findByLabelText('Select row 3').click();
 
-        cy.findAllByTestId(labelDelete).eq(0).should('not.be.disabled');
-      });
-
-      it('displays the confirmation dialog when the massive delete button is clicked', () => {
-        cy.findAllByTestId(labelDelete).eq(0).should('be.disabled');
-
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
-        cy.findByLabelText('Select row 3').click();
-
-        cy.findAllByTestId(labelDelete).eq(0).should('not.be.disabled');
+        cy.findAllByTestId(labelMoreActions).eq(0).click();
 
         cy.findAllByTestId(labelDelete).eq(0).click();
 
@@ -102,9 +102,10 @@ export default (resourceType) => {
         cy.waitForRequest('@getAll');
 
         cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
+        cy.findByLabelText('Select row 2').click({ force: true });
         cy.findByLabelText('Select row 3').click();
 
+        cy.findAllByTestId(labelMoreActions).eq(0).click();
         cy.findAllByTestId(labelDelete).eq(0).click();
 
         cy.findByTestId('confirm').click();
@@ -147,28 +148,14 @@ export default (resourceType) => {
         );
       });
 
-      it('enables the massive duplicate button when selecting resources', () => {
-        cy.waitForRequest('@getAll');
-
-        cy.findAllByTestId(labelDuplicate).eq(0).should('be.disabled');
-
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
-        cy.findByLabelText('Select row 3').click();
-
-        cy.findAllByTestId(labelDuplicate).eq(0).should('not.be.disabled');
-      });
-
       it('displays the confirmation dialog when the massive duplicate button is clicked', () => {
         cy.waitForRequest('@getAll');
 
-        cy.findAllByTestId(labelDuplicate).eq(0).should('be.disabled');
-
         cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
+        cy.findByLabelText('Select row 2').click({ force: true });
         cy.findByLabelText('Select row 3').click();
 
-        cy.findAllByTestId(labelDuplicate).eq(0).should('not.be.disabled');
+        cy.findAllByTestId(labelMoreActions).eq(0).click();
 
         cy.findAllByTestId(labelDuplicate).eq(0).click();
 
@@ -209,9 +196,10 @@ export default (resourceType) => {
         cy.waitForRequest('@getAll');
 
         cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
+        cy.findByLabelText('Select row 2').click({ force: true });
         cy.findByLabelText('Select row 3').click();
 
+        cy.findAllByTestId(labelMoreActions).eq(0).click();
         cy.findAllByTestId(labelDuplicate).eq(0).click();
 
         cy.findByTestId('confirm').click();
@@ -237,9 +225,10 @@ export default (resourceType) => {
         cy.waitForRequest('@getAll');
 
         cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
+        cy.findByLabelText('Select row 2').click({ force: true });
         cy.findByLabelText('Select row 3').click();
 
+        cy.findAllByTestId(labelMoreActions).eq(0).click();
         cy.findAllByTestId(labelDuplicate).eq(0).click();
 
         cy.findAllByLabelText(labelDuplications)
@@ -287,23 +276,11 @@ export default (resourceType) => {
         );
       });
 
-      it('enables the more actions button when selecting resources', () => {
-        cy.waitForRequest('@getAll');
-
-        cy.findAllByTestId(labelMoreActions).eq(0).should('be.disabled');
-
-        cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
-        cy.findByLabelText('Select row 3').click();
-
-        cy.findAllByTestId(labelMoreActions).eq(0).should('not.be.disabled');
-      });
-
       it('sends an enable request for multiple resources and displays a success message', () => {
         cy.waitForRequest('@getAll');
 
         cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
+        cy.findByLabelText('Select row 2').click({ force: true });
         cy.findByLabelText('Select row 3').click();
 
         cy.findAllByTestId(labelMoreActions).eq(0).click();
@@ -349,7 +326,7 @@ export default (resourceType) => {
         cy.waitForRequest('@getAll');
 
         cy.findByLabelText('Select row 1').click();
-        cy.findByLabelText('Select row 2').click();
+        cy.findByLabelText('Select row 2').click({ force: true });
         cy.findByLabelText('Select row 3').click();
 
         cy.findAllByTestId(labelMoreActions).eq(0).click();

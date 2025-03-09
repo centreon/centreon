@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
-import { useTheme } from '@mui/material';
 import { useSearchParams } from 'react-router';
 
 import { configurationAtom, modalStateAtom } from '../atoms';
@@ -23,12 +22,11 @@ interface UseListing {
   sortf: string;
   sorto: 'asc' | 'desc';
   openEditModal: (row) => void;
-  rowColorConditions;
+  disableRowCondition: (row) => boolean;
 }
 
 const useListing = (): UseListing => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { showWarningMessage } = useSnackbar();
 
   const [, setSearchParams] = useSearchParams();
@@ -79,13 +77,7 @@ const useListing = (): UseListing => {
     });
   };
 
-  const rowColorConditions = [
-    {
-      color: theme.palette.action.disabledBackground,
-      condition: ({ isActivated }): boolean => !isActivated,
-      name: 'is_enabled'
-    }
-  ];
+  const disableRowCondition = ({ isActivated }): boolean => !isActivated;
 
   return {
     changePage,
@@ -98,7 +90,7 @@ const useListing = (): UseListing => {
     sortf,
     sorto,
     openEditModal,
-    rowColorConditions
+    disableRowCondition
   };
 };
 

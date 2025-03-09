@@ -14,6 +14,8 @@ import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
 import { isEmpty, isNil } from 'ramda';
+import { WidgetResourceType } from '../AddEditWidget/models';
+import { getFormattedResources } from '../utils';
 import { routerParams } from './useDashboardDetails';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
@@ -30,23 +32,31 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       options,
       data,
       name
-    }) => ({
-      id: Number(i),
-      layout: {
-        height: h,
-        min_height: minH || 0,
-        min_width: minW || 0,
-        width: w,
-        x,
-        y
-      },
-      name: name || '',
-      widget_settings: {
-        data,
-        options
-      },
-      widget_type: panelConfiguration.path
-    })
+    }) => {
+      const formattedResources = getFormattedResources({
+        array: data?.resources,
+        filterName: WidgetResourceType.hostGroup,
+        resourceType: 'hostgroup'
+      });
+
+      return {
+        id: Number(i),
+        layout: {
+          height: h,
+          min_height: minH || 0,
+          min_width: minW || 0,
+          width: w,
+          x,
+          y
+        },
+        name: name || '',
+        widget_settings: {
+          data: { ...data, resources: formattedResources },
+          options
+        },
+        widget_type: panelConfiguration.path
+      };
+    }
   );
 
 interface DataToFormDataProps {
