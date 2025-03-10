@@ -64,6 +64,14 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != "" && $p != $ret['
     $p = $ret['topology_page'];
 }
 
+/* 
+ * Call poller update function to manage poller auto injection by script 
+ */
+$centreon->user->access->updatePollerACL();
+
+/* 
+ * Build poller listing for ACL
+ */
 $serverResult =
     $centreon->user->access->getPollerAclConf(
         [
