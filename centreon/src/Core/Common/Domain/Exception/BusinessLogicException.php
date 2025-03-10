@@ -26,17 +26,17 @@ namespace Core\Common\Domain\Exception;
 /**
  * Class
  *
- * @class   DomainException
+ * @class   BusinessLogicException
  * @package Core\Common\Domain\Exception
  */
-abstract class DomainException extends \Exception
+abstract class BusinessLogicException extends \Exception
 {
     public const ERROR_CODE_INTERNAL = 0;
     public const ERROR_CODE_REPOSITORY = 1;
     public const ERROR_CODE_BAD_USAGE = 4;
 
     /**
-     * DomainException constructor
+     * BusinessLogicException constructor
      *
      * @param string $message
      * @param int $code

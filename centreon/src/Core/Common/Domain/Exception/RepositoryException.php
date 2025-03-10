@@ -29,7 +29,7 @@ namespace Core\Common\Domain\Exception;
  * @class   RepositoryException
  * @package Core\Common\Domain\Exception
  */
-class RepositoryException extends DomainException
+class RepositoryException extends BusinessLogicException
 {
     /**
      * RepositoryException constructor

@@ -29,7 +29,7 @@ namespace Core\Common\Domain\Exception;
  * @class   TransformerException
  * @package Core\Common\Domain\Exception
  */
-class TransformerException extends DomainException
+class TransformerException extends BusinessLogicException
 {
     /**
      * TransformerException constructor
