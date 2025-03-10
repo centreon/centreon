@@ -63,7 +63,6 @@ jobs:
               'owners-php',
               'owners-react',
               'owners-cpp',
-              'owners-pipelines'
             ];
 
             let needsQaApproval = false;
@@ -74,7 +73,6 @@ jobs:
                 pull_number: context.issue.number
               });
               for (const team of fetchedReviewers.data.teams) {
-                console.log(team.slug)
                 if (teamsWithQaApproval.includes(team.slug)) {
                   needsQaApproval = true;
                 }
