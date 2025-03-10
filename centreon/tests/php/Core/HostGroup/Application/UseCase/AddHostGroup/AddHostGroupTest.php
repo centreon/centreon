@@ -25,10 +25,12 @@ namespace Tests\Core\HostGroup\Application\UseCase\AddHostGroup;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
@@ -42,6 +44,7 @@ use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupValidator;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupRelation;
+use Core\HostGroup\Domain\Model\NewHostGroup;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
@@ -67,8 +70,8 @@ beforeEach(function (): void {
         $this->isCloudPlatform = true,
         $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         $this->readResourceAccessRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
         $this->writeResourceAccessRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
@@ -275,6 +278,7 @@ it(
             );
 
         $response = ($this->useCase)($this->addHostGroupRequest);
+
         expect($response)
             ->toBeInstanceOf(AddHostGroupResponse::class)
             ->and($response->getData())

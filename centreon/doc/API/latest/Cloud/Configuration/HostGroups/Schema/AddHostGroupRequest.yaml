@@ -17,6 +17,11 @@ properties:
     maxLength: 32
     description: "Geographical coordinates use by Centreon Map module to position element on map"
     example: "48.51,2.20"
+  icon_id:
+    type: integer
+    nullable: true
+    description: "ID of the hostgroup Icon"
+    example: 1
   comment:
     type: string
     nullable: true

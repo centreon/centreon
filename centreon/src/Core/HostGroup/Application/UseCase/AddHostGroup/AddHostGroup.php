@@ -65,8 +65,8 @@ final class AddHostGroup
         private readonly bool $isCloudPlatform,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadHostRepositoryInterface $readHostRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
@@ -159,6 +159,7 @@ final class AddHostGroup
      *      For Cloud: Host Groups are added to Datasets's Resource Access Rules,
      *          only if the dataset Hostgroup has no parent
      *
+     *
      * @param int[] $resourceAccessRuleIds
      * @param int $hostGroupId
      *
@@ -202,23 +203,16 @@ final class AddHostGroup
      * Link Host Groups to user Resource Access Groups
      *
      * @param int $hostGroupId
-     * @param int $datasetId
      *
      * @throws \Throwable
      */
-    private function linkHostGroupToResourcesACL(int $hostGroupId, ?int $datasetId = null): void
+    private function linkHostGroupToResourcesACL(int $hostGroupId): void
     {
-        if ($this->user->isAdmin()) {
-            return;
-        }
-        $datasetId !== null
-            ? $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndResourceAccessGroup(
-                $hostGroupId,
-                $datasetId
-            )
-            : $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndAccessGroups(
+        if (! $this->user->isAdmin()) {
+            $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndAccessGroups(
                 $hostGroupId,
                 $this->readAccessGroupRepository->findByContact($this->user)
             );
+        }
     }
 }
