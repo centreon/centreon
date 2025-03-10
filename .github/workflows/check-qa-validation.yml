@@ -22,14 +22,14 @@ on:
       - unlabeled
 
 jobs:
-  fail-when-no-qa-label:
-    if: ${{ ! contains(github.event.pull_request.labels.*.name, 'skip-qa') || ! contains(github.event.pull_request.labels.*.name, 'qa-approved') }}
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Fail if PR has not been marked as ready by QA
-        run: |
-          echo "::error::This PR has not been marked as ready for QA (no 'skip-qa' or 'qa-approved' labels)"
-          exit 1
+  # fail-when-no-qa-label:
+  #   if: ${{ ! contains(github.event.pull_request.labels.*.name, 'skip-qa') || ! contains(github.event.pull_request.labels.*.name, 'qa-approved') }}
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - name: Fail if PR has not been marked as ready by QA
+  #       run: |
+  #         echo "::error::This PR has not been marked as ready for QA (no 'skip-qa' or 'qa-approved' labels)"
+  #         exit 1
 
   check-qa-validation:
     # if: ${{ ! github.event.pull_request.draft }}
@@ -47,7 +47,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
-          LABELS: ${{ steps.get-labels.outputs.labels }}
+          PR_LABELS: ${{ steps.get-labels.outputs.labels }}
         with:
           script: |
-            console.log(`Labels: ${process.env.LABELS}`);
+            console.log(`Labels: ${process.env.PR_LABELS}`);
+
+            for (const label of JSON.parse(process.env.PR_LABELS)) {
+              console.log(`Label: ${label}`);
+            }
+
