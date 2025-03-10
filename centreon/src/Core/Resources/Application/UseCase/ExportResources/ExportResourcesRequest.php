@@ -37,15 +37,19 @@ final readonly class ExportResourcesRequest {
      * ExportResourcesRequest constructor
      *
      * @param ContactInterface $contact
+     * @param string $exportedFormat
      * @param ResourceFilter $resourceFilter
      * @param bool $allPages
      * @param int $maxResults
+     * @param array<string> $columns
      */
     public function __construct(
         public ContactInterface $contact,
+        public string $exportedFormat,
         public ResourceFilter $resourceFilter,
         public bool $allPages,
-        public int $maxResults
+        public int $maxResults,
+        public array $columns,
     )
     {}
 }

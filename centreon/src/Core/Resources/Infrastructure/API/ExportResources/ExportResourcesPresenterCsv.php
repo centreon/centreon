@@ -67,6 +67,8 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
     {
         $this->viewModel = new ExportResourcesViewModel();
 
+        $this->viewModel->setExportedFormat($response->getExportedFormat());
+
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
                 $this->exceptionHandler->log($response->getException());
@@ -75,9 +77,23 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
 
             return;
         }
-
-        $this->viewModel->setResources($this->transformToCsv($response->getResources()));
+        $csvResources = $this->transformToCsv($response->getResources());
+        if ($response->getFilteredColumns() !== []) {
+            $csvHeader = $this->setHeaderByFilteredColumns($response->getFilteredColumns());
+            $csvResources = $this->filterColumns($csvResources, $csvHeader);
+        }
+        $this->viewModel->setResources($csvResources);
     }
+
+    /**
+     * @return ExportResourcesViewModel
+     */
+    public function getViewModel(): ExportResourcesViewModel
+    {
+        return $this->viewModel;
+    }
+
+    // ---------------------------------- PRIVATE METHODS ---------------------------------- //
 
     /**
      * @param \Traversable<ResourceEntity> $resources
@@ -91,10 +107,12 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
             yield [
                 _('Resource Type') => _($this->formatLabel($resource->getType() ?? '')),
                 _('Resource Name') => _($resource->getName() ?? ''),
-                _('Status') => _($resource->getStatus()?->getName() ?? ''),
+                _('Status') => _($this->formatLabel($resource->getStatus()?->getName() ?? '')),
                 _('Parent Resource Type') => _($this->formatLabel($resource->getParent()?->getType() ?? '')),
                 _('Parent Resource Name') => _($resource->getParent()?->getName() ?? ''),
-                _('Parent Resource Status') => _($this->formatLabel($resource->getParent()?->getStatus()?->getName() ?? '')),
+                _('Parent Resource Status') => _(
+                    $this->formatLabel($resource->getParent()?->getStatus()?->getName() ?? '')
+                ),
                 _('Duration') => $resource->getDuration() ?? '',
                 _('Last Check') => $this->formatDate($resource->getLastCheck()),
                 _('Information') => $resource->getInformation() ?? '',
@@ -114,14 +132,54 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
     }
 
     /**
-     * @return ExportResourcesViewModel
+     * @param array<string> $filteredColumns
+     *
+     * @return array<string>
      */
-    public function getViewModel(): ExportResourcesViewModel
+    private function setHeaderByFilteredColumns(array $filteredColumns): array
     {
-        return $this->viewModel;
+        $header = [
+            _('Resource Type'),
+            _('Resource Name'),
+            _('Status'),
+            _('Parent Resource Type'),
+            _('Parent Resource Name'),
+            _('Parent Resource Status'),
+            _('Duration'),
+            _('Last Check'),
+            _('Information'),
+            _('Tries'),
+            _('Severity'),
+            _('Notes'),
+            _('Action'),
+            _('State'),
+            _('Alias'),
+            _('Parent alias'),
+            _('FQDN / Address'),
+            _('Monitoring Server'),
+            _('Notif'),
+            _('Check'),
+        ];
+
+        return array_filter($header, function ($key) use ($filteredColumns) {
+            return in_array($key, $filteredColumns);
+        });
     }
 
-    // ---------------------------------- PRIVATE METHODS ---------------------------------- //
+    /**
+     * @param \Traversable<array<string,mixed>> $csvResources
+     * @param array $columns
+     *
+     * @return \Traversable<array<string,mixed>>
+     */
+    private function filterColumns(\Traversable $csvResources, array $columns): \Traversable
+    {
+        foreach ($csvResources as $resource) {
+            yield array_filter($resource, function ($key) use ($columns) {
+                return in_array($key, $columns);
+            }, ARRAY_FILTER_USE_KEY);
+        }
+    }
 
     /**
      * @param string $label
@@ -189,7 +247,6 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
             $check = 'Only active checks are enabled';
         } elseif ($resource->getPassiveChecks()) {
             $check = 'Only passive checks are enabled';
-
         }
 
         return $check;
@@ -200,7 +257,9 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
      *
      * @return string
      */
-    private function formatDate(?\DateTime $date): string {
+    private function formatDate(?\DateTime $date): string
+    {
         return ! is_null($date) ? $date->format($this->contact->getFormatDate()) : '';
     }
+
 }

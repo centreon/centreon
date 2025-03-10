@@ -34,6 +34,10 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 final class ExportResourcesResponse {
     /** @var \Traversable<ResourceEntity> */
     private \Traversable $resources;
+    /** @var array<string> */
+    private array $filteredColumns = [];
+    /** @var string */
+    private string $exportedFormat;
 
     /**
      * @return \Traversable<ResourceEntity>
@@ -52,6 +56,44 @@ final class ExportResourcesResponse {
     {
         $this->resources = $resources;
 
+        return $this;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getFilteredColumns(): array
+    {
+        return $this->filteredColumns;
+    }
+
+    /**
+     * @param array<string> $filteredColumns
+     *
+     * @return ExportResourcesResponse
+     */
+    public function setFilteredColumns(array $filteredColumns): self
+    {
+        $this->filteredColumns = $filteredColumns;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExportedFormat(): string
+    {
+        return $this->exportedFormat;
+    }
+
+    /**
+     * @param string $exportedFormat
+     *
+     * @return ExportResourcesResponse
+     */
+    public function setExportedFormat(string $exportedFormat): self
+    {
+        $this->exportedFormat = $exportedFormat;
         return $this;
     }
 }

@@ -69,9 +69,6 @@ final class FindResourcesRequestValidator
     public const PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY = 'only_with_performance_data';
     public const PARAM_RESOURCES_WITH_OPENED_TICKETS = 'only_with_opened_tickets';
     public const PARAM_OPEN_TICKET_RULE_ID = 'ticket_provider_id';
-    public const PARAM_EXPORT_COLUMNS = 'columns';
-    public const PARAM_EXPORT_MAX_LINES = 'max_lines';
-    public const PARAM_EXPORT_ALL_PAGES = 'all_pages';
 
     // Errors Codes for exceptions.
     public const ERROR_UNKNOWN_PARAMETER = 1;
@@ -131,9 +128,6 @@ final class FindResourcesRequestValidator
         self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY => false,
         self::PARAM_RESOURCES_WITH_OPENED_TICKETS => false,
         self::PARAM_OPEN_TICKET_RULE_ID => null,
-        self::PARAM_EXPORT_COLUMNS => [],
-        self::PARAM_EXPORT_ALL_PAGES => false,
-        self::PARAM_EXPORT_MAX_LINES => 0,
     ];
 
     /** Query parameters that should be ignored but not forbidden. */
@@ -143,6 +137,14 @@ final class FindResourcesRequestValidator
         RequestParameters::NAME_FOR_SEARCH,
         RequestParameters::NAME_FOR_SORT,
         RequestParameters::NAME_FOR_TOTAL,
+    ];
+
+    /** Query parameters for export. */
+    private const EXPORT_PARAMETERS = [
+        'format',
+        'columns',
+        'all_pages',
+        'max_lines',
     ];
 
     /** @var array<string> */
@@ -195,6 +197,10 @@ final class FindResourcesRequestValidator
 
             // do not allow query parameters not managed
             if (! \array_key_exists($param, $filterData)) {
+                // export parameters are allowed and ignored
+                if ($isExport && \in_array($param, self::EXPORT_PARAMETERS, true)) {
+                    continue;
+                }
                 throw new \InvalidArgumentException(
                     'Request parameter provided not handled',
                     self::ERROR_UNKNOWN_PARAMETER
@@ -220,7 +226,6 @@ final class FindResourcesRequestValidator
                 case self::PARAM_HOST_CATEGORY_NAMES:
                 case self::PARAM_SERVICE_SEVERITY_NAMES:
                 case self::PARAM_HOST_SEVERITY_NAMES:
-                case self::PARAM_EXPORT_COLUMNS:
                     $filterData[$param] = $this->ensureArrayOfString($param, $value);
                     break;
                 case self::PARAM_HOST_SEVERITY_LEVELS:
@@ -232,11 +237,9 @@ final class FindResourcesRequestValidator
                     break;
                 case self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY:
                 case self::PARAM_RESOURCES_WITH_OPENED_TICKETS:
-                case self::PARAM_EXPORT_ALL_PAGES:
                     $filterData[$param] = $this->ensureBoolean($param, $value);
                     break;
                 case self::PARAM_OPEN_TICKET_RULE_ID:
-                case self::PARAM_EXPORT_MAX_LINES:
                     $filterData[$param] = $this->ensureInt($param, $value);
                     break;
             }

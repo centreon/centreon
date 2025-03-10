@@ -40,6 +40,13 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final readonly class ExportResources
 {
     /**
+     * Allowed export formats
+     *
+     * @var array<string>
+     */
+    private const EXPORT_ALLOWED_FORMAT = ['csv'];
+
+    /**
      * ExportResources constructor
      *
      * @param ReadResourceRepositoryInterface $readResourceRepository
@@ -135,6 +142,8 @@ final readonly class ExportResources
             }
         }
 
+        $response->setExportedFormat($request->exportedFormat);
+        $response->setFilteredColumns($request->columns);
         $response->setResources($resources);
 
         $presenter->presentResponse($response);
@@ -147,6 +156,12 @@ final readonly class ExportResources
      */
     private function validateRequest(ExportResourcesRequest $request): ResponseStatusInterface|true
     {
+        if (! in_array($request->exportedFormat, self::EXPORT_ALLOWED_FORMAT)) {
+            return new InvalidArgumentResponse(
+                'Invalid request, format must be one of the following: ' . implode(', ', self::EXPORT_ALLOWED_FORMAT)
+            );
+        }
+
         if ($request->allPages && $request->maxResults > 10000) {
             return new InvalidArgumentResponse(
                 'Invalid request, max number of resources to export must be equal or less than 10000'

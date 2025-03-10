@@ -66,13 +66,8 @@ final class ExportResourcesController extends AbstractController
         ExportResourcesPresenterCsv $presenter,
         Request $request,
     ): Response {
-        $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all(), true);
-        $useCaseRequest = new ExportResourcesRequest(
-            $this->contact,
-            $this->createResourceFilter($filter),
-            (bool) $request->query->get('all_pages', false),
-            (int) $request->query->get('max_lines', 10000),
-        );
+        // TODO review of validation and filtering of request parameters to export resources
+        $useCaseRequest = $this->createExportRequest($request);
         $useCase($useCaseRequest, $presenter);
 
         // if a response status is set before iterating resources to export them, return it (in case of error)
@@ -82,6 +77,90 @@ final class ExportResourcesController extends AbstractController
 
         $resources = $presenter->getViewModel()->getResources();
 
+        if ($presenter->getViewModel()->getExportedFormat() === 'csv') {
+            return $this->createCsvResponse($resources);
+        }
+    }
+
+    // ---------------------------------- PRIVATE METHODS ---------------------------------- //
+
+    /**
+     * @param Request $request
+     *
+     * @return ExportResourcesRequest
+     */
+    private function createExportRequest(Request $request): ExportResourcesRequest
+    {
+        $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all(), true);
+        $resourceFilter = $this->createResourceFilter($filter);
+        // validate format parameter
+        $format = $request->query->get('format', '');
+        if (! is_string($format)) {
+            throw new \InvalidArgumentException('format parameter must be a string');
+        }
+        // get filtered columns to export
+        $filteredColumns = [];
+        $columns = $request->query->get('columns', '');
+        if (! is_string($columns)) {
+            throw new \InvalidArgumentException('columns parameter must be a string');
+        }
+        if ($columns !== '') {
+            $filteredColumns = explode(',', $columns);
+        }
+        // format all_pages parameter to a boolean
+        $allPages = $request->query->get('all_pages', 'false');
+        if ($allPages !== 'true' && $allPages !== 'false') {
+            throw new \InvalidArgumentException('all_pages parameter must be a boolean');
+        }
+        // format max_lines parameter to an integer
+        $maxResults = $request->query->get('max_lines', 0);
+        if (! is_int($maxResults)) {
+            throw new \InvalidArgumentException('max_lines parameter must be an integer');
+        }
+
+        // create the request to export resources
+        return new ExportResourcesRequest(
+            contact: $this->contact,
+            exportedFormat: $format,
+            resourceFilter: $resourceFilter,
+            allPages: (bool) $allPages,
+            maxResults: $maxResults,
+            columns: $filteredColumns,
+        );
+    }
+
+    /**
+     * @param _RequestParameters $filter
+     *
+     * @return ResourceFilter
+     */
+    private function createResourceFilter(array $filter): ResourceFilter
+    {
+        return (new ResourceFilter())
+            ->setTypes($filter[RequestValidator::PARAM_RESOURCE_TYPE])
+            ->setStates($filter[RequestValidator::PARAM_STATES])
+            ->setStatuses($filter[RequestValidator::PARAM_STATUSES])
+            ->setStatusTypes($filter[RequestValidator::PARAM_STATUS_TYPES])
+            ->setServicegroupNames($filter[RequestValidator::PARAM_SERVICEGROUP_NAMES])
+            ->setServiceCategoryNames($filter[RequestValidator::PARAM_SERVICE_CATEGORY_NAMES])
+            ->setServiceSeverityNames($filter[RequestValidator::PARAM_SERVICE_SEVERITY_NAMES])
+            ->setServiceSeverityLevels($filter[RequestValidator::PARAM_SERVICE_SEVERITY_LEVELS])
+            ->setHostgroupNames($filter[RequestValidator::PARAM_HOSTGROUP_NAMES])
+            ->setHostCategoryNames($filter[RequestValidator::PARAM_HOST_CATEGORY_NAMES])
+            ->setHostSeverityNames($filter[RequestValidator::PARAM_HOST_SEVERITY_NAMES])
+            ->setMonitoringServerNames($filter[RequestValidator::PARAM_MONITORING_SERVER_NAMES])
+            ->setHostSeverityLevels($filter[RequestValidator::PARAM_HOST_SEVERITY_LEVELS])
+            ->setOnlyWithPerformanceData($filter[RequestValidator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY])
+            ->setOnlyWithTicketsOpened($filter[RequestValidator::PARAM_RESOURCES_WITH_OPENED_TICKETS])
+            ->setRuleId($filter[RequestValidator::PARAM_OPEN_TICKET_RULE_ID]);
+    }
+
+    /**
+     * @param \Traversable $resources
+     *
+     * @return Response
+     */
+    private function createCsvResponse(\Traversable $resources): Response {
         /* create a streamed response to avoid memory issues with large data. If an error occurs during the export,
         the error message will be displayed in the csv file and logged (streamed response) */
         $response = new StreamedResponse(function () use ($resources): void {
@@ -115,6 +194,7 @@ final class ExportResourcesController extends AbstractController
         string $exportView = self::EXPORT_VIEW_TYPE,
     ): string {
         $dateNormalized = str_replace([' ', ':', ',', '/'], '-', $this->getDateFormatted());
+
         return "ResourceStatusExport_{$exportView}_{$dateNormalized}.csv";
     }
 
@@ -126,29 +206,4 @@ final class ExportResourcesController extends AbstractController
         return (new \DateTime('now'))->format($this->contact->getFormatDate());
     }
 
-    /**
-     * @param _RequestParameters $filter
-     *
-     * @return ResourceFilter
-     */
-    private function createResourceFilter(array $filter): ResourceFilter
-    {
-        return (new ResourceFilter())
-            ->setTypes($filter[RequestValidator::PARAM_RESOURCE_TYPE])
-            ->setStates($filter[RequestValidator::PARAM_STATES])
-            ->setStatuses($filter[RequestValidator::PARAM_STATUSES])
-            ->setStatusTypes($filter[RequestValidator::PARAM_STATUS_TYPES])
-            ->setServicegroupNames($filter[RequestValidator::PARAM_SERVICEGROUP_NAMES])
-            ->setServiceCategoryNames($filter[RequestValidator::PARAM_SERVICE_CATEGORY_NAMES])
-            ->setServiceSeverityNames($filter[RequestValidator::PARAM_SERVICE_SEVERITY_NAMES])
-            ->setServiceSeverityLevels($filter[RequestValidator::PARAM_SERVICE_SEVERITY_LEVELS])
-            ->setHostgroupNames($filter[RequestValidator::PARAM_HOSTGROUP_NAMES])
-            ->setHostCategoryNames($filter[RequestValidator::PARAM_HOST_CATEGORY_NAMES])
-            ->setHostSeverityNames($filter[RequestValidator::PARAM_HOST_SEVERITY_NAMES])
-            ->setMonitoringServerNames($filter[RequestValidator::PARAM_MONITORING_SERVER_NAMES])
-            ->setHostSeverityLevels($filter[RequestValidator::PARAM_HOST_SEVERITY_LEVELS])
-            ->setOnlyWithPerformanceData($filter[RequestValidator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY])
-            ->setOnlyWithTicketsOpened($filter[RequestValidator::PARAM_RESOURCES_WITH_OPENED_TICKETS])
-            ->setRuleId($filter[RequestValidator::PARAM_OPEN_TICKET_RULE_ID]);
-    }
 }

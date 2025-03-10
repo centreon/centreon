@@ -31,6 +31,8 @@ namespace Core\Resources\Infrastructure\API\ExportResources;
 final class ExportResourcesViewModel {
     /** @var \Traversable */
     private \Traversable $resources;
+    /** @var string */
+    private string $exportedFormat;
 
     /**
      * @return \Traversable
@@ -48,5 +50,23 @@ final class ExportResourcesViewModel {
     public function setResources(\Traversable $resources): void
     {
         $this->resources = $resources;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExportedFormat(): string
+    {
+        return $this->exportedFormat;
+    }
+
+    /**
+     * @param string $exportedFormat
+     *
+     * @return void
+     */
+    public function setExportedFormat(string $exportedFormat): void
+    {
+        $this->exportedFormat = $exportedFormat;
     }
 }
