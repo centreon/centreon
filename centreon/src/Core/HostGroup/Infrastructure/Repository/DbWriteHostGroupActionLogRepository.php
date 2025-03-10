@@ -227,6 +227,11 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         $this->writeHostGroupRepository->unlinkFromHost($hostId, $groupIds);
     }
 
+    public function addHosts(int $hostGroupId, array $hostIds): void
+    {
+        $this->writeHostGroupRepository->addHosts($hostGroupId, $hostIds);
+    }
+
     /**
      * @inheritDoc
      */

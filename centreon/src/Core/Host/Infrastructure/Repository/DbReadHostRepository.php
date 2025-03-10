@@ -31,6 +31,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostType;
+use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -746,6 +747,33 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByHostGroup(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT host_id, host_name FROM host
+                INNER JOIN hostgroup_relation
+                ON host_host_id = host_id
+                WHERE hostgroup_hg_id = :hostGroupId
+                AND host.host_register = '1'
+                SQL
+        ));
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $hostsByHostGroup = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_id: int, host_name: string} $result */
+            $hostsByHostGroup[] = $this->createSimpleEntity($result['host_id'], $result['host_name']);
+        }
+
+        return $hostsByHostGroup;
+    }
+
+    /**
      * @param string $accessGroupIdsQuery
      * @param array<string, mixed> $accessGroupsBindValues
      *
@@ -885,5 +913,17 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             addInheritedContact: (bool) $result['contact_additive_inheritance'],
             isActivated: (bool) $result['host_activate'],
         );
+    }
+
+    /**
+     * @param int $id
+     * @param string $name
+     *
+     * @throws AssertionFailedException
+     * @return SimpleEntity
+     */
+    private function createSimpleEntity(int $id, string $name): SimpleEntity
+    {
+        return new SimpleEntity($id, new TrimmedString($name), 'Host');
     }
 }

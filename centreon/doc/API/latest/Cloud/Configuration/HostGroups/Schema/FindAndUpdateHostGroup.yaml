@@ -22,8 +22,20 @@ properties:
     maxLength: 32
     description: "Geographical coordinates use by Centreon Map module to position element on map"
     example: "48.51,2.20"
-  is_activated:
-    type: boolean
-    description: "Indicates whether the host group is activated or not"
+  comment:
+    type: string
+    nullable: true
+    description: "Host group comment"
+    example: "This is a comment"
+  hosts:
+    type: array
+    description: "Hosts linked to this host group"
+    items:
+      type: integer
+  resource_access_rules:
+    type: array
+    description: "Resource access rules"
+    items:
+      type: integer
 
 

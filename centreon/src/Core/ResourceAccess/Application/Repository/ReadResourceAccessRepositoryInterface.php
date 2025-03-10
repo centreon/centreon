@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ResourceAccess\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\ResourceAccess\Domain\Model\TinyRule;
 
@@ -78,4 +79,46 @@ interface ReadResourceAccessRepositoryInterface
      * @return array<int, array<int>> [datasetId => [ResourceId1,ResourceId2, ...]]
      */
     public function findDatasetResourceIdsByHostGroupId(int $hostGroupId): array;
+
+    /**
+     * Return the list of rule ids that exist from the given rule IDs.
+     *
+     * @param int[] $ruleIds
+     * @return int[]
+     */
+    public function exist(array $ruleIds): array;
+
+    /**
+     * Check if a rule exists by contact.
+     * Existing rules are linked to the user ID or has "all_contacts" flag.
+     *
+     * @param int[] $ruleIds
+     * @param int $userId
+     *
+     * @return int[]
+     */
+    public function existByContact(array $ruleIds, int $userId): array;
+
+    /**
+     * Check if a rule exists by contact groups.
+     * Existing rules are linked to the contact group IDs or has "all_contact_groups" flag.
+     *
+     * @param int[] $ruleIds
+     * @param ContactGroup[] $contactGroups
+     *
+     * @return int[]
+     */
+    public function existByContactGroup(array $ruleIds, array $contactGroups): array;
+
+    /**
+     * Retrieve Datasets by Rule IDs and Dataset type where there is no parent dataset.
+     *
+     * @param int[] $ruleIds
+     * @param string $type
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<int>> [datasetId => [ResourceId1,ResourceId2, ...]]
+     */
+    public function findLastLevelDatasetFilterByRuleIdsAndType(array $ruleIds, string $type): array;
 }

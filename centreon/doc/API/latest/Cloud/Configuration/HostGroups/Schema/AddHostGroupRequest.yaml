@@ -25,4 +25,14 @@ properties:
   is_activated:
     type: boolean
     description: "Indicates whether the host group is activated or not"
+  resource_access_rules:
+    type: array
+    description: "Resource access rules"
+    items:
+      type: integer
+  hosts:
+    type: array
+    description: "Hosts linked to this host group"
+    items:
+      type: integer
 

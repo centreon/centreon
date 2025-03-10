@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,240 +24,191 @@ declare(strict_types=1);
 namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Configuration\Icon\IconException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
+    InvalidArgumentResponse,
+    ResponseStatusInterface
+};
 use Core\Domain\Common\GeoCoords;
+use Core\Host\Application\Exception\HostException;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
-use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
-use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
-use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Application\Repository\{
+    ReadHostGroupRepositoryInterface,
+    WriteHostGroupRepositoryInterface
+};
+use Core\HostGroup\Domain\Model\HostGroupRelation;
 use Core\HostGroup\Domain\Model\NewHostGroup;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
+use Core\ResourceAccess\Application\Exception\RuleException;
+use Core\ResourceAccess\Application\Repository\{
+    ReadResourceAccessRepositoryInterface,
+    WriteResourceAccessRepositoryInterface
+};
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\Security\AccessGroup\Application\Repository\{
+    ReadAccessGroupRepositoryInterface,
+    WriteAccessGroupRepositoryInterface
+};
 
 final class AddHostGroup
 {
     use LoggerTrait;
 
     public function __construct(
+        private readonly ContactInterface $user,
+        private readonly AddHostGroupValidator $validator,
+        private readonly DataStorageEngineInterface $storageEngine,
+        private readonly bool $isCloudPlatform,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
-        private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
+        private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
+        private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
+        private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
-        private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
-        private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly ContactInterface $contact
     ) {
     }
 
     /**
      * @param AddHostGroupRequest $request
-     * @param AddHostGroupPresenterInterface $presenter
      */
-    public function __invoke(
-        AddHostGroupRequest $request,
-        AddHostGroupPresenterInterface $presenter
-    ): void {
+    public function __invoke(AddHostGroupRequest $request): AddHostGroupResponse|ResponseStatusInterface
+    {
         try {
-            if ($this->contact->isAdmin()) {
-                $presenter->presentResponse($this->addHostGroupAsAdmin($request));
-                $this->info('Add host group', ['request' => $request]);
-            } elseif ($this->contactCanPerformWriteOperations()) {
-                $presenter->presentResponse($this->addHostGroupAsContact($request));
-                $this->info('Add host group', ['request' => $request]);
-            } else {
-                $this->error(
-                    "User doesn't have sufficient rights to add host groups",
-                    ['user_id' => $this->contact->getId()]
-                );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(HostGroupException::accessNotAllowedForWriting())
+            $this->validator->assertNameDoesNotAlreadyExists($request->name);
+            $this->validator->assertHostsExist($request->hosts);
+            if ($request->iconId !== null) {
+                $this->validator->assertIconExists($request->iconId);
+            }
+            if ($this->isCloudPlatform) {
+                $this->validator->assertResourceAccessRulesExist($request->resourceAccessRules);
+            }
+
+            $hostGroup = new NewHostGroup(
+                name: $request->name,
+                alias: $request->alias,
+                comment: $request->comment,
+                iconId: $request->iconId,
+                geoCoords: match ($request->geoCoords) {
+                    null, '' => null,
+                    default => GeoCoords::fromString($request->geoCoords),
+                },
+            );
+
+            if (! $this->storageEngine->isAlreadyinTransaction()) {
+                $this->storageEngine->startTransaction();
+            }
+
+            $newHostGroupId = $this->writeHostGroupRepository->add($hostGroup);
+
+            $this->writeHostGroupRepository->addHosts($newHostGroupId, $request->hosts);
+            $this->linkHostGroupToRessourceAccess($request->resourceAccessRules, $newHostGroupId);
+
+            $newHostGroup = $this->readHostGroupRepository->findOne($newHostGroupId);
+            if ($newHostGroup === null) {
+                throw HostGroupException::errorWhileRetrievingJustCreated();
+            }
+            $linkedHosts = $this->readHostRepository->findByHostGroup($newHostGroupId);
+            if ($this->isCloudPlatform) {
+                $linkedResourceAccessRules = array_map(
+                    fn (int $ruleId) => $this->readResourceAccessRepository->findById($ruleId)
+                    ?? throw RuleException::errorWhileRetrievingARule(),
+                    $request->resourceAccessRules
                 );
             }
-        } catch (AssertionFailedException $ex) {
-            $presenter->presentResponse(new InvalidArgumentResponse($ex));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        } catch (HostGroupException $ex) {
-            $presenter->presentResponse(
-                match ($ex->getCode()) {
-                    HostGroupException::CODE_CONFLICT => new ConflictResponse($ex),
-                    default => new ErrorResponse($ex),
-                }
+
+            $this->storageEngine->commitTransaction();
+
+            return new AddHostGroupResponse(
+                new HostGroupRelation($newHostGroup, $linkedHosts, $linkedResourceAccessRules ?? [])
             );
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(HostGroupException::errorWhileAdding()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        }
-    }
-
-    /**
-     * @param AddHostGroupRequest $request
-     *
-     * @throws \Throwable
-     * @throws HostGroupException
-     *
-     * @return AddHostGroupResponse
-     */
-    private function addHostGroupAsAdmin(AddHostGroupRequest $request): AddHostGroupResponse
-    {
-        $this->assertNameDoesNotAlreadyExists($request);
-        $this->assertNotNullIconsExist($request);
-
-        $newHostGroup = $this->createNewHostGroup($request);
-        $newHostGroupId = $this->writeHostGroupRepository->add($newHostGroup);
-        $hostGroup = $this->readHostGroupRepository->findOne($newHostGroupId)
-            ?? throw HostGroupException::errorWhileRetrievingJustCreated();
-
-        return $this->createResponse($hostGroup);
-    }
-
-    /**
-     * @param AddHostGroupRequest $request
-     *
-     * @throws \Throwable
-     * @throws HostGroupException
-     *
-     * @return AddHostGroupResponse
-     */
-    private function addHostGroupAsContact(AddHostGroupRequest $request): AddHostGroupResponse
-    {
-        $this->assertNameDoesNotAlreadyExists($request);
-        $this->assertNotNullIconsExist($request);
-
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $newHostGroup = $this->createNewHostGroup($request);
-
-        try {
-            // As a contact, we must run into ONE transaction TWO operations.
-            $this->dataStorageEngine->startTransaction();
-
-            // 1. Add the host group.
-            $newHostGroupId = $this->writeHostGroupRepository->add($newHostGroup);
-
-            // 2. Create all related ACL links to be able to retrieve it later.
-            $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndAccessGroups(
-                $newHostGroupId,
-                $accessGroups
+        } catch (HostGroupException|HostException|RuleException|AssertionFailedException|IconException $ex) {
+            if ($this->storageEngine->isAlreadyInTransaction()) {
+                $this->storageEngine->rollbackTransaction();
+            }
+            $this->error(
+                "Error while adding host groups : {$ex->getMessage()}",
+                [
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
             );
 
-            $this->dataStorageEngine->commitTransaction();
+            return new InvalidArgumentResponse($ex);
         } catch (\Throwable $ex) {
-            $this->error("Rollback of 'Add Host Group' transaction for a contact.");
-            $this->dataStorageEngine->rollbackTransaction();
+            if ($this->storageEngine->isAlreadyInTransaction()) {
+                $this->storageEngine->rollbackTransaction();
+            }
+            $this->error(
+                "Error while adding host groups : {$ex->getMessage()}",
+                [
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
 
-            throw $ex;
+            return new ErrorResponse(HostGroupException::errorWhileAdding());
         }
-
-        // Retrieve the Host Group for the response.
-        $hostGroup = $this->readHostGroupRepository->findOneByAccessGroups($newHostGroupId, $accessGroups)
-            ?? throw HostGroupException::errorWhileRetrievingJustCreated();
-
-        return $this->createResponse($hostGroup);
     }
 
     /**
-     * @param AddHostGroupRequest $request
+     * Link Host Groups to Ressource Access
+     *      For On Prem: Host Groups are linked to Ressource Access Groups
+     *      For Cloud: Host Groups are added to Datasets's Resource Access Rules,
+     *          only if the dataset Hostgroup has no parent
      *
-     * @throws HostGroupException
+     * @param int[] $resourceAccessRuleIds
+     * @param int $hostGroupId
+     *
      * @throws \Throwable
      */
-    private function assertNameDoesNotAlreadyExists(AddHostGroupRequest $request): void
+    private function linkHostGroupToRessourceAccess(array $resourceAccessRuleIds, int $hostGroupId): void
     {
-        if ($this->readHostGroupRepository->nameAlreadyExists($request->name)) {
-            $this->error('Host group name already exists', ['name' => $request->name]);
-
-            throw HostGroupException::nameAlreadyExists($request->name);
+        if ($this->isCloudPlatform) {
+            $this->linkHostGroupToRAM($resourceAccessRuleIds, $hostGroupId);
+        } else {
+            $this->linkHostGroupToResourcesACL($hostGroupId);
         }
     }
 
     /**
-     * @param AddHostGroupRequest $request
+     * Link Host groups to Datasets's Resource Access Rules, only if the dataset Hostgroup has no parent
      *
-     * @throws HostGroupException
+     * @param int[] $resourceAccessRuleIds
+     * @param int $hostGroupId
+     *
      * @throws \Throwable
      */
-    private function assertNotNullIconsExist(AddHostGroupRequest $request): void
+    private function linkHostGroupToRAM(array $resourceAccessRuleIds, int $hostGroupId): void
     {
-        if (
-            null !== $request->iconId
-            && ! $this->readViewImgRepository->existsOne($request->iconId)
-        ) {
-            throw HostGroupException::iconDoesNotExist('iconId', $request->iconId);
-        }
-        if (
-            null !== $request->iconMapId
-            && ! $this->readViewImgRepository->existsOne($request->iconMapId)
-        ) {
-            throw HostGroupException::iconDoesNotExist('iconMapId', $request->iconMapId);
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    private function contactCanPerformWriteOperations(): bool
-    {
-        return $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE);
-    }
-
-    /**
-     * @param AddHostGroupRequest $request
-     *
-     * @throws AssertionFailedException
-     * @throws \Core\Domain\Exception\InvalidGeoCoordException
-     *
-     * @return NewHostGroup
-     */
-    private function createNewHostGroup(AddHostGroupRequest $request): NewHostGroup
-    {
-        return new NewHostGroup(
-            $request->name,
-            $request->alias,
-            $request->notes,
-            $request->notesUrl,
-            $request->actionUrl,
-            $request->iconId,
-            $request->iconMapId,
-            $request->rrdRetention,
-            match ($request->geoCoords) {
-                null, '' => null,
-                default => GeoCoords::fromString($request->geoCoords),
-            },
-            $request->comment,
-            $request->isActivated,
+        $datasetFilters = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
+            $resourceAccessRuleIds,
+            HostGroupFilterType::TYPE_NAME
         );
+
+        foreach ($datasetFilters as $datasetId => $resourceIds) {
+            $resourceIds[] = $hostGroupId;
+            $this->writeResourceAccessRepository->updateDatasetResources($datasetId, $resourceIds);
+        }
+
     }
 
     /**
-     * @param HostGroup $hostGroup
+     * Link Host Groups to user Resource Access Groups
      *
-     * @return AddHostGroupResponse
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
      */
-    private function createResponse(HostGroup $hostGroup): AddHostGroupResponse
+    private function linkHostGroupToResourcesACL(int $hostGroupId): void
     {
-        $response = new AddHostGroupResponse();
-
-        $response->id = $hostGroup->getId();
-        $response->name = $hostGroup->getName();
-        $response->alias = $hostGroup->getAlias();
-        $response->notes = $hostGroup->getNotes();
-        $response->notesUrl = $hostGroup->getNotesUrl();
-        $response->actionUrl = $hostGroup->getActionUrl();
-        $response->iconId = $hostGroup->getIconId();
-        $response->iconMapId = $hostGroup->getIconMapId();
-        $response->rrdRetention = $hostGroup->getRrdRetention();
-        $response->geoCoords = $hostGroup->getGeoCoords()?->__toString();
-        $response->comment = $hostGroup->getComment();
-        $response->isActivated = $hostGroup->isActivated();
-
-        return $response;
+        if (! $this->user->isAdmin()) {
+            $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndAccessGroups(
+                $hostGroupId,
+                $this->readAccessGroupRepository->findByContact($this->user)
+            );
+        }
     }
 }
