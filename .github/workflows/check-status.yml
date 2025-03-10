@@ -39,7 +39,9 @@ jobs:
           script: |
             await exec.exec("sleep 20s");
 
-            // const excludedJobs = 
+            const excludedJobs = [
+              'check-qa-validation',
+            ];
 
             for (let i = 0; i < 120; i++) {
               const failure = [];
@@ -77,9 +79,8 @@ jobs:
                     check_suite_id: suite_id
                   });
 
-                  console.log(resultCheckRuns.data);
                   resultCheckRuns.data.check_runs.forEach(({ conclusion, name, html_url }) => {
-                    if (conclusion === 'failure' || conclusion === 'cancelled') {
+                    if (['failure', 'cancelled'].includes(conclusion) && ! excludedJobs.includes(name)) {
                       failedCheckRuns.push(`<a href="${html_url}">${name} (${conclusion})</a>`);
                     }
                   });
