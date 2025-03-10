@@ -755,7 +755,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             <<<'SQL'
                 SELECT host_id, host_name FROM host
                 INNER JOIN hostgroup_relation
-                ON host_host_id = host.host_id
+                ON host_host_id = host_id
                 WHERE hostgroup_hg_id = :hostGroupId
                 AND host.host_register = '1'
                 SQL

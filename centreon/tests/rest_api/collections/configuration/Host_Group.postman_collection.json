@@ -1,11 +1,11 @@
 {
 	"info": {
-		"_postman_id": "6a58fa90-5bf3-4de8-9738-04c0a45e7799",
-		"name": "Host_Group",
+		"_postman_id": "aba12390-e47b-43e0-9246-55368056227e",
+		"name": "aaaaa",
 		"description": "This collection has fixes for these tickets :\n\n- [MON-34388](https://centreon.atlassian.net/browse/MON-34388) (Add search with host category)\n    \n- [MON-38229](https://centreon.atlassian.net/browse/MON-38229) (Fix request with\"or\")\n    \n- [MON-38233](https://centreon.atlassian.net/browse/MON-38233) (Fix request resulting in code 500)\n    \n- [MON-20165](https://centreon.atlassian.net/browse/MON-20165) (Add location header)\n    \n- [MON-20598](https://centreon.atlassian.net/browse/MON-20598) (Listing incorrect for non-admin users)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "29556865",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-6a58fa90-5bf3-4de8-9738-04c0a45e7799?action=share&source=collection_link&creator=29556865"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/29556865-aba12390-e47b-43e0-9246-55368056227e?action=share&source=collection_link&creator=29556865"
 	},
 	"item": [
 		{
@@ -4278,10 +4278,9 @@
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function () {\r",
-									"    // Check the number of host groups (2)\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
-									"    // Check the properties of each host group\r",
+									"    // Check the properties of the host group\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
@@ -4295,21 +4294,6 @@
 									"        \"geo_coords\": null,\r",
 									"        \"comment\": null,\r",
 									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"HostGroup3Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"HostGroup3Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"HostGroup3Alias\"),\r",
-									"        \"notes\": null,\r",
-									"        \"notes_url\": null,\r",
-									"        \"action_url\": null,\r",
-									"        \"icon_id\": null,\r",
-									"        \"icon_map_id\": null,\r",
-									"        \"rrd\": null,\r",
-									"        \"geo_coords\": null,\r",
-									"        \"comment\": \"Transformmattiooonnnnnn!!!!!\",\r",
-									"        \"is_activated\": false\r",
 									"    });\r",
 									"})"
 								],
@@ -5341,11 +5325,12 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
+											"    pm.response.to.have.status(422);\r",
+											"    pm.expect(responseJson.message).to.eql(\"hosts: This value should not be null.\\n\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -5354,7 +5339,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -5368,7 +5354,12 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
+									"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
@@ -6025,11 +6016,12 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
+											"    pm.response.to.have.status(422);\r",
+											"    pm.expect(responseJson.message).to.eql(\"hosts: This value should not be null.\\n\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -6038,7 +6030,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -6052,7 +6045,12 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
+									"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
@@ -6835,8 +6833,8 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
+											"    pm.response.to.have.status(422);\r",
+											"    pm.expect(responseJson.message).to.eql(\"hosts: This value should not be null.\\n\");\r",
 											"});"
 										],
 										"type": "text/javascript",
@@ -6864,7 +6862,12 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
+									"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
@@ -7586,8 +7589,8 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
+											"    pm.response.to.have.status(422);\r",
+											"    pm.expect(responseJson.message).to.eql(\"hosts: This value should not be null.\\n\");\r",
 											"});"
 										],
 										"type": "text/javascript",
@@ -7615,7 +7618,12 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
+									"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
@@ -7944,10 +7952,11 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The user does not have the correct rights to update host group\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"Your are not allowed to edit host groups\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -7956,7 +7965,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -8908,10 +8918,11 @@
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The user does not have the correct rights to update host group\", function () {\r",
 											"    pm.response.to.have.status(403);\r",
-											"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+											"    pm.expect(responseJson.message).to.eql(\"Your are not allowed to edit host groups\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -8920,7 +8931,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -11159,10 +11171,11 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The user does not have the correct rights to update host group\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"Your are not allowed to edit host groups\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -11171,7 +11184,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],

@@ -6137,6 +6137,11 @@ components:
           maxLength: 200
           description: "Host group alias"
           example: "All MySQL Servers"
+        icon_id:
+          type: integer
+          nullable: true
+          description: "Define the image ID that should be associated with this host group"
+          example: 1
         geo_coords:
           type: string
           nullable: true
@@ -6153,7 +6158,7 @@ components:
           description: "List of host IDs"
           items:
             type: integer
-            example: 1
+          example: [1, 2, 3]
     Configuration.Service.Group:
       allOf:
         - $ref: '#/components/schemas/Configuration.Service.Group.Add'

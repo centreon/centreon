@@ -180,10 +180,12 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
             'INSERT INTO `:db`.`hostgroup_relation` (host_host_id, hostgroup_hg_id) VALUES '
             . implode(', ', $subQuery)
         ));
+
         foreach ($bindValues as $key => $value) {
             $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
         $statement->bindValue(':group_id', $hostGroupId, \PDO::PARAM_INT);
+
         $statement->execute();
     }
 

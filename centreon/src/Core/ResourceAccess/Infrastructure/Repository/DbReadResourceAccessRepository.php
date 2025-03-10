@@ -371,6 +371,48 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         return $datasetFilters;
     }
 
+    public function findLastLevelDatasetFilterByRuleIdsAndType(array $ruleIds, string $type): array
+    {
+        if (empty($ruleIds)) {
+            return [];
+        }
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ruleIds, ':rule_id_');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                        SELECT
+                            id,
+                            resource_ids
+                        FROM `:db`.dataset_filters
+                        INNER JOIN `:db`.acl_resources AS dataset
+                            ON dataset.acl_res_id = dataset_filters.acl_resource_id
+                        WHERE acl_group_id IN ({$bindQuery})
+                            AND type = :type
+                            AND parent_id IS NULL
+                    SQL
+            )
+        );
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->bindValue(':type', $type, \PDO::PARAM_STR);
+        $statement->execute();
+
+        $datasetFilters = [];
+
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /**
+             * @var array{id: int, resource_ids: string} $record
+             */
+            $datasetFilters[$record['id']] = array_map('intval', explode(',', $record['resource_ids']));
+        }
+
+        return $datasetFilters;
+    }
+
     /**
      * @inheritDoc
      */
