@@ -31,9 +31,9 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 final class HostGroupResponseNormalizer implements NormalizerInterface
 {
     use HttpUrlTrait;
-    private const IMAGE_DIRECTORY = '/img/media/';
 
     public function __construct(
+        private readonly string $mediaPath,
         private readonly ObjectNormalizer $normalizer
     ) {
     }
@@ -102,7 +102,7 @@ final class HostGroupResponseNormalizer implements NormalizerInterface
     private function generateNormalizedIconUrl(?string $url): ?string
     {
         return $url !== null
-            ? $this->getBaseUri() . self::IMAGE_DIRECTORY . $url
+            ? $this->getBaseUri() . '/' . $this->mediaPath . '/' . $url
             : $url;
     }
 }

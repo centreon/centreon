@@ -91,6 +91,10 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
      */
     public function findByIds(array $mediaIds): array
     {
+        if ($mediaIds === []) {
+            return [];
+        }
+
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
             $mediaIds,
             ':mediaId_',

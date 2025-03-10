@@ -202,7 +202,7 @@ interface ReadHostGroupRepositoryInterface
     /**
      * @param int[] $hostGroupIds
      *
-     * @return array<int,HostGroupRelationCount>
+     * @return array<int,HostGroupRelationCount> HostGroupRelationCount indexed by Host Group ID
      */
     public function findHostsCountByIds(array $hostGroupIds): array;
 
@@ -210,7 +210,7 @@ interface ReadHostGroupRepositoryInterface
      * @param int[] $hostGroupIds
      * @param int[] $accessGroupIds
      *
-     * @return array<int,HostGroupRelationCount>
+     * @return array<int,HostGroupRelationCount> HostGroupRelationCount indexed by Host Group ID
      */
     public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): array;
 
