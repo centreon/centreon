@@ -105,3 +105,49 @@ foreach (
         )->getMessage()
     );
 }
+
+foreach (
+    [
+        'conf_certificate',
+        'conf_private_key',
+        'otel_ca_certificate',
+        'otel_private_key',
+        'otel_public_certificate',
+    ] as $field
+) {
+    it(
+        "should add the certificate base path prefix to {$field} when it is not present",
+        function () use ($field) : void {
+            $field === 'poller_ca_certificate' ? $this->parameters['hosts'][0][$field] = 'test.crt' : $this->parameters[$field] = 'test.crt';
+
+            $cmaConfig = new TelegrafConfigurationParameters($this->parameters);
+            $result = $cmaConfig->getData();
+            $field === 'poller_ca_certificate'
+                ? $this->assertEquals($result['hosts'][0][$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt')
+                : $this->assertEquals($result[$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt');
+        }
+    );
+}
+
+foreach (
+    [
+        'conf_certificate',
+        'conf_private_key',
+        'otel_ca_certificate',
+        'otel_private_key',
+        'otel_public_certificate',
+    ] as $field
+) {
+    it(
+        "should not add the certificate base path prefix to {$field} when it is present",
+        function () use ($field) : void {
+            $field === 'poller_ca_certificate' ? $this->parameters['hosts'][0][$field] = 'test.crt' : $this->parameters[$field] = '/etc/pki/test.crt';
+
+            $cmaConfig = new TelegrafConfigurationParameters($this->parameters);
+            $result = $cmaConfig->getData();
+            $field === 'poller_ca_certificate'
+                ? $this->assertEquals($result['hosts'][0][$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt')
+                : $this->assertEquals($result[$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt');
+        }
+    );
+}
