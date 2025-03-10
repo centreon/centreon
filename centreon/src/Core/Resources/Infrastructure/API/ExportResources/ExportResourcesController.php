@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Core\Resources\Infrastructure\API\ExportResources;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Resources\Application\UseCase\ExportResources\ExportResources;
@@ -44,10 +45,12 @@ final class ExportResourcesController extends AbstractController
     /**
      * ExportResourcesController constructor
      *
+     * @param ContactInterface $contact
      * @param RequestValidator $validator
      * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
+        private readonly ContactInterface $contact,
         private readonly RequestValidator $validator,
         private readonly ExceptionHandler $exceptionHandler,
     ) {}
@@ -66,7 +69,9 @@ final class ExportResourcesController extends AbstractController
     ): Response {
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());
         $useCaseRequest = new ExportResourcesRequest(
+            $this->contact,
             $this->createResourceFilter($filter),
+            $request->query->get('allPages', false),
             self::EXPORT_MAX_RESULTS
         );
         $useCase($useCaseRequest, $presenter);
@@ -104,25 +109,22 @@ final class ExportResourcesController extends AbstractController
 
     /**
      * @param string $exportView
-     * @param string $formatDate
      *
      * @return string
      */
     private function getCsvFileName(
         string $exportView = self::EXPORT_VIEW_TYPE,
-        string $formatDate = 'Y-m-d_H-i'
     ): string {
-        return "ResourceStatusExport_{$exportView}_{$this->getDateFormatted($formatDate)}.csv";
+        $dateNormalized = str_replace([' ', ':', ',', '/'], '-', $this->getDateFormatted());
+        return "ResourceStatusExport_{$exportView}_{$dateNormalized}.csv";
     }
 
     /**
-     * @param string $format
-     *
      * @return string
      */
-    private function getDateFormatted(string $format): string
+    private function getDateFormatted(): string
     {
-        return (new \DateTime('now'))->format($format);
+        return (new \DateTime('now'))->format($this->contact->getFormatDate());
     }
 
     /**

@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Resources\Application\UseCase\ExportResources;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -44,12 +44,10 @@ final readonly class ExportResources
      *
      * @param ReadResourceRepositoryInterface $readResourceRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
-     * @param ContactInterface $contact
      */
     public function __construct(
         private ReadResourceRepositoryInterface $readResourceRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private ContactInterface $contact,
     ) {}
 
     /**
@@ -64,15 +62,13 @@ final readonly class ExportResources
     ): void {
         $response = new ExportResourcesResponse();
 
-        if (! $this->validateRequest($request)) {
-            $presenter->presentResponse(
-                new InvalidArgumentResponse('Invalid request, maxResults must be equal or less than 10000')
-            );
+        if (($errorResponse = $this->validateRequest($request)) !== true) {
+            $presenter->presentResponse($errorResponse);
 
             return;
         }
 
-        if ($this->contact->isAdmin()) {
+        if ($request->contact->isAdmin()) {
             try {
                 $resources = $this->readResourceRepository->iterateResourcesByMaxResults(
                     $request->resourceFilter,
@@ -84,8 +80,8 @@ final readonly class ExportResources
                         message: 'An error occurred while iterating resources with admin rights',
                         context: [
                             'use_case' => 'ExportResources',
-                            'user_is_admin' => $this->contact->isAdmin(),
-                            'contact_id' => $this->contact->getId(),
+                            'user_is_admin' => $request->contact->isAdmin(),
+                            'contact_id' => $request->contact->getId(),
                             'resources_filter' => $request->resourceFilter,
                         ],
                         exception: $exception
@@ -98,7 +94,7 @@ final readonly class ExportResources
             try {
                 $accessGroupIds = array_map(
                     static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
-                    $this->accessGroupRepository->findByContact($this->contact)
+                    $this->accessGroupRepository->findByContact($request->contact)
                 );
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
@@ -106,7 +102,7 @@ final readonly class ExportResources
                         message: 'An error occurred while finding access groups for the contact',
                         context: [
                             'use_case' => 'ExportResources',
-                            'contact_id' => $this->contact->getId()
+                            'contact_id' => $request->contact->getId()
                         ],
                         exception: $exception
                     )
@@ -127,8 +123,8 @@ final readonly class ExportResources
                         message: 'An error occurred while iterating resources by access group IDs',
                         context: [
                             'use_case' => 'ExportResources',
-                            'user_is_admin' => $this->contact->isAdmin(),
-                            'contact_id' => $this->contact->getId(),
+                            'user_is_admin' => $request->contact->isAdmin(),
+                            'contact_id' => $request->contact->getId(),
                             'resources_filter' => $request->resourceFilter,
                         ],
                         exception: $exception
@@ -147,10 +143,13 @@ final readonly class ExportResources
     /**
      * @param ExportResourcesRequest $request
      *
-     * @return bool
+     * @return ResponseStatusInterface|true
      */
-    private function validateRequest(ExportResourcesRequest $request): bool
+    private function validateRequest(ExportResourcesRequest $request): ResponseStatusInterface|true
     {
-        return $request->maxResults <= 10000;
+        if ($request->allPages && $request->maxResults > 10000) {
+            return new InvalidArgumentResponse('Invalid request, maxResults must be equal or less than 10000');
+        }
+        return true;
     }
 }

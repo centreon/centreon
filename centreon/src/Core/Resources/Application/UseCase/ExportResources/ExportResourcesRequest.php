@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Resources\Application\UseCase\ExportResources;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
 
 /**
@@ -35,11 +36,15 @@ final readonly class ExportResourcesRequest {
     /**
      * ExportResourcesRequest constructor
      *
+     * @param ContactInterface $contact
      * @param ResourceFilter $resourceFilter
+     * @param bool $allPages
      * @param int $maxResults
      */
     public function __construct(
+        public ContactInterface $contact,
         public ResourceFilter $resourceFilter,
+        public bool $allPages,
         public int $maxResults
     )
     {}

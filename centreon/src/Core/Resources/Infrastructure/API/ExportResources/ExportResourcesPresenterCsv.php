@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\ExportResources;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -43,6 +44,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
 {
     /** @var ExportResourcesViewModel */
     private ExportResourcesViewModel $viewModel;
+
     /**
      * ExportResourcesPresenterCsv constructor
      *
@@ -50,6 +52,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
      */
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
+        private readonly ContactInterface $contact,
         private readonly ExceptionHandler $exceptionHandler,
     ) {
         parent::__construct($presenterFormatter);
@@ -86,23 +89,26 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
         /** @var ResourceEntity $resource */
         foreach ($resources as $resource) {
             yield [
-                'Status' => $resource->getStatus()?->getName() ?? '',
-                'Resource Type' => $this->formatLabel($resource->getType() ?? ''),
-                'Parent resource status' => $this->formatLabel($resource->getParent()?->getStatus()?->getName() ?? ''),
-                'Duration' => $resource->getDuration() ?? '',
-                'Last Check' => $resource->getLastCheck()?->format('Y-m-d H:i:s') ?? '',
-                'Information' => $resource->getInformation() ?? '',
-                'Tries' => $resource->getTries() ?? '',
-                'Severity' => $resource->getSeverity()?->getName() ?? '',
-                'Notes' => $resource->getLinks()->getExternals()->getNotes()?->getUrl() ?? '',
-                'Action' => $resource->getLinks()->getExternals()->getActionUrl() ?? '',
-                'State' => '',
-                'Alias' => $resource->getAlias() ?? '',
-                'Parent alias' => $resource->getParent()?->getAlias() ?? '',
-                'FQDN / Address' => $resource->getFqdn() ?? '',
-                'Monitoring Server' => $resource->getMonitoringServerName(),
-                'Notif' => '',
-                'Check' => '',
+                _('Resource Type') => _($this->formatLabel($resource->getType() ?? '')),
+                _('Resource Name') => _($resource->getName() ?? ''),
+                _('Status') => _($resource->getStatus()?->getName() ?? ''),
+                _('Parent Resource Type') => _($this->formatLabel($resource->getParent()?->getType() ?? '')),
+                _('Parent Resource Name') => _($resource->getParent()?->getName() ?? ''),
+                _('Parent Resource Status') => _($this->formatLabel($resource->getParent()?->getStatus()?->getName() ?? '')),
+                _('Duration') => $resource->getDuration() ?? '',
+                _('Last Check') => $this->formatDate($resource->getLastCheck()),
+                _('Information') => $resource->getInformation() ?? '',
+                _('Tries') => $resource->getTries() ?? '',
+                _('Severity') => $resource->getSeverity()?->getLevel() ?? '',
+                _('Notes') => $this->getResourceNotes($resource),
+                _('Action') => $resource->getLinks()->getExternals()->getActionUrl() ?? '',
+                _('State') => _($this->getResourceState($resource)),
+                _('Alias') => $resource->getAlias() ?? '',
+                _('Parent alias') => $resource->getParent()?->getAlias() ?? '',
+                _('FQDN / Address') => $resource->getFqdn() ?? '',
+                _('Monitoring Server') => $resource->getMonitoringServerName() ?? '',
+                _('Notif') => $resource->isNotificationEnabled() ? _('Enabled') : ('Disabled'),
+                _('Check') => _($this->getResourceCheck($resource)),
             ];
         }
     }
@@ -117,8 +123,84 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
 
     // ---------------------------------- PRIVATE METHODS ---------------------------------- //
 
+    /**
+     * @param string $label
+     *
+     * @return string
+     */
     private function formatLabel(string $label): string
     {
         return ucfirst(strtolower($label));
+    }
+
+    /**
+     * @param ResourceEntity $resource
+     *
+     * @return string
+     */
+    private function getResourceNotes(ResourceEntity $resource): string
+    {
+        $notes = '';
+
+        if (! is_null($resource->getLinks()->getExternals()->getNotes())) {
+            $notes = $resource->getLinks()->getExternals()->getNotes()->getUrl() ?? null;
+            $notes = $notes ?: $resource->getLinks()->getExternals()->getNotes()->getLabel() ?? '';
+        }
+
+        return $notes;
+    }
+
+    /**
+     * @param ResourceEntity $resource
+     *
+     * @return string
+     */
+    private function getResourceState(ResourceEntity $resource): string
+    {
+        $state = [];
+
+        if ($resource->getAcknowledged()) {
+            $state[] = 'Acknowledged';
+        }
+        if ($resource->getInDowntime()) {
+            $state[] = 'Downtime';
+        }
+        if ($resource->isInFlapping()) {
+            $state[] = 'Flapping';
+        }
+
+        return implode(', ', $state);
+    }
+
+    /**
+     * @param ResourceEntity $resource
+     *
+     * @return string
+     */
+    private function getResourceCheck(ResourceEntity $resource): string
+    {
+        $check = '';
+
+        if (! $resource->getActiveChecks() && ! $resource->getPassiveChecks()) {
+            $check = 'All checks are disabled';
+        } elseif ($resource->getActiveChecks() && $resource->getPassiveChecks()) {
+            $check = 'All checks are enabled';
+        } elseif ($resource->getActiveChecks()) {
+            $check = 'Only active checks are enabled';
+        } elseif ($resource->getPassiveChecks()) {
+            $check = 'Only passive checks are enabled';
+
+        }
+
+        return $check;
+    }
+
+    /**
+     * @param \DateTime|null $date
+     *
+     * @return string
+     */
+    private function formatDate(?\DateTime $date): string {
+        return ! is_null($date) ? $date->format($this->contact->getFormatDate()) : '';
     }
 }
