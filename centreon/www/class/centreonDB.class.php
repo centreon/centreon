@@ -1560,7 +1560,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         try {
             if ($bindParams === []) {
                 throw new CentreonDbException(
-                    "To execute the query, bindParams must to be an array filled or null, empty array given",
+                    "To execute the query, bindParams must be a filled array or null, empty array given",
                     ['bind_params' => $bindParams]
                 );
             }
