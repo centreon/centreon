@@ -103,11 +103,8 @@ $form->setDefaults(['generate' => '1', 'generate' => '1', 'opt' => '1']);
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $sub = $form->addElement('submit', 'submit', _("Generate"), ["class" => "btc bt_success"]);
 $msg = null;

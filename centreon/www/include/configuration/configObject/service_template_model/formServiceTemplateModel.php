@@ -919,9 +919,8 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 // # End of form definition
 //
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path2, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path2);
 
 unset($service['service_template_model_stm_id']);
 // Just watch a host information

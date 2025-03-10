@@ -27,6 +27,10 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topcounter&action=servicesStatus'
+  }).as('getTopCounter');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
 });
@@ -88,9 +92,9 @@ Given('a service dependency is configured', () => {
     rootItemNumber: 3,
     subMenu: 'Notifications'
   });
-  cy.getIframeBody().contains('a', 'Add').click({ force: true });
-  cy.addServiceDependency(data.default);
+  cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
+  cy.addServiceDependency(data.default);
 });
 
 When('the user changes the properties of a service dependency', () => {
@@ -99,6 +103,8 @@ When('the user changes the properties of a service dependency', () => {
     `a:contains("${data.default.dependency.name}")`
   );
   cy.getIframeBody().contains(data.default.dependency.name).click();
+  cy.wait('@getTopCounter');
+  cy.wait('@getTimeZone');
   cy.updateServiceDependency(data.ServDependency1);
 });
 
@@ -108,6 +114,8 @@ Then('the properties are updated', () => {
     `a:contains("${data.ServDependency1.dependency.name}")`
   );
   cy.getIframeBody().contains(data.ServDependency1.dependency.name).click();
+  cy.wait('@getTopCounter');
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
@@ -157,6 +165,8 @@ Then('the new service dependency has the same properties', () => {
     `a:contains("${data.default.dependency.name}_1")`
   );
   cy.getIframeBody().contains(`${data.default.dependency.name}_1`).click();
+  cy.wait('@getTopCounter');
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
@@ -212,7 +222,8 @@ Given('a service group dependency is configured', () => {
     rootItemNumber: 3,
     subMenu: 'Notifications'
   });
-  cy.getIframeBody().contains('a', 'Add').click({ force: true });
+  cy.getIframeBody().contains('a', 'Add').click();
+  cy.wait('@getTimeZone');
   cy.addServiceGroupDependency(data.defaultSGDependency);
 });
 
@@ -222,6 +233,8 @@ When('the user changes the properties of a service group dependency', () => {
     `a:contains("${data.defaultSGDependency.dependency.name}")`
   );
   cy.getIframeBody().contains(data.defaultSGDependency.dependency.name).click();
+  cy.wait('@getTopCounter');
+  cy.wait('@getTimeZone');
   cy.updateServiceGroupDependency(data.SGDependency1);
 });
 
@@ -231,6 +244,8 @@ Then('the properties of the service group dependency are updated', () => {
     `a:contains("${data.SGDependency1.dependency.name}")`
   );
   cy.getIframeBody().contains(data.SGDependency1.dependency.name).click();
+  cy.wait('@getTopCounter');
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')
@@ -271,6 +286,8 @@ Then('the new service group dependency has the same properties', () => {
   cy.getIframeBody()
     .contains(`${data.defaultSGDependency.dependency.name}_1`)
     .click();
+  cy.wait('@getTopCounter');
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
   cy.getIframeBody()
     .find('input[name="dep_name"]')

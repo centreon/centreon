@@ -9864,7 +9864,7 @@ msgstr "Récupération"
 #: centreon-web/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php:259
 #: centreon-web/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php:629
 msgid "Flapping"
-msgstr "Bagotant"
+msgstr "En bagotage"
 
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:777
 #: centreon-web/www/include/configuration/configObject/service/formService.php:700
@@ -15152,8 +15152,8 @@ msgstr "La date de fin doit être supérieure à la date de début"
 msgid "End time"
 msgstr "Heure de fin"
 
-msgid "This Resource is flapping"
-msgstr "Cette Ressource est bagottante"
+msgid "This resource is flapping"
+msgstr "Cette ressource est bagotante"
 
 msgid "Show criterias filters"
 msgstr "Montrer les critères de filtre"
@@ -19553,7 +19553,7 @@ msgid "Update poller/agent configuration"
 msgstr "Mettre à jour la configuration collecteur/agent"
 
 msgid "An agent is a piece of software you install on the host you want to monitor, that executes the checks."
-msgstr "Un agent est une partie d'un logiciel que vous installez sur l'hôte que vous souhaitez superviser qui exécutes les vérifications."
+msgstr "Un agent est un logiciel que vous installez sur l’hôte à superviser, et qui exécute les contrôles."
 
 msgid "Error while adding a poller/agent configuration"
 msgstr "Erreur lors de l'ajout de la configuration collecteur/agent"
@@ -19629,3 +19629,21 @@ msgstr "PNG (petite taille)"
 
 msgid "Export as"
 msgstr "Exporter en tant que"
+
+msgid "Agent configuration"
+msgstr "Configuration d'agent"
+
+msgid "Do you want to leave this page?"
+msgstr "Voulez-vous quitter cette page?"
+
+msgid "Your changes will not be saved if you leave this page."
+msgstr "Vos changements ne seront pas sauvegardés si vous quittez la page."
+
+msgid "Leave"
+msgstr "Quitter"
+
+msgid "Stay"
+msgstr "Rester"
+
+msgid "The minimum allowed value is 10"
+msgstr "La valeur minimale autorisée est 10"

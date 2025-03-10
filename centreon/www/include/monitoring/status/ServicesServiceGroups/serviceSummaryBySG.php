@@ -74,9 +74,8 @@ $rows = 10;
 
 include_once($sg_path . "serviceSummaryBySGJS.php");
 
-# Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($sg_path, $tpl, "/templates/");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($sg_path, '/templates/');
 
 $tpl->assign("p", $p);
 $tpl->assign('o', $o);

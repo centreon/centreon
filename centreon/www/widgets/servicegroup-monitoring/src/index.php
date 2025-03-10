@@ -55,10 +55,9 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit();
 }
 
+// Smarty template initialization
 $path = $centreon_path . "www/widgets/servicegroup-monitoring/src/";
-
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
 

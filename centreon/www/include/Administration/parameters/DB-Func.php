@@ -144,6 +144,12 @@ function is_writable_file_if_exist($path = null)
     return false;
 }
 
+function isGreaterThan($value, $minValue) 
+{
+    return is_numeric($value) && $value >= $minValue;
+}
+
+
 /**
  * rule to check the session duration value chosen by the user
  * @param int $value

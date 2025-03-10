@@ -473,11 +473,8 @@ if ($o == "a" || $o == "c") {
 }
 $form->setRequiredNote(_("Required field"));
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl(__DIR__, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate(__DIR__);
 
 $formDefaults = $acl ?? [];
 $formDefaults['all_hosts[all_hosts]'] = $formDefaults['all_hosts'] ?? '0';

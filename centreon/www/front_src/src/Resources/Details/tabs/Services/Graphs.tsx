@@ -23,12 +23,10 @@ export interface ResourceGraphMousePosition {
 
 const useStyles = makeStyles()((theme) => ({
   graph: {
-    columnGap: '8px',
     display: 'grid',
-    gridTemplateColumns: `repeat(auto-fill, minmax(${theme.spacing(
-      40
-    )}, auto))`,
-    rowGap: '8px'
+    columnGap: theme.spacing(1.5),
+    gridTemplateColumns: `repeat(auto-fit, minmax(${theme.spacing(40)}, 1fr))`,
+    rowGap: theme.spacing(1.5)
   }
 }));
 

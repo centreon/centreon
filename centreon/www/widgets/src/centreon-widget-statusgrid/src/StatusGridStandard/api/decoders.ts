@@ -98,6 +98,7 @@ const calculationMethodDecoder = JsonDecoder.object<CalculationMethod>(
 export const businessActivityDecoder = JsonDecoder.object<BusinessActivity>(
   {
     calculationMethod: calculationMethodDecoder,
+    currentLevel: JsonDecoder.nullable(JsonDecoder.number),
     id: JsonDecoder.number,
     indicators: JsonDecoder.array(indicatorDecoder, 'indicators'),
     infrastructureView: JsonDecoder.nullable(JsonDecoder.string),
@@ -107,6 +108,7 @@ export const businessActivityDecoder = JsonDecoder.object<BusinessActivity>(
   'BusinessActivity',
   {
     calculationMethod: 'calculation_method',
+    currentLevel: 'current_level',
     infrastructureView: 'infrastructure_view'
   }
 );

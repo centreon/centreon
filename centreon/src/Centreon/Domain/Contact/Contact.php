@@ -54,6 +54,8 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_MANAGE_TOKENS = 'ROLE_MANAGE_TOKENS';
     public const ROLE_CREATE_EDIT_POLLER_CFG = 'CREATE_EDIT_POLLER_CFG';
     public const ROLE_DELETE_POLLER_CFG = 'DELETE_POLLER_CFG';
+    public const ROLE_DISPLAY_TOP_COUNTER = 'DISPLAY_TOP_COUNTER';
+    public const ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS = 'DISPLAY_TOP_COUNTER_POLLERS_STATISTICS';
 
     // user pages access
     public const ROLE_HOME_DASHBOARD_VIEWER = 'ROLE_HOME_DASHBOARDS_VIEWER_RW';
