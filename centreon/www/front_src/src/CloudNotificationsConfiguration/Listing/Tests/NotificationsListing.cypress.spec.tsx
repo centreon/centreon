@@ -526,6 +526,7 @@ describe('column sorting', () => {
         requestAlias: `dataToListingTableDesc${label}`
       });
 
+<<<<<<< HEAD
       cy.findByLabelText(`Column ${label}`).click();
 
       cy.waitForRequestAndVerifyQueries({
@@ -534,6 +535,9 @@ describe('column sorting', () => {
       });
 
       cy.contains('notification1').should('exist');
+=======
+      cy.contains('notification1');
+>>>>>>> 24.10.x
     });
   });
 });
