@@ -144,13 +144,13 @@ if (!empty($preferences['host_group'])) {
     try {
         $stmt1 = $db->prepareQuery($query1);
         $db->executePreparedQuery($stmt1, $bindParams1, true);
-        while ($row = $stmt1->fetch()) {
+        while ($row = $db->fetch($stmt1)) {
             $row['details_uri'] = $useDeprecatedPages
                 ? '../../main.php?p=20202&o=hd&host_name=' . $row['name']
                 : $resourceController->buildHostDetailsUri($row['host_id']);
             $data[] = $row;
         }
-    } catch (PDOException $exception) {
+    } catch (\PDOException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error while fetching host listing for widget',
@@ -203,7 +203,7 @@ if (!empty($preferences['host_group'])) {
     try {
         $stmt2 = $db->prepareQuery($query2);
         $db->executePreparedQuery($stmt2, $bindParams2, true);
-        while ($row = $stmt2->fetch()) {
+        while ($row = $db->fetch($stmt2)) {
             $data_service[$row['description']] = [
                 'description' => $row['description'],
                 'hosts' => [],
@@ -211,7 +211,7 @@ if (!empty($preferences['host_group'])) {
                 'details_uri' => []
             ];
         }
-    } catch (PDOException $exception) {
+    } catch (\PDOException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error while fetching service listing for widget',
@@ -249,7 +249,7 @@ if (!empty($preferences['host_group'])) {
     try {
         $stmt3 = $db->prepareQuery($query3);
         $db->executePreparedQuery($stmt3, $bindParams3, true);
-        while ($row = $stmt3->fetch()) {
+        while ($row = $db->fetch($stmt3)) {
             if (isset($data_service[$row['description']])) {
                 $data_service[$row['description']]['hosts'][] = $row['host_id'];
                 $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];
@@ -258,7 +258,7 @@ if (!empty($preferences['host_group'])) {
                     : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
             }
         }
-    } catch (PDOException $exception) {
+    } catch (\PDOException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error while fetching host service statuses for widget',
