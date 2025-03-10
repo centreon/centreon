@@ -159,7 +159,6 @@ final class AddHostGroup
      *      For Cloud: Host Groups are added to Datasets's Resource Access Rules,
      *          only if the dataset Hostgroup has no parent
      *
-     *
      * @param int[] $resourceAccessRuleIds
      * @param int $hostGroupId
      *
