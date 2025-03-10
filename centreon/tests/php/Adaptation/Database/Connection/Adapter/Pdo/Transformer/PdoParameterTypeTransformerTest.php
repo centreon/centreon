@@ -27,7 +27,7 @@ use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTrans
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Core\Common\Domain\Exception\TransformerException;
 
-it('test pdo parameter type transformer : transform', function (QueryParameterTypeEnum $queryType, int $pdoType) {
+it('transform from query parameters', function (QueryParameterTypeEnum $queryType, int $pdoType) {
     $type = PdoParameterTypeTransformer::transformFromQueryParameterType($queryType);
     expect($type)->toBeInt()->toBe($pdoType);
 })->with([
@@ -38,7 +38,7 @@ it('test pdo parameter type transformer : transform', function (QueryParameterTy
     [QueryParameterTypeEnum::BOOLEAN, \PDO::PARAM_BOOL],
 ]);
 
-it('test pdo parameter type transformer : reverse', function (int $pdoType, QueryParameterTypeEnum $queryType) {
+it('reverse to query parameters', function (int $pdoType, QueryParameterTypeEnum $queryType) {
     $type = PdoParameterTypeTransformer::reverseToQueryParameterType($pdoType);
     expect($type)->toBe($queryType);
 })->with([
@@ -49,6 +49,6 @@ it('test pdo parameter type transformer : reverse', function (int $pdoType, Quer
     [\PDO::PARAM_BOOL, QueryParameterTypeEnum::BOOLEAN],
 ]);
 
-it('test pdo parameter type transformer : reverse with a bad pdo type', function () {
+it('reverse to query parameters with a bad pdo type', function () {
     $type = PdoParameterTypeTransformer::reverseToQueryParameterType(999999);
 })->throws(TransformerException::class);
