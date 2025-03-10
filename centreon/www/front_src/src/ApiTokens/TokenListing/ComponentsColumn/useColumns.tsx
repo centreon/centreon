@@ -8,25 +8,42 @@ import {
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
-
-import Title from '../Title';
 import { selectedColumnIdsAtom } from '../atoms';
-import { Row } from '../models';
 
+import { useTranslation } from 'react-i18next';
 import ActionsColumn from './ActionsColumn';
 import Activate from './Activate';
-import { Column, UseColumns, defaultSelectedColumnIds } from './models';
+import { Column, ColumnId } from './models';
 
 const dateFormat = 'L';
 
-export const useColumns = (): UseColumns => {
+export const defaultSelectedColumnIds: Array<ColumnId> = [
+  ColumnId.TokenName,
+  ColumnId.Type,
+  ColumnId.CreationDate,
+  ColumnId.ExpirationDate,
+  ColumnId.UserName,
+  ColumnId.CreatorName,
+  ColumnId.Actions,
+  ColumnId.Activate
+];
+
+export interface UseColumnsState {
+  columns: Array<ColumnTable>;
+  onResetColumns: () => void;
+  onSelectColumns: (updatedColumnIds: Array<string>) => void;
+  selectedColumnIds: Array<string>;
+}
+
+export const useColumns = (): UseColumnsState => {
+  const { t } = useTranslation();
+
   const { format } = useLocaleDateTimeFormat();
 
+  const { timezone } = useAtomValue(userAtom);
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(
     selectedColumnIdsAtom
   );
-
-  const { timezone } = useAtomValue(userAtom);
 
   const onSelectColumns = (updatedColumnIds: Array<string>): void => {
     setSelectedColumnIds(updatedColumnIds);
@@ -39,78 +56,74 @@ export const useColumns = (): UseColumns => {
   const columns: Array<ColumnTable> = useMemo(() => {
     return [
       {
-        Component: ({ row }: Row) => {
-          return <Title msg={row.name} variant="body2" />;
-        },
-        id: 'token_name',
-        label: Column.Name,
+        getFormattedString: (row): string => row.name,
+        id: ColumnId.TokenName,
+        label: t(Column.Name),
         sortField: 'token_name',
         sortable: true,
-        type: ColumnType.component
+        type: ColumnType.string
       },
       {
-        Component: ({ row }: Row) => (
-          <Title
-            msg={format({
-              date: row.creationDate,
-              formatString: dateFormat
-            })}
-            variant="body2"
-          />
-        ),
-        id: 'creation_date',
-        label: Column.CreationDate,
-        sortField: 'creation_date',
+        getFormattedString: (row): string => row?.type,
+        id: ColumnId.Type,
+        label: t(Column.Type),
+        sortField: 'type',
         sortable: true,
-        type: ColumnType.component
+        type: ColumnType.string
       },
       {
-        Component: ({ row }: Row) => (
-          <Title
-            msg={format({
-              date: row.expirationDate,
-              formatString: dateFormat
-            })}
-            variant="body2"
-          />
-        ),
-        id: 'expiration_date',
-        label: Column.ExpirationDate,
-        sortField: 'expiration_date',
-        sortable: true,
-        type: ColumnType.component
-      },
-      {
-        Component: ({ row }: Row) => (
-          <Title msg={row.user.name} variant="body2" />
-        ),
-        id: 'user_name',
-        label: Column.User,
+        getFormattedString: (row): string => row?.user.name,
+        id: ColumnId.UserName,
+        label: t(Column.User),
         sortField: 'user.name',
         sortable: true,
-        type: ColumnType.component
+        type: ColumnType.string
       },
       {
-        Component: ({ row }: Row) => (
-          <Title msg={row.creator.name} variant="body2" />
-        ),
-        id: 'creator_name',
-        label: Column.Creator,
+        getFormattedString: (row): string => row.creator.name,
+        id: ColumnId.CreatorName,
+        label: t(Column.Creator),
         sortField: 'creator.name',
         sortable: true,
-        type: ColumnType.component
+        type: ColumnType.string
+      },
+      {
+        getFormattedString: (row): string =>
+          format({
+            date: row.creationDate,
+            formatString: dateFormat
+          }),
+        id: ColumnId.CreationDate,
+        label: t(Column.CreationDate),
+        sortField: 'creation_date',
+        sortable: true,
+        type: ColumnType.string
+      },
+      {
+        getFormattedString: (row): string =>
+          format({
+            date: row.expirationDate,
+            formatString: dateFormat
+          }),
+        id: ColumnId.ExpirationDate,
+        label: t(Column.ExpirationDate),
+        sortField: 'expiration_date',
+        sortable: true,
+        type: ColumnType.string
       },
       {
         Component: ActionsColumn,
-        id: 'actions',
-        label: Column.Actions,
+        id: ColumnId.Actions,
+        label: t(Column.Actions),
         type: ColumnType.component
       },
       {
         Component: Activate,
-        id: 'activate',
-        label: Column.Activate,
-        type: ColumnType.component
+        id: ColumnId.Activate,
+        label: t(Column.Activate),
+        type: ColumnType.component,
+        sortField: 'is_revoked',
+        sortable: true
       }
     ];
   }, [timezone]);
