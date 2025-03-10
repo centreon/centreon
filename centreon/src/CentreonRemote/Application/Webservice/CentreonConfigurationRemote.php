@@ -371,6 +371,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      */
     public function postLinkCentreonRemoteServer(): array
     {
+        global $centreon;
         // retrieve post values to be used in other classes
         $_POST = json_decode(file_get_contents('php://input'), true);
 
@@ -541,6 +542,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'address' => $serverIP,
             ]);
         }
+
+        /**
+         * Update poller ACL.
+         */
+        $centreon->user->access->updatePollerACL();
 
         return ['success' => true, 'task_id' => $taskId];
     }
