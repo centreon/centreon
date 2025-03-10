@@ -1,0 +1,39 @@
+name: check-qa-validation
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+      - hotfix-*
+      - release-*
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - labeled
+
+jobs:
+  check-qa-validation:
+    # if: ${{ ! github.event.pull_request.draft }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: ./actions/get-pr-labels
+        id: get-labels
+
+      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}
+          LABELS: ${{ steps.get-labels.outputs.labels }}
+        with:
+          script: |
+            console.log(`Labels: ${process.env.LABELS}`);
