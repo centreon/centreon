@@ -49,9 +49,7 @@ jobs:
                 repo: context.repo.repo,
                 ref: "${{ github.head_ref }}"
               });
-              result.data.check_suites.forEach((data) => {
-                console.log(data)
-                const { app: { slug }, conclusion, id } = data;
+              result.data.check_suites.forEach(({ app: { slug }, conclusion, id }) => {
                 if (slug === 'github-actions') {
                   if (conclusion === 'failure' || conclusion === 'cancelled') {
                     failure.push(id);

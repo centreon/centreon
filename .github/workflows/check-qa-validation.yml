@@ -74,10 +74,8 @@ jobs:
               });
               for (const team of fetchedReviewers.data.teams) {
                 if (teamsWithQaApproval.includes(team.slug)) {
-                  console.log('::warning::This PR has been requested for review by the QA team');
-                  return true;
+                  needsQaApproval = true;
                 }
-                teams.push(team.slug);
               }
             } catch (e) {
               core.warning(`failed to list required reviewers: ${e}`);
