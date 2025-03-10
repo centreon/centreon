@@ -27,7 +27,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 
-it('test query parameters collection : add a query parameter with a good type', function () {
+it('add a query parameter with a good type', function () {
     $queryParameters = new QueryParameters();
     $param = QueryParameter::string('name_string', 'value');
     $queryParameters->add('name_string', $param);
@@ -35,13 +35,13 @@ it('test query parameters collection : add a query parameter with a good type', 
         ->and($queryParameters->get('name_string'))->toBe($param);
 });
 
-it('test query parameters collection : add a query parameter with a bad type', function () {
+it('add a query parameter with a bad type', function () {
     $param = new \stdClass();
     $queryParameters = new QueryParameters();
     $queryParameters->add('name', $param);
 })->throws(CollectionException::class);
 
-it('test query parameters collection : create with good type', function () {
+it('create with good type', function () {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1)
@@ -52,7 +52,7 @@ it('test query parameters collection : create with good type', function () {
         ->and($queryParameters->get('name_int'))->toBe($param['name_int']);
 });
 
-it('test query parameters collection : create with bad type', function () {
+it('create with bad type', function () {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => new \stdClass()
@@ -60,7 +60,7 @@ it('test query parameters collection : create with bad type', function () {
     \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
 })->throws(CollectionException::class);
 
-it('test query parameters collection : get query parameters with int type', function () {
+it('get query parameters with int type', function () {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
@@ -76,7 +76,7 @@ it('test query parameters collection : get query parameters with int type', func
         ->and($queryParameters->getIntQueryParameters()->has('name_int'))->toBeTrue();
 });
 
-it('test query parameters collection : get query parameters with string type', function () {
+it('get query parameters with string type', function () {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
@@ -92,7 +92,7 @@ it('test query parameters collection : get query parameters with string type', f
         ->and($queryParameters->getStringQueryParameters()->has('name_string'))->toBeTrue();
 });
 
-it('test query parameters collection : get query parameters with bool type', function () {
+it('get query parameters with bool type', function () {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
@@ -108,7 +108,7 @@ it('test query parameters collection : get query parameters with bool type', fun
         ->and($queryParameters->getBoolQueryParameters()->has('name_bool'))->toBeTrue();
 });
 
-it('test query parameters collection : get query parameters with null type', function () {
+it('get query parameters with null type', function () {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
@@ -124,7 +124,7 @@ it('test query parameters collection : get query parameters with null type', fun
         ->and($queryParameters->getNullQueryParameters()->has('name_null'))->toBeTrue();
 });
 
-it('test query parameters collection : get query parameters with large object type', function () {
+it('get query parameters with large object type', function () {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
