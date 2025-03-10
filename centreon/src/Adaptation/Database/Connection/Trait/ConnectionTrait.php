@@ -39,10 +39,7 @@ trait ConnectionTrait
     /**
      * @return ConnectionConfig
      */
-    public function getConnectionConfig(): ConnectionConfig
-    {
-        return $this->connectionConfig;
-    }
+    abstract public function getConnectionConfig(): ConnectionConfig;
 
     /**
      * Return the database name if it exists.
@@ -67,6 +64,30 @@ trait ConnectionTrait
     }
 
     // ----------------------------------------- CUD METHODS -----------------------------------------
+
+    /**
+     * To execute all queries except the queries getting results (SELECT).
+     *
+     * Executes an SQL statement with the given parameters and returns the number of affected rows.
+     *
+     * Could be used for:
+     *  - DML statements: INSERT, UPDATE, DELETE, etc.
+     *  - DDL statements: CREATE, DROP, ALTER, etc.
+     *  - DCL statements: GRANT, REVOKE, etc.
+     *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
+     *  - Other statements that don't yield a row set.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return int
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
+     *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
+     *          // $nbAffectedRows = 1
+     */
+    abstract public function executeStatement(string $query, ?QueryParameters $queryParameters = null): int;
 
     /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
@@ -261,6 +282,40 @@ trait ConnectionTrait
     // ----------------------------------------- FETCH METHODS -----------------------------------------
 
     /**
+     * Prepares and executes an SQL query and returns the result as an array of the first column values.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return list<mixed>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchFirstColumn('SELECT name FROM table WHERE active = :active', $queryParameters);
+     *          // $result = ['John', 'Jean']
+     */
+    abstract public function fetchFirstColumn(string $query, ?QueryParameters $queryParameters = null): array;
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of associative arrays.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return array<array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->fetchAllAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          // $result = [['id' => 1, 'name' => 'John', 'surname' => 'Doe'], ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']]
+     */
+    abstract public function fetchAllAssociative(string $query, ?QueryParameters $queryParameters = null): array;
+
+    /**
      * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
      * to the first column and the values being an associative array representing the rest of the columns
      * and their values.
@@ -292,6 +347,47 @@ trait ConnectionTrait
     }
 
     // ----------------------------------------- ITERATE METHODS -----------------------------------------
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,list<mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateNumeric('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = [0 => 1, 1 => 'John', 2 => 'Doe']
+     *              // $row = [0 => 2, 1 => 'Jean', 2 => 'Dupont']
+     *          }
+     */
+    abstract public function iterateNumeric(string $query, ?QueryParameters $queryParameters = null): \Traversable;
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented
+     * as associative arrays.
+     *
+     * Could be only used with SELECT.
+     *
+     * @param string $query
+     * @param QueryParameters|null $queryParameters
+     *
+     * @throws ConnectionException
+     * @return \Traversable<int,array<string,mixed>>
+     *
+     * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
+     *          $result = $db->iterateAssociative('SELECT * FROM table WHERE active = :active', $queryParameters);
+     *          foreach ($result as $row) {
+     *              // $row = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
+     *              // $row = ['id' => 2, 'name' => 'Jean', 'surname' => 'Dupont']
+     *          }
+     */
+    abstract public function iterateAssociative(string $query, ?QueryParameters $queryParameters = null): \Traversable;
 
     /**
      * Prepares and executes an SQL query and returns the result as an iterator with the keys
@@ -364,6 +460,23 @@ trait ConnectionTrait
             throw ConnectionException::iterateAssociativeIndexedQueryFailed($exception, $query, $queryParameters);
         }
     }
+
+    // ----------------------------------------- PROTECTED METHODS -----------------------------------------
+
+    /**
+     * @param string $message
+     * @param array $customContext
+     * @param string $query
+     * @param \Throwable|null $previous
+     *
+     * @return void
+     */
+    abstract protected function writeDbLog(
+        string $message,
+        array $customContext = [],
+        string $query = '',
+        ?\Throwable $previous = null
+    ): void;
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
 

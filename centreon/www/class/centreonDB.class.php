@@ -213,6 +213,14 @@ class CentreonDB extends PDO implements ConnectionInterface
     }
 
     /**
+     * @return ConnectionConfig
+     */
+    public function getConnectionConfig(): ConnectionConfig
+    {
+        return $this->connectionConfig;
+    }
+
+    /**
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
      * @return \PDO
@@ -1209,7 +1217,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param string $query
      * @param \Throwable|null $previous
      */
-    private function writeDbLog(
+    protected function writeDbLog(
         string $message,
         array $customContext = [],
         string $query = '',
