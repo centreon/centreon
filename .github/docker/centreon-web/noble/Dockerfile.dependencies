@@ -1,6 +1,6 @@
 ARG VERSION
 
-FROM ubuntu:jammy AS web_dependencies
+FROM ubuntu:noble AS web_dependencies
 
 ARG VERSION
 ARG STABILITY
