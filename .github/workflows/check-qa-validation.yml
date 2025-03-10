@@ -15,12 +15,19 @@ on:
       - release-*
     types:
       - opened
-      - reopened
-      - synchronize
-      - ready_for_review
       - labeled
+      - unlabeled
 
 jobs:
+  fail-when-no-qa-label:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'draft') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Fail if PR has not been marked as ready by QA
+        run: |
+          echo "::error::This PR has not been marked as ready for QA (no 'skip-qa' or 'qa-approved' labels)"
+          exit 1
+
   check-qa-validation:
     # if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-24.04
