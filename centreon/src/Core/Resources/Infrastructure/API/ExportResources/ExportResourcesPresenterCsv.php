@@ -221,7 +221,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
             $state[] = 'Acknowledged';
         }
         if ($resource->getInDowntime()) {
-            $state[] = 'Downtime';
+            $state[] = 'In Downtime';
         }
         if ($resource->isInFlapping()) {
             $state[] = 'Flapping';
