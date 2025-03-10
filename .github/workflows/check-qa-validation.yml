@@ -63,6 +63,7 @@ jobs:
               'owners-php',
               'owners-react',
               'owners-cpp',
+              'owners-pipelines'
             ];
 
             let needsQaApproval = false;
