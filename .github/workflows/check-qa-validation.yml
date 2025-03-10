@@ -23,7 +23,7 @@ on:
 
 jobs:
   fail-when-no-qa-label:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'skip-qa') || contains(github.event.pull_request.labels.*.name, 'qa-approved') }}
+    if: ${{ ! contains(github.event.pull_request.labels.*.name, 'skip-qa') || ! contains(github.event.pull_request.labels.*.name, 'qa-approved') }}
     runs-on: ubuntu-24.04
     steps:
       - name: Fail if PR has not been marked as ready by QA
