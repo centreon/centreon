@@ -18,6 +18,8 @@ on:
       - reopened
       - synchronize
       - ready_for_review
+      - labeled
+      - unlabeled
 
 jobs:
   # fail-when-no-qa-label:
@@ -52,7 +54,7 @@ jobs:
           script: |
             for (const label of JSON.parse(process.env.PR_LABELS)) {
               if (label === 'qa-approved') {
-                console.log('::warning::This PR has been approved by the QA team');
+                console.log('This PR has been approved by the QA team');
                 return;
               }
             }
@@ -85,3 +87,5 @@ jobs:
             if (needsQaApproval) {
               throw new Error('This PR is not yet approved by the QA team. If label "qa-approved" has been added, please re-run this workflow.');
             }
+
+            core.notice('This PR does not need approval by the QA team');
