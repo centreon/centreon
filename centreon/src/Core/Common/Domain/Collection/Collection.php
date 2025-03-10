@@ -156,7 +156,7 @@ abstract class Collection implements CollectionInterface
     }
 
     /**
-     * Merge collections with actual collection. Collections have to be the same of actual.
+     * Merge collections with actual collection. Collections have to be of the same type as actual.
      *
      * @param CollectionInterface<TItem> ...$collections
      *
