@@ -158,7 +158,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
             return true;
         } catch (ConnectionException $exception) {
             $this->writeDbLog(
-                message: 'Unable to check if the connection is established',
+                message: 'Unable to establish the connection.',
                 query: 'SELECT 1',
                 previous: $exception,
             );
