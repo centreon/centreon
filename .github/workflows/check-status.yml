@@ -39,7 +39,7 @@ jobs:
           script: |
             await exec.exec("sleep 20s");
 
-            const excludedJobs = 
+            // const excludedJobs = 
 
             for (let i = 0; i < 120; i++) {
               const failure = [];
