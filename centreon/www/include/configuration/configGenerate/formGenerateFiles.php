@@ -99,11 +99,8 @@ $form->addRule('nhost', _("You need to select a least one polling instance."), '
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $sub = $form->addElement(
     'button',

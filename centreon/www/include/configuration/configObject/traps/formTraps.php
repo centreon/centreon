@@ -384,11 +384,8 @@ $form->registerRule('wellFormated', 'callback', [$trapObj, "testOidFormat"]);
 $form->addRule('traps_oid', _("Bad OID Format"), 'wellFormated');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 $tpl->assign('trap_adv_args', _("Advanced matching rules"));
 
 $tpl->assign(

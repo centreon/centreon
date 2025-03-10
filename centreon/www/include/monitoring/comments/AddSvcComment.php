@@ -158,11 +158,8 @@ if ($centreon->user->access->checkAction("service_comment")) {
         $valid = true;
         require_once($path . "listComment.php");
     } else {
-        /*
-         * Smarty template Init
-         */
-        $tpl = new Smarty();
-        $tpl = initSmartyTpl($path, $tpl, "template/");
+        // Smarty template initialization
+        $tpl = SmartyBC::createSmartyTemplate($path, 'template/');
 
         /*
          * Apply a template definition

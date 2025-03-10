@@ -226,9 +226,8 @@ $form->registerRule('exist', 'callback', 'testExistence');
 $form->addRule('esc_name', _("Name is already in use"), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-# Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 # Just watch an Escalation information
 if ($o == "w") {

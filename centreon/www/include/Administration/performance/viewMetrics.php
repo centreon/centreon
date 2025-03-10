@@ -155,11 +155,8 @@ for ($im = 0; $metrics = $stmt2->fetch(\PDO::FETCH_ASSOC); $im++) {
 
 include_once "./include/common/checkPagination.php";
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
 

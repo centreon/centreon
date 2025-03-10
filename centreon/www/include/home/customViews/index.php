@@ -46,11 +46,8 @@ try {
      */
     $path = "./include/home/customViews/";
 
-    /*
-     * Smarty INIT
-     */
-    $template = new Smarty();
-    $template = initSmartyTpl($path, $template, "./");
+    // Smarty template initialization
+    $template = SmartyBC::createSmartyTemplate($path, "./");
 
     // Assign permissions and other variables to the template
     $aclEdit = $centreon->user->access->page('10301', true);

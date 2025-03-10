@@ -117,11 +117,8 @@ if ($o == "a") {
     $form->addElement('header', 'title', _("View a Centreon-Broker Configuration"));
 }
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * TAB 1 - General informations

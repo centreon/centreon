@@ -247,11 +247,8 @@ $form->registerRule('exist', 'callback', 'testServiceGroupDependencyExistence');
 $form->addRule('dep_name', _("Name is already in use"), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * Just watch a Dependency information

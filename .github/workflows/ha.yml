@@ -13,6 +13,7 @@ on:
       - reopened
       - ready_for_review
     paths:
+      - ".version.centreon-ha"
       - "centreon-ha/**"
       - "!centreon-ha/veracode.json"
       - "!centreon-ha/.veracode-exclusions"
@@ -23,6 +24,7 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
+      - ".version.centreon-ha"
       - "centreon-ha/**"
       - "!centreon-ha/veracode.json"
       - "!centreon-ha/.veracode-exclusions"
@@ -127,7 +129,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm, jammy]
+        distrib: [bullseye, bookworm]
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -150,7 +152,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm, jammy]
+        distrib: [el8, el9, bullseye, bookworm]
 
     steps:
       - name: Checkout sources

@@ -65,7 +65,10 @@ jobs:
 
   veracode-analysis:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
+    if: |
+      needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
+      github.event.pull_request.draft != 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-open-tickets
@@ -80,3 +83,8 @@ jobs:
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
+  set-skip-label:
+    needs: [get-environment, veracode-analysis]
+    if: needs.get-environment.outputs.skip_workflow == 'false'
+    uses: ./.github/workflows/set-pull-request-skip-label.yml

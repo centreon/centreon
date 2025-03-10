@@ -62,11 +62,8 @@ $user_params = array(
  */
 $FlagSearchService = 1;
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl("./include/eventLogs/template", $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate("./include/eventLogs/template");
 
 $getInputs = [
     'engine' => filter_input(INPUT_GET, 'engine', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]),

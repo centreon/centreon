@@ -234,9 +234,8 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required 
 
 // End of form definition
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl(__DIR__, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate(__DIR__);
 
 // Modify an Action Group
 if ($o === ACL_ACTION_MODIFY && isset($selected_actions) && isset($action_infos)) {

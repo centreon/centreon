@@ -348,13 +348,9 @@ if (!is_null($host_id)) {
             $total_current_attempts = getMyServiceField($service_id, "service_max_check_attempts");
         }
 
+        // Smarty template initialization
         $path = "./include/monitoring/objectDetails/";
-
-        /*
-         * Smarty template Init
-         */
-        $tpl = new Smarty();
-        $tpl = initSmartyTpl($path, $tpl, "./template/");
+        $tpl = SmartyBC::createSmartyTemplate($path, "./template/");
 
         $en = array("0" => _("No"), "1" => _("Yes"));
 

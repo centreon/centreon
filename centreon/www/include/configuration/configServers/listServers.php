@@ -110,9 +110,8 @@ $dbResult = $pearDB->query($query);
 $remotesServerIPs = $dbResult->fetchAll(PDO::FETCH_COLUMN);
 $dbResult->closeCursor();
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 // Access level
 ($centreon->user->access->page($p) == 1) ? $lvl_access = 'w' : $lvl_access = 'r';

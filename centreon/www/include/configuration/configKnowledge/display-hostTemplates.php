@@ -67,9 +67,8 @@ set_include_path(get_include_path() . PATH_SEPARATOR . $modules_path);
 
 require_once $centreon_path . "/www/class/centreon-knowledge/procedures.class.php";
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($modules_path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($modules_path);
 
 try {
     $postHostTemplate = !empty($_POST['searchHostTemplate'])

@@ -475,7 +475,7 @@ function insertHostGroupInDB(bool $isCloudPlatform, array $submittedValues = [])
 
     $hostGroupId = insertHostGroup($submittedValues, $isCloudPlatform);
     updateHostGroupHosts($hostGroupId, $submittedValues);
-    updateHostgroupAcl($hostGroupId, $isCloudPlatform, $submittedValues);
+    updateHostGroupAcl($hostGroupId, $isCloudPlatform, $submittedValues);
     signalConfigurationChange('hostgroup', $hostGroupId);
     $centreon->user->access->updateACL();
 
@@ -561,6 +561,7 @@ function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedV
                             $statement->execute();
                         }
                         unset($userResourceAccesses);
+                        $pearDB->commit();
                     } catch (\Throwable $exception) {
                         $pearDB->rollBack();
                         throw $exception;

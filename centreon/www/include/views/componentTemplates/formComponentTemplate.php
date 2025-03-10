@@ -289,11 +289,8 @@ $form->addRule('ds_color_area_crit', _('Bad Format: start color by #'), 'checkCo
 
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 if ($o === WATCH_COMPONENT_TEMPLATE) {
     // Just watch

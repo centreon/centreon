@@ -48,6 +48,7 @@ class ParametersController extends AbstractController
                   DEFAULT_ACKNOWLEDGEMENT_WITH_SERVICES = 'monitoring_ack_svc',
                   DEFAULT_ACKNOWLEDGEMENT_FORCE_ACTIVE_CHECKS = 'monitoring_ack_active_checks',
                   DEFAULT_DOWNTIME_FIXED = 'monitoring_dwt_fixed',
+                  DEFAULT_STATISTICS_REFRESH_INTERVAL = 'AjaxTimeReloadStatistic',
                   DEFAULT_DOWNTIME_WITH_SERVICES = 'monitoring_dwt_svc';
 
     /**
@@ -55,6 +56,7 @@ class ParametersController extends AbstractController
      */
     private const KEY_NAME_CONCORDANCE = [
         self::DEFAULT_REFRESH_INTERVAL => 'monitoring_default_refresh_interval',
+        self::DEFAULT_STATISTICS_REFRESH_INTERVAL => 'statistics_default_refresh_interval',
         self::DEFAULT_DOWNTIME_DURATION => 'monitoring_default_downtime_duration',
         self::DEFAULT_ACKNOWLEDGEMENT_STICKY => 'monitoring_default_acknowledgement_sticky',
         self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT => 'monitoring_default_acknowledgement_persistent',
@@ -86,6 +88,7 @@ class ParametersController extends AbstractController
         $downtimeDuration = '';
         $downtimeScale = '';
         $refreshInterval = '';
+        $statisticsRefreshInterval = '';
         $isAcknowledgementPersistent = true;
         $isAcknowledgementSticky = true;
         $isAcknowledgementNotify = false;
@@ -96,6 +99,7 @@ class ParametersController extends AbstractController
 
         $options = $this->optionService->findSelectedOptions([
             self::DEFAULT_REFRESH_INTERVAL,
+            self::DEFAULT_STATISTICS_REFRESH_INTERVAL,
             self::DEFAULT_ACKNOWLEDGEMENT_STICKY,
             self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT,
             self::DEFAULT_ACKNOWLEDGEMENT_NOTIFY,
@@ -117,6 +121,9 @@ class ParametersController extends AbstractController
                     break;
                 case self::DEFAULT_REFRESH_INTERVAL:
                     $refreshInterval = $option->getValue();
+                    break;
+                case self::DEFAULT_STATISTICS_REFRESH_INTERVAL:
+                    $statisticsRefreshInterval = $option->getValue();
                     break;
                 case self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT:
                     $isAcknowledgementPersistent = (int) $option->getValue() === 1;
@@ -148,6 +155,8 @@ class ParametersController extends AbstractController
             $this->convertToSeconds((int) $downtimeDuration, $downtimeScale);
 
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_REFRESH_INTERVAL]] = (int) $refreshInterval;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_STATISTICS_REFRESH_INTERVAL]] =
+            (int) $statisticsRefreshInterval;
 
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_ACKNOWLEDGEMENT_PERSISTENT]] =
             $isAcknowledgementPersistent;

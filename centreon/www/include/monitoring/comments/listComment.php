@@ -85,11 +85,8 @@ $centreonGMT->getMyGMTFromSession(session_id(), $pearDB);
  */
 $useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl, "template/");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path, 'template/');
 
 include_once("./class/centreonDB.class.php");
 

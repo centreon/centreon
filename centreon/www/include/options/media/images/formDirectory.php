@@ -153,9 +153,8 @@ if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
     $form->setRequiredNote(_("Required Field"));
 }
 
-
-# Smarty template Init
-$tpl = initSmartyTpl($path, new Smarty());
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 // prepare help texts
 $helptext = "";

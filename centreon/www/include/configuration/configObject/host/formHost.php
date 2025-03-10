@@ -1075,9 +1075,8 @@ $macChecker->setValue(1);
 $form->registerRule('macHandler', 'callback', 'hostMacHandler');
 $form->addRule('macChecker', _('You cannot override reserved macros'), 'macHandler');
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     'alert_check_interval',

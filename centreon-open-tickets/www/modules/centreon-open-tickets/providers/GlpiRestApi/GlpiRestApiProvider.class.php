@@ -893,14 +893,8 @@ class GlpiRestApiProvider extends AbstractProvider
             'ticket_time' => time()
         );
 
-        // initiate smarty variables
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup(
-            $this->centreon_open_tickets_path,
-            $tpl,
-            'providers/Abstract/templates',
-            $this->centreon_path
-        );
+        // Smarty template initialization
+        $tpl = SmartyBC::createSmartyTemplate($this->centreon_open_tickets_path, 'providers/Abstract/templates');
 
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);

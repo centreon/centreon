@@ -76,9 +76,8 @@ include_once("./include/monitoring/status/Common/default_poller.php");
 include_once("./include/monitoring/status/Common/default_hostgroups.php");
 include_once($hg_path . "serviceSummaryByHGJS.php");
 
-# Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($hg_path, $tpl, "/templates/");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($hg_path, '/templates/');
 
 $tpl->assign("p", $p);
 $tpl->assign('o', $o);

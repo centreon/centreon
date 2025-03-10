@@ -17539,3 +17539,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Export as"
 # msgstr ""
+
+# msgid "The minimum allowed value is 10"
+# msgstr ""

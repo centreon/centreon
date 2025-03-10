@@ -180,11 +180,8 @@ try {
     }
     $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-    /*
-     * Smarty template Init
-     */
-    $tpl = new Smarty();
-    $tpl = initSmartyTpl($path, $tpl);
+    // Smarty template initialization
+    $tpl = SmartyBC::createSmartyTemplate($path);
 
     if ($o == "w") {
         // Just watch a pool information

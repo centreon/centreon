@@ -145,6 +145,8 @@ if ($o == IMAGE_ADD) {
     );
     $form->setDefaults($img);
     $form->addRule('img_name', _("Compulsory image name"), 'required');
+    $form->registerRule('isCorrectMIMEType', 'callback', 'isCorrectMIMEType');
+    $form->addRule('filename', _('Invalid Image Format.'), 'isCorrectMIMEType');
 } elseif ($o == IMAGE_WATCH) {
     $form->addElement('header', 'title', _("View Image"));
     $form->addElement('text', 'img_name', _("Image Name"), $attrsText);
@@ -204,10 +206,8 @@ if ($o == IMAGE_WATCH) {
     $form->freeze();
 }
 
-/*
- * Smarty template Init
- */
-$tpl = initSmartyTpl($path, new Smarty());
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     "helpattr",

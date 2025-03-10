@@ -10,6 +10,8 @@ import '../features/Contacts/commands';
 import '../features/Ldaps/commands';
 import '../features/Logs/commands';
 import '../features/Services-configuration/commands';
+import '../features/Notifications/commands';
+import '../features/Commands/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -102,6 +104,24 @@ Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
     );
 });
 
+Cypress.Commands.add('fillFieldInIframe', (body: HtmlElt) => {
+  cy.getIframeBody()
+    .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
+    .clear()
+    .type(body.valueOrIndex);
+});
+
+Cypress.Commands.add('clickOnFieldInIframe', (body: HtmlElt) => {
+  cy.getIframeBody().find(`${body.tag}[${body.attribut}="${body.attributValue}"]`).eq(Number(body.valueOrIndex)).click();
+});
+
+interface HtmlElt {
+  tag: string,
+  attribut: string,
+  attributValue: string,
+  valueOrIndex: string
+}
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -120,6 +140,8 @@ declare global {
       }: Serviceparams) => Cypress.Chainable;
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
+      fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
+      clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
     }
   }
 }

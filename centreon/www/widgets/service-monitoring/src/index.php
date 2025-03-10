@@ -57,14 +57,8 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit();
 }
 
-// Init Smarty
-$template = new Smarty();
-$template = initSmartyTplForPopup(
-    $centreon_path . 'www/widgets/service-monitoring/src/',
-    $template,
-    './',
-    $centreon_path
-);
+// Smarty template initialization
+$template = SmartyBC::createSmartyTemplate($centreon_path . 'www/widgets/service-monitoring/src/', './');
 
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
