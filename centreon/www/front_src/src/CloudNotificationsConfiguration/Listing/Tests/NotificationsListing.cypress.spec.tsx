@@ -526,7 +526,6 @@ describe('column sorting', () => {
         requestAlias: `dataToListingTableDesc${label}`
       });
 
-<<<<<<< HEAD
       cy.findByLabelText(`Column ${label}`).click();
 
       cy.waitForRequestAndVerifyQueries({
