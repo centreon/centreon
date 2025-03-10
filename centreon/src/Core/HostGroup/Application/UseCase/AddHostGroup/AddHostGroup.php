@@ -194,7 +194,7 @@ final class AddHostGroup
                 $datasetFilterRelation->getDatasetFilterId(),
                 $resourceIds
             );
-            $this->linkHostGroupToResourcesACL($hostGroupId, $datasetFilterRelation->getResourceAccessGroupId());
+            $this->linkHostGroupToResourcesACL($hostGroupId);
         }
     }
 
