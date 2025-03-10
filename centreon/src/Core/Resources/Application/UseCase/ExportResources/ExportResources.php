@@ -71,8 +71,8 @@ final readonly class ExportResources
         if ($request->contact->isAdmin()) {
             try {
                 $resources = $this->readResourceRepository->iterateResourcesByMaxResults(
-                    $request->resourceFilter,
-                    $request->maxResults
+                    filter: $request->resourceFilter,
+                    maxResults: $request->allPages ? $request->maxResults : 0
                 );
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
@@ -113,9 +113,9 @@ final readonly class ExportResources
 
             try {
                 $resources = $this->readResourceRepository->iterateResourcesByAccessGroupIdsAndMaxResults(
-                    $request->resourceFilter,
-                    $accessGroupIds,
-                    $request->maxResults
+                    filter: $request->resourceFilter,
+                    accessGroupIds: $accessGroupIds,
+                    maxResults: $request->allPages ? $request->maxResults : 0
                 );
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
@@ -148,8 +148,11 @@ final readonly class ExportResources
     private function validateRequest(ExportResourcesRequest $request): ResponseStatusInterface|true
     {
         if ($request->allPages && $request->maxResults > 10000) {
-            return new InvalidArgumentResponse('Invalid request, maxResults must be equal or less than 10000');
+            return new InvalidArgumentResponse(
+                'Invalid request, max number of resources to export must be equal or less than 10000'
+            );
         }
+
         return true;
     }
 }

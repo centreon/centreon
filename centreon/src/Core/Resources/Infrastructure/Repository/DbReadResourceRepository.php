@@ -295,10 +295,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     {
         $this->resources = [];
 
-        // For an export, there isn't pagination we limit the number of results
-        // page is always 1 and limit is the maxResults
-        $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-        $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+        // if $maxResults is set to 0, we use pagination and limit
+        if ($maxResults > 0) {
+            // for an export, we can have no pagination, so we limit the number of results in this case
+            // page is always 1 and limit is the maxResults
+            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+            $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+        }
 
         $request = $this->generateFindResourcesRequest($filter);
 
@@ -320,10 +323,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     ): \Traversable {
         $this->resources = [];
 
-        // For an export, there isn't pagination we limit the number of results
-        // page is always 1 and limit is the maxResults
-        $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-        $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+        // if $maxResults is set to 0, we use pagination and limit
+        if ($maxResults > 0) {
+            // for an export, we can have no pagination, so we limit the number of results in this case
+            // page is always 1 and limit is the maxResults
+            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+            $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+        }
 
         $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
 

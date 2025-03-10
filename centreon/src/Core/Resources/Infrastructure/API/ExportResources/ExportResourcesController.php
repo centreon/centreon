@@ -40,7 +40,6 @@ use Symfony\Component\Serializer\Encoder\CsvEncoder;
 final class ExportResourcesController extends AbstractController
 {
     private const EXPORT_VIEW_TYPE = 'all';
-    private const EXPORT_MAX_RESULTS = 10000;
 
     /**
      * ExportResourcesController constructor
@@ -67,12 +66,12 @@ final class ExportResourcesController extends AbstractController
         ExportResourcesPresenterCsv $presenter,
         Request $request,
     ): Response {
-        $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());
+        $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all(), true);
         $useCaseRequest = new ExportResourcesRequest(
             $this->contact,
             $this->createResourceFilter($filter),
-            $request->query->get('allPages', false),
-            self::EXPORT_MAX_RESULTS
+            (bool) $request->query->get('all_pages', false),
+            (int) $request->query->get('max_lines', 10000),
         );
         $useCase($useCaseRequest, $presenter);
 

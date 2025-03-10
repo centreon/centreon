@@ -69,6 +69,9 @@ final class FindResourcesRequestValidator
     public const PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY = 'only_with_performance_data';
     public const PARAM_RESOURCES_WITH_OPENED_TICKETS = 'only_with_opened_tickets';
     public const PARAM_OPEN_TICKET_RULE_ID = 'ticket_provider_id';
+    public const PARAM_EXPORT_COLUMNS = 'columns';
+    public const PARAM_EXPORT_MAX_LINES = 'max_lines';
+    public const PARAM_EXPORT_ALL_PAGES = 'all_pages';
 
     // Errors Codes for exceptions.
     public const ERROR_UNKNOWN_PARAMETER = 1;
@@ -128,6 +131,9 @@ final class FindResourcesRequestValidator
         self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY => false,
         self::PARAM_RESOURCES_WITH_OPENED_TICKETS => false,
         self::PARAM_OPEN_TICKET_RULE_ID => null,
+        self::PARAM_EXPORT_COLUMNS => [],
+        self::PARAM_EXPORT_ALL_PAGES => false,
+        self::PARAM_EXPORT_MAX_LINES => 0,
     ];
 
     /** Query parameters that should be ignored but not forbidden. */
@@ -172,12 +178,11 @@ final class FindResourcesRequestValidator
 
     /**
      * @param array<mixed> $queryParameters
-     *
-     * @throws \InvalidArgumentException
+     * @param bool $isExport
      *
      * @return _RequestParameters
      */
-    public function validateAndRetrieveRequestParameters(array $queryParameters): array
+    public function validateAndRetrieveRequestParameters(array $queryParameters, bool $isExport = false): array
     {
         $filterData = self::EMPTY_FILTERS;
 
@@ -215,6 +220,7 @@ final class FindResourcesRequestValidator
                 case self::PARAM_HOST_CATEGORY_NAMES:
                 case self::PARAM_SERVICE_SEVERITY_NAMES:
                 case self::PARAM_HOST_SEVERITY_NAMES:
+                case self::PARAM_EXPORT_COLUMNS:
                     $filterData[$param] = $this->ensureArrayOfString($param, $value);
                     break;
                 case self::PARAM_HOST_SEVERITY_LEVELS:
@@ -225,12 +231,12 @@ final class FindResourcesRequestValidator
                     $filterData[$param] = $this->ensureStatusTypes($param, $value);
                     break;
                 case self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY:
-                    $filterData[$param] = $this->ensureBoolean($param, $value);
-                    break;
                 case self::PARAM_RESOURCES_WITH_OPENED_TICKETS:
+                case self::PARAM_EXPORT_ALL_PAGES:
                     $filterData[$param] = $this->ensureBoolean($param, $value);
                     break;
                 case self::PARAM_OPEN_TICKET_RULE_ID:
+                case self::PARAM_EXPORT_MAX_LINES:
                     $filterData[$param] = $this->ensureInt($param, $value);
                     break;
             }
@@ -272,7 +278,11 @@ final class FindResourcesRequestValidator
         $types = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
             if (! \in_array($string, $this->resourceTypes, true)) {
-                $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
+                $message = sprintf(
+                    'Value provided for %s parameter is not supported (was: %s)',
+                    $parameterName,
+                    $string
+                );
 
                 throw new \InvalidArgumentException($message, self::ERROR_NOT_A_RESOURCE_TYPE);
             }
@@ -297,7 +307,11 @@ final class FindResourcesRequestValidator
         $statuses = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
             if (! \in_array($string, self::ALLOWED_STATUSES, true)) {
-                $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
+                $message = sprintf(
+                    'Value provided for %s parameter is not supported (was: %s)',
+                    $parameterName,
+                    $string
+                );
 
                 throw new \InvalidArgumentException($message, self::ERROR_NOT_A_STATUS);
             }
@@ -322,7 +336,11 @@ final class FindResourcesRequestValidator
         $states = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
             if (! \in_array($string, self::ALLOWED_STATES, true)) {
-                $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
+                $message = sprintf(
+                    'Value provided for %s parameter is not supported (was: %s)',
+                    $parameterName,
+                    $string
+                );
 
                 throw new \InvalidArgumentException($message, self::ERROR_NOT_A_STATE);
             }
@@ -347,7 +365,11 @@ final class FindResourcesRequestValidator
         $statusTypes = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
             if (! \in_array($string, self::ALLOWED_STATUS_TYPES, true)) {
-                $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
+                $message = sprintf(
+                    'Value provided for %s parameter is not supported (was: %s)',
+                    $parameterName,
+                    $string
+                );
 
                 throw new \InvalidArgumentException($message, self::ERROR_NOT_A_STATUS_TYPE);
             }
