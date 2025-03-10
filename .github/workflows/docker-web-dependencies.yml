@@ -8,14 +8,14 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".version"
+      - ".version*"
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
   push:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
     paths:
-      - ".version"
+      - ".version*"
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
   schedule:
     - cron: '0 2 * * *'
