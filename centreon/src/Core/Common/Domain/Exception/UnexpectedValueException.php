@@ -29,7 +29,7 @@ namespace Core\Common\Domain\Exception;
  * @class   UnexpectedValueException
  * @package Core\Common\Domain\Exception
  */
-class UnexpectedValueException extends DomainException
+class UnexpectedValueException extends BusinessLogicException
 {
     /**
      * UnexpectedValueException constructor

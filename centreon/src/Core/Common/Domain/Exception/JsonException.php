@@ -29,7 +29,7 @@ namespace Core\Common\Domain\Exception;
  * @class   JsonException
  * @package Core\Common\Domain\Exception
  */
-class JsonException extends DomainException
+class JsonException extends BusinessLogicException
 {
     /**
      * JsonException constructor

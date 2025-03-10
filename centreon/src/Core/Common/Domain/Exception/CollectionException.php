@@ -29,7 +29,7 @@ namespace Core\Common\Domain\Exception;
  * @class   CollectionException
  * @package Core\Common\Domain\Exception
  */
-class CollectionException extends DomainException
+class CollectionException extends BusinessLogicException
 {
     /**
      * CollectionException constructor
