@@ -27,7 +27,8 @@ const getListingResponse = (resourceType) => ({
       : `alias for  ${resourceType} ${i}`,
     enabled_hosts_count: i % 2 ? 0 : 3 * i,
     disabled_hosts_count: i % 2 ? 5 * i : 0,
-    is_activated: !!(i % 2)
+    is_activated: !!(i % 2),
+    icon: null
   })),
   meta: {
     limit: 10,
