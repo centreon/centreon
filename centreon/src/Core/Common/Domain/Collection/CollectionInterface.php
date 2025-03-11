@@ -28,8 +28,8 @@ namespace Core\Common\Domain\Collection;
  *
  * @class    CollectionInterface
  * @package  Core\Common\Domain\Collection
- * @template TItem of mixed
- * @extends \IteratorAggregate<TItem>
+ * @template TItem
+ * @extends \IteratorAggregate<string|int,TItem>
  */
 interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
 {
@@ -129,7 +129,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     /**
      * Return an array of items of collection
      *
-     * @return array<TItem>
+     * @return TItem[]
      */
     public function values(): array;
 
@@ -139,7 +139,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     public function toJson(): string;
 
     /**
-     * @return \Generator<int|string,TItem>
+     * @return \Traversable<string|int,TItem>
      */
     public function getIterator(): \Traversable;
 }

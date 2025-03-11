@@ -30,7 +30,7 @@ use Core\Common\Domain\Exception\CollectionException;
  *
  * @class ObjectCollection
  * @package Core\Common\Domain\Collection
- * @template   TItem of object
+ * @template TItem
  * @extends Collection<TItem>
  * @phpstan-consistent-constructor
  */

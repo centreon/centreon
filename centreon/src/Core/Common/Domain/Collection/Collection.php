@@ -30,7 +30,7 @@ use Core\Common\Domain\Exception\CollectionException;
  *
  * @class      Collection
  * @package    Core\Common\Domain\Collection
- * @template   TItem of mixed
+ * @template   TItem
  * @implements CollectionInterface<TItem>
  * @phpstan-consistent-constructor
  */
@@ -244,7 +244,7 @@ abstract class Collection implements CollectionInterface
     }
 
     /**
-     * @return array<TItem>
+     * @return TItem[]
      */
     public function values(): array
     {
@@ -252,7 +252,7 @@ abstract class Collection implements CollectionInterface
     }
 
     /**
-     * @return \Generator<int|string,TItem>
+     * @return \Traversable<string|int,TItem>
      */
     public function getIterator(): \Traversable
     {
