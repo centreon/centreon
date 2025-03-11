@@ -146,22 +146,64 @@ runs:
           echo "::error:: Jira API request was not completed properly."
         fi
 
-        check_if_ticket_exists=$(echo "$response" | head -c -4 | jq .issues[0].key | xargs)
-        if [[ "$check_if_ticket_exists" != "null" ]]; then
+        ticket_key=$(echo "$response" | head -c -4 | jq .issues[0].key | xargs)
+        if [[ "$ticket_key" != "null" ]]; then
           echo "abort_ticket_creation=true" >> $GITHUB_ENV
-          echo "::notice::ticket found as $check_if_ticket_exists aborting ticket creation"
+          echo "::notice::ticket found as $ticket_key aborting ticket creation"
 
-          # Adding failed job label for already existing ticket
+
+          if [[ ${{ github.job }} == "create-jira-nightly-ticket" ]]; then element_to_add=${{ github.workflow }}
+          else element_to_add=${{ github.job }}
+          fi
+
+          # Adding failed job labels for already existing ticket
           response=$(curl \
             --request PUT \
-            --url "${{ inputs.jira_base_url }}/rest/api/3/issue/$check_if_ticket_exists" \
+            --url "${{ inputs.jira_base_url }}/rest/api/3/issue/$ticket_key" \
             --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
             --header 'Accept: application/json' \
             --header 'Content-Type: application/json' \
-            --data '{ "update": { "labels": [ { "add": "${{ github.job }}" } ] } }'
+            --data '{ "update": { "labels": [ { "add": "$element_to_add" } ] } }'
           )
 
-          echo $response
+          ticket_description=$(curl --request GET \
+            --url "${{ inputs.jira_base_url }}/rest/api/3/issue/$ticket_key" \
+            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+            --header "Accept: application/json" | jq '.fields.description')
+
+          item_to_add_to_description=$(jq -n --arg job "$element_to_add" '{
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": $job
+                  }
+                ]
+              }
+            ]
+          }')
+
+          updated_ticket_description=$(echo "$ticket_description" | jq --argjson item "$item_to_add_to_description" '
+            (.content[] | select(.type == "bulletList") | .content) += [$item]')
+
+          echo "[DEBUG] - updated_ticket_description: $updated_ticket_description"
+          curl --request PUT \
+               --url "${{ inputs.jira_base_url }}/rest/api/3/issue/$ticket_key" \
+               --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+               --header "Accept: application/json" \
+               --header "Content-Type: application/json" \
+               --data '{
+                "fields": {
+                  "description": {
+                    "type": "doc",
+                    "version": 1,
+                    "content": '"$updated_ticket_description"'
+                  }
+                }
+              }'
         fi
       shell: bash
 
