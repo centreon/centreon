@@ -785,6 +785,59 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         }
     }
 
+    // --------------------------------------- PROTECTED METHODS -----------------------------------------
+
+    /**
+     * Write SQL errors messages
+     *
+     * @param string $message
+     * @param array<string,mixed> $customContext
+     * @param string $query
+     * @param \Throwable|null $previous
+     */
+    protected function writeDbLog(
+        string $message,
+        array $customContext = [],
+        string $query = '',
+        ?\Throwable $previous = null
+    ): void {
+        // prepare context of the database exception
+        if ($previous instanceof ConnectionException) {
+            $dbExceptionContext = $previous->getContext();
+        } elseif ($previous instanceof \PDOException) {
+            $dbExceptionContext = [
+                'exception_type' => \PDOException::class,
+                'file' => $previous->getFile(),
+                'line' => $previous->getLine(),
+                'code' => $previous->getCode(),
+                'message' => $previous->getMessage(),
+                'pdo_error_info' => $previous->errorInfo,
+            ];
+        } else {
+            $dbExceptionContext = [];
+        }
+        if (isset($dbExceptionContext['query'])) {
+            unset($dbExceptionContext['query']);
+        }
+
+        // prepare default context
+        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseName()];
+        if (! empty($query)) {
+            $defaultContext['query'] = $query;
+        }
+
+        $context = array_merge(
+            ['default' => $defaultContext],
+            ['custom' => $customContext],
+            ['exception' => $dbExceptionContext]
+        );
+
+        Logger::create()->critical(
+            "[DatabaseConnection] {$message}",
+            $context
+        );
+    }
+
     // --------------------------------------- PRIVATE METHODS -----------------------------------------
 
     /**
@@ -836,56 +889,5 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 queryParameters: $queryParameters
             );
         }
-    }
-
-    /**
-     * Write SQL errors messages
-     *
-     * @param string $message
-     * @param array<string,mixed> $customContext
-     * @param string $query
-     * @param \Throwable|null $previous
-     */
-    protected function writeDbLog(
-        string $message,
-        array $customContext = [],
-        string $query = '',
-        ?\Throwable $previous = null
-    ): void {
-        // prepare context of the database exception
-        if ($previous instanceof ConnectionException) {
-            $dbExceptionContext = $previous->getContext();
-        } elseif ($previous instanceof \PDOException) {
-            $dbExceptionContext = [
-                'exception_type' => \PDOException::class,
-                'file' => $previous->getFile(),
-                'line' => $previous->getLine(),
-                'code' => $previous->getCode(),
-                'message' => $previous->getMessage(),
-                'pdo_error_info' => $previous->errorInfo,
-            ];
-        } else {
-            $dbExceptionContext = [];
-        }
-        if (isset($dbExceptionContext['query'])) {
-            unset($dbExceptionContext['query']);
-        }
-
-        // prepare default context
-        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseName()];
-        if (! empty($query)) {
-            $defaultContext['query'] = $query;
-        }
-
-        $context = array_merge(
-            ['default' => $defaultContext],
-            ['custom' => $customContext],
-            ['exception' => $dbExceptionContext]
-        );
-
-        Logger::create()->critical(
-            "[DatabaseConnection] {$message}",
-            $context
-        );
     }
 }
