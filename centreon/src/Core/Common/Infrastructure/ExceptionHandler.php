@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure;
 
-use Core\Common\Domain\Exception\DomainException;
+use Core\Common\Domain\Exception\BusinessLogicException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
@@ -75,16 +75,18 @@ final readonly class ExceptionHandler
             ],
         ];
 
-        if ($exception instanceof DomainException) {
-            $exceptionContext = $exception->getContext();
+        if ($exception instanceof BusinessLogicException) {
+            $exceptionContext = $exception->getExceptionContext();
+            $customContext = array_merge($context, ['from_exception' => $exception->getBusinessContext()]);
         } else {
             $exceptionContext = $this->getExceptionContext($exception);
+            $customContext = $context;
         }
 
         $exceptionContext['trace'] = $this->getSerializedExceptionTraces($exception);
 
         return [
-            'context' => ['default' => $defaultContext, 'custom' => $context],
+            'context' => ['default' => $defaultContext, 'custom' => $customContext],
             'exception' => $exceptionContext,
         ];
     }
