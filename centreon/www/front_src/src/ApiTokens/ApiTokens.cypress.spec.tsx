@@ -21,13 +21,10 @@ import { userAtom } from '@centreon/ui-context';
 
 import { labelAdd } from '../Resources/translatedLabels';
 
-import {
-  DefaultParameters,
-  Fields
-} from './TokenListing/Actions/Filter/models';
-import { translateWhiteSpaceToRegex } from './TokenListing/Actions/Search/utils';
-import { Column } from './TokenListing/ComponentsColumn/models';
-import TokenListing from './TokenListing/TokenListing';
+import { DefaultParameters, Fields } from './Listing/Actions/Filter/models';
+import { translateWhiteSpaceToRegex } from './Listing/Actions/Search/utils';
+import { Column } from './Listing/Columns/models';
+import TokenListing from './Listing/TokenListing';
 import {
   buildListEndpoint,
   createTokenEndpoint,

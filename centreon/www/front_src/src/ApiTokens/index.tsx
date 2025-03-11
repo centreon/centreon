@@ -1,3 +1,3 @@
-import TokenListing from './TokenListing/TokenListing';
+import { default as Page } from './Page';
 
-export default TokenListing;
+export default Page;

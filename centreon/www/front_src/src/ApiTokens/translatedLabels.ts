@@ -4,7 +4,7 @@ export const labelRevoked = 'Revoked';
 export const labelActive = 'Active';
 export const labelSearchOptions = 'Filter options';
 export const labelDelete = 'Delete';
-export const labelApiToken = 'API token';
+export const labelCopy = 'Copy';
 export const labelGenerateNewToken = 'Generate new token';
 export const labelClose = 'Close';
 export const labelName = 'Name';
@@ -22,10 +22,8 @@ export const labelTokenCreated = 'Token has been created';
 export const labelSecurityToken =
   'For security reasons, the token can only be displayed once. Store it carefully.';
 export const labelCreator = 'Creator';
-export const labelMsgConfirmationDeletionToken =
-  'You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?';
 export const labelDeleteToken = 'Delete token';
-export const labelTokenDeletedSuccessfully = 'Token deleted successfully';
+export const labelTokenDeleted = 'Token deleted';
 export const labelActiveToken = 'Active tokens';
 export const labelRevokedToken = 'Disabled tokens';
 export const labelStatus = 'Status';
@@ -34,3 +32,10 @@ export const labelExpirationDate = 'Expiration date';
 export const labelClear = 'Clear';
 export const labelUntil = 'Until';
 export const labelActiveOrRevoked = 'Active/Revoked';
+
+export const labelAuthenticationTokens = 'Authentication tokens';
+export const labelRefresh = 'Refresh';
+export const labelAdd = 'Add';
+export const labelMsgConfirmationDeletionToken =
+  'You are about to delete the token <strong>{{tokenName}}</strong>. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
+export const labelFilters = 'Filters';

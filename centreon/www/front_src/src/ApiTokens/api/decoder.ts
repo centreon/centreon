@@ -2,13 +2,11 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { CreatedToken } from '../TokenCreation/models';
-import { PersonalInformation, Token } from '../TokenListing/models';
+import { NamedEntity, Token } from '../Listing/models';
+import { CreatedToken } from '../Modal/models';
 
-const getPersonalInformationDecoder = (
-  decoderName = 'personalInformation'
-): JsonDecoder.Decoder<PersonalInformation> =>
-  JsonDecoder.object<PersonalInformation>(
+const getNamedEntityDecoder = (decoderName): JsonDecoder.Decoder<NamedEntity> =>
+  JsonDecoder.object<NamedEntity>(
     {
       id: JsonDecoder.number,
       name: JsonDecoder.string
@@ -18,12 +16,13 @@ const getPersonalInformationDecoder = (
 
 const tokenDecoder = JsonDecoder.object<Token>(
   {
+    name: JsonDecoder.string,
     creationDate: JsonDecoder.string,
-    creator: getPersonalInformationDecoder('creator'),
+    creator: getNamedEntityDecoder('creator'),
     expirationDate: JsonDecoder.string,
     isRevoked: JsonDecoder.boolean,
-    name: JsonDecoder.string,
-    user: getPersonalInformationDecoder('user')
+    user: JsonDecoder.nullable(getNamedEntityDecoder('user')),
+    type: JsonDecoder.optional(JsonDecoder.string) // for now
   },
   'ListedToken',
   {
@@ -42,12 +41,13 @@ export const listTokensDecoder = buildListingDecoder<Token>({
 export const createdTokenDecoder = JsonDecoder.object<CreatedToken>(
   {
     creationDate: JsonDecoder.string,
-    creator: getPersonalInformationDecoder('creator'),
+    creator: getNamedEntityDecoder('creator'),
     expirationDate: JsonDecoder.string,
     isRevoked: JsonDecoder.boolean,
     name: JsonDecoder.string,
     token: JsonDecoder.string,
-    user: getPersonalInformationDecoder('user')
+    user: JsonDecoder.nullable(getNamedEntityDecoder('user')),
+    type: JsonDecoder.optional(JsonDecoder.string) // for now
   },
   'CreatedToken',
   {
@@ -57,17 +57,16 @@ export const createdTokenDecoder = JsonDecoder.object<CreatedToken>(
   }
 );
 
-const personalInformationDecoder = JsonDecoder.object<PersonalInformation>(
+const personalInformationDecoder = JsonDecoder.object<NamedEntity>(
   {
     id: JsonDecoder.number,
     name: JsonDecoder.string
   },
-  'PersonalInformation'
+  'NamedEntity'
 );
 
-export const PersonalInformationDecoder =
-  buildListingDecoder<PersonalInformation>({
-    entityDecoder: personalInformationDecoder,
-    entityDecoderName: 'PersonalInformationn',
-    listingDecoderName: 'listPersonalInformation'
-  });
+export const NamedEntityDecoder = buildListingDecoder<NamedEntity>({
+  entityDecoder: personalInformationDecoder,
+  entityDecoderName: 'NamedEntityn',
+  listingDecoderName: 'listNamedEntity'
+});
