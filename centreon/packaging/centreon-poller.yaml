@@ -86,8 +86,6 @@ overrides:
       - centreon-trap = ${VERSION}-${RELEASE}${DIST}
       - centreon-engine >= ${MAJOR_VERSION}
       - centreon-engine < ${NEXT_MAJOR_VERSION}
-      - centreon-broker-cbmod >= ${MAJOR_VERSION}
-      - centreon-broker-cbmod < ${NEXT_MAJOR_VERSION}
       - centreon-connector >= ${MAJOR_VERSION}
       - centreon-connector < ${NEXT_MAJOR_VERSION}
       - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
@@ -120,6 +118,7 @@ overrides:
       - centreon-poller-centreon-engine
     conflicts:
       - centreon-poller-nagios
+      - centreon-broker-cbmod
   deb:
     depends:
       - "centreon-common (>= ${MAJOR_VERSION}~)"
@@ -127,8 +126,6 @@ overrides:
       - centreon-trap (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-engine (>= ${MAJOR_VERSION}~)"
       - "centreon-engine (<< ${NEXT_MAJOR_VERSION}~)"
-      - "centreon-broker-cbmod (>= ${MAJOR_VERSION}~)"
-      - "centreon-broker-cbmod (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-connector (>= ${MAJOR_VERSION}~)"
       - "centreon-connector (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-gorgone-centreon-config (>= ${MAJOR_VERSION}~)"
@@ -158,6 +155,7 @@ overrides:
       - centreon-poller-centreon-engine
     conflicts:
       - centreon-poller-centreon-engine
+      - centreon-broker-cbmod
 
 rpm:
   summary: Rights and file for pollers (including central)
