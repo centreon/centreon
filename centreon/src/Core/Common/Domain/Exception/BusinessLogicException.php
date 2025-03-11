@@ -47,6 +47,7 @@ abstract class BusinessLogicException extends \Exception
     {
         parent::__construct($message, $code, $previous);
         $this->addExceptionContext();
+        $this->addContext($context);
     }
 
     /**
@@ -96,10 +97,14 @@ abstract class BusinessLogicException extends \Exception
     private function addExceptionContext(): void
     {
         $exceptionContext = $this->getExceptionContext($this);
-        $exceptionContext['previous'] = ($this->getPrevious() !== null)
-            ? $this->getExceptionContext($this->getPrevious()) : null;
-        $exceptionContext['trace'] = $this->getTraceAsString();
-        $this->addContextItem('exception', $exceptionContext);
+        if ($this->getPrevious() !== null) {
+            if ($this->getPrevious() instanceof self) {
+                $exceptionContext['previous'] = $this->getPrevious()->getContext();
+            } else {
+                $exceptionContext['previous'] = $this->getExceptionContext($this->getPrevious());
+            }
+        }
+        $this->setContext($exceptionContext);
     }
 
     /**
@@ -114,6 +119,7 @@ abstract class BusinessLogicException extends \Exception
             'message' => $throwable->getMessage(),
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
+            'code' => $throwable->getCode(),
         ];
 
         if (! empty($throwable->getTrace())) {
