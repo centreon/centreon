@@ -195,7 +195,7 @@ runs:
             "issuetype": {"id": "10209"},
             "parent": {"id": "${{ steps.get_context.outputs.parent_epic_id }}", "key": "${{ steps.get_context.outputs.parent_epic_key }}"},
             "labels": ${{ inputs.ticket_labels }},
-            "priority": {"id": "1"},
+            "priority": {"name": "Blocker"},
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "${{ steps.get_context.outputs.ticket_squad_id }}", "value": "${{ inputs.ticket_squad }}"},
             "description": $UPDATED_TEMPLATE_FILE
