@@ -222,6 +222,8 @@ runs:
           exit 1
         fi
 
+        echo $response
+
         ticket_key=$(echo "$response" | jq -r .key)
         echo "::notice::Created ticket: $ticket_key"
       shell: bash
