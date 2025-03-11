@@ -30,9 +30,10 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
-use Core\HostGroup\Application\UseCase\FindHostGroups\Response\HostGroupResponse;
 use Core\HostGroup\Domain\Model\HostGroup;
-use Core\HostGroup\Domain\Model\HostsCountById;
+use Core\HostGroup\Domain\Model\HostGroupRelationCount;
+use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
+use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -40,15 +41,10 @@ final class FindHostGroups
 {
     use LoggerTrait;
 
-    /**
-     * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
-     * @param RequestParametersInterface $requestParameters
-     * @param ContactInterface $contact
-     */
     public function __construct(
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadMediaRepositoryInterface $readMediaRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ContactInterface $contact,
     ) {
@@ -86,10 +82,22 @@ final class FindHostGroups
             fn (HostGroup $hostGroup): int => $hostGroup->getId(),
             iterator_to_array($hostGroups)
         );
+        $iconIds = array_filter(
+            array_map(
+                fn (HostGroup $hostGroup): ?int => $hostGroup->getIconId(),
+                iterator_to_array($hostGroups)
+            ),
+            fn (?int $iconId): bool => $iconId !== null,
+        );
 
         return $this->createResponse(
             $hostGroups,
-            $hostGroupIds ? $this->readHostGroupRepository->findHostsCountByIds($hostGroupIds) : null,
+            $hostGroupIds
+                ? $this->readHostGroupRepository->findHostsCountByIds($hostGroupIds)
+                : [],
+            $iconIds !== []
+                ? $this->readMediaRepository->findByIds($iconIds)
+                : [],
         );
     }
 
@@ -133,40 +141,41 @@ final class FindHostGroups
             iterator_to_array($hostGroups)
         );
 
+        $iconIds = array_filter(
+            array_map(
+                fn (HostGroup $hostGroup): ?int => $hostGroup->getIconId(),
+                iterator_to_array($hostGroups)
+            ),
+            fn (?int $iconId): bool => $iconId !== null,
+        );
+
         return $this->createResponse(
             $hostGroups,
             $accessGroupIds !== [] && $hostGroupIds !== []
                 ? $this->readHostGroupRepository->findHostsCountByAccessGroupsIds($hostGroupIds, $accessGroupIds)
-                : null,
+                : [],
+            $iconIds !== []
+                ? $this->readMediaRepository->findByIds($iconIds)
+                : [],
         );
     }
 
     /**
      * @param iterable<HostGroup> $hostGroups
-     * @param ?HostsCountById $hostsCount
+     * @param array<int,HostGroupRelationCount> $hostsCount
+     * @param array<int,Media> $icons
      *
      * @return FindHostGroupsResponse
      */
-    private function createResponse(iterable $hostGroups, ?HostsCountById $hostsCount): FindHostGroupsResponse
+    private function createResponse(iterable $hostGroups, array $hostsCount, array $icons): FindHostGroupsResponse
     {
         $response = new FindHostGroupsResponse();
 
-        foreach ($hostGroups as $hostGroup) {
+        foreach ($hostGroups as $hostgroup) {
             $response->hostgroups[] = new HostGroupResponse(
-                id: $hostGroup->getId(),
-                name: $hostGroup->getName(),
-                alias: $hostGroup->getAlias(),
-                notes: $hostGroup->getNotes(),
-                notesUrl: $hostGroup->getNotesUrl(),
-                actionUrl: $hostGroup->getActionUrl(),
-                iconId: $hostGroup->getIconId(),
-                iconMapId: $hostGroup->getIconMapId(),
-                rrdRetention: $hostGroup->getRrdRetention(),
-                geoCoords: $hostGroup->getGeoCoords(),
-                comment: $hostGroup->getComment(),
-                isActivated: $hostGroup->isActivated(),
-                enabledHostsCount: $hostsCount ? $hostsCount->getEnabledCount($hostGroup->getId()): 0,
-                disabledHostsCount: $hostsCount ? $hostsCount->getDisabledCount($hostGroup->getId()) : 0,
+                hostgroup: $hostgroup,
+                hostsCount: $hostsCount[$hostgroup->getId()] ?? null,
+                icon: $icons[$hostgroup->getIconId()] ?? null,
             );
         }
 

@@ -21,27 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Application\UseCase\FindHostGroups\Response;
+namespace Core\HostGroup\Application\UseCase\FindHostGroups;
 
-use Core\Domain\Common\GeoCoords;
+use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\HostGroupRelationCount;
+use Core\Media\Domain\Model\Media;
 
 final class HostGroupResponse
 {
     public function __construct(
-        public int $id = 0,
-        public string $name = '',
-        public string $alias = '',
-        public string $notes = '',
-        public string $notesUrl = '',
-        public string $actionUrl = '',
-        public ?int $iconId = null,
-        public ?int $iconMapId = null,
-        public ?int $rrdRetention = null,
-        public ?GeoCoords $geoCoords = null,
-        public string $comment = '',
-        public bool $isActivated = true,
-        public int $enabledHostsCount = 0,
-        public int $disabledHostsCount = 0,
+        public HostGroup $hostgroup,
+        public ?HostGroupRelationCount $hostsCount = null,
+        public ?Media $icon = null,
     )
     {
     }
