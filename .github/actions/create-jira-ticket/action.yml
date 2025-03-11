@@ -158,7 +158,7 @@ runs:
       run: |
         # Get the name of the current job and list it
         run_id=$(gh run list --workflow "${{ github.workflow }}" --branch "${{ github.ref_name }}" --json databaseId -q '.[0].databaseId')
-        failed_job_name=$(gh run view "$GITHUB_RUN_ID" --json jobs -q ".jobs[] | select(.name == \"${{ github.job }}\") | .id")
+        failed_job_name=$(gh run view "$GITHUB_RUN_ID" --json jobs | jq -r --arg job_name "${{ github.job }}" '.jobs[] | select(.name == "$job_name") | .name')
 
         CONTENT_TO_ADD_TO_TEMPLATE_FILE="{
           \"type\": \"bulletList\",
