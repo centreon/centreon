@@ -139,31 +139,40 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
     private function setHeaderByFilteredColumns(array $filteredColumns): array
     {
         $header = [
-            _('Resource Type'),
-            _('Resource Name'),
-            _('Status'),
-            _('Parent Resource Type'),
-            _('Parent Resource Name'),
-            _('Parent Resource Status'),
-            _('Duration'),
-            _('Last Check'),
-            _('Information'),
-            _('Tries'),
-            _('Severity'),
-            _('Notes'),
-            _('Action'),
-            _('State'),
-            _('Alias'),
-            _('Parent alias'),
-            _('FQDN / Address'),
-            _('Monitoring Server'),
-            _('Notif'),
-            _('Check'),
+            'resource_type' => _('Resource Type'),
+            'resource_name' => _('Resource Name'),
+            'status' => _('Status'),
+            'parent_resource_type' => _('Parent Resource Type'),
+            'parent_resource_name' => _('Parent Resource Name'),
+            'parent_resource_status' => _('Parent Resource Status'),
+            'duration' => _('Duration'),
+            'last_check' => _('Last Check'),
+            'information' => _('Information'),
+            'tries' => _('Tries'),
+            'severity' => _('Severity'),
+            'notes_url' => _('Notes'),
+            'action_url' => _('Action'),
+            'state' => _('State'),
+            'alias' => _('Alias'),
+            'parent_alias' => _('Parent alias'),
+            'fqdn' => _('FQDN / Address'),
+            'monitoring_server_name' => _('Monitoring Server'),
+            'notification' => _('Notif'),
+            'checks' => _('Check'),
         ];
 
         return array_filter($header, function ($key) use ($filteredColumns) {
+            // if the key is a resource or parent_resource, we keep all columns starting with this key
+            if (str_starts_with($key, 'resource_')) {
+                $key = 'resource';
+            } else {
+                if (str_starts_with($key, 'parent_resource_')) {
+                    $key = 'parent_resource';
+                }
+            }
+
             return in_array($key, $filteredColumns);
-        });
+        }, ARRAY_FILTER_USE_KEY);
     }
 
     /**
@@ -275,12 +284,14 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
         }
         // FIXME replace by the good base url
         $baseUrl = 'https://www.centreon.com';
-        if (!str_starts_with($baseUrl, $url)) {
-            if (!str_starts_with($url, '/')) {
+        if (! str_starts_with($baseUrl, $url)) {
+            if (! str_starts_with($url, '/')) {
                 $url = '/' . $url;
             }
+
             return $baseUrl . $url;
         }
+
         return $url;
     }
 
