@@ -117,6 +117,9 @@ abstract class BusinessLogicException extends \Exception
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
 
+    /**
+     * @return void
+     */
     private function setGlobalContext(): void
     {
         $this->context = array_merge(
@@ -126,6 +129,11 @@ abstract class BusinessLogicException extends \Exception
         );
     }
 
+    /**
+     * @param array<string,mixed> $context
+     *
+     * @return void
+     */
     private function setBusinessContext(array $context): void
     {
         $previousContext = null;
