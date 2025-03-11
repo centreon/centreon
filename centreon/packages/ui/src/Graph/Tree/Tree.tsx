@@ -84,7 +84,7 @@ export const Tree = <TData extends BaseProp>({
   );
 
   return (
-    <Group left={node.width / 4}>
+    <Group left={node.width / 2}>
       <VisxTree
         left={0}
         nodeSize={[node.height + nodeMargins.x, node.height + node.width]}
