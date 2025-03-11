@@ -119,7 +119,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
                 _('Tries') => $resource->getTries() ?? '',
                 _('Severity') => $resource->getSeverity()?->getLevel() ?? '',
                 _('Notes') => $this->getResourceNotes($resource),
-                _('Action') => $resource->getLinks()->getExternals()->getActionUrl() ?? '',
+                _('Action') => $this->formatUrl($resource->getLinks()->getExternals()->getActionUrl() ?? ''),
                 _('State') => _($this->getResourceState($resource)),
                 _('Alias') => $resource->getAlias() ?? '',
                 _('Parent alias') => $resource->getParent()?->getAlias() ?? '',
@@ -202,6 +202,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
 
         if (! is_null($resource->getLinks()->getExternals()->getNotes())) {
             $notes = $resource->getLinks()->getExternals()->getNotes()->getUrl() ?? null;
+            $notes = $notes ? $this->formatUrl($notes) : null;
             $notes = $notes ?: $resource->getLinks()->getExternals()->getNotes()->getLabel() ?? '';
         }
 
@@ -260,6 +261,27 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
     private function formatDate(?\DateTime $date): string
     {
         return ! is_null($date) ? $date->format($this->contact->getFormatDate()) : '';
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return string
+     */
+    private function formatUrl(string $url): string
+    {
+        if ($url === '') {
+            return '';
+        }
+        // FIXME replace by the good base url
+        $baseUrl = 'https://www.centreon.com';
+        if (!str_starts_with($baseUrl, $url)) {
+            if (!str_starts_with($url, '/')) {
+                $url = '/' . $url;
+            }
+            return $baseUrl . $url;
+        }
+        return $url;
     }
 
 }
