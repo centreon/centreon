@@ -49,7 +49,7 @@ const DescendantNodes = <TData extends BaseProp>({
       callback();
     };
 
-  return descendants.map((node, idx) => {
+  return descendants.map((node) => {
     const top = node.x;
     const left = node.y;
     const ancestorIds = node
@@ -59,7 +59,7 @@ const DescendantNodes = <TData extends BaseProp>({
       .descendants()
       .map((ancestor) => ancestor.data.data.id);
 
-    const key = `${node.data.data.id}-${node.data.data.name}-${ancestorIds.toString()}-${descendantIds.toString()}-${idx}`;
+    const key = `${node.data.data.id}-${node.data.data.name}-${ancestorIds.toString()}-${descendantIds.toString()}-${top}-${left}`;
 
     return (
       <Group key={key} left={left} top={top}>
