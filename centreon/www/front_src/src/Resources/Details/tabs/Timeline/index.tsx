@@ -79,23 +79,15 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
       return undefined;
     }
 
-    return {
-      conditions: [
-        {
-          field: 'date',
-          values: {
-            $gt: start,
-            $lt: end
-          }
-        }
-      ],
-      lists: [
-        {
-          field: 'type',
-          values: selectedTypes.map(prop('id'))
-        }
-      ]
-    };
+    const conditions = [
+      { field: 'type', values: { $in: selectedTypes.map(prop('id')) } },
+      {
+        field: '$and',
+        value: [{ date: { $gt: start } }, { date: { $lt: end } }]
+      }
+    ];
+
+    return { conditions };
   };
 
   const timelineEndpoint = path(['links', 'endpoints', 'timeline'], details);
