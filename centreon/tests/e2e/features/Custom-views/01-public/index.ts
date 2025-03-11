@@ -33,6 +33,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/home/customViews/views.php?currentView=*'
   }).as('getViews');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/include/home/customViews/action.php'
+  }).as('action');
 });
 
 after(() => {
@@ -78,18 +82,25 @@ Given('a publicly shared custom view is configured by the owner', () => {
   // Visit the page 'Home > Custom Views'
   cy.visit('/centreon/main.php?p=103')
   cy.wait('@getTimeZone');
+  cy.wait('@getViews');
   cy.getIframeBody().contains('a', 'public-view').should('exist');
 });
 
 Given('the user is using the public view', () => {
+  cy.wait('@getViews');
+  cy.waitForElementInIframe(
+    '#main-content',
+    'a:contains("public-view")'
+  );
   cy.getIframeBody().contains('a', 'public-view').should('exist');
+  cy.getIframeBody().find('a[title="Show/Hide edit mode"]').click();
 });
 
 When('he removes the shared view', () => {
-  cy.getIframeBody().find('a[title="Show/Hide edit mode"]').click();
-  cy.getIframeBody().find('a[title="Show/Hide edit mode"]').click();
+  cy.wait('@action');
+  cy.waitForElementInIframe('#main-content', 'button.deleteView');
   // Click on the 'Delete view' button
-  cy.getIframeBody().find('button.deleteView').click();
+  cy.getIframeBody().find('button.deleteView').click({force: true});
   // Click on the delete in the confirmation popup
   cy.getIframeBody().find('#deleteViewConfirm .bt_danger').click(); 
 });
@@ -111,9 +122,9 @@ When('the owner removes the view', () => {
   // Visit the page 'Home > Custom Views'
   cy.visit('/centreon/main.php?p=103')
   cy.wait('@getTimeZone');
+  cy.wait('@getViews');
   // Wait until the "Show/Hide edit mode" icon is visible
   cy.waitForElementInIframe('#main-content', 'a[title="Show/Hide edit mode"]');
-  cy.getIframeBody().find('a[title="Show/Hide edit mode"]').click();
   cy.getIframeBody().find('a[title="Show/Hide edit mode"]').click();
   // Click on the 'Delete view' button
   cy.getIframeBody().find('button.deleteView').click();
