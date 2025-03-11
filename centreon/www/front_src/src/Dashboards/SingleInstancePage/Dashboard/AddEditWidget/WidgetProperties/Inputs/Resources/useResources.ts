@@ -673,7 +673,7 @@ const useResources = ({
       widgetProperties?.singleResourceSelection &&
       hasSelectedHost
     );
-  }, [value]);
+  }, [value, widgetProperties]);
 
   return {
     addResource,
