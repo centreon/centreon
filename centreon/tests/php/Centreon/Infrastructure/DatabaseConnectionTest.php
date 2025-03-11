@@ -53,8 +53,8 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
         host: $dbHost,
         user: $dbUser,
         password: $dbPassword,
-        databaseName: 'centreon',
-        databaseNameStorage: 'centreon_storage',
+        databaseNameConfiguration: 'centreon',
+        databaseNameRealTime: 'centreon_storage',
         port: 3306
     );
 }
@@ -129,7 +129,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 ->and($connectionConfig->getHost())->toBe($dbConfigCentreon->getHost())
                 ->and($connectionConfig->getUser())->toBe($dbConfigCentreon->getUser())
                 ->and($connectionConfig->getPassword())->toBe($dbConfigCentreon->getPassword())
-                ->and($connectionConfig->getDatabaseName())->toBe($dbConfigCentreon->getDatabaseName())
+                ->and($connectionConfig->getDatabaseNameConfiguration())->toBe($dbConfigCentreon->getDatabaseNameConfiguration())
                 ->and($connectionConfig->getPort())->toBe($dbConfigCentreon->getPort());
         }
     );
