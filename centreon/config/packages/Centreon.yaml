@@ -71,8 +71,8 @@ services:
         $host: '%database_host%'
         $user: '%database_user%'
         $password: '%database_password%'
-        $databaseName: '%database_db%'
-        $databaseNameStorage: '%database_dbstg%'
+        $databaseNameConfiguration: '%database_db%'
+        $databaseNameRealTime: '%database_dbstg%'
         $port: '%database_port%'
 
     Adaptation\Database\Connection\ConnectionInterface:
