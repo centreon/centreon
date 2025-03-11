@@ -39,8 +39,8 @@ beforeEach(function () {
             host: 'fake_host',
             user: 'fake_user',
             password: 'fake_password',
-            databaseName: 'fake_databaseName',
-            databaseNameStorage: 'fake_databaseNameStorage'
+            databaseNameConfiguration: 'fake_databaseName',
+            databaseNameRealTime: 'fake_databaseNameStorage'
         );
     // prepare instanciation of DbalQueryBuilderAdapter with mocking of dbal Connection (mandatory)
     $dbalConnection = Mockery::mock(Connection::class);
@@ -62,56 +62,56 @@ beforeEach(function () {
     $this->dbalQueryBuilderAdapterTest = new DbalQueryBuilderAdapter($dbalQueryBuilder, $connectionConfig);
 });
 
-it('test DbalQueryBuilderAdapter : expr with error because no database connection', function () {
+it('expr with error because no database connection', function () {
     $this->dbalQueryBuilderAdapterTest->expr();
 })->throws(QueryBuilderException::class);
 
-it('test DbalQueryBuilderAdapter : select with one parameter', function () {
+it('select with one parameter', function () {
     $query = $this->dbalQueryBuilderAdapterTest->select('field1')->getQuery();
     expect($query)->toBeString()->toBe('SELECT field1');
 });
 
-it('test DbalQueryBuilderAdapter : select with several parameters', function () {
+it('select with several parameters', function () {
     $query = $this->dbalQueryBuilderAdapterTest->select('field1', 'field2', 'alias.field3')->getQuery();
     expect($query)->toBeString()->toBe('SELECT field1, field2, alias.field3');
 });
 
-it('test DbalQueryBuilderAdapter : select distinct', function () {
+it('select distinct', function () {
     $query = $this->dbalQueryBuilderAdapterTest->select('field1')->distinct()->getQuery();
     expect($query)->toBeString()->toBe('SELECT DISTINCT field1');
 });
 
-it('test DbalQueryBuilderAdapter : addSelect with one parameter', function () {
+it('addSelect with one parameter', function () {
     $query = $this->dbalQueryBuilderAdapterTest->select('field1')->addSelect('field2')->getQuery();
     expect($query)->toBeString()->toBe('SELECT field1, field2');
 });
 
-it('test DbalQueryBuilderAdapter : addSelect with several parameters', function () {
+it('addSelect with several parameters', function () {
     $query = $this->dbalQueryBuilderAdapterTest->select('field1')->addSelect('field2', 'field3')->getQuery();
     expect($query)->toBeString()->toBe('SELECT field1, field2, field3');
 });
 
-it('test DbalQueryBuilderAdapter : delete', function () {
+it('delete', function () {
     $query = $this->dbalQueryBuilderAdapterTest->delete('table')->getQuery();
     expect($query)->toBeString()->toBe('DELETE FROM table');
 });
 
-it('test DbalQueryBuilderAdapter : update', function () {
+it('update', function () {
     $query = $this->dbalQueryBuilderAdapterTest->update('table')->getQuery();
     expect($query)->toBeString()->toBe('UPDATE table SET ');
 });
 
-it('test DbalQueryBuilderAdapter : update with an alias', function () {
+it('update with an alias', function () {
     $query = $this->dbalQueryBuilderAdapterTest->update('table foo')->getQuery();
     expect($query)->toBeString()->toBe('UPDATE table foo SET ');
 });
 
-it('test DbalQueryBuilderAdapter : update with set one field', function () {
+it('update with set one field', function () {
     $query = $this->dbalQueryBuilderAdapterTest->update('table')->set('field1', 'value1')->getQuery();
     expect($query)->toBeString()->toBe('UPDATE table SET field1 = value1');
 });
 
-it('test DbalQueryBuilderAdapter : update with set several fields', function () {
+it('update with set several fields', function () {
     $sets = ['field1' => 'value1', 'field2' => 'value2'];
     $this->dbalQueryBuilderAdapterTest->update('table');
     foreach ($sets as $column => $value) {
@@ -121,43 +121,43 @@ it('test DbalQueryBuilderAdapter : update with set several fields', function () 
     expect($query)->toBeString()->toBe('UPDATE table SET field1 = value1, field2 = value2');
 });
 
-it('test DbalQueryBuilderAdapter : insert ', function () {
+it('insert ', function () {
     $query = $this->dbalQueryBuilderAdapterTest->insert('table')->getQuery();
     expect($query)->toBeString()->toBe('INSERT INTO table () VALUES()');
 });
 
-it('test DbalQueryBuilderAdapter : insert with fields', function () {
+it('insert with fields', function () {
     $query = $this->dbalQueryBuilderAdapterTest->insert('table')->values(
         ['field1' => 'value1', 'field2' => 'value2']
     )->getQuery();
     expect($query)->toBeString()->toBe('INSERT INTO table (field1, field2) VALUES(value1, value2)');
 });
 
-it('test DbalQueryBuilderAdapter : insert with a field added', function () {
+it('insert with a field added', function () {
     $query = $this->dbalQueryBuilderAdapterTest->insert('table')->values(
         ['field1' => 'value1', 'field2' => 'value2']
     )->setValue('field3', 'value3')->getQuery();
     expect($query)->toBeString()->toBe('INSERT INTO table (field1, field2, field3) VALUES(value1, value2, value3)');
 });
 
-it('test DbalQueryBuilderAdapter : insert with a field updated', function () {
+it('insert with a field updated', function () {
     $query = $this->dbalQueryBuilderAdapterTest->insert('table')->values(
         ['field1' => 'value1', 'field2' => 'value2']
     )->setValue('field1', 'value3')->getQuery();
     expect($query)->toBeString()->toBe('INSERT INTO table (field1, field2) VALUES(value3, value2)');
 });
 
-it('test DbalQueryBuilderAdapter : from ', function () {
+it('from ', function () {
     $query = $this->dbalQueryBuilderAdapterTest->select('field1')->from('table')->getQuery();
     expect($query)->toBeString()->toBe('SELECT field1 FROM table');
 });
 
-it('test DbalQueryBuilderAdapter : from with an alias', function () {
+it('from with an alias', function () {
     $query = $this->dbalQueryBuilderAdapterTest->select('field1')->from('table', 'foo')->getQuery();
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo');
 });
 
-it('test DbalQueryBuilderAdapter : join ', function () {
+it('join ', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -166,7 +166,7 @@ it('test DbalQueryBuilderAdapter : join ', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo INNER JOIN table2 bar ON foo.id = bar.id');
 });
 
-it('test DbalQueryBuilderAdapter : inner join', function () {
+it('inner join', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -175,7 +175,7 @@ it('test DbalQueryBuilderAdapter : inner join', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo INNER JOIN table2 bar ON foo.id = bar.id');
 });
 
-it('test DbalQueryBuilderAdapter : left join', function () {
+it('left join', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -184,7 +184,7 @@ it('test DbalQueryBuilderAdapter : left join', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo LEFT JOIN table2 bar ON foo.id = bar.id');
 });
 
-it('test DbalQueryBuilderAdapter : right join', function () {
+it('right join', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -193,7 +193,7 @@ it('test DbalQueryBuilderAdapter : right join', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo RIGHT JOIN table2 bar ON foo.id = bar.id');
 });
 
-it('test DbalQueryBuilderAdapter : where', function () {
+it('where', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -202,7 +202,7 @@ it('test DbalQueryBuilderAdapter : where', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo WHERE field1 = value1');
 });
 
-it('test DbalQueryBuilderAdapter : andWhere', function () {
+it('andWhere', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -212,7 +212,7 @@ it('test DbalQueryBuilderAdapter : andWhere', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo WHERE (field1 = value1) AND (field2 = value2)');
 });
 
-it('test DbalQueryBuilderAdapter : orWhere', function () {
+it('orWhere', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -222,7 +222,7 @@ it('test DbalQueryBuilderAdapter : orWhere', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo WHERE (field1 = value1) OR (field2 = value2)');
 });
 
-it('test DbalQueryBuilderAdapter : groupBy', function () {
+it('groupBy', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -232,7 +232,7 @@ it('test DbalQueryBuilderAdapter : groupBy', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo WHERE field1 = value1 GROUP BY field1');
 });
 
-it('test DbalQueryBuilderAdapter : addGroupBy', function () {
+it('addGroupBy', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -243,7 +243,7 @@ it('test DbalQueryBuilderAdapter : addGroupBy', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo WHERE field1 = value1 GROUP BY field1, field2');
 });
 
-it('test DbalQueryBuilderAdapter : having', function () {
+it('having', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -253,7 +253,7 @@ it('test DbalQueryBuilderAdapter : having', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo GROUP BY field1 HAVING field1 = value1');
 });
 
-it('test DbalQueryBuilderAdapter : andHaving', function () {
+it('andHaving', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -266,7 +266,7 @@ it('test DbalQueryBuilderAdapter : andHaving', function () {
     );
 });
 
-it('test DbalQueryBuilderAdapter : orHaving', function () {
+it('orHaving', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -279,7 +279,7 @@ it('test DbalQueryBuilderAdapter : orHaving', function () {
     );
 });
 
-it('test DbalQueryBuilderAdapter : orderBy with order', function () {
+it('orderBy with order', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -288,7 +288,7 @@ it('test DbalQueryBuilderAdapter : orderBy with order', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo ORDER BY field1 DESC');
 });
 
-it('test DbalQueryBuilderAdapter : orderBy without order', function () {
+it('orderBy without order', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -297,7 +297,7 @@ it('test DbalQueryBuilderAdapter : orderBy without order', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo ORDER BY field1');
 });
 
-it('test DbalQueryBuilderAdapter : addOrderBy with order', function () {
+it('addOrderBy with order', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -307,7 +307,7 @@ it('test DbalQueryBuilderAdapter : addOrderBy with order', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo ORDER BY field1 DESC, field2 ASC');
 });
 
-it('test DbalQueryBuilderAdapter : addOrderBy without order', function () {
+it('addOrderBy without order', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -317,7 +317,7 @@ it('test DbalQueryBuilderAdapter : addOrderBy without order', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo ORDER BY field1, field2');
 });
 
-it('test DbalQueryBuilderAdapter : limit', function () {
+it('limit', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -327,7 +327,7 @@ it('test DbalQueryBuilderAdapter : limit', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo ORDER BY field1 LIMIT 10');
 });
 
-it('test DbalQueryBuilderAdapter : offset', function () {
+it('offset', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -338,7 +338,7 @@ it('test DbalQueryBuilderAdapter : offset', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo ORDER BY field1 LIMIT 10 OFFSET 5');
 });
 
-it('test DbalQueryBuilderAdapter : resetWhere', function () {
+it('resetWhere', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -349,7 +349,7 @@ it('test DbalQueryBuilderAdapter : resetWhere', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo');
 });
 
-it('test DbalQueryBuilderAdapter : resetGroupBy', function () {
+it('resetGroupBy', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -361,7 +361,7 @@ it('test DbalQueryBuilderAdapter : resetGroupBy', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo WHERE field1 = value1');
 });
 
-it('test DbalQueryBuilderAdapter : resetHaving', function () {
+it('resetHaving', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')
@@ -373,7 +373,7 @@ it('test DbalQueryBuilderAdapter : resetHaving', function () {
     expect($query)->toBeString()->toBe('SELECT field1 FROM table foo GROUP BY field1');
 });
 
-it('test DbalQueryBuilderAdapter : resetOrderBy', function () {
+it('resetOrderBy', function () {
     $query = $this->dbalQueryBuilderAdapterTest
         ->select('field1')
         ->from('table', 'foo')

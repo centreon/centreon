@@ -114,7 +114,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test DatabaseConnection : create query builder with success',
+        'create query builder with success',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $queryBuilder = $db->createQueryBuilder();
@@ -125,7 +125,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test DatabaseConnection : create expression builder with success',
+        'create expression builder with success',
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $expressionBuilder = $db->createExpressionBuilder();

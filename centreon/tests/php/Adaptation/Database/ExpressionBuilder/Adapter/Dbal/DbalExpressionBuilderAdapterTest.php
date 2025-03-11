@@ -35,92 +35,92 @@ beforeEach(function () {
     $this->dbalExpressionBuilderAdapterTest = new DbalExpressionBuilderAdapter($dbalExpressionBuilder);
 });
 
-it('test DbalExpressionBuilderAdapter with the method comparison', function () {
+it('test with the method comparison', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->comparison('field1', ComparisonOperatorEnum::EQUAL, ':value1');
     expect($expr)->toBeString()->toBe('field1 = :value1');
 });
 
-it('test DbalExpressionBuilderAdapter with the method equal', function () {
+it('test with the method equal', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->equal('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 = :value1');
 });
 
-it('test DbalExpressionBuilderAdapter with the method notEqual', function () {
+it('test with the method notEqual', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->notEqual('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 <> :value1');
 });
 
-it('test DbalExpressionBuilderAdapter with the method lowerThan', function () {
+it('test with the method lowerThan', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->lowerThan('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 < :value1');
 });
 
-it('test DbalExpressionBuilderAdapter with the method lowerThanEqual', function () {
+it('test with the method lowerThanEqual', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->lowerThanEqual('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 <= :value1');
 });
 
-it('test DbalExpressionBuilderAdapter with the method greaterThan', function () {
+it('test with the method greaterThan', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->greaterThan('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 > :value1');
 });
 
-it('test DbalExpressionBuilderAdapter with the method greaterThanEqual', function () {
+it('test with the method greaterThanEqual', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->greaterThanEqual('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 >= :value1');
 });
 
-it('test DbalExpressionBuilderAdapter with the method isNull', function () {
+it('test with the method isNull', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->isNull('field1');
     expect($expr)->toBeString()->toBe('field1 IS NULL');
 });
 
-it('test DbalExpressionBuilderAdapter with the method isNotNull', function () {
+it('test with the method isNotNull', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->isNotNull('field1');
     expect($expr)->toBeString()->toBe('field1 IS NOT NULL');
 });
 
-it('test DbalExpressionBuilderAdapter with the method like', function () {
+it('test with the method like', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->like('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 LIKE :value1');
 });
 
-it('test DbalExpressionBuilderAdapter with the method like with escape', function () {
+it('test with the method like with escape', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->like('field1', ':value1', '$');
     expect($expr)->toBeString()->toBe('field1 LIKE :value1 ESCAPE $');
 });
 
-it('test DbalExpressionBuilderAdapter with the method notLike', function () {
+it('test with the method notLike', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->notLike('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 NOT LIKE :value1');
 });
 
-it('test DbalExpressionBuilderAdapter with the method notLike with escape', function () {
+it('test with the method notLike with escape', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->notLike('field1', ':value1', '$');
     expect($expr)->toBeString()->toBe('field1 NOT LIKE :value1 ESCAPE $');
 });
 
-it('test DbalExpressionBuilderAdapter with the method in with string', function () {
+it('test with the method in with string', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->in('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 IN (:value1)');
 });
 
-it('test DbalExpressionBuilderAdapter with the method in with array', function () {
+it('test with the method in with array', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->in('field1', [':value1', ':value2']);
     expect($expr)->toBeString()->toBe('field1 IN (:value1, :value2)');
 });
 
-it('test DbalExpressionBuilderAdapter with the method notIn with string', function () {
+it('test with the method notIn with string', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->notIn('field1', ':value1');
     expect($expr)->toBeString()->toBe('field1 NOT IN (:value1)');
 });
 
-it('test DbalExpressionBuilderAdapter with the method notIn with array', function () {
+it('test with the method notIn with array', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->notIn('field1', [':value1', ':value2']);
     expect($expr)->toBeString()->toBe('field1 NOT IN (:value1, :value2)');
 });
 
-it('test DbalExpressionBuilderAdapter with the method and', function () {
+it('test with the method and', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->and(
         'field1 = :value1',
         'field2 = :value2',
@@ -129,7 +129,7 @@ it('test DbalExpressionBuilderAdapter with the method and', function () {
     expect($expr)->toBeString()->toBe('(field1 = :value1) AND (field2 = :value2) AND (field3 = :value3)');
 });
 
-it('test DbalExpressionBuilderAdapter with the method and with expressions', function () {
+it('test with the method and with expressions', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->and(
         $this->dbalExpressionBuilderAdapterTest->equal('field1', ':value1'),
         $this->dbalExpressionBuilderAdapterTest->equal('field2', ':value2'),
@@ -138,7 +138,7 @@ it('test DbalExpressionBuilderAdapter with the method and with expressions', fun
     expect($expr)->toBeString()->toBe('(field1 = :value1) AND (field2 = :value2) AND (field3 = :value3)');
 });
 
-it('test DbalExpressionBuilderAdapter with the method or', function () {
+it('test with the method or', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->or(
         'field1 = :value1',
         'field2 = :value2',
@@ -147,7 +147,7 @@ it('test DbalExpressionBuilderAdapter with the method or', function () {
     expect($expr)->toBeString()->toBe('(field1 = :value1) OR (field2 = :value2) OR (field3 = :value3)');
 });
 
-it('test DbalExpressionBuilderAdapter with the method or with expressions', function () {
+it('test with the method or with expressions', function () {
     $expr = $this->dbalExpressionBuilderAdapterTest->or(
         $this->dbalExpressionBuilderAdapterTest->equal('field1', ':value1'),
         $this->dbalExpressionBuilderAdapterTest->equal('field2', ':value2'),

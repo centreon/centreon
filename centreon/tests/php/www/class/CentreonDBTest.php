@@ -140,7 +140,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test CentreonDB : create query builder with success',
+        'create query builder with success',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $queryBuilder = $db->createQueryBuilder();
@@ -151,7 +151,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'test CentreonDB : create expression builder with success',
+        'create expression builder with success',
         function () use ($dbConfigCentreon): void {
             $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
             $expressionBuilder = $db->createExpressionBuilder();

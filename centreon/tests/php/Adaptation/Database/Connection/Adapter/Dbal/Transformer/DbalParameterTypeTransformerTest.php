@@ -28,7 +28,7 @@ use Core\Common\Domain\Exception\TransformerException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\ParameterType as DbalParameterType;
 
-it('test DbalParameterTypeTranformer : transform', function () {
+it('transform from query parameter type', function () {
     $queryParameterTypeEnum = QueryParameterTypeEnum::STRING;
     $dbalParameterType = DbalParameterTypeTransformer::transformFromQueryParameterType($queryParameterTypeEnum);
     expect($dbalParameterType)->toBe(DbalParameterType::STRING);
@@ -50,7 +50,7 @@ it('test DbalParameterTypeTranformer : transform', function () {
     expect($dbalParameterType)->toBe(DbalParameterType::LARGE_OBJECT);
 });
 
-it('test DbalParameterTypeTranformer : reverse', function () {
+it('reverse to query parameter type', function () {
     $dbalParameterType = DbalParameterType::STRING;
     $queryParameterTypeEnum = DbalParameterTypeTransformer::reverseToQueryParameterType($dbalParameterType);
     expect($queryParameterTypeEnum)->toBe(QueryParameterTypeEnum::STRING);
@@ -72,6 +72,6 @@ it('test DbalParameterTypeTranformer : reverse', function () {
     expect($queryParameterTypeEnum)->toBe(QueryParameterTypeEnum::LARGE_OBJECT);
 });
 
-it('test DbalParameterTypeTranformer : reverse with exception', function () {
+it('reverse to query parameter type with exception', function () {
     DbalParameterTypeTransformer::reverseToQueryParameterType(ParameterType::ASCII);
 })->throws(TransformerException::class);
