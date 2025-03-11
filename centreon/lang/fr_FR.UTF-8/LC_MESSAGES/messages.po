@@ -19688,3 +19688,7 @@ msgstr "Prévision basée sur les X derniers jours"
 
 msgid "Error while enabling/disabling host groups"
 msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
+
+msgid "Display average as"
+msgstr "Afficher la moyenne sous forme de"
+

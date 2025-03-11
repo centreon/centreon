@@ -17925,3 +17925,7 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "Forecast based on past X days"
 # msgstr ""
+
+# msgid "Display average as"
+# msgstr ""
+

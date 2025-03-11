@@ -18366,3 +18366,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Forecast based on past X days"
 # msgstr ""
+
+# msgid "Display average as"
+# msgstr ""
+

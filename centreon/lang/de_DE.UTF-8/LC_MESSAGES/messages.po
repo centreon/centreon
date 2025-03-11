@@ -17572,3 +17572,7 @@ msgstr "Erweiterter Modus"
 
 # msgid "Forecast based on past X days"
 # msgstr ""
+
+# msgid "Display average as"
+# msgstr ""
+
