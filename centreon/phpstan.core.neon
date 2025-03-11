@@ -75,6 +75,7 @@ parameters:
                 - src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
                 - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
                 - src/Core/UserProfile/Infrastructure/Repository/DbWriteUserProfileRepository.php
+                - src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardShareRepository.php
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false
