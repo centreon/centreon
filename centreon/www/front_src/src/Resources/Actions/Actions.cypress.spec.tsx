@@ -16,9 +16,12 @@ import {
   labelAcknowledgeCommandSent,
   labelAcknowledgeServices,
   labelActionNotPermitted,
+  labelAllColumns,
+  labelAllPages,
   labelCheck,
   labelCheckDescription,
   labelComment,
+  labelCurrentPageOnly,
   labelDisacknowledge,
   labelDisacknowledgeServices,
   labelDisacknowledgementCommandSent,
@@ -26,17 +29,24 @@ import {
   labelDowntimeCommandSent,
   labelDuration,
   labelEndDateGreaterThanStartDate,
+  labelExportToCSV,
+  labelFilterRessources,
+  labelFilteredResources,
   labelFixed,
   labelForcedCheck,
   labelForcedCheckCommandSent,
   labelMoreActions,
   labelNotify,
+  labelSelecetPages,
+  labelSelectColumns,
   labelSetDowntime,
   labelSetDowntimeOnServices,
   labelStickyForAnyNonOkStatus,
   labelSubmitStatus,
   labelUnreachable,
-  labelUp
+  labelUp,
+  labelVisibleColumnsOnly,
+  labelWarningExportToCsv
 } from '../translatedLabels';
 
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
@@ -48,6 +58,9 @@ import {
 } from './api/endpoint';
 
 import Actions from '.';
+import { labelCancel } from '../../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
+import { labelConfirm } from '../../Dashboards/SingleInstancePage/Dashboard/Widgets/centreon-widget-resourcestable/src/Listing/translatedLabels';
+import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
 
 const mockUser = {
   alias: 'admin',
@@ -119,7 +132,7 @@ const anomalyDetection = {
   type: 'anomaly-detection'
 };
 
-const initialize = (): ReturnType<typeof createStore> => {
+const initialize = (resourcesPath='resources/resourceListing'): ReturnType<typeof createStore> => {
   cy.clock(new Date(2020, 1, 1));
   cy.viewport('macbook-13');
 
@@ -153,6 +166,15 @@ const initialize = (): ReturnType<typeof createStore> => {
     path: downtimeEndpoint
   });
 
+  cy.fixture(resourcesPath).then((data)=>{
+    cy.interceptAPIRequest({
+      alias: 'resources',
+      method: Method.GET,
+      path: '**/resources?*',
+      response: data
+    });
+  })
+
   const store = createStore();
   store.set(userAtom, mockUser);
   store.set(refreshIntervalAtom, mockRefreshInterval);
@@ -176,17 +198,7 @@ const initialize = (): ReturnType<typeof createStore> => {
 };
 
 describe('Actions', () => {
-  it('', () => {
-    cy.window().then((win) => {
-      cy.stub(win, 'open').as('windowOpen'); // Stub window.open
-    });
 
-    cy.findByRole('button', { name: '' }).click();
-    cy.findByRole('').as('modal').should('be.visible');
-    // const expectedUrl = getE
-
-    cy.get('@windowOpen').should('be.calledWith', 'expected-url');
-  });
   it('sends a submit status request when a Resource is selected and the Submit status action is clicked', () => {
     const store = initialize();
     store.set(selectedResourcesAtom, [host]);
@@ -481,3 +493,89 @@ describe('Actions', () => {
     });
   });
 });
+
+const allColumns =["status","resource","parent_resource","duration","tries","last_check","information","severity","notes_url","action_url","state","alias","parent_alias","fqdn","monitoring_server_name","notification","checks"]
+const visibleColumns = ["resource", "parent_resource", "duration", "last_check", "information", "tries"]
+describe('CSV export',()=>{
+  beforeEach(()=>{
+
+    cy.window().then((win) => {
+      cy.stub(win, 'open').as('windowOpen'); // Stub window.open
+    });
+   
+  })
+
+  it('export csv with defaults checks', () => {
+
+    initialize()
+
+    cy.findByRole('button', { name: '' }).click();
+    cy.findByRole('').as('modal').should('be.visible');
+    cy.get('@modal').contains(labelExportToCSV)
+    cy.get('@modal').contains(labelFilteredResources)
+    cy.get('@modal').contains(labelSelectColumns)
+    cy.get('@modal').findByRole('',{name: labelVisibleColumnsOnly}).should('not.be.checked')
+    cy.get('@modal').findByRole('',{name: labelAllColumns}).should('be.checked')
+    cy.get('@modal').contains(labelSelecetPages)
+    cy.get('@modal').findByRole('',{name:labelCurrentPageOnly}).should('not.be.checked')
+    cy.get('@modal').findByRole('',{name:labelAllPages}).should('be.checked')
+
+    cy.get('@modal').contains(labelWarningExportToCsv)
+    cy.get('@modal').findByRole('',{name:labelCancel}).should('be.enabled')
+    cy.get('@modal').findByRole('',{name:labelConfirm}).should('be.enabled')
+
+
+    const expectedUrl =  `csvEndpoint?page=1&limit=10&columns=${allColumns}&isAllPages=true`
+
+    cy.get('@modal').findByRole('',{name:labelConfirm}).click()
+
+
+    cy.get('@windowOpen').should('be.calledWith', expectedUrl);
+  });
+
+  it('export csv with custom checks', () => {
+
+   
+     const store = initialize();
+    store.set(selectedColumnIdsAtom, visibleColumns);
+
+    cy.findByRole('button', { name: '' }).click();
+    cy.findByRole('').as('modal').should('be.visible');
+    cy.get('@modal').contains(labelExportToCSV)
+    cy.get('@modal').contains(labelSelectColumns)
+    cy.get('@modal').findByRole('',{name: labelVisibleColumnsOnly}).click()
+    cy.get('@modal').findByRole('',{name: labelAllColumns}).should('not.be.checked')
+
+    cy.get('@modal').contains(labelSelecetPages)
+    cy.get('@modal').findByRole('',{name:labelCurrentPageOnly}).click()
+    cy.get('@modal').findByRole('',{name:labelAllPages}).should('not.be.checked')
+
+    cy.get('@modal').contains(labelWarningExportToCsv)
+    cy.get('@modal').findByRole('',{name:labelCancel}).should('be.enabled')
+    cy.get('@modal').findByRole('',{name:labelConfirm}).should('be.enabled')
+
+    cy.get('@modal').findByRole('',{name:labelConfirm}).click();
+
+
+    const expectedUrl =  `csvEndpoint?page=1&limit=10&columns=${visibleColumns}&isAllPages=true`
+
+    cy.get('@windowOpen').should('be.calledWith', expectedUrl);
+  });
+
+  it('display the warning msg and disable the export button when number of lines exceed 10000 resources', () => {
+ 
+
+
+    initialize('resources/listing/exportCsv.json');
+    cy.findByRole('button', { name: '' }).click();
+    cy.findByRole('').as('modal').should('be.visible');
+    cy.get('@modal').contains(labelExportToCSV)
+    cy.get('@modal').contains(labelWarningExportToCsv)
+    cy.get('@modal').contains(labelFilterRessources)
+    cy.get('@modal').findByRole('',{name:labelCancel}).should('be.enabled')
+    cy.get('@modal').findByRole('',{name:labelConfirm}).should('be.disabled')
+
+  });
+
+
+})
