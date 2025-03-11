@@ -158,7 +158,7 @@ runs:
             --header 'Accept: application/json' \
             --header 'Content-Type: application/json' \
             --data '{ "update": { "labels": [ { "add": "${{ github.job }}" } ] } }'
-            )
+          )
         fi
       shell: bash
 
