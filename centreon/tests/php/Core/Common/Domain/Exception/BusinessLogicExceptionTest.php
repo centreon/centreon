@@ -25,7 +25,7 @@ use Core\Common\Domain\Exception\BusinessLogicException;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 
-it ('test with a basic context from a repository exception', function () {
+it('test with a basic context from a repository exception', function () {
     try {
         throw new LogicException('logic_message', 100);
     } catch (LogicException $logicException) {
@@ -58,14 +58,18 @@ it ('test with a basic context from a repository exception', function () {
                             'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
                             'method' => '{closure}',
                         ],
-                        'context' => ['name' => 'John', 'age' => 42],
+                        'context' => [
+                            'name' => 'John',
+                            'age' => 42,
+                            'previous' => null
+                        ],
                     ]
                 );
         }
     }
 });
 
-it ('test with a business context from a repository exception', function () {
+it('test with a business context from a repository exception', function () {
     try {
         throw new CollectionException('collection_message', ['name' => 'Anna', 'age' => 25]);
     } catch (CollectionException $collectionException) {
@@ -97,16 +101,24 @@ it ('test with a business context from a repository exception', function () {
                             'code' => 0,
                             'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
                             'method' => '{closure}',
-                            'context' => ['name' => 'Anna', 'age' => 25],
+                            'previous' => null,
                         ],
-                        'context' => ['name' => 'John', 'age' => 42],
+                        'context' => [
+                            'name' => 'John',
+                            'age' => 42,
+                            'previous' => [
+                                'name' => 'Anna',
+                                'age' => 25,
+                                'previous' => null
+                            ]
+                        ],
                     ]
                 );
         }
     }
 });
 
-it ('test with a business context with previous from a repository exception', function () {
+it('test with a business context with previous from a repository exception', function () {
     try {
         try {
             throw new LogicException('logic_message', 100);
@@ -155,9 +167,16 @@ it ('test with a business context with previous from a repository exception', fu
                                 'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
                                 'method' => '{closure}',
                             ],
-                            'context' => ['name' => 'Anna', 'age' => 25],
                         ],
-                        'context' => ['name' => 'John', 'age' => 42],
+                        'context' => [
+                            'name' => 'John',
+                            'age' => 42,
+                            'previous' => [
+                                'name' => 'Anna',
+                                'age' => 25,
+                                'previous' => null
+                            ]
+                        ],
                     ]
                 );
         }
