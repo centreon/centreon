@@ -213,7 +213,7 @@ runs:
           --request GET \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header "Accept: application/json" \
-          --url "$JIRA_BASE_URL/rest/api/3/issue/createmeta?projectKeys=MON&expand=projects.issuetypes.fields")
+          --url "${{ inputs.jira_base_url }}/rest/api/3/issue/createmeta?projectKeys=MON&expand=projects.issuetypes.fields")
 
         echo $response
 
