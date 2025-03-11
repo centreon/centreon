@@ -86,7 +86,7 @@ abstract class BusinessLogicException extends \Exception
      */
     public function addContext(array $newContext): void
     {
-        $this->context = array_merge($this->getContext(), $newContext);
+        $this->context = array_merge($this->getContext(), ['context' => $newContext]);
     }
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
