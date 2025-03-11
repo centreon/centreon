@@ -150,6 +150,7 @@ runs:
         if [[ "$check_if_ticket_exists" != "null" ]]; then
           echo "abort_ticket_creation=true" >> $GITHUB_ENV
           echo "::notice::ticket found as $check_if_ticket_exists aborting ticket creation"
+
           # Adding failed job label for already existing ticket
           response=$(curl \
             --request PUT \
@@ -159,6 +160,8 @@ runs:
             --header 'Content-Type: application/json' \
             --data '{ "update": { "labels": [ { "add": "${{ github.job }}" } ] } }'
           )
+
+          echo $response
         fi
       shell: bash
 
