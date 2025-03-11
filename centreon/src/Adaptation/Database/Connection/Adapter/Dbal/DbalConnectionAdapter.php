@@ -75,7 +75,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface
     {
         $dbalConnectionConfig = [
-            'dbname' => $connectionConfig->getDatabaseName(),
+            'dbname' => $connectionConfig->getDatabaseNameConfiguration(),
             'user' => $connectionConfig->getUser(),
             'password' => $connectionConfig->getPassword(),
             'host' => $connectionConfig->getHost(),
@@ -95,6 +95,14 @@ final class DbalConnectionAdapter implements ConnectionInterface
         } catch (\Throwable $exception) {
             throw ConnectionException::connectionFailed($exception);
         }
+    }
+
+    /**
+     * @return ConnectionConfig
+     */
+    public function getConnectionConfig(): ConnectionConfig
+    {
+        return $this->connectionConfig;
     }
 
     /**
@@ -872,7 +880,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
         }
 
         // prepare default context
-        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseName()];
+        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseNameConfiguration()];
         if (! empty($query)) {
             $defaultContext['query'] = $query;
         }

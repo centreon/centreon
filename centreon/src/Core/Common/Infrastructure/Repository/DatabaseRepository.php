@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
@@ -46,22 +47,36 @@ abstract class DatabaseRepository
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.
-     * The table names of the database are defined in the services.yaml
-     * configuration file.
      *
-     * @param string $request Request to translate
+     * @param string $query
      *
-     * @return string Request translated
+     * @return string
      */
-    protected function translateDbName(string $request): string
+    protected function translateDbName(string $query): string
     {
         return str_replace(
             [':dbstg', ':db'],
             [
-                $this->connection->getConnectionConfig()->getDatabaseNameStorage(),
-                $this->connection->getConnectionConfig()->getDatabaseName(),
+                $this->getDbNameRealTime(),
+                $this->getDbNameConfiguration(),
             ],
-            $request
+            $query
         );
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDbNameConfiguration(): string
+    {
+        return $this->connection->getConnectionConfig()->getDatabaseNameConfiguration();
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDbNameRealTime(): string
+    {
+        return $this->connection->getConnectionConfig()->getDatabaseNameRealTime();
     }
 }

@@ -147,7 +147,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 ->and($connectionConfig->getHost())->toBe($dbConfigCentreon->getHost())
                 ->and($connectionConfig->getUser())->toBe($dbConfigCentreon->getUser())
                 ->and($connectionConfig->getPassword())->toBe($dbConfigCentreon->getPassword())
-                ->and($connectionConfig->getDatabaseName())->toBe($dbConfigCentreon->getDatabaseName())
+                ->and($connectionConfig->getDatabaseNameConfiguration())->toBe($dbConfigCentreon->getDatabaseNameConfiguration())
                 ->and($connectionConfig->getPort())->toBe($dbConfigCentreon->getPort());
         }
     );
