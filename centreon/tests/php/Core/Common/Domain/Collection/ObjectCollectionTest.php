@@ -36,7 +36,7 @@ it('return true if item exists', function () {
     expect($this->collection->contains($item))->toBeTrue();
 });
 
-it('return true if item does not exist', function () {
+it('return false if item does not exist', function () {
     $item = new \stdClass();
     expect($this->collection->contains($item))->toBeFalse();
 });
