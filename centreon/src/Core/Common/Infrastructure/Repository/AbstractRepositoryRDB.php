@@ -59,7 +59,7 @@ class AbstractRepositoryRDB
     {
         return str_replace(
             [':dbstg', ':db'],
-            [$this->db->getConnectionConfig()->getDatabaseNameStorage(), $this->db->getConnectionConfig()->getDatabaseName()],
+            [$this->getDbNameRealTime(), $this->getDbNameConfiguration()],
             $request
         );
     }
@@ -84,5 +84,21 @@ class AbstractRepositoryRDB
 
             return null;
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDbNameConfiguration(): string
+    {
+        return $this->db->getConnectionConfig()->getDatabaseNameConfiguration();
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDbNameRealTime(): string
+    {
+        return $this->db->getConnectionConfig()->getDatabaseNameRealTime();
     }
 }

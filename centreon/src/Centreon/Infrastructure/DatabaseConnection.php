@@ -821,7 +821,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         }
 
         // prepare default context
-        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseName()];
+        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseNameConfiguration()];
         if (! empty($query)) {
             $defaultContext['query'] = $query;
         }

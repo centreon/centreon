@@ -115,8 +115,8 @@ class CentreonDB extends PDO implements ConnectionInterface
                 host: $dbLabel === self::LABEL_DB_CONFIGURATION ? hostCentreon : hostCentstorage,
                 user: user,
                 password: password,
-                databaseName: $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg,
-                databaseNameStorage: dbcstg,
+                databaseNameConfiguration: $dbLabel === self::LABEL_DB_CONFIGURATION ? db : dbcstg,
+                databaseNameRealTime: dbcstg,
                 port: port ?? 3306
             );
         } else {
@@ -976,7 +976,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $info["version"] = $versionInformation[0];
             $info["engine"] = $versionInformation[1] ?? 'MySQL';
             if ($dbResult = $this->query(
-                "SHOW TABLE STATUS FROM `" . $this->connectionConfig->getDatabaseName() . "`"
+                "SHOW TABLE STATUS FROM `" . $this->connectionConfig->getDatabaseNameConfiguration() . "`"
             )) {
                 while ($data = $dbResult->fetch()) {
                     $info['dbsize'] += $data['Data_length'] + $data['Index_length'];
@@ -1023,7 +1023,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         $stmt = $this->prepare($query);
 
         try {
-            $stmt->bindValue(':dbName', $this->connectionConfig->getDatabaseName(), PDO::PARAM_STR);
+            $stmt->bindValue(':dbName', $this->connectionConfig->getDatabaseNameConfiguration(), PDO::PARAM_STR);
             $stmt->bindValue(':tableName', $table, PDO::PARAM_STR);
             $stmt->bindValue(':columnName', $column, PDO::PARAM_STR);
             $stmt->execute();
@@ -1069,7 +1069,7 @@ class CentreonDB extends PDO implements ConnectionInterface
               AND INDEX_NAME = :index_name;
             SQL
         );
-        $statement->bindValue(':db_name', $this->connectionConfig->getDatabaseName());
+        $statement->bindValue(':db_name', $this->connectionConfig->getDatabaseNameConfiguration());
         $statement->bindValue(':table_name', $table);
         $statement->bindValue(':index_name', $indexName);
 
@@ -1098,7 +1098,7 @@ class CentreonDB extends PDO implements ConnectionInterface
               AND CONSTRAINT_NAME = :constraint_name;
             SQL
         );
-        $statement->bindValue(':db_name', $this->connectionConfig->getDatabaseName());
+        $statement->bindValue(':db_name', $this->connectionConfig->getDatabaseNameConfiguration());
         $statement->bindValue(':table_name', $table);
         $statement->bindValue(':constraint_name', $constraintName);
 
@@ -1129,7 +1129,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         $stmt = $this->prepare($query);
 
         try {
-            $stmt->bindValue(':dbName', $this->connectionConfig->getDatabaseName(), PDO::PARAM_STR);
+            $stmt->bindValue(':dbName', $this->connectionConfig->getDatabaseNameConfiguration(), PDO::PARAM_STR);
             $stmt->bindValue(':tableName', $tableName, PDO::PARAM_STR);
             $stmt->bindValue(':columnName', $columnName, PDO::PARAM_STR);
             $stmt->execute();
@@ -1253,7 +1253,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         }
 
         // prepare default context
-        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseName()];
+        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseNameConfiguration()];
         if (! empty($query)) {
             $defaultContext['query'] = $query;
         }
