@@ -198,14 +198,14 @@ runs:
             "priority": {"id": "1"},
             "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "${{ steps.get_context.outputs.ticket_squad_id }}", "value": "${{ inputs.ticket_squad }}"},
-            "description": $(cat ${{ steps.get_context.outputs.json_template_file }})
+            "description": $UPDATED_TEMPLATE_FILE
           }
         }
         EOF
         )
 
         if [[ ${{ steps.get_context.outputs.current_sprint }} != "null" ]]; then
-          DATA=$(echo "$DATA" | jq '.fields.sprint = "${{ steps.get_context.outputs.current_sprint }}")
+          DATA=$(echo "$DATA" | jq '.fields.sprint = "${{ steps.get_context.outputs.current_sprint }}"')
         fi
         echo "[DEBUG] $DATA"
 
