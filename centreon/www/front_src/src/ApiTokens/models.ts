@@ -1,6 +1,6 @@
 export enum TokenType {
   API = 'api',
-  CMA = 'centreon-monitoring-agent'
+  CMA = 'cma'
 }
 
 export interface ModalState {

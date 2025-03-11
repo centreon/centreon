@@ -7,15 +7,13 @@ import {
   useLocaleDateTimeFormat,
   useMutationQuery
 } from '@centreon/ui';
-
-import { CreateTokenFormValues } from '../Listing/models';
 import { createdTokenDecoder } from '../api/decoder';
 import { createTokenEndpoint } from '../api/endpoints';
 
 import { CreatedToken, dataDuration } from './models';
 
 interface UseCreateToken {
-  createToken: (params: Required<CreateTokenFormValues>) => void;
+  createToken: (dataForm, { setSubmitting }) => void;
   data?: ResponseError | CreatedToken;
   getExpirationDate?: ({ value, unit }) => string;
   isMutating: boolean;
@@ -39,31 +37,17 @@ const useCreateToken = (): UseCreateToken => {
     return toIsoString(formattedDate);
   };
 
-  const createToken = ({
-    tokenName,
-    duration,
-    user,
-    customizeDate
-  }: Required<CreateTokenFormValues>): void => {
-    if (equals(duration?.id, 'customize')) {
-      const expirationDate = toIsoString(customizeDate as Date);
+  const createToken = (dataForm, { setSubmitting }): void => {
+    const { duration, tokenName, user, customizeDate } = dataForm;
 
-      mutateAsync({
-        payload: {
-          expiration_date: expirationDate,
-          name: tokenName,
-          user_id: user?.id
-        }
-      });
-
-      return;
-    }
     const durationItem = dataDuration.find(({ id }) => id === duration?.id);
 
-    const expirationDate = getExpirationDate({
-      unit: durationItem?.unit,
-      value: durationItem?.value
-    });
+    const expirationDate = equals(duration?.id, 'customize')
+      ? toIsoString(customizeDate as Date)
+      : getExpirationDate({
+          unit: durationItem?.unit,
+          value: durationItem?.value
+        });
 
     mutateAsync({
       payload: {
@@ -71,7 +55,7 @@ const useCreateToken = (): UseCreateToken => {
         name: tokenName,
         user_id: user?.id
       }
-    });
+    }).finally(() => setSubmitting(false));
   };
 
   return {

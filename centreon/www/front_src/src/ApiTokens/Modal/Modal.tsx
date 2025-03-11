@@ -22,9 +22,9 @@ const Modal = (): JSX.Element => {
   const [modalState, setModalState] = useAtom(ModalStateAtom);
 
   const closeDialog = () => {
-    setSearchParams({ mode: 'add' });
+    setSearchParams({});
 
-    setModalState({ ...modalState });
+    setModalState({ ...modalState, isOpen: false });
   };
 
   const validationForm = object({
@@ -39,12 +39,6 @@ const Modal = (): JSX.Element => {
     })
   });
 
-  const submit = (dataForm): void => {
-    const { duration, tokenName, user, customizeDate } = dataForm;
-
-    createToken({ customizeDate, duration, tokenName, user });
-  };
-
   return (
     <Formik<CreateTokenFormValues>
       initialValues={{
@@ -56,7 +50,7 @@ const Modal = (): JSX.Element => {
           : (currentUser as NamedEntity)
       }}
       validationSchema={validationForm}
-      onSubmit={submit}
+      onSubmit={createToken}
     >
       <FormCreation
         closeDialog={closeDialog}
