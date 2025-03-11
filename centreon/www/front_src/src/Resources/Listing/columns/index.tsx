@@ -269,7 +269,7 @@ export const getColumns = ({
       type: ColumnType.string,
       width: 'max-content'
     },
-    ...(false
+    ...(featureFlags?.notification
       ? []
       : [
           {
