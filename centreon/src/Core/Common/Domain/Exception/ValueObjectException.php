@@ -29,7 +29,7 @@ namespace Core\Common\Domain\Exception;
  * @class   ValueObjectException
  * @package Core\Common\Domain\Exception
  */
-class ValueObjectException extends DomainException
+class ValueObjectException extends BusinessLogicException
 {
     /**
      * ValueObjectException constructor

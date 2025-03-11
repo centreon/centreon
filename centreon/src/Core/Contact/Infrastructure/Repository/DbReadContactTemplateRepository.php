@@ -125,9 +125,8 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
             $this->error('finding all contact template failed', ['exception' => $exception->getContext()]);
 
             throw new RepositoryException(
-                'finding all contact template failed',
-                ['exception' => $exception->getContext()],
-                $exception
+                message: 'finding all contact template failed',
+                previous: $exception
             );
         }
     }

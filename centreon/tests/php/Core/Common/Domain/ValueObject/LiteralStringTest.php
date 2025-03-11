@@ -25,30 +25,30 @@ namespace Tests\Core\Common\Domain\ValueObject;
 
 use Core\Common\Domain\ValueObject\LiteralString;
 
-it('test LiteralString value object : correct instanciation', function () {
+it('correct instanciation', function () {
     $string = "foo";
     $literalString = new LiteralString($string);
     expect($literalString->getValue())->toBe($string);
 });
 
-it('test LiteralString value object : get value', function () {
+it('get value', function () {
     $string = "foo";
     $literalString = new LiteralString($string);
     expect($literalString->getValue())->toBe($string);
 });
 
-it('test LiteralString value object : is empty', function () {
+it('is empty', function () {
     $string = "";
     $literalString = new LiteralString($string);
     expect($literalString->isEmpty())->toBeTrue();
 });
 
-it('test LiteralString value object : length', function () {
+it('length', function () {
     $literalString = new LiteralString("foo");
     expect($literalString->length())->toBe(3);
 });
 
-it('test LiteralString value object : to uppercase', function () {
+it('to uppercase', function () {
     $literalString = new LiteralString("foo");
     $newLiteralString = $literalString->toUpperCase();
     expect($literalString)
@@ -61,7 +61,7 @@ it('test LiteralString value object : to uppercase', function () {
         ->toBe("FOO");
 });
 
-it('test LiteralString value object : to lowercase', function () {
+it('to lowercase', function () {
     $literalString = new LiteralString("FOO");
     $newLiteralString = $literalString->toLowerCase();
     expect($literalString)
@@ -74,7 +74,7 @@ it('test LiteralString value object : to lowercase', function () {
         ->toBe("foo");
 });
 
-it('test LiteralString value object : trim', function () {
+it('trim', function () {
     $literalString = new LiteralString(" foo ");
     $newLiteralString = $literalString->trim();
     expect($literalString)
@@ -87,27 +87,27 @@ it('test LiteralString value object : trim', function () {
         ->toBe("foo");
 });
 
-it('test LiteralString value object : starts with', function () {
+it('starts with', function () {
     $literalString = new LiteralString("foo");
     expect($literalString->startsWith("f"))->toBeTrue();
 });
 
-it('test LiteralString value object : not starts with', function () {
+it('not starts with', function () {
     $literalString = new LiteralString("foo");
     expect($literalString->startsWith("bar"))->toBeFalse();
 });
 
-it('test LiteralString value object : ends with', function () {
+it('ends with', function () {
     $literalString = new LiteralString("foo");
     expect($literalString->endsWith("o"))->toBeTrue();
 });
 
-it('test LiteralString value object : not ends with', function () {
+it('not ends with', function () {
     $literalString = new LiteralString("foo");
     expect($literalString->endsWith("bar"))->toBeFalse();
 });
 
-it('test LiteralString value object : replace', function () {
+it('replace', function () {
     $literalString = new LiteralString("foo");
     $newLiteralString = $literalString->replace("foo", "bar");
     expect($literalString)
@@ -120,17 +120,17 @@ it('test LiteralString value object : replace', function () {
         ->toBe("bar");
 });
 
-it('test LiteralString value object : contains', function () {
+it('contains', function () {
     $literalString = new LiteralString("foo");
     expect($literalString->contains("o"))->toBeTrue();
 });
 
-it('test LiteralString value object : not contains', function () {
+it('not contains', function () {
     $literalString = new LiteralString("foo");
     expect($literalString->contains("bar"))->toBeFalse();
 });
 
-it('test LiteralString value object : append', function () {
+it('append', function () {
     $literalString = new LiteralString("foo");
     $newLiteralString = $literalString->append("bar");
     expect($literalString)
@@ -143,30 +143,30 @@ it('test LiteralString value object : append', function () {
         ->toBe("foobar");
 });
 
-it('test LiteralString value object : equal', function () {
+it('equal', function () {
     $literalString1 = new LiteralString("foo");
     $literalString2 = new LiteralString("foo");
     expect($literalString1->equals($literalString2))->toBeTrue();
 });
 
-it('test LiteralString value object : not equal', function () {
+it('not equal', function () {
     $literalString1 = new LiteralString("foo");
     $literalString2 = new LiteralString("bar");
     expect($literalString1->equals($literalString2))->toBeFalse();
 });
 
-it('test LiteralString value object : equal with incorrect type', function () {
+it('equal with incorrect type', function () {
     $literalString1 = new LiteralString("foo");
     $dateTime = new \DateTime();
     $literalString1->equals($dateTime);
 })->throws(\TypeError::class);
 
-it('test LiteralString value object : magic method toString', function () {
+it('magic method toString', function () {
     $literalString = new LiteralString("foo");
     expect("$literalString")->toBe("foo");
 });
 
-it('test LiteralString value object : json serialize', function () {
+it('json serialize', function () {
     $literalString = new LiteralString("foo");
     expect($literalString->jsonSerialize())->toBe('foo');
 });

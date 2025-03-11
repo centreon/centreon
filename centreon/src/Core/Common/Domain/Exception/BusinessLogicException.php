@@ -26,28 +26,38 @@ namespace Core\Common\Domain\Exception;
 /**
  * Class
  *
- * @class   DomainException
+ * @class   BusinessLogicException
  * @package Core\Common\Domain\Exception
  */
-abstract class DomainException extends \Exception
+abstract class BusinessLogicException extends \Exception
 {
     public const ERROR_CODE_INTERNAL = 0;
     public const ERROR_CODE_REPOSITORY = 1;
     public const ERROR_CODE_BAD_USAGE = 4;
 
+    /** @var array<string,mixed> */
+    private array $context = [];
+
+    /** @var array<string,mixed> */
+    private array $businessContext;
+
+    /** @var array<string,mixed> */
+    private array $exceptionContext;
+
     /**
-     * DomainException constructor
+     * BusinessLogicException constructor
      *
      * @param string $message
      * @param int $code
      * @param array<string,mixed> $context
      * @param \Throwable|null $previous
      */
-    public function __construct(string $message, int $code, protected array $context = [], ?\Throwable $previous = null)
+    public function __construct(string $message, int $code, array $context = [], ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
-        $this->addExceptionContext();
-        $this->addContext($context);
+        $this->setBusinessContext($context);
+        $this->setExceptionContext();
+        $this->setGlobalContext();
     }
 
     /**
@@ -89,22 +99,61 @@ abstract class DomainException extends \Exception
         $this->context = array_merge($this->getContext(), $newContext);
     }
 
+    /**
+     * @return array<string,mixed>
+     */
+    public function getBusinessContext(): array
+    {
+        return $this->businessContext;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getExceptionContext(): array
+    {
+        return $this->exceptionContext;
+    }
+
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
 
     /**
      * @return void
      */
-    private function addExceptionContext(): void
+    private function setGlobalContext(): void
     {
-        $exceptionContext = $this->getExceptionContext($this);
-        if ($this->getPrevious() !== null) {
-            if ($this->getPrevious() instanceof self) {
-                $exceptionContext['previous'] = $this->getPrevious()->getContext();
-            } else {
-                $exceptionContext['previous'] = $this->getExceptionContext($this->getPrevious());
-            }
+        $this->context = array_merge(
+            $this->getExceptionInfos($this),
+            ['previous' => $this->getPreviousInfos()],
+            ['context' => $this->getBusinessContext()]
+        );
+    }
+
+    /**
+     * @param array<string,mixed> $context
+     *
+     * @return void
+     */
+    private function setBusinessContext(array $context): void
+    {
+        $previousContext = null;
+        if ($this->getPrevious() instanceof self) {
+            $previousContext = $this->getPrevious()->getBusinessContext();
         }
-        $this->setContext($exceptionContext);
+        $this->businessContext = array_merge(
+            $context, ['previous' => $previousContext]
+        );
+    }
+
+    /**
+     * @return void
+     */
+    private function setExceptionContext(): void
+    {
+        $this->exceptionContext = array_merge(
+            $this->getExceptionInfos($this),
+            ['previous' => $this->getPreviousInfos()]
+        );
     }
 
     /**
@@ -112,7 +161,7 @@ abstract class DomainException extends \Exception
      *
      * @return array<string,mixed>
      */
-    private function getExceptionContext(\Throwable $throwable): array
+    private function getExceptionInfos(\Throwable $throwable): array
     {
         $exceptionContext = [
             'type' => $throwable::class,
@@ -132,5 +181,22 @@ abstract class DomainException extends \Exception
         }
 
         return $exceptionContext;
+    }
+
+    /**
+     * @return array<string,mixed>|null
+     */
+    private function getPreviousInfos(): ?array
+    {
+        $previousContext = null;
+        if ($this->getPrevious() !== null) {
+            if ($this->getPrevious() instanceof self) {
+                $previousContext = $this->getPrevious()->getExceptionContext();
+            } else {
+                $previousContext = $this->getExceptionInfos($this->getPrevious());
+            }
+        }
+
+        return $previousContext;
     }
 }

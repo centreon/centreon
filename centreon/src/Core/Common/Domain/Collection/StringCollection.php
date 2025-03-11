@@ -30,7 +30,7 @@ use Core\Common\Domain\Exception\CollectionException;
  *
  * @class StringCollection
  * @package Core\Common\Domain\Collection
- * @template   TItem of string
+ * @template TItem of string
  * @extends Collection<TItem>
  */
 class StringCollection extends Collection

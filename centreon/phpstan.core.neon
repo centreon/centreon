@@ -76,6 +76,8 @@ parameters:
                 - src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
                 - src/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommands.php
                 - src/Core/UserProfile/Infrastructure/Repository/DbWriteUserProfileRepository.php
+                - src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardShareRepository.php
+                - src/Core/Common/Infrastructure/RequestParameters/Transformer
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false
@@ -118,14 +120,6 @@ parameters:
             paths:
                 - src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php
           # To fix this custom rule that block the development (to clean)
-        - # [CENTREON-RULE]: Catch block must contain a Logger trait method call.
-            reportUnmatched: false
-            message: '#Catch block must contain a Logger trait method call.#'
-            paths:
-                - src/Adaptation
-                - src/Core/Common/Infrastructure/RequestParameters/Transformer
-                - src/Core/Common/Domain
-                - src/Core/Resources
         - # Unsafe usage of new static(). Unblock usage of value object.
             reportUnmatched: false
             message: '#Unsafe usage of new static#'

@@ -26,67 +26,176 @@ namespace Tests\Core\Dashboard\Application\UseCase\FindDashboardContactGroups;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\FindDashboardContactGroups;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\FindDashboardContactGroupsResponse;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
-    $this->presenter = new FindDashboardContactGroupsPresenterStub();
-    $this->useCase = new FindDashboardContactGroups(
-        $this->requestParameters = $this->createMock(RequestParametersInterface::class),
-        $this->rights = $this->createMock(DashboardRights::class),
-        $this->contact = $this->createMock(ContactInterface::class),
-        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
-        $this->readAccessgroupRepository = $this->createMock(ReadAccessgroupRepositoryInterface::class),
-        $this->isCloudPlatform = false
+    $this->requestParameters = $this->createMock(RequestParametersInterface::class);
+    $this->rights = $this->createMock(DashboardRights::class);
+    $this->contact = $this->createMock(ContactInterface::class);
+    $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class);
+    $this->readAccessgroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+
+    $this->useCaseOnPremise = new FindDashboardContactGroups(
+        $this->requestParameters,
+        $this->rights,
+        $this->contact,
+        $this->readDashboardShareRepository,
+        $this->readAccessgroupRepository,
+        false
+    );
+
+    $this->useCaseCloud = new FindDashboardContactGroups(
+        $this->requestParameters,
+        $this->rights,
+        $this->contact,
+        $this->readDashboardShareRepository,
+        $this->readAccessgroupRepository,
+        true
     );
 });
 
 it(
-    'should present an ErrorResponse if an error is raised',
+    'should return an ErrorResponse if an error is raised',
     function (): void {
-        $this->rights->expects($this->once())->method('canAccess')->willThrowException(new \Exception());
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(true);
 
-        ($this->useCase)($this->presenter);
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactGroupsWithAccessRightByRequestParameters')
+            ->willThrowException(new \Exception());
 
-        expect($this->presenter->data)->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->data->getMessage())->toBe(DashboardException::errorWhileRetrieving()->getMessage());
+        $response = ($this->useCaseOnPremise)();
+
+        expect($response)->toBeInstanceOf(ErrorResponse::class)
+            ->and($response->getMessage())
+            ->toBe(DashboardException::errorWhileSearchingSharableContactGroups()->getMessage());
     }
 );
 
 it(
-    'should present a ForbiddenResponse if the contact is NOT allowed',
+    'should return a FindDashboardContactGroupsResponse if no error is raised - AS ADMIN - OnPremise',
     function (): void {
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(true);
 
-        ($this->useCase)($this->presenter);
+        $contactGroupRole = new DashboardContactGroupRole(
+            contactGroupId: 1,
+            contactGroupName: 'name',
+            roles: [DashboardGlobalRole::Creator]
+        );
 
-        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->data->getMessage())->toBe(DashboardException::accessNotAllowed()->getMessage());
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactGroupsWithAccessRightByRequestParameters')
+            ->willReturn([$contactGroupRole]);
+
+        $response = ($this->useCaseOnPremise)();
+        $contactGroups = $response->getData();
+
+        expect($response)->toBeInstanceOf(FindDashboardContactGroupsResponse::class)
+            ->and($contactGroups[0]->id)
+            ->toBe($contactGroupRole->getContactGroupId())
+            ->and($contactGroups[0]->name)
+            ->toBe($contactGroupRole->getContactGroupName())
+            ->and($contactGroups[0]->mostPermissiveRole)
+            ->toBe($contactGroupRole->getMostPermissiveRole());
     }
 );
 
 it(
-    'should present a FindDashboardContactGroupsResponse if the contact is allowed',
+    'should return a FindDashboardContactGroupsResponse if no error is raised - AS USER - OnPremise',
     function (): void {
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
-
         $this->rights->expects($this->once())
             ->method('hasAdminRole')
             ->willReturn(false);
 
-        $this->readDashboardShareRepository
-            ->expects($this->once())
+        $contactGroupRole = new DashboardContactGroupRole(
+            contactGroupId: 1,
+            contactGroupName: 'name',
+            roles: [DashboardGlobalRole::Creator]
+        );
+
+        $this->readDashboardShareRepository->expects($this->once())
             ->method('findContactGroupsWithAccessRightByUserAndRequestParameters')
-            ->willReturn([]);
+            ->willReturn([$contactGroupRole]);
 
-        ($this->useCase)($this->presenter);
+        $response = ($this->useCaseOnPremise)();
+        $contactGroups = $response->getData();
 
-        expect($this->presenter->data)->toBeInstanceOf(FindDashboardContactGroupsResponse::class);
+        expect($response)->toBeInstanceOf(FindDashboardContactGroupsResponse::class)
+            ->and($contactGroups[0]->id)
+            ->toBe($contactGroupRole->getContactGroupId())
+            ->and($contactGroups[0]->name)
+            ->toBe($contactGroupRole->getContactGroupName())
+            ->and($contactGroups[0]->mostPermissiveRole)
+            ->toBe($contactGroupRole->getMostPermissiveRole());
+    }
+);
+
+it(
+    'should return a FindDashboardContactGroupsResponse if no error is raised - AS ADMIN - Cloud',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(true);
+
+        $contactGroupRole = new DashboardContactGroupRole(
+            contactGroupId: 1,
+            contactGroupName: 'name',
+            roles: [DashboardGlobalRole::Viewer]
+        );
+
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactGroupsByRequestParameters')
+            ->willReturn([$contactGroupRole]);
+
+        $response = ($this->useCaseCloud)();
+        $contactGroups = $response->getData();
+
+        expect($response)->toBeInstanceOf(FindDashboardContactGroupsResponse::class)
+            ->and($contactGroups[0]->id)
+            ->toBe($contactGroupRole->getContactGroupId())
+            ->and($contactGroups[0]->name)
+            ->toBe($contactGroupRole->getContactGroupName())
+            ->and($contactGroups[0]->mostPermissiveRole)
+            ->toBe($contactGroupRole->getMostPermissiveRole());
+    }
+);
+
+it(
+    'should return a FindDashboardContactGroupsResponse if no error is raised - AS USER - Cloud',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(false);
+
+        $contactGroupRole = new DashboardContactGroupRole(
+            contactGroupId: 1,
+            contactGroupName: 'name',
+            roles: [DashboardGlobalRole::Viewer]
+        );
+
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactGroupsByUserAndRequestParameters')
+            ->willReturn([$contactGroupRole]);
+
+        $response = ($this->useCaseCloud)();
+        $contactGroups = $response->getData();
+
+        expect($response)->toBeInstanceOf(FindDashboardContactGroupsResponse::class)
+            ->and($contactGroups[0]->id)
+            ->toBe($contactGroupRole->getContactGroupId())
+            ->and($contactGroups[0]->name)
+            ->toBe($contactGroupRole->getContactGroupName())
+            ->and($contactGroups[0]->mostPermissiveRole)
+            ->toBe($contactGroupRole->getMostPermissiveRole());
     }
 );

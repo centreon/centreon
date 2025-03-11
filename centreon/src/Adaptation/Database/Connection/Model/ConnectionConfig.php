@@ -39,8 +39,8 @@ final readonly class ConnectionConfig
      * @param string $host
      * @param string $user
      * @param string $password
-     * @param string $databaseName Configuration database name of Centreon
-     * @param string $databaseNameStorage Storage database name of Centreon
+     * @param string $databaseNameConfiguration Configuration database name of Centreon
+     * @param string $databaseNameRealTime Real time database name of Centreon
      * @param int $port
      * @param string $charset
      * @param ConnectionDriverEnum $driver
@@ -49,8 +49,8 @@ final readonly class ConnectionConfig
         private string $host,
         private string $user,
         private string $password,
-        private string $databaseName,
-        private string $databaseNameStorage,
+        private string $databaseNameConfiguration,
+        private string $databaseNameRealTime,
         private int $port = 3306,
         private string $charset = 'utf8mb4',
         private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
@@ -83,17 +83,17 @@ final readonly class ConnectionConfig
     /**
      * @return string
      */
-    public function getDatabaseName(): string
+    public function getDatabaseNameConfiguration(): string
     {
-        return $this->databaseName;
+        return $this->databaseNameConfiguration;
     }
 
     /**
      * @return string
      */
-    public function getDatabaseNameStorage(): string
+    public function getDatabaseNameRealTime(): string
     {
-        return $this->databaseNameStorage;
+        return $this->databaseNameRealTime;
     }
 
     /**
@@ -127,7 +127,7 @@ final readonly class ConnectionConfig
     {
         return sprintf(
             'mysql:dbname=%s;host=%s;port=%s;charset=%s',
-            $this->getDatabaseName(),
+            $this->getDatabaseNameConfiguration(),
             $this->getHost(),
             $this->getPort(),
             $this->getCharset()
@@ -143,7 +143,7 @@ final readonly class ConnectionConfig
             'oci:dbname=//%s:%s/%s',
             $this->getHost(),
             $this->getPort(),
-            $this->getDatabaseName()
+            $this->getDatabaseNameConfiguration()
         );
     }
 
@@ -156,7 +156,7 @@ final readonly class ConnectionConfig
             'pgsql:host=%s;port=%s;dbname=%s;user=%s;password=%s',
             $this->getHost(),
             $this->getPort(),
-            $this->getDatabaseName(),
+            $this->getDatabaseNameConfiguration(),
             $this->getUser(),
             $this->getPassword(),
         );

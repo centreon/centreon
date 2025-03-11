@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Database\Exception;
 
-use Core\Common\Domain\Exception\DomainException;
+use Core\Common\Domain\Exception\BusinessLogicException;
 
 /**
  * Class
@@ -31,7 +31,7 @@ use Core\Common\Domain\Exception\DomainException;
  * @class   DatabaseException
  * @package Adaptation\Database\Exception
  */
-abstract class DatabaseException extends DomainException
+abstract class DatabaseException extends BusinessLogicException
 {
     public const ERROR_CODE_DATABASE = 10;
     public const ERROR_CODE_DATABASE_TRANSACTION = 11;

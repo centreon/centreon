@@ -47,6 +47,7 @@ readonly abstract class RequestParametersTransformer
     public static function transformFromQueryParameters(QueryParameters $queryParameters): array
     {
         $requestParameters = [];
+        /** @var QueryParameter $queryParameter */
         foreach ($queryParameters->getIterator() as $queryParameter) {
             $pdoType = PdoParameterTypeTransformer::transformFromQueryParameterType(
                 $queryParameter->getType() ?? QueryParameterTypeEnum::STRING
