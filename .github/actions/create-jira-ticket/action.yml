@@ -152,6 +152,7 @@ runs:
           echo "::notice::ticket found as $check_if_ticket_exists aborting ticket creation"
 
           # Adding failed job label for already existing ticket
+          sleep 60
           response=$(curl \
             --request PUT \
             --url "${{ inputs.jira_base_url }}/rest/api/3/issue/$check_if_ticket_exists" \
@@ -196,7 +197,6 @@ runs:
 
         TEMPLATE_FILE=$(cat ${{ steps.get_context.outputs.json_template_file }})
         UPDATED_TEMPLATE_FILE=$(jq --argjson NEW_CONTENT "$CONTENT_TO_ADD_TO_TEMPLATE_FILE" '.content += [$NEW_CONTENT]' <<< "$TEMPLATE_FILE")
-
 
         # Creating a new incident ticket on Jira
         DATA=$( cat <<-EOF
