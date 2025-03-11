@@ -83,6 +83,8 @@ const useDelete = (): UseDeleteState => {
       );
 
       resetSelections();
+
+      return;
     }
 
     handleBulkResponse({
