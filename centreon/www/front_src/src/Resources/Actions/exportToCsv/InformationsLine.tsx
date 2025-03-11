@@ -15,7 +15,7 @@ interface Props {
 const InformationsLine = ({ numberExportedLines, disableExport }: Props) => {
   const { classes, cx } = useExportCsvStyles();
 
-  const description = `${labelNumerOfLines}' '${numberExportedLines}`;
+  const description = `${labelNumerOfLines}: ${numberExportedLines}`;
 
   return (
     <div className={classes.information}>
