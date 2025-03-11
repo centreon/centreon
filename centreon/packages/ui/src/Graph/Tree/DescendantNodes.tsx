@@ -59,7 +59,7 @@ const DescendantNodes = <TData extends BaseProp>({
       .descendants()
       .map((ancestor) => ancestor.data.data.id);
 
-    const key = `${node.data.data.id}-${node.data.data.name}-${ancestorIds.toString()}-${descendantIds.toString()}-${top}-${left}`;
+    const key = `${node.data.data.id}-${node.data.data.name}-${ancestorIds.toString()}-${descendantIds.toString()}`;
 
     return (
       <Group key={key} left={left} top={top}>
