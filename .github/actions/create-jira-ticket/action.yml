@@ -149,70 +149,66 @@ runs:
         ticket_key=$(echo "$response" | head -c -4 | jq .issues[0].key | xargs)
         if [[ "$ticket_key" != "null" ]]; then
           echo "abort_ticket_creation=true" >> $GITHUB_ENV
+          echo "ticket_key=$ticket_key" >> $GITHUB_ENV
           echo "::notice::ticket found as $ticket_key aborting ticket creation"
-
-
-          if [[ ${{ github.job }} == "create-jira-nightly-ticket" ]]; then element_to_add=${{ github.workflow }}
-          else element_to_add=${{ github.job }}
-          fi
-
-          # Adding failed job labels for already existing ticket
-          response=$(curl \
-            --request PUT \
-            --url "${{ inputs.jira_base_url }}/rest/api/3/issue/$ticket_key" \
-            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-            --header 'Accept: application/json' \
-            --header 'Content-Type: application/json' \
-            --data '{ "update": { "labels": [ { "add": "$element_to_add" } ] } }'
-          )
-
-          ticket_description=$(curl --request GET \
-            --url "${{ inputs.jira_base_url }}/rest/api/3/issue/$ticket_key" \
-            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-            --header "Accept: application/json" | jq '.fields.description')
-
-          item_to_add_to_description=$(jq -n --arg job "$element_to_add" '{
-            "type": "listItem",
-            "content": [
-              {
-                "type": "paragraph",
-                "content": [
-                  {
-                    "type": "text",
-                    "text": $job
-                  }
-                ]
-              }
-            ]
-          }')
-
-          updated_ticket_description=$(echo "$ticket_description" | jq --argjson item "$item_to_add_to_description" '
-            (.content[] | select(.type == "bulletList") | .content) += [$item]')
-
-          echo "[DEBUG] - updated_ticket_description: $updated_ticket_description"
-          curl --request PUT \
-               --url "${{ inputs.jira_base_url }}/rest/api/3/issue/$ticket_key" \
-               --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-               --header "Accept: application/json" \
-               --header "Content-Type: application/json" \
-               --data '{
-                "fields": {
-                  "description": {
-                    "type": "doc",
-                    "version": 1,
-                    "content": '"$updated_ticket_description"'
-                  }
-                }
-              }'
         fi
+      shell: bash
+
+    - name: Update existing Jira ticket
+      if: ${{ env.abort_ticket_creation == 'true' }}
+      run: |
+        # Adding failed job labels for already existing ticket
+
+        ticket_description=$(curl --request GET \
+          --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.ticket_key }}" \
+          --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+          --header "Accept: application/json" | jq '.fields.description')
+
+        mapfile -t jobs_failed < <(gh run view ${{ github.run_id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name')
+        echo "[DEBUG] - jobs failed for component ${FAILED_COMPONENTS[index]}: $jobs_failed"
+
+        new_list_of_failed_jobs=$(for job in "${jobs_failed[@]}"; do
+          cat <<EOF
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "$job"
+                }
+              ]
+            }
+          ]
+        }
+        EOF
+          done | jq -s '.'
+        )
+
+        updated_ticket_description=$(echo "$ticket_description" | jq --argjson new_list_of_failed_jobs "$new_list_of_failed_jobs" '
+          (.content[] | select(.type == "bulletList") | .content) = $new_list_of_failed_jobs
+        ')
+
+        curl --request PUT \
+          --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.ticket_key }}" \
+          --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+          --header "Accept: application/json" \
+          --header "Content-Type: application/json" \
+          --data "{
+            \"fields\": {
+              \"description\": $updated_ticket_description
+            }
+          }"
+
       shell: bash
 
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
         # Get the name of the current job and list it
-        run_id=$(gh run list --workflow "${{ github.workflow }}" --branch "${{ github.ref_name }}" --json databaseId -q '.[0].databaseId')
-        failed_job_name=$(gh run view "$run_id" --json jobs | jq -r --arg job_name "${{ github.job }}" '.jobs[] | select(.name == $job_name) | .name')
+        failed_job_name=$(gh run view ${{ github.run_id }} --json jobs | jq -r --arg job_name "${{ github.job }}" '.jobs[] | select(.name == $job_name) | .name')
 
         CONTENT_TO_ADD_TO_TEMPLATE_FILE=$(jq -n --arg job "$failed_job_name" '{
           "type": "bulletList",
