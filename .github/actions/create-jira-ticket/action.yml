@@ -31,13 +31,13 @@ runs:
     - name: Get ticket elements from context
       id: get_context
       run: |
-        # Safely set/unset IFS in order to parse the table of labels properly
+        # Safely set/unset IFS in order to properly parse the table of labels
         [ -n "${IFS+set}" ] && saved_IFS=$IFS
         IFS=', ' read -a ticket_labels <<< $(echo "${{ inputs.ticket_labels }}" | tr -d "[],'")
         unset IFS
         [ -n "${saved_IFS+set}" ] && { IFS=$saved_IFS; unset saved_IFS; }
 
-        # Change context elements (summary, parent epic, etc.) that is checked depending on the ticket labels in the input
+        # Change the context elements (summary, parent epic, etc.) that are checked depending on these ticket labels
         if [[ "${ticket_labels[@]}" =~ "Veracode" ]]; then
           parent_epic_id=83818
           parent_epic_key="AT-268"
@@ -47,6 +47,7 @@ runs:
           sed -i \
             -e 's|@PULL_REQUEST_NUMBER@|${{ github.event.pull_request.number }}|g' \
             -e 's|@PULL_REQUEST_URL@|${{ github.event.pull_request.html_url }}|g' $JSON_TEMPLATE_FILE
+
         elif [[ "${ticket_labels[@]}" =~ "Nightly" ]]; then
           parent_epic_id=206242
           parent_epic_key="MON-151547"
@@ -56,6 +57,7 @@ runs:
           sed -i \
             -e 's|@MODULE_NAME@|${{ inputs.module_name }}|g' \
             -e "s|@DATE@|$(date '+%Y-%m-%d')|g" $JSON_TEMPLATE_FILE
+
         else
           echo "::error::Cannot find a valid labelling option for the ticket."
           exit 1
