@@ -233,7 +233,7 @@ runs:
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
-          --data '{ "fields": "priority": {"id": "1"} }'
+          --data '{ "fields": { "priority": { "id": "1" } } }'
           )
 
           echo $response
