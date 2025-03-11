@@ -156,12 +156,10 @@ runs:
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
-        # Get the list of failed jobs
+        # Get the name of the current job and list it
         run_id=$(gh run list --workflow "${{ github.workflow }}" --branch "${{ github.ref_name }}" --json databaseId -q '.[0].databaseId')
-        mapfile -t jobs_failed < <(gh run view $run_id --json jobs -q '.jobs[] | select(.conclusion == \"failure\") | .name')
-        echo "[DEBUG] - jobs failed on workflow ${{ github.workflow }}: $jobs_failed"
-        BULLET_LIST_JOBS=$(for job in "${jobs_failed[@]}"; do
-          cat <<EOF
+        failed_job_name=$(gh run view "$GITHUB_RUN_ID" --json jobs -q ".jobs[] | select(.name == \"${{ github.job }}\") | .id")
+        failed_job_payload=$(cat <<EOF
         {
           "type": "listItem",
           "content": [
@@ -170,20 +168,18 @@ runs:
               "content": [
                 {
                   "type": "text",
-                  "text": "$job"
+                  "text": "$failed_job_name"
                 }
               ]
             }
           ]
         }
         EOF
-          done | jq -s '.'
         )
-        echo "[DEBUG] - BULLET_LIST_JOBS: $BULLET_LIST_JOBS"
 
         CONTENT_TO_ADD_TO_TEMPLATE_FILE="{
           \"type\": \"bulletList\",
-          \"content\": $BULLET_LIST_JOBS
+          \"content\": $failed_job_payload
         }"
 
         TEMPLATE_FILE=$(cat ${{ steps.get_context.outputs.json_template_file }})
