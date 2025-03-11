@@ -174,12 +174,16 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * @param ConnectionConfig $connectionConfig
      *
-     * @throws Exception
+     * @throws ConnectionException
      * @return CentreonDB
      */
     public static function connectToCentreonDb(ConnectionConfig $connectionConfig): CentreonDB
     {
-        return new self(dbLabel: self::LABEL_DB_CONFIGURATION, connectionConfig: $connectionConfig);
+        try {
+            return new self(dbLabel: self::LABEL_DB_CONFIGURATION, connectionConfig: $connectionConfig);
+        } catch (Exception $e) {
+            throw ConnectionException::connectionFailed($e);
+        }
     }
 
     /**
@@ -187,12 +191,16 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * @param ConnectionConfig $connectionConfig
      *
-     * @throws Exception
+     * @throws ConnectionException
      * @return CentreonDB
      */
     public static function connectToCentreonStorageDb(ConnectionConfig $connectionConfig): CentreonDB
     {
-        return new self(dbLabel: self::LABEL_DB_REALTIME, connectionConfig: $connectionConfig);
+        try {
+            return new self(dbLabel: self::LABEL_DB_REALTIME, connectionConfig: $connectionConfig);
+        } catch (Exception $e) {
+            throw ConnectionException::connectionFailed($e);
+        }
     }
 
     /**
