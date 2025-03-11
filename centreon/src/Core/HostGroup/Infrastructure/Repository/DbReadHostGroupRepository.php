@@ -38,7 +38,7 @@ use Core\HostCategory\Infrastructure\Repository\HostCategoryRepositoryTrait;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupNamesById;
-use Core\HostGroup\Domain\Model\HostsCountById;
+use Core\HostGroup\Domain\Model\HostGroupRelationCount;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -510,7 +510,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     /**
      * @inheritDoc
      */
-    public function findHostsCountByIds(array $hostGroupIds): HostsCountById
+    public function findHostsCountByIds(array $hostGroupIds): array
     {
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($hostGroupIds, ':hostGroupIds');
 
@@ -535,26 +535,27 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        $hostsCountById = new HostsCountById();
+        $results = [];
         foreach ($statement as $record) {
             /** @var array{count:int, hostgroup_hg_id:int, is_activated:bool} $record */
             $hostGroupId = $record['hostgroup_hg_id'];
             $count = $record['count'];
+            $results[$hostGroupId] ??= new HostGroupRelationCount();
 
             if ($record['is_activated']) {
-                $hostsCountById->setEnabledCount($hostGroupId, $count);
+                $results[$hostGroupId]->setEnabledHostsCount($count);
             } else {
-                $hostsCountById->setDisabledCount($hostGroupId, $count);
+                $results[$hostGroupId]->setDisabledHostsCount($count);
             }
         }
 
-        return $hostsCountById;
+        return $results;
     }
 
     /**
      * @inheritDoc
      */
-    public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): HostsCountById
+    public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): array
     {
         [$bindAclValues, $bindAclQuery] = $this->createMultipleBindQuery($accessGroupIds, ':accessGroupIds');
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($hostGroupIds, ':hostGroupIds');
@@ -587,22 +588,23 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        $hostsCountById = new HostsCountById();
+        $results = [];
         foreach ($statement as $record) {
             /** @var array{count:int, hostgroup_hg_id:int, is_activated:bool} $record */
             $hostGroupId = $record['hostgroup_hg_id'];
             $count = $record['count'];
+            $results[$hostGroupId] ??= new HostGroupRelationCount();
 
             if ($record['is_activated']) {
-                $hostsCountById->setEnabledCount($hostGroupId, $count);
+                $results[$hostGroupId]->setEnabledHostsCount($count);
             } else {
-                $hostsCountById->setDisabledCount($hostGroupId, $count);
+                $results[$hostGroupId]->setDisabledHostsCount($count);
             }
         }
 
-        return $hostsCountById;
+        return $results;
     }
-  
+
     /**
      * @inheritDoc
      */
