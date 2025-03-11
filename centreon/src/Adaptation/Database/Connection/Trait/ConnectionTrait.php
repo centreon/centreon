@@ -169,6 +169,7 @@ trait ConnectionTrait
              *  - the query parameters to insert (queryParametersToInsert)
              */
 
+            /** @var QueryParameters $queryParameters */
             foreach ($batchInsertParameters->getIterator() as $queryParameters) {
                 if ($queryParameters->isEmpty()) {
                     throw ConnectionException::batchInsertQueryBadUsage('Query parameters must not be empty');
@@ -181,6 +182,7 @@ trait ConnectionTrait
 
                 $valuesInsertItem = '';
 
+                /** @var QueryParameter $queryParameter */
                 foreach ($queryParameters->getIterator() as $queryParameter) {
                     if (! empty($valuesInsertItem)) {
                         $valuesInsertItem .= ', ';

@@ -25,6 +25,7 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
@@ -337,6 +338,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $pdoStatement = $this->prepare($query);
 
             if (! is_null($queryParameters) && ! $queryParameters->isEmpty()) {
+                /** @var QueryParameter $queryParameter */
                 foreach ($queryParameters->getIterator() as $queryParameter) {
                     $pdoStatement->bindValue(
                         ":{$queryParameter->getName()}",
@@ -1180,6 +1182,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             $pdoStatement = $this->prepare($query);
 
             if (! is_null($queryParameters) && ! $queryParameters->isEmpty()) {
+                /** @var QueryParameter $queryParameter */
                 foreach ($queryParameters->getIterator() as $queryParameter) {
                     $pdoStatement->bindValue(
                         $queryParameter->getName(),
