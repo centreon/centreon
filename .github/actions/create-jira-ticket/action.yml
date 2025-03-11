@@ -159,33 +159,30 @@ runs:
         # Get the name of the current job and list it
         run_id=$(gh run list --workflow "${{ github.workflow }}" --branch "${{ github.ref_name }}" --json databaseId -q '.[0].databaseId')
         failed_job_name=$(gh run view "$GITHUB_RUN_ID" --json jobs -q ".jobs[] | select(.name == \"${{ github.job }}\") | .id")
-        failed_job_payload=$(cat <<EOF
-        {
-          "type": "listItem",
-          "content": [
-            {
-              "type": "paragraph",
-              "content": [
-                {
-                  "type": "text",
-                  "text": "$failed_job_name"
-                }
-              ]
-            }
-          ]
-        }
-        EOF
-        )
 
         CONTENT_TO_ADD_TO_TEMPLATE_FILE="{
           \"type\": \"bulletList\",
-          \"content\": $failed_job_payload
+          \"content\": {
+            \"type\": \"listItem\",
+            \"content\": [
+              {
+                \"type\": \"paragraph\",
+                \"content\": [
+                  {
+                    \"type\": \"text\",
+                    \"text\": \"$failed_job_name\"
+                  }
+                ]
+              }
+            ]
+          }
         }"
+
+        echo "[DEBUG] - CONTENT_TO_ADD_TO_TEMPLATE_FILE: $CONTENT_TO_ADD_TO_TEMPLATE_FILE"
 
         TEMPLATE_FILE=$(cat ${{ steps.get_context.outputs.json_template_file }})
         UPDATED_TEMPLATE_FILE=$(jq --argjson NEW_CONTENT "$CONTENT_TO_ADD_TO_TEMPLATE_FILE" '.content += [$NEW_CONTENT]' <<< "$TEMPLATE_FILE")
 
-        echo "[DEBUG] - BULLET_LIST_JOBS: $BULLET_LIST_JOBS"
 
         # Creating a new incident ticket on Jira
         DATA=$( cat <<-EOF
