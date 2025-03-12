@@ -53,7 +53,8 @@ final readonly class ExceptionHandler
      */
     public function log(\Throwable $exception, array $context = [], string $level = LogLevel::ERROR): void
     {
-        $this->logger->log($level, $exception->getMessage(), $this->getContext($context, $exception));
+        $this->prepareContext($context, $exception);
+        $this->logger->log($level, $exception->getMessage(), $context);
     }
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
@@ -61,34 +62,22 @@ final readonly class ExceptionHandler
     /**
      * @param array<string,mixed> $context
      * @param \Throwable $exception
-     *
-     * @return array<string,mixed>
      */
-    private function getContext(array $context, \Throwable $exception): array
+    private function prepareContext(array &$context, \Throwable $exception): void
     {
-        $defaultContext = [
-            'request_infos' => [
-                'url' => $_SERVER['REQUEST'] ?? null,
-                'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
-                'server' => $_SERVER['SERVER_NAME'] ?? null,
-                'referrer' => $_SERVER['HTTP_REFERER'] ?? null,
-            ],
-        ];
-
         if ($exception instanceof BusinessLogicException) {
             $exceptionContext = $exception->getExceptionContext();
-            $customContext = array_merge($context, ['from_exception' => $exception->getBusinessContext()]);
+            $context['custom'] = array_merge(
+                $context['custom'],
+                ['from_exception' => $exception->getBusinessContext()]
+            );
         } else {
             $exceptionContext = $this->getExceptionContext($exception);
-            $customContext = $context;
         }
 
         $exceptionContext['trace'] = $this->getSerializedExceptionTraces($exception);
 
-        return [
-            'context' => ['default' => $defaultContext, 'custom' => $customContext],
-            'exception' => $exceptionContext,
-        ];
+        $context['exception'] = $exceptionContext;
     }
 
     /**
