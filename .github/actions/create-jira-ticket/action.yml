@@ -158,6 +158,21 @@ runs:
       if: ${{ env.abort_ticket_creation == 'true' }}
       run: |
         # Adding failed job labels for already existing ticket
+        [ -n "${IFS+set}" ] && saved_IFS=$IFS
+        IFS=', ' read -a ticket_labels <<< $(echo "${{ inputs.ticket_labels }}" | tr -d "[],'")
+        unset IFS
+        [ -n "${saved_IFS+set}" ] && { IFS=$saved_IFS; unset saved_IFS; }
+
+        for label in ${ticket_labels[@]}; do
+          response=$(curl \
+            --request PUT \
+            --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.ticket_key }}" \
+            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{ "update": { "labels": [ { "add": "$label" } ] } }'
+            )
+        done
 
         ticket_description=$(curl --request GET \
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.ticket_key }}" \
