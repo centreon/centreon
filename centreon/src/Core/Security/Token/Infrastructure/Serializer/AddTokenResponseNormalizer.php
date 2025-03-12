@@ -60,19 +60,3 @@ class AddTokenResponseNormalizer implements NormalizerInterface, NormalizerAware
         return $data instanceof AddTokenResponse;
     }
 }
-
-        // if (array_key_exists('user_id', $response) && array_key_exists('user_name', $response)) {
-        //     $response['user'] = [
-        //         'id' => $response['user_id'],
-        //         'name' => $response['user_name']
-        //     ];
-        //     unset($response['user_id'], $response['user_name']);
-        // }
-        // if (array_key_exists('creator_id', $response) && array_key_exists('creator_name', $response)) {
-        //     $response['creator'] = [
-        //         'id' => $response['creator_id'],
-        //         'name' => $response['creator_name']
-        //     ];
-        //     unset($response['creator_id'], $response['creator_name']);
-        // }
-        // $response['type'] = $this->enumToTypeConverter($object->getData()->apiToken->getType());
