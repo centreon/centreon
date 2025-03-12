@@ -76,11 +76,6 @@ final class FindTokens
         }
     }
 
-    private function canDisplayTokens(): bool
-    {
-        return $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW);
-    }
-
     private function canDisplayAllTokens(): bool
     {
         return $this->user->isAdmin() || $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS);

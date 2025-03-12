@@ -44,7 +44,8 @@ use Core\Security\Token\Domain\Model\TokenTypeEnum;
  *      creator_id: int|null,
  *      creator_name: string,
  *      provider_token_creation_date: int,
- *      provider_token_expiration_date: int,
+ *      provider_token_expiration_date: ?int,
+ *      token_type: string,
  *      is_revoked: int
  *  }
  */

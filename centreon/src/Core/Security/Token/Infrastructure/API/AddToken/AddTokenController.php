@@ -74,7 +74,7 @@ final class AddTokenController extends AbstractController
             $presenter->present(
                 $response,
                 [
-                    'groups' => ['Token:Add'],
+                    'groups' => ['Token:List'],
                 ]
             ),
             Response::HTTP_CREATED

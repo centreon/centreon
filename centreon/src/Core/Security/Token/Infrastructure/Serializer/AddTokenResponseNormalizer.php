@@ -35,6 +35,7 @@ class AddTokenResponseNormalizer implements NormalizerInterface
     public function __construct(private readonly ObjectNormalizer $normalizer)
     {
     }
+
     /**
      * @param AddTokenResponse $object
      * @param string|null $format
@@ -49,22 +50,9 @@ class AddTokenResponseNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): array {
-        $response = $this->normalizer->normalize($object->getData()->apiToken);
-        if (array_key_exists('user_id', $response) && array_key_exists('user_name', $response)) {
-            $response['user'] = [
-                'id' => $response['user_id'],
-                'name' => $response['user_name']
-            ];
-            unset($response['user_id'], $response['user_name']);
-        }
-        if (array_key_exists('creator_id', $response) && array_key_exists('creator_name', $response)) {
-            $response['creator'] = [
-                'id' => $response['creator_id'],
-                'name' => $response['creator_name']
-            ];
-            unset($response['creator_id'], $response['creator_name']);
-        }
-        $response['type'] = $object->getData()->apiToken->getType() === TokenTypeEnum::CMA ? 'cma' : 'api';
+        dd($this->normalizer);
+        $response = $this->normalizer->normalize($object->getData()->apiToken, $format, $context);
+
         $response['token'] = $object->getData()->token;
 
         return $response;
@@ -77,20 +65,20 @@ class AddTokenResponseNormalizer implements NormalizerInterface
     {
         return $data instanceof AddTokenResponse;
     }
-
-    /**
-     * Convert ResponseCodeEnum to HTTP Status Code.
-     *
-     * @param ResponseCodeEnum $code
-     *
-     * @return int
-     */
-    private function enumToHttpStatusCodeConverter(ResponseCodeEnum $code): int
-    {
-        return match ($code) {
-            ResponseCodeEnum::OK => Response::HTTP_NO_CONTENT,
-            ResponseCodeEnum::NotFound => Response::HTTP_NOT_FOUND,
-            ResponseCodeEnum::Error => Response::HTTP_INTERNAL_SERVER_ERROR
-        };
-    }
 }
+
+        // if (array_key_exists('user_id', $response) && array_key_exists('user_name', $response)) {
+        //     $response['user'] = [
+        //         'id' => $response['user_id'],
+        //         'name' => $response['user_name']
+        //     ];
+        //     unset($response['user_id'], $response['user_name']);
+        // }
+        // if (array_key_exists('creator_id', $response) && array_key_exists('creator_name', $response)) {
+        //     $response['creator'] = [
+        //         'id' => $response['creator_id'],
+        //         'name' => $response['creator_name']
+        //     ];
+        //     unset($response['creator_id'], $response['creator_name']);
+        // }
+        // $response['type'] = $this->enumToTypeConverter($object->getData()->apiToken->getType());

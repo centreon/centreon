@@ -31,6 +31,13 @@ final readonly class AddTokenInput
 {
     public const API_TYPE = 'api';
     public const CMA_TYPE = 'cma';
+
+    /**
+     * @param string $name
+     * @param ?string $expirationDate
+     * @param string $type
+     * @param int $userId
+     */
     public function __construct(
         #[Assert\NotNull()]
         #[Assert\Type('string')]

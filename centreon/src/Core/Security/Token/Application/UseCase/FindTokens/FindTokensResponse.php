@@ -23,19 +23,20 @@ declare(strict_types = 1);
 
 namespace Core\Security\Token\Application\UseCase\FindTokens;
 
+use Core\Security\Token\Domain\Model\Token;
 use Core\Application\Common\UseCase\ListingResponseInterface;
 
 final class FindTokensResponse implements ListingResponseInterface
 {
     /**
-     * @param Token[] $tokens
+     * @param list<Token> $tokens
      */
     public function __construct(public array $tokens)
     {
     }
 
     /**
-     * @return Token[]
+     * @return list<Token>
      */
     public function getData(): array
     {

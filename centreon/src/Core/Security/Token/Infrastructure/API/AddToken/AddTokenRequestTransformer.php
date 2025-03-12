@@ -30,13 +30,19 @@ final class AddTokenRequestTransformer
 {
     public static function transform(AddTokenInput $input): AddTokenRequest
     {
+        $expirationDate = $input->expirationDate !== null
+                ? \DateTime::createFromFormat(\DateTimeInterface::ATOM, $input->expirationDate)
+                : null;
+
+        if ($expirationDate === false) {
+            throw new \InvalidArgumentException('Invalid date format');
+        }
+
         return new AddTokenRequest(
             $input->name,
             $input->type === 'cma' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
             $input->userId,
-            $input->expirationDate !== null
-                ? \DateTime::createFromFormat(\DateTimeInterface::ATOM, $input->expirationDate)
-                : null
+            $expirationDate
         );
     }
 }

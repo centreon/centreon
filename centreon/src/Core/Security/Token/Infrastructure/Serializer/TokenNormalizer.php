@@ -49,7 +49,9 @@ class TokenNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): array {
-        $response = $this->normalizer->normalize($object);
+        /** @var array<string, mixed> $response */
+        $response = $this->normalizer->normalize($object, $format, $context);
+
         if (array_key_exists('user_id', $response) && array_key_exists('user_name', $response)) {
             $response['user'] = [
                 'id' => $response['user_id'],
@@ -64,7 +66,7 @@ class TokenNormalizer implements NormalizerInterface
             ];
             unset($response['creator_id'], $response['creator_name']);
         }
-        $response['type'] = $object->getType() === TokenTypeEnum::CMA ? 'cma' : 'api';
+        $response['type'] = $this->enumToTypeConverter($object->getType());
 
         return $response;
     }
@@ -74,22 +76,22 @@ class TokenNormalizer implements NormalizerInterface
      */
     public function supportsNormalization(mixed $data, ?string $format = null): bool
     {
+        // dump($data);
         return $data instanceof Token;
     }
 
     /**
-     * Convert ResponseCodeEnum to HTTP Status Code.
+     * Convert TokenTypeEnum to string value.
      *
-     * @param ResponseCodeEnum $code
+     * @param TokenTypeEnum $code
      *
-     * @return int
+     * @return string
      */
-    private function enumToHttpStatusCodeConverter(ResponseCodeEnum $code): int
+    private function enumToTypeConverter(TokenTypeEnum $code): string
     {
         return match ($code) {
-            ResponseCodeEnum::OK => Response::HTTP_NO_CONTENT,
-            ResponseCodeEnum::NotFound => Response::HTTP_NOT_FOUND,
-            ResponseCodeEnum::Error => Response::HTTP_INTERNAL_SERVER_ERROR
+            TokenTypeEnum::CMA => 'cma',
+            TokenTypeEnum::API => 'api',
         };
     }
 }

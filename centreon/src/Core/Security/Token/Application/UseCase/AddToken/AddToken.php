@@ -54,7 +54,6 @@ final class AddToken
 
     /**
      * @param AddTokenRequest $request
-     * @param AddTokenPresenterInterface $presenter
      */
     public function __invoke(AddTokenRequest $request): ResponseStatusInterface|StandardResponseInterface {
         try {
