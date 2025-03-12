@@ -25,14 +25,16 @@ namespace Core\Security\Token\Infrastructure\Serializer;
 
 use Core\Security\Token\Domain\Model\Token;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class TokenNormalizer implements NormalizerInterface
+class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
-    public function __construct(private readonly ObjectNormalizer $normalizer)
-    {
-    }
+    use NormalizerAwareTrait;
+
+    private const ALREADY_CALLED = 'USER_NORMALIZER_ALREADY_CALLED';
 
     /**
      * @param Token $object
@@ -48,6 +50,7 @@ class TokenNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): array {
+        $context[self::ALREADY_CALLED] = true;
         /** @var array<string, mixed> $response */
         $response = $this->normalizer->normalize($object, $format, $context);
 
@@ -73,8 +76,12 @@ class TokenNormalizer implements NormalizerInterface
     /**
      * @inheritDoc
      */
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
+        if (isset($context[self::ALREADY_CALLED])) {
+            return false;
+        }
+
         return $data instanceof Token;
     }
 
