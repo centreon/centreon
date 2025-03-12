@@ -39,3 +39,12 @@ export const labelAdd = 'Add';
 export const labelMsgConfirmationDeletionToken =
   'You are about to delete the token <strong>{{tokenName}}</strong>. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
 export const labelFilters = 'Filters';
+
+export const labelDisabled = 'Disabled';
+export const labelEnabled = 'Enabled';
+
+export const labelUsers = 'Users';
+export const labelCreators = 'Creators';
+export const labelTypes = 'Types';
+export const labelSelectAtLeastOneColumn =
+  'At least one column must be selected';

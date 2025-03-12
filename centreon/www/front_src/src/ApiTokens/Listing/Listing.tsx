@@ -1,54 +1,52 @@
-import { useSetAtom } from 'jotai';
-
-import { MemoizedListing as Listing } from '@centreon/ui';
-
+import { MemoizedListing } from '@centreon/ui';
 import Actions from './Actions';
 import { useColumns } from './Columns/Columns';
-import { selectedRowAtom } from './atoms';
-import { useTokenListing } from './useListing';
+import useListing from './useListing';
+import useLoadData from './useLoadData';
 
-const TokenListing = (): JSX.Element => {
-  const setSelectRow = useSetAtom(selectedRowAtom);
+const Listing = (): JSX.Element => {
+  const { columns } = useColumns();
+
+  const { isLoading, data } = useLoadData();
 
   const {
-    dataListing,
     changePage,
-    changeLimit,
-    onSort,
-    sortedField,
-    sortOrder
-  } = useTokenListing();
-
-  const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
-    useColumns();
-
-  const selectRow = (row): void => {
-    setSelectRow(row);
-  };
+    page,
+    changeSort,
+    resetColumns,
+    setLimit,
+    selectColumns,
+    sortf,
+    sorto,
+    selectedColumnIds,
+    disableRowCondition
+  } = useListing();
 
   return (
-    <Listing
-      innerScrollDisabled
+    <MemoizedListing
+      checkable
       actions={<Actions />}
-      actionsBarMemoProps={[dataListing?.isLoading]}
-      columnConfiguration={{ selectedColumnIds, sortable: true }}
+      columnConfiguration={{
+        selectedColumnIds,
+        sortable: true
+      }}
+      disableRowCondition={disableRowCondition}
       columns={columns}
-      currentPage={(dataListing?.page || 1) - 1}
-      getId={({ name, user }) => `${name}-${user.id}`}
-      limit={dataListing?.limit}
-      loading={dataListing?.isLoading}
-      memoProps={[]}
-      rows={dataListing?.rows}
-      sortField={sortedField}
-      sortOrder={sortOrder}
-      totalRows={dataListing?.total}
-      onLimitChange={changeLimit}
+      currentPage={(page || 1) - 1}
+      limit={data?.meta.limit}
+      loading={isLoading}
+      memoProps={[columns, columns, page, sorto, sortf]}
+      rows={data?.result}
+      sortField={sortf}
+      sortOrder={sorto}
+      totalRows={data?.meta.total}
+      onLimitChange={setLimit}
       onPaginate={changePage}
-      onResetColumns={onResetColumns}
-      onRowClick={selectRow}
-      onSelectColumns={onSelectColumns}
-      onSort={onSort}
+      onResetColumns={resetColumns}
+      onSelectColumns={selectColumns}
+      onSort={changeSort}
     />
   );
 };
-export default TokenListing;
+
+export default Listing;

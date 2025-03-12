@@ -8,7 +8,7 @@ import { Typography } from '@mui/material';
 
 import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 
-import HelperText from '../../Listing/Actions/Filter/DateInput/HelperText';
+import HelperText from '../../Filters/DateInput/HelperText';
 import { CreateTokenFormValues } from '../../Listing/models';
 import { labelInvalidDateCreationToken } from '../../translatedLabels';
 import { isInvalidDate } from '../utils';

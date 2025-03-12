@@ -1,98 +1,80 @@
-import { useEffect, useState } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
-import { useAtom } from 'jotai';
+import { useSnackbar } from '@centreon/ui';
+import { labelSelectAtLeastOneColumn } from '../translatedLabels';
+import { defaultSelectedColumnIds } from './Columns/Columns';
+import {
+  limitAtom,
+  pageAtom,
+  selectedColumnIdsAtom,
+  sortFieldAtom,
+  sortOrderAtom
+} from './atoms';
 
-import { useFetchQuery } from '@centreon/ui';
-
-import { listTokensDecoder } from '../api/decoder';
-import { buildListEndpoint, listTokensEndpoint } from '../api/endpoints';
-
-import { currentFilterAtom } from './Actions/Filter/atoms';
-import { Fields, SortOrder } from './Actions/Filter/models';
-import { DataListing, SortParams } from './models';
-
-export interface UseTokenListing {
-  changeLimit: (value: number) => void;
-  changePage: (value: number) => void;
-  dataListing: DataListing;
-  isRefetching: boolean;
-  onSort: (sortParams: SortParams) => void;
-  sortOrder: SortOrder;
-  sortedField: Fields;
+interface UseListing {
+  changePage: (updatedPage: number) => void;
+  changeSort: ({ sortOrder, sortField }) => void;
+  page?: number;
+  resetColumns: () => void;
+  selectColumns: (updatedColumnIds: Array<string>) => void;
+  selectedColumnIds: Array<string>;
+  setLimit;
+  sortf: string;
+  sorto: 'asc' | 'desc';
+  disableRowCondition: (row) => boolean;
 }
 
-export const useTokenListing = (): UseTokenListing => {
-  const [dataListing, setDataListing] = useState<DataListing | undefined>();
-  const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
+const useListing = (): UseListing => {
+  const { t } = useTranslation();
+  const { showWarningMessage } = useSnackbar();
 
-  const getEndpoint = (): string => {
-    return buildListEndpoint({
-      endpoint: listTokensEndpoint,
-      parameters: currentFilter
-    });
+  const [selectedColumnIds, setSelectedColumnIds] = useAtom(
+    selectedColumnIdsAtom
+  );
+
+  const [sorto, setSorto] = useAtom(sortOrderAtom);
+  const [sortf, setSortf] = useAtom(sortFieldAtom);
+  const [page, setPage] = useAtom(pageAtom);
+  const setLimit = useSetAtom(limitAtom);
+
+  const resetColumns = (): void => {
+    setSelectedColumnIds(defaultSelectedColumnIds);
   };
 
-  const { data, isLoading, isError, isRefetching } = useFetchQuery({
-    decoder: listTokensDecoder,
-    getEndpoint,
-    getQueryKey: () => ['listTokens', currentFilter],
-    queryOptions: {
-      suspense: false
-    }
-  });
-
-  const changeLimit = (value: number): void => {
-    setCurrentFilter((prev) => ({ ...prev, limit: Number(value) }));
+  const changeSort = ({ sortOrder, sortField }): void => {
+    setSortf(sortField);
+    setSorto(sortOrder);
   };
 
-  const changePage = (value: number): void => {
-    setCurrentFilter((prev) => ({ ...prev, page: value + 1 }));
+  const changePage = (updatedPage): void => {
+    setPage(updatedPage + 1);
   };
 
-  const onSort = (sortParams: SortParams): void => {
-    const { sortField, sortOrder } = sortParams;
-
-    setCurrentFilter({
-      ...currentFilter,
-      sort: { [sortField]: sortOrder as SortOrder }
-    });
-  };
-
-  useEffect(() => {
-    if (!data) {
-      setDataListing({ ...dataListing, isError, isLoading });
+  const selectColumns = (updatedColumnIds: Array<string>): void => {
+    if (updatedColumnIds.length < 3) {
+      showWarningMessage(t(labelSelectAtLeastOneColumn));
 
       return;
     }
-    const {
-      meta: { page, limit, total },
-      result
-    } = data;
 
-    setDataListing({
-      ...dataListing,
-      isError,
-      isLoading,
-      limit,
-      page,
-      rows: result,
-      total
-    });
-  }, [data]);
+    setSelectedColumnIds(updatedColumnIds);
+  };
+
+  const disableRowCondition = ({ isRevoked }): boolean => isRevoked;
 
   return {
-    changeLimit,
     changePage,
-    dataListing: !dataListing?.rows
-      ? (dataListing as DataListing)
-      : ({
-          ...dataListing,
-          limit: currentFilter?.limit,
-          page: currentFilter?.page
-        } as DataListing),
-    isRefetching,
-    onSort,
-    sortOrder: Object.values(currentFilter?.sort)[0] as SortOrder,
-    sortedField: Object.keys(currentFilter?.sort)[0] as Fields
+    changeSort,
+    page,
+    resetColumns,
+    selectColumns,
+    selectedColumnIds,
+    setLimit,
+    sortf,
+    sorto,
+    disableRowCondition
   };
 };
+
+export default useListing;

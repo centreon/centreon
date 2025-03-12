@@ -3,28 +3,31 @@ import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import {
-  labelCreationDate,
-  labelExpirationDate
-} from '../../../../translatedLabels';
-import { creationDateAtom, expirationDateAtom } from '../atoms';
-import { Property } from '../models';
+import { labelCreationDate, labelExpirationDate } from '../../translatedLabels';
 
+import { filtersAtom } from '../../atoms';
+import { Property } from '../models';
 import DateFilter from './DateFilter';
 
 const DateInputWrapper = (): JSX.Element => {
   const { t } = useTranslation();
-  const [creationDate, setCreationDate] = useAtom(creationDateAtom);
-  const [expirationDate, setExpirationDate] = useAtom(expirationDateAtom);
+
+  const [filters, setFilters] = useAtom(filtersAtom);
+
+  const setCreationDate = (creationDate): void =>
+    setFilters({ ...filters, creationDate });
+
+  const setExpirationDate = (expirationDate): void =>
+    setFilters({ ...filters, expirationDate });
 
   const dataCreationDate = useMemo(
-    () => ({ date: creationDate, setDate: setCreationDate }),
-    [creationDate]
+    () => ({ date: filters.creationDate, setDate: setCreationDate }),
+    [filters.creationDate]
   );
 
   const dataExpirationDate = useMemo(
-    () => ({ date: expirationDate, setDate: setExpirationDate }),
-    [expirationDate]
+    () => ({ date: filters.expirationDate, setDate: setExpirationDate }),
+    [filters.expirationDate]
   );
 
   return (

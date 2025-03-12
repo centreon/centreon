@@ -1,8 +1,8 @@
+import { useActionsStyles } from './Actions.styles';
 import Refresh from './Refresh';
-import { useActionsStyles } from './actions.styles';
 
+import Filters from '../../Filters';
 import Add from './Add/Add';
-import Search from './Search';
 
 const Actions = (): JSX.Element => {
   const { classes } = useActionsStyles();
@@ -14,7 +14,7 @@ const Actions = (): JSX.Element => {
         <Refresh />
       </div>
       <div className={classes.searchBar}>
-        <Search />
+        <Filters />
       </div>
     </div>
   );

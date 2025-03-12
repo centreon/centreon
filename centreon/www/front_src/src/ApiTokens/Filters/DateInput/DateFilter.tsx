@@ -9,11 +9,12 @@ import {
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 
-import { dataDuration } from '../../../../Modal/models';
-import { useStyles } from '../Filters.styles';
 import { Property } from '../models';
 
+import { dataDuration } from '../../Modal/models';
 import DateInput from './DateInput';
+
+import { useStyles } from '../Filters.styles';
 
 interface Props {
   dataDate;

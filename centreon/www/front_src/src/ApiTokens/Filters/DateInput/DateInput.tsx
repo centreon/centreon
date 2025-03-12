@@ -6,8 +6,8 @@ import { Typography } from '@mui/material';
 
 import { DateTimePickerInput } from '@centreon/ui';
 
-import { useStyles } from '../../../../Modal/InputCalendar/inputCalendar.styles';
-import { labelUntil } from '../../../../translatedLabels';
+import { useStyles } from '../../Modal/InputCalendar/inputCalendar.styles';
+import { labelUntil } from '../../translatedLabels';
 
 import HelperText from './HelperText';
 
