@@ -33,7 +33,6 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
-
     private const ALREADY_CALLED = 'USER_NORMALIZER_ALREADY_CALLED';
 
     /**
