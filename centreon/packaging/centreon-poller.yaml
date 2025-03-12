@@ -118,7 +118,6 @@ overrides:
       - centreon-poller-centreon-engine
     conflicts:
       - centreon-poller-nagios
-      - centreon-broker-cbmod
   deb:
     depends:
       - "centreon-common (>= ${MAJOR_VERSION}~)"
@@ -155,7 +154,6 @@ overrides:
       - centreon-poller-centreon-engine
     conflicts:
       - centreon-poller-centreon-engine
-      - centreon-broker-cbmod
 
 rpm:
   summary: Rights and file for pollers (including central)
