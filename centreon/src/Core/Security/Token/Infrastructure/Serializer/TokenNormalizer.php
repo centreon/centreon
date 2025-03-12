@@ -28,7 +28,6 @@ use Core\Security\Token\Domain\Model\TokenTypeEnum;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
