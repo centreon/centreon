@@ -62,7 +62,8 @@ export const useComputeBaseChartDimensions = ({
       ? (height || 0) -
         margin.top -
         legendBoundingHeight -
-        (titleRef.current?.getBoundingClientRect().height || 0)
+        (titleRef.current?.getBoundingClientRect().height || 0) -
+        5
       : 0;
 
   return {
