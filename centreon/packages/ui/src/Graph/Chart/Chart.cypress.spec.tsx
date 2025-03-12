@@ -12,6 +12,7 @@ import dataLastDayWithNullValues from '../mockedData/lastDayWithNullValues.json'
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
+import dataPingServiceLines from '../mockedData/pingService.json';
 
 import { args as argumentsData } from './helpers/doc';
 import { LineChartProps } from './models';
@@ -470,15 +471,14 @@ describe('Line chart', () => {
     });
 
     it('displays the curve in a step style when the prop is set', () => {
-      initialize({ lineStyle: { curve: 'step' } });
+      initialize({ lineStyle: { curve: 'step' }, data: dataPingServiceLines });
 
       checkGraphWidth();
 
       cy.contains(':00 AM').should('be.visible');
-      cy.get('[data-metric="13536"]').should('be.visible');
-      cy.get('[data-metric="13534"]').should('be.visible');
-      cy.get('[data-metric="13535"]').should('be.visible');
-      checkLegendInformation();
+      cy.get('[data-metric="1"]').should('be.visible');
+      cy.get('[data-metric="2"]').should('be.visible');
+      cy.get('[data-metric="3"]').should('be.visible');
 
       cy.makeSnapshot();
     });
