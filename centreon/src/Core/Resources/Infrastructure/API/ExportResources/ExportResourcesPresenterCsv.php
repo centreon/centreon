@@ -119,7 +119,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
                 _('Tries') => $resource->getTries() ?? '',
                 _('Severity') => $resource->getSeverity()?->getLevel() ?? '',
                 _('Notes') => $this->getResourceNotes($resource),
-                _('Action') => $this->formatUrl($resource->getLinks()->getExternals()->getActionUrl() ?? ''),
+                _('Action') => $this->formatUrl($resource->getLinks()->getExternals()->getActionUrl() ?? '', $resource),
                 _('State') => _($this->getResourceState($resource)),
                 _('Alias') => $resource->getAlias() ?? '',
                 _('Parent alias') => $resource->getParent()?->getAlias() ?? '',
@@ -211,7 +211,7 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
 
         if (! is_null($resource->getLinks()->getExternals()->getNotes())) {
             $notes = $resource->getLinks()->getExternals()->getNotes()->getUrl() ?? null;
-            $notes = $notes ? $this->formatUrl($notes) : null;
+            $notes = $notes ? $this->formatUrl($notes, $resource) : null;
             $notes = $notes ?: $resource->getLinks()->getExternals()->getNotes()->getLabel() ?? '';
         }
 
@@ -274,25 +274,30 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
 
     /**
      * @param string $url
+     * @param ResourceEntity $resource
      *
      * @return string
      */
-    private function formatUrl(string $url): string
+    private function formatUrl(string $url, ResourceEntity $resource): string
     {
-        if ($url === '') {
+        if (empty($url)) {
             return '';
         }
-        // FIXME replace by the good base url
-        $baseUrl = 'https://www.centreon.com';
-        if (! str_starts_with($baseUrl, $url)) {
-            if (! str_starts_with($url, '/')) {
-                $url = '/' . $url;
-            }
 
-            return $baseUrl . $url;
-        }
+        $isServiceTypedResource = $resource->getType() === 'service';
 
-        return $url;
+        $macrosConcordanceArray = [
+            '$HOSTADDRESS$' => $isServiceTypedResource ? $resource->getParent()?->getFqdn() : $resource->getFqdn(),
+            '$HOSTNAME$' => $isServiceTypedResource ? $resource->getParent()?->getName() : $resource->getName(),
+            '$HOSTSTATE$' => $isServiceTypedResource ? $resource->getParent()?->getStatus()?->getName() : $resource->getStatus()?->getName(),
+            '$HOSTSTATEID$' => $isServiceTypedResource ? (string) $resource->getParent()?->getStatus()?->getCode() : (string) $resource->getStatus()?->getCode(),
+            '$HOSTALIAS$' => $isServiceTypedResource ? $resource->getParent()?->getAlias() : $resource->getAlias(),
+            '$SERVICEDESC$' => $isServiceTypedResource ? $resource->getName() : '',
+            '$SERVICESTATE$' => $isServiceTypedResource ? $resource->getStatus()?->getName() : '',
+            '$SERVICESTATEID$' => $isServiceTypedResource ? (string) $resource->getStatus()?->getCode() : '',
+        ];
+
+        return str_replace(array_keys($macrosConcordanceArray), array_values($macrosConcordanceArray), $url);
     }
 
 }
