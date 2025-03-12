@@ -59,7 +59,7 @@ final class ExportResourcesController extends AbstractController
      * @param ExportResources $useCase
      * @param ExportResourcesPresenterCsv $presenter
      * @param Request $request
-     * @param ExportRessourcesInput $input
+     * @param ExportResourcesInput $input
      *
      * @return Response
      */
@@ -67,7 +67,7 @@ final class ExportResourcesController extends AbstractController
         ExportResources $useCase,
         ExportResourcesPresenterCsv $presenter,
         Request $request,
-        #[MapRequestPayload] ExportRessourcesInput $input
+        #[MapRequestPayload] ExportResourcesInput $input
 
     ): Response {
         $useCaseRequest = $this->createExportRequest($request, $input);
@@ -89,17 +89,17 @@ final class ExportResourcesController extends AbstractController
 
     /**
      * @param Request $request
-     * @param ExportRessourcesInput $input
+     * @param ExportResourcesInput $input
      *
      * @return ExportResourcesRequest
      */
-    private function createExportRequest(Request $request, ExportRessourcesInput $input): ExportResourcesRequest
+    private function createExportRequest(Request $request, ExportResourcesInput $input): ExportResourcesRequest
     {
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all(), true);
 
         $resourceFilter = $this->createResourceFilter($filter);
 
-        return ExportRessourcesRequestTransformer::transform(
+        return ExportResourcesRequestTransformer::transform(
             input: $input,
             resourceFilter: $resourceFilter,
             contact: $this->contact,

@@ -28,13 +28,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Class
  *
- * @class ExportRessourcesInput
+ * @class ExportResourcesInput
  * @package Core\Resources\Infrastructure\API\ExportResources
  */
-class ExportRessourcesInput {
+class ExportResourcesInput {
 
     /**
-     * ExportRessourcesInput constructor
+     * ExportResourcesInput constructor
      *
      * @param mixed $format
      * @param mixed $all_pages

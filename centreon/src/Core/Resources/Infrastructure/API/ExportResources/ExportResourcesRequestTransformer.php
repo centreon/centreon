@@ -30,20 +30,20 @@ use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
 /**
  * Class
  *
- * @class ExportRessourcesRequestTransformer
+ * @class ExportResourcesRequestTransformer
  * @package Core\Resources\Infrastructure\API\ExportResources
  */
-class ExportRessourcesRequestTransformer {
+class ExportResourcesRequestTransformer {
 
     /**
-     * @param ExportRessourcesInput $input
+     * @param ExportResourcesInput $input
      * @param ResourceFilter $resourceFilter
      * @param ContactInterface $contact
      *
      * @return ExportResourcesRequest
      */
     public static function transform(
-        ExportRessourcesInput $input,
+        ExportResourcesInput $input,
         ResourceFilter $resourceFilter,
         ContactInterface $contact
     ): ExportResourcesRequest {
