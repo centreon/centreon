@@ -265,7 +265,7 @@ $updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage)
     );
     $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
 
-    if ($topologyAlreadyExists) {
+    if (! $topologyAlreadyExists) {
         $errorMessage = 'Unable to insert new host group configuration topology';
         $pearDB->executeQuery(
             <<<'SQL'
