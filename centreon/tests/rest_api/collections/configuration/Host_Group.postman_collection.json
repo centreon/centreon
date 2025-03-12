@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "aba12390-e47b-43e0-9246-55368056227e",
-		"name": "aaaaa",
+		"name": "Host_Group",
 		"description": "This collection has fixes for these tickets :\n\n- [MON-34388](https://centreon.atlassian.net/browse/MON-34388) (Add search with host category)\n    \n- [MON-38229](https://centreon.atlassian.net/browse/MON-38229) (Fix request with\"or\")\n    \n- [MON-38233](https://centreon.atlassian.net/browse/MON-38233) (Fix request resulting in code 500)\n    \n- [MON-20165](https://centreon.atlassian.net/browse/MON-20165) (Add location header)\n    \n- [MON-20598](https://centreon.atlassian.net/browse/MON-20598) (Listing incorrect for non-admin users)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "29556865",
