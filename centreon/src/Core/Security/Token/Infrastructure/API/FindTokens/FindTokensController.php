@@ -35,7 +35,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted(
     TokenVoters::TOKEN_LIST,
     null,
-    'You are not allowed to list tokens',
+    'You are not allowed to list the tokens',
     Response::HTTP_FORBIDDEN
 )]
 final class FindTokensController extends AbstractController

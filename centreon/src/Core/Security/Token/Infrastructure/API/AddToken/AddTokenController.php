@@ -38,7 +38,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted(
     TokenVoters::TOKEN_ADD,
     null,
-    'You are not allowed to create token',
+    'You are not allowed to add tokens',
     Response::HTTP_FORBIDDEN
 )]
 final class AddTokenController extends AbstractController
