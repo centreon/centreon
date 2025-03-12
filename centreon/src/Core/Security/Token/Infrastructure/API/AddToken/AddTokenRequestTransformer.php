@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,23 +21,22 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Token\Application\UseCase\AddToken;
+namespace Core\Security\Token\Infrastructure\API\AddToken;
 
+use Core\Security\Token\Application\UseCase\AddToken\AddTokenRequest;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
-final class AddTokenRequest
+final class AddTokenRequestTransformer
 {
-    /**
-     * @param string $name
-     * @param TokenTypeEnum $type
-     * @param integer $userId
-     * @param \DateTimeInterface|null $expirationDate
-     */
-    public function __construct(
-        public string $name = '',
-        public TokenTypeEnum $type = TokenTypeEnum::API,
-        public int $userId = 0,
-        public ?\DateTimeInterface $expirationDate = null,
-    ) {
+    public static function transform(AddTokenInput $input): AddTokenRequest
+    {
+        return new AddTokenRequest(
+            $input->name,
+            $input->type === 'cma' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+            $input->userId,
+            $input->expirationDate !== null
+                ? \DateTime::createFromFormat(\DateTimeInterface::ATOM, $input->expirationDate)
+                : null
+        );
     }
 }

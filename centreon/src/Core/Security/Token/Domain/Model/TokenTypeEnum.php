@@ -21,19 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Token\Application\UseCase\AddToken;
+namespace Core\Security\Token\Domain\Model;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
-use Core\Security\Token\Domain\Model\Token;
-
-final class AddTokenResponse implements StandardResponseInterface
+enum TokenTypeEnum
 {
-    public function __construct(public Token $apiToken, public string $token)
-    {
-    }
-
-    public function getData(): self
-    {
-        return $this;
-    }
+    case API;
+    case CMA;
 }

@@ -86,7 +86,7 @@ function deleteExpiredProviderTokens(CentreonLog $logger, CentreonDB $pearDB): v
                 SELECT 1
                 FROM security_authentication_tokens sat
                 WHERE sat.provider_token_id = st.id
-                AND (sat.provider_token_refresh_id IS NOT NULL OR sat.token_type = 'manual')
+                AND (sat.provider_token_refresh_id IS NOT NULL OR sat.token_type IN ('manual', 'cma'))
                 LIMIT 1
             )
             SQL
