@@ -227,9 +227,9 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         $this->writeHostGroupRepository->unlinkFromHost($hostId, $groupIds);
     }
 
-    public function addHosts(int $hostGroupId, array $hostIds): void
+    public function addHostLinks(int $hostGroupId, array $hostIds): void
     {
-        $this->writeHostGroupRepository->addHosts($hostGroupId, $hostIds);
+        $this->writeHostGroupRepository->addHostLinks($hostGroupId, $hostIds);
     }
 
     /**
@@ -299,9 +299,9 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         }
     }
 
-    public function deleteHosts(int $hostGroupId, array $hostIds): void
+    public function deleteHostLinks(int $hostGroupId, array $hostIds): void
     {
-        $this->writeHostGroupRepository->deleteHosts($hostGroupId, $hostIds);
+        $this->writeHostGroupRepository->deleteHostLinks($hostGroupId, $hostIds);
     }
 
     /**
