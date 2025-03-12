@@ -23,6 +23,7 @@ inputs:
     description: id of the squad to assign the ticket to
     default: 'DevSecOps'
 
+
 runs:
   using: "composite"
   steps:
@@ -206,6 +207,8 @@ runs:
           (.content[] | select(.type == "bulletList") | .content) = $new_list_of_failed_jobs
         ')
 
+        echo "[DEBUG] - updated_ticket_description = $updated_ticket_description"
+
         curl --request PUT \
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue/${{ env.ticket_key }}" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
@@ -218,6 +221,8 @@ runs:
           }"
 
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
 
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
