@@ -32,6 +32,7 @@ use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidato
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
 
 /**
@@ -58,6 +59,7 @@ final class ExportResourcesController extends AbstractController
      * @param ExportResources $useCase
      * @param ExportResourcesPresenterCsv $presenter
      * @param Request $request
+     * @param ExportRessourcesInput $input
      *
      * @return Response
      */
@@ -65,9 +67,10 @@ final class ExportResourcesController extends AbstractController
         ExportResources $useCase,
         ExportResourcesPresenterCsv $presenter,
         Request $request,
+        #[MapRequestPayload] ExportRessourcesInput $input
+
     ): Response {
-        // TODO review of validation and filtering of request parameters to export resources
-        $useCaseRequest = $this->createExportRequest($request);
+        $useCaseRequest = $this->createExportRequest($request, $input);
         $useCase($useCaseRequest, $presenter);
 
         // if a response status is set before iterating resources to export them, return it (in case of error)
@@ -86,46 +89,20 @@ final class ExportResourcesController extends AbstractController
 
     /**
      * @param Request $request
+     * @param ExportRessourcesInput $input
      *
      * @return ExportResourcesRequest
      */
-    private function createExportRequest(Request $request): ExportResourcesRequest
+    private function createExportRequest(Request $request, ExportRessourcesInput $input): ExportResourcesRequest
     {
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all(), true);
-        $resourceFilter = $this->createResourceFilter($filter);
-        // validate format parameter
-        $format = $request->query->get('format', '');
-        if (! is_string($format)) {
-            throw new \InvalidArgumentException('format parameter must be a string');
-        }
-        // get filtered columns to export
-        $filteredColumns = [];
-        $columns = $request->query->get('columns', '');
-        if (! is_string($columns)) {
-            throw new \InvalidArgumentException('columns parameter must be a string');
-        }
-        if ($columns !== '') {
-            $filteredColumns = explode(',', $columns);
-        }
-        // format all_pages parameter to a boolean
-        $allPages = $request->query->get('all_pages', 'false');
-        if ($allPages !== 'true' && $allPages !== 'false') {
-            throw new \InvalidArgumentException('all_pages parameter must be a boolean');
-        }
-        // format max_lines parameter to an integer
-        $maxResults = $request->query->get('max_lines', 0);
-        if (! is_int($maxResults)) {
-            throw new \InvalidArgumentException('max_lines parameter must be an integer');
-        }
 
-        // create the request to export resources
-        return new ExportResourcesRequest(
-            contact: $this->contact,
-            exportedFormat: $format,
+        $resourceFilter = $this->createResourceFilter($filter);
+
+        return ExportRessourcesRequestTransformer::transform(
+            input: $input,
             resourceFilter: $resourceFilter,
-            allPages: (bool) $allPages,
-            maxResults: $maxResults,
-            columns: $filteredColumns,
+            contact: $this->contact,
         );
     }
 
@@ -160,7 +137,8 @@ final class ExportResourcesController extends AbstractController
      *
      * @return Response
      */
-    private function createCsvResponse(\Traversable $resources): Response {
+    private function createCsvResponse(\Traversable $resources): Response
+    {
         /* create a streamed response to avoid memory issues with large data. If an error occurs during the export,
         the error message will be displayed in the csv file and logged (streamed response) */
         $response = new StreamedResponse(function () use ($resources): void {
