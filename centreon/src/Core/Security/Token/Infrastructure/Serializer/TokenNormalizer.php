@@ -72,7 +72,9 @@ class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     *
+     * @param array<string, mixed> $context
      */
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {

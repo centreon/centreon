@@ -46,6 +46,7 @@ class AddTokenResponseNormalizer implements NormalizerInterface, NormalizerAware
         ?string $format = null,
         array $context = []
     ): array {
+        /** @var array<string, mixed> $response */
         $response = $this->normalizer->normalize($object->getData()->apiToken, $format, $context);
         $response['token'] = $object->getData()->token;
 
