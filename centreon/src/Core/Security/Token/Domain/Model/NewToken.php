@@ -41,6 +41,7 @@ class NewToken
      * @param TrimmedString $name
      * @param int $creatorId
      * @param TrimmedString $creatorName
+     * @param TokenTypeEnum $type
      *
      * @throws AssertionFailedException
      * @throws \Exception

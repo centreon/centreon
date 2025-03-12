@@ -23,18 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Infrastructure\Serializer;
 
-use Core\Common\Domain\ResponseCodeEnum;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenResponse;
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class AddTokenResponseNormalizer implements NormalizerInterface
+class AddTokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
-    public function __construct(private readonly ObjectNormalizer $normalizer)
-    {
-    }
+    use NormalizerAwareTrait;
 
     /**
      * @param AddTokenResponse $object
@@ -50,9 +46,7 @@ class AddTokenResponseNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): array {
-        dd($this->normalizer);
         $response = $this->normalizer->normalize($object->getData()->apiToken, $format, $context);
-
         $response['token'] = $object->getData()->token;
 
         return $response;

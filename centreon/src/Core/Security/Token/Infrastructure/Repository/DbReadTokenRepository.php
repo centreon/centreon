@@ -240,6 +240,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
                 sat.creator_id,
                 sat.creator_name,
                 sat.is_revoked,
+                sat.token_type,
                 provider_token.creation_date as provider_token_creation_date,
                 provider_token.expiration_date as provider_token_expiration_date
             FROM `:db`.security_authentication_tokens sat
@@ -252,7 +253,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
         // Search
         $search = $sqlRequestTranslator->translateSearchParameterToSql();
         $search .= $search === null ? ' WHERE ' : ' AND ';
-        $search .= sprintf("sat.token_type IN (%s)", "'" . self::TYPE_MANUAL . "'," . "'" . self::TYPE_CMA . "'");
+        $search .= sprintf('sat.token_type IN (%s)', "'" . self::TYPE_MANUAL . "'," . "'" . self::TYPE_CMA . "'");
         $request .= $search;
         if ($userId !== null) {
             $request .= ' AND sat.user_id = :user_id';

@@ -60,7 +60,7 @@ final class FindTokensController extends AbstractController
                     'groups' => ['Token:List'],
                 ]
             ),
-            Response::HTTP_CREATED
+            Response::HTTP_OK
         );
     }
 }

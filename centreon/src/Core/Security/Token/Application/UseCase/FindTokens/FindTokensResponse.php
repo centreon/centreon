@@ -23,8 +23,8 @@ declare(strict_types = 1);
 
 namespace Core\Security\Token\Application\UseCase\FindTokens;
 
-use Core\Security\Token\Domain\Model\Token;
 use Core\Application\Common\UseCase\ListingResponseInterface;
+use Core\Security\Token\Domain\Model\Token;
 
 final class FindTokensResponse implements ListingResponseInterface
 {

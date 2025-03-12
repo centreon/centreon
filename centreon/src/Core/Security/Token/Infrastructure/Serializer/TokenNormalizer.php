@@ -23,10 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Infrastructure\Serializer;
 
-use Core\Common\Domain\ResponseCodeEnum;
 use Core\Security\Token\Domain\Model\Token;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
@@ -35,6 +33,7 @@ class TokenNormalizer implements NormalizerInterface
     public function __construct(private readonly ObjectNormalizer $normalizer)
     {
     }
+
     /**
      * @param Token $object
      * @param string|null $format
@@ -55,14 +54,14 @@ class TokenNormalizer implements NormalizerInterface
         if (array_key_exists('user_id', $response) && array_key_exists('user_name', $response)) {
             $response['user'] = [
                 'id' => $response['user_id'],
-                'name' => $response['user_name']
+                'name' => $response['user_name'],
             ];
             unset($response['user_id'], $response['user_name']);
         }
         if (array_key_exists('creator_id', $response) && array_key_exists('creator_name', $response)) {
             $response['creator'] = [
                 'id' => $response['creator_id'],
-                'name' => $response['creator_name']
+                'name' => $response['creator_name'],
             ];
             unset($response['creator_id'], $response['creator_name']);
         }
@@ -76,7 +75,6 @@ class TokenNormalizer implements NormalizerInterface
      */
     public function supportsNormalization(mixed $data, ?string $format = null): bool
     {
-        // dump($data);
         return $data instanceof Token;
     }
 

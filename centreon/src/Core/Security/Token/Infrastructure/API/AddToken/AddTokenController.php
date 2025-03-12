@@ -25,16 +25,11 @@ namespace Core\Security\Token\Infrastructure\API\AddToken;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\StandardPresenter;
-use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\UseCase\AddToken\AddToken;
-use Core\Security\Token\Application\UseCase\AddToken\AddTokenRequest;
 use Core\Security\Token\Infrastructure\Voters\TokenVoters;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -74,7 +69,7 @@ final class AddTokenController extends AbstractController
             $presenter->present(
                 $response,
                 [
-                    'groups' => ['Token:List'],
+                    'groups' => ['Token:Add'],
                 ]
             ),
             Response::HTTP_CREATED

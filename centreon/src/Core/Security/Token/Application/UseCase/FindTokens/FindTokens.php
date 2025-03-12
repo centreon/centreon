@@ -33,7 +33,6 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Application\Common\UseCase\StandardResponseInterface;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
-use Core\Security\Token\Domain\Model\Token;
 
 final class FindTokens
 {

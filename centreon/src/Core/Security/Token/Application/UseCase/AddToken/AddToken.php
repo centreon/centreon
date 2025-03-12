@@ -62,15 +62,18 @@ final class AddToken
             return $this->createResponse($tokenString);
         } catch (AssertionFailedException|\ValueError $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             return new InvalidArgumentResponse($ex);
         } catch (TokenException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             return match ($ex->getCode()) {
                 TokenException::CODE_CONFLICT => new ConflictResponse($ex),
                 default => new ErrorResponse($ex),
             };
         } catch (\Throwable $ex) {
                 $this->error((string) $ex);
+
                 return new ErrorResponse(TokenException::addToken());
         }
     }

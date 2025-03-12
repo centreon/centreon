@@ -30,7 +30,7 @@ final class AddTokenRequest
     /**
      * @param string $name
      * @param TokenTypeEnum $type
-     * @param integer $userId
+     * @param int $userId
      * @param \DateTimeInterface|null $expirationDate
      */
     public function __construct(

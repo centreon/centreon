@@ -35,7 +35,6 @@ final class TokenVoters extends Voter
 {
     public const TOKEN_ADD = 'token_add';
     public const TOKEN_LIST = 'token_list';
-
     public const ALLOWED_ATTRIBUTES = [
         self::TOKEN_ADD,
         self::TOKEN_LIST,
