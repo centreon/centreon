@@ -14,6 +14,7 @@ interface Token {
   duration: keyof typeof durationMap;
   name: string;
   userId: number;
+  type: string;
 }
 
 const durationMap = {
