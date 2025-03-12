@@ -13,6 +13,7 @@ import { ClickAwayListener, Skeleton } from '@mui/material';
 
 import { useDeepCompare } from '../../utils';
 import BarGroup from '../BarChart/BarGroup';
+import AdditionalLine from '../common/BaseChart/AdditionalLine';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
@@ -110,7 +111,8 @@ const Chart = ({
   thresholdUnit,
   limitLegend,
   skipIntersectionObserver,
-  transformMatrix
+  transformMatrix,
+  additionalLines
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
@@ -328,6 +330,14 @@ const Chart = ({
                       {...shapeLines}
                     />
                   )}
+                  {additionalLines?.map((additionalLine) => (
+                    <AdditionalLine
+                      key={additionalLine.yValue}
+                      {...additionalLine}
+                      graphWidth={graphWidth}
+                      yScale={yScalesPerUnit[additionalLine.unit]}
+                    />
+                  ))}
                   <InteractionWithGraph
                     annotationData={{ ...annotationEvent }}
                     commonData={{

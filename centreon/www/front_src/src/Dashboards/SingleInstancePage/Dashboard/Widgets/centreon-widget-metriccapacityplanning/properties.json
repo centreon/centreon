@@ -36,21 +36,6 @@
         "pluralize": true
       }
     },
-    "base": {
-      "type": "radio",
-      "label": "Base",
-      "defaultValue": "1000",
-      "options": [
-        {
-          "id": "1000",
-          "name": "1000"
-        },
-        {
-          "id": "1024",
-          "name": "1024"
-        }
-      ]
-    },
     "showThresholds": {
       "type": "switch",
       "label": "Thresholds",

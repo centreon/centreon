@@ -39,7 +39,6 @@ interface PanelOptions {
   showPoints: boolean;
   timePeriod: string;
   nbDays: number;
-  base: string;
   yAxisTickLabelRotation: number;
   showThresholds: boolean;
 }

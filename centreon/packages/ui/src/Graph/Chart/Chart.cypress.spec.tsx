@@ -9,10 +9,10 @@ import dataCurvesWithSameColor from '../mockedData/curvesWithSameColor.json';
 import dataLastDay from '../mockedData/lastDay.json';
 import dataLastDayWithIncompleteValues from '../mockedData/lastDayWithIncompleteValues.json';
 import dataLastDayWithNullValues from '../mockedData/lastDayWithNullValues.json';
+import dataPingServiceLines from '../mockedData/pingService.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
-import dataPingServiceLines from '../mockedData/pingService.json';
 
 import { args as argumentsData } from './helpers/doc';
 import { LineChartProps } from './models';
@@ -22,7 +22,7 @@ import WrapperChart from '.';
 interface Props
   extends Pick<
     LineChartProps,
-    'legend' | 'tooltip' | 'axis' | 'lineStyle' | 'barStyle'
+    'legend' | 'tooltip' | 'axis' | 'lineStyle' | 'barStyle' | 'additionalLines'
   > {
   data?: LineChartData;
 }
@@ -68,7 +68,8 @@ const initialize = ({
   legend,
   axis,
   lineStyle,
-  barStyle
+  barStyle,
+  additionalLines
 }: Props): void => {
   cy.adjustViewport();
 
@@ -91,6 +92,7 @@ const initialize = ({
           lineStyle={lineStyle}
           barStyle={barStyle}
           tooltip={tooltip}
+          additionalLines={additionalLines}
         />
       </Provider>
     )
@@ -736,6 +738,28 @@ describe('Lines and bars', () => {
     cy.get(
       'path[d="M24.05509641873278,218.3663782225586 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v19.86864253262454 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-19.86864253262454 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
     ).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays additional lines when props are set', () => {
+    initialize({
+      data: dataPingServiceLines,
+      additionalLines: [
+        { color: 'pink', unit: '%', yValue: 3 },
+        { color: 'red', unit: 'ms', yValue: 0.15, text: 'some text' }
+      ]
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+
+    cy.contains('some text').should('be.visible');
+    cy.findByTestId('pink-3').should('be.visible');
+    cy.findByTestId('red-0.15').should('be.visible');
 
     cy.makeSnapshot();
   });

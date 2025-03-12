@@ -696,3 +696,24 @@ export const customYUnits: Story = {
   args: argumentsData,
   render: (args) => <CustomYUnits {...args} />
 };
+
+export const WithAdditionalLines: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    additionalLines: [
+      {
+        yValue: 3,
+        text: 'my text',
+        color: 'grey',
+        unit: '%'
+      }
+    ]
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingService as unknown as LineChartData}
+    />
+  )
+};
