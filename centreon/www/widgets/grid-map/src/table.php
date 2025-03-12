@@ -150,7 +150,7 @@ if (!empty($preferences['host_group'])) {
                 : $resourceController->buildHostDetailsUri($row['host_id']);
             $data[] = $row;
         }
-    } catch (\PDOException $exception) {
+    } catch (CentreonDbException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error while fetching host listing for widget',
@@ -211,7 +211,7 @@ if (!empty($preferences['host_group'])) {
                 'details_uri' => []
             ];
         }
-    } catch (\PDOException $exception) {
+    } catch (CentreonDbException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error while fetching service listing for widget',
@@ -258,7 +258,7 @@ if (!empty($preferences['host_group'])) {
                     : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
             }
         }
-    } catch (\PDOException $exception) {
+    } catch (CentreonDbException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error while fetching host service statuses for widget',
