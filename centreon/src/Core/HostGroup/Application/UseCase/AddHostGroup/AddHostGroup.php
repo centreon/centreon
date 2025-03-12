@@ -105,7 +105,7 @@ final class AddHostGroup
 
             $newHostGroupId = $this->writeHostGroupRepository->add($hostGroup);
 
-            $this->writeHostGroupRepository->addHosts($newHostGroupId, $request->hosts);
+            $this->writeHostGroupRepository->addHostLinks($newHostGroupId, $request->hosts);
             $this->linkHostGroupToRessourceAccess($request->resourceAccessRules, $newHostGroupId);
 
             $newHostGroup = $this->readHostGroupRepository->findOne($newHostGroupId);

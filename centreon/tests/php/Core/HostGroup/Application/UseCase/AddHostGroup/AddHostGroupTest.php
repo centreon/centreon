@@ -181,7 +181,7 @@ it(
 
         $this->writeHostGroupRepository
             ->expects($this->once())
-            ->method('addHosts');
+            ->method('addHostLinks');
 
         $this->readResourceAccessRepository
             ->expects($this->once())

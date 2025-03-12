@@ -163,7 +163,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
     /**
      * @inheritDoc
      */
-    public function addHosts(int $hostGroupId, array $hostIds): void
+    public function addHostLinks(int $hostGroupId, array $hostIds): void
     {
         if ($hostIds === []) {
             return;
@@ -271,7 +271,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
         return (int) $this->db->lastInsertId();
     }
 
-    public function deleteHosts(int $hostGroupId, array $hostIds): void
+    public function deleteHostLinks(int $hostGroupId, array $hostIds): void
     {
         if ($hostIds === []) {
             return;

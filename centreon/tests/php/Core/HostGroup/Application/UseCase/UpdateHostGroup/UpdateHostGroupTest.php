@@ -260,11 +260,11 @@ it(
             ]);
         $this->writeHostGroupRepository
             ->expects($this->once())
-            ->method('deleteHosts')
+            ->method('deleteHostLinks')
             ->with($this->updateHostGroupRequest->id, [1]);
         $this->writeHostGroupRepository
             ->expects($this->once())
-            ->method('addHosts')
+            ->method('addHostLinks')
             ->with($this->updateHostGroupRequest->id, [1,2]);
 
         $response = ($this->useCase)($this->updateHostGroupRequest);

@@ -115,7 +115,7 @@ final class UpdateHostGroup
             }
 
             $this->updateHostGroup($request, $existingHostGroup);
-            $this->updateHosts($request);
+            $this->updateHostLinks($request);
             if ($this->isCloudPlatform) {
                 $this->updateResourceAccess($request);
             }
@@ -183,7 +183,7 @@ final class UpdateHostGroup
      *
      * @throws \Throwable
      */
-    private function updateHosts(UpdateHostGroupRequest $request): void
+    private function updateHostLinks(UpdateHostGroupRequest $request): void
     {
         if ($this->user->isAdmin()) {
             $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
@@ -200,8 +200,8 @@ final class UpdateHostGroup
             ))->getRemoved();
         }
 
-        $this->writeHostGroupRepository->deleteHosts($request->id, $hostsToRemove);
-        $this->writeHostGroupRepository->addHosts($request->id, $request->hosts);
+        $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
+        $this->writeHostGroupRepository->addHostLinks($request->id, $request->hosts);
         $this->notifyConfigurationChange($request->hosts);
     }
 

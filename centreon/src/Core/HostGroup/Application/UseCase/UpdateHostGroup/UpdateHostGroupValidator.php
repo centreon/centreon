@@ -26,6 +26,7 @@ namespace Core\HostGroup\Application\UseCase\UpdateHostGroup;
 use Centreon\Domain\Configuration\Icon\IconException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Domain\TrimmedString;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -55,18 +56,19 @@ class UpdateHostGroupValidator
     /**
      * Assert that the host group name is not already used.
      *
-     * @param string $hostGroupName
      * @param HostGroup $hostGroup
+     * @param TrimmedString $hostGroupName
      *
      * @throws HostGroupException|\Throwable
      */
     public function assertNameDoesNotAlreadyExists(HostGroup $hostGroup, string $hostGroupName): void
     {
+        $hostGroupName = new TrimmedString($hostGroupName);
         if (
-            $hostGroup->getName() !== $hostGroupName
-            && $this->readHostGroupRepository->nameAlreadyExists($hostGroupName)
+            $hostGroup->getName() !== (string) $hostGroupName
+            && $this->readHostGroupRepository->nameAlreadyExists((string) $hostGroupName)
         ) {
-            throw HostGroupException::nameAlreadyExists($hostGroupName);
+            throw HostGroupException::nameAlreadyExists((string) $hostGroupName);
         }
     }
 
@@ -88,11 +90,6 @@ class UpdateHostGroupValidator
         });
 
         if (! empty($unexistentHosts)) {
-            $this->warning(
-                'Some hosts are not accessible by the user, they will not be linked to the host group.',
-                ['unexistentHosts' => $unexistentHosts]
-            );
-
             throw HostException::idsDoNotExist('hosts', $unexistentHosts);
         }
     }
