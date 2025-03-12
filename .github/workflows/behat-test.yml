@@ -235,8 +235,9 @@ jobs:
     runs-on: ubuntu-24.04
     if: |
       inputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled()) &&
-      startsWith(github.ref_name, 'dev')
+      (failure() || cancelled())  &&
+          startsWith(github.ref_name, 'dev') &&
+          github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
