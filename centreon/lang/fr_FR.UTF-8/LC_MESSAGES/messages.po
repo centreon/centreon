@@ -17270,6 +17270,9 @@ msgstr "Erreur durant l'ajout d'un groupe d'hôtes"
 msgid "Error while updating a host group"
 msgstr "Erreur lors de la mise à jour d'un groupe d'hôtes"
 
+msgid "Error while duplicating a host group"
+msgstr "Erreur durant la duplication d'un groupe d'hôtes"
+
 msgid "The host group name '%s' already exists"
 msgstr "Le groupe d'hôtes '%s' existe déjà"
 
@@ -17585,6 +17588,12 @@ msgstr "Vous n'êtes pas autorisé à consulter les droits d'accès du tableau d
 
 msgid "Error while retrieving a dashboard"
 msgstr "Erreur durant la récupération d'un tableau de bord"
+
+msgid "Error while retrieving contacts allowed to receive a dashboard share"
+msgstr "Erreur lors de la récupération des contacts autorisés à recevoir un partage de tableau de bord"
+
+msgid "Error while retrieving contact groups allowed to receive a dashboard share"
+msgstr "Erreur lors de la récupération des groupes de contact autorisés à recevoir un partage de tableau de bord"
 
 msgid "Error while deleting a dashboard"
 msgstr "Erreur durant la suppression d'un tableau de bord"
@@ -19673,3 +19682,6 @@ msgstr "Configuration d'agent"
 
 msgid "The minimum allowed value is 10"
 msgstr "La valeur minimale autorisée est 10"
+
+msgid "Error while enabling/disabling host groups"
+msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
