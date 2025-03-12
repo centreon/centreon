@@ -57,7 +57,7 @@ class UpdateHostGroupValidator
      * Assert that the host group name is not already used.
      *
      * @param HostGroup $hostGroup
-     * @param TrimmedString $hostGroupName
+     * @param string $hostGroupName
      *
      * @throws HostGroupException|\Throwable
      */
