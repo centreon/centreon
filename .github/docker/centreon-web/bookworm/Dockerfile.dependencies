@@ -144,7 +144,6 @@ apt-get install -y \
   centreon-common \
   centreon-gorgone \
   centreon-engine \
-  centreon-broker-cbmod \
   centreon-broker-cbd \
   centreon-connector
 
