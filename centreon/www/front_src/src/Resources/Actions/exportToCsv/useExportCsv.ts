@@ -116,8 +116,8 @@ const useExportCsv = ({
     const { filtersParameters, queryParameters } = getCurrentFilterParameters();
 
     const paginationParameters = {
-      page: listing?.meta?.page,
-      limit: listing?.meta?.limit
+      page: listing?.meta?.page || 1,
+      limit: listing?.meta?.limit || 10
     };
 
     const parameters = { ...filtersParameters, ...paginationParameters };
@@ -170,9 +170,7 @@ const useExportCsv = ({
       ]
     });
 
-    console.log({ endpoint });
-
-    // window.open(endpoint, 'noopener', 'noreferrer');
+    window.open(endpoint, 'noopener', 'noreferrer');
   };
 
   return { exportCsv, disableExport, numberExportedLines };

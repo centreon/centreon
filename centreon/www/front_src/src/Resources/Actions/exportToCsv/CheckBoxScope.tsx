@@ -53,12 +53,14 @@ const CheckBoxScope = ({
         checked={getCheckedValue(firstLabel)}
         onChange={onChange}
         labelProps={labelProps}
+        dataTestId={firstLabel}
       />
       <Checkbox
         label={secondLabel}
         checked={getCheckedValue(secondLabel)}
         onChange={onChange}
         labelProps={labelProps}
+        dataTestId={secondLabel}
       />
     </>
   );

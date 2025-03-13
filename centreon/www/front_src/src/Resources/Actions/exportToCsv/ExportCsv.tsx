@@ -24,6 +24,7 @@ const ExportCsv = () => {
       <IconButton
         onClick={openModalExport}
         disabled={!equals(Visualization.All, currentVisualization)}
+        aria-label="exportCsvButton"
       >
         <SaveIcon />
       </IconButton>
