@@ -133,6 +133,35 @@ const anomalyDetection = {
   type: 'anomaly-detection'
 };
 
+const allColumns = [
+  'status',
+  'resource',
+  'parent_resource',
+  'duration',
+  'tries',
+  'last_check',
+  'information',
+  'severity',
+  'notes_url',
+  'action_url',
+  'state',
+  'alias',
+  'parent_alias',
+  'fqdn',
+  'monitoring_server_name',
+  'notification',
+  'checks'
+];
+const visibleColumns = [
+  'resource',
+  'parent_resource',
+  'duration',
+  'last_check',
+  'information',
+  'tries'
+];
+const search = { $and: [] };
+
 const initialize = (
   resourcesPath = 'resources/resourceListing'
 ): ReturnType<typeof createStore> => {
@@ -496,35 +525,6 @@ describe('Actions', () => {
   });
 });
 
-const allColumns = [
-  'status',
-  'resource',
-  'parent_resource',
-  'duration',
-  'tries',
-  'last_check',
-  'information',
-  'severity',
-  'notes_url',
-  'action_url',
-  'state',
-  'alias',
-  'parent_alias',
-  'fqdn',
-  'monitoring_server_name',
-  'notification',
-  'checks'
-];
-const visibleColumns = [
-  'resource',
-  'parent_resource',
-  'duration',
-  'last_check',
-  'information',
-  'tries'
-];
-const search = { $and: [] };
-
 describe('CSV export', () => {
   beforeEach(() => {
     cy.window().then((win) => {
@@ -532,7 +532,7 @@ describe('CSV export', () => {
     });
   });
 
-  it('export csv with defaults checks', () => {
+  it('export resources with default checks when clicking the CSV export button', () => {
     initialize();
     cy.waitForRequest('@resources');
 
@@ -577,9 +577,11 @@ describe('CSV export', () => {
       'noopener',
       'noreferrer'
     );
+
+    cy.makeSnapshot();
   });
 
-  it('export csv with custom checks', () => {
+  it('export resources with custom checks when clicking the CSV export button', () => {
     const store = initialize();
     store.set(selectedColumnIdsAtom, visibleColumns);
     cy.waitForRequest('@resources');
@@ -621,9 +623,11 @@ describe('CSV export', () => {
       'noopener',
       'noreferrer'
     );
+
+    cy.makeSnapshot();
   });
 
-  it('display the warning msg and disable the export button when number of lines exceed 10000 resources', () => {
+  it('display the warning message and disable the export button when the number of resources exceeds 10,000', () => {
     initialize('resources/listing/exportCsv.json');
     cy.waitForRequest('@resources');
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
@@ -637,5 +641,7 @@ describe('CSV export', () => {
     cy.get('@modal')
       .findByRole('button', { name: labelExport })
       .should('be.disabled');
+
+    cy.makeSnapshot();
   });
 });
