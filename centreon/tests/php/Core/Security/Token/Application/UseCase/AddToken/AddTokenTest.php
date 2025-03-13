@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Security\Token\Application\UseCase\AddHostTemplate;
+namespace Tests\Core\Security\Token\Application\UseCase\AddToken;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
