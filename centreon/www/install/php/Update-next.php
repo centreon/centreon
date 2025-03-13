@@ -245,6 +245,86 @@ $createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage
     }
 };
 
+// -------------------------------------------- Agent Configuration -------------------------------------------- //
+/**
+ * Add prefix "/etc/pki/" and extensions (.crt, .key) to certificate and key paths in agent_configuration table.
+ *
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ *
+ * @return void
+ */
+$updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve data from agent_configuration table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT `id`, `configuration` FROM `agent_configuration`
+        SQL
+    );
+
+    $errorMessage = 'Unable to update agent_configuration table';
+    $updates = [];
+    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        $config = json_decode($row['configuration'], true);
+        if (! is_array($config)) {
+            continue;
+        }
+
+        foreach ($config as $key => $value) {
+            if (str_ends_with($key, '_certificate') && is_string($value)) {
+                $filename = str_starts_with($value, '/etc/pki/') ? substr($value, 9) : ltrim($value, '/');
+                $filename = preg_replace('/(\.crt|\.cer)$/', '', $filename);
+                $config[$key] = '/etc/pki/' . ltrim($filename, '/') . '.crt';
+            } elseif (str_ends_with($key, '_key') && is_string($value)) {
+                $filename = str_starts_with($value, '/etc/pki/') ? substr($value, 9) : ltrim($value, '/');
+                $filename = preg_replace('/\.key$/', '', $filename);
+                $config[$key] = '/etc/pki/' . ltrim($filename, '/') . '.key';
+            }
+
+            if ($key === 'hosts') {
+                foreach ($value as $index => $host) {
+                    if (! is_array($host)) {
+                        continue;
+                    }
+
+                    if (isset($host['poller_ca_certificate']) && is_string($host['poller_ca_certificate'])) {
+                        $config[$key][$index]['poller_ca_certificate'] = '/etc/pki/' . ltrim($host['poller_ca_certificate'], '/') . '.crt';
+                    }
+                }
+            }
+        }
+
+        $updatedConfig = json_encode($config);
+        $updates[] = [
+            'id' => $row['id'],
+            'configuration' => $updatedConfig
+        ];
+    }
+
+    if (! empty($updates)) {
+        $query = 'UPDATE `agent_configuration` SET `configuration` = CASE `id` ';
+        $params = [];
+        $whereParams = [];
+
+        foreach ($updates as $index => $update) {
+            $idParam = ":case_id{$index}";
+            $configParam = ":case_config{$index}";
+            $query .= "WHEN {$idParam} THEN {$configParam} ";
+            $params[$idParam] = $update['id'];
+            $params[$configParam] = $update['configuration'];
+
+            $whereParams[] = ":where_id{$index}";
+            $params[":where_id{$index}"] = $update['id'];
+        }
+
+        $query .= 'END WHERE `id` IN (' . implode(', ', $whereParams) . ')';
+
+        $statement = $pearDB->prepareQuery($query);
+        $pearDB->executePreparedQuery($statement, $params);
+    }
+};
+
 try {
     // DDL statements for real time database
     $createAgentInformationTable($pearDBO);
@@ -264,6 +344,7 @@ try {
     $insertAccConnectors($pearDB);
     $updatePanelsLayout($pearDB);
     $removeFieldFromBrokerConfiguration($pearDB);
+    $updateAgentConfiguration($pearDB);
 
     $pearDB->commit();
 
