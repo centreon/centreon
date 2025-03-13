@@ -427,7 +427,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             $level = LogLevel::ERROR;
         }
         $this->exceptionHandler->log(
-            exception: $exception,
+            throwable: $exception,
             context: ['internal_error' => $exception],
             level: $level
         );

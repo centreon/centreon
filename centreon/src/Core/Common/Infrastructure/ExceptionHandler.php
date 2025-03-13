@@ -45,76 +45,76 @@ final readonly class ExceptionHandler
     ) {}
 
     /**
-     * @param \Throwable $exception
+     * @param \Throwable $throwable
      * @param array<string,mixed> $context
      * @param string $level see {@see LogLevel}
      *
      * @return void
      */
-    public function log(\Throwable $exception, array $context = [], string $level = LogLevel::ERROR): void
+    public function log(\Throwable $throwable, array $context = [], string $level = LogLevel::ERROR): void
     {
-        $this->prepareContext($context, $exception);
-        $this->logger->log($level, $exception->getMessage(), $context);
+        $this->prepareContext($context, $throwable);
+        $this->logger->log($level, $throwable->getMessage(), $context);
     }
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
 
     /**
      * @param array<string,mixed> $context
-     * @param \Throwable $exception
+     * @param \Throwable $throwable
      */
-    private function prepareContext(array &$context, \Throwable $exception): void
+    private function prepareContext(array &$context, \Throwable $throwable): void
     {
-        if ($exception instanceof BusinessLogicException) {
-            $exceptionContext = $exception->getExceptionContext();
+        if ($throwable instanceof BusinessLogicException) {
+            $exceptionContext = $throwable->getExceptionContext();
             $context['custom'] = array_merge(
                 $context['custom'],
-                ['from_exception' => $exception->getBusinessContext()]
+                ['from_exception' => $throwable->getBusinessContext()]
             );
         } else {
-            $exceptionContext = $this->getExceptionContext($exception);
+            $exceptionContext = $this->getExceptionContext($throwable);
         }
 
-        $exceptionContext['trace'] = $this->getSerializedExceptionTraces($exception);
+        $exceptionContext['trace'] = $this->getSerializedExceptionTraces($throwable);
 
         $context['exception'] = $exceptionContext;
     }
 
     /**
-     * @param \Throwable $exception
+     * @param \Throwable $throwable
      *
      * @return array<string,mixed>
      */
-    private function getExceptionContext(\Throwable $exception): array
+    private function getExceptionContext(\Throwable $throwable): array
     {
-        $exceptionContext = $this->getExceptionInfos($exception);
-        $exceptionContext['previous'] = ($exception->getPrevious() !== null)
-            ? $this->getExceptionInfos($exception->getPrevious()) : null;
+        $exceptionContext = $this->getExceptionInfos($throwable);
+        $exceptionContext['previous'] = ($throwable->getPrevious() !== null)
+            ? $this->getExceptionInfos($throwable->getPrevious()) : null;
 
         return $exceptionContext;
     }
 
     /**
-     * @param \Throwable $exception
+     * @param \Throwable $throwable
      *
      * @return array<string,mixed>
      */
-    private function getExceptionInfos(\Throwable $exception): array
+    private function getExceptionInfos(\Throwable $throwable): array
     {
         $exceptionContext = [
-            'type' => $exception::class,
-            'message' => $exception->getMessage(),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'code' => $exception->getCode(),
+            'type' => $throwable::class,
+            'message' => $throwable->getMessage(),
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            'code' => $throwable->getCode(),
         ];
 
-        if (! empty($exception->getTrace())) {
-            if (isset($exception->getTrace()[0]['class'])) {
-                $exceptionContext['class'] = $exception->getTrace()[0]['class'];
+        if (! empty($throwable->getTrace())) {
+            if (isset($throwable->getTrace()[0]['class'])) {
+                $exceptionContext['class'] = $throwable->getTrace()[0]['class'];
             }
-            if (isset($exception->getTrace()[0]['function'])) {
-                $exceptionContext['method'] = $exception->getTrace()[0]['function'];
+            if (isset($throwable->getTrace()[0]['function'])) {
+                $exceptionContext['method'] = $throwable->getTrace()[0]['function'];
             }
         }
 
@@ -122,14 +122,14 @@ final readonly class ExceptionHandler
     }
 
     /**
-     * @param \Throwable $exception
+     * @param \Throwable $throwable
      *
      * @return array<int,array<string,mixed>>
      */
-    private function getSerializedExceptionTraces(\Throwable $exception): array
+    private function getSerializedExceptionTraces(\Throwable $throwable): array
     {
         // Retrieve traces but limit args to 100 characters to avoid bloating the logs
-        $traces = $exception->getTrace();
+        $traces = $throwable->getTrace();
         for ($idx = 0, $idxMax = count($traces); $idx < $idxMax; $idx++) {
             $traceArguments = [];
             if (isset($traces[$idx]['args']) && is_countable($traces[$idx]['args'])) {
@@ -157,8 +157,8 @@ final readonly class ExceptionHandler
                     JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
                 );
                 $traces[$idx]['args'] = mb_substr($encodedArgs, 0, 100) . '[...]';
-            } catch (\JsonException $exception) {
-                $this->logger->error('Error while encoding trace arguments', ['exception' => $exception]);
+            } catch (\JsonException $throwable) {
+                $this->logger->error('Error while encoding trace arguments', ['exception' => $throwable]);
                 $traces[$idx]['args'] = '[]';
             }
         }
