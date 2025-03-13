@@ -26,13 +26,14 @@ namespace Core\HostGroup\Infrastructure\API\FindHostGroups;
 use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostGroup\Application\UseCase\FindHostGroups\FindHostGroups;
+use Core\HostGroup\Infrastructure\Voters\HostGroupVoters;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted(
-    'hostgroup_list',
+    HostGroupVoters::HOSTGROUP_LIST,
     null,
     'You are not allowed to access host groups',
     Response::HTTP_FORBIDDEN
