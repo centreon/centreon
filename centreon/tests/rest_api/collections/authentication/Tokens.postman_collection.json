@@ -3313,7 +3313,7 @@
 									"    // Creation of a variable with the name of the new token\r",
 									"    var response = pm.response.json();\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.include(\"[NewToken::expirationDate] The date \\\"1998-12-02T00:00:00+01:00\\\" was expected to be at most \" + pm.variables.get(\"currentdate\"));\r",
+									"    pm.expect(responseJson.message).to.include(\"[NewToken::expirationDate] The date \\\"1998-12-02T00:00:00+01:00\\\" was expected to be at least \" + pm.variables.get(\"currentdate\"));\r",
 									"});\r",
 									""
 								],
