@@ -1,4 +1,4 @@
-import { type ChangeEvent, useMemo } from 'react';
+import { type ChangeEvent, useCallback, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { clamp, equals } from 'ramda';
@@ -52,19 +52,24 @@ const WidgetTextField = ({
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldTouched(`options.${propertyName}`, true);
 
-    if (equals(text?.type, 'number')) {
+    const newText = event.target.value;
+    setFieldValue(`options.${propertyName}`, newText);
+  };
+
+  const blur = useCallback(
+    (event) => {
+      if (!equals(text?.type, 'number')) {
+        return;
+      }
       setFieldValue(
         `options.${propertyName}`,
         equals(event.target.value, '')
           ? ''
           : clamp(text?.min, text?.max, Number(event.target.value))
       );
-
-      return;
-    }
-    const newText = event.target.value;
-    setFieldValue(`options.${propertyName}`, newText);
-  };
+    },
+    [text]
+  );
 
   const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
 
@@ -92,7 +97,7 @@ const WidgetTextField = ({
             }
           }}
           label={t(label) || ''}
-          e
+          onBlur={blur}
           multiline={text?.multiline || false}
           required={required}
           size={text?.size || 'small'}

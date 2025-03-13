@@ -29,7 +29,7 @@
       "required": true,
       "text": {
         "type": "number",
-        "min": 1,
+        "min": 6,
         "max": 365,
         "autoSize": true,
         "unit": "day",
