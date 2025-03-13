@@ -1,3 +1,24 @@
+get:
+  tags:
+    - Authentication token
+  summary: "Get an API token"
+  description: |
+    Get an API token (only if type is CMA)
+  parameters:
+    - $ref: 'QueryParameter/TokenName.yaml'
+    - $ref: 'QueryParameter/UserId.yaml'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/NewTokenResponse.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
 delete:
   tags:
     - Authentication token
