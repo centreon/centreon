@@ -36,7 +36,7 @@ require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
-$smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
+$smartyDir = __DIR__ . '/../../../../vendor/' . SmartyCentreon::PACKAGE_CENTREON_SMARTY_NAME . '/';
 require_once $smartyDir . 'libs/Smarty.class.php';
 
 session_start();

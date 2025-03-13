@@ -31,6 +31,11 @@ declare(strict_types=1);
 class SmartyCentreon extends \SmartyBC
 {
     /**
+     * Package name of the Smarty library.
+     */
+    public const PACKAGE_CENTREON_SMARTY_NAME = "centreon/smarty";
+
+    /**
      * Forbidden tags in Smarty templates.
      */
     private const FORBIDDEN_TAGS = ['extends'];
