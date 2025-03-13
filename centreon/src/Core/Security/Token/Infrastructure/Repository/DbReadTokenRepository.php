@@ -52,7 +52,8 @@ use Core\Security\Token\Domain\Model\TokenTypeEnum;
 class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRepositoryInterface
 {
     use LoggerTrait;
-    private const TYPE_MANUAL = 'manual';
+    private const TYPE_API = 'api';
+    private const TYPE_AUTO = 'auto';
     private const TYPE_CMA = 'cma';
 
     /**
@@ -101,7 +102,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
                 WHERE sat.token = :token
                     AND sat.token_type IN (%s)
                 SQL,
-                "'" . self::TYPE_MANUAL . "'," ."'" . self::TYPE_CMA ."'"
+                "'" . self::TYPE_API . "'," ."'" . self::TYPE_CMA ."'"
             )
         ));
         $statement->bindValue(':token', $tokenString, \PDO::PARAM_STR);
@@ -139,7 +140,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
                     AND sat.user_id = :userId
                     AND sat.token_type IN (%s)
                 SQL,
-                "'" . self::TYPE_MANUAL . "'," ."'" . self::TYPE_CMA ."'"
+                "'" . self::TYPE_API . "'," ."'" . self::TYPE_CMA ."'"
             )
         ));
         $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
@@ -165,7 +166,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
                     AND sat.user_id = :userId
                     AND sat.token_type IN (%s)
                 SQL,
-                "'" . self::TYPE_MANUAL . "'," ."'" . self::TYPE_CMA ."'"
+                "'" . self::TYPE_API . "'," ."'" . self::TYPE_CMA ."'"
             )
         ));
         $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
@@ -176,20 +177,20 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
     }
 
     /**
-     * @param string $token
-     *
-     * @return bool
+     * @inheritDoc
      */
-    public function isTokenTypeManual(string $token): bool
+    public function isTokenTypeAuto(string $token): bool
     {
         try {
             $statement = $this->db->prepare($this->translateDbName(
-            sprintf(<<<'SQL'
-                SELECT 1
-                FROM `:db`.security_authentication_tokens sat
-                WHERE sat.token = :token
-                    AND sat.token_type = '%s'
-                SQL,self::TYPE_MANUAL)
+                sprintf(<<<'SQL'
+                    SELECT 1
+                    FROM `:db`.security_authentication_tokens sat
+                    WHERE sat.token = :token
+                        AND sat.token_type = '%s'
+                    SQL,
+                    self::TYPE_AUTO
+                )
             )
             );
 
@@ -253,12 +254,11 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
         // Search
         $search = $sqlRequestTranslator->translateSearchParameterToSql();
         $search .= $search === null ? ' WHERE ' : ' AND ';
-        $search .= sprintf('sat.token_type IN (%s)', "'" . self::TYPE_MANUAL . "'," . "'" . self::TYPE_CMA . "'");
+        $search .= sprintf('sat.token_type IN (%s)', "'" . self::TYPE_API . "'," . "'" . self::TYPE_CMA . "'");
         $request .= $search;
         if ($userId !== null) {
             $request .= ' AND sat.user_id = :user_id';
         }
-
         // Sort
         $sortRequest = $sqlRequestTranslator->translateSortParameterToSql();
         $request .= ! is_null($sortRequest)
@@ -323,7 +323,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
                 ? (new \DateTimeImmutable())->setTimestamp((int) $data['provider_token_expiration_date'])
                 : null,
             isRevoked: (bool) $data['is_revoked'],
-            type: $data['token_type'] === self::TYPE_MANUAL ? TokenTypeEnum::API : TokenTypeEnum::CMA
+            type: $data['token_type'] === self::TYPE_API ? TokenTypeEnum::API : TokenTypeEnum::CMA
         );
     }
 
