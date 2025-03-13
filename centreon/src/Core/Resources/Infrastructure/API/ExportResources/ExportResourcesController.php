@@ -32,7 +32,7 @@ use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidato
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
 
 /**
@@ -67,7 +67,7 @@ final class ExportResourcesController extends AbstractController
         ExportResources $useCase,
         ExportResourcesPresenterCsv $presenter,
         Request $request,
-        #[MapRequestPayload] ExportResourcesInput $input
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] ExportResourcesInput $input
 
     ): Response {
         $useCaseRequest = $this->createExportRequest($request, $input);

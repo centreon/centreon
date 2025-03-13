@@ -51,8 +51,8 @@ class ExportResourcesRequestTransformer {
             contact: $contact,
             exportedFormat: $input->format,
             resourceFilter: $resourceFilter,
-            allPages: $input->all_pages,
-            maxResults: $input->max_lines ?? 10000,
+            allPages: $input->allPages,
+            maxResults: $input->maxLines ?? ExportResourcesInput::EXPORT_MAX_LINES,
             columns: $input->columns
         );
     }

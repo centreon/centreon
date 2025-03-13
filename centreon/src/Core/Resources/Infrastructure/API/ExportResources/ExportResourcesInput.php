@@ -25,41 +25,43 @@ namespace Core\Resources\Infrastructure\API\ExportResources;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * Class
- *
- * @class ExportResourcesInput
- * @package Core\Resources\Infrastructure\API\ExportResources
- */
 class ExportResourcesInput {
+    public const EXPORT_ALLOWED_FORMAT = ['csv'];
+    public const EXPORT_MAX_LINES = 10000;
 
     /**
      * ExportResourcesInput constructor
      *
-     * @param mixed $format
-     * @param mixed $all_pages
-     * @param mixed $columns
-     * @param mixed $max_lines
+     * @param string $format
+     * @param bool $allPages
+     * @param array<string> $columns
+     * @param int $maxLines
      */
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\NotNull]
         #[Assert\Type('string')]
         #[Assert\Choice(
-            choices: ['csv'],
+            choices: self::EXPORT_ALLOWED_FORMAT,
             message: 'The format must be one of the following: csv'
         )]
-        public string $format,
+        public mixed $format,
         #[Assert\NotBlank]
         #[Assert\NotNull]
         #[Assert\Type('boolean')]
-        public bool $all_pages,
+        public mixed $allPages,
         #[Assert\NotBlank]
         #[Assert\NotNull]
-        public array $columns = [],
+        #[Assert\Sequentially([
+            new Assert\Type('array'),
+            new Assert\All(
+                [new Assert\Type('string')]
+            ),
+        ])]
+        public mixed $columns = [],
         #[Assert\Type('integer')]
-        #[Assert\Length(min: 1, max: 10000)]
-        public int $max_lines,
+        #[Assert\Length(min: 1, max: self::EXPORT_MAX_LINES)]
+        public mixed $maxLines,
     ) {
     }
 
