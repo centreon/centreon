@@ -1,6 +1,6 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { addPublicCustomView, addPublicSharedView } from '../common';
+import { addCustomView, addSharedView } from '../common';
 
 const logByAclUser = () => {
   cy.logout();
@@ -51,7 +51,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('a publicly shared custom view is configured', () => {
-  addPublicCustomView();
+  addCustomView('public-view', true);
 });
 
 Given('a user with custom views edition rights on the custom views listing page', () => {
@@ -68,7 +68,7 @@ When('the user wishes to add a new custom view', () => {
 });
 
 When('he can add the public view', () => {
-  addPublicSharedView();
+  addSharedView('public-view');
 });
 
 Then('he cannot modify the content of the shared view', () => {
@@ -110,7 +110,7 @@ Then('the view is not visible anymore', () => {
 });
 
 Then('the user can use the public view again', () => {
-  addPublicSharedView();
+  addSharedView('public-view');
 });
 
 When('the owner removes the view', () => {
