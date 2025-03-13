@@ -67,8 +67,6 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
     {
         $this->viewModel = new ExportResourcesViewModel();
 
-        $this->viewModel->setExportedFormat($response->getExportedFormat());
-
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
                 $this->exceptionHandler->log($response->getException());
@@ -77,12 +75,15 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
 
             return;
         }
+
         $csvResources = $this->transformToCsv($response->getResources());
         if ($response->getFilteredColumns() !== []) {
             $csvHeader = $this->setHeaderByFilteredColumns($response->getFilteredColumns());
             $csvResources = $this->filterColumns($csvResources, $csvHeader);
         }
+
         $this->viewModel->setResources($csvResources);
+        $this->viewModel->setExportedFormat($response->getExportedFormat());
     }
 
     /**

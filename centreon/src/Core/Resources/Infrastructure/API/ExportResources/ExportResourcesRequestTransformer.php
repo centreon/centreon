@@ -51,9 +51,9 @@ class ExportResourcesRequestTransformer {
             contact: $contact,
             exportedFormat: $input->format,
             resourceFilter: $resourceFilter,
-            allPages: $input->allPages,
-            maxResults: $input->maxLines ?? ExportResourcesInput::EXPORT_MAX_LINES,
-            columns: $input->columns
+            allPages: (bool) $input->allPages,
+            maxResults: (int) $input->maxLines ?? ExportResourcesInput::EXPORT_MAX_LINES,
+            columns: $input->columns ?? []
         );
     }
 }
