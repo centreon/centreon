@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material';
-import { Checkbox } from 'packages/ui/src';
+import { Checkbox } from '@centreon/ui';
 import { equals } from 'ramda';
 import { useEffect, useState } from 'react';
 import useExportCsvStyles from './exportCsv.styles';

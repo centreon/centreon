@@ -1,4 +1,4 @@
-import { getFoundFields } from 'packages/ui/src';
+import { getFoundFields } from '@centreon/ui';
 import { isEmpty } from 'ramda';
 import { searchableFields } from '../../testUtils';
 import { Search } from './models';
