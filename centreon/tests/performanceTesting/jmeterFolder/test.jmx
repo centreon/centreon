@@ -3,9 +3,7 @@
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Centreon API Test Plan">
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
-        <collectionProp name="Arguments.arguments">
-          <!-- Définir les variables utilisateur ici si nécessaire -->
-        </collectionProp>
+        <collectionProp name="Arguments.arguments"/>
       </elementProp>
     </TestPlan>
     <hashTree>
@@ -20,26 +18,22 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <!-- Utiliser un CSVDataSet pour charger les utilisateurs à partir du fichier CSV -->
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read Users from CSV">
-          <stringProp name="filename">/home/runner/work/centreon/centreon/centreon/tests/performanceTesting/users.csv</stringProp> <!-- Chemin vers le fichier CSV -->
+          <stringProp name="filename">C:/Workspace/centreon/centreon/tests/performanceTesting/users.csv</stringProp>
           <stringProp name="fileEncoding">UTF-8</stringProp>
-          <stringProp name="variableNames">USERNAME,PASSWORD</stringProp> <!-- Variables à extraire -->
-          <boolProp name="ignoreFirstLine">true</boolProp> <!-- Ignore la première ligne (en-tête) -->
-          <boolProp name="recycle">true</boolProp> <!-- Les utilisateurs seront lus en boucle -->
-          <boolProp name="stopThread">false</boolProp> <!-- Continue même après avoir lu toutes les lignes -->
-          <stringProp name="shareMode">all</stringProp> <!-- Partage les variables entre tous les threads -->
-          <stringProp name="delimiter">,</stringProp> <!-- Délimiteur des colonnes dans le fichier CSV -->
-          <boolProp name="quotedData">false</boolProp> <!-- Pas de guillemets autour des données -->
+          <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">all</stringProp>
+          <stringProp name="delimiter">,</stringProp>
+          <boolProp name="quotedData">false</boolProp>
         </CSVDataSet>
         <hashTree/>
-
-        <!-- HTTP Sampler pour l'authentification de l'utilisateur -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login Request">
-          <stringProp name="HTTPSampler.domain">localhost</stringProp>
-          <stringProp name="HTTPSampler.port">4000</stringProp>
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/centreon/api/latest/login</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/login</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -51,8 +45,8 @@
                 <stringProp name="Argument.value">{&#xd;
   &quot;security&quot;: {&#xd;
     &quot;credentials&quot;: {&#xd;
-      &quot;login&quot;: &quot;${USERNAME}&quot;,&#xd; <!-- Utilisation de la variable USERNAME -->
-      &quot;password&quot;: &quot;${PASSWORD}&quot;&#xd; <!-- Utilisation de la variable PASSWORD -->
+      &quot;login&quot;: &quot;${USERNAME}&quot;,&#xd; &#xd;
+      &quot;password&quot;: &quot;${PASSWORD}&quot;&#xd; &#xd;
     }&#xd;
   }&#xd;
 }</stringProp>
@@ -62,8 +56,7 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <!-- JSON Post Processor pour extraire le token d'authentification -->
-          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Auth Token">
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Auth Token" enabled="true">
             <stringProp name="JSONPostProcessor.referenceNames">AUTH_TOKEN</stringProp>
             <stringProp name="JSONPostProcessor.jsonPathExprs">$.security.token</stringProp>
             <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
@@ -72,44 +65,13 @@
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-
-        <!-- Debug Sampler pour afficher les informations -->
         <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler">
           <boolProp name="displayJMeterProperties">true</boolProp>
           <boolProp name="displayJMeterVariables">true</boolProp>
           <boolProp name="displaySystemProperties">true</boolProp>
         </DebugSampler>
         <hashTree/>
-
-        <!-- HTTP Sampler pour tester l'API Dashboard -->
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Test Dashboard API">
-          <stringProp name="HTTPSampler.domain">localhost</stringProp>
-          <stringProp name="HTTPSampler.port">4000</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/centreon/api/latest/configuration/dashboards?page=1&amp;limit=10</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <!-- Gestion des en-têtes HTTP pour l'authentification -->
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
-            <collectionProp name="HeaderManager.headers">
-              <elementProp name="" elementType="Header">
-                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
-                <stringProp name="Header.value">${AUTH_TOKEN}</stringProp> <!-- Utilisation du token -->
-              </elementProp>
-            </collectionProp>
-          </HeaderManager>
-          <hashTree/>
-        </hashTree>
-
-        <!-- Résultats de test sous forme de rapport -->
-        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report">
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
             <name>saveConfig</name>
@@ -146,6 +108,35 @@
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding Up filtre">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;UP&quot;,&quot;name&quot;:&quot;Up&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;]}],&quot;name&quot;:&quot;Up filtre&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${AUTH_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
       </hashTree>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
