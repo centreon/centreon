@@ -59,6 +59,14 @@ final class TokenVoters extends Voter
             return false;
         }
 
+        if (
+            $subject !== null
+            && $subject !== $user->getId()
+            && ! $this->canAccessOthersTokens($user, $subject)
+        ) {
+            return false;
+        }
+
         return match ($attribute) {
             self::TOKEN_ADD, self::TOKEN_LIST => $this->checkUserRights($user),
             default => false,
@@ -75,5 +83,20 @@ final class TokenVoters extends Voter
     private function checkUserRights(ContactInterface $user): bool
     {
         return $user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW);
+    }
+
+    /**
+     * Check that current user has rights to access other users' tokens.
+     *
+     * @param ContactInterface $user
+     * @param mixed $userId
+     *
+     * @return bool
+     */
+    private function canAccessOthersTokens(ContactInterface $user, mixed $userId): bool
+    {
+        return
+            $user->isAdmin()
+            || $user->hasRole(Contact::ROLE_MANAGE_TOKENS);
     }
 }
