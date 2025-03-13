@@ -32,6 +32,7 @@ use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterRelation;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\ResourceAccess\Domain\Model\TinyRule;
@@ -351,6 +352,7 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
                     INNER JOIN acl_resources_hg_relations arhr
                         ON arhr.acl_res_id = dataset_filters.acl_resource_id
                     WHERE hg_hg_id = :hostGroupId
+                    AND resource_ids != ''
                 SQL
         ));
 
@@ -369,6 +371,9 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         return $datasetFilters;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findLastLevelDatasetFilterByRuleIdsAndType(array $ruleIds, string $type): array
     {
         if (empty($ruleIds)) {
@@ -381,6 +386,10 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
                 <<<SQL
                         SELECT
                             id,
+                            type,
+                            parent_id,
+                            acl_resource_id,
+                            acl_group_id,
                             resource_ids
                         FROM `:db`.dataset_filters
                         INNER JOIN `:db`.acl_resources AS dataset
@@ -399,16 +408,53 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         $statement->bindValue(':type', $type, \PDO::PARAM_STR);
         $statement->execute();
 
-        $datasetFilters = [];
+        $datasetFilterRelations = [];
 
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /**
-             * @var array{id: int, resource_ids: string} $record
+             * @var array{
+             *      id: int,
+             *      type: string,
+             *      parent_id: int|null,
+             *      acl_resource_id: int,
+             *      acl_group_id: int,
+             *      resource_ids: string
+             * } $record
              */
-            $datasetFilters[$record['id']] = array_map('intval', explode(',', $record['resource_ids']));
+            $datasetFilterRelations[] = new DatasetFilterRelation(
+                datasetFilterId: $record['id'],
+                datasetFilterType: $record['type'],
+                parentId: $record['parent_id'],
+                resourceAccessGroupId: $record['acl_resource_id'],
+                aclGroupId: $record['acl_group_id'],
+                resourceIds: array_map('intval', explode(',', $record['resource_ids']))
+            );
         }
 
-        return $datasetFilters;
+        return $datasetFilterRelations;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existByTypeAndResourceId(string $type, int $resourceId): array
+    {
+        $resourceIdPattern = '(^|,)' . $resourceId . '(,|$)';
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                        SELECT DISTINCT acl_group_id
+                        FROM `:db`.dataset_filters
+                        WHERE type = :type
+                            AND resource_ids REGEXP(:resourceIdPattern)
+                    SQL
+            )
+        );
+        $statement->bindValue(':type', $type, \PDO::PARAM_STR);
+        $statement->bindValue(':resourceIdPattern', $resourceIdPattern, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     /**

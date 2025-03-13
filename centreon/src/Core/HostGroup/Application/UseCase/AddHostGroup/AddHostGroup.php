@@ -105,7 +105,7 @@ final class AddHostGroup
 
             $newHostGroupId = $this->writeHostGroupRepository->add($hostGroup);
 
-            $this->writeHostGroupRepository->addHosts($newHostGroupId, $request->hosts);
+            $this->writeHostGroupRepository->addHostLinks($newHostGroupId, $request->hosts);
             $this->linkHostGroupToRessourceAccess($request->resourceAccessRules, $newHostGroupId);
 
             $newHostGroup = $this->readHostGroupRepository->findOne($newHostGroupId);
@@ -183,16 +183,19 @@ final class AddHostGroup
      */
     private function linkHostGroupToRAM(array $resourceAccessRuleIds, int $hostGroupId): void
     {
-        $datasetFilters = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
+        $datasetFilterRelations = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
             $resourceAccessRuleIds,
             HostGroupFilterType::TYPE_NAME
         );
-
-        foreach ($datasetFilters as $datasetId => $resourceIds) {
+        foreach ($datasetFilterRelations as $datasetFilterRelation) {
+            $resourceIds = $datasetFilterRelation->getResourceIds();
             $resourceIds[] = $hostGroupId;
-            $this->writeResourceAccessRepository->updateDatasetResources($datasetId, $resourceIds);
+            $this->writeResourceAccessRepository->updateDatasetResources(
+                $datasetFilterRelation->getDatasetFilterId(),
+                $resourceIds
+            );
+            $this->linkHostGroupToResourcesACL($hostGroupId);
         }
-
     }
 
     /**

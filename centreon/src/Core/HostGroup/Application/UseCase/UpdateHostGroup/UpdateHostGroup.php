@@ -24,221 +24,325 @@ declare(strict_types=1);
 namespace Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
+    InvalidArgumentResponse,
+    NoContentResponse,
+    NotFoundResponse,
+    ResponseStatusInterface,
+};
+use Core\Common\Domain\SimpleEntity;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
+use Core\Host\Application\Exception\HostException;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Host\Domain\Model\SmallHost;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
-use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
-use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
+use Core\HostGroup\Application\Repository\{
+    ReadHostGroupRepositoryInterface,
+    WriteHostGroupRepositoryInterface,
+};
 use Core\HostGroup\Domain\Model\HostGroup;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\{
+    ReadMonitoringServerRepositoryInterface,
+    WriteMonitoringServerRepositoryInterface,
+};
+use Core\ResourceAccess\Application\Exception\RuleException;
+use Core\ResourceAccess\Application\Repository\{
+    ReadResourceAccessRepositoryInterface,
+    WriteResourceAccessRepositoryInterface,
+};
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\Security\AccessGroup\Application\Repository\{
+    ReadAccessGroupRepositoryInterface,
+    WriteAccessGroupRepositoryInterface,
+};
+use Utility\Difference\BasicDifference;
 
 final class UpdateHostGroup
 {
     use LoggerTrait;
 
     public function __construct(
+        private readonly ContactInterface $user,
+        private readonly UpdateHostGroupValidator $validator,
+        private readonly DataStorageEngineInterface $storageEngine,
+        private readonly bool $isCloudPlatform,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
-        private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
+        private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
-        private readonly ContactInterface $contact
+        private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
+        private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
+        private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
+        private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
+        private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository
     ) {
     }
 
     /**
-     * @param int $hostGroupId
      * @param UpdateHostGroupRequest $request
-     * @param UpdateHostGroupPresenterInterface $presenter
      */
-    public function __invoke(
-        int $hostGroupId,
-        UpdateHostGroupRequest $request,
-        UpdateHostGroupPresenterInterface $presenter
-    ): void {
+    public function __invoke(UpdateHostGroupRequest $request): ResponseStatusInterface
+    {
         try {
-            if ($this->contact->isAdmin()) {
-                $response = $this->updateHostGroupAsAdmin($hostGroupId, $request);
-            } elseif ($this->contactCanPerformWriteOperations()) {
-                $response = $this->updateHostGroupAsContact($hostGroupId, $request);
-            } else {
-                $response = new ForbiddenResponse(HostGroupException::accessNotAllowedForWriting());
-            }
-
-            if ($response instanceof NoContentResponse) {
-                $presenter->presentResponse($response);
-                $this->info('Update host group', ['request' => $request]);
-            } elseif ($response instanceof NotFoundResponse) {
-                $presenter->presentResponse($response);
-                $this->warning('Host group (%s) not found', ['id' => $hostGroupId]);
-            } else {
-                $presenter->presentResponse($response);
-                $this->error(
-                    "User doesn't have sufficient rights to update host groups",
-                    ['user_id' => $this->contact->getId()]
+            $existingHostGroup = $this->user->isAdmin()
+                ? $this->readHostGroupRepository->findOne($request->id)
+                : $this->readHostGroupRepository->findOneByAccessGroups(
+                    $request->id,
+                    $this->readAccessGroupRepository->findByContact($this->user)
                 );
+
+            if ($existingHostGroup === null) {
+                return new NotFoundResponse('Host Group');
             }
-        } catch (AssertionFailedException $ex) {
-            $presenter->presentResponse(new InvalidArgumentResponse($ex));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        } catch (HostGroupException $ex) {
-            $presenter->presentResponse(
-                match ($ex->getCode()) {
-                    HostGroupException::CODE_CONFLICT => new ConflictResponse($ex),
-                    default => new ErrorResponse($ex),
-                }
+            $this->validator->assertNameDoesNotAlreadyExists($existingHostGroup, $request->name);
+            $this->validator->assertHostsExist($request->hosts);
+            if ($request->iconId !== null) {
+                $this->validator->assertIconExists($request->iconId);
+            }
+
+            if ($this->isCloudPlatform) {
+                $this->validator->assertResourceAccessRulesExist($request->resourceAccessRules);
+            }
+
+            if (! $this->storageEngine->isAlreadyInTransaction()) {
+                $this->storageEngine->startTransaction();
+            }
+
+            $this->updateHostGroup($request, $existingHostGroup);
+            $this->updateHostLinks($request);
+            if ($this->isCloudPlatform) {
+                $this->updateResourceAccess($request);
+            }
+
+            $this->storageEngine->commitTransaction();
+
+            return new NoContentResponse();
+        } catch (HostGroupException|HostException|RuleException|AssertionFailedException|InvalidGeoCoordException $ex) {
+            if ($this->storageEngine->isAlreadyInTransaction()) {
+                $this->storageEngine->rollbackTransaction();
+            }
+            $this->error(
+                "Error while updating host group : {$ex->getMessage()}",
+                [
+                    'hostGroupId' => $request->id,
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
             );
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            return new InvalidArgumentResponse($ex);
         } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(HostGroupException::errorWhileUpdating()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            if ($this->storageEngine->isAlreadyInTransaction()) {
+                $this->storageEngine->rollbackTransaction();
+            }
+            $this->error(
+                "Error while updating host group : {$ex->getMessage()}",
+                [
+                    'hostGroupId' => $request->id,
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
+
+            return new ErrorResponse($ex);
         }
     }
 
     /**
+     * Update the configuration options of the host group.
+     *
      * @param UpdateHostGroupRequest $request
-     * @param int $hostGroupId
+     * @param HostGroup $existingHostGroup
      *
-     * @throws HostGroupException
-     * @throws \Throwable
-     *
-     * @return NoContentResponse|NotFoundResponse
+     * @throws InvalidGeoCoordException|\Throwable
      */
-    private function updateHostGroupAsAdmin(
-        int $hostGroupId,
-        UpdateHostGroupRequest $request
-    ): NoContentResponse|NotFoundResponse {
-        $hostGroup = $this->readHostGroupRepository->findOne($hostGroupId);
-        if (null === $hostGroup) {
-            return new NotFoundResponse('Host group');
-        }
-
-        $this->assertNameDoesNotAlreadyExists($hostGroup, $request);
-        $this->assertNotNullIconsExist($request);
-
-        $modifiedHostGroup = $this->createModifiedHostGroup($hostGroup, $request);
-        $this->writeHostGroupRepository->update($modifiedHostGroup);
-
-        return new NoContentResponse();
-    }
-
-    /**
-     * @param UpdateHostGroupRequest $request
-     * @param int $hostGroupId
-     *
-     * @throws HostGroupException
-     * @throws \Throwable
-     *
-     * @return NoContentResponse|NotFoundResponse
-     */
-    private function updateHostGroupAsContact(
-        int $hostGroupId,
-        UpdateHostGroupRequest $request
-    ): NoContentResponse|NotFoundResponse {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $hostGroup = $this->readHostGroupRepository->findOneByAccessGroups($hostGroupId, $accessGroups);
-        if (null === $hostGroup) {
-            return new NotFoundResponse('Host group');
-        }
-
-        $this->assertNameDoesNotAlreadyExists($hostGroup, $request);
-        $this->assertNotNullIconsExist($request);
-
-        $modifiedHostGroup = $this->createModifiedHostGroup($hostGroup, $request);
-        $this->writeHostGroupRepository->update($modifiedHostGroup);
-
-        return new NoContentResponse();
-    }
-
-    /**
-     * @param UpdateHostGroupRequest $request
-     * @param HostGroup $hostGroup
-     *
-     * @throws HostGroupException
-     * @throws \Throwable
-     */
-    private function assertNameDoesNotAlreadyExists(HostGroup $hostGroup, UpdateHostGroupRequest $request): void
+    private function updateHostGroup(UpdateHostGroupRequest $request, HostGroup $existingHostGroup): void
     {
-        if (
-            $hostGroup->getName() !== $request->name
-            && $this->readHostGroupRepository->nameAlreadyExists($request->name)
-        ) {
-            $this->error('Host group name already exists', ['name' => $request->name]);
-
-            throw HostGroupException::nameAlreadyExists($request->name);
-        }
-    }
-
-    /**
-     * @param UpdateHostGroupRequest $request
-     *
-     * @throws HostGroupException
-     * @throws \Throwable
-     */
-    private function assertNotNullIconsExist(UpdateHostGroupRequest $request): void
-    {
-        if (
-            null !== $request->iconId
-            && ! $this->readViewImgRepository->existsOne($request->iconId)
-        ) {
-            throw HostGroupException::iconDoesNotExist('iconId', $request->iconId);
-        }
-        if (
-            null !== $request->iconMapId
-            && ! $this->readViewImgRepository->existsOne($request->iconMapId)
-        ) {
-            throw HostGroupException::iconDoesNotExist('iconMapId', $request->iconMapId);
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    private function contactCanPerformWriteOperations(): bool
-    {
-        return $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE);
-    }
-
-    /**
-     * @param HostGroup $hostGroup
-     * @param UpdateHostGroupRequest $request
-     *
-     * @throws InvalidGeoCoordException
-     * @throws AssertionFailedException
-     *
-     * @return HostGroup
-     */
-    private function createModifiedHostGroup(HostGroup $hostGroup, UpdateHostGroupRequest $request): HostGroup
-    {
-        return new HostGroup(
-            $hostGroup->getId(),
-            $request->name,
-            $request->alias,
-            $request->notes,
-            $request->notesUrl,
-            $request->actionUrl,
-            null === $request->iconId || $request->iconId < 1
-                ? null
-                : $request->iconId,
-            null === $request->iconMapId || $request->iconMapId < 1
-                ? null
-                : $request->iconMapId,
-            $request->rrdRetention,
-            match ($request->geoCoords) {
+        $updatedHostGroup = new HostGroup(
+            id: $request->id,
+            name: $request->name,
+            alias: $request->alias,
+            comment: $request->comment,
+            iconId: $request->iconId,
+            geoCoords: match ($request->geoCoords) {
                 null, '' => null,
                 default => GeoCoords::fromString($request->geoCoords),
             },
-            $request->comment,
-            $request->isActivated,
         );
+        $this->writeHostGroupRepository->update($updatedHostGroup);
+    }
+
+    /**
+     * Update the hosts linked to the host group.
+     *
+     * @param UpdateHostGroupRequest $request
+     *
+     * @throws \Throwable
+     */
+    private function updateHostLinks(UpdateHostGroupRequest $request): void
+    {
+        if ($this->user->isAdmin()) {
+            $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
+            $hostsToRemove = array_map(fn (SimpleEntity $host): int => $host->getId(), $existingHosts);
+        } else {
+            $reachableHosts = $this->readHostRepository->findByRequestParametersAndAccessGroups(
+                new RequestParameters(),
+                $this->readAccessGroupRepository->findByContact($this->user)
+            );
+
+            $hostsToRemove = (new BasicDifference(
+                array_map(fn (SmallHost $host) => $host->getId(), $reachableHosts),
+                $request->hosts
+            ))->getRemoved();
+        }
+
+        $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
+        $this->writeHostGroupRepository->addHostLinks($request->id, $request->hosts);
+        $this->notifyConfigurationChange($request->hosts);
+    }
+
+    /**
+     * Update Resource Access Rules linked to the host group.
+     *
+     * @param UpdateHostGroupRequest $request
+     *
+     * @throws \Throwable
+     */
+    private function updateResourceAccess(UpdateHostGroupRequest $request): void
+    {
+        $rulesByHostgroup = $this->readResourceAccessRepository->existByTypeAndResourceId(
+            HostGroupFilterType::TYPE_NAME,
+            $request->id
+        );
+
+        $rulesDifference = new BasicDifference($rulesByHostgroup, $request->resourceAccessRules);
+        $rulesToRemove = $rulesDifference->getRemoved();
+        $rulesToAdd = $rulesDifference->getAdded();
+
+        $this->unlinkHostGroupToRAM($rulesToRemove, $request->id);
+        $this->linkHostGroupToRAM($rulesToAdd, $request->id);
+    }
+
+    /**
+     * Link Host groups to Datasets's Resource Access Rules,
+     * only if the dataset Hostgroup has no parent
+     *
+     * @param int[] $resourceAccessRuleIds
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     */
+    private function linkHostGroupToRAM(array $resourceAccessRuleIds, int $hostGroupId): void
+    {
+        $datasetFilterRelations = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
+            $resourceAccessRuleIds,
+            HostGroupFilterType::TYPE_NAME
+        );
+        foreach ($datasetFilterRelations as $datasetFilterRelation) {
+            /**
+             * Empty $resourceIds are dataset with "All Host Groups" Configured
+             * So we don't want to update it,
+             * as we will loss the "All Host Groups" notion.
+             */
+            if (! empty($datasetFilterRelation->getResourceIds())) {
+                $resourceIds = $datasetFilterRelation->getResourceIds();
+                $resourceIds[] = $hostGroupId;
+                $this->writeResourceAccessRepository->updateDatasetResources(
+                    $datasetFilterRelation->getDatasetFilterId(),
+                    $resourceIds
+                );
+                $this->linkHostGroupToResourcesACL($hostGroupId, $datasetFilterRelation->getResourceAccessGroupId());
+            }
+        }
+    }
+
+    /**
+     * Unlink Host groups to Datasets's Resource Access Rules.
+     * Remove dataset filters if he is empty after removing the hostgroup.
+     *
+     * @param int[] $resourceAccessRuleIds
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     */
+    private function unlinkHostGroupToRAM(array $resourceAccessRuleIds, int $hostGroupId): void
+    {
+        $datasetFilterRelations = $this->readResourceAccessRepository->findLastLevelDatasetFilterByRuleIdsAndType(
+            $resourceAccessRuleIds,
+            HostGroupFilterType::TYPE_NAME
+        );
+
+        foreach ($datasetFilterRelations as $datasetFilterRelation) {
+            /**
+             * Empty $resourceIds are dataset with "All Host Groups" Configured
+             * So we don't want to delete the dataset, and we don't want to update it either,
+             * as we will loss the "All Host Groups" notion.
+             */
+            if (! empty($datasetFilterRelation->getResourceIds())) {
+                $resourceIdToUpdates = array_filter(
+                    $datasetFilterRelation->getResourceIds(),
+                    fn ($resourceId) => $resourceId !== $hostGroupId
+                );
+                if (empty($resourceIdToUpdates)) {
+                    $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterRelation->getDatasetFilterId());
+                } else {
+                    $this->writeResourceAccessRepository->updateDatasetResources($datasetFilterRelation->getDatasetFilterId(), $resourceIdToUpdates);
+                }
+                $this->unlinkHostGroupToResourcesACL($hostGroupId);
+            }
+        }
+    }
+
+    /**
+     * Signal Monitoring Server Configuration change.
+     *
+     * @param int[] $linkedHostsIds
+     */
+    private function notifyConfigurationChange(array $linkedHostsIds): void
+    {
+        // Find monitoring servers associated with the linked hosts
+        $serverIds = $this->readMonitoringServerRepository->findByHostsIds($linkedHostsIds);
+
+        // Notify configuration changes
+        $this->writeMonitoringServerRepository->notifyConfigurationChanges($serverIds);
+    }
+
+    /**
+     * Unlink Host Groups to user Resource Access Groups
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     */
+    private function unlinkHostGroupToResourcesACL(int $hostGroupId): void
+    {
+        if (! $this->user->isAdmin()) {
+            $this->writeAccessGroupRepository->removeLinksBetweenHostGroupAndAccessGroups(
+                $hostGroupId,
+                $this->readAccessGroupRepository->findByContact($this->user)
+            );
+        }
+    }
+
+    /**
+     * Link Host Groups to user Resource Access Groups
+     *
+     * @param int $hostGroupId
+     * @param int $datasetId
+     *
+     * @throws \Throwable
+     */
+    private function linkHostGroupToResourcesACL(int $hostGroupId, int $datasetId): void
+    {
+        if (! $this->user->isAdmin()) {
+            $this->writeAccessGroupRepository->addLinksBetweenHostGroupAndResourceAccessGroup(
+                $hostGroupId,
+                $datasetId
+            );
+        }
     }
 }

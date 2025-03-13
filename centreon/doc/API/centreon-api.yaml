@@ -20,6 +20,8 @@ info:
     + Added new endpoint to bulk delete services
     + Added new endpoint to bulk delete hostgroups
     + Added new endpoint to bulk enable/disable hostgroups
+    + Updated endpoint to add an hostgroup
+    + Updated endpoint to update an hostgroup
     + Added new endpoint to bulk duplicate hostgroups
     +
     # Information
