@@ -182,7 +182,7 @@ class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteToken
         $statement->bindValue(
             ':tokenType',
             $token->getType() === TokenTypeEnum::API
-                ? 'manual'
+                ? 'api'
                 : 'cma',
             \PDO::PARAM_STR
         );
