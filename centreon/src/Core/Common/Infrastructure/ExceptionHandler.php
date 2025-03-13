@@ -101,24 +101,15 @@ final readonly class ExceptionHandler
      */
     private function getExceptionInfos(\Throwable $throwable): array
     {
-        $exceptionContext = [
+        return [
             'type' => $throwable::class,
             'message' => $throwable->getMessage(),
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
             'code' => $throwable->getCode(),
+            'class' => $throwable->getTrace()[0]['class'] ?? null,
+            'method' => $throwable->getTrace()[0]['function'] ?? null,
         ];
-
-        if (! empty($throwable->getTrace())) {
-            if (isset($throwable->getTrace()[0]['class'])) {
-                $exceptionContext['class'] = $throwable->getTrace()[0]['class'];
-            }
-            if (isset($throwable->getTrace()[0]['function'])) {
-                $exceptionContext['method'] = $throwable->getTrace()[0]['function'];
-            }
-        }
-
-        return $exceptionContext;
     }
 
     /**
