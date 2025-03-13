@@ -8,9 +8,8 @@ Feature: Custom views
 
   @TEST_MON-162286
   Scenario: Create an unlocked shared view
-    Given an non admin user with access to the custom view page is configured
-    When the user goes to "Home > Custom Views"
-    And the user adds a new unlocked custom view shared with the non admin user
+    Given the admin is on the "Home > Custom Views" page
+    When the admin adds a new unlocked custom view shared with a configured non admin user
     Then the view is added
 
   @TEST_MON-162287
@@ -21,7 +20,7 @@ Feature: Custom views
 
   @TEST_MON-162288
   Scenario: Remove an unlocked shared view
-    Given a shared custom view with the non admin
+    Given a shared custom view with the non admin user
     And the non admin user is using the shared view
     When he removes the shared view
     Then the view is not visible anymore
