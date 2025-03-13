@@ -55,7 +55,8 @@ final class AddToken
     /**
      * @param AddTokenRequest $request
      */
-    public function __invoke(AddTokenRequest $request): ResponseStatusInterface|StandardResponseInterface {
+    public function __invoke(AddTokenRequest $request): ResponseStatusInterface|StandardResponseInterface
+    {
         try {
             $tokenString = $this->createToken($request);
 
