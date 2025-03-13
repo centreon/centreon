@@ -1,4 +1,3 @@
-@REQ_MON-150601
 Feature: Edit a service
   As a Centreon user
   I want to manipulate a service
