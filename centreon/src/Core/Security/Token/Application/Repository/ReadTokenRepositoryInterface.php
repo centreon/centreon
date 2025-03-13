@@ -97,4 +97,16 @@ interface ReadTokenRepositoryInterface
      * @return bool
      */
     public function isTokenTypeAuto(string $token): bool;
+
+    /**
+     * Return the token string by tokenName and userId.
+     *
+     * @param string $tokenName
+     * @param int $userId
+     *
+     * @throws \Throwable
+     *
+     * @return string|null
+     */
+    public function findTokenString(string $tokenName,int $userId): ?string;
 }
