@@ -6,7 +6,12 @@ import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 import ConfigurationBase from '..';
-import { configurationAtom, filtersAtom } from '../../atoms';
+import { defaultSelectedColumnIds } from '../../HostGroups/utils';
+import {
+  configurationAtom,
+  filtersAtom,
+  selectedColumnIdsAtom
+} from '../../atoms';
 import { FilterConfiguration, ResourceType } from '../../models';
 import {
   columns,
@@ -86,6 +91,7 @@ const initialize = ({
   const store = createStore();
 
   store.set(filtersAtom, filtersInitialValues);
+  store.set(selectedColumnIdsAtom, defaultSelectedColumnIds);
 
   store.set(configurationAtom, {
     resourceType: resourceType,
