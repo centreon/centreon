@@ -1,9 +1,13 @@
 import { useEffect, useMemo } from 'react';
 
 import { useAtom } from 'jotai';
-import { isEmpty, not } from 'ramda';
+import { isEmpty, isNil, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { configurationAtom, filtersAtom } from '../atoms';
+import {
+  configurationAtom,
+  filtersAtom,
+  selectedColumnIdsAtom
+} from '../atoms';
 
 import ConfigurationBase from '../ConfigurationBase';
 import Form from './Form/Form';
@@ -26,6 +30,7 @@ import {
   hostGroupsListEndpoint
 } from './api/endpoints';
 
+import { atomKey } from '../utils';
 import { labelAlias, labelName, labelStatus } from './translatedLabels';
 import { defaultSelectedColumnIds, filtersInitialValues } from './utils';
 
@@ -35,6 +40,9 @@ const HostGroups = () => {
 
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
+  const [selectedColumnIds, setSelectedColumnIds] = useAtom(
+    selectedColumnIdsAtom
+  );
 
   const hostGroupsEndpoints: Endpoints = useMemo(
     () => ({
@@ -82,6 +90,9 @@ const HostGroups = () => {
     });
 
     setFilters(filtersInitialValues);
+    if (isNil(localStorage.getItem(`selectedColumn_${atomKey}`))) {
+      setSelectedColumnIds(defaultSelectedColumnIds);
+    }
   }, [setConfiguration, setFilters, hostGroupsEndpoints, filtersConfiguration]);
 
   const isConfigurationValid = useMemo(
@@ -91,7 +102,8 @@ const HostGroups = () => {
       configuration?.filtersConfiguration &&
       !isEmpty(configuration?.defaultSelectedColumnIds) &&
       !isEmpty(configuration?.filtersInitialValues) &&
-      !isEmpty(filters),
+      !isEmpty(filters) &&
+      !isEmpty(selectedColumnIds),
     [configuration, filters]
   );
 

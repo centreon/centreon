@@ -1,11 +1,9 @@
-import { useState } from 'react';
-
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 import { useNavigate } from 'react-router';
-import { configurationAtom } from '../../atoms';
+import { configurationAtom, selectedColumnIdsAtom } from '../../atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
@@ -31,8 +29,8 @@ const useListing = (): UseListing => {
   const configuration = useAtomValue(configurationAtom);
   const defaultSelectedColumnIds = configuration?.defaultSelectedColumnIds;
 
-  const [selectedColumnIds, setSelectedColumnIds] = useState(
-    defaultSelectedColumnIds
+  const [selectedColumnIds, setSelectedColumnIds] = useAtom(
+    selectedColumnIdsAtom
   );
 
   const [sorto, setSorto] = useAtom(sortOrderAtom);
@@ -54,7 +52,7 @@ const useListing = (): UseListing => {
   };
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
-    if (updatedColumnIds.length < 3) {
+    if (updatedColumnIds.length < 1) {
       showWarningMessage(t(labelSelectAtLeastOneColumn));
 
       return;
