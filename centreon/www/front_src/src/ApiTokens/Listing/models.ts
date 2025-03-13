@@ -38,4 +38,5 @@ export interface CreateTokenFormValues {
   duration: Omit<Duration, 'unit'> | null;
   tokenName: string;
   user: NamedEntity | null;
+  type: NamedEntity;
 }

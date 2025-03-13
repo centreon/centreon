@@ -24,7 +24,6 @@ const Listing = (): JSX.Element => {
 
   return (
     <MemoizedListing
-      checkable
       actions={<Actions />}
       columnConfiguration={{
         selectedColumnIds,

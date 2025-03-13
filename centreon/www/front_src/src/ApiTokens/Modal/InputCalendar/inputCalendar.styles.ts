@@ -14,7 +14,7 @@ export const useStyles = makeStyles<StyleProps>()(
     containerDatePicker: {
       alignItems: 'center',
       display: 'flex',
-      flexDirection: 'row'
+      gap: theme.spacing(1)
     },
     dateTimePicker: {
       '& .MuiInputBase-input': {

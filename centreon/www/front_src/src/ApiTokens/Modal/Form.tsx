@@ -19,21 +19,23 @@ import { userAtom } from '@centreon/ui-context';
 import { CreateTokenFormValues } from '../Listing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
 import { Parameters } from '../api/models';
+import { TokenType } from '../models';
 import {
   labelCancel,
   labelClose,
   labelDuration,
   labelGenerateNewToken,
   labelName,
+  labelType,
   labelUser
 } from '../translatedLabels';
-
 import { useStyles } from './Form.styles';
 import InputCalendar from './InputCalendar/inputCalendar';
 import Title from './Title';
 import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
 import useCreateTokenFormValues from './useTokenFormValues';
+import { tokenTypes } from './utils';
 
 interface Props {
   closeDialog: () => void;
@@ -64,10 +66,11 @@ const FormCreation = ({
     setFieldValue,
     handleSubmit,
     resetForm,
-    isSubmitting
+    isSubmitting,
+    errors
   } = useFormikContext<CreateTokenFormValues>();
 
-  const { token, duration, tokenName, user } = useCreateTokenFormValues({
+  const { token, duration, tokenName, user, type } = useCreateTokenFormValues({
     data,
     values
   });
@@ -113,14 +116,20 @@ const FormCreation = ({
     setFieldValue('user', value);
   };
 
+  const changeType = (_, value): void => {
+    setFieldValue('type', value);
+  };
+
   const options = dataDuration.map(({ id, name }) => ({
     id,
-    name
+    name: t(name)
   }));
 
   const labelConfirm = token ? t(labelClose) : t(labelGenerateNewToken);
 
   const confirmDisabled = !dirty || !isValid || isSubmitting;
+
+  const isUserDisplayed = !equals(type.id, TokenType.CMA);
 
   return (
     <Dialog
@@ -135,6 +144,19 @@ const FormCreation = ({
       onCancel={token ? undefined : close}
       onConfirm={token ? close : handleSubmit}
     >
+      <SingleAutocompleteField
+        className={classes.input}
+        dataTestId={labelType}
+        disabled={Boolean(token)}
+        getOptionItemLabel={(option) => option?.name}
+        id="type"
+        label={t(labelType)}
+        options={tokenTypes}
+        required={!token}
+        value={type}
+        onChange={changeType}
+      />
+
       <TextField
         autoComplete="off"
         className={classes.input}
@@ -152,7 +174,7 @@ const FormCreation = ({
       <SingleAutocompleteField
         className={classes.input}
         dataTestId={labelDuration}
-        disabled={Boolean(token) || isDisplayingDateTimePicker}
+        disabled={Boolean(token)}
         getOptionItemLabel={(option) => option?.name}
         id="duration"
         label={t(labelDuration)}
@@ -161,25 +183,28 @@ const FormCreation = ({
         value={duration}
         onChange={changeDuration}
       />
-      {isDisplayingDateTimePicker && (
+      {isDisplayingDateTimePicker && equals(duration?.id, 'customize') && (
         <InputCalendar
           setIsDisplayingDateTimePicker={setIsDisplayingDateTimePicker}
           windowHeight={height}
         />
       )}
 
-      <SingleConnectedAutocompleteField
-        className={classes.input}
-        dataTestId={labelUser}
-        disabled={Boolean(token) || !canManageApiTokens}
-        field="name"
-        getEndpoint={getUsersEndpoint}
-        id="user"
-        label={t(labelUser)}
-        required={!token}
-        value={user}
-        onChange={changeUser}
-      />
+      {isUserDisplayed && (
+        <SingleConnectedAutocompleteField
+          className={classes.input}
+          dataTestId={labelUser}
+          disabled={Boolean(token) || !canManageApiTokens}
+          field="name"
+          getEndpoint={getUsersEndpoint}
+          id="user"
+          label={t(labelUser)}
+          required={!token}
+          value={user}
+          onChange={changeUser}
+        />
+      )}
+
       {token && <TokenInput token={token} />}
     </Dialog>
   );

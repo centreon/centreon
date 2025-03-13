@@ -18,7 +18,7 @@ const useTokenFormValues = ({
   values,
   data
 }: Props): UseCreateTokenFormValues => {
-  const { token, duration, tokenName, user } = useMemo(() => {
+  const { token, duration, tokenName, user, type } = useMemo(() => {
     const currentData = data as CreatedToken;
     const invalidData = data as ResponseError;
 
@@ -27,12 +27,14 @@ const useTokenFormValues = ({
         duration: values.duration,
         token: undefined,
         tokenName: values.tokenName,
-        user: values.user
+        user: values.user,
+        type: values.type
       };
     }
     const tokenValue = currentData.token;
     const tokenNameValue = currentData.name;
     const userValue = currentData.user;
+    const type = currentData.type;
 
     const durationValue = getDuration({
       endTime: currentData.expirationDate,
@@ -44,16 +46,18 @@ const useTokenFormValues = ({
       duration: durationValue,
       token: tokenValue,
       tokenName: tokenNameValue,
-      user: userValue
+      user: userValue,
+      type
     };
   }, [
     (data as CreatedToken)?.token,
     values.user,
     values.duration?.name,
-    values.tokenName
+    values.tokenName,
+    values.type
   ]);
 
-  return { duration, token, tokenName, user };
+  return { duration, token, tokenName, user, type };
 };
 
 export default useTokenFormValues;

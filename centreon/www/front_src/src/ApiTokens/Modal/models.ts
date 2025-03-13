@@ -28,6 +28,7 @@ export interface UseCreateTokenFormValues {
   token?: string;
   tokenName: string;
   user: SelectEntry | null;
+  type: SelectEntry;
 }
 
 export const dataDuration: Array<Duration> = [
@@ -36,6 +37,7 @@ export const dataDuration: Array<Duration> = [
   { id: '60days', name: '60 days', unit: UnitDate.Day, value: 60 },
   { id: '90days', name: '90 days', unit: UnitDate.Day, value: 90 },
   { id: '1year', name: '1 year', unit: UnitDate.Year, value: 1 },
+  { id: 'neverExpire', name: 'Never expire', unit: UnitDate.Year, value: null },
   { id: 'customize', name: 'Customize', unit: null, value: null }
 ];
 

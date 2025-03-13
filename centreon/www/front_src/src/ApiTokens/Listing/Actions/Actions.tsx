@@ -1,8 +1,7 @@
-import { useActionsStyles } from './Actions.styles';
-import Refresh from './Refresh';
-
 import Filters from '../../Filters';
-import Add from './Add/Add';
+import { useActionsStyles } from './Actions.styles';
+import Add from './Add';
+import Refresh from './Refresh';
 
 const Actions = (): JSX.Element => {
   const { classes } = useActionsStyles();

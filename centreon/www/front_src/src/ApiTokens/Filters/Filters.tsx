@@ -1,4 +1,3 @@
-import {} from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -71,7 +70,6 @@ const Filters = (): JSX.Element => {
       />
 
       <MultiAutocompleteField
-        disableSortedOptions
         chipProps={{
           onDelete: deleteType
         }}

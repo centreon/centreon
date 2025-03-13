@@ -6,12 +6,15 @@ import { number, object, string } from 'yup';
 import { userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues, NamedEntity } from '../Listing/models';
-import { labelFieldRequired } from '../translatedLabels';
+import { labelRequired } from '../translatedLabels';
 
+import { equals } from 'ramda';
 import { useSearchParams } from 'react-router';
 import { ModalStateAtom } from '../atoms';
+import { TokenType } from '../models';
 import FormCreation from './Form';
 import useCreateToken from './useCreateToken';
+import { tokenTypes } from './utils';
 
 const Modal = (): JSX.Element => {
   const { t } = useTranslation();
@@ -31,11 +34,21 @@ const Modal = (): JSX.Element => {
     duration: object({
       id: string().required(),
       name: string().required()
-    }).required(t(labelFieldRequired)),
+    }).required(t(labelRequired)),
     tokenName: string().required(),
-    user: object().shape({
-      id: number().required(),
+    type: object({
+      id: string().required(),
       name: string().required()
+    }).required(t(labelRequired)),
+    user: object().when('type', ([type], schema) => {
+      return equals(type.id, TokenType.API)
+        ? schema
+            .shape({
+              id: number().required(),
+              name: string().required()
+            })
+            .required(t(labelRequired))
+        : schema.nullable();
     })
   });
 
@@ -47,7 +60,8 @@ const Modal = (): JSX.Element => {
         tokenName: '',
         user: currentUser.canManageApiTokens
           ? null
-          : (currentUser as NamedEntity)
+          : (currentUser as NamedEntity),
+        type: tokenTypes[0]
       }}
       validationSchema={validationForm}
       onSubmit={createToken}

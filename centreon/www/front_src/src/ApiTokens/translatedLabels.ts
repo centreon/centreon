@@ -14,7 +14,7 @@ export const labelTokenCopiedToTheClipboard = 'Token copied to the clipboard';
 export const labelTokenCouldNotBeCopied = 'Token could not be copied';
 export const labelInvalidDateCreationToken =
   'The end date must be greater than the current date by at least one day';
-export const labelFieldRequired = 'This field is required';
+export const labelRequired = 'Required';
 export const labelToken = 'Token';
 export const labelOk = 'Ok';
 export const labelCancel = 'Cancel';
@@ -46,5 +46,7 @@ export const labelEnabled = 'Enabled';
 export const labelUsers = 'Users';
 export const labelCreators = 'Creators';
 export const labelTypes = 'Types';
+export const labelType = 'Type';
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
+export const labelNeverExpire = 'Never expire';

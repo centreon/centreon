@@ -10,7 +10,10 @@ import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import HelperText from '../../Filters/DateInput/HelperText';
 import { CreateTokenFormValues } from '../../Listing/models';
-import { labelInvalidDateCreationToken } from '../../translatedLabels';
+import {
+  labelInvalidDateCreationToken,
+  labelUntil
+} from '../../translatedLabels';
 import { isInvalidDate } from '../utils';
 
 import { useStyles } from './inputCalendar.styles';
@@ -104,7 +107,7 @@ const InputCalendar = ({
     <div className={classes.container}>
       <div className={classes.containerDatePicker}>
         <div className={classes.subContainer}>
-          <Typography variant="overline"> Until </Typography>
+          <Typography variant="overline"> {t(labelUntil)} </Typography>
         </div>
         <DateTimePickerInput
           reduceAnimations

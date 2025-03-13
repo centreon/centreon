@@ -5,6 +5,7 @@ import { equals } from 'ramda';
 
 import { SelectEntry } from '@centreon/ui';
 
+import { TokenType } from '../models';
 import { UnitDate, maxDays } from './models';
 
 dayjs.extend(isSameOrBefore);
@@ -54,3 +55,8 @@ export const getDuration = ({
 
   return { id: name.trim(), name };
 };
+
+export const tokenTypes = [
+  { id: TokenType.API, name: 'API' },
+  { id: TokenType.CMA, name: 'Centreon monitoring agent' }
+];

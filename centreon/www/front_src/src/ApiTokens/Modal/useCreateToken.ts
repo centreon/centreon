@@ -38,22 +38,31 @@ const useCreateToken = (): UseCreateToken => {
   };
 
   const createToken = (dataForm, { setSubmitting }): void => {
-    const { duration, tokenName, user, customizeDate } = dataForm;
+    const { duration, tokenName, user, customizeDate, type } = dataForm;
 
     const durationItem = dataDuration.find(({ id }) => id === duration?.id);
 
-    const expirationDate = equals(duration?.id, 'customize')
-      ? toIsoString(customizeDate as Date)
-      : getExpirationDate({
-          unit: durationItem?.unit,
-          value: durationItem?.value
-        });
+    const getExpirationDateForApi = () => {
+      if (equals(duration?.id, 'neverExpire')) {
+        return null;
+      }
+
+      if (equals(duration?.id, 'customize')) {
+        return toIsoString(customizeDate as Date);
+      }
+
+      return getExpirationDate({
+        unit: durationItem?.unit,
+        value: durationItem?.value
+      });
+    };
 
     mutateAsync({
       payload: {
-        expiration_date: expirationDate,
+        expiration_date: getExpirationDateForApi(),
         name: tokenName,
-        user_id: user?.id
+        user_id: user?.id,
+        type: type.id
       }
     }).finally(() => setSubmitting(false));
   };
