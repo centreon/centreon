@@ -620,11 +620,9 @@ jobs:
     if: |
       inputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled()) &&
-      startsWith(github.ref_name, 'dev')
+      startsWith(github.ref_name, 'dev') &&
+      github.repository == 'centreon/centreon'
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
       - name: Create Jira ticket if nightly build failure
         uses: ./.github/actions/create-jira-ticket
         with:
@@ -632,4 +630,5 @@ jobs:
           jira_user_email: ${{ secrets.jira_user_email }}
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "newman"]'
+          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "newman-${{ inputs.os }}-${{ inputs.database_image }}"]'
+          ticket_squad: "Product Backlog"
