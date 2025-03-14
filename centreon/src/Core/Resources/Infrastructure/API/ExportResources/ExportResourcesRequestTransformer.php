@@ -33,7 +33,7 @@ use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
  * @class ExportResourcesRequestTransformer
  * @package Core\Resources\Infrastructure\API\ExportResources
  */
-class ExportResourcesRequestTransformer {
+final readonly class ExportResourcesRequestTransformer {
 
     /**
      * @param ExportResourcesInput $input
