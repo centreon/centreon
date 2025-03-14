@@ -36,7 +36,7 @@ beforeEach(function () {
 });
 
 it('test transform inputs to request to export resources', function () {
-    $input = new ExportResourcesInput('csv', 'true', '100', ['column1', 'column2']);
+    $input = new ExportResourcesInput('csv', 'true', ['column1', 'column2'], '100');
     $request = ExportResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
     expect($request->exportedFormat)->toBe('csv')
         ->and($request->allPages)->toBeTrue()

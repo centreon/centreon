@@ -54,7 +54,7 @@ it('test export resources with an invalid format should throw an InvalidArgument
     );
     $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(InvalidArgumentResponse::class);
 });
 
 it('export all resources without max results should throw an InvalidArgumentResponse', function () {
@@ -68,7 +68,7 @@ it('export all resources without max results should throw an InvalidArgumentResp
     );
     $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(InvalidArgumentResponse::class);
 });
 
 it('export all resources with max results greater than 10000 should throw an InvalidArgumentResponse', function () {
@@ -82,11 +82,12 @@ it('export all resources with max results greater than 10000 should throw an Inv
     );
     $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(InvalidArgumentResponse::class);
 });
 
 it('export resources with an error from repository should throw an ErrorResponse', function () {
-    $this->contact->shouldReceive('isAdmin')->andReturn(true);
+    $this->contact->shouldReceive('isAdmin')->twice()->andReturn(true);
+    $this->contact->shouldReceive('getId')->once()->andReturn(1);
     $this->resourcesRepository
         ->shouldReceive('iterateResourcesByMaxResults')
         ->andThrow(Mockery::mock(RepositoryException::class));
@@ -100,11 +101,11 @@ it('export resources with an error from repository should throw an ErrorResponse
     );
     $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->data)->toBeInstanceOf(ErrorResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(ErrorResponse::class);
 });
 
 it('export resources with admin mode should throw a response with all resources', function () {
-    $this->contact->shouldReceive('isAdmin')->andReturn(true);
+    $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
     $this->resourcesRepository
         ->shouldReceive('iterateResourcesByMaxResults')
         ->andReturn(new \ArrayObject([Mockery::mock(Resource::class)]));
@@ -118,11 +119,11 @@ it('export resources with admin mode should throw a response with all resources'
     );
     $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->data)->toBeInstanceOf(ExportResourcesResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(ExportResourcesResponse::class);
 });
 
 it('export resources with acl should throw a response with allowed resources', function () {
-    $this->contact->shouldReceive('isAdmin')->andReturn(false);
+    $this->contact->shouldReceive('isAdmin')->once()->andReturn(false);
     $this->contactRepository
         ->shouldReceive('findByContact')
         ->andReturn([]);
@@ -139,5 +140,5 @@ it('export resources with acl should throw a response with allowed resources', f
     );
     $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->data)->toBeInstanceOf(ExportResourcesResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(ExportResourcesResponse::class);
 });
