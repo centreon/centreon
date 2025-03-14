@@ -117,8 +117,39 @@ $changeAccNameInTopology = function (CentreonDB $pearDB) use (&$errorMessage): v
     );
 };
 
+// -------------------------------------------- Resource Status -------------------------------------------- //
+
+$createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
+    if (! $realtimeDb->isIndexExists('resources', 'resources_poller_id_index')) {
+        $errorMessage = 'Unable to create index resources_poller_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_poller_id_index` ON resources (`poller_id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_id_index')) {
+        $errorMessage = 'Unable to create index resources_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_id_index` ON resources (`id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_parent_id_index')) {
+        $errorMessage = 'Unable to create index resources_parent_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_parent_id_index` ON resources (`parent_id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_enabled_type_index')) {
+        $errorMessage = 'Unable to create index resources_enabled_type_index';
+        $realtimeDb->exec('CREATE INDEX `resources_enabled_type_index` ON resources (`enabled`, `type`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('tags', 'tags_type_name_index')) {
+        $errorMessage = 'Unable to create index tags_type_name_index';
+        $realtimeDb->exec('CREATE INDEX `tags_type_name_index` ON tags (`type`, `name`(10))');
+    }
+};
+
+
 try {
     $createIndexForDowntimes($pearDBO);
+    $createIndexesForResourceStatus($pearDBO);
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
