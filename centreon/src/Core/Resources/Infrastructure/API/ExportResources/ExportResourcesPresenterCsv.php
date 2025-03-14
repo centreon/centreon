@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Infrastructure\ExceptionHandler;
+use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\CsvFormatter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesPresenterInterface;
@@ -40,8 +41,10 @@ use Core\Resources\Application\UseCase\ExportResources\ExportResourcesResponse;
  * @class ExportResourcesPresenterCsv
  * @package Core\Resources\Infrastructure\API\ExportResources
  */
-class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportResourcesPresenterInterface
+final class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportResourcesPresenterInterface
 {
+    use HttpUrlTrait;
+
     /** @var ExportResourcesViewModel */
     private ExportResourcesViewModel $viewModel;
 
@@ -285,13 +288,43 @@ class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportRes
             return '';
         }
 
+        $url = $this->replaceMacrosInUrl($url, $resource);
+
+        if (! str_starts_with($url, 'http')) {
+
+            $baseurl = $this->getHost(true);
+
+            if (! str_starts_with($url, '/')) {
+                $url = '/' . $url;
+            }
+
+            if (str_starts_with($url, '/centreon/')) {
+                $url = str_replace('/centreon/', '/', $url);
+            }
+
+            $url = $baseurl . $url;
+        }
+
+        return $url;
+    }
+
+    /**
+     * @param string $url
+     * @param ResourceEntity $resource
+     *
+     * @return string
+     */
+    private function replaceMacrosInUrl(string $url, ResourceEntity $resource): string
+    {
         $isServiceTypedResource = $resource->getType() === 'service';
 
         $macrosConcordanceArray = [
             '$HOSTADDRESS$' => $isServiceTypedResource ? $resource->getParent()?->getFqdn() : $resource->getFqdn(),
             '$HOSTNAME$' => $isServiceTypedResource ? $resource->getParent()?->getName() : $resource->getName(),
-            '$HOSTSTATE$' => $isServiceTypedResource ? $resource->getParent()?->getStatus()?->getName() : $resource->getStatus()?->getName(),
-            '$HOSTSTATEID$' => $isServiceTypedResource ? (string) $resource->getParent()?->getStatus()?->getCode() : (string) $resource->getStatus()?->getCode(),
+            '$HOSTSTATE$' => $isServiceTypedResource ? $resource->getParent()?->getStatus()?->getName(
+            ) : $resource->getStatus()?->getName(),
+            '$HOSTSTATEID$' => $isServiceTypedResource ? (string) $resource->getParent()?->getStatus()?->getCode(
+            ) : (string) $resource->getStatus()?->getCode(),
             '$HOSTALIAS$' => $isServiceTypedResource ? $resource->getParent()?->getAlias() : $resource->getAlias(),
             '$SERVICEDESC$' => $isServiceTypedResource ? $resource->getName() : '',
             '$SERVICESTATE$' => $isServiceTypedResource ? $resource->getStatus()?->getName() : '',
