@@ -56,6 +56,7 @@ import { selectedResourcesAtom } from './actionsAtoms';
 import {
   acknowledgeEndpoint,
   checkEndpoint,
+  csvExportEndpoint,
   downtimeEndpoint
 } from './api/endpoint';
 
@@ -570,7 +571,7 @@ describe('CSV export', () => {
     cy.get('@modal').findByRole('button', { name: labelExport }).click();
     cy.contains(labelExportProcessingInProgress);
 
-    const expectedUrl = `csvEndpoint?page=1&limit=10&search=${encodeURIComponent(JSON.stringify(search))}&columns=${encodeURIComponent(JSON.stringify(allColumns))}&isAllPages=true`;
+    const expectedUrl = `csvEndpoint?page=1&limit=10&search=${encodeURIComponent(JSON.stringify(search))}&format=${encodeURIComponent('"csv"')}&columns=${encodeURIComponent(JSON.stringify(allColumns))}&all_pages=true`;
     cy.get('@windowOpen').should(
       'be.calledWith',
       expectedUrl,
@@ -616,7 +617,7 @@ describe('CSV export', () => {
     cy.get('@modal').findByRole('button', { name: labelExport }).click();
     cy.contains(labelExportProcessingInProgress);
 
-    const expectedUrl = `csvEndpoint?page=1&limit=10&search=${encodeURIComponent(JSON.stringify(search))}&columns=${encodeURIComponent(JSON.stringify(visibleColumns))}&isAllPages=false`;
+    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&search=${encodeURIComponent(JSON.stringify(search))}&format=${encodeURIComponent('"csv"')}&columns=${encodeURIComponent(JSON.stringify(visibleColumns))}&all_pages=false`;
     cy.get('@windowOpen').should(
       'be.calledWith',
       expectedUrl,

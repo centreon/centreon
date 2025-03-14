@@ -10,6 +10,7 @@ import { getSearch } from '../../Listing/useLoadResources/utils';
 import { resourcesEndpoint } from '../../api/endpoint';
 import { labelExportProcessingInProgress } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';
+import { csvExportEndpoint } from '../api/endpoint';
 import { ListSearch } from './models';
 
 const maxResources = 10000;
@@ -143,7 +144,7 @@ const useExportCsv = ({
     }
   });
 
-  const filteredCurrentLines = `${data?.result?.length}/${maxResources}`;
+  const filteredCurrentLines = `${data?.result?.length} / ${maxResources}`;
   const currentLines = `${data?.meta?.total} / ${maxResources}`;
 
   const numberExportedLines = isAllPagesChecked
@@ -161,12 +162,12 @@ const useExportCsv = ({
 
     const endpoint = buildListingEndpoint({
       parameters,
-      baseEndpoint: 'csvEndpoint',
+      baseEndpoint: csvExportEndpoint,
       customQueryParameters: [
         ...customQueryParameters,
-
+        { name: 'format', value: 'csv' },
         { name: 'columns', value: getColumns() },
-        { name: 'isAllPages', value: isAllPagesChecked }
+        { name: 'all_pages', value: isAllPagesChecked }
       ]
     });
 
