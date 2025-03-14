@@ -47,7 +47,7 @@ final readonly class ExceptionHandler
     /**
      * @param \Throwable $throwable
      * @param array<string,mixed> $context
-     * @param string $level see {@see LogLevel}
+     * @param string $level {@see LogLevel}
      *
      * @return void
      */
