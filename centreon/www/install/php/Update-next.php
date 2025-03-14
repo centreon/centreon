@@ -312,12 +312,15 @@ try {
 
     $pearDB->commit();
 
-} catch (\Throwable $e) {
+} catch (\Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
         customContext: [
-            'trace' => $e->getTraceAsString(),
+            'exception' => [
+                'error_message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString()
+            ]
         ],
         exception: $exception
     );
@@ -325,12 +328,23 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (PDOException $ex) {
+    } catch (\PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
-            customContext: ['error_message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
-            exception: $ex
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            customContext: [
+                'error_to_rollback' => $errorMessage,
+                'exception' => [
+                    'error_message' => $rollbackException->getMessage(),
+                    'trace' => $rollbackException->getTraceAsString()
+                ]
+            ],
+            exception: $rollbackException
+        );
+        throw new \Exception(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            (int) $rollbackException->getCode(),
+            $rollbackException
         );
     }
     throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
