@@ -75,21 +75,21 @@ When('the admin user fills in all the information', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-001'
+    'my-otel-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
     'ca-file-name-001'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .type('my-otel-private-key-name-001');
+    .type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-001'
+    'my-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .type('my-conf-private-key-name-001');
+    .type('my-conf-private-key-name-001.key');
 });
 
 When('the user clicks on Save', () => {
@@ -136,7 +136,7 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should(
     'have.value',
-    'my-otel-certificate-name-001'
+    'my-otel-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).should(
     'have.value',
@@ -144,15 +144,15 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .should('have.value', 'my-otel-private-key-name-001');
+    .should('have.value', 'my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).should(
     'have.value',
-    'my-certificate-name-001'
+    'my-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .should('have.value', 'my-conf-private-key-name-001');
+    .should('have.value', 'my-conf-private-key-name-001.key');
 });
 
 When('the user modifies the configuration', () => {
@@ -163,22 +163,22 @@ When('the user modifies the configuration', () => {
   cy.contains('Poller-1').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' })
     .clear()
-    .type('my-otel-certificate-name-666');
+    .type('my-otel-certificate-name-666.crt');
   cy.getByLabel({ label: 'CA file name', tag: 'input' })
     .clear()
     .type('ca-file-name-666');
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
     .clear()
-    .type('my-otel-private-key-name-666');
+    .type('my-otel-private-key-name-666.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' })
     .clear()
-    .type('my-certificate-name-666');
+    .type('my-certificate-name-666.crt');
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
     .clear()
-    .type('my-conf-private-key-name-666');
+    .type('my-conf-private-key-name-666.key');
 });
 
 Then('the update form is closed', () => {
@@ -249,21 +249,21 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.contains('Central').click();
   cy.contains('Poller-1').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-001'
+    'my-otel-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
-    'ca-file-name-001'
+    'ca-file-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .type('my-otel-private-key-name-001');
+    .type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-001'
+    'my-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .type('my-conf-private-key-name-001');
+    .type('my-conf-private-key-name-001.key');
   cy.getByTestId({ testId: 'SaveIcon' }).click();
   cy.wait('@addAgents');
 });
@@ -349,14 +349,14 @@ Then(
     cy.getByLabel({
       label: 'Public certificate file name',
       tag: 'input'
-    }).should('have.value', 'my-otel-certificate-name-001');
+    }).should('have.value', 'my-otel-certificate-name-001.crt');
     cy.getByLabel({ label: 'CA file name', tag: 'input' }).should(
       'have.value',
-      'ca-file-name-001'
+      'ca-file-name-001.crt'
     );
     cy.getByLabel({ label: 'Private key file name', tag: 'input' })
       .eq(0)
-      .should('have.value', 'my-otel-private-key-name-001');
+      .should('have.value', 'my-otel-private-key-name-001.key');
     cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
     cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).should(
       'have.value',
@@ -364,7 +364,7 @@ Then(
     );
     cy.getByLabel({ label: 'Private key file name', tag: 'input' })
       .eq(1)
-      .should('have.value', 'my-conf-private-key-name-001');
+      .should('have.value', 'my-conf-private-key-name-001.key');
   }
 );
 
@@ -417,21 +417,21 @@ When('the non-admin user fills in all the information', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-002'
+    'my-otel-certificate-name-002.crt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
-    'ca-file-name-002'
+    'ca-file-name-002.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .type('my-otel-private-key-name-002');
+    .type('my-otel-private-key-name-002.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-002'
+    'my-certificate-name-002.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .type('my-conf-private-key-name-002');
+    .type('my-conf-private-key-name-002.key');
 });
 
 Then(

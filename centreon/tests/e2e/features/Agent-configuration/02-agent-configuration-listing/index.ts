@@ -83,21 +83,21 @@ Given('an already existing agent configuration', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-001'
+    '/etc/pki/my-otel-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
-    'ca-file-name-001'
+    '/etc/pki/ca-file-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .type('my-otel-private-key-name-001');
+    .type('/etc/pki/my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-001'
+    '/etc/pki/my-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .type('my-conf-private-key-name-001');
+    .type('/etc/pki/my-conf-private-key-name-001.key');
   cy.getByTestId({ testId: 'SaveIcon' }).click();
   cy.wait('@addAgents');
   cy.get('*[role="rowgroup"]').should('contain', 'telegraf-001');
@@ -125,23 +125,23 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should(
     'have.value',
-    'my-otel-certificate-name-001.crt'
+    '/etc/pki/my-otel-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).should(
     'have.value',
-    'ca-file-name-001.crt'
+    '/etc/pki/ca-file-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .should('have.value', 'my-otel-private-key-name-001.key');
+    .should('have.value', '/etc/pki/my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).should(
     'have.value',
-    'my-certificate-name-001'
+    '/etc/pki/my-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .should('have.value', 'my-conf-private-key-name-001.key');
+    .should('have.value', '/etc/pki/my-conf-private-key-name-001.key');
 });
 
 Given('some poller agent configurations are created', () => {

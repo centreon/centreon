@@ -143,7 +143,7 @@ When('the user fills in the centreon agent parameters', () => {
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' })
     .eq(0)
-    .type('my-ca-file-003.cer');
+    .type('my-ca-file-003.crt');
   cy.getByLabel({ label: 'Add host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
   cy.getByLabel({ label: 'DNS/IP', tag: 'input' }).eq(1).type('10.0.0.0');
@@ -165,18 +165,18 @@ When("the user doesn't fill in all the mandatory information", () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-002'
+    'my-otel-certificate-name-002.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .type('my-otel-private-key-name-002');
+    .type('my-otel-private-key-name-002.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-002'
+    'my-certificate-name-002.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .type('my-otel-private-key-name-002');
+    .type('my-otel-private-key-name-002.key');
 });
 
 Then('the user cannot click on Create', () => {
@@ -202,7 +202,7 @@ When("the user doesn't fill in correct type of information", () => {
     .type('my-otel-private-key-name-001.txt');
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('700000');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-001.crt'
+    'my-certificate-name-001.txt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
@@ -239,7 +239,7 @@ When('the user fills in the needed information', () => {
     'my-otel-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
-    'ca-file-name-001.cer'
+    'ca-file-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)

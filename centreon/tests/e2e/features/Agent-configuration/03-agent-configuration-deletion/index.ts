@@ -46,12 +46,12 @@ Given('an already existing agent configuration', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('/etc/pki/my-otel-certificate-name-001.crt');
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('/etc/pki/my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-conf-private-key-name-001');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('/etc/pki/my-certificate-name-001.crt');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('/etc/pki/my-conf-private-key-name-001.key');
   cy.getByTestId({ testId: 'SaveIcon' }).click();
   cy.wait('@addAgents');
   cy.get('*[role="rowgroup"]')

@@ -65,7 +65,9 @@ class CmaValidator implements TypeValidatorInterface
                      *		poller_ca_name: ?string
                      *	} $host
                      */
-                    $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
+                    if ($host['poller_ca_certificate'] !== null) {
+                        $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
+                    }
                 }
             }
         }

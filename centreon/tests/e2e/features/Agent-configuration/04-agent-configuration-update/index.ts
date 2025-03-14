@@ -51,12 +51,12 @@ Given('an already existing agent configuration', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001.crt');
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-conf-private-key-name-001');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001.crt');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-conf-private-key-name-001.key');
   cy.getByTestId({ testId: 'SaveIcon' }).click();
   cy.wait('@addAgents');
   cy.get('*[role="rowgroup"]')
@@ -76,24 +76,24 @@ Then('a pop up is displayed with all of the agent information', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');
   cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should('have.text', 'Central');
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should('have.value', 'my-otel-certificate-name-001');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should('have.value', 'my-otel-certificate-name-001.crt');
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).should('have.value', 'ca-file-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).should('have.value', 'my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).should('have.value', 'my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).should('have.value', 'my-certificate-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).should('have.value', 'my-conf-private-key-name-001');
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).should('have.value', 'my-certificate-name-001.crt');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).should('have.value', 'my-conf-private-key-name-001.key');
 });
 
 When('the user updates some information', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('telegraf-001-updated');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).clear().type('my-otel-certificate-name-666');
+  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).clear().type('my-otel-certificate-name-666.crt');
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).clear().type('ca-file-name-666');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).clear().type('my-otel-private-key-name-666');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).clear().type('my-otel-private-key-name-666.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).clear().type('my-certificate-name-666');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).clear().type('my-conf-private-key-name-666');  
+  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).clear().type('my-certificate-name-666.crt');
+  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).clear().type('my-conf-private-key-name-666.key');  
 });
 
 When('the user clicks on Save', () => {
