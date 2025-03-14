@@ -82,7 +82,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             .required(t(labelRequired)),
           port: portValidation,
           pollerCaCertificate: certificateNullableValidation,
-          pollerCaName: certificateNullableValidation
+          pollerCaName: string()
         })
       )
       .when('isReverse', {
