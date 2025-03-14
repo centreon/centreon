@@ -212,21 +212,21 @@ When("the user doesn't fill in correct type of information", () => {
 
 Then('the form displayed an error', () => {
   cy.getByTestId({ testId: 'Public certificate file name' }).contains(
-    'Invalid filename'
+    'Invalid extension'
   );
-  cy.getByTestId({ testId: 'CA file name' }).contains('Invalid filename');
+  cy.getByTestId({ testId: 'CA file name' }).contains('Invalid extension');
   cy.getByTestId({ testId: 'Private key file name' })
     .eq(0)
-    .contains('Invalid filename');
+    .contains('Invalid extension');
   cy.getByTestId({ testId: 'Port' }).contains(
     'Port number must be at most 65535'
   );
   cy.getByTestId({ testId: 'Certificate file name' }).contains(
-    'Invalid filename'
+    'Invalid extension'
   );
   cy.getByTestId({ testId: 'Private key file name' })
     .eq(2)
-    .contains('Invalid filename');
+    .contains('Invalid extension');
 });
 
 When('the user fills in the needed information', () => {

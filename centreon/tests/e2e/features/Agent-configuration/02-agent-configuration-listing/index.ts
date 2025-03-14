@@ -79,25 +79,25 @@ Given('an already existing agent configuration', () => {
   cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Telegraf').click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type(agentsConfiguration.telegraf1.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    '/etc/pki/my-otel-certificate-name-001.crt'
+    agentsConfiguration.telegraf1.publicCertfFileName
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
-    '/etc/pki/ca-file-name-001.crt'
+    agentsConfiguration.telegraf1.caFileName
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .type('/etc/pki/my-otel-private-key-name-001.key');
+    .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    '/etc/pki/my-certificate-name-001.crt'
+    agentsConfiguration.telegraf1.certfFileName
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .type('/etc/pki/my-conf-private-key-name-001.key');
+    .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByTestId({ testId: 'SaveIcon' }).click();
   cy.wait('@addAgents');
   cy.get('*[role="rowgroup"]').should('contain', 'telegraf-001');
@@ -117,7 +117,7 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
     'have.value',
-    'telegraf-001.crt'
+    agentsConfiguration.telegraf1.name
   );
   cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should(
     'have.text',
@@ -125,23 +125,23 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should(
     'have.value',
-    '/etc/pki/my-otel-certificate-name-001.crt'
+    `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).should(
     'have.value',
-    '/etc/pki/ca-file-name-001.crt'
+    `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .should('have.value', '/etc/pki/my-otel-private-key-name-001.key');
+    .should('have.value', `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).should(
     'have.value',
-    '/etc/pki/my-certificate-name-001.crt'
+    `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .should('have.value', '/etc/pki/my-conf-private-key-name-001.key');
+    .should('have.value', `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`);
 });
 
 Given('some poller agent configurations are created', () => {
