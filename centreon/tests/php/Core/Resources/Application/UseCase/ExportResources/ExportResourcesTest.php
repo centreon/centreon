@@ -20,4 +20,124 @@
 
 declare(strict_types=1);
 
-it('test log a native exception', function () {});
+namespace Tests\Core\Resources\Application\UseCase\ExportResources;
+
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Monitoring\Resource;
+use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
+use Core\Resources\Application\UseCase\ExportResources\ExportResources;
+use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
+use Core\Resources\Application\UseCase\ExportResources\ExportResourcesResponse;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Mockery;
+
+beforeEach(function () {
+    $this->contact = Mockery::mock(ContactInterface::class);
+    $this->filters = Mockery::mock(ResourceFilter::class);
+    $this->resourcesRepository = Mockery::mock(ReadResourceRepositoryInterface::class);
+    $this->contactRepository = Mockery::mock(ReadAccessGroupRepositoryInterface::class);
+    $this->presenter = new ExportResourcesPresenterStub();
+});
+
+it('test export resources with an invalid format should throw an InvalidArgumentResponse', function () {
+    $request = new ExportResourcesRequest(
+        contact: $this->contact,
+        exportedFormat: 'invalid',
+        resourceFilter: $this->filters,
+        allPages: false,
+        maxResults: 0,
+        columns: []
+    );
+    $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
+    $useCase($request, $this->presenter);
+    expect($this->presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class);
+});
+
+it('export all resources without max results should throw an InvalidArgumentResponse', function () {
+    $request = new ExportResourcesRequest(
+        contact: $this->contact,
+        exportedFormat: 'csv',
+        resourceFilter: $this->filters,
+        allPages: true,
+        maxResults: 0,
+        columns: []
+    );
+    $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
+    $useCase($request, $this->presenter);
+    expect($this->presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class);
+});
+
+it('export all resources with max results greater than 10000 should throw an InvalidArgumentResponse', function () {
+    $request = new ExportResourcesRequest(
+        contact: $this->contact,
+        exportedFormat: 'csv',
+        resourceFilter: $this->filters,
+        allPages: true,
+        maxResults: 12000,
+        columns: []
+    );
+    $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
+    $useCase($request, $this->presenter);
+    expect($this->presenter->data)->toBeInstanceOf(InvalidArgumentResponse::class);
+});
+
+it('export resources with an error from repository should throw an ErrorResponse', function () {
+    $this->contact->shouldReceive('isAdmin')->andReturn(true);
+    $this->resourcesRepository
+        ->shouldReceive('iterateResourcesByMaxResults')
+        ->andThrow(Mockery::mock(RepositoryException::class));
+    $request = new ExportResourcesRequest(
+        contact: $this->contact,
+        exportedFormat: 'csv',
+        resourceFilter: $this->filters,
+        allPages: false,
+        maxResults: 0,
+        columns: []
+    );
+    $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
+    $useCase($request, $this->presenter);
+    expect($this->presenter->data)->toBeInstanceOf(ErrorResponse::class);
+});
+
+it('export resources with admin mode should throw a response with all resources', function () {
+    $this->contact->shouldReceive('isAdmin')->andReturn(true);
+    $this->resourcesRepository
+        ->shouldReceive('iterateResourcesByMaxResults')
+        ->andReturn(new \ArrayObject([Mockery::mock(Resource::class)]));
+    $request = new ExportResourcesRequest(
+        contact: $this->contact,
+        exportedFormat: 'csv',
+        resourceFilter: $this->filters,
+        allPages: false,
+        maxResults: 0,
+        columns: []
+    );
+    $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
+    $useCase($request, $this->presenter);
+    expect($this->presenter->data)->toBeInstanceOf(ExportResourcesResponse::class);
+});
+
+it('export resources with acl should throw a response with allowed resources', function () {
+    $this->contact->shouldReceive('isAdmin')->andReturn(false);
+    $this->contactRepository
+        ->shouldReceive('findByContact')
+        ->andReturn([]);
+    $this->resourcesRepository
+        ->shouldReceive('iterateResourcesByAccessGroupIdsAndMaxResults')
+        ->andReturn(new \ArrayObject([Mockery::mock(Resource::class)]));
+    $request = new ExportResourcesRequest(
+        contact: $this->contact,
+        exportedFormat: 'csv',
+        resourceFilter: $this->filters,
+        allPages: false,
+        maxResults: 0,
+        columns: []
+    );
+    $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
+    $useCase($request, $this->presenter);
+    expect($this->presenter->data)->toBeInstanceOf(ExportResourcesResponse::class);
+});
