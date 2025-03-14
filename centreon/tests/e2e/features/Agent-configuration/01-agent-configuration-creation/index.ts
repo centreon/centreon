@@ -136,21 +136,21 @@ When('the user fills in the centreon agent parameters', () => {
   cy.contains('Poller-2').click();
   cy.contains('Poller-3').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-003'
+    'my-otel-certificate-name-003.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' }).type(
-    'my-otel-private-key-name-003'
+    'my-otel-private-key-name-003.key'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' })
     .eq(0)
-    .type('my-ca-file-003');
+    .type('my-ca-file-003.cer');
   cy.getByLabel({ label: 'Add host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
   cy.getByLabel({ label: 'DNS/IP', tag: 'input' }).eq(1).type('10.0.0.0');
   cy.getByTestId({ testId: 'Port' }).eq(1).type('4317');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' })
     .eq(1)
-    .type('my-certificate-name-003');
+    .type('my-certificate-name-003.crt');
 });
 
 Then('the third agent is displayed in the Agents Configuration page', () => {
@@ -192,21 +192,21 @@ When("the user doesn't fill in correct type of information", () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-001.crt'
+    'my-otel-certificate-name-001.txt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
-    'ca-file-name-001.crt'
+    'ca-file-name-001.txt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .type('my-otel-private-key-name-001.key');
+    .type('my-otel-private-key-name-001.txt');
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('700000');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
     'my-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .type('my-otel-private-key-name-001.key');
+    .type('my-otel-private-key-name-001.txt');
   cy.getByLabel({ label: 'Name', tag: 'input' }).click();
 });
 
@@ -236,21 +236,21 @@ When('the user fills in the needed information', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-4').click();
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    'my-otel-certificate-name-001'
+    'my-otel-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
-    'ca-file-name-001'
+    'ca-file-name-001.cer'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .type('my-otel-private-key-name-001');
+    .type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    'my-certificate-name-001'
+    'my-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .type('my-otel-private-key-name-001');
+    .type('my-otel-private-key-name-001.key');
 });
 
 When('the user clicks on the Cancel button of the creation form', () => {

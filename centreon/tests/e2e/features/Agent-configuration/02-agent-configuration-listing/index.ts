@@ -117,7 +117,7 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
     'have.value',
-    'telegraf-001'
+    'telegraf-001.crt'
   );
   cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should(
     'have.text',
@@ -125,15 +125,15 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should(
     'have.value',
-    'my-otel-certificate-name-001'
+    'my-otel-certificate-name-001.crt'
   );
   cy.getByLabel({ label: 'CA file name', tag: 'input' }).should(
     'have.value',
-    'ca-file-name-001'
+    'ca-file-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(0)
-    .should('have.value', 'my-otel-private-key-name-001');
+    .should('have.value', 'my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).should(
     'have.value',
@@ -141,7 +141,7 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.getByLabel({ label: 'Private key file name', tag: 'input' })
     .eq(1)
-    .should('have.value', 'my-conf-private-key-name-001');
+    .should('have.value', 'my-conf-private-key-name-001.key');
 });
 
 Given('some poller agent configurations are created', () => {
