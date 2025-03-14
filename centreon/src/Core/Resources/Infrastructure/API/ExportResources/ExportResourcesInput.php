@@ -26,7 +26,7 @@ namespace Core\Resources\Infrastructure\API\ExportResources;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-class ExportResourcesInput
+final readonly class ExportResourcesInput
 {
     public const EXPORT_ALLOWED_FORMAT = ['csv'];
     public const EXPORT_MAX_LINES = 10000;
