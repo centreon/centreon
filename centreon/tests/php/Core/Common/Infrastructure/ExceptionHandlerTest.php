@@ -125,3 +125,21 @@ it(
         );
     }
 );
+
+it(
+    'test log a exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException which has context and a previous exception',
+    function () {
+        $this->exceptionHandler->log(
+            new RepositoryException(
+                'repository_exception_message',
+                ['contact' => 1],
+                new RepositoryException('repository_exception_message_2', ['contact' => 2], new LogicException('logic_exception_message'))
+            )
+        );
+        expect(file_exists($this->logPathFileName))->toBeTrue();
+        $contentLog = file_get_contents($this->logPathFileName);
+        expect($contentLog)->toContain(
+            '{"custom":{"from_exception":{"contact":1,"previous":{"contact":2,"previous":null}}},"exception":{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"/usr/share/centreon/tests/php/Core/Common/Infrastructure/ExceptionHandlerTest.php","line":' . (__LINE__ - 9) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}","previous":{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"/usr/share/centreon/tests/php/Core/Common/Infrastructure/ExceptionHandlerTest.php","line":' . (__LINE__ - 6) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}","previous":{"type":"LogicException","message":"logic_exception_message","file":"/usr/share/centreon/tests/php/Core/Common/Infrastructure/ExceptionHandlerTest.php","line":' . (__LINE__ - 6) . ',"code":0,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"}},"trace":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","type":"->","args":"[][...]"}'
+        );
+    }
+);
