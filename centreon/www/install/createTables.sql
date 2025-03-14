@@ -12,250 +12,250 @@
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_actions` (
-  `acl_action_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_action_name` varchar(255) DEFAULT NULL,
-  `acl_action_description` varchar(255) DEFAULT NULL,
-  `acl_action_activate` enum('0','1','2') DEFAULT NULL,
+  `acl_action_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the actions access rule',
+  `acl_action_name` varchar(255) DEFAULT NULL COMMENT 'Name given to the actions access rule',
+  `acl_action_description` varchar(255) DEFAULT NULL COMMENT 'Description of the actions access rule',
+  `acl_action_activate` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates if the actions access rule is active or not',
   PRIMARY KEY (`acl_action_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that defines the actions that can be performed for a given ACL Group';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_actions_rules` (
-  `aar_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_action_rule_id` int(11) DEFAULT NULL,
-  `acl_action_name` varchar(255) DEFAULT NULL,
+  `aar_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the action',
+  `acl_action_rule_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the actions access rule to which the action is linked',
+  `acl_action_name` varchar(255) DEFAULT NULL COMMENT 'Name of the action ex: host_schedule_check',
   PRIMARY KEY (`aar_id`),
   KEY `acl_action_rule_id` (`acl_action_rule_id`),
   CONSTRAINT `acl_actions_rules_ibfk_1` FOREIGN KEY (`acl_action_rule_id`) REFERENCES `acl_actions` (`acl_action_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table containing all the actions linked to an actions access rule';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_actions_relations` (
-  `acl_action_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
+  `acl_action_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the actions access rule',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
   KEY `acl_action_id` (`acl_action_id`),
   KEY `acl_group_id` (`acl_group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL Groups and Actions Access Rule';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_contactgroups_relations` (
-  `cg_cg_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
+  `cg_cg_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the contact group',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
   KEY `cg_cg_id` (`cg_cg_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_group_contactgroups_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_group_contactgroups_relations_ibfk_1` FOREIGN KEY (`cg_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL Groups and Contact Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_contacts_relations` (
-  `contact_contact_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
+  `contact_contact_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the contact',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
   KEY `contact_contact_id` (`contact_contact_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_group_contacts_relations_ibfk_1` FOREIGN KEY (`contact_contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_group_contacts_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL Groups and Contacts';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_group_topology_relations` (
-  `acl_group_id` int(11) DEFAULT NULL,
-  `acl_topology_id` int(11) DEFAULT NULL,
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
+  `acl_topology_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL menu access rule',
   KEY `acl_group_id` (`acl_group_id`),
   KEY `acl_topology_id` (`acl_topology_id`),
   CONSTRAINT `acl_group_topology_relations_ibfk_1` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_group_topology_relations_ibfk_2` FOREIGN KEY (`acl_topology_id`) REFERENCES `acl_topology` (`acl_topo_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL Groups and ACL menu access rule';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_groups` (
-  `acl_group_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_group_name` varchar(255) DEFAULT NULL,
-  `acl_group_alias` varchar(255) DEFAULT NULL,
-  `acl_group_changed` int(11) NOT NULL DEFAULT 1,
-  `acl_group_activate` enum('0','1','2') DEFAULT NULL,
-  `cloud_description` TEXT DEFAULT NULL,
-  `cloud_specific` boolean NOT NULL DEFAULT 0,
-  `all_contacts` TINYINT DEFAULT 0 NOT NULL,
-  `all_contact_groups` TINYINT DEFAULT 0 NOT NULL,
+  `acl_group_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier of the ACL group',
+  `acl_group_name` varchar(255) DEFAULT NULL COMMENT 'Name of the ACL group',
+  `acl_group_alias` varchar(255) DEFAULT NULL COMMENT 'Alias of the ACL group',
+  `acl_group_changed` int(11) NOT NULL DEFAULT 1 COMMENT 'Indicates if accesses were updated / created (menu, action, resources). Used by centACL for calculation',
+  `acl_group_activate` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates if the ACL group is active or not',
+  `cloud_description` TEXT DEFAULT NULL COMMENT 'Specific field for Cloud environments (Resource Access Management)',
+  `cloud_specific` boolean NOT NULL DEFAULT 0 COMMENT 'Specific field for Cloud environments. 0: on premise, 1: cloud',
+  `all_contacts` TINYINT DEFAULT 0 NOT NULL COMMENT 'Specific cloud for Resource Access Management. 1: means all contacts (old and new) are linked to the ACL group',
+  `all_contact_groups` TINYINT DEFAULT 0 NOT NULL COMMENT 'Specific cloud for Resource Access Management. 1: means all contact groups (old and new) are linked to the ACL group',
   PRIMARY KEY (`acl_group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that gathers all the accesses (action, menu, resources) given to selected contacts and contact groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_res_group_relations` (
-  `acl_res_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the resource access rule',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
   `order` int(11) NOT NULL DEFAULT 0,
   KEY `acl_res_id` (`acl_res_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_res_group_relations_ibfk_1` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_res_group_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL groups and resource access rules';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources` (
-  `acl_res_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_res_name` varchar(255) DEFAULT NULL,
-  `acl_res_alias` varchar(255) DEFAULT NULL,
-  `all_hosts` enum('0','1') DEFAULT NULL,
-  `all_hostgroups` enum('0','1') DEFAULT NULL,
-  `all_servicegroups` enum('0','1') DEFAULT NULL,
-  `acl_res_activate` enum('0','1','2') DEFAULT NULL,
-  `acl_res_comment` text,
-  `acl_res_status` enum('0','1') DEFAULT NULL,
-  `changed` int(11) DEFAULT NULL,
+  `acl_res_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier of the resource access rule',
+  `acl_res_name` varchar(255) DEFAULT NULL COMMENT 'Name of the resource access rule',
+  `acl_res_alias` varchar(255) DEFAULT NULL COMMENT 'Alias of the resource access rule',
+  `all_hosts` enum('0','1') DEFAULT NULL COMMENT '0: means a list of specific hosts were selected. 1: means all hosts (old and new)',
+  `all_hostgroups` enum('0','1') DEFAULT NULL COMMENT '0: means a list of specific host groups were selected. 1: means all host groups (old and new)',
+  `all_servicegroups` enum('0','1') DEFAULT NULL COMMENT '0: means a list of specific service groups were selected. 1: means all service groups (old and new)',
+  `acl_res_activate` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates if the resource access rule is active or not',
+  `acl_res_comment` text COMMENT 'Comment on the resource access rule',
+  `acl_res_status` enum('0','1') DEFAULT NULL COMMENT 'Indicates if the resource access rule is locked or not',
+  `changed` int(11) DEFAULT NULL COMMENT 'Indicates if the resource access rule was updated / created. Used by centACL for calculation',
   `locked` tinyint(1) NOT NULL DEFAULT 0,
-  `cloud_specific` boolean NOT NULL DEFAULT 0,
+  `cloud_specific` boolean NOT NULL DEFAULT 0 COMMENT 'Specific field for Cloud environments. 0: on premise, 1: cloud',
   PRIMARY KEY (`acl_res_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that defines the resources (host, service, hg, sg...) that can be accessed by a given ACL Group';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dataset_filters` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) DEFAULT NULL,
-  `type` VARCHAR(255) DEFAULT NULL,
-  `acl_resource_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
-  `resource_ids` TEXT DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier of the dataset filter',
+  `parent_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the parent dataset filter',
+  `type` VARCHAR(255) DEFAULT NULL COMMENT 'Type of the dataset filter. ex: host, hostgroup...',
+  `acl_resource_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL group',
+  `resource_ids` TEXT DEFAULT NULL COMMENT 'List of resource ids. ex: 1,2,3,4',
   PRIMARY KEY (`id`),
   CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that defines the filters for the dataset (specific Resource Access Management)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_hc_relations` (
-  `hc_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `hc_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the host category',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `hc_id` (`hc_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_hc_relations_pk` UNIQUE (`hc_id`, `acl_res_id`),
   CONSTRAINT `acl_resources_hc_relations_ibfk_1` FOREIGN KEY (`hc_id`) REFERENCES `hostcategories` (`hc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and host categories (filter - exclusion)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_hg_relations` (
-  `hg_hg_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `hg_hg_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the host group',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `hg_hg_id` (`hg_hg_id`),
   KEY `acl_res_id` (`acl_res_id`),
   KEY `hg_hg_id_2` (`hg_hg_id`,`acl_res_id`),
   CONSTRAINT `acl_resources_hg_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hg_relations_ibfk_1` FOREIGN KEY (`hg_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and host groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_host_relations` (
-  `host_host_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the host',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `host_host_id` (`host_host_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_host_relations_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_host_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and hosts';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_hostex_relations` (
-  `host_host_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the host',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `host_host_id` (`host_host_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_hostex_relations_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_hostex_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and hosts (filter - exclusion)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_meta_relations` (
-  `meta_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `meta_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the meta service',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `meta_id` (`meta_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_meta_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_meta_relations_ibfk_1` FOREIGN KEY (`meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and meta services';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_poller_relations` (
-  `poller_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `poller_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the poller',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `poller_id` (`poller_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_poller_relations_ibfk_1` FOREIGN KEY (`poller_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_poller_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and pollers (filter - exclusion)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_sc_relations` (
-  `sc_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `sc_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the service category',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `sc_id` (`sc_id`),
   KEY `acl_res_id` (`acl_res_id`),
   CONSTRAINT `acl_resources_sc_relations_ibfk_1` FOREIGN KEY (`sc_id`) REFERENCES `service_categories` (`sc_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_sc_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and service categories (filter - exclusion)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_service_relations` (
-  `service_service_id` int(11) DEFAULT NULL,
-  `acl_group_id` int(11) DEFAULT NULL,
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
+  `acl_group_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the ACL groups (acl_group_id)',
   KEY `service_service_id` (`service_service_id`),
   KEY `acl_group_id` (`acl_group_id`),
   CONSTRAINT `acl_resources_service_relations_ibfk_1` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_service_relations_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table managing ACL relations linking resources to services';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_resources_sg_relations` (
-  `sg_id` int(11) DEFAULT NULL,
-  `acl_res_id` int(11) DEFAULT NULL,
+  `sg_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the service group',
+  `acl_res_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL resource',
   KEY `sg_id` (`sg_id`),
   KEY `acl_res_id` (`acl_res_id`),
   KEY `sg_id_2` (`sg_id`,`acl_res_id`),
   CONSTRAINT `acl_resources_sg_relations_ibfk_2` FOREIGN KEY (`acl_res_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_resources_sg_relations_ibfk_1` FOREIGN KEY (`sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL resources and service groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_topology` (
-  `acl_topo_id` int(11) NOT NULL AUTO_INCREMENT,
-  `acl_topo_name` varchar(255) DEFAULT NULL,
-  `acl_topo_alias` varchar(255) DEFAULT NULL,
-  `acl_comments` text,
-  `acl_topo_activate` enum('0','1') DEFAULT NULL,
+  `acl_topo_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier of the ACL menu access rule',
+  `acl_topo_name` varchar(255) DEFAULT NULL COMMENT 'Name of the ACL menu access rule',
+  `acl_topo_alias` varchar(255) DEFAULT NULL COMMENT 'Alias of the ACL menu access rule',
+  `acl_comments` text COMMENT 'Comment on the ACL menu access rule',
+  `acl_topo_activate` enum('0','1') DEFAULT NULL COMMENT 'Indicates if the ACL menu access rule is active or not',
   PRIMARY KEY (`acl_topo_id`),
   KEY `acl_topo_id` (`acl_topo_id`,`acl_topo_activate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table that defines all the menus that can be accessed by a given ACL Group';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `acl_topology_relations` (
-  `topology_topology_id` int(11) DEFAULT NULL,
-  `acl_topo_id` int(11) DEFAULT NULL,
-  `access_right` tinyint(4) NOT NULL DEFAULT '1',
+  `topology_topology_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the menu (topology)',
+  `acl_topo_id` int(11) DEFAULT NULL COMMENT 'Unique identifier of the ACL menu access rule',
+  `access_right` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'Access right given on the menu. 1: read/write, 2: read only',
   KEY `topology_topology_id` (`topology_topology_id`),
   KEY `acl_topo_id` (`acl_topo_id`),
   CONSTRAINT `acl_topology_relations_ibfk_2` FOREIGN KEY (`topology_topology_id`) REFERENCES `topology` (`topology_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_topology_relations_ibfk_3` FOREIGN KEY (`acl_topo_id`) REFERENCES `acl_topology` (`acl_topo_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between ACL menu access rule and menus (topologies) and the access level';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -755,13 +755,13 @@ CREATE TABLE `contact` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contact_host_relation` (
-  `host_host_id` int(11) DEFAULT NULL,
-  `contact_id` int(11) DEFAULT NULL,
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Host ID',
+  `contact_id` int(11) DEFAULT NULL COMMENT 'Contact ID',
   KEY `host_index` (`host_host_id`),
   KEY `contact_id` (`contact_id`),
   CONSTRAINT `contact_host_relation_ibfk_2` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `contact_host_relation_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between contact and host';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -789,24 +789,24 @@ CREATE TABLE `contact_param` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contact_service_relation` (
-  `service_service_id` int(11) DEFAULT NULL,
-  `contact_id` int(11) DEFAULT NULL,
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
+  `contact_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the contact (contact_id)',
   KEY `service_index` (`service_service_id`),
   KEY `contact_id` (`contact_id`),
   CONSTRAINT `contact_service_relation_ibfk_2` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `contact_service_relation_ibfk_1` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table mapping contacts to associated services for notifications and management';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contact_servicecommands_relation` (
-  `contact_contact_id` int(11) DEFAULT NULL,
-  `command_command_id` int(11) DEFAULT NULL,
+  `contact_contact_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the contact (contact_id)',
+  `command_command_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the command (command_id)',
   KEY `contact_index` (`contact_contact_id`),
   KEY `command_index` (`command_command_id`),
   CONSTRAINT `contact_servicecommands_relation_ibfk_1` FOREIGN KEY (`contact_contact_id`) REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
   CONSTRAINT `contact_servicecommands_relation_ibfk_2` FOREIGN KEY (`command_command_id`) REFERENCES `command` (`command_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table linking contacts to service commands used for service management and alerting';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -838,46 +838,46 @@ CREATE TABLE `contactgroup_contact_relation` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup_host_relation` (
-  `host_host_id` int(11) DEFAULT NULL,
-  `contactgroup_cg_id` int(11) DEFAULT NULL,
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Host ID',
+  `contactgroup_cg_id` int(11) DEFAULT NULL COMMENT 'Contactgroup ID',
   KEY `host_index` (`host_host_id`),
   KEY `contactgroup_index` (`contactgroup_cg_id`),
   CONSTRAINT `contactgroup_host_relation_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `contactgroup_host_relation_ibfk_2` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between contactgroup and host';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup_hostgroup_relation` (
-  `contactgroup_cg_id` int(11) DEFAULT NULL,
-  `hostgroup_hg_id` int(11) DEFAULT NULL,
+  `contactgroup_cg_id` int(11) DEFAULT NULL COMMENT 'Contactgroup ID',
+  `hostgroup_hg_id` int(11) DEFAULT NULL COMMENT 'Hostgroup ID',
   KEY `contactgroup_index` (`contactgroup_cg_id`),
   KEY `hostgroup_index` (`hostgroup_hg_id`),
   CONSTRAINT `contactgroup_hostgroup_relation_ibfk_1` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
   CONSTRAINT `contactgroup_hostgroup_relation_ibfk_2` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between contactgroup and hostgroup';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup_service_relation` (
-  `contactgroup_cg_id` int(11) DEFAULT NULL,
-  `service_service_id` int(11) DEFAULT NULL,
+  `contactgroup_cg_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the contact group (cg_id)',
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
   KEY `contactgroup_index` (`contactgroup_cg_id`),
   KEY `service_index` (`service_service_id`),
   CONSTRAINT `contactgroup_service_relation_ibfk_1` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
   CONSTRAINT `contactgroup_service_relation_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table mapping contact groups to services for group-based notifications';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contactgroup_servicegroup_relation` (
-  `servicegroup_sg_id` int(11) DEFAULT NULL,
-  `contactgroup_cg_id` int(11) DEFAULT NULL,
+  `servicegroup_sg_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service group (sg_id)',
+  `contactgroup_cg_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the contact group (cg_id)',
   KEY `servicegroup_index` (`servicegroup_sg_id`),
   KEY `contactgroup_index` (`contactgroup_cg_id`),
   CONSTRAINT `contactgroup_servicegroup_relation_ibfk_1` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
   CONSTRAINT `contactgroup_servicegroup_relation_ibfk_2` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table mapping contact groups to service groups for coordinated service management';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -961,81 +961,81 @@ CREATE TABLE `dependency` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_hostChild_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Dependency ID',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Child host ID',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `host_index` (`host_host_id`),
   UNIQUE (`dependency_dep_id`, `host_host_id`),
   CONSTRAINT `dependency_hostChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_hostChild_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between dependency and host as child';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_hostParent_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Dependency ID',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Parent host ID',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `host_index` (`host_host_id`),
   UNIQUE (`dependency_dep_id`, `host_host_id`),
   CONSTRAINT `dependency_hostParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_hostParent_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between dependency and host as parent';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_hostgroupChild_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `hostgroup_hg_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Dependency ID',
+  `hostgroup_hg_id` int(11) DEFAULT NULL COMMENT 'Child hostgroup ID',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `hostgroup_index` (`hostgroup_hg_id`),
   UNIQUE (`dependency_dep_id`, `hostgroup_hg_id`),
   CONSTRAINT `dependency_hostgroupChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_hostgroupChild_relation_ibfk_2` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between dependency and hostgroup as child';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_hostgroupParent_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `hostgroup_hg_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Dependency ID',
+  `hostgroup_hg_id` int(11) DEFAULT NULL COMMENT 'Parent hostgroup ID',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `hostgroup_index` (`hostgroup_hg_id`),
   UNIQUE (`dependency_dep_id`, `hostgroup_hg_id`),
   CONSTRAINT `dependency_hostgroupParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_hostgroupParent_relation_ibfk_2` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between dependency and hostgroup as parent';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_metaserviceChild_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `meta_service_meta_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the dependency (dep_id)',
+  `meta_service_meta_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the meta service (meta_id)',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `meta_service_index` (`meta_service_meta_id`),
   UNIQUE (`dependency_dep_id`, `meta_service_meta_id`),
   CONSTRAINT `dependency_metaserviceChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_metaserviceChild_relation_ibfk_2` FOREIGN KEY (`meta_service_meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table defining dependency relationships where a meta service acts as a child';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_metaserviceParent_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `meta_service_meta_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the dependency (dep_id)',
+  `meta_service_meta_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the meta service (meta_id)',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `meta_service_index` (`meta_service_meta_id`),
   UNIQUE (`dependency_dep_id`, `meta_service_meta_id`),
   CONSTRAINT `dependency_metaserviceParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_metaserviceParent_relation_ibfk_2` FOREIGN KEY (`meta_service_meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table defining dependency relationships where a meta service acts as a parent';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_serviceChild_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `service_service_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the dependency (dep_id)',
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the host (host_id)',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `service_index` (`service_service_id`),
   KEY `host_index` (`host_host_id`),
@@ -1043,14 +1043,14 @@ CREATE TABLE `dependency_serviceChild_relation` (
   CONSTRAINT `dependency_serviceChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_serviceChild_relation_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_serviceChild_relation_ibfk_3` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table defining dependency relationships where a service acts as a child on a specific host';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_serviceParent_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `service_service_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the dependency (dep_id)',
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the host (host_id)',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `service_index` (`service_service_id`),
   KEY `host_index` (`host_host_id`),
@@ -1058,31 +1058,31 @@ CREATE TABLE `dependency_serviceParent_relation` (
   CONSTRAINT `dependency_serviceParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_serviceParent_relation_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_serviceParent_relation_ibfk_3` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table defining dependency relationships where a service acts as a parent on a specific host';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_servicegroupChild_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `servicegroup_sg_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the dependency (dep_id)',
+  `servicegroup_sg_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service group (sg_id)',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `sg_index` (`servicegroup_sg_id`),
   UNIQUE (`dependency_dep_id`, `servicegroup_sg_id`),
   CONSTRAINT `dependency_servicegroupChild_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_servicegroupChild_relation_ibfk_2` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table defining dependency relationships where a service group acts as a child';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `dependency_servicegroupParent_relation` (
-  `dependency_dep_id` int(11) DEFAULT NULL,
-  `servicegroup_sg_id` int(11) DEFAULT NULL,
+  `dependency_dep_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the dependency (dep_id)',
+  `servicegroup_sg_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service group (sg_id)',
   KEY `dependency_index` (`dependency_dep_id`),
   KEY `sg_index` (`servicegroup_sg_id`),
   UNIQUE (`dependency_dep_id`, `servicegroup_sg_id`),
   CONSTRAINT `dependency_servicegroupParent_relation_ibfk_1` FOREIGN KEY (`dependency_dep_id`) REFERENCES `dependency` (`dep_id`) ON DELETE CASCADE,
   CONSTRAINT `dependency_servicegroupParent_relation_ibfk_2` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table defining dependency relationships where a service group acts as a parent';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1099,24 +1099,24 @@ CREATE TABLE `downtime` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_host_relation` (
-  `dt_id` int(11) NOT NULL,
-  `host_host_id` int(11) NOT NULL,
+  `dt_id` int(11) NOT NULL COMMENT 'Downtime ID',
+  `host_host_id` int(11) NOT NULL COMMENT 'Host ID',
   PRIMARY KEY (`dt_id`,`host_host_id`),
   KEY `downtime_host_relation_ibfk_1` (`host_host_id`),
   CONSTRAINT `downtime_host_relation_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_host_relation_ibfk_2` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between downtime and host';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_hostgroup_relation` (
-  `dt_id` int(11) NOT NULL,
-  `hg_hg_id` int(11) NOT NULL,
+  `dt_id` int(11) NOT NULL COMMENT 'Downtime ID',
+  `hg_hg_id` int(11) NOT NULL COMMENT 'Hostgroup ID',
   PRIMARY KEY (`dt_id`,`hg_hg_id`),
   KEY `downtime_hostgroup_relation_ibfk_1` (`hg_hg_id`),
   CONSTRAINT `downtime_hostgroup_relation_ibfk_1` FOREIGN KEY (`hg_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_hostgroup_relation_ibfk_2` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between downtime and hostgroup';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1138,27 +1138,27 @@ CREATE TABLE `downtime_period` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_service_relation` (
-  `dt_id` int(11) NOT NULL,
-  `host_host_id` int(11) NOT NULL,
-  `service_service_id` int(11) NOT NULL,
+  `dt_id` int(11) NOT NULL COMMENT 'Foreign key referencing the downtime entry (dt_id)',
+  `host_host_id` int(11) NOT NULL COMMENT 'Foreign key referencing the host (host_id)',
+  `service_service_id` int(11) NOT NULL COMMENT 'Foreign key referencing the service (service_id)',
   PRIMARY KEY (`dt_id`,`host_host_id`,`service_service_id`),
   KEY `downtime_service_relation_ibfk_1` (`service_service_id`),
   KEY `downtime_service_relation_ibfk_3` (`host_host_id`),
   CONSTRAINT `downtime_service_relation_ibfk_1` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_service_relation_ibfk_3` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_service_relation_ibfk_2` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table mapping downtime entries to services and hosts for maintenance scheduling';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_servicegroup_relation` (
-  `dt_id` int(11) NOT NULL,
-  `sg_sg_id` int(11) NOT NULL,
+  `dt_id` int(11) NOT NULL COMMENT 'Foreign key referencing the downtime entry (dt_id)',
+  `sg_sg_id` int(11) NOT NULL COMMENT 'Foreign key referencing the service group (sg_id)',
   PRIMARY KEY (`dt_id`,`sg_sg_id`),
   KEY `downtime_servicegroup_relation_ibfk_1` (`sg_sg_id`),
   CONSTRAINT `downtime_servicegroup_relation_ibfk_1` FOREIGN KEY (`sg_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_servicegroup_relation_ibfk_2` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table mapping downtime entries to service groups for maintenance scheduling';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1194,75 +1194,75 @@ CREATE TABLE `escalation_contactgroup_relation` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_host_relation` (
-  `escalation_esc_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
+  `escalation_esc_id` int(11) DEFAULT NULL COMMENT 'Escalation ID',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Host ID',
   KEY `escalation_index` (`escalation_esc_id`),
   KEY `host_index` (`host_host_id`),
   CONSTRAINT `escalation_host_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_host_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between escalation and host';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_hostgroup_relation` (
-  `escalation_esc_id` int(11) DEFAULT NULL,
-  `hostgroup_hg_id` int(11) DEFAULT NULL,
+  `escalation_esc_id` int(11) DEFAULT NULL COMMENT 'Escalation ID',
+  `hostgroup_hg_id` int(11) DEFAULT NULL COMMENT 'Hostgroup ID',
   KEY `escalation_index` (`escalation_esc_id`),
   KEY `hg_index` (`hostgroup_hg_id`),
   CONSTRAINT `escalation_hostgroup_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_hostgroup_relation_ibfk_2` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Relation table between escalation and hostgroup';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_meta_service_relation` (
-  `escalation_esc_id` int(11) DEFAULT NULL,
-  `meta_service_meta_id` int(11) DEFAULT NULL,
+  `escalation_esc_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the escalation rule (esc_id)',
+  `meta_service_meta_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the meta service (meta_id)',
   KEY `escalation_index` (`escalation_esc_id`),
   KEY `meta_service_index` (`meta_service_meta_id`),
   CONSTRAINT `escalation_meta_service_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_meta_service_relation_ibfk_2` FOREIGN KEY (`meta_service_meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table managing escalation rules for meta services';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_service_relation` (
-  `escalation_esc_id` int(11) DEFAULT NULL,
-  `service_service_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
+  `escalation_esc_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the escalation rule (esc_id)',
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the host (host_id)',
   KEY `escalation_index` (`escalation_esc_id`),
   KEY `service_index` (`service_service_id`),
   KEY `host_index` (`host_host_id`),
   CONSTRAINT `escalation_service_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_service_relation_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_service_relation_ibfk_3` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table managing escalation rules for services, linking escalation to services and hosts';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_servicegroup_relation` (
-  `escalation_esc_id` int(11) DEFAULT NULL,
-  `servicegroup_sg_id` int(11) DEFAULT NULL,
+  `escalation_esc_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the escalation rule (esc_id)',
+  `servicegroup_sg_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service group (sg_id)',
   KEY `escalation_index` (`escalation_esc_id`),
   KEY `sg_index` (`servicegroup_sg_id`),
   CONSTRAINT `escalation_servicegroup_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_servicegroup_relation_ibfk_2` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table managing escalation rules for service groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `extended_host_information` (
-  `ehi_id` int(11) NOT NULL AUTO_INCREMENT,
-  `host_host_id` int(11) DEFAULT NULL,
-  `ehi_notes` TEXT DEFAULT NULL,
-  `ehi_notes_url` TEXT DEFAULT NULL,
-  `ehi_action_url` TEXT DEFAULT NULL,
-  `ehi_icon_image` int(11) DEFAULT NULL,
-  `ehi_icon_image_alt` varchar(200) DEFAULT NULL,
+  `ehi_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the extended host information entry.',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'The host this extended information belongs to.',
+  `ehi_notes` TEXT DEFAULT NULL COMMENT 'Notes about the host.',
+  `ehi_notes_url` TEXT DEFAULT NULL COMMENT 'URL to additional notes about the host.',
+  `ehi_action_url` TEXT DEFAULT NULL COMMENT 'URL to an action to be performed on the host.',
+  `ehi_icon_image` int(11) DEFAULT NULL COMMENT 'The icon image for the host.',
+  `ehi_icon_image_alt` varchar(200) DEFAULT NULL COMMENT 'The alt text for the icon image.',
   `ehi_vrml_image` int(11) DEFAULT NULL,
-  `ehi_statusmap_image` int(11) DEFAULT NULL,
-  `ehi_2d_coords` varchar(200) DEFAULT NULL,
-  `ehi_3d_coords` varchar(200) DEFAULT NULL,
+  `ehi_statusmap_image` int(11) DEFAULT NULL COMMENT 'The statusmap image for the host.',
+  `ehi_2d_coords` varchar(200) DEFAULT NULL COMMENT 'The 2D coordinates for the host.',
+  `ehi_3d_coords` varchar(200) DEFAULT NULL COMMENT 'The 3D coordinates for the host.',
   PRIMARY KEY (`ehi_id`),
   UNIQUE KEY `host_host_id` (`host_host_id`),
   KEY `host_index` (`host_host_id`),
@@ -1271,19 +1271,19 @@ CREATE TABLE `extended_host_information` (
   CONSTRAINT `extended_host_information_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `extended_host_information_ibfk_2` FOREIGN KEY (`ehi_icon_image`) REFERENCES `view_img` (`img_id`) ON DELETE SET NULL,
   CONSTRAINT `extended_host_information_ibfk_4` FOREIGN KEY (`ehi_statusmap_image`) REFERENCES `view_img` (`img_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores additional details about hosts.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `extended_service_information` (
-  `esi_id` int(11) NOT NULL AUTO_INCREMENT,
-  `service_service_id` int(11) DEFAULT NULL,
-  `esi_notes` TEXT DEFAULT NULL,
-  `esi_notes_url` TEXT DEFAULT NULL,
-  `esi_action_url` TEXT DEFAULT NULL,
-  `esi_icon_image` int(11) DEFAULT NULL,
-  `esi_icon_image_alt` varchar(200) DEFAULT NULL,
-  `graph_id` int(11) DEFAULT NULL,
+  `esi_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for extended service information',
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
+  `esi_notes` TEXT DEFAULT NULL COMMENT 'Additional notes for the service',
+  `esi_notes_url` TEXT DEFAULT NULL COMMENT 'URL for additional notes regarding the service',
+  `esi_action_url` TEXT DEFAULT NULL COMMENT 'URL for service-related actions',
+  `esi_icon_image` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the icon image (img_id)',
+  `esi_icon_image_alt` varchar(200) DEFAULT NULL COMMENT 'Alternative text for the service icon image',
+  `graph_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the graph template (graph_id)',
   PRIMARY KEY (`esi_id`),
   KEY `service_index` (`service_service_id`),
   KEY `graph_index` (`graph_id`),
@@ -1291,7 +1291,7 @@ CREATE TABLE `extended_service_information` (
   CONSTRAINT `extended_service_information_ibfk_1` FOREIGN KEY (`graph_id`) REFERENCES `giv_graphs_template` (`graph_id`) ON DELETE SET NULL,
   CONSTRAINT `extended_service_information_ibfk_2` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `extended_service_information_ibfk_3` FOREIGN KEY (`esi_icon_image`) REFERENCES `view_img` (`img_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table containing extended information and additional details for services';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1349,53 +1349,53 @@ CREATE TABLE `giv_graphs_template` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `host` (
-  `host_id` int(11) NOT NULL AUTO_INCREMENT,
-  `host_template_model_htm_id` int(11) DEFAULT NULL,
-  `command_command_id` int(11) DEFAULT NULL,
-  `command_command_id_arg1` text,
-  `timeperiod_tp_id` int(11) DEFAULT NULL,
-  `timeperiod_tp_id2` int(11) DEFAULT NULL,
-  `command_command_id2` int(11) DEFAULT NULL,
-  `command_command_id_arg2` text,
-  `host_name` varchar(200) DEFAULT NULL,
-  `host_alias` varchar(200) DEFAULT NULL,
-  `host_address` varchar(255) DEFAULT NULL,
-  `display_name` varchar(255) DEFAULT NULL,
-  `host_max_check_attempts` int(11) DEFAULT NULL,
-  `host_check_interval` int(11) DEFAULT NULL,
-  `host_retry_check_interval` int(11) DEFAULT NULL,
-  `host_active_checks_enabled` enum('0','1','2') DEFAULT NULL,
-  `host_passive_checks_enabled` enum('0','1','2') DEFAULT NULL,
-  `host_checks_enabled` enum('0','1','2') DEFAULT NULL,
-  `initial_state` enum('o','d','u') DEFAULT NULL,
-  `host_obsess_over_host` enum('0','1','2') DEFAULT NULL,
-  `host_check_freshness` enum('0','1','2') DEFAULT NULL,
-  `host_freshness_threshold` int(11) DEFAULT NULL,
-  `host_event_handler_enabled` enum('0','1','2') DEFAULT NULL,
-  `host_low_flap_threshold` int(11) DEFAULT NULL,
-  `host_high_flap_threshold` int(11) DEFAULT NULL,
-  `host_flap_detection_enabled` enum('0','1','2') DEFAULT NULL,
-  `flap_detection_options` varchar(255) DEFAULT NULL,
-  `host_process_perf_data` enum('0','1','2') DEFAULT NULL,
-  `host_retain_status_information` enum('0','1','2') DEFAULT NULL,
-  `host_retain_nonstatus_information` enum('0','1','2') DEFAULT NULL,
-  `host_notification_interval` int(11) DEFAULT NULL,
-  `host_recovery_notification_delay` int(11) DEFAULT NULL,
-  `host_notification_options` varchar(200) DEFAULT NULL,
-  `host_notifications_enabled` enum('0','1','2') DEFAULT NULL,
-  `contact_additive_inheritance` boolean DEFAULT 0,
-  `cg_additive_inheritance` boolean DEFAULT 0,
-  `host_first_notification_delay` int(11) DEFAULT NULL,
-  `host_acknowledgement_timeout` int(11) DEFAULT NULL,
-  `host_stalking_options` varchar(200) DEFAULT NULL,
-  `host_snmp_community` varchar(255) DEFAULT NULL,
-  `host_snmp_version` varchar(255) DEFAULT NULL,
-  `host_location` int(11) DEFAULT '0',
-  `host_comment` text,
-  `geo_coords` varchar(32) DEFAULT NULL,
-  `host_locked` BOOLEAN DEFAULT 0,
-  `host_register` enum('0','1','2','3') DEFAULT NULL,
-  `host_activate` enum('0','1','2') DEFAULT '1',
+  `host_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the host',
+  `host_template_model_htm_id` int(11) DEFAULT NULL COMMENT 'Identifier for the host template model',
+  `command_command_id` int(11) DEFAULT NULL COMMENT 'Identifier for the command used for host checks',
+  `command_command_id_arg1` text COMMENT 'Arguments for the command used for host checks',
+  `timeperiod_tp_id` int(11) DEFAULT NULL COMMENT 'Identifier for the time period during which host checks are performed',
+  `timeperiod_tp_id2` int(11) DEFAULT NULL COMMENT 'Identifier for the time period during which host notifications are sent',
+  `command_command_id2` int(11) DEFAULT NULL COMMENT 'Identifier for the command used for host notifications',
+  `command_command_id_arg2` text COMMENT 'Arguments for the command used for host notifications',
+  `host_name` varchar(200) DEFAULT NULL COMMENT 'Name of the host',
+  `host_alias` varchar(200) DEFAULT NULL COMMENT 'Alias of the host',
+  `host_address` varchar(255) DEFAULT NULL COMMENT 'Address of the host',
+  `display_name` varchar(255) DEFAULT NULL COMMENT 'Display name of the host',
+  `host_max_check_attempts` int(11) DEFAULT NULL COMMENT 'Maximum number of check attempts for the host',
+  `host_check_interval` int(11) DEFAULT NULL COMMENT 'Interval between checks for the host',
+  `host_retry_check_interval` int(11) DEFAULT NULL COMMENT 'Interval between retry checks for the host',
+  `host_active_checks_enabled` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether active checks are enabled for the host',
+  `host_passive_checks_enabled` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether passive checks are enabled for the host',
+  `host_checks_enabled` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether checks are enabled for the host',
+  `initial_state` enum('o','d','u') DEFAULT NULL COMMENT 'Initial state of the host',
+  `host_obsess_over_host` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether to obsess over the host',
+  `host_check_freshness` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether to check the freshness of the host',
+  `host_freshness_threshold` int(11) DEFAULT NULL COMMENT 'Freshness threshold for the host',
+  `host_event_handler_enabled` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether the event handler is enabled for the host',
+  `host_low_flap_threshold` int(11) DEFAULT NULL COMMENT 'Low flapping threshold for the host',
+  `host_high_flap_threshold` int(11) DEFAULT NULL COMMENT 'High flapping threshold for the host',
+  `host_flap_detection_enabled` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether flapping detection is enabled for the host',
+  `flap_detection_options` varchar(255) DEFAULT NULL COMMENT 'Options for detecting frequent state changes (flapping)',
+  `host_process_perf_data` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether to process performance data for the host',
+  `host_retain_status_information` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether to retain status information for the host',
+  `host_retain_nonstatus_information` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether to retain non-status information for the host',
+  `host_notification_interval` int(11) DEFAULT NULL COMMENT 'Interval between notifications for the host',
+  `host_recovery_notification_delay` int(11) DEFAULT NULL COMMENT 'Delay before sending recovery notifications for the host',
+  `host_notification_options` varchar(200) DEFAULT NULL COMMENT 'Options for host notifications',
+  `host_notifications_enabled` enum('0','1','2') DEFAULT NULL COMMENT 'Indicates whether notifications are enabled for the host',
+  `contact_additive_inheritance` boolean DEFAULT 0 COMMENT 'Indicates whether contact inheritance is additive',
+  `cg_additive_inheritance` boolean DEFAULT 0 COMMENT 'Indicates whether contact group inheritance is additive',
+  `host_first_notification_delay` int(11) DEFAULT NULL COMMENT 'Delay before sending the first notification for the host',
+  `host_acknowledgement_timeout` int(11) DEFAULT NULL COMMENT 'Timeout for host acknowledgements',
+  `host_stalking_options` varchar(200) DEFAULT NULL COMMENT 'Options for host stalking',
+  `host_snmp_community` varchar(255) DEFAULT NULL COMMENT 'SNMP community string used for SNMP communication with the host',
+  `host_snmp_version` varchar(255) DEFAULT NULL COMMENT 'SNMP version for the host',
+  `host_location` int(11) DEFAULT '0' COMMENT 'Location identifier for the host',
+  `host_comment` text COMMENT 'Comment about the host',
+  `geo_coords` varchar(32) DEFAULT NULL COMMENT 'Geographical coordinates of the host',
+  `host_locked` BOOLEAN DEFAULT 0 COMMENT 'Indicates whether the host is locked',
+  `host_register` enum('0','1','2','3') DEFAULT NULL COMMENT 'Indicates whether is is a host template 0, a host 1 or a meta host 2',
+  `host_activate` enum('0','1','2') DEFAULT '1' COMMENT 'Indicates whether the host is active, 0 for active, 1 for inactive',
   PRIMARY KEY (`host_id`),
   KEY `htm_index` (`host_template_model_htm_id`),
   KEY `cmd1_index` (`command_command_id`),
@@ -1410,27 +1410,27 @@ CREATE TABLE `host` (
   CONSTRAINT `host_ibfk_2` FOREIGN KEY (`command_command_id2`) REFERENCES `command` (`command_id`) ON DELETE SET NULL,
   CONSTRAINT `host_ibfk_3` FOREIGN KEY (`timeperiod_tp_id`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL,
   CONSTRAINT `host_ibfk_4` FOREIGN KEY (`timeperiod_tp_id2`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores configuration information about hosts and host templates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `host_hostparent_relation` (
-  `host_parent_hp_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
+  `host_parent_hp_id` int(11) DEFAULT NULL COMMENT 'Identifier for the parent host',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Identifier for the child host',
   KEY `host1_index` (`host_parent_hp_id`),
   KEY `host2_index` (`host_host_id`),
   CONSTRAINT `host_hostparent_relation_ibfk_1` FOREIGN KEY (`host_parent_hp_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `host_hostparent_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the parent-child relationship between hosts.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `host_service_relation` (
-  `hsr_id` int(11) NOT NULL AUTO_INCREMENT,
-  `hostgroup_hg_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
-  `servicegroup_sg_id` int(11) DEFAULT NULL,
-  `service_service_id` int(11) DEFAULT NULL,
+  `hsr_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the host-service relation',
+  `hostgroup_hg_id` int(11) DEFAULT NULL COMMENT 'Identifier for the host group',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Identifier for the host',
+  `servicegroup_sg_id` int(11) DEFAULT NULL COMMENT 'Identifier for the service group',
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Identifier for the service',
   PRIMARY KEY (`hsr_id`),
   KEY `hostgroup_index` (`hostgroup_hg_id`),
   KEY `host_index` (`host_host_id`),
@@ -1441,90 +1441,90 @@ CREATE TABLE `host_service_relation` (
   CONSTRAINT `host_service_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `host_service_relation_ibfk_3` FOREIGN KEY (`servicegroup_sg_id`) REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE,
   CONSTRAINT `host_service_relation_ibfk_4` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the relationship between hosts and services.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `host_template_relation` (
-  `host_host_id` int(11) NOT NULL DEFAULT '0',
-  `host_tpl_id` int(11) NOT NULL DEFAULT '0',
-  `order` int(11) DEFAULT NULL,
+  `host_host_id` int(11) NOT NULL DEFAULT '0' COMMENT 'Identifier for the host',
+  `host_tpl_id` int(11) NOT NULL DEFAULT '0' COMMENT 'Identifier for the host template',
+  `order` int(11) DEFAULT NULL COMMENT 'Order of inheritance',
   PRIMARY KEY (`host_host_id`,`host_tpl_id`),
   KEY `host_tpl_id` (`host_tpl_id`),
   CONSTRAINT `host_template_relation_ibfk_2` FOREIGN KEY (`host_tpl_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `host_template_relation_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the relationship between hosts and host templates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostcategories` (
-  `hc_id` int(11) NOT NULL AUTO_INCREMENT,
-  `hc_name` varchar(200) DEFAULT NULL,
-  `hc_alias` varchar(200) DEFAULT NULL,
-  `level` TINYINT(5) DEFAULT NULL,
-  `icon_id` INT(11) DEFAULT NULL,
-  `hc_comment` text,
-  `hc_activate` enum('0','1') NOT NULL DEFAULT '1',
+  `hc_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the host category',
+  `hc_name` varchar(200) DEFAULT NULL COMMENT 'Name of the host category',
+  `hc_alias` varchar(200) DEFAULT NULL COMMENT 'Alias of the host category',
+  `level` TINYINT(5) DEFAULT NULL COMMENT 'Hierarchy level of the host category',
+  `icon_id` INT(11) DEFAULT NULL COMMENT 'Identifier for the icon image',
+  `hc_comment` text COMMENT 'Comment about the host category',
+  `hc_activate` enum('0','1') NOT NULL DEFAULT '1' COMMENT 'Indicates whether the category is active 1 or disabled 0',
   PRIMARY KEY (`hc_id`),
   KEY `name_index` (`hc_name`),
   KEY `alias_index` (`hc_alias`),
   KEY `level_index` (`level`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the host categories.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostcategories_relation` (
-  `hostcategories_hc_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
+  `hostcategories_hc_id` int(11) DEFAULT NULL COMMENT 'Identifier for the host category',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Identifier for the host',
   KEY `hostcategories_index` (`hostcategories_hc_id`),
   KEY `host_index` (`host_host_id`),
   CONSTRAINT `hostcategories_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `hostcategories_relation_ibfk_1` FOREIGN KEY (`hostcategories_hc_id`) REFERENCES `hostcategories` (`hc_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the relationship between hosts and host categories.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostgroup` (
-  `hg_id` int(11) NOT NULL AUTO_INCREMENT,
-  `hg_name` varchar(200) DEFAULT NULL,
-  `hg_alias` varchar(200) DEFAULT NULL,
-  `hg_notes` varchar(255) DEFAULT NULL,
-  `hg_notes_url` varchar(255) DEFAULT NULL,
-  `hg_action_url` varchar(255) DEFAULT NULL,
-  `hg_icon_image` int(11) DEFAULT NULL,
-  `hg_map_icon_image` int(11) DEFAULT NULL,
-  `hg_rrd_retention` int(11) DEFAULT NULL,
-  `geo_coords` varchar(32) DEFAULT NULL,
-  `hg_comment` text,
-  `hg_activate` enum('0','1') NOT NULL DEFAULT '1',
+  `hg_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the host group',
+  `hg_name` varchar(200) DEFAULT NULL COMMENT 'Name of the host group',
+  `hg_alias` varchar(200) DEFAULT NULL COMMENT 'Alias of the host group',
+  `hg_notes` varchar(255) DEFAULT NULL COMMENT 'Notes about the host group',
+  `hg_notes_url` varchar(255) DEFAULT NULL COMMENT 'URL for notes about the host group',
+  `hg_action_url` varchar(255) DEFAULT NULL COMMENT 'URL for actions about the host group',
+  `hg_icon_image` int(11) DEFAULT NULL COMMENT 'Identifier for the icon image',
+  `hg_map_icon_image` int(11) DEFAULT NULL COMMENT 'Identifier for the map icon image',
+  `hg_rrd_retention` int(11) DEFAULT NULL COMMENT 'RRD retention for the host group',
+  `geo_coords` varchar(32) DEFAULT NULL COMMENT 'Geographical coordinates of the host group',
+  `hg_comment` text COMMENT 'Comment about the host group',
+  `hg_activate` enum('0','1') NOT NULL DEFAULT '1' COMMENT 'Indicates whether the host group is active 1 or disabled 0',
   PRIMARY KEY (`hg_id`),
   KEY `name_index` (`hg_name`),
   KEY `alias_index` (`hg_alias`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores configuration information about host groups.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostgroup_hg_relation` (
-  `hg_parent_id` int(11) DEFAULT NULL,
-  `hg_child_id` int(11) DEFAULT NULL,
+  `hg_parent_id` int(11) DEFAULT NULL COMMENT 'Identifier for the parent host group',
+  `hg_child_id` int(11) DEFAULT NULL COMMENT 'Identifier for the child host group',
   KEY `hg_parent_id` (`hg_parent_id`),
   KEY `hg_child_id` (`hg_child_id`),
   CONSTRAINT `hostgroup_hg_relation_ibfk_2` FOREIGN KEY (`hg_child_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE,
   CONSTRAINT `hostgroup_hg_relation_ibfk_1` FOREIGN KEY (`hg_parent_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the parent-child relationship between host groups.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `hostgroup_relation` (
-  `hgr_id` int(11) NOT NULL AUTO_INCREMENT,
-  `hostgroup_hg_id` int(11) DEFAULT NULL,
-  `host_host_id` int(11) DEFAULT NULL,
+  `hgr_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the host group relation',
+  `hostgroup_hg_id` int(11) DEFAULT NULL COMMENT 'Identifier for the host group',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Identifier for the host',
   PRIMARY KEY (`hgr_id`),
   KEY `hostgroup_index` (`hostgroup_hg_id`),
   KEY `host_index` (`host_host_id`),
   CONSTRAINT `hostgroup_relation_ibfk_1` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE,
   CONSTRAINT `hostgroup_relation_ibfk_2` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the relationship between host groups and hosts.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1547,28 +1547,28 @@ CREATE TABLE `meta_contactgroup_relation` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `meta_service` (
-  `meta_id` int(11) NOT NULL AUTO_INCREMENT,
-  `meta_name` varchar(254) DEFAULT NULL,
-  `meta_display` varchar(254) DEFAULT NULL,
-  `check_period` int(11) DEFAULT NULL,
-  `max_check_attempts` int(11) DEFAULT NULL,
-  `normal_check_interval` int(11) DEFAULT NULL,
-  `retry_check_interval` int(11) DEFAULT NULL,
-  `notification_interval` int(11) DEFAULT NULL,
-  `notification_period` int(11) DEFAULT NULL,
-  `notification_options` varchar(255) DEFAULT NULL,
-  `notifications_enabled` enum('0','1','2') DEFAULT NULL,
-  `calcul_type` enum('SOM','AVE','MIN','MAX') DEFAULT NULL,
-  `data_source_type` tinyint(3) NOT NULL DEFAULT '0',
-  `meta_select_mode` enum('1','2') DEFAULT '1',
-  `regexp_str` varchar(254) DEFAULT NULL,
-  `metric` varchar(255) DEFAULT NULL,
-  `warning` varchar(254) DEFAULT NULL,
-  `critical` varchar(254) DEFAULT NULL,
-  `graph_id` int(11) DEFAULT NULL,
-  `meta_comment` text,
-  `geo_coords` varchar(32) DEFAULT NULL,
-  `meta_activate` enum('0','1') DEFAULT NULL,
+  `meta_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the meta service',
+  `meta_name` varchar(254) DEFAULT NULL COMMENT 'Name of the meta service',
+  `meta_display` varchar(254) DEFAULT NULL COMMENT 'Display name for the meta service',
+  `check_period` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the check period (tp_id) for meta service monitoring',
+  `max_check_attempts` int(11) DEFAULT NULL COMMENT 'Maximum number of check attempts for the meta service',
+  `normal_check_interval` int(11) DEFAULT NULL COMMENT 'Interval between normal checks for the meta service',
+  `retry_check_interval` int(11) DEFAULT NULL COMMENT 'Interval between retry checks for the meta service',
+  `notification_interval` int(11) DEFAULT NULL COMMENT 'Interval between notifications for the meta service',
+  `notification_period` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the notification period (tp_id) for the meta service',
+  `notification_options` varchar(255) DEFAULT NULL COMMENT 'Notification options for the meta service',
+  `notifications_enabled` enum('0','1','2') DEFAULT NULL COMMENT 'Flag indicating if notifications are enabled (0, 1, or 2)',
+  `calcul_type` enum('SOM','AVE','MIN','MAX') DEFAULT NULL COMMENT 'Calculation type for meta service data (SOM, AVE, MIN, MAX)',
+  `data_source_type` tinyint(3) NOT NULL DEFAULT '0' COMMENT 'Data source type for the meta service',
+  `meta_select_mode` enum('1','2') DEFAULT '1' COMMENT 'Selection mode for the meta service (1 or 2)',
+  `regexp_str` varchar(254) DEFAULT NULL COMMENT 'Regular expression string used for meta service filtering',
+  `metric` varchar(255) DEFAULT NULL COMMENT 'Metric used by the meta service',
+  `warning` varchar(254) DEFAULT NULL COMMENT 'Warning threshold for the meta service',
+  `critical` varchar(254) DEFAULT NULL COMMENT 'Critical threshold for the meta service',
+  `graph_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the graph template (graph_id) for the meta service',
+  `meta_comment` text COMMENT 'Additional comments for the meta service',
+  `geo_coords` varchar(32) DEFAULT NULL COMMENT 'Geographical coordinates associated with the meta service',
+  `meta_activate` enum('0','1') DEFAULT NULL COMMENT 'Activation flag for the meta service (0 or 1)',
   PRIMARY KEY (`meta_id`),
   KEY `name_index` (`meta_name`),
   KEY `check_period_index` (`check_period`),
@@ -1577,24 +1577,24 @@ CREATE TABLE `meta_service` (
   CONSTRAINT `meta_service_ibfk_1` FOREIGN KEY (`check_period`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL,
   CONSTRAINT `meta_service_ibfk_2` FOREIGN KEY (`notification_period`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL,
   CONSTRAINT `meta_service_ibfk_3` FOREIGN KEY (`graph_id`) REFERENCES `giv_graphs_template` (`graph_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table storing configuration and monitoring details for meta services';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `meta_service_relation` (
-  `msr_id` int(11) NOT NULL AUTO_INCREMENT,
-  `meta_id` int(11) DEFAULT NULL,
-  `host_id` int(11) DEFAULT NULL,
-  `metric_id` int(11) DEFAULT NULL,
-  `msr_comment` text,
-  `activate` enum('0','1') DEFAULT NULL,
+  `msr_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the meta service relation',
+  `meta_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the meta service (meta_id)',
+  `host_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the host (host_id)',
+  `metric_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the metric associated with the meta service',
+  `msr_comment` text COMMENT 'Comments regarding the meta service relation',
+  `activate` enum('0','1') DEFAULT NULL COMMENT 'Activation flag for this relation (0 or 1)',
   PRIMARY KEY (`msr_id`),
   KEY `meta_index` (`meta_id`),
   KEY `metric_index` (`metric_id`),
   KEY `host_index` (`host_id`),
   CONSTRAINT `meta_service_relation_ibfk_1` FOREIGN KEY (`host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `meta_service_relation_ibfk_2` FOREIGN KEY (`meta_id`) REFERENCES `meta_service` (`meta_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table defining relations between meta services and hosts with associated metrics';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1659,8 +1659,8 @@ CREATE TABLE `nagios_server` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ns_host_relation` (
-  `nagios_server_id` int(11) NOT NULL DEFAULT '0',
-  `host_host_id` int(11) NOT NULL DEFAULT '0',
+  `nagios_server_id` int(11) NOT NULL DEFAULT '0' COMMENT 'Identifier for the centreon server',
+  `host_host_id` int(11) NOT NULL DEFAULT '0' COMMENT 'Identifier for the host',
   PRIMARY KEY (`nagios_server_id`,`host_host_id`),
   KEY `host_host_id` (`host_host_id`),
   KEY `nagios_server_id` (`nagios_server_id`),
@@ -1685,32 +1685,32 @@ CREATE TABLE `ods_view_details` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `on_demand_macro_host` (
-  `host_macro_id` int(11) NOT NULL AUTO_INCREMENT,
-  `host_macro_name` varchar(255) NOT NULL,
-  `host_macro_value` varchar(4096) NOT NULL,
-  `is_password` tinyint(2) DEFAULT 0,
-  `description` text DEFAULT NULL,
-  `host_host_id` int(11) NOT NULL,
-  `macro_order` int(11) NULL DEFAULT 0,
+  `host_macro_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the on-demand macro',
+  `host_macro_name` varchar(255) NOT NULL COMMENT 'Name of the on-demand macro',
+  `host_macro_value` varchar(4096) NOT NULL COMMENT 'Value of the on-demand macro',
+  `is_password` tinyint(2) DEFAULT 0 COMMENT 'Indicates whether the macro is a password',
+  `description` text DEFAULT NULL COMMENT 'Description of the on-demand macro',
+  `host_host_id` int(11) NOT NULL COMMENT 'Identifier for the host',
+  `macro_order` int(11) NULL DEFAULT 0 COMMENT 'Order of the macro',
   PRIMARY KEY (`host_macro_id`),
   KEY `host_host_id` (`host_host_id`),
   CONSTRAINT `on_demand_macro_host_ibfk_1` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='This table stores the on-demand macros for hosts/host templates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `on_demand_macro_service` (
-  `svc_macro_id` int(11) NOT NULL AUTO_INCREMENT,
-  `svc_macro_name` varchar(255) NOT NULL,
-  `svc_macro_value` varchar(4096) NOT NULL,
-  `is_password` tinyint(2) DEFAULT 0,
-  `description` text DEFAULT NULL,
-  `svc_svc_id` int(11) NOT NULL,
-  `macro_order` int(11) NULL DEFAULT 0,
+  `svc_macro_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the on-demand macro service',
+  `svc_macro_name` varchar(255) NOT NULL COMMENT 'Name of the macro',
+  `svc_macro_value` varchar(4096) NOT NULL COMMENT 'Value of the macro',
+  `is_password` tinyint(2) DEFAULT 0 COMMENT 'Flag indicating if the macro value is a password (0 = no, 1 = yes)',
+  `description` text DEFAULT NULL COMMENT 'Description of the macro service',
+  `svc_svc_id` int(11) NOT NULL COMMENT 'Foreign key referencing the service (service_id) associated with the macro',
+  `macro_order` int(11) NULL DEFAULT 0 COMMENT 'Order of the macro for display or processing purposes',
   PRIMARY KEY (`svc_macro_id`),
   KEY `svc_svc_id` (`svc_svc_id`),
   CONSTRAINT `on_demand_macro_service_ibfk_1` FOREIGN KEY (`svc_svc_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COMMENT='Table storing on-demand macro service details';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1734,51 +1734,51 @@ CREATE TABLE `poller_command_relations` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service` (
-  `service_id` int(11) NOT NULL AUTO_INCREMENT,
-  `service_template_model_stm_id` int(11) DEFAULT NULL,
-  `command_command_id` int(11) DEFAULT NULL,
-  `timeperiod_tp_id` int(11) DEFAULT NULL,
-  `command_command_id2` int(11) DEFAULT NULL,
-  `timeperiod_tp_id2` int(11) DEFAULT NULL,
-  `service_description` varchar(200) DEFAULT NULL,
-  `service_alias` varchar(255) DEFAULT NULL,
-  `display_name` varchar(255) DEFAULT NULL,
-  `service_is_volatile` enum('0','1','2') DEFAULT '2',
-  `service_max_check_attempts` int(11) DEFAULT NULL,
-  `service_normal_check_interval` int(11) DEFAULT NULL,
-  `service_retry_check_interval` int(11) DEFAULT NULL,
-  `service_active_checks_enabled` enum('0','1','2') DEFAULT '2',
-  `service_passive_checks_enabled` enum('0','1','2') DEFAULT '2',
-  `initial_state` enum('o','w','u','c') DEFAULT NULL,
-  `service_parallelize_check` enum('0','1','2') DEFAULT '2',
-  `service_obsess_over_service` enum('0','1','2') DEFAULT '2',
-  `service_check_freshness` enum('0','1','2') DEFAULT '2',
-  `service_freshness_threshold` int(11) DEFAULT NULL,
-  `service_event_handler_enabled` enum('0','1','2') DEFAULT '2',
-  `service_low_flap_threshold` int(11) DEFAULT NULL,
-  `service_high_flap_threshold` int(11) DEFAULT NULL,
-  `service_flap_detection_enabled` enum('0','1','2') DEFAULT '2',
-  `service_process_perf_data` enum('0','1','2') DEFAULT '2',
-  `service_retain_status_information` enum('0','1','2') DEFAULT '2',
-  `service_retain_nonstatus_information` enum('0','1','2') DEFAULT '2',
-  `service_notification_interval` int(11) DEFAULT NULL,
-  `service_recovery_notification_delay` int(11) DEFAULT NULL,
-  `service_notification_options` varchar(200) DEFAULT NULL,
-  `service_notifications_enabled` enum('0','1','2') DEFAULT '2',
-  `contact_additive_inheritance` boolean DEFAULT 0,
-  `cg_additive_inheritance` boolean DEFAULT 0,
-  `service_inherit_contacts_from_host` enum('0','1') DEFAULT '1',
-  `service_use_only_contacts_from_host` enum('0','1') DEFAULT '0',
-  `service_first_notification_delay` int(11) DEFAULT NULL,
-  `service_acknowledgement_timeout` int(11) DEFAULT NULL,
-  `service_stalking_options` varchar(200) DEFAULT NULL,
-  `service_comment` text,
-  `geo_coords` varchar(32) DEFAULT NULL,
-  `command_command_id_arg` text,
-  `command_command_id_arg2` text,
-  `service_locked` BOOLEAN DEFAULT 0,
-  `service_register` enum('0','1','2','3') NOT NULL DEFAULT '0',
-  `service_activate` enum('0','1') NOT NULL DEFAULT '1',
+  `service_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the service',
+  `service_template_model_stm_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service template model (stm_id)',
+  `command_command_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the primary command (command_id)',
+  `timeperiod_tp_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the primary time period (tp_id)',
+  `command_command_id2` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the secondary command (command_id)',
+  `timeperiod_tp_id2` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the secondary time period (tp_id)',
+  `service_description` varchar(200) DEFAULT NULL COMMENT 'Short description of the service',
+  `service_alias` varchar(255) DEFAULT NULL COMMENT 'Alias for the service',
+  `display_name` varchar(255) DEFAULT NULL COMMENT 'Display name for the service',
+  `service_is_volatile` enum('0','1','2') DEFAULT '2' COMMENT 'Flag indicating if the service is volatile',
+  `service_max_check_attempts` int(11) DEFAULT NULL COMMENT 'Maximum number of check attempts for the service',
+  `service_normal_check_interval` int(11) DEFAULT NULL COMMENT 'Normal check interval (in minutes) for the service',
+  `service_retry_check_interval` int(11) DEFAULT NULL COMMENT 'Retry check interval (in minutes) for the service',
+  `service_active_checks_enabled` enum('0','1','2') DEFAULT '2' COMMENT 'Flag to enable active checks for the service',
+  `service_passive_checks_enabled` enum('0','1','2') DEFAULT '2' COMMENT 'Flag to enable passive checks for the service',
+  `initial_state` enum('o','w','u','c') DEFAULT NULL COMMENT 'Initial state of the service (o: OK, w: Warning, u: Unknown, c: Critical)',
+  `service_parallelize_check` enum('0','1','2') DEFAULT '2' COMMENT 'Flag indicating parallelization of service checks',
+  `service_obsess_over_service` enum('0','1','2') DEFAULT '2' COMMENT 'Flag indicating obsessive monitoring of the service',
+  `service_check_freshness` enum('0','1','2') DEFAULT '2' COMMENT 'Flag to enable freshness checking for the service',
+  `service_freshness_threshold` int(11) DEFAULT NULL COMMENT 'Threshold for freshness check (in seconds)',
+  `service_event_handler_enabled` enum('0','1','2') DEFAULT '2' COMMENT 'Flag to enable the event handler for the service',
+  `service_low_flap_threshold` int(11) DEFAULT NULL COMMENT 'Low threshold for flap detection',
+  `service_high_flap_threshold` int(11) DEFAULT NULL COMMENT 'High threshold for flap detection',
+  `service_flap_detection_enabled` enum('0','1','2') DEFAULT '2' COMMENT 'Flag to enable flap detection for the service',
+  `service_process_perf_data` enum('0','1','2') DEFAULT '2' COMMENT 'Flag to enable processing of performance data',
+  `service_retain_status_information` enum('0','1','2') DEFAULT '2' COMMENT 'Flag to retain status information for the service',
+  `service_retain_nonstatus_information` enum('0','1','2') DEFAULT '2' COMMENT 'Flag to retain non-status information for the service',
+  `service_notification_interval` int(11) DEFAULT NULL COMMENT 'Interval (in minutes) between service notifications',
+  `service_recovery_notification_delay` int(11) DEFAULT NULL COMMENT 'Delay (in minutes) before sending recovery notifications',
+  `service_notification_options` varchar(200) DEFAULT NULL COMMENT 'Notification options for the service',
+  `service_notifications_enabled` enum('0','1','2') DEFAULT '2' COMMENT 'Flag to enable notifications for the service',
+  `contact_additive_inheritance` boolean DEFAULT 0 COMMENT 'Flag for additive inheritance of contacts from the host',
+  `cg_additive_inheritance` boolean DEFAULT 0 COMMENT 'Flag for additive inheritance of contact groups from the host',
+  `service_inherit_contacts_from_host` enum('0','1') DEFAULT '1' COMMENT 'Flag indicating if the service inherits contacts from the host',
+  `service_use_only_contacts_from_host` enum('0','1') DEFAULT '0' COMMENT 'Flag indicating if the service uses only contacts from the host',
+  `service_first_notification_delay` int(11) DEFAULT NULL COMMENT 'Delay (in minutes) before the first notification',
+  `service_acknowledgement_timeout` int(11) DEFAULT NULL COMMENT 'Timeout (in minutes) for service acknowledgement',
+  `service_stalking_options` varchar(200) DEFAULT NULL COMMENT 'Options for service stalking',
+  `service_comment` text COMMENT 'Additional comments regarding the service',
+  `geo_coords` varchar(32) DEFAULT NULL COMMENT 'Geographical coordinates for the service location',
+  `command_command_id_arg` text COMMENT 'Arguments for the primary command (command_id)',
+  `command_command_id_arg2` text COMMENT 'Arguments for the secondary command (command_id)',
+  `service_locked` BOOLEAN DEFAULT 0 COMMENT 'Flag indicating if the service is locked',
+  `service_register` enum('0','1','2','3') NOT NULL DEFAULT '0' COMMENT 'Registration type of the service',
+  `service_activate` enum('0','1') NOT NULL DEFAULT '1' COMMENT 'Activation flag for the service',
   PRIMARY KEY (`service_id`),
   KEY `stm_index` (`service_template_model_stm_id`),
   KEY `cmd1_index` (`command_command_id`),
@@ -1790,55 +1790,55 @@ CREATE TABLE `service` (
   CONSTRAINT `service_ibfk_2` FOREIGN KEY (`command_command_id2`) REFERENCES `command` (`command_id`) ON DELETE SET NULL,
   CONSTRAINT `service_ibfk_3` FOREIGN KEY (`timeperiod_tp_id`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL,
   CONSTRAINT `service_ibfk_4` FOREIGN KEY (`timeperiod_tp_id2`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Primary table storing service configuration and status details';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_categories` (
-  `sc_id` int(11) NOT NULL AUTO_INCREMENT,
-  `sc_name` varchar(255) DEFAULT NULL,
-  `sc_description` varchar(255) DEFAULT NULL,
-  `level` TINYINT(5) DEFAULT NULL,
-  `icon_id` INT(11) DEFAULT NULL,
-  `sc_activate` enum('0','1') DEFAULT NULL,
+  `sc_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the service category',
+  `sc_name` varchar(255) DEFAULT NULL COMMENT 'Name of the service category',
+  `sc_description` varchar(255) DEFAULT NULL COMMENT 'Description of the service category',
+  `level` TINYINT(5) DEFAULT NULL COMMENT 'Level for hierarchical categorization of the service category',
+  `icon_id` INT(11) DEFAULT NULL COMMENT 'Foreign key referencing an icon image (icon_id)',
+  `sc_activate` enum('0','1') DEFAULT NULL COMMENT 'Activation flag for the service category (0: inactive, 1: active)',
   PRIMARY KEY (`sc_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Services Catygories For best Reporting';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table storing service categories for reporting and classification';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_categories_relation` (
-  `scr_id` int(11) NOT NULL AUTO_INCREMENT,
-  `service_service_id` int(11) DEFAULT NULL,
-  `sc_id` int(11) DEFAULT NULL,
+  `scr_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the service category relation',
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
+  `sc_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service category (sc_id)',
   PRIMARY KEY (`scr_id`),
   KEY `service_service_id` (`service_service_id`),
   KEY `sc_id` (`sc_id`),
   CONSTRAINT `service_categories_relation_ibfk_1` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `service_categories_relation_ibfk_2` FOREIGN KEY (`sc_id`) REFERENCES `service_categories` (`sc_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table defining relationships between services and service categories';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `servicegroup` (
-  `sg_id` int(11) NOT NULL AUTO_INCREMENT,
-  `sg_name` varchar(200) DEFAULT NULL,
-  `sg_alias` varchar(200) DEFAULT NULL,
-  `sg_comment` text,
-  `geo_coords` varchar(32) DEFAULT NULL,
-  `sg_activate` enum('0','1') NOT NULL DEFAULT '1',
+  `sg_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the service group',
+  `sg_name` varchar(200) DEFAULT NULL COMMENT 'Name of the service group',
+  `sg_alias` varchar(200) DEFAULT NULL COMMENT 'Alias for the service group',
+  `sg_comment` text COMMENT 'Comments regarding the service group',
+  `geo_coords` varchar(32) DEFAULT NULL COMMENT 'Geographical coordinates associated with the service group',
+  `sg_activate` enum('0','1') NOT NULL DEFAULT '1' COMMENT 'Activation flag for the service group (0: inactive, 1: active)',
   PRIMARY KEY (`sg_id`),
   KEY `name_index` (`sg_name`),
   KEY `alias_index` (`sg_alias`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table storing service group details for collective service management';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `servicegroup_relation` (
-  `sgr_id` int(11) NOT NULL AUTO_INCREMENT,
-  `host_host_id` int(11) DEFAULT NULL,
-  `hostgroup_hg_id` int(11) DEFAULT NULL,
-  `service_service_id` int(11) DEFAULT NULL,
-  `servicegroup_sg_id` int(11) DEFAULT NULL,
+  `sgr_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the service group relation',
+  `host_host_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the host (host_id)',
+  `hostgroup_hg_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the host group (hg_id)',
+  `service_service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
+  `servicegroup_sg_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service group (sg_id)',
   PRIMARY KEY (`sgr_id`),
   KEY `service_index` (`service_service_id`),
   KEY `servicegroup_index` (`servicegroup_sg_id`),
@@ -1848,7 +1848,7 @@ CREATE TABLE `servicegroup_relation` (
   CONSTRAINT `servicegroup_relation_ibfk_7` FOREIGN KEY (`host_host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `servicegroup_relation_ibfk_8` FOREIGN KEY (`hostgroup_hg_id`) REFERENCES `hostgroup` (`hg_id`) ON DELETE CASCADE,
   CONSTRAINT `servicegroup_relation_ibfk_9` FOREIGN KEY (`service_service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table mapping services to service groups with host and host group associations';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -2034,13 +2034,13 @@ CREATE TABLE `traps_preexec` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `traps_service_relation` (
-  `traps_id` int(11) DEFAULT NULL,
-  `service_id` int(11) DEFAULT NULL,
+  `traps_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the trap (traps_id)',
+  `service_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the service (service_id)',
   KEY `service_index` (`service_id`),
   KEY `traps_index` (`traps_id`),
   CONSTRAINT `traps_service_relation_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE,
   CONSTRAINT `traps_service_relation_ibfk_3` FOREIGN KEY (`traps_id`) REFERENCES `traps` (`traps_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table linking traps to services for event handling';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,25 @@
  * For more information : contact@centreon.com
  *
  */
-
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups;
+namespace Core\Dashboard\Infrastructure\API\ShareDashboard;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Application\UseCase\ShareDashboard\ShareDashboardRequest;
 
-interface FindDashboardContactGroupsPresenterInterface
+abstract readonly class ShareDashboardRequestTransformer
 {
-    public function presentResponse(FindDashboardContactGroupsResponse|ResponseStatusInterface $data): void;
+    /**
+     * @param ShareDashboardInput $input
+     * @return ShareDashboardRequest
+     */
+    public static function transform(
+        ShareDashboardInput $input
+    ): ShareDashboardRequest {
+        $request = new ShareDashboardRequest();
+        $request->contacts = $input->contacts;
+        $request->contactGroups = $input->contactGroups;
+
+        return $request;
+    }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,10 @@ namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\Response\ContactGroupsResponseDto;
@@ -51,50 +52,102 @@ final class FindDashboardContactGroups
     ) {
     }
 
-    public function __invoke(FindDashboardContactGroupsPresenterInterface $presenter): void
+    /**
+     * @return FindDashboardContactGroupsResponse|ResponseStatusInterface
+     */
+    public function __invoke(): FindDashboardContactGroupsResponse|ResponseStatusInterface
     {
         try {
             $this->info('Find dashboard contact groups', ['request' => $this->requestParameters->toArray()]);
-            if ($this->isUserAdmin()) {
-                $users = $this->findContactGroupsAsAdmin();
-            } elseif ($this->rights->canAccess()) {
-                $users = $this->findContactGroupsAsContact();
-            } else {
-                $this->error(
-                    "User doesn't have sufficient rights to see dashboards",
-                    ['user_id' => $this->contact->getId()]
-                );
-                $presenter->presentResponse(new ForbiddenResponse(DashboardException::accessNotAllowed()));
 
-                return;
-            }
+            return $this->isUserAdmin()
+                ? $this->createResponse($this->findContactGroupsAsAdmin())
+                : $this->createResponse($this->findContactGroupsAsContact());
+        } catch (RepositoryException $ex) {
+            $this->error(
+                $ex->getMessage(),
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => [
+                        'message' => $ex->getPrevious()?->getMessage(),
+                        'trace' => $ex->getPrevious()?->getTraceAsString(),
+                    ],
+                ]
+            );
 
-            $presenter->presentResponse($this->createResponse($users));
+            return new ErrorResponse(DashboardException::errorWhileSearchingSharableContactGroups());
         } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while retrieving contact groups allowed to receive a dashboard share : {$ex->getMessage()}",
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => [
+                        'message' => $ex->getMessage(),
+                        'trace' => $ex->getTraceAsString(),
+                    ],
+                ]
+            );
+
+            return new ErrorResponse(DashboardException::errorWhileSearchingSharableContactGroups());
         }
     }
 
     /**
+     * Cloud UseCase - ACL groups are not linked to contact groups.
+     * Therefore, we need to retrieve all contact groups as admin.
+     * Those contact groups will have as most permissive role 'Viewer'.
+     * No checks will be done regarding Dashboard Rights when sharing to the contact groups selected
+     * however it will be not possible for contacts belonging to these contact groups
+     * to have more rights than configured through their ACLs as user dashboard rights will
+     * be applied for the user that reaches Dashboard.
+     *
+     * OnPremise
+     *
+     * Retrieve contact groups having access to Dashboard.
+     *
      * @throws \Throwable
      *
      * @return DashboardContactGroupRole[]
      */
     private function findContactGroupsAsAdmin(): array
     {
-        return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByRequestParameters(
+        return $this->isCloudPlatform
+            ? $this->readDashboardShareRepository->findContactGroupsByRequestParameters($this->requestParameters)
+            : $this->readDashboardShareRepository->findContactGroupsWithAccessRightByRequestParameters(
             $this->requestParameters
         );
     }
 
     /**
+     * Cloud
+     *
+     * ACL groups are not linked to contact groups.
+     * Therefore, we need to retrieve all contact groups to which belongs the current user.
+     * Those contact groups will have as most permissive role 'Viewer'.
+     * No checks will be done regarding Dashboard Rights when sharing to the contact groups selected
+     * however it will be not possible for contacts belonging to these contact groups
+     * to have more rights than configured through their ACLs as user dashboard rights will
+     * be applied for the user that reaches Dashboard.
+     *
+     * OnPremise
+     *
+     * Retrieve contact groups to which belongs the current user and having access to Dashboard.
+     *
      * @throws \Throwable
      *
      * @return DashboardContactGroupRole[]
      */
     private function findContactGroupsAsContact(): array
     {
+        if ($this->isCloudPlatform === true) {
+            return $this->readDashboardShareRepository->findContactGroupsByUserAndRequestParameters(
+                $this->requestParameters,
+                $this->contact->getId()
+            );
+        }
+
         return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByUserAndRequestParameters(
             $this->requestParameters,
             $this->contact->getId()
