@@ -47,7 +47,7 @@ const Widget = ({
       playlistHash={playlistHash}
       refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
-      path="/bam/widgets/batimeline"
+      path="/bam/widget/batimeline"
       store={store}
       queryClient={queryClient}
     />
