@@ -571,7 +571,7 @@ describe('CSV export', () => {
     cy.get('@modal').findByRole('button', { name: labelExport }).click();
     cy.contains(labelExportProcessingInProgress);
 
-    const expectedUrl = `csvEndpoint?page=1&limit=10&search=${encodeURIComponent(JSON.stringify(search))}&format=${encodeURIComponent('"csv"')}&columns=${encodeURIComponent(JSON.stringify(allColumns))}&all_pages=true`;
+    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&search=${encodeURIComponent(JSON.stringify(search))}&format=${encodeURIComponent('"csv"')}&columns=${encodeURIComponent(JSON.stringify(allColumns))}&all_pages=true`;
     cy.get('@windowOpen').should(
       'be.calledWith',
       expectedUrl,
