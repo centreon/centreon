@@ -68,7 +68,7 @@ final readonly class ExceptionHandler
         if ($throwable instanceof BusinessLogicException) {
             $exceptionContext = $throwable->getExceptionContext();
             $context['custom'] = array_merge(
-                $context['custom'],
+                $context['custom'] ?? [],
                 ['from_exception' => $throwable->getBusinessContext()]
             );
         } else {
