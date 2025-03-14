@@ -485,6 +485,7 @@ importers:
       react-transition-group: 4.4.5_biqbaboplfbrettd7655fr4n2y
       sanitize-html: 2.10.0
       ulog: 2.0.0-beta.19_anylogger@1.0.11
+      use-resize-observer: 9.1.0_biqbaboplfbrettd7655fr4n2y
     devDependencies:
       '@cypress/react': 7.0.3_l6q6cqyxbmzqucywl4vcx3iq4i
       '@cypress/webpack-dev-server': 3.4.1
@@ -535,7 +536,6 @@ importers:
       storybook-dark-mode: 3.0.0_biqbaboplfbrettd7655fr4n2y
       style-dictionary: 3.8.0
       ts-node: 10.9.1
-      use-resize-observer: 9.1.0_biqbaboplfbrettd7655fr4n2y
       vite: 4.3.7_sass@1.62.1
       vite-plugin-svgr: 3.2.0_vite@4.3.7
       vite-plugin-turbosnap: 1.0.2
@@ -21458,7 +21458,6 @@ packages:
       '@juggle/resize-observer': 3.4.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-    dev: true
 
   /use-sync-external-store/1.2.0_react@18.2.0:
     resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
