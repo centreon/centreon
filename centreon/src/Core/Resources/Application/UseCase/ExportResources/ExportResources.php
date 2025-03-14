@@ -162,6 +162,12 @@ final readonly class ExportResources
             );
         }
 
+        if ($request->allPages && $request->maxResults === 0) {
+            return new InvalidArgumentResponse(
+                'Invalid request, max number of resources is required when exporting all pages'
+            );
+        }
+
         if ($request->allPages && $request->maxResults > 10000) {
             return new InvalidArgumentResponse(
                 'Invalid request, max number of resources to export must be equal or less than 10000'
