@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure;
 
 use Core\Common\Domain\Exception\BusinessLogicException;
+use Core\Common\Domain\Exception\ExceptionFormatter;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
@@ -87,29 +88,7 @@ final readonly class ExceptionHandler
      */
     private function getExceptionContext(\Throwable $throwable): array
     {
-        $exceptionContext = $this->getExceptionInfos($throwable);
-        $exceptionContext['previous'] = ($throwable->getPrevious() !== null)
-            ? $this->getExceptionInfos($throwable->getPrevious()) : null;
-
-        return $exceptionContext;
-    }
-
-    /**
-     * @param \Throwable $throwable
-     *
-     * @return array<string,mixed>
-     */
-    private function getExceptionInfos(\Throwable $throwable): array
-    {
-        return [
-            'type' => $throwable::class,
-            'message' => $throwable->getMessage(),
-            'file' => $throwable->getFile(),
-            'line' => $throwable->getLine(),
-            'code' => $throwable->getCode(),
-            'class' => $throwable->getTrace()[0]['class'] ?? null,
-            'method' => $throwable->getTrace()[0]['function'] ?? null,
-        ];
+        return ExceptionFormatter::format($throwable);
     }
 
     /**

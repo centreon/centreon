@@ -21,9 +21,12 @@
 
 declare(strict_types=1);
 
+namespace Tests\Core\Common\Domain\Exception;
+
 use Core\Common\Domain\Exception\BusinessLogicException;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
+use LogicException;
 
 it('test with a basic context from a repository exception', function () {
     try {
@@ -57,6 +60,7 @@ it('test with a basic context from a repository exception', function () {
                             'code' => 100,
                             'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
                             'method' => '{closure}',
+                            'previous' => null,
                         ],
                         'context' => [
                             'name' => 'John',
@@ -166,6 +170,7 @@ it('test with a business context with previous from a repository exception', fun
                                 'code' => 100,
                                 'class' => 'P\Tests\php\Core\Common\Domain\Exception\BusinessLogicExceptionTest',
                                 'method' => '{closure}',
+                                'previous' => null,
                             ],
                         ],
                         'context' => [
