@@ -8,15 +8,15 @@ import { Typography } from '@mui/material';
 
 import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 
-import HelperText from '../../Filters/DateInput/HelperText';
-import { CreateTokenFormValues } from '../../Listing/models';
+import HelperText from '../../../Filters/DateInput/HelperText';
+import { CreateTokenFormValues } from '../../../Listing/models';
 import {
   labelInvalidDateCreationToken,
   labelUntil
-} from '../../translatedLabels';
-import { isInvalidDate } from '../utils';
+} from '../../../translatedLabels';
+import { isInvalidDate } from '../../utils';
 
-import { useStyles } from './inputCalendar.styles';
+import { useInputCalenderStyles } from './Duration.styles';
 
 interface Props {
   setIsDisplayingDateTimePicker: Dispatch<SetStateAction<boolean>>;
@@ -27,7 +27,7 @@ const InputCalendar = ({
   setIsDisplayingDateTimePicker,
   windowHeight
 }: Props): JSX.Element => {
-  const { classes } = useStyles({ windowHeight });
+  const { classes } = useInputCalenderStyles({ windowHeight });
   const { t } = useTranslation();
 
   const { format } = useLocaleDateTimeFormat();

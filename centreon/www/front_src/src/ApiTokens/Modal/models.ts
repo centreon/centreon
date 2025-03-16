@@ -31,18 +31,6 @@ export interface UseCreateTokenFormValues {
   type: SelectEntry;
 }
 
-export const dataDuration: Array<Duration> = [
-  { id: '7days', name: '7 days', unit: UnitDate.Day, value: 7 },
-  { id: '30days', name: '30 days', unit: UnitDate.Day, value: 30 },
-  { id: '60days', name: '60 days', unit: UnitDate.Day, value: 60 },
-  { id: '90days', name: '90 days', unit: UnitDate.Day, value: 90 },
-  { id: '1year', name: '1 year', unit: UnitDate.Year, value: 1 },
-  { id: 'neverExpire', name: 'Never expire', unit: UnitDate.Year, value: null },
-  { id: 'customize', name: 'Customize', unit: null, value: null }
-];
-
-export const maxDays = 90;
-
 export interface AnchorElDuration {
   anchorEl: HTMLDivElement | null;
   setAnchorEl: Dispatch<SetStateAction<HTMLDivElement | null>>;

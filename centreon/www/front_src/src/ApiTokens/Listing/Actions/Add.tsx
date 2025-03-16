@@ -6,7 +6,8 @@ import { Button } from '@centreon/ui/components';
 
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router';
-import { ModalStateAtom } from '../../atoms';
+import { modalStateAtom } from '../../atoms';
+import { TokenType } from '../../models';
 import { labelAdd, labelCreateNewToken } from '../../translatedLabels';
 
 const Add = (): JSX.Element => {
@@ -14,12 +15,12 @@ const Add = (): JSX.Element => {
 
   const [, setSearchParams] = useSearchParams();
 
-  const setModalState = useSetAtom(ModalStateAtom);
+  const setModalState = useSetAtom(modalStateAtom);
 
   const openCreatetModal = (): void => {
-    setSearchParams({ mode: 'add' });
+    setSearchParams({ mode: 'add', type: TokenType.API });
 
-    setModalState({ isOpen: true, mode: 'add' });
+    setModalState({ isOpen: true, mode: 'add', type: TokenType.API });
   };
 
   return (

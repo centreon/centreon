@@ -6,7 +6,7 @@ export const baseTokenEndpoint = '/administration/tokens';
 
 export const listTokensEndpoint = baseTokenEndpoint;
 export const createTokenEndpoint = baseTokenEndpoint;
-export const listConfiguredUser = '/configuration/users';
+export const listUsers = '/configuration/users';
 
 export const buildListEndpoint = ({
   parameters,
@@ -23,7 +23,7 @@ export const getEndpointConfiguredUser = (
   dataConfiguredUser: Parameters
 ): string => {
   return buildListEndpoint({
-    endpoint: listConfiguredUser,
+    endpoint: listUsers,
     parameters: { ...dataConfiguredUser, limit: 10 }
   });
 };

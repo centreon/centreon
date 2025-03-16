@@ -6,20 +6,23 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 import { IconButton, TextField, useCopyToClipboard } from '@centreon/ui';
 
+import { endAdornment } from './EndAdornment';
+import { useStyles } from './TextField.styles';
+
+import { useAtomValue } from 'jotai';
+import { tokenAtom } from '../../../atoms';
 import {
   labelToken,
   labelTokenCopiedToTheClipboard,
   labelTokenCouldNotBeCopied
-} from '../translatedLabels';
+} from '../../../translatedLabels';
 
-import { endAdornment } from './EndAdornment';
-
-interface Props {
-  token: string;
-}
-
-const TokenInput = ({ token }: Props): JSX.Element => {
+const TokenField = (): JSX.Element => {
   const { t } = useTranslation();
+  const { classes } = useStyles();
+
+  const token = useAtomValue(tokenAtom);
+
   const [isVisible, setIsVisible] = useState(false);
 
   const { copy } = useCopyToClipboard({
@@ -36,10 +39,9 @@ const TokenInput = ({ token }: Props): JSX.Element => {
   };
 
   return (
-    <div
-      style={{ alignItems: 'center', display: 'flex', flexDirection: 'row' }}
-    >
+    <div className={classes.container}>
       <TextField
+        fullWidth
         EndAdornment={endAdornment({ isVisible, onClick: handleVisibility })}
         dataTestId="token"
         id="token"
@@ -47,7 +49,6 @@ const TokenInput = ({ token }: Props): JSX.Element => {
           slotProps: { htmlInput: { 'data-testid': 'tokenInput' } }
         }}
         label={t(labelToken)}
-        style={{ width: '100%' }}
         type={isVisible ? 'text' : 'password'}
         value={token}
       />
@@ -58,4 +59,4 @@ const TokenInput = ({ token }: Props): JSX.Element => {
   );
 };
 
-export default TokenInput;
+export default TokenField;

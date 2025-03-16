@@ -11,10 +11,8 @@ import {
 
 import { Property } from '../models';
 
-import { dataDuration } from '../../Modal/models';
+import { dataDuration } from '../../Modal/utils';
 import DateInput from './DateInput';
-
-import { useStyles } from '../Filters.styles';
 
 interface Props {
   dataDate;
@@ -23,7 +21,6 @@ interface Props {
 }
 
 const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
   const { date, setDate } = dataDate;
   const { format } = useLocaleDateTimeFormat();
@@ -64,9 +61,10 @@ const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
   const data = useMemo(() => {
     return dataDuration.map((item) => ({
       ...item,
-      name: equals(item.id, 'customize')
-        ? item.name
-        : `${property} ${item.name}`
+      name:
+        equals(item.id, 'customize') || equals(item.id, 'neverExpire')
+          ? item.name
+          : `${property} ${item.name}`
     }));
   }, [property]);
 
@@ -77,7 +75,6 @@ const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
   return (
     <>
       <SelectInput
-        className={classes.input}
         disableClearable={false}
         getOptionItemLabel={(option) => option?.name}
         id={label.trim()}

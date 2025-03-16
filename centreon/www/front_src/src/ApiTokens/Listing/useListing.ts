@@ -52,7 +52,7 @@ const useListing = (): UseListing => {
   };
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
-    if (updatedColumnIds.length < 3) {
+    if (updatedColumnIds.length < 1) {
       showWarningMessage(t(labelSelectAtLeastOneColumn));
 
       return;

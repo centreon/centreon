@@ -1,78 +1,32 @@
-import { Formik } from 'formik';
-import { useAtom, useAtomValue } from 'jotai';
+import { Modal } from '@centreon/ui/components';
+
+import { Typography } from '@mui/material';
+
 import { useTranslation } from 'react-i18next';
-import { number, object, string } from 'yup';
+import { labelCreateAuthenticationToken } from '../translatedLabels';
+import Form from './Form/Form';
+import useModal from './useModal';
 
-import { userAtom } from '@centreon/ui-context';
+import { useStyles } from './Modal.styles';
 
-import { CreateTokenFormValues, NamedEntity } from '../Listing/models';
-import { labelRequired } from '../translatedLabels';
-
-import { equals } from 'ramda';
-import { useSearchParams } from 'react-router';
-import { ModalStateAtom } from '../atoms';
-import { TokenType } from '../models';
-import FormCreation from './Form';
-import useCreateToken from './useCreateToken';
-import { tokenTypes } from './utils';
-
-const Modal = (): JSX.Element => {
+const FormModal = (): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
-  const { createToken, data } = useCreateToken();
-  const currentUser = useAtomValue(userAtom);
 
-  const [, setSearchParams] = useSearchParams();
-  const [modalState, setModalState] = useAtom(ModalStateAtom);
-
-  const closeDialog = () => {
-    setSearchParams({});
-
-    setModalState({ ...modalState, isOpen: false });
-  };
-
-  const validationForm = object({
-    duration: object({
-      id: string().required(),
-      name: string().required()
-    }).required(t(labelRequired)),
-    tokenName: string().required(),
-    type: object({
-      id: string().required(),
-      name: string().required()
-    }).required(t(labelRequired)),
-    user: object().when('type', ([type], schema) => {
-      return equals(type.id, TokenType.API)
-        ? schema
-            .shape({
-              id: number().required(),
-              name: string().required()
-            })
-            .required(t(labelRequired))
-        : schema.nullable();
-    })
-  });
+  const { close, isOpen } = useModal();
 
   return (
-    <Formik<CreateTokenFormValues>
-      initialValues={{
-        customizeDate: null,
-        duration: null,
-        tokenName: '',
-        user: currentUser.canManageApiTokens
-          ? null
-          : (currentUser as NamedEntity),
-        type: tokenTypes[0]
-      }}
-      validationSchema={validationForm}
-      onSubmit={createToken}
-    >
-      <FormCreation
-        closeDialog={closeDialog}
-        data={data}
-        isDialogOpened={modalState.isOpen}
-      />
-    </Formik>
+    <Modal data-testid="Modal" open={isOpen} size="medium" onClose={close}>
+      <Modal.Header data-testid="Modal-header">
+        <Typography className={classes.modalHeader}>
+          {t(labelCreateAuthenticationToken)}
+        </Typography>
+      </Modal.Header>
+      <Modal.Body>
+        <Form close={close} />
+      </Modal.Body>
+    </Modal>
   );
 };
 
-export default Modal;
+export default FormModal;

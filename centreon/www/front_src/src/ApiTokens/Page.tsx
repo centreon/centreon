@@ -3,6 +3,7 @@ import { Box } from '@mui/material';
 import { PageHeader, PageLayout } from '@centreon/ui/components';
 import { useTranslation } from 'react-i18next';
 import { DeleteDialog } from './Dialogs';
+
 import { Listing } from './Listing';
 import Modal from './Modal';
 import { useStyles } from './Page.styles';
@@ -10,7 +11,6 @@ import { labelAuthenticationTokens } from './translatedLabels';
 
 const Page = (): JSX.Element => {
   const { classes } = useStyles();
-
   const { t } = useTranslation();
 
   return (

@@ -6,10 +6,12 @@ import { equals } from 'ramda';
 import { SelectEntry } from '@centreon/ui';
 
 import { TokenType } from '../models';
-import { UnitDate, maxDays } from './models';
+import { Duration, UnitDate } from './models';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(relativeTime);
+
+export const maxDays = 90;
 
 export const minimumLifeSpanToken = { unit: 'day', value: 1 };
 
@@ -59,4 +61,14 @@ export const getDuration = ({
 export const tokenTypes = [
   { id: TokenType.API, name: 'API' },
   { id: TokenType.CMA, name: 'Centreon monitoring agent' }
+];
+
+export const dataDuration: Array<Duration> = [
+  { id: '7days', name: '7 days', unit: UnitDate.Day, value: 7 },
+  { id: '30days', name: '30 days', unit: UnitDate.Day, value: 30 },
+  { id: '60days', name: '60 days', unit: UnitDate.Day, value: 60 },
+  { id: '90days', name: '90 days', unit: UnitDate.Day, value: 90 },
+  { id: '1year', name: '1 year', unit: UnitDate.Year, value: 1 },
+  { id: 'neverExpire', name: 'Never expire', unit: UnitDate.Year, value: null },
+  { id: 'customize', name: 'Customize', unit: null, value: null }
 ];

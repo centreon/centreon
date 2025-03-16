@@ -12,8 +12,6 @@ import {
   getEndpointConfiguredUser,
   getEndpointCreatorsToken
 } from '../api/endpoints';
-
-import { NamedEntity } from '../models';
 import DateInputWrapper from './DateInput';
 import { useStyles } from './Filters.styles';
 import Status from './Status';
@@ -28,14 +26,6 @@ import {
   labelUsers
 } from '../translatedLabels';
 import useFilters from './useFilters';
-
-export const getUniqData = (data): Array<NamedEntity> => {
-  const result = [
-    ...new Map(data.map((item) => [item.name, item])).values()
-  ] as Array<NamedEntity>;
-
-  return result || [];
-};
 
 const Filters = (): JSX.Element => {
   const { classes } = useStyles();

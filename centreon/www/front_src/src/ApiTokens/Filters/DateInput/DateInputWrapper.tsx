@@ -14,11 +14,13 @@ const DateInputWrapper = (): JSX.Element => {
 
   const [filters, setFilters] = useAtom(filtersAtom);
 
-  const setCreationDate = (creationDate): void =>
+  const setCreationDate = (creationDate): void => {
     setFilters({ ...filters, creationDate });
+  };
 
-  const setExpirationDate = (expirationDate): void =>
+  const setExpirationDate = (expirationDate): void => {
     setFilters({ ...filters, expirationDate });
+  };
 
   const dataCreationDate = useMemo(
     () => ({ date: filters.creationDate, setDate: setCreationDate }),

@@ -6,11 +6,16 @@ interface StyleProps {
 
 const actionsHeight = 36;
 
-export const useStyles = makeStyles<StyleProps>()(
+export const useDurationstyles = makeStyles()((theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1)
+  }
+}));
+
+export const useInputCalenderStyles = makeStyles<StyleProps>()(
   (theme, { windowHeight }) => ({
-    container: {
-      marginBottom: 16
-    },
     containerDatePicker: {
       alignItems: 'center',
       display: 'flex',

@@ -25,6 +25,14 @@ interface UseFiltersState {
   filters: Filter;
 }
 
+export const getUniqData = (data): Array<NamedEntity> => {
+  const result = [
+    ...new Map(data.map((item) => [item.name, item])).values()
+  ] as Array<NamedEntity>;
+
+  return result || [];
+};
+
 const useFilters = (): UseFiltersState => {
   const queryClient = useQueryClient();
 

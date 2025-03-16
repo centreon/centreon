@@ -1,11 +1,9 @@
 export const labelSearch = 'Search';
-export const labelCreateNewToken = 'Create new token';
 export const labelRevoked = 'Revoked';
 export const labelActive = 'Active';
 export const labelSearchOptions = 'Filter options';
 export const labelDelete = 'Delete';
 export const labelCopy = 'Copy';
-export const labelGenerateNewToken = 'Generate new token';
 export const labelClose = 'Close';
 export const labelName = 'Name';
 export const labelDuration = 'Duration';
@@ -19,8 +17,6 @@ export const labelToken = 'Token';
 export const labelOk = 'Ok';
 export const labelCancel = 'Cancel';
 export const labelTokenCreated = 'Token has been created';
-export const labelSecurityToken =
-  'For security reasons, the token can only be displayed once. Store it carefully.';
 export const labelCreator = 'Creator';
 export const labelDeleteToken = 'Delete token';
 export const labelTokenDeleted = 'Token deleted';
@@ -50,3 +46,7 @@ export const labelType = 'Type';
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
 export const labelNeverExpire = 'Never expire';
+export const labelGenerateToken = 'Generate token';
+export const labelCreateAuthenticationToken = 'Create authentication token';
+export const labelSecurityToken =
+  'For security reasons, the token can only be displayed once. Remember to store it well.';
