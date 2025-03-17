@@ -35,5 +35,8 @@ export const getEndpointCreatorsToken = (dataCreatorsToken): string => {
   });
 };
 
-export const tokenEndpoint = ({ tokenName, userId }: TokenEndpoint): string =>
+export const getTokenEndpoint = ({
+  tokenName,
+  userId
+}: TokenEndpoint): string =>
   `${baseTokenEndpoint}/${tokenName}/users/${userId}`;

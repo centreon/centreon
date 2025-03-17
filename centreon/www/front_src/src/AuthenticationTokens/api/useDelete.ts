@@ -1,7 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
-import { tokenEndpoint } from './endpoints';
 
 interface UseDeleteProps {
   deleteMutation: ({ userId, name }) => Promise<object | ResponseError>;
@@ -13,7 +12,7 @@ const useDelete = (): UseDeleteProps => {
 
   const { isMutating, mutateAsync } = useMutationQuery({
     getEndpoint: ({ userId, name }) =>
-      tokenEndpoint({ tokenName: name, userId }),
+      getTokenEndpoint({ tokenName: name, userId }),
     method: Method.DELETE,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listTokens'] });
