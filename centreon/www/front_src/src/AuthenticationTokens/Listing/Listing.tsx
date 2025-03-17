@@ -34,7 +34,7 @@ const Listing = (): JSX.Element => {
       currentPage={(page || 1) - 1}
       limit={data?.meta.limit}
       loading={isLoading}
-      memoProps={[columns, columns, page, sorto, sortf]}
+      memoProps={[columns, page, sorto, sortf]}
       rows={data?.result}
       sortField={sortf}
       sortOrder={sorto}
