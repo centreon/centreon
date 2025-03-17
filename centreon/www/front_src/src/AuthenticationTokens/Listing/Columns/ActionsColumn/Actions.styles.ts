@@ -5,7 +5,7 @@ export const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: theme.spacing(6)
+    width: theme.spacing(6.5)
   },
   removeButton: {
     color: theme.palette.primary.main,

@@ -20,14 +20,11 @@ export const labelTokenCreated = 'Token has been created';
 export const labelCreator = 'Creator';
 export const labelDeleteToken = 'Delete token';
 export const labelTokenDeleted = 'Token deleted';
-export const labelActiveToken = 'Active tokens';
-export const labelRevokedToken = 'Disabled tokens';
 export const labelStatus = 'Status';
 export const labelCreationDate = 'Creation date';
 export const labelExpirationDate = 'Expiration date';
 export const labelClear = 'Clear';
 export const labelUntil = 'Until';
-export const labelActiveOrRevoked = 'Active/Revoked';
 
 export const labelAuthenticationTokens = 'Authentication tokens';
 export const labelRefresh = 'Refresh';
@@ -51,3 +48,10 @@ export const labelCreateAuthenticationToken = 'Create authentication token';
 export const labelSecurityToken =
   'For security reasons, the token can only be displayed once. Remember to store it well.';
 export const labelDone = 'Done';
+export const labelDisbleToken = 'Disable token';
+export const labelMsgConfirmationDisableToken =
+  'You are about to disable the token <strong>{{tokenName}}</strong>. If you disable it, all requests made with this token will be rejected. Do you want to disable it ?';
+export const labelDisable = 'Disable';
+export const labelTokenDisabled = 'Token disabled';
+
+export const labelEnableDisable = 'Enable/Disable';

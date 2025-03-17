@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { ComponentColumnProps, useLocaleDateTimeFormat } from '@centreon/ui';
 import { Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { labelNeverExpire } from '../../translatedLabels';
+import { labelNeverExpire } from '../../../translatedLabels';
 import useStyles from './ExpirationDate.styles';
 
 const dateFormat = 'L';

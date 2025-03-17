@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 
 import { PageHeader, PageLayout } from '@centreon/ui/components';
 import { useTranslation } from 'react-i18next';
-import { DeleteDialog } from './Dialogs';
+import { DeleteDialog, DisableDialog } from './Dialogs';
 
 import { Listing } from './Listing';
 import Modal from './Modal';
@@ -29,6 +29,7 @@ const Page = (): JSX.Element => {
       </PageLayout.Body>
       <Modal />
       <DeleteDialog />
+      <DisableDialog />
     </PageLayout>
   );
 };

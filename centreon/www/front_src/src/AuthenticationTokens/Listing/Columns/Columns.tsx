@@ -12,8 +12,8 @@ import { selectedColumnIdsAtom } from '../atoms';
 
 import { useTranslation } from 'react-i18next';
 import ActionsColumn from './ActionsColumn';
-import Activate from './Activate';
-import ExpirationDate from './ExpirationDate';
+import ExpirationDate from './ExpirationDate/ExpirationDate';
+import Status from './Status/Status';
 import { Column, ColumnId } from './models';
 
 const dateFormat = 'L';
@@ -115,7 +115,7 @@ export const useColumns = (): UseColumnsState => {
         type: ColumnType.component
       },
       {
-        Component: Activate,
+        Component: Status,
         id: ColumnId.Activate,
         label: t(Column.Activate),
         type: ColumnType.component,

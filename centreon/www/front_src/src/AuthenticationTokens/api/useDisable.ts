@@ -3,37 +3,40 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { getTokenEndpoint } from './endpoints';
 
-interface UseDeleteProps {
-  deleteMutation: ({ userId, name }) => Promise<object | ResponseError>;
+interface UseDisableProps {
+  disableMutation: ({ userId, name }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
 
-const useDelete = (): UseDeleteProps => {
+const useDisable = (): UseDisableProps => {
   const queryClient = useQueryClient();
 
   const { isMutating, mutateAsync } = useMutationQuery({
     getEndpoint: ({ userId, name }) =>
       getTokenEndpoint({ tokenName: name, userId }),
-    method: Method.DELETE,
-    onSuccess: () => {
+    method: Method.PATCH,
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['listTokens'] });
     }
   });
 
-  const deleteMutation = ({
+  const disableMutation = ({
     userId,
     name
   }: {
     userId: number;
     name: string;
   }) => {
-    return mutateAsync({ _meta: { userId, name } }, {});
+    return mutateAsync(
+      { _meta: { userId, name }, payload: { is_revoked: true } },
+      {}
+    );
   };
 
   return {
-    deleteMutation,
+    disableMutation,
     isMutating
   };
 };
 
-export default useDelete;
+export default useDisable;

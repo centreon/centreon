@@ -40,6 +40,8 @@ const useDelete = (): UseDeleteState => {
         return;
       }
 
+      resetSelections();
+
       showSuccessMessage(t(labelTokenDeleted));
     });
   };
