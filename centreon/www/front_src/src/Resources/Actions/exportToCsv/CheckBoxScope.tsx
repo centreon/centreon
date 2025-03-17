@@ -1,7 +1,7 @@
 import { Checkbox } from '@centreon/ui';
 import { Typography } from '@mui/material';
 import { equals } from 'ramda';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import useExportCsvStyles from './exportCsv.styles';
 import { CheckedLabel, Label } from './models';
 
@@ -21,25 +21,34 @@ const CheckBoxScope = ({
   const { classes } = useExportCsvStyles();
   const { firstLabel, secondLabel } = labels;
   const [checkedLabel, setCheckedLabel] = useState(defaultCheckedLabel);
-  const labelProps = useMemo(()=>({
-    classes: { root: classes.label },
-    variant: 'body2' as const
-  }),[])
+  const labelProps = useMemo(
+    () => ({
+      classes: { root: classes.label },
+      variant: 'body2' as const
+    }),
+    []
+  );
 
-  const onChange = useCallback((event) => {
-    if (equals(event?.target?.id, checkedLabel.label)) {
-      return;
-    }
+  const onChange = useCallback(
+    (event) => {
+      if (equals(event?.target?.id, checkedLabel.label)) {
+        return;
+      }
 
-    setCheckedLabel({
-      label: event?.target?.id,
-      isChecked: event?.target?.checked
-    });
+      setCheckedLabel({
+        label: event?.target?.id,
+        isChecked: event?.target?.checked
+      });
 
-    getData(event?.target?.id);
-  },[checkedLabel.label])
+      getData(event?.target?.id);
+    },
+    [checkedLabel.label]
+  );
 
-  const getCheckedValue = useCallback((label: string) => equals(checkedLabel.label, label),[checkedLabel.label]);
+  const getCheckedValue = useCallback(
+    (label: string) => equals(checkedLabel.label, label),
+    [checkedLabel.label]
+  );
 
   return (
     <>
