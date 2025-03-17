@@ -38,9 +38,9 @@ const useLoadData = (): LoadDataState => {
     ...(!filters.types
       ? []
       : filters.types.map((type) => ({
-          field: 'type.id',
+          field: 'type',
           values: {
-            $rg: type.id
+            $eq: type.id
           }
         }))),
     ...(filters.name

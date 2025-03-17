@@ -13,6 +13,7 @@ import { selectedColumnIdsAtom } from '../atoms';
 import { useTranslation } from 'react-i18next';
 import ActionsColumn from './ActionsColumn';
 import Activate from './Activate';
+import ExpirationDate from './ExpirationDate';
 import { Column, ColumnId } from './models';
 
 const dateFormat = 'L';
@@ -64,7 +65,7 @@ export const useColumns = (): UseColumnsState => {
         type: ColumnType.string
       },
       {
-        getFormattedString: (row): string => row?.type,
+        getFormattedString: (row): string => row?.type.toUpperCase(),
         id: ColumnId.Type,
         label: t(Column.Type),
         sortField: 'type',
@@ -90,18 +91,6 @@ export const useColumns = (): UseColumnsState => {
       {
         getFormattedString: (row): string =>
           format({
-            date: row.expirationDate,
-            formatString: dateFormat
-          }),
-        id: ColumnId.ExpirationDate,
-        label: t(Column.ExpirationDate),
-        sortField: 'expiration_date',
-        sortable: true,
-        type: ColumnType.string
-      },
-      {
-        getFormattedString: (row): string =>
-          format({
             date: row.creationDate,
             formatString: dateFormat
           }),
@@ -110,6 +99,14 @@ export const useColumns = (): UseColumnsState => {
         sortField: 'creation_date',
         sortable: true,
         type: ColumnType.string
+      },
+      {
+        Component: ExpirationDate,
+        id: ColumnId.ExpirationDate,
+        label: t(Column.ExpirationDate),
+        sortField: 'expiration_date',
+        sortable: true,
+        type: ColumnType.component
       },
       {
         Component: ActionsColumn,

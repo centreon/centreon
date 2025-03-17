@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import FileCopyIcon from '@mui/icons-material/FileCopy';
+import CopyIcon from '@mui/icons-material/FileCopyOutlined';
 
 import { IconButton, TextField, useCopyToClipboard } from '@centreon/ui';
 
@@ -22,7 +22,6 @@ const TokenField = (): JSX.Element => {
   const { classes } = useStyles();
 
   const token = useAtomValue(tokenAtom);
-
   const [isVisible, setIsVisible] = useState(false);
 
   const { copy } = useCopyToClipboard({
@@ -53,7 +52,7 @@ const TokenField = (): JSX.Element => {
         value={token}
       />
       <IconButton ariaLabel="clipboard" onClick={copyToken}>
-        <FileCopyIcon fontSize="small" />
+        <CopyIcon fontSize="small" />
       </IconButton>
     </div>
   );

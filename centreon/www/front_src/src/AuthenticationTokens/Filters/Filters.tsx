@@ -17,6 +17,7 @@ import { useStyles } from './Filters.styles';
 import Status from './Status';
 
 import useLoadData from '../Listing/useLoadData';
+import { tokenTypes } from '../Modal/utils';
 import {
   labelClear,
   labelCreators,
@@ -66,10 +67,7 @@ const Filters = (): JSX.Element => {
         dataTestId={labelTypes}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelTypes)}
-        options={[
-          { id: 1, name: 'API' },
-          { id: 2, name: 'Centreon monitoring agent' }
-        ]}
+        options={tokenTypes}
         value={filters.types}
         onChange={changeTypes}
       />
@@ -77,6 +75,7 @@ const Filters = (): JSX.Element => {
       <DateInputWrapper />
 
       <MultiConnectedAutocompleteField
+        disableClearable={false}
         disableSortedOptions
         chipProps={{
           onDelete: deleteUser
@@ -91,12 +90,13 @@ const Filters = (): JSX.Element => {
       />
 
       <MultiConnectedAutocompleteField
+        disableClearable={false}
         disableSortedOptions
         chipProps={{
           onDelete: deleteCreator
         }}
         dataTestId={labelCreators}
-        field="name"
+        field="creator.name"
         filterOptions={filterCreators}
         getEndpoint={getEndpointCreatorsToken}
         isOptionEqualToValue={isOptionEqualToValue}

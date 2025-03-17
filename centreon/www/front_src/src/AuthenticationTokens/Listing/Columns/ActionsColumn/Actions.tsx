@@ -29,16 +29,18 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <Box className={classes.actions}>
-      {isCopyButtonVisible && (
-        <IconButton
-          ariaLabel={t(labelCopy)}
-          dataTestid={`${labelCopy}_${row.id}`}
-          title={t(labelCopy)}
-          onClick={copyToken}
-        >
-          <ContentCopyIcon className={classes.copyIcon} />
-        </IconButton>
-      )}
+      <div>
+        {isCopyButtonVisible && (
+          <IconButton
+            ariaLabel={t(labelCopy)}
+            dataTestid={`${labelCopy}_${row.id}`}
+            title={t(labelCopy)}
+            onClick={copyToken}
+          >
+            <ContentCopyIcon className={classes.copyIcon} />
+          </IconButton>
+        )}
+      </div>
       <IconButton
         ariaLabel={t(labelDelete)}
         dataTestid={`${labelDelete}_${row.id}`}

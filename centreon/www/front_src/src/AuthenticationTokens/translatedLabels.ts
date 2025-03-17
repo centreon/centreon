@@ -50,3 +50,4 @@ export const labelGenerateToken = 'Generate token';
 export const labelCreateAuthenticationToken = 'Create authentication token';
 export const labelSecurityToken =
   'For security reasons, the token can only be displayed once. Remember to store it well.';
+export const labelDone = 'Done';

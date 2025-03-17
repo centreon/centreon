@@ -18,7 +18,7 @@ export interface NamedEntity {
 export interface Token {
   creationDate: string;
   creator: NamedEntity;
-  expirationDate: string;
+  expirationDate: string | null;
   isRevoked: boolean;
   name: string;
   user: NamedEntity | null;

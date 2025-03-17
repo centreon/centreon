@@ -5,13 +5,15 @@ import {
   useLocaleDateTimeFormat,
   useMutationQuery
 } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 import { useQueryClient } from '@tanstack/react-query';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect } from 'react';
 import { createdTokenDecoder } from '../../api/decoder';
 import { createTokenEndpoint } from '../../api/endpoints';
 import { tokenAtom } from '../../atoms';
+import { TokenType } from '../../models';
 import { CreatedToken } from '../models';
 import { dataDuration } from '../utils';
 
@@ -24,6 +26,7 @@ const useForm = (): UseFormState => {
 
   const queryClient = useQueryClient();
 
+  const currentUser = useAtomValue(userAtom);
   const setToken = useSetAtom(tokenAtom);
 
   const { data, mutateAsync } = useMutationQuery<CreatedToken, undefined>({
@@ -68,8 +71,8 @@ const useForm = (): UseFormState => {
       payload: {
         expiration_date: getExpirationDateForApi(),
         name,
-        user_id: user?.id
-        //type: type.id // for now
+        user_id: equals(type.id, TokenType.API) ? user.id : currentUser.id,
+        type: type.id
       }
     }).finally(() => {
       setSubmitting(false);
