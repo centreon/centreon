@@ -31,24 +31,24 @@ namespace Core\Resources\Application\UseCase\CountResources;
  */
 class CountResourcesResponse {
     /** @var int */
-    private int $total = 0;
+    private int $totalResources = 0;
 
     /**
      * @return int
      */
-    public function getTotal(): int
+    public function getTotalResources(): int
     {
-        return $this->total;
+        return $this->totalResources;
     }
 
     /**
-     * @param int $total
+     * @param int $totalResources
      *
      * @return CountResourcesResponse
      */
-    public function setTotal(int $total): self
+    public function setTotalResources(int $totalResources): self
     {
-        $this->total = $total;
+        $this->totalResources = $totalResources;
 
         return $this;
     }

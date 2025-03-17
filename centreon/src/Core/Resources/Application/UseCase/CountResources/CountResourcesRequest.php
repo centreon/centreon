@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Resources\Application\UseCase\CountResources;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
 
 /**
@@ -35,11 +36,11 @@ class CountResourcesRequest {
     /**
      * CountResourcesRequest constructor
      *
+     * @param ContactInterface $contact
      * @param ResourceFilter $resourceFilter
-     * @param int $maxResults
      */
     public function __construct(
+        public ContactInterface $contact,
         public ResourceFilter $resourceFilter,
-        public int $maxResults = 0
     ) {}
 }

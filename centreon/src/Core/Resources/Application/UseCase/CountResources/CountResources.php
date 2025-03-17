@@ -43,12 +43,10 @@ final readonly class CountResources
      *
      * @param ReadResourceRepositoryInterface $readResourceRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
-     * @param ContactInterface $contact
      */
     public function __construct(
         private ReadResourceRepositoryInterface $readResourceRepository,
-        private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private ContactInterface $contact,
+        private ReadAccessGroupRepositoryInterface $accessGroupRepository
     ) {}
 
     /**
@@ -63,20 +61,17 @@ final readonly class CountResources
     ): void {
         $response = new CountResourcesResponse();
 
-        if ($this->contact->isAdmin()) {
+        if ($request->contact->isAdmin()) {
             try {
-                $countResources = $this->readResourceRepository->countResourcesByMaxResults(
-                    $request->resourceFilter,
-                    $request->maxResults
-                );
+                $countResources = $this->readResourceRepository->countResources($request->resourceFilter,);
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
                     new ErrorResponse(
                         message: 'An error occurred while counting resources with admin rights',
                         context: [
                             'use_case' => 'CountResources',
-                            'user_is_admin' => $this->contact->isAdmin(),
-                            'contact_id' => $this->contact->getId(),
+                            'user_is_admin' => $request->contact->isAdmin(),
+                            'contact_id' => $request->contact->getId(),
                             'resources_filter' => $request->resourceFilter,
                         ],
                         exception: $exception
@@ -89,7 +84,7 @@ final readonly class CountResources
             try {
                 $accessGroupIds = array_map(
                     static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
-                    $this->accessGroupRepository->findByContact($this->contact)
+                    $this->accessGroupRepository->findByContact($request->contact)
                 );
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
@@ -97,7 +92,7 @@ final readonly class CountResources
                         message: 'An error occurred while finding access groups for the contact',
                         context: [
                             'use_case' => 'CountResources',
-                            'contact_id' => $this->contact->getId()
+                            'contact_id' => $request->contact->getId()
                         ],
                         exception: $exception
                     )
@@ -107,10 +102,9 @@ final readonly class CountResources
             }
 
             try {
-                $countResources = $this->readResourceRepository->countResourcesByAccessGroupIdsAndByMaxResults(
+                $countResources = $this->readResourceRepository->countResourcesByAccessGroupIds(
                     $request->resourceFilter,
-                    $accessGroupIds,
-                    $request->maxResults
+                    $accessGroupIds
                 );
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
@@ -118,8 +112,8 @@ final readonly class CountResources
                         message: 'An error occurred while counting resources by access group IDs',
                         context: [
                             'use_case' => 'CountResources',
-                            'user_is_admin' => $this->contact->isAdmin(),
-                            'contact_id' => $this->contact->getId(),
+                            'user_is_admin' => $request->contact->isAdmin(),
+                            'contact_id' => $request->contact->getId(),
                             'resources_filter' => $request->resourceFilter,
                         ],
                         exception: $exception
@@ -130,7 +124,7 @@ final readonly class CountResources
             }
         }
 
-        $response->setTotal($countResources);
+        $response->setTotalResources($countResources);
 
         $presenter->presentResponse($response);
     }

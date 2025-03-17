@@ -21,33 +21,20 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Infrastructure\API\CountResources;
+namespace Tests\Core\Resources\Infrastructure\API\CountResources;
 
-/**
- * Class
- *
- * @class CountResourcesViewModel
- * @package Core\Resources\Infrastructure\API\CountResources
- */
-class CountResourcesViewModel {
-    /** @var int */
-    private int $totalResources = 0;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Resources\Infrastructure\API\CountResources\CountResourcesRequestTransformer;
+use Mockery;
 
-    /**
-     * @return int
-     */
-    public function getTotalResources(): int
-    {
-        return $this->totalResources;
-    }
+beforeEach(function () {
+    $this->filter = Mockery::mock(ResourceFilter::class);
+    $this->contact = Mockery::mock(ContactInterface::class);
+});
 
-    /**
-     * @param int $totalResources
-     *
-     * @return void
-     */
-    public function setTotalResources(int $totalResources): void
-    {
-        $this->totalResources = $totalResources;
-    }
-}
+it('test transform inputs to request to count resources', function () {
+    $request = CountResourcesRequestTransformer::transform($this->filter, $this->contact);
+    expect($request->contact)->toBe($this->contact)
+        ->and($request->resourceFilter)->toBe($this->filter);
+});

@@ -24,42 +24,64 @@ declare(strict_types=1);
 namespace Core\Resources\Infrastructure\API\CountResources;
 
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Resources\Application\UseCase\CountResources\CountResources;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @phpstan-import-type _RequestParameters from RequestValidator
  */
 class CountResourcesController extends AbstractController {
-    public function __construct(private readonly RequestValidator $validator)
-    {
-    }
+    public function __construct(
+        private readonly ContactInterface $contact,
+        private readonly RequestValidator $validator
+    ) {}
 
     /**
      * @param CountResources $useCase
      * @param CountResourcesPresenterJson $presenter
      * @param Request $request
-     *
-     * @throws AccessDeniedException
+     * @param CountResourcesInput $input
      *
      * @return Response
      */
     public function __invoke(
         CountResources $useCase,
         CountResourcesPresenterJson $presenter,
-        Request $request
+        Request $request,
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] CountResourcesInput $input
     ): Response {
-        $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());
-        $useCaseRequest = new CountResourcesRequest($this->createResourceFilter($filter));
+        $useCaseRequest = $this->createCountRequest($request);
         $useCase($useCaseRequest, $presenter);
 
-        $presenter->present($presenter->getViewModel()->getTotal());
+        $presenter->present($presenter->getViewModel()->getTotalResources());
         return $presenter->show();
+    }
+
+    // -------------------------------- PRIVATE METHODS --------------------------------
+
+    /**
+     * @param Request $request
+     *
+     * @return CountResourcesRequest
+     */
+    private function createCountRequest(Request $request): CountResourcesRequest
+    {
+        $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all(), true);
+
+        $resourceFilter = $this->createResourceFilter($filter);
+
+        return CountResourcesRequestTransformer::transform(
+            resourceFilter: $resourceFilter,
+            contact: $this->contact,
+        );
     }
 
     /**

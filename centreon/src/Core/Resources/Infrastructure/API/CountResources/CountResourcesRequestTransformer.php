@@ -23,31 +23,33 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\CountResources;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
+use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
+use Core\Resources\Infrastructure\API\ExportResources\ExportResourcesInput;
+
 /**
  * Class
  *
- * @class CountResourcesViewModel
+ * @class CountResourcesRequestTransformer
  * @package Core\Resources\Infrastructure\API\CountResources
  */
-class CountResourcesViewModel {
-    /** @var int */
-    private int $totalResources = 0;
+final readonly class CountResourcesRequestTransformer {
 
     /**
-     * @return int
-     */
-    public function getTotalResources(): int
-    {
-        return $this->totalResources;
-    }
-
-    /**
-     * @param int $totalResources
+     * @param ResourceFilter $resourceFilter
+     * @param ContactInterface $contact
      *
-     * @return void
+     * @return CountResourcesRequest
      */
-    public function setTotalResources(int $totalResources): void
-    {
-        $this->totalResources = $totalResources;
+    public static function transform(
+        ResourceFilter $resourceFilter,
+        ContactInterface $contact
+    ): CountResourcesRequest {
+        return new CountResourcesRequest(
+            contact: $contact,
+            resourceFilter: $resourceFilter,
+        );
     }
 }

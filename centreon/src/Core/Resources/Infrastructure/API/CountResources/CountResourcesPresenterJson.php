@@ -71,7 +71,7 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
             return;
         }
 
-        $this->viewModel->setTotal($response->getTotal());
+        $this->viewModel->setTotalResources($response->getTotalResources());
     }
 
     /**

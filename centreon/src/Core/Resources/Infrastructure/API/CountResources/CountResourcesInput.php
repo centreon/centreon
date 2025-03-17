@@ -23,31 +23,26 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\CountResources;
 
-/**
- * Class
- *
- * @class CountResourcesViewModel
- * @package Core\Resources\Infrastructure\API\CountResources
- */
-class CountResourcesViewModel {
-    /** @var int */
-    private int $totalResources = 0;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+final readonly class CountResourcesInput
+{
     /**
-     * @return int
-     */
-    public function getTotalResources(): int
-    {
-        return $this->totalResources;
-    }
-
-    /**
-     * @param int $totalResources
+     * CountResourcesInput constructor
      *
-     * @return void
+     * @param string|null $search
      */
-    public function setTotalResources(int $totalResources): void
-    {
-        $this->totalResources = $totalResources;
-    }
+    public function __construct(
+        #[Assert\NotNull(
+            message: 'search parameter is required'
+        )]
+        #[Assert\NotBlank(
+            message: 'search parameter must not be empty'
+        )]
+        #[Assert\Json(
+            message: 'search parameter must be a valid JSON'
+        )]
+        public mixed $search,
+    ) {}
 }
