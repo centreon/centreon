@@ -51,6 +51,9 @@ class CmaValidator implements TypeValidatorInterface
         $configuration = $request->configuration;
         foreach ($configuration as $key => $value) {
             if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
+                if ($key === 'otel_ca_certificate' && is_null($value)) {
+                    continue;
+                }
                 $this->validateFilename("configuration.{$key}", $value, true);
             } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
                 $this->validateFilename("configuration.{$key}", $value, false);
