@@ -245,6 +245,18 @@ $createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage
     }
 };
 
+// -------------------------------------------- Token -------------------------------------------- //
+
+$addCMATypeToTokenTable = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Failed to add column cma type to table security_authentication_tokens';
+    $queryAddApiType = "ALTER TABLE security_authentication_tokens MODIFY COLUMN token_type enum('auto','manual','cma','api') DEFAULT 'auto'";
+    $pearDB->executeQuery($queryAddApiType);
+    $queryUpdateType = "UPDATE security_authentication_tokens SET token_type = 'api' WHERE token_type = 'manual'";
+    $pearDB->executeQuery($queryUpdateType);
+    $queryRemoveManualType = "ALTER TABLE security_authentication_tokens MODIFY COLUMN token_type enum('auto','api','cma') DEFAULT 'auto'";
+    $pearDB->executeQuery($queryRemoveManualType);
+};
+
 try {
     // DDL statements for real time database
     $createAgentInformationTable($pearDBO);
@@ -255,6 +267,7 @@ try {
     $addConnectorToTopology($pearDB);
     $changeAccNameInTopology($pearDB);
     $removeConstraintFromBrokerConfiguration($pearDB);
+    $addCMATypeToTokenTable();
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {

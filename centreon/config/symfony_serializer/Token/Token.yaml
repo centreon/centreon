@@ -1,0 +1,20 @@
+Core\Security\Token\Domain\Model\Token:
+  attributes:
+    name:
+      groups: ['Token:List', 'Token:Add']
+    userId:
+      groups: ['Token:List', 'Token:Add']
+    userName:
+      groups: ['Token:List', 'Token:Add']
+    creatorId:
+      groups: ['Token:List', 'Token:Add']
+    creatorName:
+      groups: ['Token:List', 'Token:Add']
+    creationDate:
+      groups: ['Token:List', 'Token:Add']
+    expirationDate:
+      groups: ['Token:List', 'Token:Add']
+    type:
+      groups: ['Token:List', 'Token:Add']
+    isRevoked:
+      groups: ['Token:List', 'Token:Add']
