@@ -24,7 +24,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
  * This file contains changes to be included in the next version.
  * The actual version number should be added in the variable $version.
  */
-$version = '';
+$version = '25.03.0';
 $errorMessage = '';
 
 // -------------------------------------------- CEIP Agent Information -------------------------------------------- //
@@ -136,24 +136,6 @@ $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void 
             SQL
         );
     }
-};
-
-// -------------------------------------------- Dashboard Panel -------------------------------------------- //
-/**
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- * @return void
- */
-$updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to update table dashboard_panel';
-    $pearDB->executeQuery(
-        <<<'SQL'
-            UPDATE `dashboard_panel`
-            SET `layout_x` = `layout_x` * 2,
-                `layout_width` = `layout_width` * 2
-            SQL
-    );
 };
 
 // -------------------------------------------- Dashboard Panel -------------------------------------------- //
