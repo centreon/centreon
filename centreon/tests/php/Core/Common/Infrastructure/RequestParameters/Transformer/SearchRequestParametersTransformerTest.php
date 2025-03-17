@@ -25,7 +25,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\TransformerException;
-use Core\Common\Infrastructure\RequestParameters\Transformer\RequestParametersTransformer;
+use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 
 it('transform from query parameters', function () {
     $queryParameters = QueryParameters::create(
@@ -35,7 +35,7 @@ it('transform from query parameters', function () {
             QueryParameter::string('contact_alias', 'foo_alias')
         ]
     );
-    $requestParameters = RequestParametersTransformer::transformFromQueryParameters($queryParameters);
+    $requestParameters = SearchRequestParametersTransformer::transformFromQueryParameters($queryParameters);
     expect($requestParameters)->toBeArray()
         ->and($requestParameters)->toBe([
             'contact_id' => [\PDO::PARAM_INT, 110],
@@ -50,7 +50,7 @@ it('reverse to query parameters', function () {
         'contact_name' => [\PDO::PARAM_STR, 'foo_name'],
         'contact_alias' => [\PDO::PARAM_STR, 'foo_alias']
     ];
-    $queryParameters = RequestParametersTransformer::reverseToQueryParameters($requestParameters);
+    $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters($requestParameters);
     expect($queryParameters)->toBeInstanceOf(QueryParameters::class)
         ->and($queryParameters->length())->toBe(3)
         ->and($queryParameters->get('contact_id'))->toBeInstanceOf(QueryParameter::class)
@@ -70,5 +70,5 @@ it('reverse to query parameters with unknown PDO type', function () {
         'contact_name' => [\PDO::PARAM_STR, 'foo_name'],
         'contact_alias' => [\PDO::PARAM_STR_CHAR, 'foo_alias']
     ];
-    RequestParametersTransformer::reverseToQueryParameters($requestParameters);
+    SearchRequestParametersTransformer::reverseToQueryParameters($requestParameters);
 })->throws(TransformerException::class);

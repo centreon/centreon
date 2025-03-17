@@ -34,10 +34,10 @@ use Core\Common\Domain\Exception\ValueObjectException;
 /**
  * Class
  *
- * @class RequestParametersTransformer
+ * @class SearchRequestParametersTransformer
  * @package Centreon\Infrastructure\RequestParameters\Transformer
  */
-readonly abstract class RequestParametersTransformer
+readonly abstract class SearchRequestParametersTransformer
 {
     /**
      * @param QueryParameters $queryParameters

@@ -36,7 +36,7 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
-use Core\Common\Infrastructure\RequestParameters\Transformer\RequestParametersTransformer;
+use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactTemplate;
 
@@ -104,7 +104,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
             // Pagination
             $query .= $this->sqlRequestTranslator->translatePaginationToSql();
 
-            $queryParameters = RequestParametersTransformer::reverseToQueryParameters(
+            $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
                 $this->sqlRequestTranslator->getSearchValues()
             );
 
