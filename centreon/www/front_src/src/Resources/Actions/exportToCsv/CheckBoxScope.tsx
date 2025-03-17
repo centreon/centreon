@@ -1,7 +1,7 @@
 import { Checkbox } from '@centreon/ui';
 import { Typography } from '@mui/material';
 import { equals } from 'ramda';
-import { memo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import useExportCsvStyles from './exportCsv.styles';
 import { CheckedLabel, Label } from './models';
 
@@ -21,12 +21,12 @@ const CheckBoxScope = ({
   const { classes } = useExportCsvStyles();
   const { firstLabel, secondLabel } = labels;
   const [checkedLabel, setCheckedLabel] = useState(defaultCheckedLabel);
-  const labelProps = {
+  const labelProps = useMemo(()=>({
     classes: { root: classes.label },
     variant: 'body2' as const
-  };
+  }),[])
 
-  const onChange = (event) => {
+  const onChange = useCallback((event) => {
     if (equals(event?.target?.id, checkedLabel.label)) {
       return;
     }
@@ -37,9 +37,9 @@ const CheckBoxScope = ({
     });
 
     getData(event?.target?.id);
-  };
+  },[checkedLabel.label])
 
-  const getCheckedValue = (label: string) => equals(checkedLabel.label, label);
+  const getCheckedValue = useCallback((label: string) => equals(checkedLabel.label, label),[checkedLabel.label]);
 
   return (
     <>
@@ -64,4 +64,4 @@ const CheckBoxScope = ({
   );
 };
 
-export default memo(CheckBoxScope);
+export default CheckBoxScope;
