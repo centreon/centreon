@@ -57,6 +57,11 @@ final readonly class ExportResourcesInput
      * @param bool|null $allPages
      * @param array<string>|null $columns
      * @param int|null $maxLines
+     * @param int|null $page
+     * @param int|null $limit
+     * @param string|null $sort_by
+     * @param string|null $search
+     * @param int|null $total
      */
     public function __construct(
         #[Assert\NotNull(
@@ -77,22 +82,40 @@ final readonly class ExportResourcesInput
             message: 'all_pages parameter must not be empty'
         )]
         public mixed $allPages,
-        #[Assert\Type('array', message: 'Columns must be an array')]
-        #[Assert\Sequentially([
-            new Assert\All(
-                [
-                    new Assert\Type('string', message: 'columns must be an array of strings'),
-                    new Assert\NotBlank(message: 'columns value must not be empty'),
-                    new Assert\Choice(
-                        choices: self::EXPORT_ALLOWED_COLUMNS,
-                        message: 'columns must be one of the following: {{ choices }}'
-                    )
-                ]
-            ),
+        #[Assert\Type('array', message: 'columns must be an array')]
+        #[Assert\All([
+            new Assert\Type('string', message: 'columns must be an array of strings'),
+            new Assert\NotBlank(message: 'columns value must not be empty'),
+            new Assert\Choice(
+                choices: self::EXPORT_ALLOWED_COLUMNS,
+                message: 'columns must be one of the following: {{ choices }}'
+            )
         ])]
         public mixed $columns,
-
         public mixed $maxLines,
+        public mixed $page,
+        public mixed $limit,
+        #[Assert\NotNull(
+            message: 'sort_by parameter is required'
+        )]
+        #[Assert\NotBlank(
+            message: 'sort_by parameter must not be empty'
+        )]
+        #[Assert\Json(
+            message: 'sort_by parameter must be a valid JSON'
+        )]
+        public mixed $sort_by,
+        #[Assert\NotNull(
+            message: 'search parameter is required'
+        )]
+        #[Assert\NotBlank(
+            message: 'search parameter must not be empty'
+        )]
+        #[Assert\Json(
+            message: 'search parameter must be a valid JSON'
+        )]
+        public mixed $search,
+        public mixed $total,
     ) {}
 
     #[Assert\Callback]
@@ -108,13 +131,69 @@ final readonly class ExportResourcesInput
             $context->buildViolation('all_pages parameter must be a boolean')
                 ->atPath('all_pages')
                 ->addViolation();
+        } else {
+            $allPages = (bool) $this->allPages;
+            (!$allPages) ? $this->validatePagination($context) : $this->validateMaxLines($context);
         }
     }
 
     #[Assert\Callback]
-    public function validateMaxLines(ExecutionContextInterface $context): void
+    public function validateTotal(ExecutionContextInterface $context): void
     {
-        if ($this->allPages === true && is_null($this->maxLines)) {
+        if (! is_null($this->total) && empty($this->total)) {
+            $context->buildViolation('total must not be empty')
+                ->atPath('total')
+                ->addViolation();
+        }
+        if (! is_null($this->total) && filter_var($this->total, FILTER_VALIDATE_INT) === false) {
+            $context->buildViolation('total must be an integer')
+                ->atPath('total')
+                ->addViolation();
+        }
+    }
+
+    // ------------------------------------- PRIVATE METHODS -------------------------------------
+
+    /**
+     * @param ExecutionContextInterface $context
+     *
+     * @return void
+     */
+    private function validatePagination(ExecutionContextInterface $context): void
+    {
+        if (is_null($this->page)) {
+            $context->buildViolation('page is required when all_pages is false')
+                ->atPath('page')
+                ->addViolation();
+        }
+
+        if (is_null($this->limit)) {
+            $context->buildViolation('limit is required when all_pages is false')
+                ->atPath('limit')
+                ->addViolation();
+        }
+
+        if (! is_null($this->page) && filter_var($this->page, FILTER_VALIDATE_INT) === false) {
+            $context->buildViolation('page must be an integer')
+                ->atPath('page')
+                ->addViolation();
+        }
+
+        if (! is_null($this->limit) && filter_var($this->limit, FILTER_VALIDATE_INT) === false) {
+            $context->buildViolation('limit must be an integer')
+                ->atPath('limit')
+                ->addViolation();
+        }
+    }
+
+    /**
+     * @param ExecutionContextInterface $context
+     *
+     * @return void
+     */
+    private function validateMaxLines(ExecutionContextInterface $context): void
+    {
+        if (is_null($this->maxLines)) {
             $context->buildViolation('max_lines is required when all_pages is true')
                 ->atPath('max_lines')
                 ->addViolation();
