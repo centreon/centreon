@@ -19685,3 +19685,43 @@ msgstr "La valeur minimale autorisée est 10"
 
 msgid "Error while enabling/disabling host groups"
 msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
+
+
+msgid "Authentication tokens"
+msgstr "Jetons d'authentification"
+
+msgid "You are about to delete the token <strong>{{tokenName}}</strong>. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?"
+msgstr "Vous êtes sur le point de supprimer le jeton <strong>{{tokenName}}</strong>. Cette action est irréversible. Si vous continuez, toutes les requêtes utilisant ce jeton seront rejetées. Souhaitez-vous supprimer le jeton ?"
+
+msgid "Creators"
+msgstr "Créateurs"
+
+msgid "Never expire"
+msgstr "N'expire jamais"
+
+msgid "Generate token"
+msgstr "Générer un jeton"
+
+msgid "Create authentication token"
+msgstr "Créer un jeton d'authentification"
+
+msgid "For security reasons, the token can only be displayed once. Remember to store it well."
+msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Pensez à bien le stocker."
+
+msgid "Done"
+msgstr "Terminé"
+
+msgid "Disable token"
+msgstr "Désactiver le jeton"
+
+msgid "You are about to disable the token <strong>{{tokenName}}</strong>. If you disable it, all requests made with this token will be rejected. Do you want to disable it ?"
+msgstr "Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</strong>. Si vous le désactivez, toutes les requêtes faites avec ce jeton seront rejetées. Souhaitez-vous le désactiver ?"
+
+msgid "Token disabled"
+msgstr "Jeton désactivé"
+
+msgid "Token deleted"
+msgstr "Jeton supprimé"
+
+msgid "Enable/Disable"
+msgstr "Activer/Désactiver"

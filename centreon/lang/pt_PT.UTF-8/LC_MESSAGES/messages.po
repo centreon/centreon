@@ -18357,3 +18357,42 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "The minimum allowed value is 10"
 # msgstr ""
+
+# msgid "Authentication tokens"
+# msgstr ""
+
+# msgid "You are about to delete the token <strong>{{tokenName}}</strong>. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Creators"
+# msgstr ""
+
+# msgid "Never expire"
+# msgstr ""
+
+# msgid "Generate token"
+# msgstr ""
+
+# msgid "Create authentication token"
+# msgstr ""
+
+# msgid "For security reasons, the token can only be displayed once. Remember to store it well."
+# msgstr ""
+
+# msgid "Done"
+# msgstr ""
+
+# msgid "Disable token"
+# msgstr ""
+
+# msgid "You are about to disable the token <strong>{{tokenName}}</strong>. If you disable it, all requests made with this token will be rejected. Do you want to disable it ?"
+# msgstr ""
+
+# msgid "Token disabled"
+# msgstr ""
+
+# msgid "Token deleted"
+# msgstr ""
+
+# msgid "Enable/Disable"
+# msgstr ""
