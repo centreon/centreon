@@ -48,7 +48,7 @@ const reactRoutes = [
     path: routeMap.dashboard
   },
   {
-    comp: lazy(() => import('../ApiTokens')),
+    comp: lazy(() => import('../AuthenticationTokens')),
     path: routeMap.apiTokens
   },
   {
