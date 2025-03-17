@@ -813,6 +813,9 @@ jobs:
       startsWith(github.ref_name, 'dev') &&
       github.repository == 'centreon/centreon'
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
       - name: Create Jira ticket if nightly build failure
         uses: ./.github/actions/create-jira-ticket
         with:
