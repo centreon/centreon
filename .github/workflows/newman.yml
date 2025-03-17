@@ -804,23 +804,16 @@ jobs:
           name: newman-${{ inputs.os }}-html-reports-*
           failOnError: false
 
-  fail-nightly:
+  create-jira-nightly-ticket:
     needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
     runs-on: ubuntu-24.04
     if: |
       inputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled())
     steps:
-      - run: exit 1
-        shell: bash
+      - name: Checkout Repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-  create-jira-nightly-ticket:
-    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts, fail-nightly]
-    runs-on: ubuntu-24.04
-    if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled())
-    steps:
       - name: Create Jira ticket if nightly build failure
         uses: ./.github/actions/create-jira-ticket
         with:
