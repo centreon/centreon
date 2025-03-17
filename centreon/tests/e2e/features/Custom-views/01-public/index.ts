@@ -1,6 +1,6 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { addCustomView, addSharedView } from '../common';
+import { addCustomView, addSharedView, deleteCustomView, visitCustomViewPage } from '../common';
 
 const logByAclUser = () => {
   cy.logout();
@@ -8,8 +8,7 @@ const logByAclUser = () => {
     jsonName: 'custom-view-acl-user',
     loginViaApi: false
   });
-  cy.visit('/centreon/main.php?p=103');
-  cy.wait('@getTimeZone');
+  visitCustomViewPage();
 };
 
 
@@ -79,9 +78,7 @@ Then('he cannot modify the content of the shared view', () => {
 });
 
 Given('a publicly shared custom view is configured by the owner', () => {
-  // Visit the page 'Home > Custom Views'
-  cy.visit('/centreon/main.php?p=103')
-  cy.wait('@getTimeZone');
+  visitCustomViewPage();
   cy.wait('@getViews');
   cy.getIframeBody().contains('a', 'public-view').should('exist');
 });
@@ -98,11 +95,7 @@ Given('the user is using the public view', () => {
 
 When('he removes the shared view', () => {
   cy.wait('@action');
-  cy.waitForElementInIframe('#main-content', 'button.deleteView');
-  // Click on the 'Delete view' button
-  cy.getIframeBody().find('button.deleteView').click({force: true});
-  // Click on the delete in the confirmation popup
-  cy.getIframeBody().find('#deleteViewConfirm .bt_danger').click(); 
+  deleteCustomView();
 });
 
 Then('the view is not visible anymore', () => {
@@ -119,9 +112,7 @@ When('the owner removes the view', () => {
     jsonName: 'admin',
     loginViaApi: false
   });
-  // Visit the page 'Home > Custom Views'
-  cy.visit('/centreon/main.php?p=103')
-  cy.wait('@getTimeZone');
+  visitCustomViewPage();
   cy.wait('@getViews');
   // Wait until the "Show/Hide edit mode" icon is visible
   cy.waitForElementInIframe('#main-content', 'a[title="Show/Hide edit mode"]');

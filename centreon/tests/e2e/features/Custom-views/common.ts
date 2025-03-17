@@ -1,3 +1,8 @@
+const visitCustomViewPage = () => {
+    cy.visit('/centreon/main.php?p=103');
+    cy.wait('@getTimeZone');
+}
+
 const addCustomView = (name, isPublic): void => {
     // Visit the page 'Home > Custom Views'
     cy.visit('/centreon/main.php?p=103')
@@ -36,6 +41,25 @@ const addSharedView = (name) => {
     cy.getIframeBody().find('input[name="submit"]').eq(0).click();
     cy.wait('@getViews');
 };
+
+const shareUnlockedCustomView = (userOrGroupTag, name) => {
+    cy.getIframeBody().contains('button', 'Share view').click();
+    // Click on the 'Unlocked user or groups' input
+    cy.getIframeBody().find(`input[placeholder="${userOrGroupTag}"]`).click();
+    // Chose the user/ group name
+    cy.getIframeBody().find(`div[title="${name}"]`).click();
+    // Click on the 'Share' button
+    cy.getIframeBody().find('input[name="submit"][value="Share"]').click();
+    cy.exportConfig();
+};
+
+const deleteCustomView = () => {
+    cy.waitForElementInIframe('#main-content', 'button.deleteView');
+    // Click on the 'Delete view' button
+    cy.getIframeBody().find('button.deleteView').click({force: true});
+    // Click on the delete in the confirmation popup
+    cy.getIframeBody().find('#deleteViewConfirm .bt_danger').click();
+};
   
-  export { addCustomView, addSharedView };
+export { visitCustomViewPage, addCustomView, addSharedView, shareUnlockedCustomView, deleteCustomView };
   
