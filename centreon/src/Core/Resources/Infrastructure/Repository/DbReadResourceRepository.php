@@ -41,13 +41,12 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
-use Core\Common\Infrastructure\RequestParameters\Transformer\RequestParametersTransformer;
+use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
-use Core\Tag\RealTime\Domain\Model\Tag;
 
 class DbReadResourceRepository extends DatabaseRepository implements ReadResourceRepositoryInterface
 {
@@ -133,6 +132,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function findParentResourcesById(ResourceFilter $filter): array
     {
         $this->resources = [];
+        $queryParametersFromRequestParameters = new QueryParameters();
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
         $resourceTypeHost = self::RESOURCE_TYPE_HOST;
@@ -199,7 +199,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
             SQL;
 
-        $query .= $this->addResourceParentIdSubRequest($filter);
+        try {
+            $query .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameters);
+        } catch (ValueObjectException|CollectionException $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while adding the parent id subrequest",
+                previous: $exception
+            );
+        }
 
         /**
          * Resource Type filter
@@ -226,10 +233,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         try {
             $queryResources = $this->translateDbName($query);
-            $queryParameters = RequestParametersTransformer::reverseToQueryParameters(
+            $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
                 $this->sqlRequestTranslator->getSearchValues()
             );
-
+            $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
             foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resourceRecord) {
                 /** @var array<string,int|string|null> $resourceRecord */
                 $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
@@ -240,9 +247,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             if (($total = $this->connection->fetchOne($queryTotal)) !== false) {
                 $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
             }
-        } catch (AssertionFailedException|TransformerException|ConnectionException $exception) {
+        } catch (AssertionFailedException|TransformerException|CollectionException|ConnectionException $exception) {
             throw new RepositoryException(
                 message: "An error occurred while finding parent resources by id",
+                context: ['filter' => $filter],
                 previous: $exception
             );
         }
@@ -262,12 +270,20 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     public function findResources(ResourceFilter $filter): array
     {
-        $this->resources = [];
+        try {
+            $this->resources = [];
+            $queryParametersFromRequestParameter = new QueryParameters();
+            $query = $this->generateFindResourcesRequest($filter, $queryParametersFromRequestParameter);
+            $this->find($query, $queryParametersFromRequestParameter);
 
-        $request = $this->generateFindResourcesRequest($filter);
-        $this->fetchResources($request);
-
-        return $this->resources;
+            return $this->resources;
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while finding resources",
+                context: ['filter' => $filter],
+                previous: $exception
+            );
+        }
     }
 
     /**
@@ -279,13 +295,25 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): array
     {
-        $this->resources = [];
+        try {
+            $this->resources = [];
+            $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
+            $queryParametersFromRequestParameter = new QueryParameters();
+            $query = $this->generateFindResourcesRequest(
+                $filter,
+                $queryParametersFromRequestParameter,
+                $accessGroupRequest
+            );
+            $this->find($query, $queryParametersFromRequestParameter);
 
-        $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
-        $request = $this->generateFindResourcesRequest($filter, $accessGroupRequest);
-        $this->fetchResources($request);
-
-        return $this->resources;
+            return $this->resources;
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while finding resources by access group ids",
+                context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds],
+                previous: $exception
+            );
+        }
     }
 
     /**
@@ -295,21 +323,30 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @throws RepositoryException
      * @return \Traversable<ResourceEntity>
      */
-    public function iterateResourcesByMaxResults(ResourceFilter $filter, int $maxResults = 0): \Traversable
+    public function iterateResources(ResourceFilter $filter, int $maxResults = 0): \Traversable
     {
-        $this->resources = [];
+        try {
+            $this->resources = [];
 
-        // if $maxResults is set to 0, we use pagination and limit
-        if ($maxResults > 0) {
-            // for an export, we can have no pagination, so we limit the number of results in this case
-            // page is always 1 and limit is the maxResults
-            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-            $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+            // if $maxResults is set to 0, we use pagination and limit
+            if ($maxResults > 0) {
+                // for an export, we can have no pagination, so we limit the number of results in this case
+                // page is always 1 and limit is the maxResults
+                $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+                $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+            }
+
+            $queryParametersFromRequestParameter = new QueryParameters();
+            $query = $this->generateFindResourcesRequest($filter, $queryParametersFromRequestParameter);
+
+            return $this->iterate($query, $queryParametersFromRequestParameter);
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while iterating resources by max results",
+                context: ['filter' => $filter, 'maxResults' => $maxResults],
+                previous: $exception
+            );
         }
-
-        $request = $this->generateFindResourcesRequest($filter);
-
-        return $this->iterateResources($request, $maxResults);
     }
 
     /**
@@ -320,158 +357,191 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @throws RepositoryException
      * @return \Traversable<ResourceEntity>
      */
-    public function iterateResourcesByAccessGroupIdsAndMaxResults(
+    public function iterateResourcesByAccessGroupIds(
         ResourceFilter $filter,
         array $accessGroupIds,
         int $maxResults = 0
     ): \Traversable {
-        $this->resources = [];
+        try {
+            $this->resources = [];
 
-        // if $maxResults is set to 0, we use pagination and limit
-        if ($maxResults > 0) {
-            // for an export, we can have no pagination, so we limit the number of results in this case
-            // page is always 1 and limit is the maxResults
-            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-            $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+            // if $maxResults is set to 0, we use pagination and limit
+            if ($maxResults > 0) {
+                // for an export, we can have no pagination, so we limit the number of results in this case
+                // page is always 1 and limit is the maxResults
+                $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+                $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+            }
+
+            $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
+
+            $queryParametersFromRequestParameter = new QueryParameters();
+            $query = $this->generateFindResourcesRequest(
+                $filter,
+                $queryParametersFromRequestParameter,
+                $accessGroupRequest
+            );
+
+            return $this->iterate($query, $queryParametersFromRequestParameter);
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while iterating resources by access group ids and max results",
+                context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds, 'maxResults' => $maxResults],
+                previous: $exception
+            );
         }
-
-        $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
-
-        $request = $this->generateFindResourcesRequest($filter, $accessGroupRequest);
-
-        return $this->iterateResources($request, $maxResults);
     }
 
     /**
      * @param ResourceFilter $filter
-     * @param int $maxResults
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByMaxResults(ResourceFilter $filter, int $maxResults = 0): int
+    public function countResources(ResourceFilter $filter): int
     {
-        // For a count, there isn't pagination we limit the number of results
-        // page is always 1 and limit is the maxResults in case of an export
-        $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-        $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+        try {
+            // For a count, there isn't pagination we limit the number of results
+            // page is always 1 and limit is the maxResults in case of an export
+            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+            $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
 
-        $request = $this->generateFindResourcesRequest(
-            filter: $filter,
-            onlyCount: true
-        );
+            $queryParametersFromRequestParameter = new QueryParameters();
+            $query = $this->generateFindResourcesRequest(
+                filter: $filter,
+                queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
+                onlyCount: true
+            );
 
-        return $this->countResources($request, $maxResults);
+            return $this->count($query, $queryParametersFromRequestParameter);
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while counting resources by max results",
+                context: ['filter' => $filter],
+                previous: $exception
+            );
+        }
     }
 
     /**
      * @param ResourceFilter $filter
      * @param array<int> $accessGroupIds
-     * @param int $maxResults
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByAccessGroupIdsAndByMaxResults(
-        ResourceFilter $filter,
-        array $accessGroupIds,
-        int $maxResults = 0
-    ): int {
-        // For a count, there isn't pagination we limit the number of results
-        // page is always 1 and limit is the maxResults in case of an export
-        $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-        $this->sqlRequestTranslator->getRequestParameters()->setLimit($maxResults);
+    public function countResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): int
+    {
+        try {
+            // For a count, there isn't pagination we limit the number of results
+            // page is always 1 and limit is the maxResults in case of an export
+            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+            $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
 
-        $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
+            $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
 
-        $request = $this->generateFindResourcesRequest(
-            filter: $filter,
-            accessGroupRequest: $accessGroupRequest,
-            onlyCount: true
-        );
+            $queryParametersFromRequestParameter = new QueryParameters();
+            $query = $this->generateFindResourcesRequest(
+                filter: $filter,
+                queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
+                accessGroupRequest: $accessGroupRequest,
+                onlyCount: true
+            );
 
-        return $this->countResources($request, $maxResults);
+            return $this->count($query, $queryParametersFromRequestParameter);
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: "An error occurred while counting resources by access group ids and max results",
+                context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds],
+                previous: $exception
+            );
+        }
     }
 
     // ------------------------------------- PRIVATE METHODS -------------------------------------
 
     /**
      * @param ResourceFilter $filter
+     * @param QueryParameters $queryParametersFromRequestParameter
      * @param string $accessGroupRequest
      * @param bool $onlyCount
      *
+     * @throws CollectionException
      * @throws RepositoryException
+     * @throws ValueObjectException
      * @return string
      */
     private function generateFindResourcesRequest(
         ResourceFilter $filter,
+        QueryParameters $queryParametersFromRequestParameter,
         string $accessGroupRequest = '',
         bool $onlyCount = false
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
-        $request = $this->createQueryHeaders($filter, $collector);
+        $query = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
 
         $resourceType = self::RESOURCE_TYPE_HOST;
 
-        $joinCtes = $request === ''
+        $joinCtes = $query === ''
             ? ''
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
         if ($onlyCount) {
-            $request =
-                'SELECT COUNT(DISTINCT resources.resource_id), 1 AS REALTIME';
+            $query = <<<SQL
+                SELECT COUNT(DISTINCT resources.resource_id), 1 AS REALTIME
+                SQL;
         } else {
-        $request .= <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                1 AS REALTIME,
-                resources.resource_id,
-                resources.name,
-                resources.alias,
-                resources.address,
-                resources.id,
-                resources.internal_id,
-                resources.parent_id,
-                resources.parent_name,
-                parent_resource.resource_id AS `parent_resource_id`,
-                parent_resource.status AS `parent_status`,
-                parent_resource.alias AS `parent_alias`,
-                parent_resource.status_ordered AS `parent_status_ordered`,
-                parent_resource.address AS `parent_fqdn`,
-                severities.id AS `severity_id`,
-                severities.level AS `severity_level`,
-                severities.name AS `severity_name`,
-                severities.type AS `severity_type`,
-                severities.icon_id AS `severity_icon_id`,
-                resources.type,
-                resources.status,
-                resources.status_ordered,
-                resources.status_confirmed,
-                resources.in_downtime,
-                resources.acknowledged,
-                resources.passive_checks_enabled,
-                resources.active_checks_enabled,
-                resources.notifications_enabled,
-                resources.last_check,
-                resources.last_status_change,
-                resources.check_attempts,
-                resources.max_check_attempts,
-                resources.notes,
-                resources.notes_url,
-                resources.action_url,
-                resources.output,
-                resources.poller_id,
-                resources.has_graph,
-                instances.name AS `monitoring_server_name`,
-                resources.enabled,
-                resources.icon_id,
-                resources.severity_id,
-                resources.flapping,
-                resources.percent_state_change
-            SQL;
+            $query .= <<<SQL
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                    1 AS REALTIME,
+                    resources.resource_id,
+                    resources.name,
+                    resources.alias,
+                    resources.address,
+                    resources.id,
+                    resources.internal_id,
+                    resources.parent_id,
+                    resources.parent_name,
+                    parent_resource.resource_id AS `parent_resource_id`,
+                    parent_resource.status AS `parent_status`,
+                    parent_resource.alias AS `parent_alias`,
+                    parent_resource.status_ordered AS `parent_status_ordered`,
+                    parent_resource.address AS `parent_fqdn`,
+                    severities.id AS `severity_id`,
+                    severities.level AS `severity_level`,
+                    severities.name AS `severity_name`,
+                    severities.type AS `severity_type`,
+                    severities.icon_id AS `severity_icon_id`,
+                    resources.type,
+                    resources.status,
+                    resources.status_ordered,
+                    resources.status_confirmed,
+                    resources.in_downtime,
+                    resources.acknowledged,
+                    resources.passive_checks_enabled,
+                    resources.active_checks_enabled,
+                    resources.notifications_enabled,
+                    resources.last_check,
+                    resources.last_status_change,
+                    resources.check_attempts,
+                    resources.max_check_attempts,
+                    resources.notes,
+                    resources.notes_url,
+                    resources.action_url,
+                    resources.output,
+                    resources.poller_id,
+                    resources.has_graph,
+                    instances.name AS `monitoring_server_name`,
+                    resources.enabled,
+                    resources.icon_id,
+                    resources.severity_id,
+                    resources.flapping,
+                    resources.percent_state_change
+                SQL;
         }
 
-        $request .= <<<SQL
+        $query .= <<<SQL
             FROM `:dbstg`.`resources`
             INNER JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
@@ -499,9 +569,9 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             );
         }
 
-        $request .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
+        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
 
-        $request .= <<<SQL
+        $query .= <<<SQL
             resources.name NOT LIKE '\_Module\_%'
                 AND resources.parent_name NOT LIKE '\_Module\_BAM%'
                 AND resources.enabled = 1
@@ -510,171 +580,65 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         // Apply only_with_performance_data
         if ($filter->getOnlyWithPerformanceData() === true) {
-            $request .= ' AND resources.has_graph = 1';
+            $query .= ' AND resources.has_graph = 1';
         }
 
         foreach ($this->extraDataProviders as $provider) {
-            $request .= $provider->getSubFilter($filter);
+            $query .= $provider->getSubFilter($filter);
         }
 
-        $request .= $accessGroupRequest;
+        $query .= $accessGroupRequest;
 
-        $request .= $this->addResourceParentIdSubRequest($filter);
+        $query .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameter);
 
         /**
          * Resource Type filter
          * 'service', 'metaservice', 'host'.
          */
-        $request .= $this->addResourceTypeSubRequest($filter);
+        $query .= $this->addResourceTypeSubRequest($filter);
 
         /**
          * State filter
          * 'unhandled_problems', 'resource_problems', 'acknowledged', 'in_downtime'.
          */
-        $request .= $this->addResourceStateSubRequest($filter);
+        $query .= $this->addResourceStateSubRequest($filter);
 
         /**
          * Status filter
          * 'OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'UP', 'UNREACHABLE', 'DOWN', 'PENDING'.
          */
-        $request .= $this->addResourceStatusSubRequest($filter);
+        $query .= $this->addResourceStatusSubRequest($filter);
 
         /**
          * Status type filter
          * 'HARD', 'SOFT'.
          */
-        $request .= $this->addStatusTypeSubRequest($filter);
+        $query .= $this->addStatusTypeSubRequest($filter);
 
         /**
          * Monitoring Server filter.
          */
-        $request .= $this->addMonitoringServerSubRequest($filter);
+        $query .= $this->addMonitoringServerSubRequest($filter, $queryParametersFromRequestParameter);
 
         /**
          * Severity filter (levels and/or names).
          */
-        $request .= $this->addSeveritySubRequest($filter);
+        $query .= $this->addSeveritySubRequest($filter, $queryParametersFromRequestParameter);
 
         if (! $onlyCount) {
             /**
              * Handle sort parameters.
              */
-            $request .= $this->sqlRequestTranslator->translateSortParameterToSql()
+            $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
                 ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
 
             /**
              * Handle pagination.
              */
-            $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+            $query .= $this->sqlRequestTranslator->translatePaginationToSql();
         }
 
-        return $request;
-    }
-
-    /**
-     * This adds the subrequest filter for tags (servicegroups, hostgroups).
-     *
-     * @param ResourceFilter $filter
-     *
-     * @return string
-     */
-    private function addResourceTagsSubRequest(ResourceFilter $filter): string
-    {
-        $subRequest = '';
-        $searchedTagNames = [];
-        $includeHostResourceType = false;
-        $includeServiceResourceType = false;
-        $searchedTags = [];
-
-        if (! empty($filter->getHostgroupNames())) {
-            $includeHostResourceType = true;
-            foreach ($filter->getHostgroupNames() as $hostGroupName) {
-                $searchedTags[Tag::HOST_GROUP_TYPE_ID][] = $hostGroupName;
-                $searchedTagNames[] = $hostGroupName;
-            }
-        }
-
-        if (! empty($filter->getServicegroupNames())) {
-            $includeServiceResourceType = true;
-            foreach ($filter->getServicegroupNames() as $serviceGroupName) {
-                $searchedTags[Tag::SERVICE_GROUP_TYPE_ID][] = $serviceGroupName;
-                $searchedTagNames[] = $serviceGroupName;
-            }
-        }
-
-        if (! empty($filter->getServiceCategoryNames())) {
-            $includeServiceResourceType = true;
-            foreach ($filter->getServiceCategoryNames() as $serviceCategoryName) {
-                $searchedTags[Tag::SERVICE_CATEGORY_TYPE_ID][] = $serviceCategoryName;
-                $searchedTagNames[] = $serviceCategoryName;
-            }
-        }
-
-        if (! empty($filter->getHostCategoryNames())) {
-            $includeHostResourceType = true;
-            foreach ($filter->getHostCategoryNames() as $hostCategoryName) {
-                $searchedTags[Tag::HOST_CATEGORY_TYPE_ID][] = $hostCategoryName;
-                $searchedTagNames[] = $hostCategoryName;
-            }
-        }
-
-        if ($searchedTagNames !== []) {
-            $subRequest = ' INNER JOIN (';
-            $intersectRequest = '';
-            $index = 1;
-            foreach ($searchedTags as $type => $names) {
-                $tagKeys = [];
-                foreach ($names as $name) {
-                    $key = ":tagName_{$index}";
-                    $index++;
-                    $tagKeys[] = $key;
-                }
-                $literalTagKeys = implode(', ', $tagKeys);
-
-                if ($intersectRequest !== '') {
-                    $intersectRequest .= ' INTERSECT ';
-                }
-
-                if (
-                    $type === Tag::HOST_GROUP_TYPE_ID
-                    || $type === Tag::HOST_CATEGORY_TYPE_ID
-                ) {
-                    $intersectRequest .= <<<"SQL"
-                            SELECT resources.resource_id
-                            FROM `:dbstg`.`resources` resources
-                            LEFT JOIN `:dbstg`.`resources` parent_resource
-                                ON parent_resource.id = resources.parent_id
-                            LEFT JOIN `:dbstg`.resources_tags AS rtags
-                              ON rtags.resource_id = resources.resource_id
-                              OR rtags.resource_id = parent_resource.resource_id
-                            INNER JOIN `:dbstg`.tags
-                                ON tags.tag_id = rtags.tag_id
-                            WHERE tags.name IN ({$literalTagKeys})
-                            AND tags.type = {$type}
-                        SQL;
-                } else {
-                    $intersectRequest .= <<<"SQL"
-                            SELECT rtags.resource_id
-                            FROM `:dbstg`.resources_tags AS rtags
-                            INNER JOIN `:dbstg`.tags
-                                ON tags.tag_id = rtags.tag_id
-                            WHERE tags.name IN ({$literalTagKeys})
-                            AND tags.type = {$type}
-                        SQL;
-                }
-            }
-
-            $subRequest .= $intersectRequest . ') AS tag ON tag.resource_id = resources.resource_id';
-
-            if (
-                $includeHostResourceType
-                && ! $includeServiceResourceType
-            ) {
-                $subRequest .= ' OR tag.resource_id = parent_resource.resource_id';
-            }
-        }
-
-        return $subRequest;
+        return $query;
     }
 
     /**
@@ -698,12 +662,16 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /**
      * @param ResourceFilter $filter
-     * @param StatementCollector $collector
+     * @param QueryParameters $queryParametersFromRequestParameter
      *
+     * @throws CollectionException
+     * @throws ValueObjectException
      * @return string
      */
-    private function createQueryHeaders(ResourceFilter $filter, StatementCollector $collector): string
-    {
+    private function createQueryHeaders(
+        ResourceFilter $filter,
+        QueryParameters $queryParametersFromRequestParameter
+    ): string {
         $headers = '';
         $nextHeaders = function () use (&$headers): void {
             $headers .= $headers !== '' ? ",\n" : 'WITH ';
@@ -717,7 +685,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $hostGroupKeys = [];
             foreach ($filter->getHostgroupNames() as $index => $hostGroupName) {
                 $key = ":host_group_{$index}";
-                $collector->addValue($key, $hostGroupName, \PDO::PARAM_STR);
+                $queryParametersFromRequestParameter->add($key, QueryParameter::string($key, $hostGroupName));
                 $hostGroupKeys[] = $key;
             }
             $hostGroupPrepareKeys = implode(', ', $hostGroupKeys);
@@ -757,7 +725,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $hostCategoriesKeys = [];
             foreach ($filter->getHostCategoryNames() as $index => $hostCategoryName) {
                 $key = ":host_category_{$index}";
-                $collector->addValue($key, $hostCategoryName, \PDO::PARAM_STR);
+                $queryParametersFromRequestParameter->add($key, QueryParameter::string($key, $hostCategoryName));
                 $hostCategoriesKeys[] = $key;
             }
             $hostCategoryPrepareKeys = implode(', ', $hostCategoriesKeys);
@@ -799,7 +767,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $serviceGroupKeys = [];
             foreach ($filter->getServicegroupNames() as $index => $serviceGroupName) {
                 $key = ":service_group_{$index}";
-                $collector->addValue($key, $serviceGroupName, \PDO::PARAM_STR);
+                $queryParametersFromRequestParameter->add($key, QueryParameter::string($key, $serviceGroupName));
                 $serviceGroupKeys[] = $key;
             }
             $serviceGroupPrepareKeys = implode(', ', $serviceGroupKeys);
@@ -821,7 +789,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $serviceCategoryKeys = [];
             foreach ($filter->getServiceCategoryNames() as $index => $serviceCategoryName) {
                 $key = ":service_category_{$index}";
-                $collector->addValue($key, $serviceCategoryName, \PDO::PARAM_STR);
+                $queryParametersFromRequestParameter->add($key, QueryParameter::string($key, $serviceCategoryName));
                 $serviceCategoryKeys[] = $key;
             }
             $serviceCategoryPrepareKeys = implode(', ', $serviceCategoryKeys);
@@ -853,32 +821,31 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /**
      * @param string $query
+     * @param QueryParameters $queryParametersFromRequestParameters
      *
+     * @throws AssertionFailedException
+     * @throws CollectionException
+     * @throws ConnectionException
      * @throws RepositoryException
+     * @throws TransformerException
      */
-    private function fetchResources(string $query): void
+    private function find(string $query, QueryParameters $queryParametersFromRequestParameters): void
     {
-        try {
-            $queryResources = $this->translateDbName($query);
-            $queryParameters = RequestParametersTransformer::reverseToQueryParameters(
-                $this->sqlRequestTranslator->getSearchValues()
-            );
+        $queryResources = $this->translateDbName($query);
+        $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
+            $this->sqlRequestTranslator->getSearchValues()
+        );
+        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
 
-            foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resourceRecord) {
-                /** @var array<string,int|string|null> $resourceRecord */
-                $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
-            }
+        foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resourceRecord) {
+            /** @var array<string,int|string|null> $resourceRecord */
+            $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
+        }
 
-            // get total without pagination
-            $queryTotal = $this->translateDbName('SELECT FOUND_ROWS() AS REALTIME from `:dbstg`.`resources`');
-            if (($total = $this->connection->fetchOne($queryTotal)) !== false) {
-                $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-            }
-        } catch (AssertionFailedException|TransformerException|ConnectionException $exception) {
-            throw new RepositoryException(
-                message: "An error occurred while finding resources : {$exception->getMessage()}",
-                previous: $exception
-            );
+        // get total without pagination
+        $queryTotal = $this->translateDbName('SELECT FOUND_ROWS() AS REALTIME from `:dbstg`.`resources`');
+        if (($total = $this->connection->fetchOne($queryTotal)) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
 
         $iconIds = $this->getIconIdsFromResources();
@@ -888,57 +855,53 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /**
      * @param string $query
-     * @param int $maxResults
+     * @param QueryParameters $queryParametersFromRequestParameters
      *
-     * @throws RepositoryException
+     * @throws CollectionException
+     * @throws ConnectionException
+     * @throws TransformerException
      * @return int
      */
-    private function countResources(string $query, int $maxResults = 0): int
-    {
-        try {
-            $queryResources = $this->translateDbName($query);
-            $queryParameters = RequestParametersTransformer::reverseToQueryParameters(
-                $this->sqlRequestTranslator->getSearchValues()
-            );
+    private function count(
+        string $query,
+        QueryParameters $queryParametersFromRequestParameters
+    ): int {
+        $queryResources = $this->translateDbName($query);
+        $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
+            $this->sqlRequestTranslator->getSearchValues()
+        );
+        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
 
-            return $this->connection->fetchOne($queryResources, $queryParameters);
-        } catch (TransformerException|ConnectionException $exception) {
-            throw new RepositoryException(
-                message: "An error occurred while counting resources : {$exception->getMessage()}",
-                context: ['maxResults' => $maxResults],
-                previous: $exception
-            );
-        }
+        return $this->connection->fetchOne($queryResources, $queryParameters);
     }
 
     /**
      * @param string $query
-     * @param int $maxResults
+     * @param QueryParameters $queryParametersFromRequestParameters
      *
+     * @throws AssertionFailedException
+     * @throws CollectionException
+     * @throws ConnectionException
      * @throws RepositoryException
+     * @throws TransformerException
      * @return \Traversable<ResourceEntity>
      */
-    private function iterateResources(string $query, int $maxResults = 0): \Traversable
-    {
-        try {
-            $queryResources = $this->translateDbName($query);
-            $queryParameters = RequestParametersTransformer::reverseToQueryParameters(
-                $this->sqlRequestTranslator->getSearchValues()
-            );
-            foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resource) {
-                $this->resources = [DbResourceFactory::createFromRecord($resource, $this->resourceTypes)];
-                $iconIds = $this->getIconIdsFromResources();
-                $icons = $this->getIconsDataForResources($iconIds);
-                $this->completeResourcesWithIcons($icons);
+    private function iterate(
+        string $query,
+        QueryParameters $queryParametersFromRequestParameters
+    ): \Traversable {
+        $queryResources = $this->translateDbName($query);
+        $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
+            $this->sqlRequestTranslator->getSearchValues()
+        );
+        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
+        foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resource) {
+            $this->resources = [DbResourceFactory::createFromRecord($resource, $this->resourceTypes)];
+            $iconIds = $this->getIconIdsFromResources();
+            $icons = $this->getIconsDataForResources($iconIds);
+            $this->completeResourcesWithIcons($icons);
 
-                yield $this->resources[0];
-            }
-        } catch (AssertionFailedException|TransformerException|ConnectionException $exception) {
-            throw new RepositoryException(
-                message: "An error occurred while iterating resources : {$exception->getMessage()}",
-                context: ['maxResults' => $maxResults, 'resource' => $this->resources],
-                previous: $exception
-            );
+            yield $this->resources[0];
         }
     }
 
@@ -1080,11 +1043,16 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /**
      * @param ResourceFilter $filter
+     * @param QueryParameters $queryParametersFromRequestParameter
      *
+     * @throws ValueObjectException
+     * @throws CollectionException
      * @return string
      */
-    private function addSeveritySubRequest(ResourceFilter $filter): string
-    {
+    private function addSeveritySubRequest(
+        ResourceFilter $filter,
+        QueryParameters $queryParametersFromRequestParameter
+    ): string {
         $subRequest = '';
         $filteredNames = [];
         $filteredTypes = [];
@@ -1097,16 +1065,19 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         foreach ($names as $index => $name) {
             $key = ":severityName_{$index}";
             $filteredNames[] = $key;
+            $queryParametersFromRequestParameter->add($key, QueryParameter::string($key, $name));
         }
 
         foreach ($levels as $index => $level) {
             $key = ":severityLevel_{$index}";
             $filteredLevels[] = $key;
+            $queryParametersFromRequestParameter->add($key, QueryParameter::int($key, $level));
         }
 
         foreach ($types as $index => $type) {
             $key = ":severityType_{$index}";
             $filteredTypes[] = $key;
+            $queryParametersFromRequestParameter->add($key, QueryParameter::int($key, $type));
         }
 
         if (
@@ -1134,11 +1105,16 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /**
      * @param ResourceFilter $filter
+     * @param QueryParameters $queryParametersFromRequestParameter
      *
+     * @throws CollectionException
+     * @throws ValueObjectException
      * @return string
      */
-    private function addResourceParentIdSubRequest(ResourceFilter $filter): string
-    {
+    private function addResourceParentIdSubRequest(
+        ResourceFilter $filter,
+        QueryParameters $queryParametersFromRequestParameter
+    ): string {
         $subRequest = '';
         $filteredParentIds = [];
 
@@ -1149,6 +1125,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         foreach ($filter->getHostIds() as $index => $hostId) {
             $key = ":parentId_{$index}";
             $filteredParentIds[] = $key;
+            $queryParametersFromRequestParameter->add($key, QueryParameter::int($key, $hostId));
         }
 
         $subRequestFilterParentIds = implode(', ', $filteredParentIds);
@@ -1208,7 +1185,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $sqlState = [];
             $sqlStateCatalog = [
                 ResourceFilter::STATE_RESOURCES_PROBLEMS => '(resources.status != 0 AND resources.status != 4)',
-                ResourceFilter::STATE_UNHANDLED_PROBLEMS => <<<'SQL'
+                ResourceFilter::STATE_UNHANDLED_PROBLEMS => <<<SQL
 
                     (
                         resources.status != 0
@@ -1301,11 +1278,16 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * This adds the subrequest filter for Monitoring Server.
      *
      * @param ResourceFilter $filter
+     * @param QueryParameters $queryParametersFromRequestParameter
      *
+     * @throws CollectionException
+     * @throws ValueObjectException
      * @return string
      */
-    private function addMonitoringServerSubRequest(ResourceFilter $filter): string
-    {
+    private function addMonitoringServerSubRequest(
+        ResourceFilter $filter,
+        QueryParameters $queryParametersFromRequestParameter
+    ): string {
         $subRequest = '';
         if (! empty($filter->getMonitoringServerNames())) {
             $monitoringServerNames = [];
@@ -1314,6 +1296,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 $key = ":monitoringServerName_{$index}";
 
                 $monitoringServerNames[] = $key;
+                $queryParametersFromRequestParameter->add($key, QueryParameter::string($key, $monitoringServerName));
             }
 
             $subRequest .= ' AND instances.name IN (' . implode(', ', $monitoringServerNames) . ')';
@@ -1336,7 +1319,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $icons = [];
 
             if ($iconIds !== []) {
-
                 $iconIds = array_values($iconIds);
 
                 $queryParameters = new QueryParameters();

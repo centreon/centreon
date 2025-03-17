@@ -77,7 +77,7 @@ final readonly class ExportResources
 
         if ($request->contact->isAdmin()) {
             try {
-                $resources = $this->readResourceRepository->iterateResourcesByMaxResults(
+                $resources = $this->readResourceRepository->iterateResources(
                     filter: $request->resourceFilter,
                     maxResults: $request->allPages ? $request->maxResults : 0
                 );
@@ -119,7 +119,7 @@ final readonly class ExportResources
             }
 
             try {
-                $resources = $this->readResourceRepository->iterateResourcesByAccessGroupIdsAndMaxResults(
+                $resources = $this->readResourceRepository->iterateResourcesByAccessGroupIds(
                     filter: $request->resourceFilter,
                     accessGroupIds: $accessGroupIds,
                     maxResults: $request->allPages ? $request->maxResults : 0

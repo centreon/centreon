@@ -68,7 +68,7 @@ interface ReadResourceRepositoryInterface
      * @throws RepositoryException
      * @return \Traversable<ResourceEntity>
      */
-    public function iterateResourcesByMaxResults(ResourceFilter $filter, int $maxResults = 0): \Traversable;
+    public function iterateResources(ResourceFilter $filter, int $maxResults = 0): \Traversable;
 
     /**
      * @param ResourceFilter $filter
@@ -78,7 +78,7 @@ interface ReadResourceRepositoryInterface
      * @throws RepositoryException
      * @return \Traversable<ResourceEntity>
      */
-    public function iterateResourcesByAccessGroupIdsAndMaxResults(
+    public function iterateResourcesByAccessGroupIds(
         ResourceFilter $filter,
         array $accessGroupIds,
         int $maxResults = 0
@@ -86,24 +86,21 @@ interface ReadResourceRepositoryInterface
 
     /**
      * @param ResourceFilter $filter
-     * @param int $maxResults
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByMaxResults(ResourceFilter $filter, int $maxResults): int;
+    public function countResources(ResourceFilter $filter): int;
 
     /**
      * @param ResourceFilter $filter
      * @param array<int> $accessGroupIds
-     * @param int $maxResults
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByAccessGroupIdsAndByMaxResults(
+    public function countResourcesByAccessGroupIds(
         ResourceFilter $filter,
-        array $accessGroupIds,
-        int $maxResults
+        array $accessGroupIds
     ): int;
 }

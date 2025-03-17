@@ -89,7 +89,7 @@ it('export resources with an error from repository should throw an ErrorResponse
     $this->contact->shouldReceive('isAdmin')->twice()->andReturn(true);
     $this->contact->shouldReceive('getId')->once()->andReturn(1);
     $this->resourcesRepository
-        ->shouldReceive('iterateResourcesByMaxResults')
+        ->shouldReceive('iterateResources')
         ->andThrow(Mockery::mock(RepositoryException::class));
     $request = new ExportResourcesRequest(
         contact: $this->contact,
@@ -107,7 +107,7 @@ it('export resources with an error from repository should throw an ErrorResponse
 it('export resources with admin mode should throw a response with all resources', function () {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
     $this->resourcesRepository
-        ->shouldReceive('iterateResourcesByMaxResults')
+        ->shouldReceive('iterateResources')
         ->andReturn(new \ArrayObject([Mockery::mock(Resource::class)]));
     $request = new ExportResourcesRequest(
         contact: $this->contact,
@@ -128,7 +128,7 @@ it('export resources with acl should throw a response with allowed resources', f
         ->shouldReceive('findByContact')
         ->andReturn([]);
     $this->resourcesRepository
-        ->shouldReceive('iterateResourcesByAccessGroupIdsAndMaxResults')
+        ->shouldReceive('iterateResourcesByAccessGroupIds')
         ->andReturn(new \ArrayObject([Mockery::mock(Resource::class)]));
     $request = new ExportResourcesRequest(
         contact: $this->contact,
