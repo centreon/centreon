@@ -1,6 +1,6 @@
 import { Modal } from '@centreon/ui/components';
 import { equals } from 'ramda';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   labelAllColumns,
@@ -35,43 +35,54 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
     isAllPagesChecked
   });
 
-  const getSelectedColumnsData = (label: string) => {
+  const getSelectedColumnsData = useCallback((label: string) => {
     setIsAllColumnsChecked(equals(labelAllColumns, label));
-  };
+  }, []);
 
-  const getSelectedPagesData = (label: string) => {
+  const getSelectedPagesData = useCallback((label: string) => {
     setIsAllPagesChecked(equals(labelAllPages, label));
-  };
+  }, []);
+
+  const defaultAllColumnsLabel = useMemo(
+    () => ({ label: t(labelAllColumns), isChecked: true }),
+    []
+  );
+  const defaultVisibleColumnsLabel = useMemo(
+    () => ({
+      firstLabel: t(labelVisibleColumnsOnly),
+      secondLabel: t(labelAllColumns)
+    }),
+    []
+  );
+  const defaultAllPagesLabel = useMemo(
+    () => ({ label: t(labelAllPages), isChecked: true }),
+    []
+  );
+  const defaultVisiblePagesLabel = useMemo(
+    () => ({
+      firstLabel: t(labelCurrentPageOnly),
+      secondLabel: t(labelAllPages)
+    }),
+    []
+  );
 
   return (
     <Modal open={open} hasCloseButton={false} size="medium">
-      <Modal.Header>{labelExportToCSV}</Modal.Header>
+      <Modal.Header>{t(labelExportToCSV)}</Modal.Header>
       <Modal.Body>
         <div className={classes.container}>
           <div className={classes.subContainer}>
             <div className={classes.checkBoxContainer}>
               <CheckBoxScope
-                defaultCheckedLabel={{
-                  label: t(labelAllColumns),
-                  isChecked: true
-                }}
-                labels={{
-                  firstLabel: t(labelVisibleColumnsOnly),
-                  secondLabel: t(labelAllColumns)
-                }}
+                defaultCheckedLabel={defaultAllColumnsLabel}
+                labels={defaultVisibleColumnsLabel}
                 title={t(labelSelectColumns)}
                 getData={getSelectedColumnsData}
               />
               <div className={classes.spacing} />
               <CheckBoxScope
-                defaultCheckedLabel={{
-                  label: t(labelAllPages),
-                  isChecked: true
-                }}
-                labels={{
-                  firstLabel: t(labelCurrentPageOnly),
-                  secondLabel: t(labelAllPages)
-                }}
+                defaultCheckedLabel={defaultAllPagesLabel}
+                labels={defaultVisiblePagesLabel}
                 title={t(labelSelecetPages)}
                 getData={getSelectedPagesData}
               />
