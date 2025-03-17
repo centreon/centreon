@@ -21,7 +21,7 @@ Feature: Custom views
   @TEST_MON-162288
   Scenario: Remove an unlocked shared view
     Given a shared custom view with the non admin user
-    And the non admin user is using the shared view
+    And the non admin user is using the configured shared view
     When he removes the shared view
     Then the view is not visible anymore
     And the user can use the shared view again
@@ -29,17 +29,17 @@ Feature: Custom views
   @TEST_MON-162289
   Scenario: Modify an unlocked shared view and applies changes
     Given a shared custom view with the non admin user
-    And the non admin user is using the shared view
+    And the non admin user is using the configured shared view
     When the user modifies the custom view
     Then the changes are reflected on all users displaying the custom view
 
   @TEST_MON-162290
   Scenario: Deletion of an unlocked shared view
     Given a shared custom view with the non admin user
-    And the non admin user is using the shared view
+    And the non admin user is using the configured shared view
     When the owner removes the view
-    Then the view remains visible for all users displaying the custom view
-    And the view is removed for the owner
+    Then the view is removed for the owner
+    And the view remains visible for all users displaying the custom view
 
   @TEST_MON-162291
   Scenario: Modify a shared view with groups
@@ -49,23 +49,23 @@ Feature: Custom views
 
   @TEST_MON-162292
   Scenario: Remove an unlocked shared view with groups
-    Given a shared custom view with a group
-    And an user of this group is using the shared view
+    Given a configured shared custom view with a group
+    And an user of this group is using the configured shared view
     When he removes the shared view
     Then the view is not visible anymore
     And the user can use the shared view again
 
   @TEST_MON-162293
   Scenario: Modify an unlocked shared view with groups and applies changes
-    Given a shared custom view with a group
-    And an user of this group is using the shared view
+    Given a configured shared custom view with a group
+    And an user of this group is using the configured shared view
     When the user modifies the custom view
     Then the changes are reflected on all users displaying the custom view
 
   @TEST_MON-162294
   Scenario: Deletion of an unlocked shared view with groups
-    Given a shared custom view with a group
-    And an user of this group is using the shared view
+    Given a configured shared custom view with a group
+    And an user of this group is using the configured shared view
     When the owner removes the view
     Then the view remains visible for all users displaying the custom view
     And the view is removed for the owner
