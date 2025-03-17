@@ -156,8 +156,25 @@ $updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
     );
 };
 
-// -------------------------------------------- Resource Status -------------------------------------------- //
+// -------------------------------------------- Dashboard Panel -------------------------------------------- //
+/**
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ * @return void
+ */
+$updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update table dashboard_panel';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `dashboard_panel`
+            SET `layout_x` = `layout_x` * 2,
+                `layout_width` = `layout_width` * 2
+            SQL
+    );
+};
 
+// -------------------------------------------- Resource Status -------------------------------------------- //
 /**
  * @param CentreonDB $pearDBO
  *
@@ -183,6 +200,33 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
                 ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
             SQL
         );
+    }
+};
+
+$createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
+    if (! $realtimeDb->isIndexExists('resources', 'resources_poller_id_index')) {
+        $errorMessage = 'Unable to create index resources_poller_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_poller_id_index` ON resources (`poller_id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_id_index')) {
+        $errorMessage = 'Unable to create index resources_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_id_index` ON resources (`id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_parent_id_index')) {
+        $errorMessage = 'Unable to create index resources_parent_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_parent_id_index` ON resources (`parent_id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_enabled_type_index')) {
+        $errorMessage = 'Unable to create index resources_enabled_type_index';
+        $realtimeDb->exec('CREATE INDEX `resources_enabled_type_index` ON resources (`enabled`, `type`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('tags', 'tags_type_name_index')) {
+        $errorMessage = 'Unable to create index tags_type_name_index';
+        $realtimeDb->exec('CREATE INDEX `tags_type_name_index` ON tags (`type`, `name`(10))');
     }
 };
 
@@ -250,6 +294,7 @@ try {
     $createAgentInformationTable($pearDBO);
     $addColumnToResourcesTable($pearDBO);
     $createIndexForDowntimes($pearDBO);
+    $createIndexesForResourceStatus($pearDBO);
 
     // DDL statements for configuration database
     $addConnectorToTopology($pearDB);
@@ -267,15 +312,12 @@ try {
 
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (\Throwable $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
         customContext: [
-            'exception' => [
-                'error_message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString()
-            ]
+            'trace' => $e->getTraceAsString(),
         ],
         exception: $exception
     );
@@ -283,23 +325,12 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $ex) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            customContext: [
-                'error_to_rollback' => $errorMessage,
-                'exception' => [
-                    'error_message' => $rollbackException->getMessage(),
-                    'trace' => $rollbackException->getTraceAsString()
-                ]
-            ],
-            exception: $rollbackException
-        );
-        throw new \Exception(
-            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            (int) $rollbackException->getCode(),
-            $rollbackException
+            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+            customContext: ['error_message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+            exception: $ex
         );
     }
     throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
