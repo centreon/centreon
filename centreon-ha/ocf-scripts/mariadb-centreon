@@ -458,7 +458,8 @@ attempt_to_set_master() {
 
         local node_gtid=$(read_gtid $node)
         if [ -z "$node_gtid" ]; then
-            repli_log_warning "[attempt_to_set_master()]: no gtid found for node $node. Will try to find one on another node from the $OCF_RESKEY_node_list list"
+            repli_log_warning "[attempt_to_set_master()]: no gtid found for node $node. Will try to find one on another node from the '$OCF_RESKEY_node_list' list"
+            repli_log_explain 2 "You should make sure that you do not have both servers as a slave of each other with the 'SHOW SLAVE STATUS' query. For some reason the cluster doesn't know the gtid of one of the server. The cluster knows the gtid because it should have been set at one point with a command like '${HA_SBIN_DIR}/attrd_updater -p -n ${OCF_RESOURCE_INSTANCE}-gtid -U <the_gtid>'. For some reason it is not set." 
             continue
         fi
 
