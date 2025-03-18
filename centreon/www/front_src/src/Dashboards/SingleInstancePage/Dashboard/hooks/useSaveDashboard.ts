@@ -128,7 +128,8 @@ const useSaveDashboard = (): UseSaveDashboardState => {
 
     toBlob(node, {
       backgroundColor: theme.palette.background.default,
-      height: 360
+      height: 360,
+      skipFonts: true
     })
       .then((blob) => {
         formData.append('thumbnail_data', blob, `dashboard-${dashboardId}.png`);
