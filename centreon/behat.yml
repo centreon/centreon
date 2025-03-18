@@ -47,10 +47,6 @@ default:
       paths: [ "%paths.base%/features/CustomViews/Locked.feature" ]
       contexts: [ CustomViewsContext ]
 
-    custom_views_unlocked:
-      paths: [ "%paths.base%/features/CustomViews/Unlocked.feature" ]
-      contexts: [ CustomViewsContext ]
-
     host_template_configuration:
       paths: [ "%paths.base%/features/HostTemplateConfiguration.feature" ]
       contexts: [ HostTemplateConfigurationContext ]
