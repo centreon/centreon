@@ -27,10 +27,6 @@ default:
       paths: [ "%paths.base%/features/DowntimeService.feature" ]
       contexts: [ DowntimeServiceContext ]
 
-    limit_metric_in_chart:
-      paths: [ "%paths.base%/features/LimitMetricInChart.feature" ]
-      contexts: [ LimitMetricInChartContext ]
-
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
       contexts: [ DowntimeStartAndStopContext ]
@@ -53,10 +49,6 @@ default:
 
     custom_views_unlocked:
       paths: [ "%paths.base%/features/CustomViews/Unlocked.feature" ]
-      contexts: [ CustomViewsContext ]
-
-    custom_views_public:
-      paths: [ "%paths.base%/features/CustomViews/Public.feature" ]
       contexts: [ CustomViewsContext ]
 
     host_template_configuration:
