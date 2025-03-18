@@ -340,7 +340,7 @@ mysql_common_stop()
 # $1: the message that'il be logged
 repli_log_ok()
 {
-    if [ ${OCF_RESKEY_enable_repli_eplanation} >= "1" ];then
+    if [ ${OCF_RESKEY_repli_log_level} >= "1" ];then
         message="$1"
 
         echo -ne "[$(date)][\e[32mOK\e[0m]: ${message}\n" >> ${OCF_RESKEY_repli_log_file}
@@ -381,7 +381,7 @@ repli_log_error()
 # $2: the explanation message
 repli_log_explain()
 {
-    if [ ${OCF_RESKEY_enable_repli_explanation} == "true" ];then
+    if [ ${OCF_RESKEY_enable_repli_explanation} = "true" ];then
         log_level=$1
 
         if [ ${log_level} -le ${OCF_RESKEY_repli_log_level} ];then
