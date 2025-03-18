@@ -11,6 +11,7 @@ import {
 } from 'ramda';
 
 import { centreonBaseURL } from '@centreon/ui';
+import { Resource } from '../../../../../widgets/src/models';
 
 import { getIsMetaServiceSelected } from './AddEditWidget/WidgetProperties/Inputs/utils';
 import { WidgetResourceType } from './AddEditWidget/models';
@@ -75,8 +76,12 @@ export const getResourcesUrlForMetricsWidgets = ({
       };
     }
 
+    const field = equals(resourceType, 'hostgroup')
+    ? resourcesCriteriasMapping[WidgetResourceType.hostGroup]
+    : resourcesCriteriasMapping[resourceType];
+
     return {
-      name: resourcesCriteriasMapping[resourceType],
+      name: field,
       value: uniq(
         resources.map(({ name, id }) => ({
           id,
@@ -208,4 +213,23 @@ export const getUrlForResourcesOnlyWidgets = ({
   return `/monitoring/resources?filter=${encodeURIComponent(
     JSON.stringify(filterQueryParameter)
   )}&fromTopCounter=true`;
+};
+
+interface GetFormattedResources {
+  array: Array<Resource>;
+  filterName?: string;
+  resourceType?: string;
+}
+
+export const getFormattedResources = ({
+  array,
+  filterName = 'hostgroup',
+  resourceType = WidgetResourceType.hostGroup
+}: GetFormattedResources): Array<Resource> => {
+  return array?.map((item) => {
+    if (equals(item.resourceType, filterName)) {
+      return { ...item, resourceType };
+    }
+    return item;
+  });
 };
