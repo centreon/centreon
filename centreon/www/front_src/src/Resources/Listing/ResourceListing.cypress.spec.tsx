@@ -633,7 +633,7 @@ describe('Listing request', () => {
     cy.waitForRequest('@dataToListingTable');
 
     cy.getRequestCalls('@dataToListingTable').then((calls) => {
-      expect(calls).to.have.length(6);
+      expect(calls).to.have.length(7);
       pageNavigationCalls.forEach(({ param, expectedCall }) => {
         expect(
           filter((call) => includes(param, call.request.url.search), calls)
