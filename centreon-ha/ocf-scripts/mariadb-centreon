@@ -337,7 +337,7 @@ set_gtid() {
     fi
 
     repli_log_ok "[set_gtid()]: setting gtid attribute in the cluster config using command: ${HA_SBIN_DIR}/attrd_updater -p -n ${OCF_RESOURCE_INSTANCE}-gtid -U $gtid"
-    repli_log_explain 1 "Adding the getid as an attribute of the cluster (${OCF_RESOURCE_INSTANCE}-gtid) will allow pacemaker to have access to this information from every node of the cluster"
+    repli_log_explain 1 "Adding the gtid as an attribute of the cluster (${OCF_RESOURCE_INSTANCE}-gtid) will allow pacemaker to have access to this information from every node of the cluster"
     ${HA_SBIN_DIR}/attrd_updater -p -n ${OCF_RESOURCE_INSTANCE}-gtid -U $gtid
 }
 
