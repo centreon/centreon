@@ -17572,3 +17572,15 @@ msgstr "Erweiterter Modus"
 
 # msgid "Invalid extension"
 # msgstr ""
+
+# msgid "Workhours"
+# msgstr ""
+
+# msgid "Non-workhours"
+# msgstr ""
+
+# msgid "Forecast based on past X days"
+# msgstr ""
+
+# msgid "Display average as"
+# msgstr ""

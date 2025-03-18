@@ -19683,6 +19683,15 @@ msgstr "Configuration d'agent"
 msgid "The minimum allowed value is 10"
 msgstr "La valeur minimale autorisée est 10"
 
+msgid "Workhours"
+msgstr "Heures de travail"
+
+msgid "Non-workhours"
+msgstr "Hors heures de travail"
+
+msgid "Forecast based on past X days"
+msgstr "Prévision basée sur les X derniers jours"
+
 msgid "Error while enabling/disabling host groups"
 msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
 
@@ -19694,3 +19703,6 @@ msgstr "Chemin invalide"
 
 msgid "Invalid extension"  
 msgstr "Extension invalide"  
+
+msgid "Display average as"
+msgstr "Afficher la moyenne sous forme de"
