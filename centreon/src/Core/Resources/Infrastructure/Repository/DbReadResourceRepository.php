@@ -419,7 +419,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 onlyCount: true
             );
 
-            return $this->count($query, $queryParametersFromRequestParameter, !is_null($filter));
+            return $this->count($query, $queryParametersFromRequestParameter, ! is_null($filter));
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by max results',
@@ -462,7 +462,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 onlyCount: true
             );
 
-            return $this->count($query, $queryParametersFromRequestParameter, !is_null($filter));
+            return $this->count($query, $queryParametersFromRequestParameter, ! is_null($filter));
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by access group ids and max results',

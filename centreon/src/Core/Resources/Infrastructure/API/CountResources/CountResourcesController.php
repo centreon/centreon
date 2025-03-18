@@ -40,7 +40,8 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 /**
  * @phpstan-import-type _RequestParameters from RequestValidator
  */
-class CountResourcesController extends AbstractController {
+class CountResourcesController extends AbstractController
+{
     /**
      * CountResourcesController constructor
      *
@@ -86,6 +87,7 @@ class CountResourcesController extends AbstractController {
         } catch (InternalErrorException $exception) {
             $this->exceptionHandler->log($exception, ['request' => $request->query->all()]);
             $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
+
             return $presenter->show();
         }
     }
@@ -141,10 +143,12 @@ class CountResourcesController extends AbstractController {
      * @throws InternalErrorException
      * @return array<string,mixed>
      */
-    private function formatSearchParameter(string $search): array {
+    private function formatSearchParameter(string $search): array
+    {
         try {
             $requestParameters = new RequestParameters();
             $requestParameters->setSearch($search);
+
             return (array) $requestParameters->toArray()['search'];
         } catch (\Throwable $exception) {
             throw new InternalErrorException(

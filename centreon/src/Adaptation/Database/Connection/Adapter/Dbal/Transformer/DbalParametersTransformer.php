@@ -52,7 +52,7 @@ abstract readonly class DbalParametersTransformer
             // remove : from the key to avoid issues with named parameters, dbal doesn't accept : in the key
             $name = $queryParameter->getName();
             if (str_starts_with($queryParameter->getName(), ':')) {
-                $name = substr($queryParameter->getName(), 1);
+                $name = mb_substr($queryParameter->getName(), 1);
             }
             $params[$name] = $queryParameter->getValue();
             if (! is_null($queryParameter->getType())) {
@@ -77,7 +77,9 @@ abstract readonly class DbalParametersTransformer
         try {
             $queryParameters = new QueryParameters();
             foreach ($params as $name => $value) {
-                $type = DbalParameterTypeTransformer::reverseToQueryParameterType($types[$name] ?? DbalParameterType::STRING);
+                $type = DbalParameterTypeTransformer::reverseToQueryParameterType(
+                    $types[$name] ?? DbalParameterType::STRING
+                );
                 $queryParameter = QueryParameter::create($name, $value, $type);
                 $queryParameters->add($queryParameter->getName(), $queryParameter);
             }
