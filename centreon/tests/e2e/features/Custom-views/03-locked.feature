@@ -50,7 +50,7 @@ Feature: Custom views
 
   @TEST_MON-162799
   Scenario: Remove read-only custom view shared with groups
-    Given a custom view shared in read only with a group
+    Given a configured custom view shared in read only with a group
     And an user of this group is using the configured shared view
     When he removes the shared view
     Then the view is not visible anymore
@@ -58,14 +58,14 @@ Feature: Custom views
 
   @TEST_MON-162800
   Scenario: Update a read only custom view shared with groups
-    Given a custom view shared in read only with a group
+    Given a configured custom view shared in read only with a group
     And an user of this group is using the configured shared view
     When the owner modifies the custom view
     Then the changes are reflected on all users displaying the custom view
 
   @TEST_MON-162801
   Scenario: Delete a shared custom view with groups
-    Given a custom view shared in read only with a group
+    Given a configured custom view shared in read only with a group
     And an user of this group is using the configured shared view
     When the owner removes the view
     Then the view is removed for all users displaying the custom view
