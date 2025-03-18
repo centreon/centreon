@@ -27,7 +27,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Exception\ResourceException;

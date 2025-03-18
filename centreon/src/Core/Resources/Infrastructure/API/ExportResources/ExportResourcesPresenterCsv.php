@@ -52,6 +52,8 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      * ExportResourcesPresenterCsv constructor
      *
      * @param CsvFormatter $presenterFormatter
+     * @param ContactInterface $contact
+     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
@@ -175,7 +177,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                 }
             }
 
-            return in_array($key, $filteredColumns);
+            return in_array($key, $filteredColumns, true);
         }, ARRAY_FILTER_USE_KEY);
     }
 
@@ -188,9 +190,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
     private function filterColumns(\Traversable $csvResources, array $columns): \Traversable
     {
         foreach ($csvResources as $resource) {
-            yield array_filter($resource, function ($key) use ($columns) {
-                return in_array($key, $columns);
-            }, ARRAY_FILTER_USE_KEY);
+            yield array_filter($resource, fn ($key) => in_array($key, $columns, true), ARRAY_FILTER_USE_KEY);
         }
     }
 
@@ -201,7 +201,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      */
     private function formatLabel(string $label): string
     {
-        return ucfirst(strtolower($label));
+        return ucfirst(mb_strtolower($label));
     }
 
     /**
@@ -333,5 +333,4 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
 
         return str_replace(array_keys($macrosConcordanceArray), array_values($macrosConcordanceArray), $url);
     }
-
 }

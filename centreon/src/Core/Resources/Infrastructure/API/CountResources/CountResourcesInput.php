@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Resources\Infrastructure\API\CountResources;
 
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 final readonly class CountResourcesInput
 {

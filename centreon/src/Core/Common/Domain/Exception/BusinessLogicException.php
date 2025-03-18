@@ -150,5 +150,4 @@ abstract class BusinessLogicException extends \Exception
     private function setExceptionContext(): void {
         $this->exceptionContext = ExceptionFormatter::format($this);
     }
-
 }

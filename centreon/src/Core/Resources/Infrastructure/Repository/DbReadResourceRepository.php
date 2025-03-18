@@ -51,7 +51,6 @@ use Core\Severity\RealTime\Domain\Model\Severity;
 class DbReadResourceRepository extends DatabaseRepository implements ReadResourceRepositoryInterface
 {
     use LoggerTrait;
-
     private const RESOURCE_TYPE_HOST = 1;
 
     /** @var ResourceEntity[] */
@@ -203,7 +202,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $query .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameters);
         } catch (ValueObjectException|CollectionException $exception) {
             throw new RepositoryException(
-                message: "An error occurred while adding the parent id subrequest",
+                message: 'An error occurred while adding the parent id subrequest',
                 previous: $exception
             );
         }
@@ -249,7 +248,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             }
         } catch (AssertionFailedException|TransformerException|CollectionException|ConnectionException $exception) {
             throw new RepositoryException(
-                message: "An error occurred while finding parent resources by id",
+                message: 'An error occurred while finding parent resources by id',
                 context: ['filter' => $filter],
                 previous: $exception
             );
@@ -279,7 +278,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             return $this->resources;
         } catch (\Throwable $exception) {
             throw new RepositoryException(
-                message: "An error occurred while finding resources",
+                message: 'An error occurred while finding resources',
                 context: ['filter' => $filter],
                 previous: $exception
             );
@@ -309,7 +308,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             return $this->resources;
         } catch (\Throwable $exception) {
             throw new RepositoryException(
-                message: "An error occurred while finding resources by access group ids",
+                message: 'An error occurred while finding resources by access group ids',
                 context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds],
                 previous: $exception
             );
@@ -342,7 +341,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             return $this->iterate($query, $queryParametersFromRequestParameter);
         } catch (\Throwable $exception) {
             throw new RepositoryException(
-                message: "An error occurred while iterating resources by max results",
+                message: 'An error occurred while iterating resources by max results',
                 context: ['filter' => $filter, 'maxResults' => $maxResults],
                 previous: $exception
             );
@@ -385,7 +384,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             return $this->iterate($query, $queryParametersFromRequestParameter);
         } catch (\Throwable $exception) {
             throw new RepositoryException(
-                message: "An error occurred while iterating resources by access group ids and max results",
+                message: 'An error occurred while iterating resources by access group ids and max results',
                 context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds, 'maxResults' => $maxResults],
                 previous: $exception
             );
@@ -416,7 +415,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             return $this->count($query, $queryParametersFromRequestParameter);
         } catch (\Throwable $exception) {
             throw new RepositoryException(
-                message: "An error occurred while counting resources by max results",
+                message: 'An error occurred while counting resources by max results',
                 context: ['filter' => $filter],
                 previous: $exception
             );
@@ -451,7 +450,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             return $this->count($query, $queryParametersFromRequestParameter);
         } catch (\Throwable $exception) {
             throw new RepositoryException(
-                message: "An error occurred while counting resources by access group ids and max results",
+                message: 'An error occurred while counting resources by access group ids and max results',
                 context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds],
                 previous: $exception
             );
@@ -488,11 +487,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
         if ($onlyCount) {
-            $query = <<<SQL
+            $query = <<<'SQL'
                 SELECT COUNT(DISTINCT resources.resource_id), 1 AS REALTIME
                 SQL;
         } else {
-            $query .= <<<SQL
+            $query .= <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
                     1 AS REALTIME,
                     resources.resource_id,
@@ -565,7 +564,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
         } catch (RequestParametersTranslatorException $exception) {
             throw new RepositoryException(
-                message: "An error occurred while generating the request",
+                message: 'An error occurred while generating the request',
                 previous: $exception
             );
         }
@@ -1186,7 +1185,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $sqlState = [];
             $sqlStateCatalog = [
                 ResourceFilter::STATE_RESOURCES_PROBLEMS => '(resources.status != 0 AND resources.status != 4)',
-                ResourceFilter::STATE_UNHANDLED_PROBLEMS => <<<SQL
+                ResourceFilter::STATE_UNHANDLED_PROBLEMS => <<<'SQL'
 
                     (
                         resources.status != 0
@@ -1371,7 +1370,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             return $icons;
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             throw new RepositoryException(
-                message: "An error occurred while fetching icons data for resources",
+                message: 'An error occurred while fetching icons data for resources',
                 context: ['iconIds' => $iconIds],
                 previous: $exception
             );

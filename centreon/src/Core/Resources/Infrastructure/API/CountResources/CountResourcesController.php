@@ -26,14 +26,12 @@ namespace Core\Resources\Infrastructure\API\CountResources;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Resources\Application\UseCase\CountResources\CountResources;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @phpstan-import-type _RequestParameters from RequestValidator
@@ -62,6 +60,7 @@ class CountResourcesController extends AbstractController {
         $useCase($useCaseRequest, $presenter);
 
         $presenter->present($presenter->getViewModel()->getTotalResources());
+
         return $presenter->show();
     }
 

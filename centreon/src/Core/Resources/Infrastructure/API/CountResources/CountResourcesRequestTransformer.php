@@ -26,8 +26,6 @@ namespace Core\Resources\Infrastructure\API\CountResources;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
-use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
-use Core\Resources\Infrastructure\API\ExportResources\ExportResourcesInput;
 
 /**
  * Class
@@ -36,7 +34,6 @@ use Core\Resources\Infrastructure\API\ExportResources\ExportResourcesInput;
  * @package Core\Resources\Infrastructure\API\CountResources
  */
 final readonly class CountResourcesRequestTransformer {
-
     /**
      * @param ResourceFilter $resourceFilter
      * @param ContactInterface $contact

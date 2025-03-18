@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Resources\Application\UseCase\CountResources;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
@@ -63,7 +62,7 @@ final readonly class CountResources
 
         if ($request->contact->isAdmin()) {
             try {
-                $countResources = $this->readResourceRepository->countResources($request->resourceFilter,);
+                $countResources = $this->readResourceRepository->countResources($request->resourceFilter);
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
                     new ErrorResponse(
@@ -92,7 +91,7 @@ final readonly class CountResources
                         message: 'An error occurred while finding access groups for the contact',
                         context: [
                             'use_case' => 'CountResources',
-                            'contact_id' => $request->contact->getId()
+                            'contact_id' => $request->contact->getId(),
                         ],
                         exception: $exception
                     )

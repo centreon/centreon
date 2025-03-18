@@ -34,7 +34,6 @@ use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
  * @package Core\Resources\Infrastructure\API\ExportResources
  */
 final readonly class ExportResourcesRequestTransformer {
-
     /**
      * @param ExportResourcesInput $input
      * @param ResourceFilter $resourceFilter

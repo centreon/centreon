@@ -31,6 +31,7 @@ namespace Core\Resources\Infrastructure\API\ExportResources;
 final class ExportResourcesViewModel {
     /** @var \Traversable */
     private \Traversable $resources;
+
     /** @var string */
     private string $exportedFormat;
 

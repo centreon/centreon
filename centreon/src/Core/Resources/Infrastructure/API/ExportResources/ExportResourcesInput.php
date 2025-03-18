@@ -47,7 +47,7 @@ final readonly class ExportResourcesInput
         'fqdn',
         'monitoring_server_name',
         'notification',
-        'checks'
+        'checks',
     ];
 
     /**
@@ -89,7 +89,7 @@ final readonly class ExportResourcesInput
             new Assert\Choice(
                 choices: self::EXPORT_ALLOWED_COLUMNS,
                 message: 'columns must be one of the following: {{ choices }}'
-            )
+            ),
         ])]
         public mixed $columns,
         public mixed $maxLines,
@@ -123,8 +123,7 @@ final readonly class ExportResourcesInput
     {
         if (
             ! is_null($this->allPages)
-            &&
-            (
+            && (
                 in_array($this->allPages, ['1', '0', 'true', 'false'], true) === false
             )
         ) {

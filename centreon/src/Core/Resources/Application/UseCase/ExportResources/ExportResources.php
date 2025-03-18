@@ -109,7 +109,7 @@ final readonly class ExportResources
                         message: 'An error occurred while finding access groups for the contact',
                         context: [
                             'use_case' => 'ExportResources',
-                            'contact_id' => $request->contact->getId()
+                            'contact_id' => $request->contact->getId(),
                         ],
                         exception: $exception
                     )
@@ -156,7 +156,7 @@ final readonly class ExportResources
      */
     private function validateRequest(ExportResourcesRequest $request): ResponseStatusInterface|true
     {
-        if (! in_array($request->exportedFormat, self::EXPORT_ALLOWED_FORMAT)) {
+        if (! in_array($request->exportedFormat, self::EXPORT_ALLOWED_FORMAT, true)) {
             return new InvalidArgumentResponse(
                 'Invalid request, format must be one of the following: ' . implode(', ', self::EXPORT_ALLOWED_FORMAT)
             );

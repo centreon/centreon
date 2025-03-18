@@ -68,7 +68,6 @@ final class ExportResourcesController extends AbstractController
         ExportResourcesPresenterCsv $presenter,
         Request $request,
         #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] ExportResourcesInput $input
-
     ): Response {
         $useCaseRequest = $this->createExportRequest($request, $input);
         $useCase($useCaseRequest, $presenter);
@@ -183,5 +182,4 @@ final class ExportResourcesController extends AbstractController
     {
         return (new \DateTime('now'))->format($this->contact->getFormatDate());
     }
-
 }

@@ -34,8 +34,10 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 final class ExportResourcesResponse {
     /** @var \Traversable<ResourceEntity> */
     private \Traversable $resources;
+
     /** @var array<string> */
     private array $filteredColumns = [];
+
     /** @var string */
     private string $exportedFormat;
 
@@ -75,6 +77,7 @@ final class ExportResourcesResponse {
     public function setFilteredColumns(array $filteredColumns): self
     {
         $this->filteredColumns = $filteredColumns;
+
         return $this;
     }
 
@@ -94,6 +97,7 @@ final class ExportResourcesResponse {
     public function setExportedFormat(string $exportedFormat): self
     {
         $this->exportedFormat = $exportedFormat;
+
         return $this;
     }
 }
