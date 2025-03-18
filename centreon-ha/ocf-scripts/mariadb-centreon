@@ -854,9 +854,9 @@ mysql_monitor() {
             repli_log_error "[mysql_monitor()]: $(hostname) is considered as a slave but the SQL slave thread is not working"
             return $OCF_ERR_GENERIC
         fi
+        repli_log_ok "[mysql_monitor()]: $(hostname) is a slave"
     fi
 
-    repli_log_ok "[mysql_monitor()]: $(hostname) is a slave"
     
     repli_log_step 3 4 "CHECK TEST TABLE STATUS"
 
