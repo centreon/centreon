@@ -37,7 +37,7 @@ class TokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInt
      * @param AddTokenResponse $object
      * @param string|null $format
      * @param array<string, mixed> $context
-
+     *
      * @throws \Throwable
      *
      * @return array<string, mixed>
