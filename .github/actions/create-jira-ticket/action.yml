@@ -93,14 +93,14 @@ runs:
         echo "Ticket will be assigned to the ${{ inputs.ticket_squad }} team."
 
         if [[ $assign_to_current_sprint == true ]]; then
-          response=$(curl --request GET \
+          current_sprint=$(curl --request GET \
             --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
-            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}")
-          current_sprint=$(echo "$response" | head -c -4 | jq .values[0].name)
-          echo "[DEBUG] current_sprint: $current_sprint"
+            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+            --header "Accept: application/json" | jq .values[0].id)
         else
           current_sprint="null"
         fi
+        echo "[DEBUG] current_sprint: $current_sprint"
 
         # General updates on all template files
         sed -i \
@@ -273,9 +273,9 @@ runs:
         )
 
         if [[ ${{ steps.get_context.outputs.current_sprint }} != "null" ]]; then
-          DATA=$(echo "$DATA" | jq '.fields.sprint = "${{ steps.get_context.outputs.current_sprint }}"')
+          DATA=$(echo "$DATA" | jq '.fields.customfield_10007 = ${{ steps.get_context.outputs.current_sprint }}')
         fi
-        echo "[DEBUG] $DATA"
+        echo "[DEBUG] - DATA: $DATA"
 
         response=$(curl \
           --request POST \
