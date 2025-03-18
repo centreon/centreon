@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace EventSubscriber;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use \Symfony\Bundle\SecurityBundle\Security;
 use Centreon\Application\ApiPlatform;
 use Centreon\Domain\Contact\Contact;
@@ -87,8 +88,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         readonly private string $apiVersionLatest,
         readonly private string $apiHeaderName,
         readonly private string $translationPath,
-    ) {
-    }
+    ) {}
 
     /**
      * Returns an array of event names this subscriber wants to listen to.
@@ -314,7 +314,6 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                 $errorCode = Response::HTTP_NOT_FOUND;
                 $statusCode = Response::HTTP_NOT_FOUND;
             } elseif ($event->getThrowable()->getPrevious() instanceof ValidationFailedException) {
-
                 $message = '';
                 foreach ($event->getThrowable()->getPrevious()->getViolations() as $violation) {
                     $message .= $violation->getPropertyPath() . ': ' . $violation->getMessage() . "\n";
@@ -326,14 +325,21 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
                     $errorCode = $statusCode;
                 }
-            } else if ($event->getThrowable() instanceof HttpException) {
+            } else {
+                if ($event->getThrowable() instanceof HttpException) {
                     $errorCode = $event->getThrowable()->getStatusCode();
                     $statusCode = $event->getThrowable()->getStatusCode();
-
-            } else {
-                $errorCode = $event->getThrowable()->getCode();
-                $statusCode = $event->getThrowable()->getCode()
-                    ?: Response::HTTP_INTERNAL_SERVER_ERROR;
+                    if (
+                        $statusCode === Response::HTTP_UNPROCESSABLE_ENTITY
+                        && empty($event->getThrowable()->getMessage())
+                    ) {
+                        $message = 'The data sent does not comply with the defined validation constraints';
+                    }
+                } else {
+                    $errorCode = $event->getThrowable()->getCode();
+                    $statusCode = $event->getThrowable()->getCode()
+                        ?: Response::HTTP_INTERNAL_SERVER_ERROR;
+                }
             }
             // Manage exception outside controllers
             $event->setResponse(
@@ -367,7 +373,8 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                         true
                     ),
                 ]);
-            } elseif ($event->getThrowable() instanceof \PDOException) {
+            } elseif ($event->getThrowable() instanceof \PDOException || $event->getThrowable(
+                ) instanceof RepositoryException) {
                 $errorMessage = json_encode([
                     'code' => $errorCode,
                     'message' => 'An error has occurred in a repository',
