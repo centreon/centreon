@@ -17564,6 +17564,18 @@ msgstr "Erweiterter Modus"
 # msgid "The minimum allowed value is 10"
 # msgstr ""
 
+# msgid "Workhours"
+# msgstr ""
+
+# msgid "Non-workhours"
+# msgstr ""
+
+# msgid "Forecast based on past X days"
+# msgstr ""
+
+# msgid "Display average as"
+# msgstr ""
+
 # msgid "Enable/Disable"
 # msgstr ""
 
