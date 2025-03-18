@@ -21,23 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Token\Application\UseCase\AddToken;
+namespace Core\Security\Token\Application\UseCase\GetToken;
 
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
+use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\Security\Token\Domain\Model\Token;
 
-final class AddTokenRequest
+final class GetTokenResponse implements StandardResponseInterface
 {
-    /**
-     * @param string $name
-     * @param TokenTypeEnum $type
-     * @param int $userId
-     * @param \DateTimeInterface|null $expirationDate
-     */
     public function __construct(
-        public string $name = '',
-        public TokenTypeEnum $type = TokenTypeEnum::API,
-        public int $userId = 0,
-        public ?\DateTimeInterface $expirationDate = null,
-    ) {
+        public Token $apiToken,
+        public string $token,
+    )
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getData(): mixed
+    {
+        return $this;
     }
 }

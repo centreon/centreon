@@ -20,6 +20,7 @@ info:
     + Added new endpoint to bulk delete services
     + Added new endpoint to bulk delete hostgroups
     + Added new endpoint to bulk enable/disable hostgroups
+    + Added new endpoint to create API tokens
     +
     # Information
     All dates are in **ISO 8601** format
@@ -4553,9 +4554,9 @@ paths:
   /administration/tokens:
     $ref: "./latest/onPremise/Administration/Token/AddTokenAndFindTokens.yaml"
   /administration/tokens/{token_name}:
-    $ref: "./latest/onPremise/Administration/Token/DeleteToken.yaml"
+    $ref: "./latest/onPremise/Administration/Token/GetAndDeleteToken.yaml"
   /administration/tokens/{token_name}/users/{user_id}:
-    $ref: "./latest/onPremise/Administration/Token/PartialUpdateAndDeleteTokenByUser.yaml"
+    $ref: "./latest/onPremise/Administration/Token/GetAndPartialUpdateAndDeleteTokenByUser.yaml"
   /administration/parameters:
     post:
       tags:
