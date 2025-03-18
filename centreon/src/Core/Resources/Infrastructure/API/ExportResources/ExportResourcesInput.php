@@ -133,7 +133,10 @@ final readonly class ExportResourcesInput
                 ->addViolation();
         } else {
             $allPages = (bool) $this->allPages;
-            (!$allPages) ? $this->validatePagination($context) : $this->validateMaxLines($context);
+            $this->validatePaginationByAllPages($context, $allPages);
+            if ($allPages) {
+                $this->validateMaxLines($context);
+            }
         }
     }
 
@@ -156,23 +159,12 @@ final readonly class ExportResourcesInput
 
     /**
      * @param ExecutionContextInterface $context
+     * @param bool $allPages
      *
      * @return void
      */
-    private function validatePagination(ExecutionContextInterface $context): void
+    private function validatePaginationByAllPages(ExecutionContextInterface $context, bool $allPages): void
     {
-        if (is_null($this->page)) {
-            $context->buildViolation('page is required when all_pages is false')
-                ->atPath('page')
-                ->addViolation();
-        }
-
-        if (is_null($this->limit)) {
-            $context->buildViolation('limit is required when all_pages is false')
-                ->atPath('limit')
-                ->addViolation();
-        }
-
         if (! is_null($this->page) && filter_var($this->page, FILTER_VALIDATE_INT) === false) {
             $context->buildViolation('page must be an integer')
                 ->atPath('page')
@@ -183,6 +175,32 @@ final readonly class ExportResourcesInput
             $context->buildViolation('limit must be an integer')
                 ->atPath('limit')
                 ->addViolation();
+        }
+
+        if ($allPages) {
+            if (! is_null($this->page)) {
+                $context->buildViolation('page is not allowed when all_pages is true')
+                    ->atPath('page')
+                    ->addViolation();
+            }
+
+            if (! is_null($this->limit)) {
+                $context->buildViolation('limit is not allowed when all_pages is true')
+                    ->atPath('limit')
+                    ->addViolation();
+            }
+        } else {
+            if (is_null($this->page)) {
+                $context->buildViolation('page is required when all_pages is false')
+                    ->atPath('page')
+                    ->addViolation();
+            }
+
+            if (is_null($this->limit)) {
+                $context->buildViolation('limit is required when all_pages is false')
+                    ->atPath('limit')
+                    ->addViolation();
+            }
         }
     }
 
