@@ -58,7 +58,17 @@ const useLoadData = (): LoadDataState => {
           {
             field: 'expiration_date',
             values: {
-              $eq: filters.expirationDate
+              $le: filters.expirationDate
+            }
+          }
+        ]
+      : []),
+    ...(filters.creationDate
+      ? [
+          {
+            field: 'creation_date',
+            values: {
+              $ge: filters.creationDate
             }
           }
         ]

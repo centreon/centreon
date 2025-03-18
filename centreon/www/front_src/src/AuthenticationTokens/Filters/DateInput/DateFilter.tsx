@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
-import { equals } from 'ramda';
+import { equals, map, pipe, propEq, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -9,9 +9,8 @@ import {
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 
-import { Property } from '../models';
-
 import { dataDuration } from '../../Modal/utils';
+import { Property } from '../models';
 import DateInput from './DateInput';
 
 interface Props {
@@ -58,15 +57,15 @@ const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
     handleCustomizeCase();
   };
 
-  const data = useMemo(() => {
-    return dataDuration.map((item) => ({
+  const data = pipe(
+    reject(propEq('neverExpire', 'id')),
+    map((item) => ({
       ...item,
-      name:
-        equals(item.id, 'customize') || equals(item.id, 'neverExpire')
-          ? item.name
-          : `${property} ${item.name}`
-    }));
-  }, [property]);
+      name: equals(item.id, 'customize')
+        ? t(item.name)
+        : t(`${property} ${item.name}`)
+    }))
+  )(dataDuration);
 
   const currentValue = useMemo(() => {
     return date ? { id: 0, name: format({ date, formatString: 'LLL' }) } : null;

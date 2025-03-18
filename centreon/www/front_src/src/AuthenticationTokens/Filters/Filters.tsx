@@ -5,19 +5,22 @@ import {
   MultiConnectedAutocompleteField,
   TextField
 } from '@centreon/ui';
-
 import { Button } from '@centreon/ui/components';
+
+import Status from './Status';
+
+import { CreationDate, ExpirationDate } from './DateInput';
+
+import useLoadData from '../Listing/useLoadData';
+import { tokenTypes } from '../Modal/utils';
 
 import {
   getEndpointConfiguredUser,
   getEndpointCreatorsToken
 } from '../api/endpoints';
-import DateInputWrapper from './DateInput';
 import { useStyles } from './Filters.styles';
-import Status from './Status';
+import useFilters from './useFilters';
 
-import useLoadData from '../Listing/useLoadData';
-import { tokenTypes } from '../Modal/utils';
 import {
   labelClear,
   labelCreators,
@@ -26,7 +29,6 @@ import {
   labelTypes,
   labelUsers
 } from '../translatedLabels';
-import useFilters from './useFilters';
 
 const Filters = (): JSX.Element => {
   const { classes } = useStyles();
@@ -72,7 +74,8 @@ const Filters = (): JSX.Element => {
         onChange={changeTypes}
       />
 
-      <DateInputWrapper />
+      <CreationDate />
+      <ExpirationDate />
 
       <MultiConnectedAutocompleteField
         disableClearable={false}

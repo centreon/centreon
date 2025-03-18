@@ -9,6 +9,7 @@ import { DateTimePickerInput } from '@centreon/ui';
 import { labelUntil } from '../../translatedLabels';
 import { useStyles } from './DateInput.styles';
 
+import { useTranslation } from 'react-i18next';
 import HelperText from './HelperText';
 
 type SetAtom<Args extends Array<unknown>, Result> = (...args: Args) => Result;
@@ -28,6 +29,8 @@ const DateInput = ({
   label
 }: Props): JSX.Element => {
   const { classes } = useStyles({});
+  const { t } = useTranslation();
+
   const { date, setDate } = dataDate;
   const defaultDate = dayjs().toDate();
 
@@ -85,7 +88,7 @@ const DateInput = ({
     <div data-testid={`${label}-calendarContainer`}>
       <div className={classes.containerDatePicker}>
         <div className={classes.secondaryContainer}>
-          <Typography variant="overline"> {labelUntil} </Typography>
+          <Typography variant="overline"> {t(labelUntil)} </Typography>
         </div>
         <DateTimePickerInput
           changeDate={changeDate}

@@ -11,6 +11,7 @@ export const useStyles = makeStyles<StyleProps>()(
     containerDatePicker: {
       alignItems: 'center',
       display: 'flex',
+      justifyContent: 'space-between',
       gap: theme.spacing(1)
     },
     picker: {
@@ -18,8 +19,7 @@ export const useStyles = makeStyles<StyleProps>()(
         '& .MuiInputBase-input': {
           width: '100%'
         },
-        backgroundColor: theme.palette.background.default,
-        width: theme.spacing(34.5)
+        width: theme.spacing(32)
       }
     },
     popper: {

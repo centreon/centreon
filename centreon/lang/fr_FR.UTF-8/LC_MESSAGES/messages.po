@@ -19725,3 +19725,27 @@ msgstr "Jeton supprimé"
 
 msgid "Enable/Disable"
 msgstr "Activer/Désactiver"
+
+msgid "Last 60 days"
+msgstr "Les 60 derniers jours"
+
+msgid "Last 90 days"
+msgstr "Les 90 derniers jours"
+
+msgid "Last 1 year"
+msgstr "La dernière année"
+
+msgid "In 7 days"
+msgstr "Dans 7 jours"
+
+msgid "In 30 days"
+msgstr "Dans 30 jours"
+
+msgid "In 60 days"
+msgstr "Dans 60 jours"
+
+msgid "In 90 days"
+msgstr "Dans 90 jours"
+
+msgid "In 1 year"
+msgstr "Dans 1 an"
