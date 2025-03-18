@@ -11,6 +11,15 @@ $help["warning"] = dgettext("help", "Absolute value for warning level (low thres
 $help["critical"] = dgettext("help", "Absolute value for critical level (low threshold).");
 $help["calcul_type"] = dgettext("help", "Function to be applied to calculate the meta service status.");
 $help["data_source_type"] = dgettext("help", "Data source type of the meta service.");
+$help["select_mode"] = dgettext(
+    "help",
+    "Selection mode for services to be considered for this meta service. In service list mode, mark selected " .
+    "services in the options on meta service list. In SQL matching mode, specify a search string to " .
+    "be used in an SQL query."
+);
+$help["regexp"] = dgettext("help", "Search string to be used in a SQL LIKE query for service selection.");
+$help["metric"] = dgettext("help", "Select the metric to measure for meta service status.");
+
 $help["check_period"] = dgettext("help", "Specify the time period during which the meta service status is measured.");
 $help["max_check_attempts"] = dgettext(
     "help",
@@ -31,43 +40,31 @@ $help["retry_interval"] = dgettext(
     "it will revert to being scheduled at its \"normal\" check interval rate."
 );
 
-if ( ! $isCloudPlatform) {
-    $help["select_mode"] = dgettext(
-        "help",
-        "Selection mode for services to be considered for this meta service. In service list mode, mark selected " .
-        "services in the options on meta service list. In SQL matching mode, specify a search string to " .
-        "be used in an SQL query."
-    );
-    $help["regexp"] = dgettext("help", "Search string to be used in a SQL LIKE query for service selection.");
-    $help["metric"] = dgettext("help", "Select the metric to measure for meta service status.");
-
-    // Notifications
-    $help["notifications_enabled"] = dgettext(
-        "help",
-        "Specify whether or not notifications for this meta service are enabled."
-    );
-    $help["contact_groups"] = dgettext(
-        "help",
-        "This is a list of contact groups that should be notified whenever there are " .
-        "problems (or recoveries) with this service."
-    );
-    $help["notification_interval"] = dgettext(
-        "help",
-        "Define the number of minutes to wait before re-notifying a contact that this service is still in a " .
-        "non-OK condition. A value of 0 disables re-notifications of contacts about problems for this service - " .
-        "only one problem notification will be sent out."
-    );
-    $help["notification_period"] = dgettext(
-        "help",
-        "Specify the time period during which notifications of events for this service can be sent out to contacts. " .
-        "If a state change occurs during a time which is not covered by the time period, no notifications will be sent out."
-    );
-    $help["notification_options"] = dgettext(
-        "help",
-        "Define the states of the service for which notifications should be sent out. If you do not specify any " .
-        "notification options, Centreon will assume that you want notifications to be sent out for all possible states."
-    );
-}
+$help["notifications_enabled"] = dgettext(
+    "help",
+    "Specify whether or not notifications for this meta service are enabled."
+);
+$help["contact_groups"] = dgettext(
+    "help",
+    "This is a list of contact groups that should be notified whenever there are " .
+    "problems (or recoveries) with this service."
+);
+$help["notification_interval"] = dgettext(
+    "help",
+    "Define the number of minutes to wait before re-notifying a contact that this service is still in a " .
+    "non-OK condition. A value of 0 disables re-notifications of contacts about problems for this service - " .
+    "only one problem notification will be sent out."
+);
+$help["notification_period"] = dgettext(
+    "help",
+    "Specify the time period during which notifications of events for this service can be sent out to contacts. " .
+    "If a state change occurs during a time which is not covered by the time period, no notifications will be sent out."
+);
+$help["notification_options"] = dgettext(
+    "help",
+    "Define the states of the service for which notifications should be sent out. If you do not specify any " .
+    "notification options, Centreon will assume that you want notifications to be sent out for all possible states."
+);
 
 $help["graph_template"] = dgettext(
     "help",

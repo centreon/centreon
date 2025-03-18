@@ -138,22 +138,13 @@ $form->addElement('select', 'calcul_type', _("Calculation Type"), $calType);
 $form->addElement('select', 'data_source_type', _('Data Source Type'), $dsType);
 
 $tab = [];
-$isCloudPlatform = isCloudPlatform();
-if ($isCloudPlatform) {
-    /*
-     * Meta select mode
-     */
-    $metaSelectMode = $form->addElement('hidden', 'meta_select_mode');
-    $metaSelectMode->setValue('1');
-} else {
-    $tab[] = $form->createElement('radio', 'meta_select_mode', null, _("Service List"), '1');
-    $tab[] = $form->createElement('radio', 'meta_select_mode', null, _("SQL matching"), '2');
-    $form->addGroup($tab, 'meta_select_mode', _("Selection Mode"), '<br />');
-    $form->setDefaults(['meta_select_mode' => ['meta_select_mode' => '1']]);
+$tab[] = $form->createElement('radio', 'meta_select_mode', null, _("Service List"), '1');
+$tab[] = $form->createElement('radio', 'meta_select_mode', null, _("SQL matching"), '2');
+$form->addGroup($tab, 'meta_select_mode', _("Selection Mode"), '<br />');
+$form->setDefaults(['meta_select_mode' => ['meta_select_mode' => '1']]);
 
-    $form->addElement('text', 'regexp_str', _("SQL LIKE-clause expression"), $attrsText);
-    $form->addElement('select2', 'metric', _("Metric"), [], $attrMetric);
-}
+$form->addElement('text', 'regexp_str', _("SQL LIKE-clause expression"), $attrsText);
+$form->addElement('select2', 'metric', _("Metric"), [], $attrMetric);
 
 /*
  * Check information
@@ -172,55 +163,53 @@ $form->addElement('text', 'max_check_attempts', _("Max Check Attempts"), $attrsT
 $form->addElement('text', 'normal_check_interval', _("Normal Check Interval"), $attrsText2);
 $form->addElement('text', 'retry_check_interval', _("Retry Check Interval"), $attrsText2);
 
-if (! $isCloudPlatform) {
-    /*
-    * Notification informations
-    */
-    $form->addElement('header', 'notification', _("Notification"));
-    $tab = [];
-    $tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Yes"), '1');
-    $tab[] = $form->createElement('radio', 'notifications_enabled', null, _("No"), '0');
-    $tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Default"), '2');
-    $form->addGroup($tab, 'notifications_enabled', _("Notification Enabled"), '&nbsp;');
-    $form->setDefaults(['notifications_enabled' => '2']);
+/*
+ * Notification informations
+ */
+$form->addElement('header', 'notification', _("Notification"));
+$tab = [];
+$tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Yes"), '1');
+$tab[] = $form->createElement('radio', 'notifications_enabled', null, _("No"), '0');
+$tab[] = $form->createElement('radio', 'notifications_enabled', null, _("Default"), '2');
+$form->addGroup($tab, 'notifications_enabled', _("Notification Enabled"), '&nbsp;');
+$form->setDefaults(['notifications_enabled' => '2']);
 
-    /*
-    *  Contacts
-    */
-    $contactDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contact'
-        . '&action=defaultValues&target=meta&field=ms_cs&id=' . $meta_id;
-    $attrContact1 = array_merge(
-        $attrContacts,
-        ['defaultDatasetRoute' => $contactDeRoute]
-    );
-    $form->addElement('select2', 'ms_cs', _("Implied Contacts"), [], $attrContact1);
+/*
+ *  Contacts
+ */
+$contactDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contact'
+    . '&action=defaultValues&target=meta&field=ms_cs&id=' . $meta_id;
+$attrContact1 = array_merge(
+    $attrContacts,
+    ['defaultDatasetRoute' => $contactDeRoute]
+);
+$form->addElement('select2', 'ms_cs', _("Implied Contacts"), [], $attrContact1);
 
-    $contactGrDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup'
-        . '&action=defaultValues&target=meta&field=ms_cgs&id=' . $meta_id;
-    $attrContactgroup1 = array_merge(
-        $attrContactgroups,
-        ['defaultDatasetRoute' => $contactGrDeRoute]
-    );
-    $form->addElement('select2', 'ms_cgs', _("Linked Contact Groups"), [], $attrContactgroup1);
+$contactGrDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup'
+    . '&action=defaultValues&target=meta&field=ms_cgs&id=' . $meta_id;
+$attrContactgroup1 = array_merge(
+    $attrContactgroups,
+    ['defaultDatasetRoute' => $contactGrDeRoute]
+);
+$form->addElement('select2', 'ms_cgs', _("Linked Contact Groups"), [], $attrContactgroup1);
 
-    $form->addElement('text', 'notification_interval', _("Notification Interval"), $attrsText2);
+$form->addElement('text', 'notification_interval', _("Notification Interval"), $attrsText2);
 
-    $timeDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod'
-        . '&action=defaultValues&target=meta&field=notification_period&id=' . $meta_id;
-    $attrTimeperiod2 = array_merge(
-        $attrTimeperiods,
-        ['defaultDatasetRoute' => $timeDeRoute]
-    );
-    $form->addElement('select2', 'notification_period', _("Notification Period"), [], $attrTimeperiod2);
+$timeDeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod'
+    . '&action=defaultValues&target=meta&field=notification_period&id=' . $meta_id;
+$attrTimeperiod2 = array_merge(
+    $attrTimeperiods,
+    ['defaultDatasetRoute' => $timeDeRoute]
+);
+$form->addElement('select2', 'notification_period', _("Notification Period"), [], $attrTimeperiod2);
 
-    $msNotifOpt[] = $form->createElement('checkbox', 'w', '&nbsp;', _("Warning"));
-    $msNotifOpt[] = $form->createElement('checkbox', 'u', '&nbsp;', _("Unknown"));
-    $msNotifOpt[] = $form->createElement('checkbox', 'c', '&nbsp;', _("Critical"));
-    $msNotifOpt[] = $form->createElement('checkbox', 'r', '&nbsp;', _("Recovery"));
-    $msNotifOpt[] = $form->createElement('checkbox', 'f', '&nbsp;', _("Flapping"));
+$msNotifOpt[] = $form->createElement('checkbox', 'w', '&nbsp;', _("Warning"));
+$msNotifOpt[] = $form->createElement('checkbox', 'u', '&nbsp;', _("Unknown"));
+$msNotifOpt[] = $form->createElement('checkbox', 'c', '&nbsp;', _("Critical"));
+$msNotifOpt[] = $form->createElement('checkbox', 'r', '&nbsp;', _("Recovery"));
+$msNotifOpt[] = $form->createElement('checkbox', 'f', '&nbsp;', _("Flapping"));
 
-    $form->addGroup($msNotifOpt, 'ms_notifOpts', _("Notification Type"), '&nbsp;&nbsp;');
-}
+$form->addGroup($msNotifOpt, 'ms_notifOpts', _("Notification Type"), '&nbsp;&nbsp;');
 
 /*
  * Further informations
@@ -272,9 +261,6 @@ $tpl->assign(
     . ' "orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ["","black", "white", "red"],'
     . ' WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
 );
-
-$tpl->assign("isCloudPlatform", $isCloudPlatform);
-
 # prepare help texts
 $helptext = "";
 include_once("help.php");
