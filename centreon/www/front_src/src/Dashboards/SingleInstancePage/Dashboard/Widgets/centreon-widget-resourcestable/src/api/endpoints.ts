@@ -60,6 +60,7 @@ export const buildResourcesEndpoint = ({
 
   const { resourcesSearchConditions, resourcesCustomParameters } =
     getResourcesSearchQueryParameters(resources);
+  console.log(resourcesCustomParameters, resources);
 
   return buildListingEndpoint({
     baseEndpoint,
