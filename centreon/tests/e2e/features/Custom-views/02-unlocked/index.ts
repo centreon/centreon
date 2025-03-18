@@ -1,6 +1,6 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { addCustomView, addSharedView, deleteCustomView, shareUnlockedCustomView, visitCustomViewPage } from '../common';
+import { addCustomView, addSharedView, deleteCustomView, shareCustomView, visitCustomViewPage } from '../common';
 
 const viewName = 'Unlocked-View';
 const logByAclUser = () => {
@@ -63,7 +63,7 @@ Given('the admin is on the "Home > Custom Views" page', () => {
 
 When('the admin adds a new unlocked custom view shared with a configured non admin user', () => {
   addCustomView(viewName, false);
-  shareUnlockedCustomView("Unlocked users", "custom-view-acl-user");
+  shareCustomView("Unlocked users", "custom-view-acl-user");
 });
 
 Then('the view is added', () => {
@@ -181,7 +181,7 @@ Given('a shared custom view with a group', () => {
   /*** this part is for adding an unlocked custom view with the group Guest ***/
   visitCustomViewPage();
   addCustomView(viewName, false);
-  shareUnlockedCustomView("Unlocked user groups", "Guest");
+  shareCustomView("Unlocked user groups", "Guest");
 });
 
 When('an user of this group is using the shared view', () => {
@@ -196,9 +196,9 @@ When('an user of this group is using the shared view', () => {
 });
 
 When('a configured shared custom view with a group', () => {
-   visitCustomViewPage();
-   cy.wait('@getViews');
-   cy.getIframeBody().contains('a', viewName).should('exist');
+  visitCustomViewPage();
+  cy.wait('@getViews');
+  cy.getIframeBody().contains('a', viewName).should('exist');
 });
 
 When('an user of this group is using the configured shared view', () => {
