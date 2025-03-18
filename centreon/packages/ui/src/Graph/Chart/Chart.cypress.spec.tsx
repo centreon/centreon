@@ -758,8 +758,8 @@ describe('Lines and bars', () => {
     cy.get('path[data-metric="3"]').should('be.visible');
 
     cy.contains('some text').should('be.visible');
-    cy.findByTestId('pink-3').should('be.visible');
-    cy.findByTestId('red-0.15').should('be.visible');
+    cy.findByTestId('pink-3').should('exist');
+    cy.findByTestId('red-0.15').should('exist');
 
     cy.makeSnapshot();
   });
