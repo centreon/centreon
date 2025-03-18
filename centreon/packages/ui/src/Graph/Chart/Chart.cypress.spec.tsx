@@ -9,6 +9,7 @@ import dataCurvesWithSameColor from '../mockedData/curvesWithSameColor.json';
 import dataLastDay from '../mockedData/lastDay.json';
 import dataLastDayWithIncompleteValues from '../mockedData/lastDayWithIncompleteValues.json';
 import dataLastDayWithNullValues from '../mockedData/lastDayWithNullValues.json';
+import dataPingServiceLines from '../mockedData/pingService.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
@@ -19,7 +20,10 @@ import { LineChartProps } from './models';
 import WrapperChart from '.';
 
 interface Props
-  extends Pick<LineChartProps, 'legend' | 'tooltip' | 'axis' | 'lineStyle'> {
+  extends Pick<
+    LineChartProps,
+    'legend' | 'tooltip' | 'axis' | 'lineStyle' | 'barStyle' | 'additionalLines'
+  > {
   data?: LineChartData;
 }
 
@@ -63,7 +67,9 @@ const initialize = ({
   tooltip,
   legend,
   axis,
-  lineStyle
+  lineStyle,
+  barStyle,
+  additionalLines
 }: Props): void => {
   cy.adjustViewport();
 
@@ -84,7 +90,9 @@ const initialize = ({
           data={data as unknown as LineChartData}
           legend={legend}
           lineStyle={lineStyle}
+          barStyle={barStyle}
           tooltip={tooltip}
+          additionalLines={additionalLines}
         />
       </Provider>
     )
@@ -131,7 +139,7 @@ const initializeCustomUnits = ({
 const checkGraphWidth = (): void => {
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
-    .and('equal', '393');
+    .and('equal', '376.203125');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
     expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
@@ -170,7 +178,7 @@ describe('Line chart', () => {
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(230, 26);
 
       cy.get('[data-metric="querytime"]').should(
         'have.attr',
@@ -181,6 +189,11 @@ describe('Line chart', () => {
         'have.attr',
         'data-highlight',
         'false'
+      );
+      cy.get('[data-metric="hitratio"]').should(
+        'have.attr',
+        'data-highlight',
+        'true'
       );
 
       cy.makeSnapshot();
@@ -211,25 +224,6 @@ describe('Line chart', () => {
 
       cy.get('[data-metric="querytime"]').should('be.visible');
       cy.get('[data-metric="hitratio"]').should('be.visible');
-
-      cy.makeSnapshot();
-    });
-
-    it('displays the tooltip a single metric when the corresponding prop is set', () => {
-      initialize({ tooltip: { mode: 'single', sortOrder: 'name' } });
-
-      checkGraphWidth();
-
-      cy.contains('Min: 70.31').should('be.visible');
-
-      cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
-
-      cy.get('[data-metric="hitratio"]').should(
-        'have.attr',
-        'data-highlight',
-        'true'
-      );
-      cy.get('[data-metric="querytime"]').should('not.exist');
 
       cy.makeSnapshot();
     });
@@ -443,7 +437,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 312.508173777963)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 145.04834208635688)"]').should(
         'be.visible'
       );
 
@@ -479,15 +473,14 @@ describe('Line chart', () => {
     });
 
     it('displays the curve in a step style when the prop is set', () => {
-      initialize({ lineStyle: { curve: 'step' } });
+      initialize({ lineStyle: { curve: 'step' }, data: dataPingServiceLines });
 
       checkGraphWidth();
 
       cy.contains(':00 AM').should('be.visible');
-      cy.get('[data-metric="13536"]').should('be.visible');
-      cy.get('[data-metric="13534"]').should('be.visible');
-      cy.get('[data-metric="13535"]').should('be.visible');
-      checkLegendInformation();
+      cy.get('[data-metric="1"]').should('be.visible');
+      cy.get('[data-metric="2"]').should('be.visible');
+      cy.get('[data-metric="3"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -525,7 +518,8 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="37.625"]').should('be.visible');
+      cy.get('circle[cx="250.83333333333334"]').should('be.visible');
+      cy.get('circle[cy="52.93597418085514"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -552,7 +546,7 @@ describe('Line chart', () => {
         .and('equals', '4 10');
     });
 
-    it('displays lines with dots width when the prop is set', () => {
+    it('displays lines with dashes width when props are set', () => {
       initialize({ lineStyle: { dashLength: 5, dashOffset: 8 } });
 
       checkGraphWidth();
@@ -561,6 +555,31 @@ describe('Line chart', () => {
       cy.get('path[stroke-width="2"]')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 8');
+    });
+
+    it('displays only one line with custom style when props are set', () => {
+      initialize({
+        lineStyle: [
+          {
+            dashLength: 5,
+            dashOffset: 4,
+            lineWidth: 1,
+            showPoints: true,
+            showArea: true,
+            metricId: 13534
+          }
+        ]
+      });
+
+      checkGraphWidth();
+
+      cy.contains(':00 AM').should('be.visible');
+      cy.get('path.visx-area-closed')
+        .should('have.attr', 'stroke-dasharray')
+        .and('equals', '5 4');
+      cy.get('circle[cx="33.44444444444444"]').should('be.visible');
+
+      cy.makeSnapshot();
     });
   });
 });
@@ -687,6 +706,60 @@ describe('Lines and bars', () => {
 
     cy.findAllByTestId('unit-selector').eq(1).should('have.value', '%');
     cy.contains('20').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays stacked lines and bars when a line and a bar are customized', () => {
+    initialize({
+      data: dataPingServiceLinesBarsStacked,
+      lineStyle: [
+        {
+          metricId: 1,
+          showArea: false,
+          dotOffset: 4,
+          lineWidth: 3
+        }
+      ],
+      barStyle: [
+        {
+          metricId: 10,
+          opacity: 0.5,
+          radius: 0.3
+        }
+      ]
+    });
+
+    checkGraphWidth();
+
+    cy.get(
+      'path[d="M7.501377410468319,273.3424587717121 h56.51239669421488 h1v1 v100.86066622828793 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-100.86066622828793 v-1h1z"]'
+    ).should('be.visible');
+    cy.get(
+      'path[d="M24.05509641873278,218.3663782225586 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v19.86864253262454 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-19.86864253262454 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+    ).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays additional lines when props are set', () => {
+    initialize({
+      data: dataPingServiceLines,
+      additionalLines: [
+        { color: 'pink', unit: '%', yValue: 3 },
+        { color: 'red', unit: 'ms', yValue: 0.15, text: 'some text' }
+      ]
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+
+    cy.contains('some text').should('be.visible');
+    cy.findByTestId('pink-3').should('be.visible');
+    cy.findByTestId('red-0.15').should('be.visible');
 
     cy.makeSnapshot();
   });
