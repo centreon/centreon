@@ -541,6 +541,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 SQL;
         }
 
+        $query .= ' ';
         $query .= <<<SQL
             FROM `:dbstg`.`resources`
             INNER JOIN `:dbstg`.`instances`

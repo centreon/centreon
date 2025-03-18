@@ -49,9 +49,14 @@ abstract readonly class DbalParametersTransformer
         $params = [];
         $types = [];
         foreach ($queryParameters->getIterator() as $queryParameter) {
-            $params[$queryParameter->getName()] = $queryParameter->getValue();
+            // remove : from the key to avoid issues with named parameters, dbal doesn't accept : in the key
+            $name = $queryParameter->getName();
+            if (str_starts_with($queryParameter->getName(), ':')) {
+                $name = substr($queryParameter->getName(), 1);
+            }
+            $params[$name] = $queryParameter->getValue();
             if (! is_null($queryParameter->getType())) {
-                $types[$queryParameter->getName()] = DbalParameterTypeTransformer::transformFromQueryParameterType(
+                $types[$name] = DbalParameterTypeTransformer::transformFromQueryParameterType(
                     $queryParameter->getType()
                 );
             }

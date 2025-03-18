@@ -69,8 +69,21 @@ readonly abstract class SearchRequestParametersTransformer
         try {
             $queryParameters = new QueryParameters();
             foreach ($requestParameters as $key => $value) {
-                $queryParameterTypeEnum = PdoParameterTypeTransformer::reverseToQueryParameterType($value[0]);
-                $value = $value[1];
+                $pdoType = key($value);
+                if (is_null($pdoType)) {
+                    throw new TransformerException(
+                        'Error while transforming request parameters to query parameters with pdo type',
+                        ['requestParameters' => $requestParameters]
+                    );
+                }
+                $value = current($value);
+                if ($value === false) {
+                    throw new TransformerException(
+                        'Error while transforming request parameters to query parameters with value',
+                        ['requestParameters' => $requestParameters]
+                    );
+                }
+                $queryParameterTypeEnum = PdoParameterTypeTransformer::reverseToQueryParameterType($pdoType);
                 $queryParameters->add($key, QueryParameter::create($key, $value, $queryParameterTypeEnum));
             }
 
