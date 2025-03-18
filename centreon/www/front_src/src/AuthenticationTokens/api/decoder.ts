@@ -16,23 +16,26 @@ const getNamedEntityDecoder = (decoderName): JsonDecoder.Decoder<NamedEntity> =>
 
 const tokenDecoder = JsonDecoder.object<Token>(
   {
-    id: JsonDecoder.string,
     name: JsonDecoder.string,
     creationDate: JsonDecoder.string,
     creator: getNamedEntityDecoder('creator'),
     expirationDate: JsonDecoder.nullable(JsonDecoder.string),
     isRevoked: JsonDecoder.boolean,
-    user: JsonDecoder.nullable(getNamedEntityDecoder('user')),
+    user: getNamedEntityDecoder('user'),
     type: JsonDecoder.string
   },
   'ListedToken',
   {
-    id: 'name',
     creationDate: 'creation_date',
     expirationDate: 'expiration_date',
     isRevoked: 'is_revoked'
   }
-);
+).map((token) => {
+  return {
+    ...token,
+    id: `${token.name}_${token.user.id}`
+  };
+});
 
 export const listTokensDecoder = buildListingDecoder<Token>({
   entityDecoder: tokenDecoder,

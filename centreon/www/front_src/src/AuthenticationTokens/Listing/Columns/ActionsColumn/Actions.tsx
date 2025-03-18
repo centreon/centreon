@@ -3,12 +3,13 @@ import {
   DeleteOutline as DeleteIcon
 } from '@mui/icons-material';
 import { Box } from '@mui/material';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
+import { userAtom } from '@centreon/ui-context';
 import { tokensToDeleteAtom } from '../../../atoms';
 import { TokenType } from '../../../models';
 import { labelCopy, labelDelete } from '../../../translatedLabels';
@@ -19,6 +20,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useStyles();
 
+  const { id, canManageApiTokens } = useAtomValue(userAtom);
   const setTokensToDelete = useSetAtom(tokensToDeleteAtom);
 
   const openDeleteModal = (): void => setTokensToDelete([row]);
@@ -28,7 +30,9 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     userId: row?.user.id
   });
 
-  const isCopyButtonVisible = equals(row.type, TokenType.CMA);
+  const isCopyButtonVisible =
+    equals(row.type, TokenType.CMA) &&
+    (canManageApiTokens || equals(id, row.creator.id));
 
   return (
     <Box className={classes.actions}>
