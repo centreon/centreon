@@ -18484,7 +18484,7 @@ msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une s
 msgid "Generate new token"
 msgstr "Générer un nouveau jeton"
 
-msgid "Token copied to the clipboard"
+msgid "Authentication token copied to the clipboard"
 msgstr "Jeton copié dans le presse-papiers"
 
 msgid "Token could not be copied"

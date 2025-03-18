@@ -8,7 +8,6 @@ export const labelClose = 'Close';
 export const labelName = 'Name';
 export const labelDuration = 'Duration';
 export const labelUser = 'User';
-export const labelTokenCopiedToTheClipboard = 'Token copied to the clipboard';
 export const labelTokenCouldNotBeCopied = 'Token could not be copied';
 export const labelInvalidDateCreationToken =
   'The end date must be greater than the current date by at least one day';
@@ -55,3 +54,5 @@ export const labelDisable = 'Disable';
 export const labelTokenDisabled = 'Token disabled';
 
 export const labelEnableDisable = 'Enable/Disable';
+export const labelTokenCopiedToTheClipboard =
+  'Authentication token copied to the clipboard';

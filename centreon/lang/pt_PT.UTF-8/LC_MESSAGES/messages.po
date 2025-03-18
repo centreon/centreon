@@ -17154,7 +17154,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Generate new token"
 # msgstr ""
 
-# msgid "Token copied to the clipboard"
+# msgid "Authentication token copied to the clipboard"
 # msgstr ""
 
 # msgid "Token could not be copied"
