@@ -13,6 +13,9 @@ export const useStyles = makeStyles()((theme) => ({
   helperText: {
     textAlign: 'center'
   },
+  popoverMenu: {
+    zIndex: theme.zIndex.modal
+  },
   badge: {
     '& .MuiBadge-badge': {
       fontSize: theme.typography.caption.fontSize,

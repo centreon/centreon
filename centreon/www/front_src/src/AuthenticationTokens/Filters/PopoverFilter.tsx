@@ -40,6 +40,7 @@ const PopoverFilter = (): JSX.Element => {
           dataTestId={labelFilters}
           icon={<TuneIcon fontSize="small" />}
           popperPlacement="bottom-end"
+          popperProps={{ className: classes.popoverMenu }}
           title={t(labelFilters)}
         >
           {(): JSX.Element => <Filters />}
