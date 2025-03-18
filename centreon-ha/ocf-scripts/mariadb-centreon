@@ -247,6 +247,30 @@ The port on which the Master MariaDB instance is listening.
 <content type="string" default="${OCF_RESKEY_replication_port_default}" />
 </parameter>
 
+<parameter name="repli_log_level" unique="0" required="0">
+<longdesc lang="en">
+The level of log you wish to have for replication actions. 0 = disabled, 1 = error and ok, 2 = warning, 3 = info
+</longdesc>
+<shortdesc lang="en">debug level for replication</shortdesc>
+<content type="integer" default="${OCF_RESKEY_repli_log_level_default}" />
+</parameter>
+
+<parameter name="repli_log_file" unique="0" required="0">
+<longdesc lang="en">
+The dedicated log file for replication logging. Default is : /var/log/centreon-ha/repli.log
+</longdesc>
+<shortdesc lang="en">The dedicated log file for replication logging.</shortdesc>
+<content type="string" default="${OCF_RESKEY_repli_log_file_default}" />
+</parameter>
+
+<parameter name="enable_repli_explanation" unique="0" required="0">
+<longdesc lang="en">
+add some explanations in the repli logfile. Default is false (disabled), use true to enable
+</longdesc>
+<shortdesc lang="en">add some explanations in the repli logfile.</shortdesc>
+<content type="string" default="${OCF_RESKEY_enable_repli_explanation_default}" />
+</parameter>
+
 </parameters>
 
 <actions>
@@ -272,6 +296,12 @@ greater_than_equal_long()
 {
     # there are values we need to compare in this script
     # that are too large for shell -gt to process
+    which bc
+    rc=$?
+    if [ $rc -ne 0 ];then
+        repli_log_error "'bc' binary is not installed. It is need to compare the GTID values"
+    fi
+
     local true=$(echo "$1 > $2" | bc)
     if [ "$true" -eq "1" ]; then
         return 0
@@ -292,16 +322,22 @@ greater_than_gtid()
 set_gtid() {
     # Sets the GTID in CIB using attrd_updater for this node.
 
+    repli_log_info "[set_gtid()]: getting gtid on $(hostname) using command: $MYSQL $MYSQL_OPTIONS_REPL_log -s -N -e "show global variables like 'gtid_current_pos'" | cut -f 2"
+
     local gtid=$($MYSQL $MYSQL_OPTIONS_REPL \
                         -s -N -e "show global variables like 'gtid_current_pos'" | cut -f 2)
 
+    repli_log_info "[set_gtid()]: gtid on $(hostname) is ${gtid}"
     # Ensure that we got somethine like a valid GTID
     if ! echo $gtid | grep -q '-'; then
+        repli_log_error "[set_gtid()]: invalid gtid format on $(hostname). Found gtid is: ${gtid}"
         ocf_exit_reason "Unable to read GTID from MariaDB"
         ocf_log err "Unable to read GTID from MariaDB"
         return $OCF_ERR_GENERIC
     fi
 
+    repli_log_ok "[set_gtid()]: setting gtid attribute in the cluster config using command: ${HA_SBIN_DIR}/attrd_updater -p -n ${OCF_RESOURCE_INSTANCE}-gtid -U $gtid"
+    repli_log_explain 1 "Adding the getid as an attribute of the cluster (${OCF_RESOURCE_INSTANCE}-gtid) will allow pacemaker to have access to this information from every node of the cluster"
     ${HA_SBIN_DIR}/attrd_updater -p -n ${OCF_RESOURCE_INSTANCE}-gtid -U $gtid
 }
 
@@ -312,9 +348,12 @@ read_gtid() {
     local host
     local value
 
+    repli_log_info "[read_gtid()]: trying to get gtid for node $node using command: ${HA_SBIN_DIR}/attrd_updater -p -N $node -n ${OCF_RESOURCE_INSTANCE}-gtid -Q"
+
     # This produces output of the form 'name="var-name" host="node2" value="val"'.
     # This should be set at this point, because we have store our own GTID previously.
     if ! query_result=$(${HA_SBIN_DIR}/attrd_updater -p -N $node -n ${OCF_RESOURCE_INSTANCE}-gtid -Q); then
+        repli_log_warning "[read_gtid()]: no result from command: ${HA_SBIN_DIR}/attrd_updater -p -N $node -n ${OCF_RESOURCE_INSTANCE}-gtid -Q"
         ocf_exit_reason "Unable to read GTID from attrd"
         ocf_log err "Unable to read GTID from attrd"
         echo ""
@@ -329,6 +368,7 @@ read_gtid() {
 
 clear_all_gtid() {
     for node in $OCF_RESKEY_node_list; do
+        repli_log_info "[clear_all_gtid()]: clear gtid info for pacemaker using command: ${HA_SBIN_DIR}/attrd_updater -n ${OCF_RESOURCE_INSTANCE}-gtid -N $node -D"
         ${HA_SBIN_DIR}/attrd_updater -n ${OCF_RESOURCE_INSTANCE}-gtid -N $node -D
     done
 }
@@ -343,7 +383,11 @@ waiting_for_first_master() {
     local host
     local value
 
+    repli_log_info "[waiting_for_first_master()]: running the command '${HA_SBIN_DIR}/attrd_updater -p -n ${OCF_RESOURCE_INSTANCE}-waiting-for-first-master -Q' to see if we are waiting for a master"
+    
     if ! query_result=$(${HA_SBIN_DIR}/attrd_updater -p -n ${OCF_RESOURCE_INSTANCE}-waiting-for-first-master -Q); then
+        repli_log_error "[waiting_for_first_master()]: couldn't get waiting-for-first-master information from previous command '${HA_SBIN_DIR}/attrd_updater -p -n ${OCF_RESOURCE_INSTANCE}-waiting-for-first-master -Q'"
+        repli_log_explain 1 "The above command should display something like name=\"ms_mysql-waiting-for-first-master\" host=\"debian-ha-2\" value=\"\"\nname=\"ms_mysql-waiting-for-first-master\" host=\"debian-ha-1\" value=\"\"\n It is used to know if we are waiting for a master or not."
         ocf_exit_reason "Unable to read waiting-for-first-master from attrd"
         ocf_log err "Unable to read waiting-for-first-master from attrd"
         return 1
@@ -353,14 +397,17 @@ waiting_for_first_master() {
     eval ${query_result}
 
     if [ "$value" = "true" ]; then
+        repli_log_info "[waiting_for_first_master()]: we are waiting for a master"
         return 0
     else
+        repli_log_info "[waiting_for_first_master()]: we are not waiting for a master"
         return 1
     fi
 }
 
 clear_waiting_for_first_master() {
-    attrd_updater -n ${OCF_RESOURCE_INSTANCE}-waiting-for-first-master -D
+    repli_log_info "[clear_waiting_for_first_master()]: remove the waiting for first master cluster attribute with command: ${HA_SBIN_DIR}/attrd_updater -n ${OCF_RESOURCE_INSTANCE}-waiting-for-first-master -D"
+    ${HA_SBIN_DIR}/attrd_updater -n ${OCF_RESOURCE_INSTANCE}-waiting-for-first-master -D
 }
 
 have_master_with_priority() {
@@ -368,13 +415,17 @@ have_master_with_priority() {
     # a set priority. Because we unset the priority on reboot
     # a lack of priority indicates that we need to select a
     # new master.
+    repli_log_info "[have_master_with_priority()]: checking which node has the priority to be master using the command $CRM_MASTER -G -N '<NODE_NAME>' >/dev/null 2>&1"
     for node in $OCF_RESKEY_node_list; do
         $CRM_MASTER -G -N $node >/dev/null 2>&1
         rc=$?
         if [ $rc -eq 0 ]; then
+            repli_log_info "[have_master_with_priority()]: $node have the priority to be master"
             return 0
         fi
     done
+
+    repli_log_warning "[have_master_with_priority()]: no node from $OCF_RESKEY_node_list has the priority to be master"
     return 1
 }
 
@@ -385,6 +436,7 @@ attempt_to_set_master() {
     local expected_node_count
     if waiting_for_first_master; then
         # Wait for all nodes to come online
+        repli_log_info "[attempt_to_set_master()]: expected_node_count is $OCF_RESKEY_CRM_meta_clone_max"
         expected_node_count=$OCF_RESKEY_CRM_meta_clone_max
     else
         # We accept one node being down. This is not arbitrary,
@@ -392,6 +444,7 @@ attempt_to_set_master() {
         # at least one host, which means only two nodes must have
         # the latest GTID. So a set of n - 1 ensures that we do
         # not lose any writes.
+        repli_log_info "[attempt_to_set_master()]: one node is probably down so the expected_node_count is $(($OCF_RESKEY_CRM_meta_clone_max-1))"
         expected_node_count=$(($OCF_RESKEY_CRM_meta_clone_max-1))
     fi
 
@@ -405,25 +458,31 @@ attempt_to_set_master() {
 
         local node_gtid=$(read_gtid $node)
         if [ -z "$node_gtid" ]; then
+            repli_log_warning "[attempt_to_set_master()]: no gtid found for node $node. Will try to find one on another node from the $OCF_RESKEY_node_list list"
             continue
         fi
 
         # Got a valid gtid, increment node count
         node_count=$(($node_count+1))
-
+        repli_log_ok "[attempt_to_set_master()]: gtid found for node: $node (gtid is: ${node_gtid}). We will now check if this gtid is greater than the highest currently known gtid (which is $highest_gtid)"
+        
         # Check if this is a good master candidate
         if greater_than_gtid $node_gtid $highest_gtid; then
             master_candidate=$node
             highest_gtid=$node_gtid
+            repli_log_info "[attempt_to_set_master()]: current master candidate is now: ${master_candidate} with a gtid: $node_gtid"
         fi
     done
 
     # If we managed to query a sufficient number of nodes
     # then set a master
     if [ $node_count -ge $expected_node_count ]; then
+        repli_log_ok "[attempt_to_set_master()]: $node_count nodes have been reach and we needed at least $expected_node_count. Promoting $master_candidate to master with gtid $highest_gtid. Command used: $CRM_MASTER -v 100 -N $master_candidate"
         ocf_log info "Promoting $master_candidate to master, highest gtid $highest_gtid, queried $node_count nodes."
         $CRM_MASTER -v 100 -N $master_candidate
     else
+        repli_log_error "[attempt_to_set_master()]: Not enough nodes ($node_count) contributed to select a master, need $expected_node_count nodes."
+        repli_log_explain 1 "The expected node count is based on the clone_max attribute from the 'promotable' ms_mysql resource. you can see the value with the 'pcs config show' command. Make sure it is equal to your number of database servers"
         ocf_log info "Not enough nodes ($node_count) contributed to select a master, need $expected_node_count nodes."
     fi
 }
@@ -441,6 +500,7 @@ set_read_only() {
     else
         ro_val="off"
     fi
+    repli_log_info "[set_read_only()]: updating read only with command:\n$MYSQL $MYSQL_OPTIONS_REPL_log -e \"SET GLOBAL read_only=${ro_val}\""
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
         -e "SET GLOBAL read_only=${ro_val}"
 }
@@ -449,12 +509,15 @@ get_read_only() {
     # Check if read-only is set
     local read_only_state
 
+    repli_log_info "[get_read_only()]: get read only state with command:\n $MYSQL $MYSQL_OPTIONS_REPL_log -e \"SHOW VARIABLES\" | grep -w read_only | awk '{print \$2}')"
     read_only_state=$($MYSQL $MYSQL_OPTIONS_REPL \
         -e "SHOW VARIABLES" | grep -w read_only | awk '{print $2}')
 
-    if [ "$read_only_state" = "ON" ]; then
+    if [ "$read_only_state" == "ON" ]; then
+        repli_log_info "[get_read_only()]: read only is ON"
         return 0
     else
+        repli_log_info "[get_read_only()]: read only is OFF"
         return 1
     fi
 }
@@ -465,23 +528,30 @@ is_slave() {
     # SLAVE STATUS creates an empty result set, 0 otherwise.
     local rc
 
+    repli_log_info "[is_slave()]: checking read only"
     # Check whether this machine should be slave
     if ! get_read_only; then
         return 1
     fi
-   
+    
+    repli_log_info "[is_slave()]: checking slave info"
     if get_slave_info; then
        # show slave status is not empty
        # Is the slave sql thread running, then we are a slave!
        if [ "$slave_sql" == 'Yes' ]; then
-          return 0
+            repli_log_ok "[is_slave()]: slave sql thread is running"
+            repli_log_explain 1 "This means that this $(hostname) is a slave because it has Slave_IO_Running and Slave_SQL_Running set to 'yes'"
+            return 0
        else
-          return 1
+            repli_log_warning "[is_slave()]: slave sql thread is not running"
+            repli_log_explain 2 "This means that for some reason the Slave_SQL_Running or Slave_IO_Running thread is not set to 'yes' on $(hostname). You should run the 'SHOW SLAVE STATUS\\G' query on this server to see the exact error"
+            return 1
        fi
     else
        # "SHOW SLAVE STATUS" returns an empty set if instance is not a
        # replication slave
-       return 1
+        repli_log_warning "[is_slave()]: server is not a slave server"  
+        return 1
     fi
 }
 
@@ -492,16 +562,19 @@ parse_slave_info() {
 
 get_slave_info() {
             
+    repli_log_info "[get_slave_info()]: master logfile: ${master_log_file}, master host: ${master_host}"
+
     if [ "$master_log_file" -a "$master_host" ]; then
         # variables are already defined, get_slave_info has been run before
         return $OCF_SUCCESS
     else
         local tmpfile=$(mktemp ${HA_RSCTMP}/check_slave.${OCF_RESOURCE_INSTANCE}.XXXXXX)
-
+        repli_log_info "[get_slave_info()]: performing a SHOW SLAVE STATUS query and writing result in ${tmpfile}"
         $MYSQL $MYSQL_OPTIONS_REPL \
         -e 'SHOW SLAVE STATUS\G' > $tmpfile
 
         if [ -s $tmpfile ]; then
+            repli_log_info "[get_slave_info()]: tmp file content: \n$(cat ${tmpfile})"
             master_host=$(parse_slave_info Master_Host $tmpfile)
             master_user=$(parse_slave_info Master_User $tmpfile)
             master_port=$(parse_slave_info Master_Port $tmpfile)
@@ -519,6 +592,7 @@ get_slave_info() {
         else
             # Instance produced an empty "SHOW SLAVE STATUS" output --
             # instance is not a slave
+            repli_log_info "[get_slave_info()]: no slave status found, this is not a slave server"
             rm "$tmpfile"
             return $OCF_ERR_GENERIC
         fi
@@ -531,6 +605,7 @@ check_slave() {
     # Checks slave status
     local rc new_master
 
+    repli_log_info "[check_slave()]: going to check if $(hostname) is a slave"
     get_slave_info
     rc=$?
 
@@ -601,6 +676,7 @@ check_slave() {
 
 set_master() {
     local new_master=$($CRM_ATTR_REPL_INFO --query  -q)
+    repli_log_info "[set_master()]: new master is: ${new_master}"
 
     # Informs the MariaDB server of the master to replicate
     # from. Accepts one mandatory argument which must contain the host
@@ -609,6 +685,8 @@ set_master() {
     # reset with RESET MASTER.
     ocf_log info "Changing MariaDB configuration to replicate from $new_master."
 
+    repli_log_info "starting replication with the following query:\n $MYSQL $MYSQL_OPTIONS_REPL_log  -e \"CHANGE MASTER TO MASTER_HOST='$new_master', MASTER_PORT=$OCF_RESKEY_replication_port, MASTER_USER='$OCF_RESKEY_replication_user', MASTER_PASSWORD='$OCF_RESKEY_replication_passwd', MASTER_USE_GTID=current_pos\";"
+    
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
         -e "CHANGE MASTER TO MASTER_HOST='$new_master', \
         MASTER_PORT=$OCF_RESKEY_replication_port, \
@@ -626,47 +704,59 @@ unset_master(){
     # no-one but the CRM should be touching the MariaDB master/slave
     # configuration.
     if ! is_slave; then
+        repli_log_warning "[unset_master()]: tried to unset the replication master on $(hostname) which is not a slave at the moment"
         ocf_log warn "Attempted to unset the replication master on an instance that is not configured as a replication slave"
         return $OCF_SUCCESS
     fi
 
     # Stop the slave I/O thread and wait for relay log
     # processing to complete
+    repli_log_info "[unset_master()]: stopping slave io_thread"
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
         -e "STOP SLAVE IO_THREAD"
     if [ $? -gt 0 ]; then
+        repli_log_error "[unset_master()]: couldn't stop slave io_thread on $(hostname) using command: $MYSQL $MYSQL_OPTIONS_REPL_log \
+        -e "STOP SLAVE IO_THREAD" "
         ocf_exit_reason "Error stopping slave IO thread"
         exit $OCF_ERR_GENERIC
     fi
 
     local tmpfile=$(mktemp ${HA_RSCTMP}/threads.${OCF_RESOURCE_INSTANCE}.XXXXXX)
     while true; do
+        repli_log_info "[unset_master()]: checking repli state"
         $MYSQL $MYSQL_OPTIONS_REPL \
             -e 'SHOW PROCESSLIST\G' > $tmpfile
         if grep -i 'Has read all relay log' $tmpfile >/dev/null; then
+            repli_log_ok "[unset_master()]: MariaDB slave has finished processing relay log"
             ocf_log info "MariaDB slave has finished processing relay log"
             break
         fi
         if ! grep -q 'system user' $tmpfile; then
+            repli_log_info "[unset_master()]: Slave not runnig - not waiting to finish"
             ocf_log info "Slave not runnig - not waiting to finish"
             break
         fi
+        repli_log_info "[unset_master()]: Waiting for MariaDB slave to finish processing relay log"
         ocf_log info "Waiting for MariaDB slave to finish processing relay log"
         sleep 1
     done
     rm -f $tmpfile
 
     # Now, stop all slave activity and unset the master host
+    repli_log_info "[unset_master()]: run query STOP SLAVE"
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
         -e "STOP SLAVE"
     if [ $? -gt 0 ]; then
+        repli_log_error "[unset_master()]: couldn't stop slave"
         ocf_exit_reason "Error stopping rest slave threads"
         exit $OCF_ERR_GENERIC
     fi
 
+    repli_log_info "[unset_master()]: run query RESET SLAVE /*!50516 ALL */;"
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
         -e "RESET SLAVE /*!50516 ALL */;"
     if [ $? -gt 0 ]; then
+        repli_log_error "[unset_master()]: couldn't reset slave"
         ocf_exit_reason "Failed to reset slave"
         exit $OCF_ERR_GENERIC
     fi
@@ -674,6 +764,8 @@ unset_master(){
 
 # Start replication as slave
 start_slave() {
+    repli_log_info "[start_slave()]: starting slave with query:\n$MYSQL $MYSQL_OPTIONS_REPL_log -e \"START SLAVE\""
+
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
         -e "START SLAVE"
 }
@@ -685,7 +777,11 @@ set_reader_attr() {
     curr_attr_value=$(get_reader_attr)
 
     if [ "$curr_attr_value" -ne "$1" ]; then
+        repli_log_warning "[set_read_attr()]: attribute doesn't match the one provided. Provided: $1, found: ${curr_attr_value}"
+        repli_log_info "[set_read_attr()]: running command: $CRM_ATTR -l reboot --name ${OCF_RESKEY_reader_attribute} -v $1"
         $CRM_ATTR -l reboot --name ${OCF_RESKEY_reader_attribute} -v $1
+    else
+        repli_log_ok "[set_read_attr()]: attributes are matching. Retrieved attribute: ${curr_attr_value}, provided attribute: $1"
     fi
 
 }
@@ -695,11 +791,14 @@ get_reader_attr() {
     local attr_value
     local rc
 
+    repli_log_info "[get_read_attr()]: launching command: $CRM_ATTR -l reboot --name ${OCF_RESKEY_reader_attribute} --query -q"
     attr_value=$($CRM_ATTR -l reboot --name ${OCF_RESKEY_reader_attribute} --query -q)
     rc=$?
     if [ "$rc" -eq "0" ]; then
+        repli_log_ok "[get_read_attr()]: retrieved attribute: ${attr_value}"
         echo $attr_value
     else
+        repli_log_warning "[get_read_attr()]: no attribute retrieved: return code: ${rc}, result: ${attr_value}"
         echo -1
     fi
 }
@@ -725,31 +824,46 @@ get_local_ip() {
 # Functions invoked by resource manager actions
 
 mysql_monitor() {
+    repli_log_step_header "MONITOR"
     local rc
     local status_loglevel="err"
+    repli_log_info "[mysql_monitor()]: starting mysql monitor on $(hostname)"
 
     # Set loglevel to info during probe
     if ocf_is_probe; then
         status_loglevel="info"
     fi
- 
+
+    repli_log_step 1 4 "CHECK MYSQL STATUS"
     mysql_common_status $status_loglevel
     rc=$?
     
     # If status returned an error, return that immediately
     if [ $rc -ne $OCF_SUCCESS ]; then
+        repli_log_error "[mysql_monitor()]: couldn't get mariadb status on $(hostname)"
+        repli_log_explain 1 "it means that we had an issue while trying to check the pid of mariadb"
         return $rc
     fi
 
+    repli_log_step 2 4 "CHECK SLAVE STATUS"
     # Check if this instance is configured as a slave, and if so
     # check slave status
     if is_slave; then
+        repli_log_info "[mysql_monitor()]: $(hostname) is considered as a slave server"
         if ! check_slave; then
+            repli_log_error "[mysql_monitor()]: $(hostname) is considered as a slave but the SQL slave thread is not working"
             return $OCF_ERR_GENERIC
         fi
     fi
+
+    repli_log_ok "[mysql_monitor()]: $(hostname) is a slave"
     
+    repli_log_step 3 4 "CHECK TEST TABLE STATUS"
+
     if [ -n "$OCF_RESKEY_test_table" ]; then
+
+        repli_log_info "[mysql_monitor()]: check if the test table exists on $(hostname) using the query: SELECT COUNT(*) FROM $OCF_RESKEY_test_table"
+        repli_log_explain 3 "The test table is ${OCF_RESKEY_test_table}. We just do a select inside it. It is a small additionnal check to be sure that you have a proper centreon database"
 
         # Check for test table
         ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
@@ -757,30 +871,44 @@ mysql_monitor() {
         rc=$?
 
         if [ $rc -ne 0 ]; then
+            repli_log_error "[mysql_monitor()]: either your $OCF_RESKEY_test_table table doesn't exist or it is crashed in some way"
             ocf_exit_reason "Failed to select from $test_table";
             return $OCF_ERR_GENERIC;
         fi
+
+        repli_log_ok "[mysql_monitor()] table $OCF_RESKEY_test_table is OK"
     fi
 
+    repli_log_step 4 4 "CHECK READ ONLY"
     # Check if we are in read-only mode and there is no master
     # with priority then we attempt to select a master
     if get_read_only && ! have_master_with_priority; then
+        repli_log_info "[mysql_monitor()]: $(hostname) has the read only flag and no node has the priority to be master. Therefore, we will try to elect a master"
         attempt_to_set_master
     fi
     
     if ! get_read_only; then
+        repli_log_ok "[mysql_monitor()]: $(hostname) is a valid master"
         ocf_log debug "MariaDB monitor succeeded (master)";
+        repli_log_step_footer "MONITOR"
         return $OCF_RUNNING_MASTER
     else
+        repli_log_ok "[mysql_monitor()]: $(hostname) is a valid slave"
         ocf_log debug "MariaDB monitor succeeded";
+        repli_log_step_footer "MONITOR"
         return $OCF_SUCCESS
     fi
 }
 
 mysql_start() {
+    repli_log_step_header "START"
     local rc
-    
+    repli_log_info "[mysql_start()]: init"
+
     if ! ocf_is_ms; then
+        repli_log_info "[mysql_start()]: Resource is not configured as master/slave.\n
+            OCF_RESKEY_CRM_meta_promotable = ${OCF_RESKEY_CRM_meta_promotable}\n
+            OCF_RESKEY_CRM_meta_master_max = ${OCF_RESKEY_CRM_meta_master_max}"
         ocf_exit_reason "Resource is not configured as master/slave"
         return $OCF_ERR_GENERIC
     fi
@@ -788,19 +916,28 @@ mysql_start() {
     # Initialize the ReaderVIP attribute, monitor will enable it
     set_reader_attr 0
 
+    repli_log_step 1 4 "CHECK MYSQL STATUS"
+
     mysql_common_status info
-    if [ $? = $OCF_SUCCESS ]; then
+    if [ $? == $OCF_SUCCESS ]; then
+        repli_log_info "[mysql_start()]: mariadb is already running"
         ocf_log info "MariaDB already running"
+        repli_log_step_footer "MONITOR"
         return $OCF_SUCCESS
     fi
 
     mysql_common_prepare_dirs
 
+    repli_log_step 2 4 "START MYSQL"
     mysql_common_start
     rc=$?
     if [ $rc != $OCF_SUCCESS ]; then
+        repli_log_error "[mysql_star()]: couldn't start mysql on $(hostname)"
         return $rc
     fi
+
+    repli_log_step 3 4 "SET MYSQL REPLICATION FLAGS"
+    repli_log_info "[mysql_start()]: add replication flags in the db with the command:\n$MYSQL $MYSQL_OPTIONS_TEST_log -e \"SET GLOBAL rpl_semi_sync_slave_enabled='OFF', rpl_semi_sync_master_enabled='ON',rpl_semi_sync_master_wait_no_slave='OFF', rpl_semi_sync_master_wait_point='AFTER_SYNC', gtid_strict_mode='ON', sync_binlog=1,sync_master_info=1;\""
 
     # Enable semi-sync
     ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
@@ -813,6 +950,7 @@ mysql_start() {
                            sync_master_info=1;"
     rc=$?
     if [ $rc -ne 0 ]; then
+        repli_log_error "[mysql_start()]: couldn't enable global variables"
         ocf_exit_reason "Failed to enable semi-sync and set variables";
         return $OCF_ERR_GENERIC;
     fi
@@ -827,15 +965,20 @@ mysql_start() {
     # Now, let's see whether there is a master. We might be a new
     # node that is just joining the cluster, and the CRM may have
     # promoted a master before.
+    repli_log_step 4 4 "SET MYSQL SLAVE THREAD"
     new_master_host=$(echo $OCF_RESKEY_CRM_meta_notify_master_uname|tr -d " ")
+    repli_log_info "[mysql_start()]: new master host is: ${new_master_host} and node name is: ${NODENAME}"
+
     if [ "$new_master_host" -a "$new_master_host" != ${NODENAME} ]; then
         set_master
         start_slave
         if [ $? -ne 0 ]; then
+            repli_log_error "[mysql_start()]: couldn't start slave role"
             ocf_exit_reason "Failed to start slave"
             return $OCF_ERR_GENERIC
         fi
     else
+        repli_log_warning "[mysql_start()]: no mariadb master found. Resetting replication state to find a master"
         ocf_log info "No MariaDB master present - clearing replication state, setting gtid in attrd, waiting for first master"
         unset_master
         set_waiting_for_first_master
@@ -849,15 +992,19 @@ mysql_start() {
     mysql_monitor
     rc=$?
     if [ $rc != $OCF_SUCCESS -a $rc != $OCF_RUNNING_MASTER ]; then
+        repli_log_error "[mysql_start()]: couldn't perform first mysql_monitor operation on $(hostname)"
         ocf_exit_reason "Failed initial monitor action"
         return $rc
     fi
 
+    repli_log_ok "[mysql_start()]: mariadb started on $(hostname)"
     ocf_log info "MariaDB started"
+    repli_log_step_footer "START"
     return $OCF_SUCCESS
 }
 
 mysql_stop() {
+    repli_log_step_header "STOP"
     # clear preference for becoming master
     $CRM_MASTER -D
 
@@ -865,25 +1012,35 @@ mysql_stop() {
     set_reader_attr 0
 
     mysql_common_stop
+    repli_log_step_footer "STOP"
 }
 
 mysql_promote() {
+    repli_log_step_header "PROMOTE"
     local master_info
 
+    repli_log_step 1 2 "CHECK MYSQL STATUS"
     if ( ! mysql_common_status err ); then
+        repli_log_warning "[mysql_promote()]: can't promote $(hostname) because mysql is not started"
         return $OCF_NOT_RUNNING
     fi
+
+    repli_log_step 2 2 "STOP SLAVE THREAD"
     ocf_run $MYSQL $MYSQL_OPTIONS_REPL \
         -e "STOP SLAVE"
 
+    repli_log_ok "[mysql_promote()]: stopped slave thread on $(hostname) using command: $MYSQL $MYSQL_OPTIONS_REPL_log -e "STOP SLAVE""
     set_read_only off || return $OCF_ERR_GENERIC
     # Force the master to wait for timeout period on slave disconnect
     ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
             -e "SET GLOBAL rpl_semi_sync_master_wait_no_slave='ON';"
     
+    repli_log_info "[mysql_promote()]: Force the master to wait for timeout period on slave disconnect with command: ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST_log -e \"SET GLOBAL rpl_semi_sync_master_wait_no_slave='ON';\""
+    
     # Set Master Info in CIB, cluster level attribute
     master_info="$(get_local_ip)"
     ${CRM_ATTR_REPL_INFO} -v "$master_info"
+    repli_log_ok "[mysql_promote()]: add master info for pacemaker with command: ${CRM_ATTR_REPL_INFO} -v \"$master_info\""
     
     # A master can accept reads
     set_reader_attr 1
@@ -891,21 +1048,30 @@ mysql_promote() {
     # Clear the gtids in attrd now that there is a master
     clear_all_gtid
 
+    repli_log_step_footer "PROMOTE"
     return $OCF_SUCCESS
 }
 
 mysql_demote() {
+    repli_log_step_header "DEMOTE"
+    repli_log_step 1 2 "CHECK MYSQL STATUS"
+
     if ! mysql_common_status err; then
+        repli_log_warning "[mysql_demote()]: can't demote $(hostname) because mysql is not started"
         return $OCF_NOT_RUNNING
     fi
 
+    repli_log_step 2 2 "SET MYSQL FLAGS"
     # Return to default no wait setting.
     ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
             -e "SET GLOBAL rpl_semi_sync_master_wait_no_slave='OFF';"
 
+    repli_log_info "[mysql_demote()]: do not wait for timeouts ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST_log -e \"SET GLOBAL rpl_semi_sync_master_wait_no_slave='OFF';\""
     # Return master preference to default, so the cluster manager gets
     # a chance to select a new master
     $CRM_MASTER -D
+    repli_log_ok "[mysql_demote()]: reset master preference to default with command: $CRM_MASTER -D"
+    repli_log_step_footer "DEMOTE"
 }
 
 mysql_notify() {
@@ -916,48 +1082,74 @@ mysql_notify() {
 
     case "$type_op" in
         'pre-promote')
+            repli_log_step_header "PRE PROMOTE"
             # A master is now being promoted, remove the waiting-for-first-master flag
             clear_waiting_for_first_master
+            repli_log_ok "[mysql_notify()] pre-promote operation done"
+            repli_log_step_footer "PRE PROMOTE"
         ;;
         'post-promote')
             # The master has completed its promotion. Now is a good
             # time to check whether our replication slave is working
             # correctly.
+            repli_log_step_header "POST PROMOTE"
             new_master_host=$(echo $OCF_RESKEY_CRM_meta_notify_promote_uname|tr -d " ")
+            repli_log_info "[mysql_notify()] post-promote: new_master_host is: ${new_master_host}. NODENAME is: ${NODENAME}"
+            
             if [ "$new_master_host" = ${NODENAME} ]; then
+                repli_log_ok "[mysql_notify()] post-promote: new master is: ${new_master_host}"
                 ocf_log info "This will be the new master, ignoring post-promote notification."
             else
+                repli_log_step 1 1 "SET UP SLAVE THREAD"
                 ocf_log info "Resetting replication, uname of master: $new_master_host"
+                repli_log_info "[mysql_notify()] post-promote: ${NODENAME} is supposed to be the slave so we reconfigure the replication data"
                 unset_master
+
                 if [ $? -ne 0 ]; then
+                    repli_log_error "[mysql_notify()] post-promote: couldn't reset master on ${NODENAME}"
                     return $OCF_ERR_GENERIC
                 fi
 
+                repli_log_ok "[mysql_notify()] post-promote: master info have been reseted. It is now ready to be set again on ${NODENAME}"
+
                 set_master
                 if [ $? -ne 0 ]; then
+                    repli_log_error "[mysql_notify()] post-promote: couldn't set master host on ${NODENAME}"
                     return $OCF_ERR_GENERIC
                 fi
+
+                repli_log_ok "[mysql_notify()] post-promote: master host has been set. ${NODENAME} is now ready to have its slave thread started"
 
                 start_slave
                 if [ $? -ne 0 ]; then
                     ocf_exit_reason "Failed to start slave"
+                    repli_log_error "[mysql_notify()] post-promote: couldn't start slave thread on ${NODENAME}"
                     return $OCF_ERR_GENERIC
                 fi
+
+                repli_log_ok "[mysql_notify()] post-promote: ${NODENAME} is now slave to ${new_master_host}"
             fi
+            repli_log_step_footer "POST PROMOTE"
             return $OCF_SUCCESS
         ;;
         'pre-demote')
+            repli_log_step_header "PRE DEMOTE"
             demote_host=$(echo $OCF_RESKEY_CRM_meta_notify_demote_uname|tr -d " ")
+            repli_log_info "[mysql_notify()] pre-demote: demote host ${demote_host}"
+
             if [ $demote_host = ${NODENAME} ]; then
+                repli_log_step 1 1 "FREEZE MYSQL"
                 ocf_log info "pre-demote notification for $demote_host"
                 set_read_only on
                 if [ $? -ne 0 ]; then
+                    repli_log_error "[mysql_notify()] pre-demote: couldn't set read only to 'ON' on ${NODENAME}"
                     ocf_exit_reason "Failed to set read-only";
                     return $OCF_ERR_GENERIC;
                 fi
 
                 # Must kill all existing user threads because they are still Read/write
                 # in order for the slaves to complete the read of binlogs
+                repli_log_info "[mysql_notify()] pre-demote: kill evey remaining running queries"
                 local tmpfile=$(mktemp ${HA_RSCTMP}/threads.${OCF_RESOURCE_INSTANCE}.XXXXXX)
                 $MYSQL $MYSQL_OPTIONS_REPL -e "SHOW PROCESSLIST" > $tmpfile
                 for thread in $(awk '$0 !~ /Binlog Dump|system user|event_scheduler|SHOW PROCESSLIST/ && $0 ~ /^[0-9]/ {print $1}' $tmpfile)
@@ -967,19 +1159,29 @@ mysql_notify() {
                 done
                 rm -f $tmpfile
             else
-               ocf_log info "Ignoring post-demote notification execpt for my own demotion."
+                repli_log_info "[mysql_notify()] pre-demote: doing nothing because $(hostname) is not the host that must be demoted (host that needs to be demoted: ${demote_host})"
+                ocf_log info "Ignoring post-demote notification execpt for my own demotion."
             fi
+            repli_log_step_footer "PRE DEMOTE"
             return $OCF_SUCCESS
         ;;
         'post-demote')
+            repli_log_step_header "POST DEMOTE"
             demote_host=$(echo $OCF_RESKEY_CRM_meta_notify_demote_uname|tr -d " ")
+            repli_log_info "[mysql_notify()] post-demote: demote host ${demote_host}"
+            
             if [ $demote_host = ${NODENAME} ]; then
+                repli_log_info "[mysql_notify()] post-demote: doing nothing because ${NODENAME} is the host that has be demoted. Only the other will need to have its master host reseted"
                 ocf_log info "Ignoring post-demote notification for my own demotion."
+                repli_log_step_footer "POST DEMOTE"
                 return $OCF_SUCCESS
             fi
+
             ocf_log info "post-demote notification for $demote_host."
+            repli_log_info "[mysql_notify()] post-demote: reset master host on $demote_host"
             # The former master has just been gracefully demoted.
             unset_master
+            repli_log_step_footer "POST DEMOTE"
         ;;
         *)
             return $OCF_SUCCESS

@@ -56,6 +56,9 @@ OCF_RESKEY_replication_master_ssl_key_default=""
 OCF_RESKEY_max_slave_lag_default="3600"
 OCF_RESKEY_evict_outdated_slaves_default="false"
 OCF_RESKEY_reader_attribute_default="readable"
+OCF_RESKEY_repli_log_file_default="/var/log/centreon-ha/repli.log"
+OCF_RESKEY_repli_log_level_default=0
+OCF_RESKEY_enable_repli_explanation_default="false"
 
 : ${OCF_RESKEY_binary=${OCF_RESKEY_binary_default}}
 MYSQL_BINDIR=`dirname ${OCF_RESKEY_binary}`
@@ -92,6 +95,10 @@ MYSQL_BINDIR=`dirname ${OCF_RESKEY_binary}`
 
 : ${OCF_RESKEY_reader_attribute=${OCF_RESKEY_reader_attribute_default}}
 
+: ${OCF_RESKEY_repli_log_file=${OCF_RESKEY_repli_log_file_default}}
+: ${OCF_RESKEY_repli_log_level=${OCF_RESKEY_repli_log_level_default}}
+: ${OCF_RESKEY_enable_repli_explanation=${OCF_RESKEY_enable_repli_explanation_default}}
+
 #######################################################################
 # Convenience variables
 
@@ -105,6 +112,10 @@ MYSQL_OPTIONS_LOCAL="-S $OCF_RESKEY_socket"
 MYSQL_OPTIONS_REPL="$MYSQL_OPTIONS_LOCAL_SSL_OPTIONS $MYSQL_OPTIONS_LOCAL --user=$OCF_RESKEY_replication_user --password=$OCF_RESKEY_replication_passwd"
 MYSQL_OPTIONS_TEST="$MYSQL_OPTIONS_LOCAL --user=$OCF_RESKEY_test_user --password=$OCF_RESKEY_test_passwd"
 MYSQL_TOO_MANY_CONN_ERR=1040
+
+# for logging purpose, remove password from those duplicated variables
+MYSQL_OPTIONS_REPL_log="$MYSQL_OPTIONS_LOCAL_SSL_OPTIONS $MYSQL_OPTIONS_LOCAL --user=$OCF_RESKEY_replication_user --password=****"
+MYSQL_OPTIONS_TEST_log="$MYSQL_OPTIONS_LOCAL --user=$OCF_RESKEY_test_user --password=*****"
 
 CRM_MASTER="${HA_SBIN_DIR}/crm_master -l reboot "
 NODENAME=$(ocf_local_nodename)
@@ -168,6 +179,7 @@ mysql_common_status() {
     local pid=$2
     if [ -z "$pid" ]; then
         if [ ! -e $OCF_RESKEY_pid ]; then
+            repli_log_info "[mysql_common_status()] no pid file (${pid}) found for mariadb. Mysql is probably not running"
             ocf_log $loglevel "MySQL is not running"
             return $OCF_NOT_RUNNING;
         fi
@@ -181,6 +193,7 @@ mysql_common_status() {
         return $OCF_SUCCESS;
     else
         if [ -e $OCF_RESKEY_pid ]; then
+            repli_log_info "[mysql_common_status()] mariadb is not running but pid file exists. Going to remove pid file: $OCF_RESKEY_pid"
             ocf_log $loglevel "MySQL not running: removing old PID file"
             rm -f $OCF_RESKEY_pid
         fi
@@ -238,7 +251,9 @@ mysql_common_start()
     local mysql_extra_params="$1"
     local pid
 
+    repli_log_info "[mysql_common_start()]: restarting mariadb..."
     systemctl start mariadb
+
     pid=$(cat $OCF_RESKEY_pid)
 
     # Spin waiting for the server to come up.
@@ -246,6 +261,7 @@ mysql_common_start()
     start_wait=1
     while [ $start_wait = 1 ]; do
         if ! ps $pid > /dev/null 2>&1; then
+            repli_log_error "[mysql_common_start()]: pid '${pid}' not found"
             wait $pid
             ocf_exit_reason "MySQL server failed to start (pid=$pid) (rc=$?), please check your installation"
             return $OCF_ERR_GENERIC
@@ -253,8 +269,10 @@ mysql_common_start()
         mysql_common_status info
         rc=$?
         if [ $rc = $OCF_SUCCESS ]; then
+            repli_log_ok "[mysql_common_start()]: mariadb successfully started."
             start_wait=0
         elif [ $rc != $OCF_NOT_RUNNING ]; then
+            repli_log_error "[mysql_common_start()]: mariadb couldn't start."
             ocf_log info "MySQL start failed: $rc"
             return $rc
         fi
@@ -317,4 +335,93 @@ mysql_common_stop()
     rm -f $OCF_RESKEY_socket
     return $OCF_SUCCESS
 
+}
+
+# $1: the message that'il be logged
+repli_log_ok()
+{
+    if [ ${OCF_RESKEY_enable_repli_eplanation} >= "1" ];then
+        message="$1"
+
+        echo -ne "[$(date)][\e[32mOK\e[0m]: ${message}\n" >> ${OCF_RESKEY_repli_log_file}
+    fi
+}
+
+# $1: the message that'il be logged
+repli_log_info()
+{
+    if [ ${OCF_RESKEY_repli_log_level} -ge 3 ];then
+        message="$1"
+
+        echo -ne "[$(date)][\e[34mINFO\e[0m]: ${message}\n" >> ${OCF_RESKEY_repli_log_file}
+    fi
+}
+
+# $1: the message that'il be logged
+repli_log_warning()
+{
+    if [ ${OCF_RESKEY_repli_log_level} -ge 2 ];then
+        message="$1"
+
+        echo -ne "[$(date)][\e[33mWARNING\e[0m]: ${message}\n" >> ${OCF_RESKEY_repli_log_file}
+    fi
+}
+
+# $1: the message that'il be logged
+repli_log_error()
+{
+    if [ ${OCF_RESKEY_repli_log_level} -ge 1 ];then
+        message="$1"
+
+        echo -ne "[$(date)][\e[31mERROR\e[0m]: ${message}\n" >> ${OCF_RESKEY_repli_log_file}
+    fi
+}
+
+# $1: the log level required to log explanation
+# $2: the explanation message
+repli_log_explain()
+{
+    if [ ${OCF_RESKEY_enable_repli_explanation} == "true" ];then
+        log_level=$1
+
+        if [ ${log_level} -le ${OCF_RESKEY_repli_log_level} ];then
+            message="$2"
+
+            echo -ne "[$(date)][\e[35mEXPLANATION\e[0m]: ${message}\n" >> ${OCF_RESKEY_repli_log_file}
+        fi
+    fi
+}
+
+# $1: the name of the step
+repli_log_step_header()
+{
+    if [ ${OCF_RESKEY_repli_log_level} -ge 1 ];then
+        message="$1"
+
+        echo -ne "[$(date)] \e[36m####\e[0m START ${message} ON $(hostname) \e[36m####\e[0m\n" >> ${OCF_RESKEY_repli_log_file}
+    fi
+}
+
+# $1: the name of the step
+repli_log_step_footer()
+{
+    if [ ${OCF_RESKEY_repli_log_level} -ge 1 ];then
+        message="$1"
+
+        echo -ne "[$(date)] \e[36m####\e[0m END ${message} ON $(hostname) \e[36m####\e[0m\n" >> ${OCF_RESKEY_repli_log_file}
+    fi
+}
+
+# $1: the current step
+# $2: the maximum number of step
+# $3: the name of the step/substep
+repli_log_step()
+{
+    if [ ${OCF_RESKEY_repli_log_level} -ge 1 ];then
+        current_step=$1
+        max_step=$2
+        message="$3"
+
+        echo -ne "[$(date)] \e[36m****\e[0m STEP ${current_step}/${max_step}: ${message} \e[36m****\e[0m\n" >> ${OCF_RESKEY_repli_log_file}
+    fi
 }
