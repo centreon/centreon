@@ -48,7 +48,7 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
      */
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
-        private readonly ExceptionHandler $exceptionHandler,
+        private readonly ExceptionHandler $exceptionHandler
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -71,6 +71,7 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
             return;
         }
 
+        $this->viewModel->setTotalFilteredResources($response->getTotalFilteredResources());
         $this->viewModel->setTotalResources($response->getTotalResources());
     }
 

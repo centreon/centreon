@@ -31,7 +31,30 @@ namespace Core\Resources\Application\UseCase\CountResources;
  */
 class CountResourcesResponse {
     /** @var int */
+    private int $totalFilteredResources = 0;
+
+    /** @var int */
     private int $totalResources = 0;
+
+    /**
+     * @return int
+     */
+    public function getTotalFilteredResources(): int
+    {
+        return $this->totalFilteredResources;
+    }
+
+    /**
+     * @param int $totalFilteredResources
+     *
+     * @return CountResourcesResponse
+     */
+    public function setTotalFilteredResources(int $totalFilteredResources): self
+    {
+        $this->totalFilteredResources = $totalFilteredResources;
+
+        return $this;
+    }
 
     /**
      * @return int
@@ -44,7 +67,7 @@ class CountResourcesResponse {
     /**
      * @param int $totalResources
      *
-     * @return CountResourcesResponse
+     * @return $this
      */
     public function setTotalResources(int $totalResources): self
     {

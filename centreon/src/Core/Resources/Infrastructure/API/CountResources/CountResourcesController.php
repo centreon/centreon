@@ -26,6 +26,10 @@ namespace Core\Resources\Infrastructure\API\CountResources;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Centreon\Domain\RequestParameters\RequestParameters;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Domain\Exception\InternalErrorException;
+use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Resources\Application\UseCase\CountResources\CountResources;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
@@ -37,9 +41,17 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
  * @phpstan-import-type _RequestParameters from RequestValidator
  */
 class CountResourcesController extends AbstractController {
+    /**
+     * CountResourcesController constructor
+     *
+     * @param ContactInterface $contact
+     * @param RequestValidator $validator
+     * @param ExceptionHandler $exceptionHandler
+     */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly RequestValidator $validator
+        private readonly RequestValidator $validator,
+        private readonly ExceptionHandler $exceptionHandler
     ) {}
 
     /**
@@ -54,14 +66,28 @@ class CountResourcesController extends AbstractController {
         CountResources $useCase,
         CountResourcesPresenterJson $presenter,
         Request $request,
-        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] CountResourcesInput $input
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] CountResourcesInput $input,
     ): Response {
         $useCaseRequest = $this->createCountRequest($request);
         $useCase($useCaseRequest, $presenter);
 
-        $presenter->present($presenter->getViewModel()->getTotalResources());
+        try {
+            $presenter->present(
+                [
+                    'result' => $presenter->getViewModel()->getTotalFilteredResources(),
+                    'meta' => [
+                        'search' => $this->formatSearchParameter($input->search ?? ''),
+                        'total' => $presenter->getViewModel()->getTotalResources(),
+                    ],
+                ]
+            );
 
-        return $presenter->show();
+            return $presenter->show();
+        } catch (InternalErrorException $exception) {
+            $this->exceptionHandler->log($exception, ['request' => $request->query->all()]);
+            $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
+            return $presenter->show();
+        }
     }
 
     // -------------------------------- PRIVATE METHODS --------------------------------
@@ -107,5 +133,25 @@ class CountResourcesController extends AbstractController {
             ->setOnlyWithPerformanceData($filter[RequestValidator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY])
             ->setOnlyWithTicketsOpened($filter[RequestValidator::PARAM_RESOURCES_WITH_OPENED_TICKETS])
             ->setRuleId($filter[RequestValidator::PARAM_OPEN_TICKET_RULE_ID]);
+    }
+
+    /**
+     * @param string $search
+     *
+     * @throws InternalErrorException
+     * @return array<string,mixed>
+     */
+    private function formatSearchParameter(string $search): array {
+        try {
+            $requestParameters = new RequestParameters();
+            $requestParameters->setSearch($search);
+            return (array) $requestParameters->toArray()['search'];
+        } catch (\Throwable $exception) {
+            throw new InternalErrorException(
+                'Error while formatting search parameter',
+                ['search' => $search],
+                $exception
+            );
+        }
     }
 }

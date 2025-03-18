@@ -62,7 +62,8 @@ final readonly class CountResources
 
         if ($request->contact->isAdmin()) {
             try {
-                $countResources = $this->readResourceRepository->countResources($request->resourceFilter);
+                $countFilteredResources = $this->readResourceRepository->countResources($request->resourceFilter);
+                $countTotalResources = $this->readResourceRepository->countResources();
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
                     new ErrorResponse(
@@ -85,6 +86,7 @@ final readonly class CountResources
                     static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
                     $this->accessGroupRepository->findByContact($request->contact)
                 );
+                var_dump($accessGroupIds);
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
                     new ErrorResponse(
@@ -101,10 +103,11 @@ final readonly class CountResources
             }
 
             try {
-                $countResources = $this->readResourceRepository->countResourcesByAccessGroupIds(
-                    $request->resourceFilter,
-                    $accessGroupIds
+                $countFilteredResources = $this->readResourceRepository->countResourcesByAccessGroupIds(
+                    $accessGroupIds,
+                    $request->resourceFilter
                 );
+                $countTotalResources = $this->readResourceRepository->countResourcesByAccessGroupIds($accessGroupIds);
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
                     new ErrorResponse(
@@ -123,7 +126,8 @@ final readonly class CountResources
             }
         }
 
-        $response->setTotalResources($countResources);
+        $response->setTotalFilteredResources($countFilteredResources);
+        $response->setTotalResources($countTotalResources);
 
         $presenter->presentResponse($response);
     }

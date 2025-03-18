@@ -392,12 +392,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
-     * @param ResourceFilter $filter
+     * @param ResourceFilter|null $filter
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResources(ResourceFilter $filter): int
+    public function countResources(?ResourceFilter $filter = null): int
     {
         try {
             // For a count, there isn't pagination we limit the number of results
@@ -405,14 +405,21 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
             $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
 
+            // If no filter is provided, we create an empty one to avoid errors and to have total resources
+            // The same is done with the search values of sqlRequestTranslator and search of request parameters
+            if ($filter === null) {
+                $this->sqlRequestTranslator->setSearchValues([]);
+                $this->sqlRequestTranslator->getRequestParameters()->setSearch('');
+            }
+
             $queryParametersFromRequestParameter = new QueryParameters();
             $query = $this->generateFindResourcesRequest(
-                filter: $filter,
+                filter: $filter ?? new ResourceFilter(),
                 queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
                 onlyCount: true
             );
 
-            return $this->count($query, $queryParametersFromRequestParameter);
+            return $this->count($query, $queryParametersFromRequestParameter, !is_null($filter));
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by max results',
@@ -423,13 +430,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
-     * @param ResourceFilter $filter
      * @param array<int> $accessGroupIds
+     *
+     * @param ResourceFilter|null $filter
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): int
+    public function countResourcesByAccessGroupIds(array $accessGroupIds, ?ResourceFilter $filter = null): int
     {
         try {
             // For a count, there isn't pagination we limit the number of results
@@ -437,17 +445,24 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
             $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
 
+            // If no filter is provided, we create an empty one to avoid errors and to have total resources
+            // The same is done with the search values of sqlRequestTranslator and search of request parameters
+            if ($filter === null) {
+                $this->sqlRequestTranslator->setSearchValues([]);
+                $this->sqlRequestTranslator->getRequestParameters()->setSearch('');
+            }
+
             $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
 
             $queryParametersFromRequestParameter = new QueryParameters();
             $query = $this->generateFindResourcesRequest(
-                filter: $filter,
+                filter: $filter ?? new ResourceFilter(),
                 queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
                 accessGroupRequest: $accessGroupRequest,
                 onlyCount: true
             );
 
-            return $this->count($query, $queryParametersFromRequestParameter);
+            return $this->count($query, $queryParametersFromRequestParameter, !is_null($filter));
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by access group ids and max results',
@@ -856,6 +871,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     /**
      * @param string $query
      * @param QueryParameters $queryParametersFromRequestParameters
+     * @param bool $withFilter
      *
      * @throws CollectionException
      * @throws ConnectionException
@@ -864,13 +880,19 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private function count(
         string $query,
-        QueryParameters $queryParametersFromRequestParameters
+        QueryParameters $queryParametersFromRequestParameters,
+        bool $withFilter = true
     ): int {
         $queryResources = $this->translateDbName($query);
-        $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
-            $this->sqlRequestTranslator->getSearchValues()
-        );
-        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
+
+        if ($withFilter) {
+            $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
+                $this->sqlRequestTranslator->getSearchValues()
+            );
+            $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
+        } else {
+            $queryParameters = $queryParametersFromRequestParameters;
+        }
 
         return $this->connection->fetchOne($queryResources, $queryParameters);
     }

@@ -36,6 +36,7 @@ use Core\Resources\Application\UseCase\ExportResources\ExportResources;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesResponse;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Mockery;
 use Tests\Core\Resources\Application\UseCase\CountResources\CountResourcesPresenterStub;
 
@@ -66,6 +67,11 @@ it('count resources with admin mode should throw a response with all resources',
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
     $this->resourcesRepository
         ->shouldReceive('countResources')
+        ->with($this->filters)
+        ->andReturn(2);
+    $this->resourcesRepository
+        ->shouldReceive('countResources')
+        ->withNoArgs()
         ->andReturn(10);
     $request = new CountResourcesRequest(
         contact: $this->contact,
@@ -74,16 +80,23 @@ it('count resources with admin mode should throw a response with all resources',
     $useCase = new CountResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
     expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class)
+        ->and($this->presenter->response->getTotalFilteredResources())->toBe(2)
         ->and($this->presenter->response->getTotalResources())->toBe(10);
 });
 
 it('count resources with acl should throw a response with allowed resources', function () {
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(false);
+    $accessGroup = new AccessGroup(1, 'test', 'test');
     $this->contactRepository
         ->shouldReceive('findByContact')
-        ->andReturn([]);
+        ->andReturn([$accessGroup]);
     $this->resourcesRepository
         ->shouldReceive('countResourcesByAccessGroupIds')
+        ->with([1], $this->filters)
+        ->andReturn(2);
+    $this->resourcesRepository
+        ->shouldReceive('countResourcesByAccessGroupIds')
+        ->with([1])
         ->andReturn(10);
     $request = new CountResourcesRequest(
         contact: $this->contact,
@@ -92,5 +105,6 @@ it('count resources with acl should throw a response with allowed resources', fu
     $useCase = new CountResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
     expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class)
+        ->and($this->presenter->response->getTotalFilteredResources())->toBe(2)
         ->and($this->presenter->response->getTotalResources())->toBe(10);
 });

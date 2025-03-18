@@ -31,7 +31,28 @@ namespace Core\Resources\Infrastructure\API\CountResources;
  */
 class CountResourcesViewModel {
     /** @var int */
+    private int $totalFilteredResources = 0;
+
+    /** @var int */
     private int $totalResources = 0;
+
+    /**
+     * @return int
+     */
+    public function getTotalFilteredResources(): int
+    {
+        return $this->totalFilteredResources;
+    }
+
+    /**
+     * @param int $totalFilteredResources
+     *
+     * @return void
+     */
+    public function setTotalFilteredResources(int $totalFilteredResources): void
+    {
+        $this->totalFilteredResources = $totalFilteredResources;
+    }
 
     /**
      * @return int
