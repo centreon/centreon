@@ -30,16 +30,48 @@ use Core\Resources\Infrastructure\API\ExportResources\ExportResourcesRequestTran
 use Mockery;
 
 beforeEach(function () {
-    $this->input = new ExportResourcesInput('csv', 'true', '100', ['column1', 'column2']);
     $this->filter = Mockery::mock(ResourceFilter::class);
     $this->contact = Mockery::mock(ContactInterface::class);
 });
 
-it('test transform inputs to request to export resources', function () {
-    $input = new ExportResourcesInput('csv', 'true', ['column1', 'column2'], '100');
+it('test transform inputs to request to export resources with pagination', function () {
+    $input = new ExportResourcesInput(
+        'csv',
+        '0',
+        ['status'],
+        null,
+        '1',
+        '100',
+        '{"status_severity_code":"desc","last_status_change":"desc"}',
+        '{"$and":[]}',
+        null
+    );
+    $request = ExportResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
+    expect($request->exportedFormat)->toBe('csv')
+        ->and($request->allPages)->toBeFalse()
+        ->and($request->maxResults)->toBe(0)
+        ->and($request->columns)->toBe(['status'])
+        ->and($request->resourceFilter)->toBe($this->filter)
+        ->and($request->contact)->toBe($this->contact);
+});
+
+it('test transform inputs to request to export resources without pagination', function () {
+    $input = new ExportResourcesInput(
+        'csv',
+        '1',
+        ['status'],
+        '999',
+        null,
+        null,
+        '{"status_severity_code":"desc","last_status_change":"desc"}',
+        '{"$and":[]}',
+        null
+    );
     $request = ExportResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
     expect($request->exportedFormat)->toBe('csv')
         ->and($request->allPages)->toBeTrue()
-        ->and($request->maxResults)->toBe(100)
-        ->and($request->columns)->toBe(['column1', 'column2']);
+        ->and($request->maxResults)->toBe(999)
+        ->and($request->columns)->toBe(['status'])
+        ->and($request->resourceFilter)->toBe($this->filter)
+        ->and($request->contact)->toBe($this->contact);
 });

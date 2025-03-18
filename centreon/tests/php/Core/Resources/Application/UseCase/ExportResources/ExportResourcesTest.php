@@ -119,7 +119,10 @@ it('export resources with admin mode should throw a response with all resources'
     );
     $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->response)->toBeInstanceOf(ExportResourcesResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(ExportResourcesResponse::class)
+        ->and($this->presenter->response->getResources())->toBeInstanceOf(\ArrayObject::class)
+        ->and($this->presenter->response->getExportedFormat())->toBe('csv')
+        ->and($this->presenter->response->getFilteredColumns())->toBe([]);
 });
 
 it('export resources with acl should throw a response with allowed resources', function () {
@@ -140,5 +143,8 @@ it('export resources with acl should throw a response with allowed resources', f
     );
     $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->response)->toBeInstanceOf(ExportResourcesResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(ExportResourcesResponse::class)
+        ->and($this->presenter->response->getResources())->toBeInstanceOf(\ArrayObject::class)
+        ->and($this->presenter->response->getExportedFormat())->toBe('csv')
+        ->and($this->presenter->response->getFilteredColumns())->toBe([]);
 });

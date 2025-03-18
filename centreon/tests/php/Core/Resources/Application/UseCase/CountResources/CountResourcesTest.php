@@ -66,14 +66,15 @@ it('count resources with admin mode should throw a response with all resources',
     $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
     $this->resourcesRepository
         ->shouldReceive('countResources')
-        ->andReturn(new \ArrayObject([Mockery::mock(Resource::class)]));
+        ->andReturn(10);
     $request = new CountResourcesRequest(
         contact: $this->contact,
         resourceFilter: $this->filters
     );
     $useCase = new CountResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class)
+        ->and($this->presenter->response->getTotalResources())->toBe(10);
 });
 
 it('count resources with acl should throw a response with allowed resources', function () {
@@ -83,12 +84,13 @@ it('count resources with acl should throw a response with allowed resources', fu
         ->andReturn([]);
     $this->resourcesRepository
         ->shouldReceive('countResourcesByAccessGroupIds')
-        ->andReturn(new \ArrayObject([Mockery::mock(Resource::class)]));
+        ->andReturn(10);
     $request = new CountResourcesRequest(
         contact: $this->contact,
         resourceFilter: $this->filters
     );
     $useCase = new CountResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
-    expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class);
+    expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class)
+        ->and($this->presenter->response->getTotalResources())->toBe(10);
 });
