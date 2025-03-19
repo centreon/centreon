@@ -25,7 +25,7 @@ export const buildResourcesEndpoint = ({
     if (!equals(type, resource.resourceType)) {
       return {
         ...resource,
-        resourceType: `${equals(resource.resourceType, 'hostgroup') ? 'host_group' : resource.resourceType.replace('-', '_')}.name`
+        resourceType: `${resource.resourceType.replace('-', '_')}.name`
       };
     }
 

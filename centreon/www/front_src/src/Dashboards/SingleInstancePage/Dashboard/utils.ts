@@ -222,14 +222,9 @@ interface GetFormattedResources {
 }
 
 export const getFormattedResources = ({
-  array,
-  filterName = 'hostgroup',
-  resourceType = WidgetResourceType.hostGroup
+  array
 }: GetFormattedResources): Array<Resource> => {
   return array?.map((item) => {
-    if (equals(item.resourceType, filterName)) {
-      return { ...item, resourceType };
-    }
     return item;
   });
 };

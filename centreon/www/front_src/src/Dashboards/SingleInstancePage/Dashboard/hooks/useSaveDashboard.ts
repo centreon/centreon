@@ -33,12 +33,6 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       data,
       name
     }) => {
-      const formattedResources = getFormattedResources({
-        array: data?.resources,
-        filterName: WidgetResourceType.hostGroup,
-        resourceType: 'hostgroup'
-      });
-
       return {
         id: Number(i),
         layout: {
@@ -51,7 +45,7 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
         },
         name: name || '',
         widget_settings: {
-          data: { ...data, resources: formattedResources },
+          data,
           options
         },
         widget_type: panelConfiguration.path

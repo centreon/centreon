@@ -395,7 +395,6 @@ export const indicatorsURL = '/main.php?p=62606';
 
 const resourceTypesCustomParameters = [
   'host-group',
-  'hostgroup',
   'host-category',
   'service-group',
   'service-category'
