@@ -391,7 +391,7 @@ jobs:
 
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
-          version: 8
+          version: 10
           run_install: false
 
       - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
@@ -469,6 +469,24 @@ jobs:
             pnpm newman run "$collection_file" -e "$environment_file" --working-dir "$collection_directory" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
           else
             echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Verify JSON Summary File
+        if: always()
+        run: |
+          summary_file="postman_summaries/${{ matrix.feature }}-summary.json"
+          if [ -f "$summary_file" ]; then
+            echo "Summary file exists: $summary_file"
+            if [ $(jq '.run.stats.assertions.total' "$summary_file") -gt 0 ]; then
+              echo "JSON summary file is valid and contains test results."
+            else
+              echo "JSON summary file is empty or does not contain valid test results."
+              exit 1
+            fi
+          else
+            echo "JSON summary file does not exist."
             exit 1
           fi
         shell: bash
