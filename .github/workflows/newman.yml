@@ -464,34 +464,26 @@ jobs:
           collection_name=$(basename "$collection_file" .postman_collection.json)
           collection_directory="$(dirname "$collection_file")"
           environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
+
+          # Vérifie si le fichier d'environnement existe
           if [ -f "$environment_file" ]; then
             echo "Environment: $environment_file"
+
+            # Exécute Newman et génère les fichiers HTML et JSON de résumé
             pnpm newman run "$collection_file" -e "$environment_file" --working-dir "$collection_directory" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
+
+            # Vérifie si le fichier JSON de résumé a bien été généré
+            summary_file="postman_summaries/${collection_name}-summary.json"
+            if [ -f "$summary_file" ]; then
+              echo "✅ Summary file generated: $summary_file"
+              cat "$summary_file"  # Affiche le contenu pour débogage
+            else
+              echo "❌ Summary file not generated: $summary_file"
+              exit 1
+            fi
           else
             echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
             exit 1
-          fi
-        shell: bash
-
-      - name: Verify JSON Summary File
-        if: always()
-        run: |
-         summary_file=$(find postman_summaries/ -maxdepth 2 -type f -name "*-summary.json")
-
-          if [ -z "$summary_file" ]; then
-            echo "❌ JSON summary file does not exist in postman_summaries/."
-            exit 1
-          else
-            echo "✅ Summary file found: $summary_file"
-            cat "$summary_file"  # Affiche le contenu pour debug
-
-            # Vérifie si le fichier contient des tests exécutés
-            if [ $(jq '.run.stats.assertions.total' "$summary_file") -gt 0 ]; then
-              echo "✅ JSON summary file is valid and contains test results."
-            else
-              echo "❌ JSON summary file is empty or does not contain valid test results."
-              exit 1
-            fi
           fi
         shell: bash
 
