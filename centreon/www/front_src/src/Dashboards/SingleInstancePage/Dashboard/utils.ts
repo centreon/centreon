@@ -214,17 +214,3 @@ export const getUrlForResourcesOnlyWidgets = ({
     JSON.stringify(filterQueryParameter)
   )}&fromTopCounter=true`;
 };
-
-interface GetFormattedResources {
-  array: Array<Resource>;
-  filterName?: string;
-  resourceType?: string;
-}
-
-export const getFormattedResources = ({
-  array
-}: GetFormattedResources): Array<Resource> => {
-  return array?.map((item) => {
-    return item;
-  });
-};
