@@ -55,19 +55,17 @@ export default (on: Cypress.PluginEvents): void => {
   on('task', {
     copyFromContainer: async ({ destination, serviceName, source }) => {
       try {
-        if (dockerEnvironment !== null) {
-          const container = dockerEnvironment.getContainer(`${serviceName}-1`);
+        const container = getContainer(serviceName);
 
-          await container
-            .copyArchiveFromContainer(source)
-            .then((archiveStream) => {
-              return new Promise<void>((resolve) => {
-                const dest = tar.extract(destination);
-                archiveStream.pipe(dest);
-                dest.on('finish', resolve);
-              });
+        await container
+          .copyArchiveFromContainer(source)
+          .then((archiveStream) => {
+            return new Promise<void>((resolve) => {
+              const dest = tar.extract(destination);
+              archiveStream.pipe(dest);
+              dest.on('finish', resolve);
             });
-        }
+          });
       } catch (error) {
         console.error(error);
       }

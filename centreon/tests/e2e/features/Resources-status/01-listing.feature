@@ -1,3 +1,4 @@
+
 @REQ_MON-22028
 Feature: List Resources
   As a user
