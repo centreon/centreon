@@ -307,39 +307,52 @@ const insertResources = (): Cypress.Chainable => {
 };
 
 const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
-  return cy.exec(`ls ../../www/install/php/Update-next.php || echo ""`)
-  .then((result) => {
-    const updateNextFile = result.stdout.trim();
-    if (!updateNextFile) {
-      cy.log("Update-next.php file not found");
-      return cy.wrap(null);
-    }
+  return cy.getWebVersion().then(({ major_version, minor_version }) => {
+    const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
+    
+    // Check if the version-specific file already exists
+    return cy.execInContainer({
+      command: `ls ${targetUpdateFile} || echo "File not found"`,
+      name: 'web'
+    }).then((fileCheckResult) => {
+      // If version-specific file already exists, no action needed
+      if (!fileCheckResult.output.includes("File not found")) {
+        cy.log(`Version-specific update file already exists in container: ${targetUpdateFile}`);
+        return cy.wrap(null);
+      }
+      
+      // If version-specific file does not exist => copy content from Update-next.php
+      return cy.exec(`ls ../../www/install/php/Update-next.php || echo ""`)
+      .then((result) => {
+        const updateNextFile = result.stdout.trim();
+        if (!updateNextFile) {
+          cy.log("Update-next.php file not found");
+          return cy.wrap(null);
+        }
 
-    return cy.getWebVersion().then(({ major_version, minor_version }) => {
-      const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
-
-      // Copy the Update-next.php content to container with proper name
-      return cy.copyToContainer({
-        source: updateNextFile,
-        destination: targetUpdateFile,
-        type: CopyToContainerContentType.File
-      })
-      .then(() => {
-        // Check if file was copied successfully
-        return cy.execInContainer({
-          command: `ls -la ${targetUpdateFile} || echo "File not found after copy"`,
-          name: 'web'
-        }).then((lsResult) => {
-
-          if (lsResult.output.includes("File not found")) {
-            cy.log("WARNING: Copy operation did not create the target file");
-            return cy.wrap(null);
-          }
-
-          // Change version in the file
+        // Copy the Update-next.php content to container with proper name
+        return cy.copyToContainer({
+          source: updateNextFile,
+          destination: targetUpdateFile,
+          type: CopyToContainerContentType.File
+        })
+        .then(() => {
+          // Check if file was copied successfully
           return cy.execInContainer({
-            command: `sed -i "s/version = '';/version = '${major_version}.${minor_version}';/g" ${targetUpdateFile}`,
+            command: `ls -la ${targetUpdateFile} || echo "File not found after copy"`,
             name: 'web'
+          }).then((lsResult) => {
+
+            if (lsResult.output.includes("File not found")) {
+              cy.log("WARNING: Copy operation did not create the target file");
+              return cy.wrap(null);
+            }
+
+            // Change version in the file
+            return cy.execInContainer({
+              command: `sed -i "s/version = '';/version = '${major_version}.${minor_version}';/g" ${targetUpdateFile}`,
+              name: 'web'
+            });
           });
         });
       });
