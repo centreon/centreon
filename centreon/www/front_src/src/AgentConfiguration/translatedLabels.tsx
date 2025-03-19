@@ -60,4 +60,4 @@ export const labelPollerCaCertificateFileName =
   'Poller CA certificate file name';
 export const labelPollerCaName = 'Poller CA name';
 
-export const labelCACommonName = 'CA Common Name';
+export const labelCACommonName = 'CA Common Name (CN)';

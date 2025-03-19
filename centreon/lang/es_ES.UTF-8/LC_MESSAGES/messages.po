@@ -17806,7 +17806,7 @@ msgstr "Retractar"
 # msgid "CA"
 # msgstr ""
 
-# msgid "CA Common Name"
+# msgid "CA Common Name (CN)"
 # msgstr ""
 
 # msgid "Private key"

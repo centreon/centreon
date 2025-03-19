@@ -19548,8 +19548,8 @@ msgstr "Extension non autorisée"
 msgid "CA"
 msgstr "CA"
 
-msgid "CA Common Name"
-msgstr "Nom commun du CA"
+msgid "CA Common Name (CN)"
+msgstr "Nom commun CA (CN)"
 
 msgid "Private key"
 msgstr "Clé privée"
