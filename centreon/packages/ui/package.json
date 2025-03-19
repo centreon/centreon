@@ -98,10 +98,8 @@
     "vite-plugin-svgr": "^4.3.0",
     "vite-plugin-turbosnap": "^1.0.3"
   },
-  "peerDependencies": {
-    "@centreon/ui-context": "link:../ui-context"
-  },
   "dependencies": {
+    "@centreon/ui-context": "link:../ui-context",
     "@lexical/html": "^0.27.0",
     "@lexical/link": "^0.27.0",
     "@lexical/list": "^0.27.0",
