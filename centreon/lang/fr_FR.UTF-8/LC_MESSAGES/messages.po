@@ -19734,7 +19734,7 @@ msgstr "Vous êtes sur le point de supprimer le groupe d'hôtes <strong>{{ name 
 msgid "You are about to delete <strong>{{ count }} host groups.</strong> This action cannot be undone. Do you want to delete them?"
 msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} groupes d'hôtes</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
 
-msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. Please specify the number of duplications you would like to make."
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. How many duplications would you like to make?"
 msgstr "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name }}</strong>. Veuillez spécifier le nombre de duplications que vous souhaitez effectuer."
 
 msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> Please specify the number of duplications you would like to make for these groups."
