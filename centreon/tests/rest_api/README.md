@@ -30,5 +30,3 @@ Usage example: `docker compose -f $(dirname $0)/../../../../../.github/docker/do
 A script `setup-web.sh` can be added at the same level as the postman collection.
 It is run in the web container once it is started and healthy (before the postman collection is run).
 Usage example: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json` to update dashboard feature flags
-
-
