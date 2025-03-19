@@ -25,6 +25,7 @@ namespace Core\Resources\Infrastructure\API\ExportResources;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Resources\Application\UseCase\ExportResources\ExportResources;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
@@ -81,6 +82,9 @@ final class ExportResourcesController extends AbstractController
 
         if ($presenter->getViewModel()->getExportedFormat() === 'csv') {
             return $this->createCsvResponse($resources);
+        } else {
+            $presenter->setResponseStatus(new ErrorResponse('Export format not supported'));
+            return $presenter->show();
         }
     }
 
@@ -132,7 +136,7 @@ final class ExportResourcesController extends AbstractController
     }
 
     /**
-     * @param \Traversable $resources
+     * @param \Traversable<array<string,mixed>> $resources
      *
      * @return Response
      */

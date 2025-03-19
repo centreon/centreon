@@ -40,7 +40,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 /**
  * @phpstan-import-type _RequestParameters from RequestValidator
  */
-class CountResourcesController extends AbstractController
+final class CountResourcesController extends AbstractController
 {
     /**
      * CountResourcesController constructor

@@ -51,6 +51,7 @@ use Core\Severity\RealTime\Domain\Model\Severity;
 class DbReadResourceRepository extends DatabaseRepository implements ReadResourceRepositoryInterface
 {
     use LoggerTrait;
+
     private const RESOURCE_TYPE_HOST = 1;
 
     /** @var ResourceEntity[] */
@@ -287,7 +288,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /**
      * @param ResourceFilter $filter
-     * @param array $accessGroupIds
+     * @param array<int> $accessGroupIds
      *
      * @throws RepositoryException
      * @return ResourceEntity[]
@@ -1344,15 +1345,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 $iconIds = array_values($iconIds);
 
                 $queryParameters = new QueryParameters();
-                for ($i = 0, $iMax = count($iconIds); $i < $iMax; $i++) {
+                for ($indexIconIds = 0, $iMax = count($iconIds); $indexIconIds < $iMax; $indexIconIds++) {
                     $queryParameter = null;
-                    $queryParameterName = "icon_id_{$i}";
-                    if (is_null($iconIds[$i])) {
+                    $queryParameterName = "icon_id_{$indexIconIds}";
+                    $iconId = $iconIds[$indexIconIds];
+                    if (is_null($iconId)) {
                         $queryParameter = QueryParameter::null($queryParameterName);
-                    } elseif (is_int($iconIds[$i])) {
-                        $queryParameter = QueryParameter::int($queryParameterName, $iconIds[$i]);
                     } else {
-                        $queryParameter = QueryParameter::string($queryParameterName, $iconIds[$i]);
+                        $queryParameter = QueryParameter::int($queryParameterName, $iconId);
                     }
                     $queryParameters->add($queryParameter->getName(), $queryParameter);
                 }

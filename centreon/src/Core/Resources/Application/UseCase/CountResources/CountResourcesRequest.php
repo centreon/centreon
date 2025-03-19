@@ -32,7 +32,7 @@ use Centreon\Domain\Monitoring\ResourceFilter;
  * @class CountResourcesRequest
  * @package Core\Resources\Application\UseCase\CountResources
  */
-class CountResourcesRequest {
+final readonly class CountResourcesRequest {
     /**
      * CountResourcesRequest constructor
      *

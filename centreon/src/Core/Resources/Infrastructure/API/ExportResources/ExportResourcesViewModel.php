@@ -29,14 +29,14 @@ namespace Core\Resources\Infrastructure\API\ExportResources;
  * @package Core\Resources\Infrastructure\API\ExportResources
  */
 final class ExportResourcesViewModel {
-    /** @var \Traversable */
+    /** @var \Traversable<array<string,mixed>> */
     private \Traversable $resources;
 
     /** @var string */
     private string $exportedFormat;
 
     /**
-     * @return \Traversable
+     * @return \Traversable<array<string,mixed>>
      */
     public function getResources(): \Traversable
     {
@@ -44,7 +44,7 @@ final class ExportResourcesViewModel {
     }
 
     /**
-     * @param \Traversable $resources
+     * @param \Traversable<array<string,mixed>> $resources
      *
      * @return void
      */

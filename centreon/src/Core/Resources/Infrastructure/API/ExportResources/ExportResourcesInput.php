@@ -133,7 +133,7 @@ final readonly class ExportResourcesInput
         } else {
             $allPages = (bool) $this->allPages;
             $this->validatePaginationByAllPages($context, $allPages);
-            if ($allPages) {
+            if ($allPages === true) {
                 $this->validateMaxLines($context);
             }
         }

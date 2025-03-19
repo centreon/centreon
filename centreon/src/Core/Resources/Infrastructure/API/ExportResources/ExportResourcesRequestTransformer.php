@@ -48,10 +48,10 @@ final readonly class ExportResourcesRequestTransformer {
     ): ExportResourcesRequest {
         return new ExportResourcesRequest(
             contact: $contact,
-            exportedFormat: $input->format,
+            exportedFormat: $input->format ?? '',
             resourceFilter: $resourceFilter,
             allPages: (bool) $input->allPages,
-            maxResults: (int) $input->maxLines ?? ExportResourcesInput::EXPORT_MAX_LINES,
+            maxResults: is_null($input->maxLines) ? 0 : (int) $input->maxLines,
             columns: $input->columns ?? []
         );
     }

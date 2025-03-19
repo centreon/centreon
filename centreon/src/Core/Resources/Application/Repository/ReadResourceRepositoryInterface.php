@@ -44,7 +44,7 @@ interface ReadResourceRepositoryInterface
      * Find all resources with filter on access group IDs.
      *
      * @param ResourceFilter $filter
-     * @param int[] $accessGroupIds
+     * @param array<int> $accessGroupIds
      *
      * @throws RepositoryException
      *

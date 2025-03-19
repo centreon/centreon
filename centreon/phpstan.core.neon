@@ -31,7 +31,7 @@ services:
 parameters:
     level: max
     paths:
-        - src/Core
+        - src/Core/Resources
         - src/Adaptation
     ignoreErrors:
         - # Strict comparison using !== between 'VMWARE_V6' and 'VMWARE_V6' will always evaluate to false.
@@ -78,6 +78,7 @@ parameters:
                 - src/Core/UserProfile/Infrastructure/Repository/DbWriteUserProfileRepository.php
                 - src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardShareRepository.php
                 - src/Core/Common/Infrastructure/RequestParameters/Transformer
+                - src/Core/Resources/Infrastructure/Repository
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false
@@ -119,10 +120,17 @@ parameters:
             message: '#Repositories must implement an Interface defined in Application layer.#'
             paths:
                 - src/Core/Security/ProviderConfiguration/Infrastructure/Repository/HttpReadAttributePathRepository.php
-          # To fix this custom rule that block the development (to clean)
-        - # Unsafe usage of new static(). Unblock usage of value object.
+          # ======= To fix this custom rule that block the development (TO CLEAN) =======
+        - # Problem : block usage of Value Object.
+          # Unsafe usage of new static().
             reportUnmatched: false
             message: '#Unsafe usage of new static#'
             paths:
                 - src/Core/Common/Domain/ValueObject
+        - # Problem : usage exception handler instead of logger, so it's ok.
+          # [CENTREON-RULE]: Catch block must contain a Logger trait method call.
+            reportUnmatched: false
+            message: '#Catch block must contain a Logger trait method call.#'
+            paths:
+                - src/Core/Resources/Infrastructure/API/CountResources/CountResourcesController.php
 

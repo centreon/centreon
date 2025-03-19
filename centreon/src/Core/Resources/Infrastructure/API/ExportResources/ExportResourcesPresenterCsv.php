@@ -130,7 +130,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                 _('Alias') => $resource->getAlias() ?? '',
                 _('Parent alias') => $resource->getParent()?->getAlias() ?? '',
                 _('FQDN / Address') => $resource->getFqdn() ?? '',
-                _('Monitoring Server') => $resource->getMonitoringServerName() ?? '',
+                _('Monitoring Server') => $resource->getMonitoringServerName(),
                 _('Notif') => $resource->isNotificationEnabled() ? _('Enabled') : ('Disabled'),
                 _('Check') => _($this->getResourceCheck($resource)),
             ];
@@ -183,7 +183,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
 
     /**
      * @param \Traversable<array<string,mixed>> $csvResources
-     * @param array $columns
+     * @param array<string> $columns
      *
      * @return \Traversable<array<string,mixed>>
      */
