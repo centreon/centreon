@@ -45,6 +45,7 @@ require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 require_once $centreon_path . 'www/widgets/hostgroup-monitoring/src/class/HostgroupMonitoring.class.php';
 
 session_start();
@@ -99,8 +100,9 @@ try {
     }
 
     if (!$centreon->user->admin) {
-        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN (:hostgroups)");
-        $bindParams[':hostgroups'] = [$aclObj->getHostGroupsString("NAME"), PDO::PARAM_STR];
+        [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getHostGroups(), ':hostgroup_name_', PDO::PARAM_STR);
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ($bindQuery)");
+        $bindParams = array_merge($bindParams, $bindValues);
     }
     $orderby = "name " . ORDER_DIRECTION_ASC;
 
