@@ -79,23 +79,25 @@ Given('an already existing agent configuration', () => {
   cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Telegraf').click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type(agentsConfiguration.telegraf1.name);
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+    agentsConfiguration.telegraf1.name
+  );
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type(
-    agentsConfiguration.telegraf1.publicCertfFileName
-  );
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type(
+  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+    .eq(0)
+    .type(agentsConfiguration.telegraf1.publicCertfFileName);
+  cy.getByLabel({ label: 'CA', tag: 'input' }).type(
     agentsConfiguration.telegraf1.caFileName
   );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+  cy.getByLabel({ label: 'Private key', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type(
-    agentsConfiguration.telegraf1.certfFileName
-  );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+    .eq(1)
+    .type(agentsConfiguration.telegraf1.certfFileName);
+  cy.getByLabel({ label: 'Private key', tag: 'input' })
     .eq(1)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByTestId({ testId: 'SaveIcon' }).click();
@@ -123,25 +125,35 @@ Then('a pop up is displayed with all of the agent information', () => {
     'have.text',
     'Central'
   );
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should(
-    'have.value',
-    `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
-  );
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).should(
+  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+    .eq(0)
+    .should(
+      'have.value',
+      `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
+    );
+  cy.getByLabel({ label: 'CA', tag: 'input' }).should(
     'have.value',
     `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
   );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+  cy.getByLabel({ label: 'Private key', tag: 'input' })
     .eq(0)
-    .should('have.value', `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`);
+    .should(
+      'have.value',
+      `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`
+    );
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).should(
-    'have.value',
-    `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
-  );
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' })
+  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
     .eq(1)
-    .should('have.value', `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`);
+    .should(
+      'have.value',
+      `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
+    );
+  cy.getByLabel({ label: 'Private key', tag: 'input' })
+    .eq(1)
+    .should(
+      'have.value',
+      `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`
+    );
 });
 
 Given('some poller agent configurations are created', () => {
@@ -170,14 +182,20 @@ Given('some configured poller agent configurations', () => {
 });
 
 When('the user enters an existing name into the search bar', () => {
-  cy.getByTestId({ testId: 'Search' }).eq(1).clear().type(agentsConfiguration.CMA1.name);
+  cy.getByTestId({ testId: 'Search' })
+    .eq(1)
+    .clear()
+    .type(agentsConfiguration.CMA1.name);
   cy.wait('@getAgentsPage');
 });
 
-Then('a listing page is displayed showing only the poller agent configurations that match the entered name', () => {
-  cy.contains('p', agentsConfiguration.CMA1.name).should('be.visible');
-  cy.get('div[role="table"]')
-    .find('div[class*="-tableBody"]')
-    .find('div[role="row"]')
-    .should('have.length', 1);
-});
+Then(
+  'a listing page is displayed showing only the poller agent configurations that match the entered name',
+  () => {
+    cy.contains('p', agentsConfiguration.CMA1.name).should('be.visible');
+    cy.get('div[role="table"]')
+      .find('div[class*="-tableBody"]')
+      .find('div[role="row"]')
+      .should('have.length', 1);
+  }
+);

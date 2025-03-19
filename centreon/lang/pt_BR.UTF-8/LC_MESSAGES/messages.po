@@ -18261,16 +18261,16 @@ msgstr ""
 # msgid "Extension not allowed"
 # msgstr ""
 
-# msgid "Public certificate file name"
+# msgid "Public certificate"
 # msgstr ""
 
-# msgid "CA file name"
+# msgid "CA"
 # msgstr ""
 
-# msgid "Certificate file name"
+# msgid "CA Common Name"
 # msgstr ""
 
-# msgid "Private key file name"
+# msgid "Private key"
 # msgstr ""
 
 # msgid "Configuration server"
