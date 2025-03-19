@@ -1,11 +1,11 @@
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { useEffect, useMemo } from 'react';
 import { ConfigurationBase } from '../models';
-import { configurationAtom, filtersAtom } from './atoms';
+import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
 
 import Page from './Page';
-import { filtersAtomKey } from './constants';
+import { columnsAtomKey, filtersAtomKey } from './constants';
 
 const Base = ({
   columns,
@@ -18,6 +18,7 @@ const Base = ({
 }: ConfigurationBase): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
+  const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   useEffect(() => {
     setConfiguration({
@@ -30,6 +31,10 @@ const Base = ({
 
     if (isNil(localStorage.getItem(filtersAtomKey))) {
       setFilters(filtersInitialValues);
+    }
+
+    if (isNil(localStorage.getItem(columnsAtomKey))) {
+      setSelectedColumnIds(defaultSelectedColumnIds);
     }
   }, [
     setConfiguration,

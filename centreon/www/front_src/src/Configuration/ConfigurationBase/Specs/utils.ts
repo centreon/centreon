@@ -131,9 +131,7 @@ export const getLabelDeleteOne = (type, name) =>
 
 export const getLabelDeleteMany = (type, count) =>
   `You are about to delete ${count} ${type}. This action cannot be undone. Do you want to delete them?`;
-
 export const getLabelDuplicateOne = (type, name) =>
-  `You are about to duplicate the ${name} ${type}. Please specify the number of duplications you would like to make.`;
-
+  `You are about to duplicate the ${name} ${type}. How many duplications would you like to make?`;
 export const getLabelDuplicateMany = (type, count) =>
-  `You are about to duplicate ${count} ${type}. Please specify the number of duplications you would like to make for these groups.`;
+  `You are about to duplicate ${count} ${type}.</strong> How many duplications would you like to make?`;

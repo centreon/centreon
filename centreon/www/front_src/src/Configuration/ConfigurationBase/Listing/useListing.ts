@@ -1,12 +1,15 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
 import { useSearchParams } from 'react-router';
 
-import { configurationAtom, modalStateAtom } from '../atoms';
+import {
+  configurationAtom,
+  modalStateAtom,
+  selectedColumnIdsAtom
+} from '../atoms';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
@@ -34,8 +37,8 @@ const useListing = (): UseListing => {
   const configuration = useAtomValue(configurationAtom);
   const defaultSelectedColumnIds = configuration?.defaultSelectedColumnIds;
 
-  const [selectedColumnIds, setSelectedColumnIds] = useState(
-    defaultSelectedColumnIds
+  const [selectedColumnIds, setSelectedColumnIds] = useAtom(
+    selectedColumnIdsAtom
   );
 
   const setModalState = useSetAtom(modalStateAtom);
@@ -58,7 +61,7 @@ const useListing = (): UseListing => {
   };
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
-    if (updatedColumnIds.length < 3) {
+    if (updatedColumnIds.length < 1) {
       showWarningMessage(t(labelSelectAtLeastOneColumn));
 
       return;

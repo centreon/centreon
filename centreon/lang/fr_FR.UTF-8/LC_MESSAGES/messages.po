@@ -19734,11 +19734,11 @@ msgstr "Vous êtes sur le point de supprimer le groupe d'hôtes <strong>{{ name 
 msgid "You are about to delete <strong>{{ count }} host groups.</strong> This action cannot be undone. Do you want to delete them?"
 msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} groupes d'hôtes</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
 
-msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. Please specify the number of duplications you would like to make."
-msgstr "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name }}</strong>. Veuillez spécifier le nombre de duplications que vous souhaitez effectuer."
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. How many duplications would you like to make?"
+msgstr "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name }}</strong>. Combien de duplications souhaitez-vous effectuer?"
 
-msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> Please specify the number of duplications you would like to make for these groups."
-msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôtes</strong>. Veuillez spécifier le nombre de duplications que vous souhaitez effectuer pour ces groupes."
+msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> How many duplications would you like to make?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôtes</strong>. Combien de duplications souhaitez-vous effectuer?"
 
 msgid "Add a host group"
 msgstr "Ajouter un groupe d'hôtes"
@@ -19782,8 +19782,22 @@ msgstr "Échec de l'activation du groupe d'hôtes"
 msgid "Failed to disable the host group"
 msgstr "Échec de la désactivation du groupe d'hôtes"
 
+msgid "Workhours"
+msgstr "Heures de travail"
+
+msgid "Non-workhours"
+msgstr "Hors heures de travail"
+
+msgid "Forecast based on past X days"
+msgstr "Prévision basée sur les X derniers jours"
+
 msgid "Error while enabling/disabling host groups"
 msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
+
+msgid "Display average as"
+msgstr "Afficher la moyenne sous forme de"
+
+
 
 
 msgid "Host group created"

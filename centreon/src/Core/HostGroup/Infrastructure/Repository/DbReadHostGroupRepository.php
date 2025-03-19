@@ -563,8 +563,8 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                 SELECT
-                    COUNT(h.host_id) as count,
-                    hrel.hostgroup_hg_id,
+                    UNIQUE(hrel.hostgroup_hg_id),
+                    h.host_id,
                     IF (h.host_activate = '0', false, true) as is_activated
                 FROM `:db`.host h
                 INNER JOIN `:db`.hostgroup_relation hrel
@@ -574,7 +574,6 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                     AND acl.service_id IS NULL
                     AND acl.group_id IN ({$bindAclQuery})
                 WHERE hrel.hostgroup_hg_id IN ({$bindQuery})
-                GROUP BY hrel.hostgroup_hg_id, is_activated
                 SQL
         ));
 
@@ -584,22 +583,26 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         foreach ($bindAclValues as $key => $value) {
             $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
+        $data = $statement->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_ASSOC);
         $results = [];
-        foreach ($statement as $record) {
-            /** @var array{count:int, hostgroup_hg_id:int, is_activated:bool} $record */
-            $hostGroupId = $record['hostgroup_hg_id'];
-            $count = $record['count'];
-            $results[$hostGroupId] ??= new HostGroupRelationCount();
-
-            if ($record['is_activated']) {
-                $results[$hostGroupId]->setEnabledHostsCount($count);
-            } else {
-                $results[$hostGroupId]->setDisabledHostsCount($count);
+        foreach ($data as $hostGroupId => $hosts) {
+            /** @var array<array{host_id:int, is_activated:bool}> $hosts */
+            $enabled = [];
+            $disabled = [];
+            foreach ($hosts as $host) {
+                if ($host['is_activated']) {
+                    $enabled[] = $host['host_id'];
+                } else {
+                    $disabled[] = $host['host_id'];
+                }
             }
+
+            $results[$hostGroupId] = new HostGroupRelationCount();
+
+            $results[$hostGroupId]->setEnabledHostsCount(count(array_unique($enabled)));
+            $results[$hostGroupId]->setDisabledHostsCount(count(array_unique($disabled)));
         }
 
         return $results;

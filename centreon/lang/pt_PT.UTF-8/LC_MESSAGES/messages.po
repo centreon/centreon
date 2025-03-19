@@ -18409,10 +18409,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "You are about to delete <strong>{{ count }} host groups.</strong> This action cannot be undone. Do you want to delete them?"
 # msgstr ""
 
-# msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. Please specify the number of duplications you would like to make."
+# msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. How many duplications would you like to make?"
 # msgstr ""
 
-# msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> Please specify the number of duplications you would like to make for these groups."
+# msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> How many duplications would you like to make?"
 # msgstr ""
 
 # msgid "Add a host group"
@@ -18477,3 +18477,17 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Invalid geo-coordinate format"
 # msgstr ""
+
+
+# msgid "Workhours"
+# msgstr ""
+
+# msgid "Non-workhours"
+# msgstr ""
+
+# msgid "Forecast based on past X days"
+# msgstr ""
+
+# msgid "Display average as"
+# msgstr ""
+
