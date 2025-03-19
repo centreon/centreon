@@ -19545,9 +19545,6 @@ msgstr "Le numéro du port doit être au minimum 1"
 msgid "Extension not allowed"
 msgstr "Extension non autorisée"
 
-msgid "Public certificate"
-msgstr "Certificat public"
-
 msgid "CA"
 msgstr "CA"
 

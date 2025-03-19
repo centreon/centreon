@@ -485,7 +485,7 @@ describe('Agent configurations modal', () => {
     cy.makeSnapshot();
   });
 
-  it.only('sends the form when fields are valid and the corresponding button is clicked', () => {
+  it('sends the form when fields are valid and the corresponding button is clicked', () => {
     initialize({});
 
     cy.contains(labelAdd).click();
