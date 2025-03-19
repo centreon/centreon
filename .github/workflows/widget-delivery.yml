@@ -27,7 +27,7 @@ on:
 
 jobs:
   deliver-sources:
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     if: ${{ contains(fromJson('["stable"]'), inputs.stability) }}
 
     steps:
@@ -46,7 +46,7 @@ jobs:
 
   delivery-rpm:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
 
     strategy:
       matrix:
@@ -70,7 +70,7 @@ jobs:
 
   delivery-deb:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
 
     strategy:
       matrix:

@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-widget-live-top10-cpu-usage",
   "description": "Widget to list hosts ordered by CPU usage",
-  "version": "23.04.0",
+  "version": "23.04",
   "type": "project",
   "license": "GPL-2.0-only",
   "scripts": {
@@ -15,7 +15,7 @@
   "config": {
     "secure-http": false,
     "platform": {
-      "php": "7.2"
+      "php": "8.1"
     }
   }
 }

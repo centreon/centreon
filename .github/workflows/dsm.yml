@@ -77,7 +77,7 @@ jobs:
       registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
 
   deliver-sources:
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     needs: [get-environment, package]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
 
@@ -98,7 +98,7 @@ jobs:
   deliver-rpm:
     needs: [get-environment, package]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
 
     strategy:
       matrix:
@@ -123,7 +123,7 @@ jobs:
   deliver-deb:
     needs: [get-environment, package]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) && github.repository == 'centreon/centreon' }}
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
 
     strategy:
       matrix:
@@ -153,7 +153,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.repository == 'centreon/centreon'
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     strategy:
       matrix:
         distrib: [el8, el9, bullseye]
