@@ -208,16 +208,14 @@ When("the user doesn't fill in correct type of information", () => {
 });
 
 Then('the form displayed an error', () => {
-  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
-    .eq(0)
-    .contains('Invalid extension');
-  cy.getByTestId({ testId: 'CA' }).contains('Invalid extension');
+  cy.getByTestId({ testId: 'Public certificate' }).eq(0).contains('Invalid extension');
+  cy.getByTestId({ testId: 'CA' }).eq(0).contains('Invalid extension');
   cy.getByTestId({ testId: 'Private key' }).eq(0).contains('Invalid extension');
   cy.getByTestId({ testId: 'Port' }).contains(
     'Port number must be at most 65535'
   );
-  cy.getByTestId({ testId: 'CA' }).contains('Invalid extension');
-  cy.getByTestId({ testId: 'Private key' }).eq(1).contains('Invalid extension');
+  cy.getByTestId({ testId: 'Public certificate' }).eq(2).contains('Invalid extension');
+  cy.getByTestId({ testId: 'Private key' }).eq(2).contains('Invalid extension');
 });
 
 When('the user fills in the needed information', () => {
