@@ -475,13 +475,15 @@ jobs:
 
       - name: Verify JSON Summary File
         if: always()
-        working-directory: centreon/tests/rest_api
         run: |
-          summary_file=$(find postman_summaries/ -maxdepth 1 -type f -name "*-summary.json")
+         summary_file=$(find postman_summaries/ -maxdepth 2 -type f -name "*-summary.json")
 
-          if [ -f "$summary_file" ]; then
+          if [ -z "$summary_file" ]; then
+            echo "❌ JSON summary file does not exist in postman_summaries/."
+            exit 1
+          else
             echo "✅ Summary file found: $summary_file"
-            cat "$summary_file"  # Affiche le contenu pour débogage
+            cat "$summary_file"  # Affiche le contenu pour debug
 
             # Vérifie si le fichier contient des tests exécutés
             if [ $(jq '.run.stats.assertions.total' "$summary_file") -gt 0 ]; then
@@ -490,9 +492,6 @@ jobs:
               echo "❌ JSON summary file is empty or does not contain valid test results."
               exit 1
             fi
-          else
-            echo "❌ JSON summary file does not exist in postman_summaries/"
-            exit 1
           fi
         shell: bash
 
