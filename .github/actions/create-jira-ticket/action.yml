@@ -158,7 +158,7 @@ runs:
     - name: Update existing nightly Jira ticket
       if: |
         env.abort_ticket_creation == 'true' &&
-        steps.get_context.outputs.parent_epic_key == "MON-151547"
+        contains(steps.get_context.outputs.parent_epic_key, 'MON-151547')
       run: |
         # Adding failed job labels for already existing ticket
         [ -n "${IFS+set}" ] && saved_IFS=$IFS
