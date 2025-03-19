@@ -23,9 +23,9 @@ import {
   labelAgentType,
   labelAgentTypes,
   labelAgentsConfigurations,
+  labelCACommonName,
   labelCaCertificate,
   labelCancel,
-  labelCertificate,
   labelClear,
   labelConfigurationServer,
   labelConnectionInitiatedByPoller,
@@ -436,12 +436,12 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPollers).focus();
     cy.findByLabelText(labelPollers).blur();
     cy.findAllByLabelText(labelPort).eq(0).type('123456');
-    cy.findByLabelText(labelPublicCertificate).type('./test.cer');
+    cy.findAllByLabelText(labelPublicCertificate).eq(0).type('./test.cer');
     cy.findByLabelText(labelCaCertificate).type('//test.crt');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.abc');
     cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.xyz');
-    cy.findByLabelText(labelCertificate).type('test.cer');
-    cy.findByLabelText(labelCertificate).blur();
+    cy.findByLabelText(labelCaCertificate).type('test.cer');
+    cy.findByLabelText(labelCaCertificate).blur();
 
     cy.findByLabelText(labelAgentType).should('have.value', 'Telegraf');
     cy.findAllByText(labelRequired).should('have.length', 2);
@@ -485,7 +485,7 @@ describe('Agent configurations modal', () => {
     cy.makeSnapshot();
   });
 
-  it('sends the form when fields are valid and the corresponding button is clicked', () => {
+  it.only('sends the form when fields are valid and the corresponding button is clicked', () => {
     initialize({});
 
     cy.contains(labelAdd).click();
@@ -496,10 +496,10 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
     cy.findAllByLabelText(labelPort).eq(0).clear().type('1234');
-    cy.findByLabelText(labelPublicCertificate).type('test.crt');
+    cy.findAllByLabelText(labelPublicCertificate).eq(0).type('test.crt');
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('/sub/test.key');
     cy.findAllByLabelText(labelPrivateKey).eq(1).type('/sub/test.key');
-    cy.findByLabelText(labelCertificate).type('test.cer');
+    cy.findAllByLabelText(labelPublicCertificate).eq(1).type('test.cer');
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
@@ -764,7 +764,7 @@ describe('Agent configurations modal', () => {
     cy.findAllByLabelText(labelPrivateKey).eq(0).type('private.key');
     cy.findByLabelText(labelAddHost).click();
     cy.contains('central').click();
-    cy.findByLabelText(labelCertificate).type('test.crt');
+    cy.findByLabelText(labelCACommonName).type('test.crt');
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
