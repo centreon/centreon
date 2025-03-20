@@ -34,10 +34,10 @@ use Core\Common\Domain\Exception\ValueObjectException;
 /**
  * Class
  *
- * @class RequestParametersTransformer
+ * @class SearchRequestParametersTransformer
  * @package Centreon\Infrastructure\RequestParameters\Transformer
  */
-readonly abstract class RequestParametersTransformer
+readonly abstract class SearchRequestParametersTransformer
 {
     /**
      * @param QueryParameters $queryParameters
@@ -52,7 +52,7 @@ readonly abstract class RequestParametersTransformer
             $pdoType = PdoParameterTypeTransformer::transformFromQueryParameterType(
                 $queryParameter->getType() ?? QueryParameterTypeEnum::STRING
             );
-            $requestParameters[$queryParameter->getName()] = [$pdoType, $queryParameter->getValue()];
+            $requestParameters[$queryParameter->getName()] = [$pdoType => $queryParameter->getValue()];
         }
 
         return $requestParameters;
@@ -69,8 +69,21 @@ readonly abstract class RequestParametersTransformer
         try {
             $queryParameters = new QueryParameters();
             foreach ($requestParameters as $key => $value) {
-                $queryParameterTypeEnum = PdoParameterTypeTransformer::reverseToQueryParameterType($value[0]);
-                $value = $value[1];
+                $pdoType = key($value);
+                if (is_null($pdoType)) {
+                    throw new TransformerException(
+                        'Error while transforming request parameters to query parameters with pdo type',
+                        ['requestParameters' => $requestParameters]
+                    );
+                }
+                $value = current($value);
+                if ($value === false) {
+                    throw new TransformerException(
+                        'Error while transforming request parameters to query parameters with value',
+                        ['requestParameters' => $requestParameters]
+                    );
+                }
+                $queryParameterTypeEnum = PdoParameterTypeTransformer::reverseToQueryParameterType($pdoType);
                 $queryParameters->add($key, QueryParameter::create($key, $value, $queryParameterTypeEnum));
             }
 
