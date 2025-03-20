@@ -190,7 +190,8 @@ it('test a log with emergency level with a context without exception', function 
 });
 
 it('test a log with exception', function () {
-    $this->logger->error('error_message',
+    $this->logger->error(
+        'error_message',
         [
             'contact' => 1,
             'name' => 'John Doe',
@@ -201,6 +202,6 @@ it('test a log with exception', function () {
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        'test_logger.ERROR: error_message {"context":{"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":"[object] (LogicException(code: 99): exception_message at /usr/share/centreon/tests/php/Centreon/Domain/Log/LoggerTraitTest.php:' . (__LINE__ - 6) . ')","default":{"request_infos":{"url":null,"http_method":null,"server":null,"referrer":null}}}}'
+        'test_logger.ERROR: error_message {"context":{"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":"[object] (LogicException(code: 99): exception_message at ' . __FILE__ . ':' . (__LINE__ - 6) . ')","default":{"request_infos":{"url":null,"http_method":null,"server":null,"referrer":null}}}}'
     );
 });
