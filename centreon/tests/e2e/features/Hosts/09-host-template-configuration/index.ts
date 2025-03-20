@@ -56,16 +56,24 @@ Then("the user can configure directly its parent template", () => {
         // Get the hostId and build the correct URL
         const hostId = $el.siblings("select").val();
         if (hostId !== "") {
-          // Use the full URL path from the root
-          const url =
-            "http://127.0.0.1:4000/centreon/main.php?p=60103&o=c&host_id=" +
-            hostId +
-            "&min=1";
+          // Use relative URL to avoid hardcoding protocol and port
+          const baseUrl = win.location.origin;
+          const path = "/centreon/main.php";
+          const params = new URLSearchParams({
+            p: "60103",
+            o: "c",
+            host_id: hostId.toString(),
+            min: "1"
+          });
 
           // Perform redirection in the same tab
-          win.location.href = url;
+          win.location.href = `${baseUrl}${path}?${params.toString()}`;
+        } else {
+          // Handle the case when no parent template is selected
+          cy.log("No parent template found to edit");
+          throw new Error("No parent template found to edit");
         }
-      });
+        });
     });
   cy.waitForElementInIframe("#main-content", `input[name="host_name"]`);
   cy.getIframeBody().find('input[name="host_name"]').click();
