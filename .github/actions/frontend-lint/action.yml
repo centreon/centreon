@@ -28,7 +28,7 @@ runs:
   steps:
     - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
       with:
-        version: 8
+        version: 10
         run_install: false
 
     - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
@@ -47,12 +47,12 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Setup Biome CLI
-      uses: biomejs/setup-biome@0de019f8c69e70cd3dc5535e7943afa3b05f94b7 # v2.2.1
+      uses: biomejs/setup-biome@c016c38f26f2c4a6eb3662679143614a254263fd # v2.3.0
       with:
         working-dir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
 
-    - uses: mongolyy/reviewdog-action-biome@6b01155716493e5cc365df64aa0946ec9adc53c2 # v1.6.1
+    - uses: mongolyy/reviewdog-action-biome@8fa6a2cd987b0c08cb1a860df2df931f6cb9a822 # v1.9.0
       with:
         workdir: ${{ inputs.frontend_directory }}
         github_token: ${{ inputs.pat }}
