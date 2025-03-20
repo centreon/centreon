@@ -341,7 +341,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 /** @var QueryParameter $queryParameter */
                 foreach ($queryParameters->getIterator() as $queryParameter) {
                     $pdoStatement->bindValue(
-                        ":{$queryParameter->getName()}",
+                        $queryParameter->getName(),
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
                             ? PdoParameterTypeTransformer::transformFromQueryParameterType(

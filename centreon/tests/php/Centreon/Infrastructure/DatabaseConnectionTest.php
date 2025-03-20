@@ -239,6 +239,28 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
+    it(
+        'execute statement with a correct query with query parameters with ":" before keys',
+        function () use ($dbConfigCentreon): void {
+            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::int(':id', 110),
+                    QueryParameter::string(':name', 'foo_name'),
+                    QueryParameter::string(':alias', 'foo_alias')
+                ]
+            );
+            $inserted = $db->executeStatement(
+                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                $queryParameters
+            );
+            expect($inserted)->toBeInt()->toBe(1);
+            // clean up the database
+            $deleted = $db->exec("DELETE FROM contact WHERE contact_id = 110");
+            expect($deleted)->toBeInt()->toBe(1);
+        }
+    );
+
     it('execute statement with a SELECT query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->executeStatement("SELECT * FROM contact");
@@ -537,6 +559,16 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
+    it('fetchNumeric with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contact = $db->fetchNumeric(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        expect($contact)->toBeArray()
+            ->and($contact[0])->toBe(1);
+    });
+
     it('fetchNumeric with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchNumeric(
@@ -581,6 +613,16 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
+    it('fetchAssociative with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contact = $db->fetchAssociative(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        expect($contact)->toBeArray()
+            ->and($contact['contact_id'])->toBe(1);
+    });
+
     it('fetchAssociative with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchAssociative(
@@ -624,6 +666,15 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
+    it('fetchOne with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $alias = $db->fetchOne(
+            "SELECT contact_alias FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        expect($alias)->toBeString()->toBe('admin');
+    });
+
     it('fetchOne with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchOne(
@@ -660,12 +711,23 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         function () use ($dbConfigCentreon): void {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $contact = $db->fetchFirstColumn(
-                "SELECT contact_id FROM contact ORDER BY contact_id",
+                "SELECT contact_id FROM contact ORDER BY :id",
+                QueryParameters::create([QueryParameter::int('id', 1)])
             );
             expect($contact)->toBeArray()
                 ->and($contact[0])->toBeInt()->toBe(1);
         }
     );
+
+    it('fetchFirstColumn with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contact = $db->fetchFirstColumn(
+            "SELECT contact_id FROM contact ORDER BY :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        expect($contact)->toBeArray()
+            ->and($contact[0])->toBeInt()->toBe(1);
+    });
 
     it(
         'fetchFirstColumn with a correct query with query parameters and another column',
@@ -721,6 +783,16 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
+    it('fetchAllNumeric with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contact = $db->fetchAllNumeric(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        expect($contact)->toBeArray()
+            ->and($contact[0][0])->toBe(1);
+    });
+
     it('fetchAllNumeric with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchAllNumeric(
@@ -764,6 +836,16 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 ->and($contact[0]['contact_id'])->toBe(1);
         }
     );
+
+    it('fetchAllAssociative with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contact = $db->fetchAllAssociative(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        expect($contact)->toBeArray()
+            ->and($contact[0]['contact_id'])->toBe(1);
+    });
 
     it('fetchAllAssociative with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
@@ -812,6 +894,16 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
+    it('fetchAllKeyValue with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contact = $db->fetchAllKeyValue(
+            "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        expect($contact)->toBeArray()
+            ->and($contact)->toBeArray()->toBe(['1' => 'admin']);
+    });
+
     it('fetchAllKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $db->fetchAllKeyValue(
@@ -855,6 +947,16 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 ->and($contact[1])->toBeArray()->toBe(['contact_name' => 'admin admin', 'contact_alias' => 'admin']);
         }
     );
+
+    it('fetchAllAssociativeIndexed with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contact = $db->fetchAllAssociativeIndexed(
+            "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        expect($contact)->toBeArray()
+            ->and($contact[1])->toBeArray()->toBe(['contact_name' => 'admin admin', 'contact_alias' => 'admin']);
+    });
 
     it(
         'fetchAllAssociativeIndexed with a CUD query',
@@ -911,6 +1013,17 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             }
         }
     );
+
+    it('iterateNumeric with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateNumeric(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            expect($contact)->toBeArray()->and($contact[0])->toBe(1);
+        }
+    });
 
     it('iterateNumeric with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
@@ -972,6 +1085,17 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             }
         }
     );
+
+    it('iterateAssociative with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateAssociative(
+            "SELECT * FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            expect($contact)->toBeArray()->and($contact['contact_id'])->toBe(1);
+        }
+    });
 
     it('iterateAssociative with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
@@ -1036,6 +1160,17 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             }
         }
     );
+
+    it('iterateColumn with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateColumn(
+            "SELECT contact_id FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        foreach ($contacts as $contact) {
+            expect($contact)->toBeInt()->toBe(1);
+        }
+    });
 
     it(
         'iterateColumn with a correct query with query parameters and another column',
@@ -1113,6 +1248,18 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
+    it('iterateKeyValue with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contact = $db->iterateKeyValue(
+            "SELECT contact_id, contact_alias FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        foreach ($contact as $contactId => $contactAlias) {
+            expect($contactId)->toBeInt()->toBe(1)
+                ->and($contactAlias)->toBeString()->toBe('admin');
+        }
+    });
+
     it('iterateKeyValue with a CUD query', function () use ($dbConfigCentreon): void {
         $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
         $contacts = $db->iterateKeyValue(
@@ -1174,6 +1321,18 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             }
         }
     );
+
+    it('iterateAssociativeIndexed with a correct query with query parameters with ":" before keys', function () use ($dbConfigCentreon): void {
+        $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $contacts = $db->iterateAssociativeIndexed(
+            "SELECT contact_id, contact_name, contact_alias FROM contact WHERE contact_id = :id",
+            QueryParameters::create([QueryParameter::int(':id', 1)])
+        );
+        foreach ($contacts as $contactId => $contact) {
+            expect($contactId)->toBeInt()->toBe(1)
+                ->and($contact)->toBeArray()->toHaveKey('contact_name', 'admin admin');
+        }
+    });
 
     it(
         'iterateAssociativeIndexed with a CUD query',

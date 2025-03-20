@@ -60,6 +60,38 @@ it('transform from query parameters', function () {
         );
 });
 
+it('transform from query parameters with : before key', function () {
+    [$params, $types] = DbalParametersTransformer::transformFromQueryParameters(
+        QueryParameters::create(
+            [
+                QueryParameter::create(':host_id', 1, QueryParameterTypeEnum::INTEGER),
+                QueryParameter::create(':host_name', 'foo_server', QueryParameterTypeEnum::STRING),
+                QueryParameter::create(':host_enabled', true, QueryParameterTypeEnum::BOOLEAN),
+                QueryParameter::create(':host_blob', 'fsfqsd4f5qsdff325154', QueryParameterTypeEnum::LARGE_OBJECT),
+                QueryParameter::create(':host_null', null, QueryParameterTypeEnum::NULL),
+            ]
+        )
+    );
+    expect($params)->toBeArray()->toBe(
+        [
+            'host_id' => 1,
+            'host_name' => 'foo_server',
+            'host_enabled' => true,
+            'host_blob' => 'fsfqsd4f5qsdff325154',
+            'host_null' => null
+        ]
+    )
+        ->and($types)->toBeArray()->toBe(
+            [
+                'host_id' => DbalParameterType::INTEGER,
+                'host_name' => DbalParameterType::STRING,
+                'host_enabled' => DbalParameterType::BOOLEAN,
+                'host_blob' => DbalParameterType::LARGE_OBJECT,
+                'host_null' => DbalParameterType::NULL
+            ]
+        );
+});
+
 it('reverse to query parameters', function () {
     $queryParameters = DbalParametersTransformer::reverseToQueryParameters(
         [
