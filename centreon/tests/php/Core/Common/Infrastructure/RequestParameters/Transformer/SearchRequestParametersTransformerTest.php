@@ -38,17 +38,17 @@ it('transform from query parameters', function () {
     $requestParameters = SearchRequestParametersTransformer::transformFromQueryParameters($queryParameters);
     expect($requestParameters)->toBeArray()
         ->and($requestParameters)->toBe([
-            'contact_id' => [\PDO::PARAM_INT, 110],
-            'contact_name' => [\PDO::PARAM_STR, 'foo_name'],
-            'contact_alias' => [\PDO::PARAM_STR, 'foo_alias']
+            'contact_id' => [\PDO::PARAM_INT => 110],
+            'contact_name' => [\PDO::PARAM_STR => 'foo_name'],
+            'contact_alias' => [\PDO::PARAM_STR => 'foo_alias']
         ]);
 });
 
 it('reverse to query parameters', function () {
     $requestParameters = [
-        'contact_id' => [\PDO::PARAM_INT, 110],
-        'contact_name' => [\PDO::PARAM_STR, 'foo_name'],
-        'contact_alias' => [\PDO::PARAM_STR, 'foo_alias']
+        'contact_id' => [\PDO::PARAM_INT => 110],
+        'contact_name' => [\PDO::PARAM_STR => 'foo_name'],
+        'contact_alias' => [\PDO::PARAM_STR => 'foo_alias']
     ];
     $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters($requestParameters);
     expect($queryParameters)->toBeInstanceOf(QueryParameters::class)
@@ -66,9 +66,9 @@ it('reverse to query parameters', function () {
 
 it('reverse to query parameters with unknown PDO type', function () {
     $requestParameters = [
-        'contact_id' => [\PDO::PARAM_INT, 110],
-        'contact_name' => [\PDO::PARAM_STR, 'foo_name'],
-        'contact_alias' => [\PDO::PARAM_STR_CHAR, 'foo_alias']
+        'contact_id' => [\PDO::PARAM_INT => 110],
+        'contact_name' => [\PDO::PARAM_STR => 'foo_name'],
+        'contact_alias' => [\PDO::PARAM_STR_CHAR => 'foo_alias']
     ];
     SearchRequestParametersTransformer::reverseToQueryParameters($requestParameters);
 })->throws(TransformerException::class);

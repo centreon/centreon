@@ -52,7 +52,7 @@ readonly abstract class SearchRequestParametersTransformer
             $pdoType = PdoParameterTypeTransformer::transformFromQueryParameterType(
                 $queryParameter->getType() ?? QueryParameterTypeEnum::STRING
             );
-            $requestParameters[$queryParameter->getName()] = [$pdoType, $queryParameter->getValue()];
+            $requestParameters[$queryParameter->getName()] = [$pdoType => $queryParameter->getValue()];
         }
 
         return $requestParameters;
