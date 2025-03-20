@@ -26,7 +26,6 @@ const addCustomView = (name, isPublic): void => {
     // Click on the 'Submit' button
     cy.getIframeBody().find('input[name="submit"]').eq(0).click();
     cy.wait('@getViews');
-    cy.exportConfig();
 };
   
 const addSharedView = (name) => {
@@ -42,7 +41,7 @@ const addSharedView = (name) => {
     cy.wait('@getViews');
 };
 
-const shareUnlockedCustomView = (userOrGroupTag, name) => {
+const shareCustomView = (userOrGroupTag, name) => {
     cy.getIframeBody().contains('button', 'Share view').click();
     // Click on the 'Unlocked user or groups' input
     cy.getIframeBody().find(`input[placeholder="${userOrGroupTag}"]`).click();
@@ -61,5 +60,5 @@ const deleteCustomView = () => {
     cy.getIframeBody().find('#deleteViewConfirm .bt_danger').click();
 };
   
-export { visitCustomViewPage, addCustomView, addSharedView, shareUnlockedCustomView, deleteCustomView };
+export { visitCustomViewPage, addCustomView, addSharedView, shareCustomView, deleteCustomView };
   
