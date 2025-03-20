@@ -170,7 +170,7 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
           build_command: pnpm centreon:build
 
-      - name: Create Jira ticket if nightly build failure
+      - name: Create Jira ticket on nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
@@ -183,6 +183,7 @@ jobs:
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
           ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
+          ticket_squad: "Product Backlog"
 
   backend-dependencies:
     needs: [get-environment]
@@ -269,7 +270,7 @@ jobs:
 
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
-          version: 8
+          version: 10
           run_install: false
 
       - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
@@ -524,7 +525,7 @@ jobs:
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           stability: ${{ needs.get-environment.outputs.stability }}
 
-      - name: Create Jira ticket if nightly build failure
+      - name: Create Jira ticket on nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
@@ -537,6 +538,7 @@ jobs:
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
           ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
+          ticket_squad: "DevSecOps"
 
   dockerize:
     runs-on: ubuntu-24.04
@@ -670,7 +672,7 @@ jobs:
           path: ./docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
-      - name: Create Jira ticket if nightly build failure
+      - name: Create Jira ticket on nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
@@ -683,6 +685,7 @@ jobs:
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
           ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
+          ticket_squad: "DevSecOps"
 
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, dockerize]
@@ -1006,7 +1009,7 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-      - name: Create Jira ticket if nightly build failure
+      - name: Create Jira ticket on nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
@@ -1019,6 +1022,7 @@ jobs:
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
           ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
+          ticket_squad: "DevSecOps"
 
   deliver-deb:
     runs-on: centreon-common
@@ -1060,7 +1064,7 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-      - name: Create Jira ticket if nightly build failure
+      - name: Create Jira ticket on nightly build failure
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
@@ -1073,6 +1077,7 @@ jobs:
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
           ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
+          ticket_squad: "DevSecOps"
 
   promote:
     needs: [get-environment, deliver-deb, deliver-rpm]

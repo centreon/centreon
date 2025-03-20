@@ -183,5 +183,5 @@
   },
   "moduleName": "centreon-widget-resourcestable",
   "canExpand": true,
-  "widgetType": "Real time widgets"
+  "widgetType": "realtime"
 }

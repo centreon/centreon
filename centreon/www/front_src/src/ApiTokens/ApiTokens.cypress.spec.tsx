@@ -1,4 +1,3 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
 import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
@@ -92,27 +91,9 @@ const columns = [
 ];
 
 const checkInformationRow = (data): void => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-  userData.result.current.locale = 'en_US';
-  const localDateTimeFormat = renderHook(() => useLocaleDateTimeFormat());
-
-  const { format } = localDateTimeFormat.result.current;
-  const formatString = 'L';
-
-  const creationDate = format({
-    date: data.creation_date,
-
-    formatString
-  });
-  const expirationDate = format({
-    date: data.expiration_date,
-
-    formatString
-  });
-
   cy.contains(data.name);
-  cy.contains(expirationDate);
-  cy.contains(creationDate);
+  cy.contains('08/31/2023');
+  cy.contains('08/31/2024');
   cy.contains(data.user.name);
   cy.contains(data.creator.name);
 };
@@ -951,12 +932,6 @@ describe('Api-token', () => {
 
     cy.clock(now);
 
-    const {
-      result: {
-        current: { toIsoString }
-      }
-    } = renderHook(() => useLocaleDateTimeFormat());
-
     cy.findByTestId('Filter options').click();
 
     cy.findAllByTestId(labelRevokedToken).click();
@@ -985,11 +960,9 @@ describe('Api-token', () => {
       'February 5, 2024 7:16 PM'
     );
 
-    const expectedCreationDate = toIsoString(new Date(2024, 1, 5, 18, 16, 33));
-
     const expectedSearch = `is_revoked:true creator.name:${translateWhiteSpaceToRegex(
       'Jane Doe'
-    )} user.name:Guest,centreon-gorgone creation_date:${expectedCreationDate}`;
+    )} user.name:Guest,centreon-gorgone creation_date:2024-02-05T18:16:33Z`;
 
     cy.findByTestId('inputSearch').should('have.value', expectedSearch);
 
