@@ -153,6 +153,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 resources.status_confirmed,
                 resources.in_downtime,
                 resources.acknowledged,
+                resources.flapping,
+                resources.percent_state_change,
                 resources.passive_checks_enabled,
                 resources.active_checks_enabled,
                 resources.notifications_enabled,
