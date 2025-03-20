@@ -180,8 +180,10 @@ if (isset($preferences['login'], $preferences['password'], $preferences['address
         $data['message'] = str_replace('\n', '<br>', $ex->getMessage());
     }
 }
-$template = new Smarty();
-$template = initSmartyTplForPopup(__DIR__ . "/src/", $template, "./", __DIR__ . '../../..');
+
+// Smarty template initialization
+$template = SmartyBC::createSmartyTemplate(__DIR__ . "/src/", './');
+
 $template->assign('data', $data);
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);

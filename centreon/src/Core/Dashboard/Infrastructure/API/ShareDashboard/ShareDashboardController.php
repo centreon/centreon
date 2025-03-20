@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,54 +25,27 @@ namespace Core\Dashboard\Infrastructure\API\ShareDashboard;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Dashboard\Application\UseCase\ShareDashboard\ShareDashboard;
-use Core\Dashboard\Application\UseCase\ShareDashboard\ShareDashboardRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    'dashboard_access_editor',
+    null,
+    'You do not have sufficient rights to share a dashboard'
+)]
 final class ShareDashboardController extends AbstractController
 {
     public function __invoke(
         int $dashboardId,
-        ShareDashboardPresenter $presenter,
         ShareDashboard $useCase,
-        Request $request
+        Request $request,
+        #[MapRequestPayload] ShareDashboardInput $mappedRequest
     ): Response {
-        $shareDashboardRequest = $this->createRequest($dashboardId, $request);
-        $useCase($shareDashboardRequest, $presenter);
+        $request = ShareDashboardRequestTransformer::transform($mappedRequest);
+        $request->dashboardId = $dashboardId;
 
-        return $presenter->show();
-    }
-
-    /**
-     * @param int $dashboardId
-     * @param Request $request
-     *
-     * @return ShareDashboardRequest
-     */
-    private function createRequest(int $dashboardId, Request $request): ShareDashboardRequest
-    {
-        /**
-         * @var array{
-         *  contacts: array<array{
-         *      id:int,
-         *      role:string
-         *  }>,
-         *  contact_groups: array<array{
-         *      id:int,
-         *      role:string
-         *  }>
-         * } $requestBody
-         */
-        $requestBody = $this->validateAndRetrieveDataSent(
-            $request,
-            __DIR__ . '/ShareDashboardSchema.json'
-        );
-
-        $shareDashboardRequest = new ShareDashboardRequest();
-        $shareDashboardRequest->dashboardId = $dashboardId;
-        $shareDashboardRequest->contacts = $requestBody['contacts'];
-        $shareDashboardRequest->contactGroups = $requestBody['contact_groups'];
-
-        return $shareDashboardRequest;
+        return $this->createResponse($useCase($request));
     }
 }

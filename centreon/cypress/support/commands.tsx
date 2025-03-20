@@ -82,7 +82,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('waitForRequestAndVerifyBody', (requestAlias, body) => {
   cy.waitForRequest(`@${requestAlias}`).then(({ request }) => {
-    expect(JSON.parse(request.body)).to.deep.equal(body);
+    expect(request.body).to.deep.equal(body);
   });
 });
 

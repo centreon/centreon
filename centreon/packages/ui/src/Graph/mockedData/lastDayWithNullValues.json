@@ -329,7 +329,20 @@
         0.32339333333,
         null
       ],
-      "prints": [["Last:0.32"], ["Min:0.03"], ["Max:0.97"], ["Average:0.51"]],
+      "prints": [
+        [
+          "Last:0.32"
+        ],
+        [
+          "Min:0.03"
+        ],
+        [
+          "Max:0.97"
+        ],
+        [
+          "Average:0.51"
+        ]
+      ],
       "last_value": 0.32,
       "minimum_value": 0.03,
       "maximum_value": 0.97,
@@ -654,10 +667,18 @@
         null
       ],
       "prints": [
-        ["Last:87.27"],
-        ["Min:70.31"],
-        ["Max:88.03"],
-        ["Average:78.07"]
+        [
+          "Last:87.27"
+        ],
+        [
+          "Min:70.31"
+        ],
+        [
+          "Max:88.03"
+        ],
+        [
+          "Average:78.07"
+        ]
       ],
       "last_value": 87.27,
       "minimum_value": 70.31,
@@ -974,15 +995,28 @@
         0.32092,
         0.23609333333,
         0.45102333333,
-        0.75873,
-        0.23588666667,
-        0.41906666667,
-        0.357,
-        0.32246333333,
-        0.64624666667,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
         null
       ],
-      "prints": [["Last:0.65"], ["Min:0.03"], ["Max:0.98"], ["Average:0.50"]],
+      "prints": [
+        [
+          "Last:0.65"
+        ],
+        [
+          "Min:0.03"
+        ],
+        [
+          "Max:0.98"
+        ],
+        [
+          "Average:0.50"
+        ]
+      ],
       "last_value": 0.65,
       "minimum_value": 0.03,
       "maximum_value": 0.98,

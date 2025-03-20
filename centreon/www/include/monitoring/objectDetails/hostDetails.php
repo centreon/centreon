@@ -114,15 +114,11 @@ if (!$is_admin && !$haveAccess) {
 } else {
     $tab_status = [];
 
-    $path = "./include/monitoring/objectDetails/";
-
     $en = ["0" => _("No"), "1" => _("Yes")];
 
-    /*
-     * Smarty template Init
-     */
-    $tpl = new Smarty();
-    $tpl = initSmartyTpl($path, $tpl, "./template/");
+    // Smarty template initialization
+    $path = "./include/monitoring/objectDetails/";
+    $tpl = SmartyBC::createSmartyTemplate($path, './template/');
 
     // Get GMT
     $centreon->CentreonGMT->getMyGMTFromSession(session_id(), $pearDB);

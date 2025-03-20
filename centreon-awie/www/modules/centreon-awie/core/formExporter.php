@@ -22,9 +22,10 @@ if (! isset($oreon)) {
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
 
 $export = './modules/centreon-awie/core/submitExport.php';
-// Smarty template Init
+
+// Smarty template initialization
 $path = _MODULE_PATH_ . '/core/templates/';
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+$tpl = SmartyBC::createSmartyTemplate($path);
+
 $tpl->assign('formPath', $export);
 $tpl->display('formExport.tpl');

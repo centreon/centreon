@@ -72,6 +72,7 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
       labelTitle={<Title />}
+      dialogTitleProps={{ variant: 'h6' }}
       open={open}
       restCancelButtonProps={{ variant: 'outlined' }}
       restConfirmButtonProps={{

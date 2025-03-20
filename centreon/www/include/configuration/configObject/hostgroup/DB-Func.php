@@ -34,7 +34,11 @@
  *
  */
 
+use App\Kernel;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Infrastructure\Common\Api\Router;
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 if (!isset($centreon)) {
     exit();
@@ -62,7 +66,7 @@ function testHostGroupExistence($name = null)
     global $pearDB, $form, $centreon;
     $id = null;
     if (isset($form)) {
-        $id = $form->getSubmitValue('hg_id');
+        $id = (int) $form->getSubmitValue('hg_id');
     }
 
     $query = "SELECT hg_name, hg_id FROM hostgroup WHERE hg_name = '" .
@@ -145,138 +149,223 @@ function disableHostGroupInDB($hg_id = null, $hg_arr = [])
 
 /**
  * @param int $hgId
+ *
+ * @throws CentreonDbException
  */
 function removeRelationLastHostgroupDependency(int $hgId): void
 {
     global $pearDB;
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
-              FROM dependency_hostgroupParent_relation
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostgroupParent_relation
-                                         WHERE hostgroup_hg_id =  ' . $hgId . ')
-              GROUP BY dependency_dep_id';
-    $dbResult = $pearDB->query($query);
-    $result = $dbResult->fetch();
+    try {
+        $query = <<<'SQL'
+                SELECT COUNT(dependency_dep_id) AS nb_dependency, dependency_dep_id AS id
+                FROM dependency_hostgroupParent_relation dhr1
+                WHERE dependency_dep_id IN (
+                    SELECT dependency_dep_id
+                    FROM dependency_hostgroupParent_relation
+                    WHERE hostgroup_hg_id = :hgId
+                )
+                GROUP BY dependency_dep_id
+            SQL;
 
-    //is last parent
-    if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-        $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
+        $statement = $pearDB->prepare($query);
+        $statement->bindValue(":hgId", (int) $hgId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        //if last parent delete dependency
+        while ($result = $statement->fetch()) {
+            if (isset($result['nb_dependency']) && $result['nb_dependency'] === 1) {
+                $deleteDependencyQuery =
+                    <<<'SQL'
+                        DELETE FROM dependency
+                        WHERE dep_id = :depId
+                    SQL;
+
+                $deleteDependencyStatement = $pearDB->prepare($deleteDependencyQuery);
+                $deleteDependencyStatement->bindValue(":depId", (int) $result['id'], \PDO::PARAM_INT);
+                $deleteDependencyStatement->execute(['depId' => $result['id']]);
+            }
+        }
+    } catch (CentreonDbException $ex) {
+        CentreonLog::create()->error(
+            CentreonLog::LEVEL_ERROR,
+            'Error while removing host group dependencies: ' . $ex->getMessage(),
+            ['host_group_id' => $hgId],
+            $ex
+        );
+
+        throw $ex;
     }
 }
 
-function deleteHostGroupInDB(bool $isCloudPlatform, array $hostGroups = [])
+/**
+ * Deletes a host group and its relations from the database.
+ *
+ * @param boolean $isCloudPlatform
+ * @param array $hostGroups
+ *
+ * @return void
+ */
+function deleteHostGroupInApi(bool $isCloudPlatform, array $hostGroups = []): void
 {
-    global $pearDB, $centreon;
+    global $basePath, $centreon;
 
-    foreach (array_keys($hostGroups) as $hostgroupId) {
-        $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId((int) $hostgroupId);
-
-        removeRelationLastHostgroupDependency((int) $hostgroupId);
-        $rq = <<<'SQL'
-            SELECT @nbr := (
-                SELECT COUNT( * )
-                FROM host_service_relation
-                WHERE service_service_id = hsr.service_service_id
-                GROUP BY service_service_id
-            ) AS nbr,
-                hsr.service_service_id
-            FROM host_service_relation hsr
-            WHERE hsr.hostgroup_hg_id = :hostgroup_id
-            SQL;
-        $stmt= $pearDB->prepare($rq);
-        $stmt->bindValue(":hostgroup_id", (int) $hostgroupId, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        $statement = $pearDB->prepare("DELETE FROM service WHERE service_id = :service_id");
-        while ($row = $stmt->fetch()) {
-            if ($row["nbr"] == 1) {
-                $statement->bindValue(':service_id', (int) $row["service_service_id"], \PDO::PARAM_INT);
-                $statement->execute();
+    try {
+        foreach (array_keys($hostGroups) as $hostGroupId) {
+            $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId((int) $hostGroupId);
+            // Delete orphaned dependencies
+            removeRelationLastHostgroupDependency((int) $hostGroupId);
+            // Delete orphaned services
+            deleteOrphanedServices((int) $hostGroupId);
+            if ($isCloudPlatform) {
+                deleteHostGroupFromDatasetFilters((int) $hostGroupId);
             }
+
+            deleteHostGroupByApi((int) $hostGroupId, $basePath);
+
+            signalConfigurationChange('hostgroup', (int) $hostGroupId, $previousPollerIds);
         }
-
-        $statement = $pearDB->prepare(
-            <<<'SQL'
-                SELECT hg_name
-                FROM hostgroup
-                WHERE hg_id = :hostgroup_id
-                LIMIT 1
-                SQL
+        $centreon->user->access->updateACL();
+    } catch (\Throwable $throwable) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while deleting hostgroup by API : {$throwable->getMessage()}",
+            customContext: ['hostgroups' => $hostGroups, 'basePath' => $basePath],
+            exception: $throwable
         );
-        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch();
 
-        if ($isCloudPlatform) {
-            if ($pearDB->beginTransaction()) {
-                try {
-                    $stmt = $pearDB->prepare(
-                        <<<'SQL'
-                            SELECT * FROM dataset_filters
-                            INNER JOIN acl_resources_hg_relations arhr
-                                ON arhr.acl_res_id = dataset_filters.acl_resource_id
-                            WHERE hg_hg_id = :hostgroup_id
-                            SQL
-                    );
-                    $stmt->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
-                    $stmt->execute();
+        return;
+    }
+}
 
-                    while ($datasetFilter = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-                        $resourceIds = explode(',', $datasetFilter['resource_ids']);
-                        $updatedResourcesIds = array_filter(
-                            $resourceIds,
-                            fn ($id) => trim($id) !== (string) $hostgroupId
-                        );
-                        $resourcesIdsAsString = implode(',', $updatedResourcesIds);
-                        if (! empty($resourcesIdsAsString)) {
-                            $stmt = $pearDB->prepare(
-                                <<<'SQL'
-                                    UPDATE dataset_filters
-                                    SET resource_ids = :resource_ids
-                                    WHERE id = :id
-                                    SQL
-                            );
-                            $stmt->bindValue(':resource_ids', $resourcesIdsAsString, \PDO::PARAM_STR);
-                            $stmt->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+/**
+ * Calls API to delete a hostgroup.
+ *
+ * @param int $hostGroupId
+ * @param string $basePath
+ *
+ * @return void
+ */
+function deleteHostGroupByApi(int $hostGroupId, string $basePath): void
+{
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class) ?? throw new LogicException('Router not found in container');
+    $url = $router->generate(
+        'DeleteHostGroup',
+        $basePath ? ['base_uri' => $basePath, 'hostGroupId' => $hostGroupId] : [],
+        UrlGeneratorInterface::ABSOLUTE_URL,
+    );
 
-                            $stmt->execute();
-                        } else {
-                            $stmt = $pearDB->prepare(
-                                <<<'SQL'
-                                    DELETE FROM dataset_filters
-                                    WHERE id = :id
-                                    SQL
-                            );
-                            $stmt->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+    $response = callApi($url, 'DELETE', []);
 
-                            $stmt->execute();
-                        }
-                    }
-                    $pearDB->commit();
-                } catch (\Throwable $exception) {
-                    $pearDB->rollBack();
-                    throw $exception;
-                }
-            }
-        }
+    if ($response['status_code'] !== 204) {
+        $message = $response['content']['message'] ?? 'Unknown error';
 
-        $statement = $pearDB->prepare(
-            <<<'SQL'
-                DELETE FROM hostgroup WHERE hg_id = :hostgroup_id
-                SQL
-        );
-        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        signalConfigurationChange('hostgroup', (int) $hostgroupId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
-            object_id: $hostgroupId,
-            object_name: $row['hg_name'],
-            action_type: ActionLog::ACTION_TYPE_DELETE
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while deleting hostgroup by API : {$message}",
+            customContext: ['hostGroupId' => $hostGroupId],
         );
     }
-    $centreon->user->access->updateACL();
+}
+
+/**
+ * Checks if a service is used by other hostgroups, and if not, deletes it.
+ *
+ * @param int $hostgroupId
+ *
+ */
+function deleteOrphanedServices(int $hostgroupId): void
+{
+    global $pearDB;
+
+    $query =  <<<'SQL'
+        SELECT @nbr := (
+            SELECT COUNT( * )
+            FROM host_service_relation
+            WHERE service_service_id = hsr.service_service_id
+            GROUP BY service_service_id
+        ) AS nbr,
+            hsr.service_service_id
+        FROM host_service_relation hsr
+        WHERE hsr.hostgroup_hg_id = :hostgroup_id
+        SQL;
+
+    $findStatement= $pearDB->prepare($query);
+    $findStatement->bindValue(":hostgroup_id", (int) $hostgroupId, \PDO::PARAM_INT);
+    $findStatement->execute();
+
+    $deleteStatement = $pearDB->prepare("DELETE FROM service WHERE service_id = :service_id");
+
+    while ($row = $findStatement->fetch()) {
+        if ($row["nbr"] == 1) {
+            $deleteStatement->bindValue(':service_id', (int) $row["service_service_id"], \PDO::PARAM_INT);
+            $deleteStatement->execute();
+        }
+    }
+}
+
+/**
+ * Deletes hostgroup references from dataset filters and cleans up empty filters.
+ *
+ * @param int $hostGroupId
+ *
+ * @return void
+ */
+function deleteHostGroupFromDatasetFilters(int $hostGroupId): void
+{
+    global $pearDB;
+
+    if ($pearDB->beginTransaction()) {
+        try {
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    SELECT * FROM dataset_filters
+                    INNER JOIN acl_resources_hg_relations arhr
+                        ON arhr.acl_res_id = dataset_filters.acl_resource_id
+                    WHERE hg_hg_id = :hostgroup_id
+                    SQL
+            );
+            $statement->bindValue(':hostgroup_id', (int) $hostGroupId, \PDO::PARAM_INT);
+            $statement->execute();
+
+            while ($datasetFilter = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                $resourceIds = explode(',', $datasetFilter['resource_ids']);
+                $updatedResourcesIds = array_filter(
+                    $resourceIds,
+                    fn ($id) => trim($id) !== (string) $hostGroupId
+                );
+                $resourcesIdsAsString = implode(',', $updatedResourcesIds);
+                if (! empty($resourcesIdsAsString)) {
+                    $statement = $pearDB->prepare(
+                        <<<'SQL'
+                            UPDATE dataset_filters
+                            SET resource_ids = :resource_ids
+                            WHERE id = :id
+                            SQL
+                    );
+                    $statement->bindValue(':resource_ids', $resourcesIdsAsString, \PDO::PARAM_STR);
+                    $statement->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+
+                    $statement->execute();
+                } else {
+                    $statement = $pearDB->prepare(
+                        <<<'SQL'
+                            DELETE FROM dataset_filters
+                            WHERE id = :id
+                            SQL
+                    );
+                    $statement->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+
+                    $statement->execute();
+                }
+            }
+            $pearDB->commit();
+        } catch (\Throwable $exception) {
+            $pearDB->rollBack();
+            throw $exception;
+        }
+    }
 }
 
 function multipleHostGroupInDB($hostGroups = [], $nbrDup = [])
@@ -368,198 +457,6 @@ function multipleHostGroupInDB($hostGroups = [], $nbrDup = [])
     }
     CentreonACL::duplicateHgAcl($hgAcl);
     $centreon->user->access->updateACL();
-}
-
-function insertHostGroupInDBForCloud(array $submittedValues = []): int
-{
-    global $pearDB, $centreon;
-
-    $submittedValues['hg_name'] = $centreon->checkIllegalChar($submittedValues['hg_name']);
-
-    $statement = $pearDB->prepare(
-        'INSERT INTO hostgroup (hg_name, hg_alias, geo_coords) VALUES (:hg_name, :hg_alias, :geo_coords)'
-    );
-
-    $statement->bindValue(
-        ':hg_name',
-        ! empty($submittedValues['hg_name']) ? $pearDB->escape($submittedValues['hg_name']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':hg_alias',
-        ! empty($submittedValues['hg_alias']) ? $pearDB->escape($submittedValues['hg_alias']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':geo_coords',
-        ! empty($submittedValues['geo_coords']) ? $pearDB->escape($submittedValues['geo_coords']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->execute();
-
-    $statement = $pearDB->query('SELECT MAX(hg_id) FROM hostgroup');
-    $record = $statement->fetch(\PDO::FETCH_ASSOC);
-
-    $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
-        object_id: $record['MAX(hg_id)'],
-        object_name: $submittedValues['hg_name'],
-        action_type: ActionLog::ACTION_TYPE_ADD,
-        fields: CentreonLogAction::prepareChanges($submittedValues)
-    );
-
-    return ($record["MAX(hg_id)"]);
-}
-
-function insertHostGroupInDBForOnPrem(array $submittedValues = []): int
-{
-    global $pearDB, $centreon;
-
-    $submittedValues['hg_name'] = $centreon->checkIllegalChar($submittedValues['hg_name']);
-
-    $request = <<<'SQL'
-        INSERT INTO hostgroup
-        (
-            hg_name,
-            hg_alias,
-            hg_notes,
-            hg_notes_url,
-            hg_action_url,
-            hg_icon_image,
-            hg_map_icon_image,
-            hg_rrd_retention,
-            hg_comment,
-            geo_coords,
-            hg_activate
-        ) VALUES
-        (
-            :name,
-            :alias,
-            :notes,
-            :notesUrl,
-            :actionUrl,
-            :iconImage,
-            :mapIconImage,
-            :rrdRetention,
-            :comment,
-            :geoCoords,
-            :isActivated
-        )
-    SQL;
-
-    $statement = $pearDB->prepare($request);
-
-    $statement->bindValue(
-        ':name',
-        ! empty($submittedValues['hg_name']) ? $pearDB->escape($submittedValues['hg_name']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':alias',
-        ! empty($submittedValues['hg_alias']) ? $pearDB->escape($submittedValues['hg_alias']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':notes',
-        ! empty($submittedValues['hg_notes']) ? $pearDB->escape($submittedValues['hg_notes']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':notesUrl',
-        ! empty($submittedValues['hg_notes_url']) ? $pearDB->escape($submittedValues['hg_notes_url']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':actionUrl',
-        ! empty($submittedValues['hg_action_url']) ? $pearDB->escape($submittedValues['hg_action_url']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':iconImage',
-        ! empty($submittedValues['hg_icon_image']) ? $pearDB->escape($submittedValues['hg_icon_image']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':mapIconImage',
-        ! empty($submittedValues['hg_map_icon_image']) ? $pearDB->escape($submittedValues['hg_map_icon_image']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':rrdRetention',
-        ! empty($submittedValues['hg_rrd_retention']) ? $pearDB->escape($submittedValues['hg_rrd_retention']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':comment',
-        ! empty($submittedValues['hg_comment']) ? $pearDB->escape($submittedValues['hg_comment']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':geoCoords',
-        ! empty($submittedValues['geo_coords']) ? $pearDB->escape($submittedValues['geo_coords']) : null,
-        \PDO::PARAM_STR
-    );
-
-    $statement->bindValue(
-        ':isActivated',
-        isset($submittedValues['hg_activate']['hg_activate']) && $submittedValues['hg_activate']['hg_activate']
-            ? $submittedValues['hg_activate']['hg_activate']
-            : '0',
-        \PDO::PARAM_STR
-    );
-
-    $statement->execute();
-
-    $statement = $pearDB->query('SELECT MAX(hg_id) FROM hostgroup');
-    $record = $statement->fetch(\PDO::FETCH_ASSOC);
-
-    $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
-        object_id: $record['MAX(hg_id)'],
-        object_name: $submittedValues['hg_name'],
-        action_type: ActionLog::ACTION_TYPE_ADD,
-        fields: CentreonLogAction::prepareChanges($submittedValues)
-    );
-
-    return ($record["MAX(hg_id)"]);
-}
-
-function insertHostGroup(array $submittedValues, bool $isCloudPlatform): int
-{
-    return $isCloudPlatform
-        ? insertHostGroupInDBForCloud($submittedValues)
-        : insertHostGroupInDBForOnPrem($submittedValues);
-}
-
-/**
- * @param array $submittedValues
- * @param bool $isCloudPlatform
- */
-function insertHostGroupInDB(bool $isCloudPlatform, array $submittedValues = []): int
-{
-    global $centreon, $form;
-
-    $submittedValues = $submittedValues ?: $form->getSubmitValues();
-
-    $hostGroupId = insertHostGroup($submittedValues, $isCloudPlatform);
-    updateHostGroupHosts($hostGroupId, $submittedValues);
-    updateHostgroupAcl($hostGroupId, $isCloudPlatform, $submittedValues);
-    signalConfigurationChange('hostgroup', $hostGroupId);
-    $centreon->user->access->updateACL();
-
-    return $hostGroupId;
 }
 
 function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedValues = [])
@@ -683,6 +580,7 @@ function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedV
                         $statement->execute();
                     }
                     unset($userResourceAccesses);
+                    $pearDB->commit();
                 } catch (\Throwable $exception) {
                     $pearDB->rollBack();
                     throw $exception;
@@ -707,6 +605,7 @@ function updateDatasetFiltersResourceIds(int $datasetFilterId, string $resourceI
     $statement = $pearDB->prepare($request);
     $statement->bindValue(':datasetFilterId', $datasetFilterId, \PDO::PARAM_INT);
     $statement->bindValue(':resourceIds', $resourceIds, \PDO::PARAM_STR);
+
     $statement->execute();
 }
 
@@ -809,7 +708,7 @@ function createNewDataset(string $datasetName): int
     $statement->bindValue(':name', $datasetName, \PDO::PARAM_STR);
     $statement->execute();
 
-    return $pearDB->lastInsertId();
+    return (int) $pearDB->lastInsertId();
 }
 
 /**
@@ -832,229 +731,6 @@ function createNewDatasetFilter(int $datasetId, int $ruleId, int $hostGroupId): 
     $statement->bindValue(':hostgroupId', $hostGroupId, \PDO::PARAM_STR);
 
     $statement->execute();
-}
-
-function updateHostGroupInDBForCloud(int $hostGroupId, array $submittedValues, bool $increment = false): void
-{
-    global $pearDB, $centreon, $form;
-
-    $request = <<<'SQL'
-        UPDATE hostgroup SET
-            hg_notes = NULL,
-            hg_notes_url = NULL,
-            hg_action_url = NULL,
-            hg_icon_image = NULL,
-            hg_map_icon_image = NULL,
-            hg_rrd_retention = NULL,
-            hg_comment = NULL
-    SQL;
-
-    $bindValues = [];
-
-    if ($submittedValues === []) {
-        $submittedValues = $form->getSubmitValues();
-    }
-
-    if (isset($submittedValues['hg_name'])) {
-        $request .= ', hg_name = :name';
-        $bindValues[':name'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_name'])
-        ];
-    }
-
-    if (isset($submittedValues['hg_alias'])) {
-        $request .= ', hg_alias = :alias';
-        $bindValues[':alias'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_alias'])
-        ];
-    }
-
-    if (isset($submittedValues['geo_coords'])) {
-        $request .= ', geo_coords = :geoCoords';
-        $bindValues[':geoCoords'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['geo_coords'])
-        ];
-
-    }
-
-    $request .= ' WHERE hg_id = :hostGroupId';
-
-    $bindValues[':hostGroupId'] = [
-        \PDO::PARAM_INT,
-        $hostGroupId
-    ];
-
-    $statement = $pearDB->prepare($request);
-
-    foreach ($bindValues as $bindName => $bindParams) {
-        [$bindType, $bindValue] = $bindParams;
-        $statement->bindValue($bindName, $bindValue, $bindType);
-    }
-
-    $statement->execute();
-
-    $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
-        object_id: $hostGroupId,
-        object_name: $submittedValues['hg_name'],
-        action_type: ActionLog::ACTION_TYPE_CHANGE,
-        fields: CentreonLogAction::prepareChanges($submittedValues)
-    );
-}
-
-function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, bool $increment = false): void
-{
-    global $pearDB, $centreon, $form;
-
-    $request = <<<'SQL'
-        UPDATE hostgroup SET
-    SQL;
-
-    $bindValues = [];
-
-    $submittedValues = $submittedValues ?: $form->getSubmitValues();
-
-    if (isset($submittedValues['hg_name'])) {
-        $request .= ' hg_name = :name';
-        $bindValues[':name'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_name'])
-        ];
-    }
-
-    if (isset($submittedValues['hg_alias'])) {
-        $request .= ', hg_alias = :alias';
-        $bindValues[':alias'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_alias'])
-        ];
-    }
-
-    if (isset($submittedValues['hg_notes'])) {
-        $request .= ', hg_notes = :notes';
-        $bindValues[':notes'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_notes'])
-        ];
-    }
-
-    if (isset($submittedValues['hg_notes_url'])) {
-        $request .= ', hg_notes_url = :notesUrl';
-        $bindValues[':notesUrl'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_notes_url'])
-        ];
-    }
-
-    if (isset($submittedValues['hg_action_url'])) {
-        $request .= ', hg_action_url = :actionUrl';
-        $bindValues[':actionUrl'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_action_url'])
-        ];
-    }
-
-    if (isset($submittedValues['hg_icon_image'])) {
-        $request .= ', hg_icon_image = :iconImage';
-        $bindValues[':iconImage'] = [
-            \PDO::PARAM_STR,
-            $submittedValues['hg_icon_image'] ? $pearDB->escape($submittedValues['hg_icon_image']) : null
-        ];
-    }
-
-    if (isset($submittedValues['hg_map_icon_image'])) {
-        $request .= ', hg_map_icon_image = :mapIconImage';
-        $bindValues[':mapIconImage'] = [
-            \PDO::PARAM_STR,
-            $submittedValues['hg_map_icon_image'] ? $pearDB->escape($submittedValues['hg_map_icon_image']) : null
-        ];
-    }
-
-    if (isset($submittedValues['hg_rrd_retention'])) {
-        $request .= ', hg_rrd_retention = :rrdRetention';
-        $bindValues[':rrdRetention'] = [
-            \PDO::PARAM_STR,
-            $submittedValues['hg_rrd_retention'] ? $pearDB->escape($submittedValues['hg_rrd_retention']): null
-        ];
-    }
-
-    if (isset($submittedValues['geo_coords'])) {
-        $request .= ', geo_coords = :geoCoords';
-        $bindValues[':geoCoords'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['geo_coords'])
-        ];
-    }
-
-    if (isset($submittedValues['hg_comment'])) {
-        $request .= ', hg_comment = :comment';
-        $bindValues[':comment'] = [
-            \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_comment'])
-        ];
-    }
-
-    if (
-        isset($submittedValues['hg_activate']['hg_activate'])
-        && $submittedValues['hg_activate']['hg_activate'] !== null
-    ) {
-        $request .= ', hg_activate = :isActivated';
-        $bindValues[':isActivated'] = [
-            \PDO::PARAM_STR,
-            $submittedValues['hg_activate']['hg_activate']
-        ];
-    }
-
-    $request .= ' WHERE hg_id = :hostGroupId';
-
-    $bindValues[':hostGroupId'] = [
-        \PDO::PARAM_INT,
-        $hostGroupId
-    ];
-
-    $statement = $pearDB->prepare($request);
-
-    foreach ($bindValues as $bindName => $bindParams) {
-        [$bindType, $bindValue] = $bindParams;
-        $statement->bindValue($bindName, $bindValue, $bindType);
-    }
-
-    $statement->execute();
-
-    $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOSTGROUP,
-        object_id: $hostGroupId,
-        object_name: $submittedValues['hg_name'],
-        action_type: ActionLog::ACTION_TYPE_CHANGE,
-        fields: CentreonLogAction::prepareChanges($submittedValues)
-    );
-}
-
-function updateHostGroupInDB($hostGroupId = null, bool $isCloudPlatform, array $submittedValues = [], $increment = false)
-{
-    global $centreon;
-
-    if (! $hostGroupId) {
-        return;
-    }
-
-    $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId($hostGroupId);
-
-    updateHostGroup($hostGroupId, $submittedValues, $isCloudPlatform);
-    updateHostGroupHosts($hostGroupId, $submittedValues, $increment);
-
-    signalConfigurationChange('hostgroup', $hostGroupId, $previousPollerIds);
-    $centreon->user->access->updateACL();
-}
-
-function updateHostGroup($hostGroupId = null, array $submittedValues = [], bool $isCloudPlatform)
-{
-    return $isCloudPlatform
-        ? updateHostGroupInDBForCloud($hostGroupId, $submittedValues)
-        : updateHostGroupInDBForOnPrem($hostGroupId, $submittedValues);
 }
 
 function updateHostGroupHosts($hg_id, $ret = [], $increment = false)
@@ -1176,4 +852,243 @@ function getPollersForConfigChangeFlagFromHostgroupId(int $hostgroupId): array
 {
     $hostIds = findHostsForConfigChangeFlagFromHostGroupIds([$hostgroupId]);
     return findPollersForConfigChangeFlagFromHostIds($hostIds);
+}
+
+
+function isHostGroupActivated(int $hgId): bool
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare("SELECT hg_activate FROM hostgroup WHERE hg_id = :hg_id");
+    $statement->bindValue(':hg_id', $hgId, \PDO::PARAM_INT);
+    $statement->execute();
+
+    return (bool) $statement->fetchColumn();
+}
+
+// ---------- API CALLs ----------
+
+/**
+ * Create a new host group from formData.
+ * @param array formData
+ *
+ * @return int|null
+ */
+function insertHostGroup(array $formData): int|false
+{
+    global $centreon, $isCloudPlatform, $basePath;
+
+    try {
+        if (null === ($hostGroupId = insertHostGroupByApi($formData, $isCloudPlatform, $basePath))) {
+            throw new Exception('New hostgroup ID invalid');
+        }
+
+        updateHostGroupHosts($hostGroupId, $formData);
+        updateHostgroupAcl($hostGroupId, $isCloudPlatform, $formData);
+        signalConfigurationChange('hostgroup', $hostGroupId);
+        $centreon->user->access->updateACL();
+
+        return $hostGroupId;
+    } catch (JsonException $ex) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host group creation',
+        [
+            'hostGroupId' => $hostGroupId ?? null,
+            'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+        ]);
+        echo "<div class='msg' align='center'>" . _('Error during creation. See logs for more detail or contact your administrator') . '</div>';
+
+        return false;
+    } catch (Throwable $th) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host group creation',
+        [
+            'hostGroupId' => $hostGroupId ?? null,
+            'exception' => ['message' => $th->getMessage(), 'trace' => $th->getTraceAsString()],
+        ]);
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
+
+        return false;
+    }
+}
+
+/**
+ * @param int $hgId
+ * @param array $formData
+ *
+ * @return bool
+ */
+function updateHostGroup(int $hgId, array $formData): bool
+{
+    global $centreon, $isCloudPlatform, $basePath;
+
+    try {
+        $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId($hgId);
+
+        updateHostGroupByApi($formData, $isCloudPlatform, $basePath);
+        updateHostGroupHosts($hgId, $formData);
+        signalConfigurationChange('hostgroup', $hgId, $previousPollerIds);
+        $centreon->user->access->updateACL();
+
+        return true;
+    } catch (JsonException $ex) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host group creation',
+        [
+            'hostGroupId' => $hostGroupId ?? null,
+            'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+        ]);
+        echo "<div class='msg' align='center'>" . _('Error during creation (json encoding). See logs for more detail') . '</div>';
+
+        return false;
+    } catch (Throwable $th) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host group creation',
+        [
+            'hostGroupId' => $hostGroupId ?? null,
+            'exception' => ['message' => $th->getMessage(), 'trace' => $th->getTraceAsString()],
+        ]);
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
+
+        return false;
+    }
+}
+
+/**
+ * @param array $formData
+ * @param bool $isCloudPlatform
+ * @param string $basePath
+ *
+ * @throws LogicException
+ * @throws Exception
+ *
+ * @return int|null
+ */
+function insertHostGroupByApi(array $formData, bool $isCloudPlatform, string $basePath): int|null
+{
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class);
+
+    $payload = getPayload($isCloudPlatform, $formData);
+
+    $url = $router->generate(
+        'AddHostGroup',
+        $basePath ? ['base_uri' => $basePath] : [],
+        UrlGeneratorInterface::ABSOLUTE_URL,
+    );
+
+    $response = callApi($url, 'POST', $payload);
+
+    return $response['content']['id'] ?? null;
+}
+
+/**
+ * @param array $formData
+ * @param bool $isCloudPlatform
+ * @param string $basePath
+ *
+ * @throws LogicException
+ * @throws Exception
+ *
+ * @return void
+ */
+function updateHostGroupByApi(array $formData, bool $isCloudPlatform, string $basePath): void
+{
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class)
+        ?? throw new LogicException('Router not found in container');
+
+    $payload = getPayload($isCloudPlatform, $formData);
+
+    $parameters = $basePath
+        ? ['base_uri' => $basePath, 'hostGroupId' => (int) $formData['hg_id']]
+        : [];
+
+    $url = $router->generate(
+        'UpdateHostGroup',
+        $parameters,
+        UrlGeneratorInterface::ABSOLUTE_URL,
+    );
+
+    callApi($url, 'PUT', $payload);
+}
+
+/**
+ * Return ID when httpMethod = POST, null otherwize.
+ *
+ * @param string $url
+ * @param string $httpMethod
+ * @param array<string,mixed> $payload
+ *
+ * @throws Exception
+ *
+ * @return array<string,mixed>
+ */
+function callApi(string $url, string $httpMethod, array $payload): array
+{
+    $client = new CurlHttpClient();
+    $response = $client->request(
+        $httpMethod,
+        $url,
+        [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+            ],
+            'body' => json_encode($payload, JSON_THROW_ON_ERROR),
+        ],
+    );
+
+    $status = $response->getStatusCode();
+    if (
+        ($httpMethod === 'POST' && $status !== 201)
+        || ($httpMethod === 'PUT' && $status !== 204)
+    ) {
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+
+        throw new Exception($content->message ?? 'Unexpected return status');
+    }
+
+    return ['status_code' => $status, 'content' => json_decode($response->getContent(false), true)];
+}
+
+/**
+ * @param bool $isCloudPlatform
+ * @param array $formData
+ *
+ * @return array<string,mixed>
+ */
+function getPayload(bool $isCloudPlatform, array $formData): array
+{
+    $payload = [
+        'name' => $formData['hg_name'],
+        'alias' => $formData['hg_alias'] ?: null,
+        'geo_coords' => $formData['geo_coords'] ?: null,
+        'is_activated'  => (bool) ($formData['hg_activate']['hg_activate'] ?? true),
+    ];
+
+    if ($isCloudPlatform === true) {
+        $payload['is_activated'] = $formData['hg_id'] != ''
+            ? isHostGroupActivated((int) $formData['hg_id'])
+            : true;
+    }
+
+    if ($isCloudPlatform === false) {
+        $payloadOnPrem = [
+            'notes' => $formData['hg_notes'] ?: null,
+            'notes_url' => $formData['hg_notes_url'] ?: null,
+            'action_url' => $formData['hg_action_url'] ?: null,
+            'icon_id' => '' !== $formData['hg_icon_image']
+                ? (int) $formData['hg_icon_image']
+                : null,
+            'icon_map_id' => '' !== $formData['hg_map_icon_image']
+                ? (int) $formData['hg_map_icon_image']
+                : null,
+            'rrd' => '' !== $formData['hg_rrd_retention']
+                ? (int) $formData['hg_rrd_retention']
+                : null,
+            'comment' => $formData['hg_comment'] ?: null,
+        ];
+        $payload = [...$payload, ...$payloadOnPrem];
+    }
+
+    return $payload;
 }

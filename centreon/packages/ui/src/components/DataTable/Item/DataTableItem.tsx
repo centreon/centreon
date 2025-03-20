@@ -52,7 +52,7 @@ const DataTableItem = forwardRef(
             <img
               alt={`thumbnail-${title}-${description}`}
               className={classes.thumbnail}
-              data-testId={`thumbnail-${title}-${description}`}
+              data-testid={`thumbnail-${title}-${description}`}
               loading="lazy"
               src={thumbnail}
             />

@@ -381,9 +381,10 @@ describe('Actions', () => {
       cy.findByLabelText(labelForcedCheck).click();
 
       cy.waitForRequest('@sendCheck').then(({ request }) => {
-        expect(request.body).to.equal(
-          '{"check":{"is_forced":true},"resources":[{"id":0,"parent":null,"type":"host"}]}'
-        );
+        expect(request.body).to.deep.equal({
+          check: { is_forced: true },
+          resources: [{ id: 0, parent: null, type: 'host' }]
+        });
       });
       cy.contains(labelForcedCheckCommandSent).should('be.visible');
 
@@ -400,9 +401,10 @@ describe('Actions', () => {
       cy.findByLabelText(labelCheck).click();
 
       cy.waitForRequest('@sendCheck').then(({ request }) => {
-        expect(request.body).to.equal(
-          '{"check":{"is_forced":false},"resources":[{"id":0,"parent":null,"type":"host"}]}'
-        );
+        expect(request.body).to.deep.equal({
+          check: { is_forced: false },
+          resources: [{ id: 0, parent: null, type: 'host' }]
+        });
       });
 
       cy.makeSnapshot();

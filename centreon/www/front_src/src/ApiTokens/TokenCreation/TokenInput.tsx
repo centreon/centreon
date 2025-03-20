@@ -43,7 +43,9 @@ const TokenInput = ({ token }: Props): JSX.Element => {
         EndAdornment={endAdornment({ isVisible, onClick: handleVisibility })}
         dataTestId="token"
         id="token"
-        inputProps={{ 'data-testid': 'tokenInput' }}
+        textFieldSlotsAndSlotProps={{
+          slotProps: { htmlInput: { 'data-testid': 'tokenInput' } }
+        }}
         label={t(labelToken)}
         style={{ width: '100%' }}
         type={isVisible ? 'text' : 'password'}
