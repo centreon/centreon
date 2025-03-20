@@ -75,7 +75,7 @@ final class CountResourcesController extends AbstractController
         try {
             $presenter->present(
                 [
-                    'result' => $presenter->getViewModel()->getTotalFilteredResources(),
+                    'count' => $presenter->getViewModel()->getTotalFilteredResources(),
                     'meta' => [
                         'search' => $this->formatSearchParameter($input->search ?? ''),
                         'total' => $presenter->getViewModel()->getTotalResources(),
