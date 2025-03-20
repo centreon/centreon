@@ -50,19 +50,6 @@ final readonly class ExportResourcesInput
         'checks',
     ];
 
-    /**
-     * ExportResourcesInput constructor
-     *
-     * @param string|null $format
-     * @param bool|null $allPages
-     * @param array<string>|null $columns
-     * @param int|null $maxLines
-     * @param int|null $page
-     * @param int|null $limit
-     * @param string|null $sort_by
-     * @param string|null $search
-     * @param int|null $total
-     */
     public function __construct(
         #[Assert\NotNull(
             message: 'format parameter is required'
