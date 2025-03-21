@@ -52,16 +52,16 @@ class HostGroup extends NewHostGroup implements Comparable, Identifiable
     public function __construct(
         int $id,
         string $name,
-        string $alias,
-        string $notes,
-        string $notesUrl,
-        string $actionUrl,
-        ?int $iconId,
-        ?int $iconMapId,
-        ?int $rrdRetention,
-        null|GeoCoords $geoCoords,
-        string $comment,
-        bool $isActivated,
+        string $alias = '',
+        string $notes = '',
+        string $notesUrl = '',
+        string $actionUrl = '',
+        ?int $iconId = null,
+        ?int $iconMapId = null,
+        ?int $rrdRetention = null,
+        null|GeoCoords $geoCoords = null,
+        string $comment = '',
+        bool $isActivated = true,
     ) {
         Assertion::positiveInt($id, 'HostGroup::id');
         $this->id = $id;

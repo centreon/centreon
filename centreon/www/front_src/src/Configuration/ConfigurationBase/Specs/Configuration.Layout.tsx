@@ -28,7 +28,7 @@ export default (resourceType: string): void => {
 
       cy.contains(pluralizedResourceType).should('be.visible');
 
-      cy.matchImageSnapshot(
+      cy.makeSnapshot(
         `${resourceType}: renders the layout with all components`
       );
     });
@@ -66,7 +66,7 @@ export default (resourceType: string): void => {
 
       cy.get('[data-testid="advanced-filters"]').should('be.visible');
 
-      cy.matchImageSnapshot(
+      cy.makeSnapshot(
         `${resourceType}: displays and interacts with filters`
       );
     });

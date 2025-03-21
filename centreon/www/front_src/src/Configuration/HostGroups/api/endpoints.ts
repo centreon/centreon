@@ -1,5 +1,6 @@
+import { buildListingEndpoint } from '@centreon/ui';
+
 export const hostGroupsListEndpoint = '/configuration/hosts/groups';
-export const hostListEndpoint = '/configuration/hosts';
 
 export const getHostGroupEndpoint = ({ id }): string =>
   `/configuration/hosts/groups/${id}`;
@@ -15,3 +16,19 @@ export const bulkEnableHostGroupEndpoint =
 
 export const bulkDisableHostGroupEndpoint =
   '/configuration/hosts/groups/_disable';
+
+export const hostListEndpoint = '/configuration/hosts';
+export const resourceAccessRulesEndpoint =
+  '/administration/resource-access/rules';
+
+export const listImagesEndpoint = '/configuration/icons';
+
+export const getListImagesSearchEndpoint = ({ search, page }): string =>
+  buildListingEndpoint({
+    baseEndpoint: listImagesEndpoint,
+    parameters: {
+      limit: 10,
+      page,
+      search
+    }
+  });
