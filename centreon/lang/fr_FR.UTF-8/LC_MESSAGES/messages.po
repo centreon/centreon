@@ -19740,7 +19740,6 @@ msgstr "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name 
 msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> How many duplications would you like to make?"
 msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôtes</strong>. Combien de duplications souhaitez-vous effectuer?"
 
-
 msgid "Add a host group"
 msgstr "Ajouter un groupe d'hôtes"
 
@@ -19785,8 +19784,6 @@ msgstr "Échec de l'activation du groupe d'hôtes"
 
 msgid "Failed to disable the host group"
 msgstr "Échec de la désactivation du groupe d'hôtes"
-
-
 
 msgid "Workhours"
 msgstr "Heures de travail"
