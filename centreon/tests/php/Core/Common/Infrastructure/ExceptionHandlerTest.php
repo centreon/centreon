@@ -55,7 +55,7 @@ it('test log a native exception', function () {
     );
 });
 
-it('test log a exception that extends BusinessLogicException without context and previous', function () {
+it('test log an exception that extends BusinessLogicException without context and previous', function () {
     $this->exceptionHandler->log(new RepositoryException('repository_exception_message'));
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -64,7 +64,7 @@ it('test log a exception that extends BusinessLogicException without context and
     );
 });
 
-it('test log a exception that extends BusinessLogicException with context without previous', function () {
+it('test log an exception that extends BusinessLogicException with context without previous', function () {
     $this->exceptionHandler->log(new RepositoryException('repository_exception_message', ['contact' => 1]));
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
@@ -74,7 +74,7 @@ it('test log a exception that extends BusinessLogicException with context withou
 });
 
 it(
-    'test log a exception that extends BusinessLogicException with context with a previous (native exception)',
+    'test log an exception that extends BusinessLogicException with context with a previous (native exception)',
     function () {
         $this->exceptionHandler->log(
             new RepositoryException(
@@ -92,7 +92,7 @@ it(
 );
 
 it(
-    'test log a exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException',
+    'test log an exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException',
     function () {
         $this->exceptionHandler->log(
             new RepositoryException(
@@ -110,7 +110,7 @@ it(
 );
 
 it(
-    'test log a exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException which has context',
+    'test log an exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException which has context',
     function () {
         $this->exceptionHandler->log(
             new RepositoryException(
@@ -128,7 +128,7 @@ it(
 );
 
 it(
-    'test log a exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException which has context and a previous exception',
+    'test log an exception that extends BusinessLogicException with context and a previous that extends a BusinessLogicException which has context and a previous exception',
     function () {
         $this->exceptionHandler->log(
             new RepositoryException(
