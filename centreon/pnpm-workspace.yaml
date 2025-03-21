@@ -2,4 +2,4 @@ packages:
   - 'packages/*'
   - 'lighthouse'
   - 'tests/e2e'
-  - 'tests/rezst_api'
+  - 'tests/rest_api'

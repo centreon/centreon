@@ -17,6 +17,7 @@ import { useAtomValue } from 'jotai';
 
 import {
   ColumnType,
+  truncate,
   useLocaleDateTimeFormat,
   useStyleTable
 } from '@centreon/ui';
@@ -58,7 +59,6 @@ import SubItem from './ServiceSubItemColumn/SubItem';
 import SeverityColumn from './Severity';
 import StateColumn from './State';
 import StatusColumn from './Status';
-import truncate from './truncate';
 
 interface ColumnProps {
   displayResources: 'withTicket' | 'withoutTicket';
@@ -234,7 +234,7 @@ const useColumns = ({
         propOr('', 'information'),
         split('\n'),
         head,
-        truncate
+        (information: string) => truncate({ content: information })
       ) as (row) => string,
       id: 'information',
       label: t(labelInformation),
