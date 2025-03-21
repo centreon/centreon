@@ -25,6 +25,7 @@ namespace Tests\Centreon\Domain\Log;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\ContactForDebug;
 use Centreon\Domain\Log\LoggerTrait;
+use Mockery;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -62,8 +63,8 @@ class LoggerStub implements LoggerInterface {
         $this->monolog = new Logger('test_logger');
         $this->monolog->pushHandler(new StreamHandler($logPathFileName));
         $this->setLogger($this->monolog);
-        $this->loggerContact = \Mockery::mock(ContactInterface::class);
-        $this->loggerContactForDebug = \Mockery::mock(ContactForDebug::class);
+        $this->loggerContact = Mockery::mock(ContactInterface::class);
+        $this->loggerContactForDebug = Mockery::mock(ContactForDebug::class);
         $this->loggerContactForDebug->shouldReceive('isValidForContact')->andReturnTrue();
     }
 
