@@ -26,9 +26,11 @@ namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionMode;
 
 /**
  * @phpstan-type _CmaParameters array{
+ *      connection_mode: string,
  *	    is_reverse: bool,
  *		otel_public_certificate: string,
  *		otel_private_key: string,
@@ -60,13 +62,21 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         array $parameters
     ){
         /** @var _CmaParameters $parameters */
-        Assertion::notEmptyString($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
-        Assertion::maxLength($parameters['otel_public_certificate'], self::MAX_LENGTH, 'configuration.otel_public_certificate');
-        Assertion::notEmptyString($parameters['otel_private_key'], 'configuration.otel_private_key');
-        Assertion::maxLength($parameters['otel_private_key'], self::MAX_LENGTH, 'configuration.otel_private_key');
-        if ($parameters['otel_ca_certificate'] !== null) {
-            Assertion::notEmptyString($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
-            Assertion::maxLength($parameters['otel_ca_certificate'], self::MAX_LENGTH, 'configuration.otel_ca_certificate');
+        if ($parameters['connection_mode'] === ConnectionMode::SECURE) {
+            Assertion::notEmptyString($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
+            Assertion::maxLength($parameters['otel_public_certificate'], self::MAX_LENGTH, 'configuration.otel_public_certificate');
+            Assertion::notEmptyString($parameters['otel_private_key'], 'configuration.otel_private_key');
+            Assertion::maxLength($parameters['otel_private_key'], self::MAX_LENGTH, 'configuration.otel_private_key');
+            if ($parameters['otel_ca_certificate'] !== null) {
+                Assertion::notEmptyString($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+                Assertion::maxLength($parameters['otel_ca_certificate'], self::MAX_LENGTH, 'configuration.otel_ca_certificate');
+            }
+        } else {
+            Assertion::maxLength($parameters['otel_public_certificate'], self::MAX_LENGTH, 'configuration.otel_public_certificate');
+            Assertion::maxLength($parameters['otel_private_key'], self::MAX_LENGTH, 'configuration.otel_private_key');
+            if ($parameters['otel_ca_certificate'] !== null && $parameters['otel_ca_certificate'] !== '') {
+                Assertion::maxLength($parameters['otel_ca_certificate'], self::MAX_LENGTH, 'configuration.otel_ca_certificate');
+            }
         }
 
         if ($parameters['is_reverse'] === false && $parameters['hosts'] !== []) {
@@ -76,10 +86,16 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         foreach ($parameters['hosts'] as $host) {
             Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
             Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
+
             if ($host['poller_ca_certificate'] !== null) {
-                Assertion::notEmptyString($host['poller_ca_certificate'], 'configurationhosts[].poller_ca_certificate');
-                Assertion::maxLength($host['poller_ca_certificate'], self::MAX_LENGTH, 'configuration.hosts[].poller_ca_certificate');
+                if ($parameters['connection_mode'] === ConnectionMode::SECURE) {
+                    Assertion::notEmptyString($host['poller_ca_certificate'], 'configuration.hosts[].poller_ca_certificate');
+                    Assertion::maxLength($host['poller_ca_certificate'], self::MAX_LENGTH, 'configuration.hosts[].poller_ca_certificate');
+                } else {
+                    Assertion::maxLength($host['poller_ca_certificate'], self::MAX_LENGTH, 'configuration.hosts[].poller_ca_certificate');
+                }
             }
+
             if ($host['poller_ca_name'] !== null) {
                 Assertion::notEmptyString($host['poller_ca_name'], 'configuration.hosts[].poller_ca_name');
                 Assertion::maxLength($host['poller_ca_name'], self::MAX_LENGTH, 'configuration.hosts[].poller_ca_name');
