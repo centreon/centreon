@@ -108,6 +108,24 @@
                 "integer"
             ]
         },
+        "event_handler_enabled": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "enum": [
+                null,
+                0,
+                1,
+                2
+            ]
+        },
+        "event_handler_command_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
         "note_url": {
             "type": [
                 "null",
