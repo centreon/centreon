@@ -22,3 +22,13 @@ export type List<TEntity> = {
   meta: ListMeta;
   result: Array<TEntity>;
 };
+
+export interface HostGroupItem extends NamedEntity {
+  alias: string | null;
+  geoCoords: string | null;
+  comment: string | null;
+  isActivated: boolean;
+  hosts: Array<NamedEntity>;
+  resourceAccessRules?: Array<NamedEntity>;
+  icon: null | (NamedEntity & { url: string });
+}

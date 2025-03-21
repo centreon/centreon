@@ -3,15 +3,19 @@ import { useActionsStyles } from './Actions.styles';
 import AddHostGroups from './AddAction';
 import MassiveActions from './MassiveActions/MassiveActions';
 
-const ActionsBar = (): JSX.Element => {
-  const { classes } = useActionsStyles();
+const ActionsBar = ({
+  hasWriteAccess
+}: { hasWriteAccess: boolean }): JSX.Element => {
+  const { classes } = useActionsStyles({ hasWriteAccess });
 
   return (
     <div className={classes.bar}>
-      <div className={classes.actions}>
-        <AddHostGroups />
-        <MassiveActions />
-      </div>
+      {hasWriteAccess && (
+        <div className={classes.actions}>
+          <AddHostGroups />
+          <MassiveActions />
+        </div>
+      )}
       <div className={classes.searchBar}>
         <Filters />
       </div>

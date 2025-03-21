@@ -19746,6 +19746,9 @@ msgstr "Ajouter un groupe d'hôtes"
 msgid "Modify a host group"
 msgstr "Modifier un groupe d'hôtes"
 
+msgid "View a host group"  
+msgstr "Voir un groupe d'hôtes"
+
 msgid "Host groups duplicated"
 msgstr "Groupes d'hôtes dupliqués"
 
@@ -19798,4 +19801,23 @@ msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
 
+msgid "Host group created"
+msgstr "Groupe d'hôtes créé"
 
+msgid "Host group updated"
+msgstr "Groupe d'hôtes mis à jour"
+
+msgid "Group members"
+msgstr "Membres du groupe"
+
+msgid "Select hosts"
+msgstr "Sélectionner des hôtes"
+
+msgid "Apply resource access rules to the host group"
+msgstr "Appliquer des règle d'accès aux ressources au groupe d'hôtes"
+
+msgid "Geographic coordinates for MAP"
+msgstr "Coordonnées géographiques pour MAP"
+
+msgid "Invalid geo-coordinate format"
+msgstr "Format de coordonnées géographiques invalide"

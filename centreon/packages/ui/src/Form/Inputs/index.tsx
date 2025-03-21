@@ -203,6 +203,8 @@ const Inputs = ({
           ? find(propEq(groupName, 'name'), groups)
           : ({} as Group);
 
+        const hasGroupDivider = !groups[index]?.isDividerHidden;
+
         const isFirstElement = areGroupsOpen || equals(index, 0);
 
         return (
@@ -253,17 +255,19 @@ const Inputs = ({
                 </div>
               </CollapsibleGroup>
             </div>
-            {hasGroupTitle && not(equals(lastGroup, groupName as string)) && (
-              <Divider
-                flexItem
-                className={classes.divider}
-                orientation={
-                  equals(groupDirection, GroupDirection.Horizontal)
-                    ? 'vertical'
-                    : 'horizontal'
-                }
-              />
-            )}
+            {hasGroupDivider &&
+              hasGroupTitle &&
+              not(equals(lastGroup, groupName as string)) && (
+                <Divider
+                  flexItem
+                  className={classes.divider}
+                  orientation={
+                    equals(groupDirection, GroupDirection.Horizontal)
+                      ? 'vertical'
+                      : 'horizontal'
+                  }
+                />
+              )}
           </Fragment>
         );
       })}
