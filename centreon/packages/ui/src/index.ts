@@ -133,6 +133,7 @@ export {
 } from './api/useGraphQuery';
 export { WidgetResourceType as ResourceType } from './api/useGraphQuery/models';
 export { default as QueryProvider, client } from './api/QueryProvider';
+export { default as useBulkResponse } from './api/useBulkResponse';
 export {
   default as FileDropZone,
   transformFileListToArray
