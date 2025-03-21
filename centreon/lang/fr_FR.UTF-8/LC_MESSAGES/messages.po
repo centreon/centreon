@@ -19746,6 +19746,9 @@ msgstr "Ajouter un groupe d'hôtes"
 msgid "Modify a host group"
 msgstr "Modifier un groupe d'hôtes"
 
+msgid "View a host group"  
+msgstr "Voir un groupe d'hôtes"
+
 msgid "Host groups duplicated"
 msgstr "Groupes d'hôtes dupliqués"
 

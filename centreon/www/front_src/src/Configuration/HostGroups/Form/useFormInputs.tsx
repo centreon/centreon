@@ -28,7 +28,9 @@ interface FormInputsState {
   groups: Array<Group>;
 }
 
-const useFormInputs = (): FormInputsState => {
+const useFormInputs = ({
+  hasWriteAccess
+}: { hasWriteAccess: boolean }): FormInputsState => {
   const { t } = useTranslation();
   const { classes } = useFormStyles();
 
@@ -77,20 +79,23 @@ const useFormInputs = (): FormInputsState => {
             fieldName: 'name',
             group: t(labelGeneralInformation),
             label: t(labelName),
-            required: true,
-            type: InputType.Text
+            required: hasWriteAccess,
+            type: InputType.Text,
+            getDisabled: () => !hasWriteAccess
           },
           {
             fieldName: 'alias',
             group: t(labelGeneralInformation),
             label: t(labelAlias),
-            type: InputType.Text
+            type: InputType.Text,
+            getDisabled: () => !hasWriteAccess
           }
         ]
       }
     },
     {
       connectedAutocomplete: {
+        chipColor: 'primary',
         additionalConditionParameters: [],
         endpoint: hostListEndpoint,
         filterKey: 'name'
@@ -98,10 +103,12 @@ const useFormInputs = (): FormInputsState => {
       fieldName: 'hosts',
       group: t(labelGroupMembers),
       label: t(labelSelectHosts),
+      getDisabled: () => !hasWriteAccess,
       type: InputType.MultiConnectedAutocomplete
     },
     {
       connectedAutocomplete: {
+        chipColor: 'primary',
         additionalConditionParameters: [],
         endpoint: resourceAccessRulesEndpoint,
         filterKey: 'name'
@@ -109,6 +116,7 @@ const useFormInputs = (): FormInputsState => {
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),
       label: t(labelApplyResourceAccessRule),
+      getDisabled: () => !hasWriteAccess,
       type: InputType.MultiConnectedAutocomplete
     },
     {
@@ -119,11 +127,13 @@ const useFormInputs = (): FormInputsState => {
           {
             fieldName: 'geoCoords',
             label: t(labelGeographicCoordinates),
+            getDisabled: () => !hasWriteAccess,
             type: InputType.Text
           },
           {
             custom: { Component: IconFiled },
-            type: InputType.Custom
+            type: InputType.Custom,
+            disabled: !hasWriteAccess
           }
         ]
       }
@@ -132,6 +142,7 @@ const useFormInputs = (): FormInputsState => {
       fieldName: 'comment',
       group: t(labelExtendedInformation),
       label: t(labelComment),
+      getDisabled: () => !hasWriteAccess,
       text: {
         multilineRows: 3
       },

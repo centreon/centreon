@@ -11,6 +11,15 @@ import {
 
 export default () => {
   describe('Listing: ', () => {
+    it('hides all actions and action columns when the user does not have write access', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHostGroups');
+      cy.contains('host group 0');
+
+      cy.makeSnapshot();
+    });
+
     it('renders the Host group page with the ConfigurationBase layout', () => {
       initialize({});
 

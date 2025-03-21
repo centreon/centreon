@@ -8,6 +8,7 @@ import { Form, Group, InputProps } from '@centreon/ui';
 import { FormActions, FormActionsProps } from '@centreon/ui/components';
 import { CloseModalConfirmation } from '../../Dialogs';
 
+import { Box } from '@mui/material';
 import { ObjectSchema } from 'yup';
 import { isFormDirtyAtom } from '../../atoms';
 import { labelCancel, labelCreate, labelUpdate } from '../../translatedLabels';
@@ -29,6 +30,7 @@ export type HostGroupFormProps = {
   validationSchema: ObjectSchema<object>;
   initialValues;
   isLoading: boolean;
+  hasWriteAccess: boolean;
 } & Pick<FormActionsProps, 'onCancel'>;
 
 export type ConnectorFormLabels = {
@@ -79,13 +81,14 @@ const HostGroupForm = ({
   groups,
   validationSchema,
   initialValues,
-  isLoading
+  isLoading,
+  hasWriteAccess
 }: HostGroupFormProps): JSX.Element => {
   const { classes } = useFormStyles();
 
   return (
     <Form
-      Buttons={Actions({ onCancel, mode })}
+      Buttons={hasWriteAccess ? Actions({ onCancel, mode }) : Box}
       isCollapsible
       areGroupsOpen
       initialValues={initialValues}

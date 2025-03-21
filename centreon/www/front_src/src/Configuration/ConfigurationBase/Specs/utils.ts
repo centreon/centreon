@@ -134,5 +134,6 @@ export const getLabelDeleteMany = (type, count) =>
 
 export const getLabelDuplicateOne = (type, name) =>
   `You are about to duplicate the ${name} ${type}. How many duplications would you like to make?`;
+
 export const getLabelDuplicateMany = (type, count) =>
   `You are about to duplicate ${count} ${type}. How many duplications would you like to make?`;

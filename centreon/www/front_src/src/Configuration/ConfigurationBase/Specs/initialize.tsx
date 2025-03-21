@@ -124,6 +124,7 @@ const initialize = ({
               <ConfigurationBase
                 resourceType={resourceType}
                 columns={columns}
+                hasWriteAccess={true}
                 form={{
                   groups,
                   inputs,

@@ -14,9 +14,35 @@ import {
   labelSelectHosts
 } from '../translatedLabels';
 
+const platforms = ['OnPrem', 'Cloud'];
+
 export default () => {
   describe('Modal', () => {
-    ['OnPrem', 'Cloud'].forEach((platform) => {
+    platforms.forEach((platform) => {
+      const isCloudPlatform = equals(platform, 'Cloud');
+
+      it('displays the modal in view mode when the user does not have write access', () => {
+        initialize({ isCloudPlatform, hasWriteAccess: false });
+
+        cy.waitForRequest('@getAllHostGroups');
+
+        cy.contains('host group 1').click();
+
+        cy.waitForRequest('@getHostGroupDetails');
+
+        cy.contains('View a host group').should('be.visible');
+
+        cy.findAllByTestId(labelComment).eq(1).scrollIntoView();
+
+        cy.makeSnapshot(
+          `${platform} - displays the modal in view mode when the user does not have write access`
+        );
+
+        cy.findByLabelText('close').click();
+      });
+    });
+
+    platforms.forEach((platform) => {
       describe(platform, () => {
         const isCloudPlatform = equals(platform, 'Cloud');
 

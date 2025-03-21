@@ -1,5 +1,5 @@
 import { useAtom, useSetAtom } from 'jotai';
-import { isEmpty, isNil, not } from 'ramda';
+import { isEmpty, isNil, isNotNil, not } from 'ramda';
 import { useEffect, useMemo } from 'react';
 import { ConfigurationBase } from '../models';
 import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
@@ -14,7 +14,8 @@ const Base = ({
   api,
   filtersConfiguration,
   filtersInitialValues,
-  defaultSelectedColumnIds
+  defaultSelectedColumnIds,
+  hasWriteAccess
 }: ConfigurationBase): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -51,7 +52,8 @@ const Base = ({
       configuration?.filtersConfiguration &&
       !isEmpty(configuration?.defaultSelectedColumnIds) &&
       !isEmpty(configuration?.filtersInitialValues) &&
-      !isEmpty(filters),
+      !isEmpty(filters) &&
+      isNotNil(hasWriteAccess),
     [configuration, filters]
   ) as boolean;
 
@@ -59,7 +61,14 @@ const Base = ({
     return <div />;
   }
 
-  return <Page columns={columns} resourceType={resourceType} form={form} />;
+  return (
+    <Page
+      columns={columns}
+      resourceType={resourceType}
+      form={form}
+      hasWriteAccess={hasWriteAccess}
+    />
+  );
 };
 
 export default Base;

@@ -8,7 +8,7 @@ export enum ResourceType {
   ServiceGroup = 'service group'
 }
 
-interface Form {
+export interface Form {
   inputs: Array<InputProps>;
   groups: Array<Group>;
   validationSchema: ObjectSchema<object>;
@@ -29,6 +29,7 @@ export interface ConfigurationBase {
   filtersConfiguration: Array<FilterConfiguration>;
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
+  hasWriteAccess: boolean;
 }
 
 export enum FieldType {

@@ -4,7 +4,10 @@ import { initReactI18next } from 'react-i18next';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import { platformFeaturesAtom } from '@centreon/ui-context';
+import {
+  platformFeaturesAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 import { BrowserRouter as Router } from 'react-router';
 import HostGroups from '..';
 import {
@@ -23,7 +26,8 @@ import {
 
 const initialize = ({
   isEmptyHostGroup = false,
-  isCloudPlatform = false
+  isCloudPlatform = false,
+  hasWriteAccess = true
 }): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -35,6 +39,10 @@ const initialize = ({
   store.set(platformFeaturesAtom, {
     featureFlags: {},
     isCloudPlatform
+  });
+
+  store.set(userPermissionsAtom, {
+    configuration_host_group_write: hasWriteAccess
   });
 
   cy.interceptAPIRequest({

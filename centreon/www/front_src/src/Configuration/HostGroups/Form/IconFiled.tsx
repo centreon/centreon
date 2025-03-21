@@ -11,7 +11,7 @@ import { getListImagesSearchEndpoint } from '../api/endpoints';
 import { labelIcon } from '../translatedLabels';
 import { useIconStyles } from './Form.styles';
 
-const IconFiled = (): JSX.Element => {
+const IconFiled = ({ disabled }: { disabled: boolean }): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useIconStyles();
 
@@ -33,6 +33,7 @@ const IconFiled = (): JSX.Element => {
         label={t(labelIcon)}
         value={values.icon}
         onChange={changeIcon}
+        disabled={disabled}
       />
       {values.icon && (
         <Image

@@ -24,7 +24,8 @@ import {
   labelAddResource,
   labelResourceCreated,
   labelResourceUpdated,
-  labelUpdateResource
+  labelUpdateResource,
+  labelViewResource
 } from '../translatedLabels';
 
 interface UseModalState {
@@ -45,7 +46,7 @@ interface UseModalState {
   isLoading: boolean;
 }
 
-const useModal = ({ defaultValues }): UseModalState => {
+const useModal = ({ defaultValues, hasWriteAccess }): UseModalState => {
   const { t } = useTranslation();
 
   const { showSuccessMessage } = useSnackbar();
@@ -136,9 +137,11 @@ const useModal = ({ defaultValues }): UseModalState => {
       });
   };
 
-  const labelHeader = isAddMode
-    ? t(labelAddResource(resourceType))
-    : t(labelUpdateResource(resourceType));
+  const labelHeader = !hasWriteAccess
+    ? t(labelViewResource(resourceType))
+    : isAddMode
+      ? t(labelAddResource(resourceType))
+      : t(labelUpdateResource(resourceType));
 
   return {
     labelHeader,

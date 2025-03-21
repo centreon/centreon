@@ -4,10 +4,16 @@ import { Typography } from '@mui/material';
 
 import Form from './Form/Form';
 
+import { Form as FormType } from '../../models';
 import { useStyles } from './Modal.styles';
 import useModal from './useModal';
 
-const FormModal = ({ form }): JSX.Element => {
+interface Props {
+  form: FormType;
+  hasWriteAccess: boolean;
+}
+
+const FormModal = ({ form, hasWriteAccess }: Props): JSX.Element => {
   const { classes } = useStyles();
 
   const {
@@ -19,7 +25,7 @@ const FormModal = ({ form }): JSX.Element => {
     id,
     initialValues,
     isLoading
-  } = useModal({ defaultValues: form.defaultValues });
+  } = useModal({ defaultValues: form.defaultValues, hasWriteAccess });
 
   return (
     <Modal data-testid="Modal" open={isOpen} size="xlarge" onClose={close}>
@@ -37,6 +43,7 @@ const FormModal = ({ form }): JSX.Element => {
           validationSchema={form?.validationSchema}
           initialValues={initialValues}
           isLoading={isLoading}
+          hasWriteAccess={hasWriteAccess}
         />
       </Modal.Body>
     </Modal>

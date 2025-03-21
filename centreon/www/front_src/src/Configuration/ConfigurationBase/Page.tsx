@@ -12,10 +12,11 @@ import { useStyles } from './Page.styles';
 const Page = ({
   columns,
   resourceType,
-  form
+  form,
+  hasWriteAccess
 }: Pick<
   ConfigurationBase,
-  'columns' | 'form' | 'resourceType'
+  'columns' | 'form' | 'resourceType' | 'hasWriteAccess'
 >): JSX.Element => {
   const { classes } = useStyles();
   const { pluralizedT } = usePluralizedTranslation();
@@ -36,10 +37,10 @@ const Page = ({
       </PageLayout.Header>
       <PageLayout.Body>
         <Box className={classes.pageBody}>
-          <Listing columns={columns} />
+          <Listing columns={columns} hasWriteAccess={hasWriteAccess} />
         </Box>
       </PageLayout.Body>
-      <Modal form={form} />
+      <Modal form={form} hasWriteAccess={hasWriteAccess} />
       <DeleteDialog />
       <DuplicateDialog />
     </PageLayout>

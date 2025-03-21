@@ -24,6 +24,7 @@ export const labelEnableDisable = 'Enable/Disable';
 // actions
 export const labelAddResource = (type) => `Add a ${type}`;
 export const labelUpdateResource = (type) => `Modify a ${type}`;
+export const labelViewResource = (type) => `View a ${type}`;
 
 export const labelDeleteResource = (type) => `Delete ${type}`;
 export const labelDuplicateResource = (type) => `Duplicate ${type}`;
