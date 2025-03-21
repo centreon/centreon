@@ -32,24 +32,6 @@ const resultsToSubmit = [
   }
 ];
 
-const checkFirstHostGroupFromListing = () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
-  cy.getIframeBody()
-    .find('select')
-    .eq(0)
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-};
-
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -60,6 +42,14 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/hosts/groups?page=1&limit=*'
+  }).as('getGroups');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=defaultValues&target=hostgroups&field=hg_hosts&id*'
+  }).as('getHosts');
 });
 
 afterEach(() => {
@@ -120,9 +110,11 @@ When('the user changes some properties of the configured host group', () => {
     rootItemNumber: 3,
     subMenu: 'Hosts'
   });
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().contains(hostGroups.default.name).click();
-
+  cy.wait('@getGroups');
+  cy.contains('p', hostGroups.default.name)
+    .eq(0)
+    .click();
+  cy.wait('@getTimeZone')
   cy.waitUntil(
     () => {
       return cy
@@ -176,14 +168,14 @@ When('the user changes some properties of the configured host group', () => {
   cy.getIframeBody().contains('label', 'Disabled').click();
 
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
-  cy.wait('@getTimeZone');
+  cy.wait('@getGroups')
   cy.exportConfig();
 });
 
 Then('these properties are updated', () => {
-  cy.getIframeBody().contains(hostGroups.forTest.name).should('exist');
-  cy.getIframeBody().contains(hostGroups.forTest.name).click();
-
+  cy.contains('p', hostGroups.forTest.name).eq(0).should('exist');
+  cy.contains('p', hostGroups.forTest.name).eq(0).click();
+  cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="hg_name"]');
   cy.getIframeBody()
     .find('input[name="hg_name"]')
@@ -191,6 +183,17 @@ Then('these properties are updated', () => {
   cy.getIframeBody()
     .find('input[name="hg_alias"]')
     .should('have.value', hostGroups.forTest.alias);
+  cy.wait('@getHosts');
+  cy.waitForElementInIframe('#main-content', `span[title="${services.serviceOk.host}"]`);
+  cy.getIframeBody()
+    .find('select[name="hg_hosts[]"]')
+    .find('option')
+    .then((options) => {
+      const host2Option = options.filter((index, option) => {
+        return Cypress.$(option).text() === services.serviceOk.host;
+      });
+      expect(host2Option.length).to.eq(1);
+  });
   cy.getIframeBody()
     .find('input[name="hg_notes"]')
     .should('have.value', hostGroups.forTest.notes);
@@ -220,36 +223,37 @@ Then('these properties are updated', () => {
 
 When('the user duplicates the configured host group', () => {
   cy.updateHostGroupViaApi(hostGroups.forTest, hostGroups.default.name);
-  checkFirstHostGroupFromListing();
-
-  cy.getIframeBody().find('select').eq(0).select('Duplicate');
-  cy.wait('@getTimeZone');
-  cy.exportConfig();
+  cy.navigateTo({
+    page: 'Host Groups',
+    rootItemNumber: 3,
+    subMenu: 'Hosts'
+  });
+  cy.wait('@getGroups');
+  cy.getByTestId({testId: 'ContentCopyOutlinedIcon'}).eq(1).click();
+  cy.get('[type="submit"][aria-label="Duplicate"]')
+    .click();
+  cy.wait('@getGroups');
 });
 
 Then('a new host group is created with identical properties', () => {
-  cy.getIframeBody().contains(hostGroups.forTest.name).should('exist');
-  cy.getIframeBody().contains(hostGroups.forTest.name).click();
-
+  cy.contains('p', `${hostGroups.forTest.name}_1`).eq(0).should('exist');
+  cy.contains('p', `${hostGroups.forTest.name}_1`).eq(0).click();
   cy.waitForElementInIframe('#main-content', 'input[name="hg_name"]');
   cy.getIframeBody()
     .find('input[name="hg_name"]')
-    .should('have.value', hostGroups.forTest.name);
+    .should('have.value', `${hostGroups.forTest.name}_1`);
   cy.getIframeBody()
     .find('input[name="hg_alias"]')
     .should('have.value', hostGroups.forTest.alias);
-
   cy.getIframeBody()
     .find('select[name="hg_hosts[]"]')
     .find('option')
     .then((options) => {
-      expect(options.length).to.eq(2);
       const host2Option = options.filter((index, option) => {
         return Cypress.$(option).text() === services.serviceOk.host;
       });
       expect(host2Option.length).to.eq(1);
     });
-
   cy.getIframeBody()
     .find('input[name="hg_notes"]')
     .should('have.value', hostGroups.forTest.notes);
@@ -274,19 +278,26 @@ Then('a new host group is created with identical properties', () => {
   cy.getIframeBody()
     .find('textarea[name="hg_comment"]')
     .should('have.value', hostGroups.forTest.comment);
-  cy.checkLegacyRadioButton('Enabled');
+  cy.checkLegacyRadioButton('Disabled');
 });
 
 When('the user deletes the configured host group', () => {
-  checkFirstHostGroupFromListing();
-  cy.getIframeBody().find('select').eq(0).select('Delete');
-  cy.wait('@getTimeZone');
+  cy.navigateTo({
+    page: 'Host Groups',
+    rootItemNumber: 3,
+    subMenu: 'Hosts'
+  });
+  cy.wait('@getGroups');
+  cy.getByTestId({testId: 'DeleteOutlineIcon'}).eq(1).click();
+  cy.get('[type="submit"][aria-label="Delete"]')
+    .click();
+  cy.wait('@getGroups');
   cy.exportConfig();
 });
 
 Then(
   'the configured host group is not visible anymore on the host group page',
   () => {
-    cy.getIframeBody().contains(hostGroups.default.name).should('not.exist');
+    cy.contains('p', hostGroups.default.name).should('not.exist');
   }
 );
