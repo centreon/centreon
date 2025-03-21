@@ -167,14 +167,15 @@ final class PartialUpdateToken
         }
 
         $updatedToken = new Token(
-            new TrimmedString($token->getName()),
-            $token->getUserId(),
-            new TrimmedString($token->getUserName()),
-            $token->getCreatorId(),
-            new TrimmedString($token->getCreatorName()),
-            $token->getCreationDate(),
-            $token->getExpirationDate(),
-            $requestDto->isRevoked
+            name: new TrimmedString($token->getName()),
+            userId: $token->getUserId(),
+            userName: new TrimmedString($token->getUserName()),
+            creatorId: $token->getCreatorId(),
+            creatorName: new TrimmedString($token->getCreatorName()),
+            creationDate: $token->getCreationDate(),
+            expirationDate: $token->getExpirationDate(),
+            isRevoked: $requestDto->isRevoked,
+            type: $token->getType()
         );
 
         $this->writeRepository->update($updatedToken);

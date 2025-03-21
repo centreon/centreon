@@ -28,6 +28,7 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\TrimmedString;
 use Core\Security\Token\Domain\Model\NewToken;
 use Core\Security\Token\Domain\Model\Token;
+use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 beforeEach(function (): void {
     $this->createToken = static function (array $fields = []): NewToken {
@@ -39,6 +40,7 @@ beforeEach(function (): void {
                 'name' => new TrimmedString('token-name'),
                 'creatorId' => 12,
                 'creatorName' => new TrimmedString('John Doe'),
+                'type' => TokenTypeEnum::API,
                 ...$fields,
             ]
         );

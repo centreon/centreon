@@ -21,23 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Token\Application\UseCase\AddToken;
+namespace Core\Security\Token\Domain\Model;
 
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
-
-final class AddTokenRequest
+enum TokenTypeEnum
 {
-    /**
-     * @param string $name
-     * @param TokenTypeEnum $type
-     * @param int $userId
-     * @param \DateTimeInterface|null $expirationDate
-     */
-    public function __construct(
-        public string $name = '',
-        public TokenTypeEnum $type = TokenTypeEnum::API,
-        public int $userId = 0,
-        public ?\DateTimeInterface $expirationDate = null,
-    ) {
-    }
+    case API;
+    case CMA;
 }
