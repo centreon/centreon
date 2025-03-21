@@ -84,6 +84,7 @@ final class ExportResourcesController extends AbstractController
             return $this->createCsvResponse($resources);
         } else {
             $presenter->setResponseStatus(new ErrorResponse('Export format not supported'));
+
             return $presenter->show();
         }
     }

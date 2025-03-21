@@ -35,11 +35,9 @@ it('test format native exception without previous', function () {
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('logic_exception_message')
         ->and($format)->toHaveKey('file')
-        ->and($format['file'])->toBe(
-            '/usr/share/centreon/tests/php/Core/Common/Domain/Exception/ExceptionFormatterTest.php'
-        )
+        ->and($format['file'])->toBe(__FILE__)
         ->and($format)->toHaveKey('line')
-        ->and($format['line'])->toBe(__LINE__ - 12)
+        ->and($format['line'])->toBe(__LINE__ - 10)
         ->and($format)->toHaveKey('code')
         ->and($format['code'])->toBe(99)
         ->and($format)->toHaveKey('class')
@@ -59,11 +57,9 @@ it('test format business logic exception without previous', function () {
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')
-        ->and($format['file'])->toBe(
-            '/usr/share/centreon/tests/php/Core/Common/Domain/Exception/ExceptionFormatterTest.php'
-        )
+        ->and($format['file'])->toBe(__FILE__)
         ->and($format)->toHaveKey('line')
-        ->and($format['line'])->toBe(__LINE__ - 12)
+        ->and($format['line'])->toBe(__LINE__ - 10)
         ->and($format)->toHaveKey('code')
         ->and($format['code'])->toBe(1)
         ->and($format)->toHaveKey('class')
@@ -83,11 +79,9 @@ it('test format business logic exception without previous with context', functio
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')
-        ->and($format['file'])->toBe(
-            '/usr/share/centreon/tests/php/Core/Common/Domain/Exception/ExceptionFormatterTest.php'
-        )
+        ->and($format['file'])->toBe(__FILE__)
         ->and($format)->toHaveKey('line')
-        ->and($format['line'])->toBe(__LINE__ - 12)
+        ->and($format['line'])->toBe(__LINE__ - 10)
         ->and($format)->toHaveKey('code')
         ->and($format['code'])->toBe(1)
         ->and($format)->toHaveKey('class')
@@ -110,11 +104,9 @@ it('test format business logic exception with previous', function () {
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')
-        ->and($format['file'])->toBe(
-            '/usr/share/centreon/tests/php/Core/Common/Domain/Exception/ExceptionFormatterTest.php'
-        )
+        ->and($format['file'])->toBe(__FILE__)
         ->and($format)->toHaveKey('line')
-        ->and($format['line'])->toBe(__LINE__ - 15)
+        ->and($format['line'])->toBe(__LINE__ - 13)
         ->and($format)->toHaveKey('code')
         ->and($format['code'])->toBe(1)
         ->and($format)->toHaveKey('class')
@@ -128,11 +120,9 @@ it('test format business logic exception with previous', function () {
         ->and($format['previous'])->toHaveKey('message')
         ->and($format['previous']['message'])->toBe('logic_exception_message')
         ->and($format['previous'])->toHaveKey('file')
-        ->and($format['previous']['file'])->toBe(
-            '/usr/share/centreon/tests/php/Core/Common/Domain/Exception/ExceptionFormatterTest.php'
-        )
+        ->and($format['previous']['file'])->toBe(__FILE__)
         ->and($format['previous'])->toHaveKey('line')
-        ->and($format['previous']['line'])->toBe(__LINE__ - 32)
+        ->and($format['previous']['line'])->toBe(__LINE__ - 28)
         ->and($format['previous'])->toHaveKey('code')
         ->and($format['previous']['code'])->toBe(99)
         ->and($format['previous'])->toHaveKey('class')
