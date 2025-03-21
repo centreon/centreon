@@ -19799,3 +19799,125 @@ msgstr "Afficher la moyenne sous forme de"
 
 
 
+msgid "Enable/Disable"
+msgstr "Activer / Désactiver"
+
+msgid "Enabled hosts"
+msgstr "Hôtes activés"
+
+msgid "No hosts in this group are currently enabled."
+msgstr "Aucun hôte activé dans ce groupe actuellement."
+
+msgid "No hosts in this group are currently disabled."
+msgstr "Aucun hôte désactivé dans ce groupe actuellement."
+
+msgid "Delete host group"
+msgstr "Supprimer le groupe d'hôtes"
+
+msgid "Delete host groups"
+msgstr "Supprimer les groupes d'hôtes"
+
+msgid "Host group deleted"
+msgstr "Groupe d'hôtes supprimé"
+
+msgid "Duplicate host group"
+msgstr "Dupliquer le groupe d'hôtes"
+
+msgid "Duplicate host groups"
+msgstr "Dupliquer les groupes d'hôtes"
+
+msgid "Host group duplicated"
+msgstr "Groupe d'hôtes dupliqué"
+
+msgid "Duplications"
+msgstr "Duplications"
+
+msgid "Host group disabled"
+msgstr "Groupe d'hôtes désactivé"
+
+msgid "Host group enabled"
+msgstr "Groupe d'hôtes activé"
+
+msgid "Host groups disabled"
+msgstr "Groupes d'hôtes désactivés"
+
+msgid "Host groups enabled"
+msgstr "Groupes d'hôtes activés"
+
+msgid "You are about to delete the <strong>{{ name }}</strong> host group. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer le groupe d'hôtes <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+msgid "You are about to delete <strong>{{ count }} host groups.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} groupes d'hôtes</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
+
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. How many duplications would you like to make?"
+msgstr "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name }}</strong>. Combien de duplications souhaitez-vous effectuer?"
+
+msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> How many duplications would you like to make?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} groupes d'hôtes</strong>. Combien de duplications souhaitez-vous effectuer?"
+
+msgid "Add a host group"
+msgstr "Ajouter un groupe d'hôtes"
+
+msgid "Modify a host group"
+msgstr "Modifier un groupe d'hôtes"
+
+msgid "View a host group"  
+msgstr "Voir un groupe d'hôtes"
+
+msgid "Host groups duplicated"
+msgstr "Groupes d'hôtes dupliqués"
+
+msgid "Host groups deleted"
+msgstr "Groupes d'hôtes supprimés"
+
+msgid "You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone."
+msgstr "Vous allez supprimer la configuration du collecteur <strong>{{ poller }}</strong> de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de configuration de ce collecteur seront supprimés. Cette action est irréversible."
+
+msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone."
+msgstr "Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</strong>. Tous les paramètres de configuration de cet agent seront supprimés. Cette action est irréversible."
+
+msgid "Failed to delete"
+msgstr "Échec de la suppression"
+
+msgid "Failed to duplicate"
+msgstr "Échec de la duplication"
+
+msgid "Failed to enable"
+msgstr "Échec de l'activation"
+
+msgid "Failed to disable"
+msgstr "Échec de la désactivation"
+
+msgid "Failed to delete the host group"
+msgstr "Échec de la suppression du groupe d'hôtes"
+
+msgid "Failed to duplicate the host group"
+msgstr "Échec de la duplication du groupe d'hôtes"
+
+msgid "Failed to enable the host group"
+msgstr "Échec de l'activation du groupe d'hôtes"
+
+msgid "Failed to disable the host group"
+msgstr "Échec de la désactivation du groupe d'hôtes"
+
+msgid "Host group created"
+msgstr "Groupe d'hôtes créé"
+
+msgid "Host group updated"
+msgstr "Groupe d'hôtes mis à jour"
+
+msgid "Group members"
+msgstr "Membres du groupe"
+
+msgid "Select hosts"
+msgstr "Sélectionner des hôtes"
+
+msgid "Apply resource access rules to the host group"
+msgstr "Appliquer des règle d'accès aux ressources au groupe d'hôtes"
+
+msgid "Geographic coordinates for MAP"
+msgstr "Coordonnées géographiques pour MAP"
+
+msgid "Invalid geo-coordinate format"
+msgstr "Format de coordonnées géographiques invalide"

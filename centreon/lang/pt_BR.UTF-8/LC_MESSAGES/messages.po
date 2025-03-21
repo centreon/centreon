@@ -18490,3 +18490,123 @@ msgstr ""
 # msgid "Display average as"
 # msgstr ""
 
+
+# msgid "Enable/Disable"
+# msgstr ""
+
+# msgid "Enabled hosts"
+# msgstr ""
+
+# msgid "No hosts in this group are currently enabled."
+# msgstr ""
+
+# msgid "No hosts in this group are currently disabled."
+# msgstr ""
+
+# msgid "Delete host group"
+# msgstr ""
+
+# msgid "Delete host groups"
+# msgstr ""
+
+# msgid "Host group deleted"
+# msgstr ""
+
+# msgid "Duplicate host group"
+# msgstr ""
+
+# msgid "Duplicate host groups"
+# msgstr ""
+
+# msgid "Host group duplicated"
+# msgstr ""
+
+# msgid "Duplications"
+# msgstr ""
+
+# msgid "Host group disabled"
+# msgstr ""
+
+# msgid "Host group enabled"
+# msgstr ""
+
+# msgid "Host groups disabled"
+# msgstr ""
+
+# msgid "Host groups enabled"
+# msgstr ""
+
+# msgid "You are about to delete the <strong>{{ name }}</strong> host group. This action cannot be undone. Do you want to delete it?"
+# msgstr ""
+
+# msgid "You are about to delete <strong>{{ count }} host groups.</strong> This action cannot be undone. Do you want to delete them?"
+# msgstr ""
+
+# msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. How many duplications would you like to make?"
+# msgstr ""
+
+# msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> How many duplications would you like to make?"
+# msgstr ""
+
+# msgid "Add a host group"
+# msgstr ""
+
+# msgid "Modify a host group"
+# msgstr ""
+
+# msgid "Host groups duplicated"
+# msgstr ""
+
+# msgid "Host groups deleted"
+# msgstr ""
+
+# msgid "You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone."
+# msgstr ""
+
+# msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone."
+# msgstr ""
+
+# msgid "Failed to delete"
+# msgstr ""
+
+# msgid "Failed to duplicate"
+# msgstr ""
+
+# msgid "Failed to enable"
+# msgstr ""
+
+# msgid "Failed to disable"
+# msgstr ""
+
+# msgid "Failed to delete the host group"
+# msgstr ""
+
+# msgid "Failed to duplicate the host group"
+# msgstr ""
+
+# msgid "Failed to enable the host group"
+# msgstr ""
+
+# msgid "Failed to disable the host group"
+# msgstr ""
+
+# msgid "Host group created"
+# msgstr ""
+
+# msgid "Host group updated"
+# msgstr ""
+
+# msgid "Group members"
+# msgstr ""
+
+# msgid "Select hosts"
+# msgstr ""
+
+# msgid "Apply resource access rules to the host group"
+# msgstr ""
+
+# msgid "Geographic coordinates for MAP"
+# msgstr ""
+
+# msgid "Invalid geo-coordinate format"
+# msgstr ""
