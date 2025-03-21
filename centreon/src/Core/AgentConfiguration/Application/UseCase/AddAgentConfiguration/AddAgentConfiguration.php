@@ -33,6 +33,7 @@ use Core\AgentConfiguration\Application\Factory\AgentConfigurationFactory;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConnectionMode;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
@@ -72,12 +73,16 @@ final class AddAgentConfiguration
 
             $request->pollerIds = array_unique($request->pollerIds);
             $type = Type::from($request->type);
+            $connectionMode = $request->connectionMode
+                ? ConnectionMode::from($request->connectionMode)
+                : ConnectionMode::SECURE;
 
             $this->validator->validateRequestOrFail($request);
 
             $newAc = AgentConfigurationFactory::createNewAgentConfiguration(
                 name: $request->name,
                 type: $type,
+                connectionMode: $connectionMode,
                 parameters: $request->configuration,
             );
 

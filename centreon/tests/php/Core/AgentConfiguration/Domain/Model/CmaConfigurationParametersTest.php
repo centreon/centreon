@@ -28,6 +28,7 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfiguratio
 
 beforeEach(function (): void {
     $this->parameters = [
+        'connection_mode' => 'secure',
         'is_reverse' => true,
         'otel_public_certificate' => 'otel_certif_filename',
         'otel_ca_certificate' => 'ca_certif_filename',

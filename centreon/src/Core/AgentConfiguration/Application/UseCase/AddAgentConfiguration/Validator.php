@@ -29,6 +29,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Validation\TypeValidatorInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionMode;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
@@ -71,6 +72,7 @@ class Validator
         $this->validatePollersOrFail($request);
         $this->validateTypeOrFail($request);
         $this->validateParametersOrFail($request);
+        $this->validateConnectionModeOrFail($request);
     }
 
     /**
@@ -146,7 +148,23 @@ class Validator
      */
     public function validateTypeOrFail(AddAgentConfigurationRequest $request): void
     {
-        $type = Type::from($request->type);
+        Type::from($request->type);
+    }
+
+    /**
+     * Validate connection mode.
+     *
+     * @param AddAgentConfigurationRequest $request
+     *
+     * @throws ValueError
+     */
+    public function validateConnectionModeOrFail(AddAgentConfigurationRequest $request): void
+    {
+        if (null === $request->connectionMode) {
+            return;
+        }
+
+        ConnectionMode::from($request->connectionMode);
     }
 
     /**

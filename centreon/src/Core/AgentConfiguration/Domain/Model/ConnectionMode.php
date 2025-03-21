@@ -21,19 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
+namespace Core\AgentConfiguration\Domain\Model;
 
-final class AddAgentConfigurationRequest
-{
-    public string $name = '';
-
-    public string $type = '';
-
-    public ?string $connectionMode = '';
-
-	/** @var int[] */
-	public array $pollerIds = [];
-
-    /** @var array<string,mixed> */
-    public array $configuration = [];
+enum ConnectionMode: string {
+    case SECURE = 'secure';
+    case NO_TLS = 'no-tls';
 }

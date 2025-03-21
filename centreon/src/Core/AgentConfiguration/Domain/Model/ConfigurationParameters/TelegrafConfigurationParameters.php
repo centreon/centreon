@@ -26,6 +26,7 @@ namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionMode;
 
 /**
  * @phpstan-type _TelegrafParameters array{
@@ -53,23 +54,31 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     public function __construct(
         array $parameters
     ){
+        $connectionMode = $parameters['connection_mode'] ?? (
+            empty($parameters['otel_public_certificate'])
+                || empty($parameters['otel_private_key'])
+                || empty($parameters['conf_certificate'])
+                || empty($parameters['conf_private_key'])
+            ? ConnectionMode::NO_TLS->value : ConnectionMode::SECURE->value
+        );
+
         /** @var _TelegrafParameters $parameters */
         Assertion::range($parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
 
-        Assertion::notEmptyString($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
-        Assertion::notEmptyString($parameters['otel_private_key'], 'configuration.otel_private_key');
-        Assertion::notEmptyString($parameters['conf_certificate'], 'configuration.conf_certificate');
-        Assertion::notEmptyString($parameters['conf_private_key'], 'configuration.conf_private_key');
-        if ($parameters['otel_ca_certificate'] !== null) {
-            Assertion::notEmptyString($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
-        }
-
-        Assertion::maxLength($parameters['otel_public_certificate'], self::MAX_LENGTH, 'configuration.otel_public_certificate');
-        Assertion::maxLength($parameters['otel_private_key'], self::MAX_LENGTH, 'configuration.otel_private_key');
-        Assertion::maxLength($parameters['conf_certificate'], self::MAX_LENGTH, 'configuration.conf_certificate');
-        Assertion::maxLength($parameters['conf_private_key'], self::MAX_LENGTH, 'configuration.conf_private_key');
-        if ($parameters['otel_ca_certificate'] !== null) {
-            Assertion::maxLength($parameters['otel_ca_certificate'], self::MAX_LENGTH, 'configuration.otel_ca_certificate');
+        if ($connectionMode === ConnectionMode::SECURE->value) {
+            $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
+            $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
+            $this->validateCertificate($parameters['conf_certificate'], 'configuration.conf_certificate');
+            $this->validateCertificate($parameters['conf_private_key'], 'configuration.conf_private_key');
+            if ($parameters['otel_ca_certificate'] !== null) {
+                $this->validateCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+            }
+        } else {
+            $this->validateOptionalCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
+            $this->validateOptionalCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
+            $this->validateOptionalCertificate($parameters['conf_certificate'], 'configuration.conf_certificate');
+            $this->validateOptionalCertificate($parameters['conf_private_key'], 'configuration.conf_private_key');
+            $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
         }
 
         $this->parameters = $parameters;
@@ -88,5 +97,34 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     public function getBrokerDirective(): ?string
     {
         return self::BROKER_DIRECTIVE;
+    }
+
+    /**
+     * Validates a certificate.
+     *
+     * @param mixed $certificate
+     * @param string $field
+     *
+     * @throws AssertionFailedException
+     */
+    private function validateCertificate($certificate, string $field): void
+    {
+        Assertion::notEmptyString($certificate, $field);
+        Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
+    }
+
+    /**
+     * Validates an optional certificate.
+     *
+     * @param mixed $certificate
+     * @param string $field
+     *
+     * @throws AssertionFailedException
+     */
+    private function validateOptionalCertificate($certificate, string $field): void
+    {
+        if ($certificate !== null && $certificate !== '') {
+            Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
+        }
     }
 }

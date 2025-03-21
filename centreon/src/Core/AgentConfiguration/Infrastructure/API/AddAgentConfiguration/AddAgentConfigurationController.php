@@ -70,6 +70,7 @@ final class AddAgentConfigurationController extends AbstractController
          * @var array{
          *     name:string,
          *     type:string,
+         *     connection_mode:string|null,
          *     poller_ids:int[],
          *     configuration:array<string,mixed>
          * } $data
@@ -87,6 +88,7 @@ final class AddAgentConfigurationController extends AbstractController
         $addRequest = new AddAgentConfigurationRequest();
         $addRequest->type = $data['type'];
         $addRequest->name = $data['name'];
+        $addRequest->connectionMode = $data['connection_mode'];
         $addRequest->pollerIds = $data['poller_ids'];
         $addRequest->configuration = $data['configuration'];
 
