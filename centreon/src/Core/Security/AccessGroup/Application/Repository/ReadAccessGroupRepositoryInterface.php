@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\AccessGroup\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadAccessGroupRepositoryInterface
@@ -31,7 +32,7 @@ interface ReadAccessGroupRepositoryInterface
     /**
      * Find all access groups.
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return AccessGroup[]
      */
@@ -42,7 +43,7 @@ interface ReadAccessGroupRepositoryInterface
      *
      * @param ContactInterface $contact contact for which we want to find the access groups
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return AccessGroup[]
      */
@@ -53,7 +54,7 @@ interface ReadAccessGroupRepositoryInterface
      *
      * @param ContactInterface $contact
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return AccessGroup[]
      */
@@ -62,7 +63,7 @@ interface ReadAccessGroupRepositoryInterface
     /**
      * @param int[] $accessGroupIds
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return AccessGroup[]
      */
@@ -73,7 +74,7 @@ interface ReadAccessGroupRepositoryInterface
      *
      * @param int[] $accessGroupIds
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return bool
      */
@@ -83,6 +84,8 @@ interface ReadAccessGroupRepositoryInterface
      * Finds ACL resources by a hostgroup ID.
      *
      * @param int $hostGroupId
+     *
+     * @throws RepositoryException
      * @return int[] An array of distinct ACL resource IDs
      */
     public function findAclResourcesByHostGroupId(int $hostGroupId): array;
