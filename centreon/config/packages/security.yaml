@@ -11,7 +11,7 @@ security:
             id: contact.provider
     firewalls:
         dev:
-            pattern: ^/*/api/beta/(_(profiler|wdt)|css|images|js)/
+            pattern: ^.*/api/beta/(_(profiler|wdt)|css|images|js)/
             security: false
         free:
             stateless: true
