@@ -421,7 +421,7 @@ for ($i = 0; $host = $dbResult->fetch(); $i++) {
             "RowMenu_id" => $host["host_id"],
             "RowMenu_icone" => $host_icone,
             "RowMenu_link" => "main.php?p=" . $p . "&o=c&host_id=" . $host['host_id'],
-            "RowMenu_desc" => CentreonUtils::escapeSecure($host["host_alias"]),
+            "RowMenu_desc" => htmlspecialchars_decode(CentreonUtils::escapeSecure($host["host_alias"])),
             "RowMenu_address" => CentreonUtils::escapeSecure($host["host_address"]),
             "RowMenu_poller" => $tab_relation[$host["host_id"]] ?? "",
             "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr),
