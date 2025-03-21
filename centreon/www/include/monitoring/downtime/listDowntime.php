@@ -166,8 +166,11 @@ $hostAclSubRequest = '';
 
 if (! $is_admin) {
     if ($centreon->user->access->getAccessGroups() !== []) {
-        [$aclBindValues, $aclQuery] = createMultipleBindQuery($centreon->user->access->getAccessGroups(), 'group_id');
-        $bindValues = array_merge($bindValues, $aclBindValues);
+        [$aclBindValues, $aclQuery] = createMultipleBindQuery(array_keys($centreon->user->access->getAccessGroups()), ':group_id');
+
+        foreach ($aclBindValues as $key => $value) {
+            $bindValues[$key] = [$value, PDO::PARAM_INT];
+        }
     } else {
         $aclQuery = '-1';
     }
