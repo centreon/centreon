@@ -1,12 +1,12 @@
+import { ProvidedZoom, TransformMatrix } from '@visx/zoom/lib/types';
+
 export interface ZoomState {
-  transformMatrix: {
-    scaleX: number;
-    scaleY: number;
-    skewX: number;
-    skewY: number;
-    translateX: number;
-    translateY: number;
-  };
+  transformMatrix: TransformMatrix;
+}
+
+export interface Dimension {
+  height: number;
+  width: number;
 }
 
 export type MinimapPosition =
@@ -15,11 +15,14 @@ export type MinimapPosition =
   | 'bottom-left'
   | 'bottom-right';
 
-export interface ChildrenProps extends ZoomState {
-  contentClientRect: {
-    height: number;
-    width: number;
-  } | null;
-  height: number;
-  width: number;
+export interface ZoomInterface {
+  zoom: ProvidedZoom<SVGSVGElement> & ZoomState;
+}
+
+export interface ChildrenProps extends ZoomState, Dimension, ZoomInterface {
+  contentClientRect: Dimension | null;
+}
+
+export interface ZoomChildren {
+  children: (args: ChildrenProps) => JSX.Element;
 }

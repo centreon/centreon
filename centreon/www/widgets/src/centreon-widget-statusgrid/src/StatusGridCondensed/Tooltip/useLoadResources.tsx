@@ -11,6 +11,7 @@ import {
   getListingCustomQueryParameters,
   resourcesEndpoint
 } from '../../api/endpoints';
+import { getFormattedResources } from '../../../../../../front_src/src/Dashboards/SingleInstancePage/Dashboard/utils';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;
@@ -47,7 +48,9 @@ export const useLoadResources = ({
     return resourcesEndpoint;
   };
 
-  const formattedResources = resources.map((resource) => {
+  const formattedResources = getFormattedResources({ array: resources });
+
+  const resourcesToApplyToSearch  = formattedResources.map((resource) => {
     if (!equals(resourceType, resource.resourceType)) {
       return {
         ...resource,
@@ -60,7 +63,7 @@ export const useLoadResources = ({
     return { ...resource, resourceType: 'name' };
   });
 
-  const resourcesSearchConditions = formattedResources.map(
+  const resourcesSearchConditions = resourcesToApplyToSearch.map(
     ({ resourceType: type, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({
         field: type,

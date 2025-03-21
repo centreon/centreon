@@ -51,9 +51,6 @@ try {
     // DDL statements for real time database
     $createAgentInformationTable($pearDBO);
 
-    // DDL statements for configuration database
-
-
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();

@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, isEmpty, path, propEq, reject, split } from 'ramda';
+import { path, equals, isEmpty, propEq, reject, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
