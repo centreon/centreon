@@ -1,7 +1,7 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
-import { HostGroupListItem } from '../models';
+import { HostGroupItem, HostGroupListItem } from '../models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -30,8 +30,35 @@ const hostGroupsDecoder = JsonDecoder.object<HostGroupListItem>(
   }
 );
 
-export const hostGroupsDecoderListDecoder = buildListingDecoder({
+export const hostGroupsListDecoder = buildListingDecoder({
   entityDecoder: hostGroupsDecoder,
   entityDecoderName: 'Host group',
   listingDecoderName: 'Host group List'
 });
+
+export const hostGroupDecoder = JsonDecoder.object<HostGroupItem>(
+  {
+    ...namedEntityDecoder,
+    alias: JsonDecoder.nullable(JsonDecoder.string),
+    geoCoords: JsonDecoder.nullable(JsonDecoder.string),
+    comment: JsonDecoder.nullable(JsonDecoder.string),
+    isActivated: JsonDecoder.boolean,
+    hosts: JsonDecoder.array(
+      JsonDecoder.object(namedEntityDecoder, 'Host'),
+      'Hosts'
+    ),
+    resourceAccessRules: JsonDecoder.optional(
+      JsonDecoder.array(
+        JsonDecoder.object(namedEntityDecoder, 'Access Rule'),
+        'Access Rules'
+      )
+    ),
+    icon: JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
+  },
+  'Host group',
+  {
+    resourceAccessRules: 'resource_access_rules',
+    isActivated: 'is_activated',
+    geoCoords: 'geo_coords'
+  }
+);
