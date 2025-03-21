@@ -10,8 +10,8 @@ import { hostsConfigurationEndpoint } from '../../api/endpoints';
 import { HostConfiguration as HostConfigurationModel } from '../../models';
 import {
   labelAddHost,
+  labelCACommonName,
   labelCaCertificate,
-  labelCertificate,
   labelDNSIP,
   labelPort
 } from '../../translatedLabels';
@@ -92,12 +92,12 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
       <TextField
         value={host?.pollerCaCertificate || ''}
         onChange={changeStringInput('pollerCaCertificate')}
-        label={t(labelCertificate)}
-        dataTestId={labelCertificate}
+        label={t(labelCaCertificate)}
+        dataTestId={labelCaCertificate}
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
-              'aria-label': labelCertificate
+              'aria-label': labelCaCertificate
             }
           }
         }}
@@ -111,15 +111,15 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
       <TextField
         value={host?.pollerCaName || ''}
         onChange={changeStringInput('pollerCaName')}
-        label={t(labelCaCertificate)}
+        label={t(labelCACommonName)}
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
-              'aria-label': labelCaCertificate
+              'aria-label': labelCACommonName
             }
           }
         }}
-        dataTestId={labelCaCertificate}
+        dataTestId={labelCACommonName}
         fullWidth
         error={
           (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined

@@ -41,6 +41,7 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
 {
     public const BROKER_DIRECTIVE = '/usr/lib64/centreon-engine/libopentelemetry.so /etc/centreon-engine/otl_server.json';
     public const MAX_LENGTH = 255;
+    public const CERTIFICATE_BASE_PATH = '/etc/pki/';
 
     /** @var _TelegrafParameters */
     private array $parameters;
@@ -53,6 +54,8 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     public function __construct(
         array $parameters
     ){
+        $parameters = $this->normalizeCertificatePaths($parameters);
+
         /** @var _TelegrafParameters $parameters */
         Assertion::range($parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
 
@@ -88,5 +91,47 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     public function getBrokerDirective(): ?string
     {
         return self::BROKER_DIRECTIVE;
+    }
+
+    /**
+     * Normalizes the certificate paths in the given parameters array.
+     *
+     * @param array<string,mixed> $parameters
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeCertificatePaths(array $parameters): array
+    {
+        foreach ($parameters as $key => $value) {
+            if (
+                (
+                    str_ends_with($key, '_certificate')
+                    || str_ends_with($key, '_key')
+                )
+                && (is_string($value) || is_null($value))
+            ) {
+                $parameters[$key] = $this->prependPrefix($value);
+            }
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * Prepends a prefix to a certificate path.
+     *
+     * @param ?string $path
+     *
+     * @return ?string
+     */
+    private function prependPrefix(?string $path): ?string
+    {
+        if ($path === null || $path === '') {
+            return $path;
+        }
+
+        return str_starts_with($path, self::CERTIFICATE_BASE_PATH)
+            ? $path
+            : self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
     }
 }

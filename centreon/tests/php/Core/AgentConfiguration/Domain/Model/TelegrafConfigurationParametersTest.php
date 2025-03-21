@@ -88,7 +88,7 @@ foreach (
         'conf_private_key',
     ] as $field
 ) {
-    $tooLong = str_repeat('a', TelegrafConfigurationParameters::MAX_LENGTH + 1);
+    $tooLong = str_repeat('a', TelegrafConfigurationParameters::MAX_LENGTH);
     it(
         "should throw an exception when a {$field} is too long",
         function () use ($field, $tooLong) : void {
@@ -98,10 +98,56 @@ foreach (
         }
     )->throws(
         AssertionException::maxLength(
-            $tooLong,
-            TelegrafConfigurationParameters::MAX_LENGTH + 1,
+            TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . $tooLong,
+            TelegrafConfigurationParameters::MAX_LENGTH + strlen(TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH),
             TelegrafConfigurationParameters::MAX_LENGTH,
             "configuration.{$field}"
         )->getMessage()
+    );
+}
+
+foreach (
+    [
+        'conf_certificate',
+        'conf_private_key',
+        'otel_ca_certificate',
+        'otel_private_key',
+        'otel_public_certificate',
+    ] as $field
+) {
+    it(
+        "should add the certificate base path prefix to {$field} when it is not present",
+        function () use ($field) : void {
+            $field === 'poller_ca_certificate' ? $this->parameters['hosts'][0][$field] = 'test.crt' : $this->parameters[$field] = 'test.crt';
+
+            $cmaConfig = new TelegrafConfigurationParameters($this->parameters);
+            $result = $cmaConfig->getData();
+            $field === 'poller_ca_certificate'
+                ? $this->assertEquals($result['hosts'][0][$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt')
+                : $this->assertEquals($result[$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt');
+        }
+    );
+}
+
+foreach (
+    [
+        'conf_certificate',
+        'conf_private_key',
+        'otel_ca_certificate',
+        'otel_private_key',
+        'otel_public_certificate',
+    ] as $field
+) {
+    it(
+        "should not add the certificate base path prefix to {$field} when it is present",
+        function () use ($field) : void {
+            $field === 'poller_ca_certificate' ? $this->parameters['hosts'][0][$field] = 'test.crt' : $this->parameters[$field] = '/etc/pki/test.crt';
+
+            $cmaConfig = new TelegrafConfigurationParameters($this->parameters);
+            $result = $cmaConfig->getData();
+            $field === 'poller_ca_certificate'
+                ? $this->assertEquals($result['hosts'][0][$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt')
+                : $this->assertEquals($result[$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt');
+        }
     );
 }
