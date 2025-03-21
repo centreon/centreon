@@ -1087,14 +1087,16 @@ CREATE TABLE `dependency_servicegroupParent_relation` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime` (
-  `dt_id` int(11) NOT NULL AUTO_INCREMENT,
-  `dt_name` varchar(100) NOT NULL,
-  `dt_description` varchar(255) DEFAULT NULL,
-  `dt_activate` enum('0','1') DEFAULT '1',
-  PRIMARY KEY (`dt_id`),
-  UNIQUE KEY `downtime_idx02` (`dt_name`),
-  KEY `downtime_idx01` (`dt_id`,`dt_activate`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `dt_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for a downtime entry',
+  `start_time` datetime DEFAULT NULL COMMENT 'Scheduled start time of the downtime',
+  `end_time` datetime DEFAULT NULL COMMENT 'Scheduled end time of the downtime',
+  `fixed` enum('0','1') DEFAULT '0' COMMENT 'Indicates whether the downtime is treated (fixed/confirmed = 1) or remains flexible (0)',
+  `trigger_id` int(11) DEFAULT NULL COMMENT 'Optional foreign key referencing a trigger associated with the downtime',
+  `comment` text COMMENT 'Description or comment associated with the downtime entry',
+  PRIMARY KEY (`dt_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table storing downtime entries for scheduled maintenance or service interruptions';
+
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1121,19 +1123,19 @@ CREATE TABLE `downtime_hostgroup_relation` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime_period` (
-  `dt_id` int(11) NOT NULL,
-  `dtp_start_time` time NOT NULL,
-  `dtp_end_time` time NOT NULL,
-  `dtp_day_of_week` varchar(15) DEFAULT NULL,
-  `dtp_month_cycle` varchar(100) DEFAULT 'all',
-  `dtp_day_of_month` varchar(100) DEFAULT NULL,
-  `dtp_fixed` enum('0','1') DEFAULT '1',
-  `dtp_duration` int(11) DEFAULT NULL,
-  `dtp_next_date` date DEFAULT NULL,
-  `dtp_activate` enum('0','1') DEFAULT '1',
+  `dt_id` int(11) NOT NULL COMMENT 'Identifier of the downtime entry',
+  `dtp_start_time` time NOT NULL COMMENT 'Start time of the recurring downtime period',
+  `dtp_end_time` time NOT NULL COMMENT 'End time of the recurring downtime period',
+  `dtp_day_of_week` varchar(15) DEFAULT NULL COMMENT 'Day(s) of the week for the downtime period',
+  `dtp_month_cycle` varchar(100) DEFAULT 'all' COMMENT 'Month cycle setting for the downtime period',
+  `dtp_day_of_month` varchar(100) DEFAULT NULL COMMENT 'Day(s) of the month for the downtime period',
+  `dtp_fixed` enum('0','1') DEFAULT '1' COMMENT 'Indicates if the downtime period is fixed (1) or flexible (0)',
+  `dtp_duration` int(11) DEFAULT NULL COMMENT 'Duration (in minutes) of the downtime period',
+  `dtp_next_date` date DEFAULT NULL COMMENT 'Next scheduled date for the downtime period',
+  `dtp_activate` enum('0','1') DEFAULT '1' COMMENT 'Activation flag for the downtime period (1: active, 0: inactive)',
   KEY `downtime_period_idx01` (`dt_id`,`dtp_activate`),
   CONSTRAINT `downtime_period_ibfk_1` FOREIGN KEY (`dt_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table storing recurring downtime period settings linked to a downtime entry';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1163,33 +1165,33 @@ CREATE TABLE `downtime_servicegroup_relation` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation` (
-  `esc_id` int(11) NOT NULL AUTO_INCREMENT,
-  `esc_name` varchar(255) DEFAULT NULL,
-  `esc_alias` varchar(255) DEFAULT NULL,
-  `first_notification` int(11) DEFAULT NULL,
-  `last_notification` int(11) DEFAULT NULL,
-  `notification_interval` int(11) DEFAULT NULL,
-  `escalation_period` int(11) DEFAULT NULL,
-  `escalation_options1` varchar(255) DEFAULT NULL,
-  `escalation_options2` varchar(255) DEFAULT NULL,
-  `esc_comment` text,
-  `host_inheritance_to_services` tinyint(1) DEFAULT 0 NOT NULL,
-  `hostgroup_inheritance_to_services` tinyint(1) DEFAULT 0 NOT NULL,
+  `esc_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the escalation rule',
+  `esc_name` varchar(255) DEFAULT NULL COMMENT 'Name of the escalation rule',
+  `esc_alias` varchar(255) DEFAULT NULL COMMENT 'Alias for the escalation rule',
+  `first_notification` int(11) DEFAULT NULL COMMENT 'Time (or interval) for the first notification',
+  `last_notification` int(11) DEFAULT NULL COMMENT 'Time (or interval) for the last notification',
+  `notification_interval` int(11) DEFAULT NULL COMMENT 'Interval (in minutes) between successive notifications',
+  `escalation_period` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the time period for escalation (tp_id)',
+  `escalation_options1` varchar(255) DEFAULT NULL COMMENT 'Additional escalation option (option 1)',
+  `escalation_options2` varchar(255) DEFAULT NULL COMMENT 'Additional escalation option (option 2)',
+  `esc_comment` text COMMENT 'Comments or description for the escalation rule',
+  `host_inheritance_to_services` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Flag indicating if host settings are inherited to services (0 or 1)',
+  `hostgroup_inheritance_to_services` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Flag indicating if hostgroup settings are inherited to services (0 or 1)',
   PRIMARY KEY (`esc_id`),
   KEY `period_index` (`escalation_period`),
   CONSTRAINT `escalation_ibfk_1` FOREIGN KEY (`escalation_period`) REFERENCES `timeperiod` (`tp_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table storing escalation rules for notifications and service management';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `escalation_contactgroup_relation` (
-  `escalation_esc_id` int(11) DEFAULT NULL,
-  `contactgroup_cg_id` int(11) DEFAULT NULL,
+  `escalation_esc_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the escalation rule (esc_id)',
+  `contactgroup_cg_id` int(11) DEFAULT NULL COMMENT 'Foreign key referencing the contact group (cg_id)',
   KEY `escalation_index` (`escalation_esc_id`),
   KEY `cg_index` (`contactgroup_cg_id`),
   CONSTRAINT `escalation_contactgroup_relation_ibfk_1` FOREIGN KEY (`escalation_esc_id`) REFERENCES `escalation` (`esc_id`) ON DELETE CASCADE,
   CONSTRAINT `escalation_contactgroup_relation_ibfk_2` FOREIGN KEY (`contactgroup_cg_id`) REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Mapping of escalation rules to contact groups for targeted notifications';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -2271,19 +2273,19 @@ CREATE TABLE IF NOT EXISTS `locale` (
 
 -- Create downtime cache table for recurrent downtimes
 CREATE TABLE IF NOT EXISTS `downtime_cache` (
-  `downtime_cache_id` int(11) NOT NULL AUTO_INCREMENT,
+  `downtime_cache_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the downtime cache entry',
   PRIMARY KEY (`downtime_cache_id`),
-  `downtime_id` int(11) NOT NULL,
-  `host_id` int(11) NOT NULL,
-  `service_id` int(11),
-  `start_timestamp` int(11) NOT NULL,
-  `end_timestamp` int(11) NOT NULL,
-  `start_hour` varchar(255) NOT NULL,
-  `end_hour` varchar(255) NOT NULL,
+  `downtime_id` int(11) NOT NULL COMMENT 'Foreign key referencing the downtime entry (dt_id)',
+  `host_id` int(11) NOT NULL COMMENT 'Foreign key referencing the host (host_id)',
+  `service_id` int(11) COMMENT 'Foreign key referencing the service (service_id), if applicable',
+  `start_timestamp` int(11) NOT NULL COMMENT 'Start timestamp of the downtime',
+  `end_timestamp` int(11) NOT NULL COMMENT 'End timestamp of the downtime',
+  `start_hour` varchar(255) NOT NULL COMMENT 'Formatted start hour of the downtime',
+  `end_hour` varchar(255) NOT NULL COMMENT 'Formatted end hour of the downtime',
   CONSTRAINT `downtime_cache_ibfk_1` FOREIGN KEY (`downtime_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_cache_ibfk_2` FOREIGN KEY (`host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
   CONSTRAINT `downtime_cache_ibfk_3` FOREIGN KEY (`service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table caching computed downtime intervals for recurrent downtimes';
 
 -- Manage new feature proposal
 CREATE TABLE IF NOT EXISTS contact_feature (
