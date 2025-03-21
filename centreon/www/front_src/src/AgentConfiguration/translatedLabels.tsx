@@ -60,4 +60,10 @@ export const labelPollerCaCertificateFileName =
   'Poller CA certificate file name';
 export const labelPollerCaName = 'Poller CA name';
 
+export const labelDeletePollerConfirmation =
+  'You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone.';
+
+export const labelDeleteAgentConfirmation =
+  'You are going to delete the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone.';
+
 export const labelCACommonName = 'CA Common Name (CN)';
