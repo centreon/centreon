@@ -23,20 +23,20 @@ declare(strict_types=1);
 
 namespace EventSubscriber;
 
-use Core\Common\Domain\Exception\RepositoryException;
-use \Symfony\Bundle\SecurityBundle\Security;
 use Centreon\Application\ApiPlatform;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
+use Core\Common\Domain\Exception\RepositoryException;
 use Centreon\Domain\RequestParameters\{
     Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
 };
 use Centreon\Domain\VersionHelper;
 use Core\Common\Infrastructure\ExceptionHandler;
 use Psr\Log\LogLevel;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -373,8 +373,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                         true
                     ),
                 ]);
-            } elseif ($event->getThrowable() instanceof \PDOException || $event->getThrowable(
-                ) instanceof RepositoryException) {
+            } elseif (
+                $event->getThrowable() instanceof \PDOException
+                || $event->getThrowable() instanceof RepositoryException
+            ) {
                 $errorMessage = json_encode([
                     'code' => $errorCode,
                     'message' => 'An error has occurred in a repository',
