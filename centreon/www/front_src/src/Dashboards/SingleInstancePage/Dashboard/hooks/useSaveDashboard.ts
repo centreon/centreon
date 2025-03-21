@@ -14,9 +14,9 @@ import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
 import { isEmpty, isNil } from 'ramda';
+import { WidgetResourceType } from '../AddEditWidget/models';
 import { getFormattedResources } from '../utils';
 import { routerParams } from './useDashboardDetails';
-import { WidgetResourceType } from '../AddEditWidget/models';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
   layout.map(
@@ -128,7 +128,8 @@ const useSaveDashboard = (): UseSaveDashboardState => {
 
     toBlob(node, {
       backgroundColor: theme.palette.background.default,
-      height: 360
+      height: 360,
+      skipFonts: true
     })
       .then((blob) => {
         formData.append('thumbnail_data', blob, `dashboard-${dashboardId}.png`);
