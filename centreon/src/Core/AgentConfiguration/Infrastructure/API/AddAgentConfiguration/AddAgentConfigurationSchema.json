@@ -6,7 +6,8 @@
         "type",
         "name",
         "poller_ids",
-        "configuration"
+        "configuration",
+        "connection_mode"
     ],
     "additionalProperties": false,
     "properties": {
@@ -19,6 +20,14 @@
         },
         "name": {
             "type": "string"
+        },
+        "connection_mode": {
+            "type": "string",
+            "enum": [
+                "secure",
+                "no-tls"
+            ],
+            "default": "secure"
         },
         "poller_ids": {
             "type": "array",
