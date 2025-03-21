@@ -21,14 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Security\Token\Application\UseCase\AddToken;
+namespace Tests\Core\Security\Token\Application\UseCase\AddHostTemplate;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Domain\TrimmedString;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
@@ -40,9 +43,13 @@ use Core\Security\Token\Application\UseCase\AddToken\AddTokenRequest;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenResponse;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenValidation;
 use Core\Security\Token\Domain\Model\Token;
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
+use Tests\Core\Security\Token\Infrastructure\API\AddToken\AddTokenPresenterStub;
 
 beforeEach(function (): void {
+    $this->presenter = new AddTokenPresenterStub(
+        $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
+    );
+
     $this->useCase = new AddToken(
         $this->writeTokenRepository = $this->createMock(WriteTokenRepositoryInterface::class),
         $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class),
@@ -60,12 +67,10 @@ beforeEach(function (): void {
     $this->linkedUser = ['id' => 23, 'name' => 'Jane Doe'];
     $this->creator = ['id' => 12, 'name' => 'John Doe'];
 
-    $this->request = new AddTokenRequest(
-        name: '  token name  ',
-        type: TokenTypeEnum::CMA,
-        userId: $this->linkedUser['id'],
-        expirationDate: $this->expirationDate
-    );
+    $this->request = new AddTokenRequest();
+    $this->request->name = '  token name  ';
+    $this->request->userId = $this->linkedUser['id'];
+    $this->request->expirationDate = $this->expirationDate;
 
     $this->token = new Token(
         name: new TrimmedString($this->request->name),
@@ -75,26 +80,69 @@ beforeEach(function (): void {
         creatorName: new TrimmedString($this->creator['name']),
         creationDate: $this->creationDate,
         expirationDate: $this->expirationDate,
-        isRevoked: false,
-        type: TokenTypeEnum::CMA
+        isRevoked: false
     );
 });
 
 it('should present an ErrorResponse when a generic exception is thrown', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
     $this->providerFactory
         ->expects($this->once())
         ->method('create')
+        ->willReturn($this->localProvider);
+    $this->localProvider
+        ->expects($this->once())
+        ->method('getConfiguration')
+        ->willReturn($this->configurationProvider);
+    $this->configurationProvider
+        ->expects($this->once())
+        ->method('getId')
+        ->willReturn(1);
+    $this->user
+        ->expects($this->once())
+        ->method('getId')
+        ->willReturn($this->creator['id']);
+    $this->user
+        ->expects($this->once())
+        ->method('getName')
+        ->willReturn($this->creator['name']);
+
+    $this->writeTokenRepository
+        ->expects($this->once())
+        ->method('add')
         ->willThrowException(new \Exception());
 
-    $response = ($this->useCase)($this->request);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($response)
+    expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($response->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(TokenException::addToken()->getMessage());
 });
 
+it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(false);
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe(TokenException::addNotAllowed()->getMessage());
+});
+
 it('should present a ConflictResponse when name is already used', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
     $this->validation
         ->expects($this->once())
         ->method('assertIsValidName')
@@ -102,17 +150,21 @@ it('should present a ConflictResponse when name is already used', function (): v
             TokenException::nameAlreadyExists(trim($this->request->name))
         );
 
-    $response = ($this->useCase)($this->request);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($response)
+    expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
-        ->and($response->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(
             TokenException::nameAlreadyExists(trim($this->request->name))->getMessage()
         );
 });
 
 it('should present a ConflictResponse when user ID is not valid', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
     $this->validation
         ->expects($this->once())
         ->method('assertIsValidUser')
@@ -120,15 +172,19 @@ it('should present a ConflictResponse when user ID is not valid', function (): v
             TokenException::invalidUserId($this->request->userId)
         );
 
-    $response = ($this->useCase)($this->request);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($response)
+    expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
-        ->and($response->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(TokenException::invalidUserId($this->request->userId)->getMessage());
 });
 
 it('should present a ConflictResponse when a creator cannot manage user\'s tokens', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
     $this->validation
         ->expects($this->once())
         ->method('assertIsValidUser')
@@ -136,15 +192,20 @@ it('should present a ConflictResponse when a creator cannot manage user\'s token
             TokenException::notAllowedToCreateTokenForUser($this->request->userId)
         );
 
-    $response = ($this->useCase)($this->request);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($response)
+    expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
-        ->and($response->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(TokenException::notAllowedToCreateTokenForUser($this->request->userId)->getMessage());
 });
 
 it('should present an InvalidArgumentResponse when a field assert failed', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
     $this->providerFactory
         ->expects($this->once())
         ->method('create')
@@ -166,15 +227,20 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->method('getName')
         ->willReturn('');
 
-    $response = ($this->useCase)($this->request);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($response)
+    expect($this->presenter->response)
         ->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($response->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(AssertionException::notEmptyString('NewToken::creatorName')->getMessage());
 });
 
 it('should present an ErrorResponse if the newly created token cannot be retrieved', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
     $this->providerFactory
         ->expects($this->once())
         ->method('create')
@@ -205,15 +271,20 @@ it('should present an ErrorResponse if the newly created token cannot be retriev
         ->method('find')
         ->willReturn(null);
 
-    $response = ($this->useCase)($this->request);
+    ($this->useCase)($this->request, $this->presenter);
 
-    expect($response)
+    expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($response->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(TokenException::errorWhileRetrievingObject()->getMessage());
 });
 
 it('should return created object on success', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
     $this->validation->expects($this->once())->method('assertIsValidName');
     $this->validation->expects($this->once())->method('assertIsValidUser');
 
@@ -247,25 +318,25 @@ it('should return created object on success', function (): void {
         ->method('find')
         ->willReturn($this->token);
 
-    $response = ($this->useCase)($this->request);
+    ($this->useCase)($this->request, $this->presenter);
+
+    $response = $this->presenter->response;
 
     expect($response)->toBeInstanceOf(AddTokenResponse::class)
-        ->and($response->apiToken->getName())
+        ->and($response->name)
         ->toBe($this->token->getName())
-        ->and($response->apiToken->getUserName())
+        ->and($response->userName)
         ->toBe($this->linkedUser['name'])
-        ->and($response->apiToken->getUserId())
+        ->and($response->userId)
         ->toBe($this->linkedUser['id'])
-        ->and($response->apiToken->getCreatorName())
+        ->and($response->creatorName)
         ->toBe($this->creator['name'])
-        ->and($response->apiToken->getCreatorId())
+        ->and($response->creatorId)
         ->toBe($this->creator['id'])
-        ->and($response->apiToken->getCreationDate())
+        ->and($response->creationDate)
         ->toBe($this->creationDate)
-        ->and($response->apiToken->getExpirationDate())
+        ->and($response->expirationDate)
         ->toBe($this->expirationDate)
-        ->and($response->apiToken->isRevoked())
-        ->toBe($this->token->isRevoked())
-        ->and($response->apiToken->getType())
-        ->toBe($this->token->getType());
+        ->and($response->isRevoked)
+        ->toBe($this->token->isRevoked());
 });

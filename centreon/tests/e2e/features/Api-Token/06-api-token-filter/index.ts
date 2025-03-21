@@ -87,14 +87,12 @@ Given('API tokens with predefined details are created', () => {
       const expirationDate = new Date(today);
       const duration = durationMap[token.duration];
       expirationDate.setDate(today.getDate() + duration);
-      // Get the ISO string without milliseconds
-      const expirationDateISOString = expirationDate.toISOString().split('.')[0] + "Z";
+      const expirationDateISOString = expirationDate.toISOString();
 
       const payload = {
         expiration_date: expirationDateISOString,
         name: token.name,
-        user_id: token.userId,
-        type: token.type
+        user_id: token.userId
       };
       cy.request({
         body: payload,

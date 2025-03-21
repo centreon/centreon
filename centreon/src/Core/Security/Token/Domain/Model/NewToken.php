@@ -35,34 +35,30 @@ class NewToken
     private readonly \DateTimeImmutable $creationDate;
 
     /**
-     * @param \DateTimeImmutable|null $expirationDate
+     * @param \DateTimeImmutable $expirationDate
      * @param int $userId
      * @param int $configurationProviderId
      * @param TrimmedString $name
      * @param int $creatorId
      * @param TrimmedString $creatorName
-     * @param TokenTypeEnum $type
      *
      * @throws AssertionFailedException
      * @throws \Exception
      */
     public function __construct(
-        private readonly ?\DateTimeImmutable $expirationDate,
+        private readonly \DateTimeImmutable $expirationDate,
         private readonly int $userId,
         private readonly int $configurationProviderId,
         private readonly TrimmedString $name,
         private readonly int $creatorId,
-        private readonly TrimmedString $creatorName,
-        private readonly TokenTypeEnum $type
+        private readonly TrimmedString $creatorName
     )
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
         $this->token = Encryption::generateRandomString();
         $this->creationDate = new \DateTimeImmutable();
 
-        if ($this->expirationDate !== null) {
-            Assertion::minDate($this->expirationDate, $this->creationDate, "{$shortName}::expirationDate");
-        }
+        Assertion::minDate($this->expirationDate, $this->creationDate, "{$shortName}::expirationDate");
         Assertion::positiveInt($this->userId, "{$shortName}::userId");
         Assertion::positiveInt($this->configurationProviderId, "{$shortName}::configurationProviderId");
         Assertion::notEmptyString($this->name->value, "{$shortName}::name");
@@ -82,7 +78,7 @@ class NewToken
         return $this->creationDate;
     }
 
-    public function getExpirationDate(): ?\DateTimeImmutable
+    public function getExpirationDate(): \DateTimeImmutable
     {
         return $this->expirationDate;
     }
@@ -110,10 +106,5 @@ class NewToken
     public function getCreatorName(): string
     {
         return $this->creatorName->value;
-    }
-
-    public function getType(): TokenTypeEnum
-    {
-        return $this->type;
     }
 }

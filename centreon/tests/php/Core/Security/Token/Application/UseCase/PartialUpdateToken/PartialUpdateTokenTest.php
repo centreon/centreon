@@ -38,7 +38,6 @@ use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Application\UseCase\PartialUpdateToken\PartialUpdateToken;
 use Core\Security\Token\Application\UseCase\PartialUpdateToken\PartialUpdateTokenRequest;
 use Core\Security\Token\Domain\Model\Token;
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 beforeEach(function (): void {
     $this->presenter = new DefaultPresenter(
@@ -65,8 +64,7 @@ beforeEach(function (): void {
         creatorName: new TrimmedString($this->creator['name']),
         creationDate: $this->creationDate,
         expirationDate: $this->expirationDate,
-        isRevoked: false,
-        type: TokenTypeEnum::CMA
+        isRevoked: false
     );
 });
 

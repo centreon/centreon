@@ -39,8 +39,7 @@ class Token
      * @param int|null $creatorId
      * @param TrimmedString $creatorName
      * @param \DateTimeInterface $creationDate
-     * @param ?\DateTimeInterface $expirationDate
-     * @param TokenTypeEnum $type
+     * @param \DateTimeInterface $expirationDate
      * @param bool $isRevoked
      *
      * @throws AssertionFailedException
@@ -52,8 +51,7 @@ class Token
         private readonly ?int $creatorId,
         private readonly TrimmedString $creatorName,
         private readonly \DateTimeInterface $creationDate,
-        private readonly ?\DateTimeInterface $expirationDate,
-        private readonly TokenTypeEnum $type,
+        private readonly \DateTimeInterface $expirationDate,
         private readonly bool $isRevoked = false,
     ) {
         Assertion::notEmptyString((string) $name, 'Token::name');
@@ -66,9 +64,7 @@ class Token
         }
         Assertion::notEmptyString((string) $creatorName, 'Token::creatorName');
         Assertion::maxLength((string) $creatorName, self::MAX_USER_NAME_LENGTH, 'Token::creatorName');
-        if ($expirationDate !== null) {
-            Assertion::minDate($expirationDate, $creationDate, 'Token::expirationDate');
-        }
+        Assertion::maxDate($creationDate, $expirationDate, 'Token::creationDate');
     }
 
     public function getName(): string
@@ -101,7 +97,7 @@ class Token
         return $this->creationDate;
     }
 
-    public function getExpirationDate(): ?\DateTimeInterface
+    public function getExpirationDate(): \DateTimeInterface
     {
         return $this->expirationDate;
     }
@@ -109,10 +105,5 @@ class Token
     public function isRevoked(): bool
     {
         return $this->isRevoked;
-    }
-
-    public function getType(): TokenTypeEnum
-    {
-        return $this->type;
     }
 }

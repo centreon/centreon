@@ -1650,7 +1650,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-first-token-by-admin-for-admin\",\r\n  \"user_id\": {{Admin_Id}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"2125-12-31T00:00:00+01:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-first-token-by-admin-for-admin\",\r\n  \"user_id\": {{Admin_Id}},\r\n  \"expiration_date\": \"2125-12-31T00:00:00+01:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1788,7 +1788,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-second-token-by-admin-for-user-with-menu\",\r\n  \"user_id\": {{User_Menu_Id}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"2099-12-31T00:00:00+01:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-second-token-by-admin-for-user-with-menu\",\r\n  \"user_id\": {{User_Menu_Id}},\r\n  \"expiration_date\": \"2099-12-31T00:00:00+01:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1936,7 +1936,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-third-token-by-admin-for-user-with-menu-action\",\r\n  \"user_id\": {{User_Menu_Action_Id}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"2099-12-31T00:00:00+01:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-third-token-by-admin-for-user-with-menu-action\",\r\n  \"user_id\": {{User_Menu_Action_Id}},\r\n  \"expiration_date\": \"2099-12-31T00:00:00+01:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2081,7 +2081,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-third-token-by-admin-for-user-with-menu-action\",\r\n  \"user_id\": {{User_Menu_Action_Id}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"2099-12-31T00:00:00+01:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-third-token-by-admin-for-user-with-menu-action\",\r\n  \"user_id\": {{User_Menu_Action_Id}},\r\n  \"expiration_date\": \"2099-12-31T00:00:00+01:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2128,7 +2128,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"\",\r\n  \"user_id\": {{Admin_Id}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"2099-12-31T00:00:00+01:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"\",\r\n  \"user_id\": {{Admin_Id}},\r\n  \"expiration_date\": \"2099-12-31T00:00:00+01:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2501,7 +2501,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-third-token-by-user-menu-for-user-menu\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-third-token-by-user-menu-for-user-menu\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2549,7 +2549,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-third-token-by-user-menu-for-no_access\",\r\n  \"user_id\": {{User_no_access_Id}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-third-token-by-user-menu-for-no_access\",\r\n  \"user_id\": {{User_no_access_Id}},\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2982,7 +2982,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-third-token-by-mr-no_access-for-mr-no_access\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-third-token-by-mr-no_access-for-mr-no_access\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"expiration_date\": \"3051-06-02T00:00:00+02:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3275,7 +3275,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-fourth-token-by-user-menu-action-for-user-menu-action\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"2124-08-27T00:00:00+02:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-fourth-token-by-user-menu-action-for-user-menu-action\",\r\n  \"user_id\": {{currentUserID}},\r\n  \"expiration_date\": \"2124-08-27T00:00:00+02:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3313,7 +3313,7 @@
 									"    // Creation of a variable with the name of the new token\r",
 									"    var response = pm.response.json();\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.include(\"[NewToken::expirationDate] The date \\\"1998-12-02T00:00:00+01:00\\\" was expected to be at least \" + pm.variables.get(\"currentdate\"));\r",
+									"    pm.expect(responseJson.message).to.include(\"[NewToken::expirationDate] The date \\\"1998-12-02T00:00:00+01:00\\\" was expected to be at most \" + pm.variables.get(\"currentdate\"));\r",
 									"});\r",
 									""
 								],
@@ -3329,7 +3329,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-sixth-token-by-user-menu-action-for-admin\",\r\n  \"user_id\": {{Admin_Id}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"1998-12-02T00:00:00+01:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-sixth-token-by-user-menu-action-for-admin\",\r\n  \"user_id\": {{Admin_Id}},\r\n  \"expiration_date\": \"1998-12-02T00:00:00+01:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3393,7 +3393,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"my-fifth-token-by-user-menu-action-for-admin\",\r\n  \"user_id\": {{Admin_Id}},\r\n  \"type\": \"cma\",\r\n  \"expiration_date\": \"9999-12-02T00:00:00+01:00\"\r\n}",
+							"raw": "{\r\n  \"name\": \"my-fifth-token-by-user-menu-action-for-admin\",\r\n  \"user_id\": {{Admin_Id}},\r\n  \"expiration_date\": \"9999-12-02T00:00:00+01:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

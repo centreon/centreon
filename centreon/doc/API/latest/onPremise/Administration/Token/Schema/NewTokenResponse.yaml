@@ -45,7 +45,3 @@ properties:
     type: boolean
     description: "Indicate if the token has been revoked"
     example: false
-  type:
-    type: string
-    description: "Type of the token"
-    example: "cma"
