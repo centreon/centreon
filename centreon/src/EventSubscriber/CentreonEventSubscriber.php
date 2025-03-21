@@ -29,11 +29,11 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
-use Core\Common\Domain\Exception\RepositoryException;
 use Centreon\Domain\RequestParameters\{
     Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
 };
 use Centreon\Domain\VersionHelper;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\ExceptionHandler;
 use Psr\Log\LogLevel;
 use Symfony\Bundle\SecurityBundle\Security;
