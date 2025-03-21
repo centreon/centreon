@@ -451,9 +451,8 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                 $pearDB->executePreparedQuery($statementInsert, $bindParamsInsert, true);
                 $newMetaId = $pearDB->lastInsertId();
                 if ($newMetaId) {
-                    $centreonDB = new CentreonDB();
                     $metaObj = new CentreonMeta($pearDB);
-                    $metaObj->insertVirtualService($newMetaId, $centreonDB->escapeString($metaName));
+                    $metaObj->insertVirtualService($newMetaId, addslashes($metaName));
 
                     // Duplicate contacts
                     $queryContacts = "SELECT DISTINCT contact_id FROM meta_contact WHERE meta_id = :meta_id";
@@ -723,10 +722,9 @@ function insertMetaService($ret = [])
         return 0;
     }
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreonDB = new CentreonDB();
-    $centreon->CentreonLogAction->insertLog("meta", $metaId, $centreonDB->escapeString($ret["meta_name"]), "a", $fields);
+    $centreon->CentreonLogAction->insertLog("meta", $metaId, addslashes($ret["meta_name"]), "a", $fields);
     $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, $centreonDB->escapeString($ret["meta_name"]));
+    $metaObj->insertVirtualService($metaId, addslashes($ret["meta_name"]));
     return $metaId;
 }
 
@@ -812,10 +810,9 @@ function updateMetaService($metaId = null)
         );
     }
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreonDB = new CentreonDB();
-    $centreon->CentreonLogAction->insertLog("meta", $metaId, $centreonDB->escapeString($ret["meta_name"]), "c", $fields);
+    $centreon->CentreonLogAction->insertLog("meta", $metaId, addslashes($ret["meta_name"]), "c", $fields);
     $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, $centreonDB->escapeString($ret["meta_name"]));
+    $metaObj->insertVirtualService($metaId, addslashes($ret["meta_name"]));
 }
 
 /**
@@ -979,7 +976,7 @@ function insertMetric($ret = [])
         ':host_id'     => bind($ret["host_id"] ?? null, PDO::PARAM_INT),
         ':metric_id'   => bind(isset($ret["metric_sel"][1]) ? $ret["metric_sel"][1] : null, PDO::PARAM_INT),
         ':msr_comment' => bind(isset($ret["msr_comment"]) ? htmlentities($ret["msr_comment"]) : null, PDO::PARAM_STR),
-        ':activate'    => bind(isset($ret["activate"]["activate"]) ? $ret["activate"]["activate"] : null, PDO::PARAM_INT),
+        ':activate'    => bind(isset($ret["activate"]["activate"]) ? $ret["activate"]["activate"] : null, PDO::PARAM_STR),
     ];
     try {
         $statement = $pearDB->prepareQuery($query);
@@ -998,9 +995,9 @@ function insertMetric($ret = [])
             ]
         );
     }
-    $statementMax = $pearDB->query("SELECT MAX(msr_id) AS max_msr_id FROM meta_service_relation");
-    $msrId = $statementMax->fetch(PDO::FETCH_ASSOC);
-    return $msrId["max_msr_id"];
+    $msrId = $pearDB->lastInsertId();
+
+    return $msrId;
 }
 
 /**
@@ -1030,7 +1027,7 @@ function updateMetric($msrId = null)
         ':host_id'     => bind($ret["host_id"] ?? null, PDO::PARAM_INT),
         ':metric_id'   => bind(isset($ret["metric_sel"][1]) ? $ret["metric_sel"][1] : null, PDO::PARAM_INT),
         ':msr_comment' => bind(isset($ret["msr_comment"]) ? htmlentities($ret["msr_comment"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':activate'    => bind(isset($ret["activate"]["activate"]) ? $ret["activate"]["activate"] : null, PDO::PARAM_INT),
+        ':activate'    => bind(isset($ret["activate"]["activate"]) ? $ret["activate"]["activate"] : null, PDO::PARAM_STR),
         ':msr_id'      => bind($msrId, PDO::PARAM_INT),
     ];
     try {
