@@ -14,7 +14,7 @@
         "geo_coords": "2.3522219,48.856614",
         "rrd": 2,
         "comment": "comment!",
-        "is_activated": true
+        "is_activated": false
     },
     "forDuplicate": {
         "name": "host_group_changed",

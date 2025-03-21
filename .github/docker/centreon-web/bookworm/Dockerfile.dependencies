@@ -65,10 +65,13 @@ apt-get update
 #############################
 
 apt-get install -y \
+  apache2 \
   apt-transport-https \
   curl \
   jq \
   python3 \
+  sed \
+  snmpd \
   software-properties-common \
   sudo
 
@@ -109,6 +112,20 @@ apt-get install -y \
   php8.2-curl \
   php8.2-zip
 
+###################
+# install plugins #
+###################
+
+apt-get install -y centreon-plugin-operatingsystems-linux-snmp
+
+######################
+# SNMP configuration #
+######################
+
+sed -i '/^agentaddress/d' /etc/snmp/snmpd.conf
+echo 'agentaddress  127.0.0.1' >> /etc/snmp/snmpd.conf
+sed -i 's/^rocommunity[[:space:]]*public.*/rocommunity  public default -V centreon/' /etc/snmp/snmpd.conf
+
 apt-get clean
 
 EOF
@@ -127,15 +144,8 @@ apt-get install -y \
   centreon-common \
   centreon-gorgone \
   centreon-engine \
-  centreon-broker-cbmod \
   centreon-broker-cbd \
   centreon-connector
-
-###################
-# install plugins #
-###################
-
-apt install -y centreon-plugin-operatingsystems-linux-snmp
 
 apt-get clean
 

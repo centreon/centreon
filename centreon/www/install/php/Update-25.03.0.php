@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,11 @@
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-$versionOfTheUpgrade = 'UPGRADE - 25.03.0: ';
+/**
+ * This file contains changes to be included in the next version.
+ * The actual version number should be added in the variable $version.
+ */
+$version = '25.03.0';
 $errorMessage = '';
 
 // -------------------------------------------- CEIP Agent Information -------------------------------------------- //
@@ -113,14 +117,25 @@ $changeAccNameInTopology = function (CentreonDB $pearDB) use (&$errorMessage): v
  * @return void
  */
 $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to add data to connector table';
-    $pearDB->executeQuery(
-        <<<SQL
-        INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
-        (null,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-        (null, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+
+    $errorMessage = 'Unable to select data from connector table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `connector`
+            WHERE `name` = 'Centreon Monitoring Agent'
         SQL
     );
+
+    if (false === (bool)$statement->fetch(\PDO::FETCH_COLUMN)) {
+        $errorMessage = 'Unable to add data to connector table';
+        $pearDB->executeQuery(
+            <<<SQL
+            INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
+            (null,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+            (null, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+            SQL
+        );
+    }
 };
 
 // -------------------------------------------- Dashboard Panel -------------------------------------------- //
@@ -142,7 +157,6 @@ $updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
 };
 
 // -------------------------------------------- Resource Status -------------------------------------------- //
-
 /**
  * @param CentreonDB $pearDBO
  *
@@ -171,6 +185,32 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     }
 };
 
+$createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
+    if (! $realtimeDb->isIndexExists('resources', 'resources_poller_id_index')) {
+        $errorMessage = 'Unable to create index resources_poller_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_poller_id_index` ON resources (`poller_id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_id_index')) {
+        $errorMessage = 'Unable to create index resources_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_id_index` ON resources (`id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_parent_id_index')) {
+        $errorMessage = 'Unable to create index resources_parent_id_index';
+        $realtimeDb->exec('CREATE INDEX `resources_parent_id_index` ON resources (`parent_id`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('resources', 'resources_enabled_type_index')) {
+        $errorMessage = 'Unable to create index resources_enabled_type_index';
+        $realtimeDb->exec('CREATE INDEX `resources_enabled_type_index` ON resources (`enabled`, `type`)');
+    }
+
+    if (! $realtimeDb->isIndexExists('tags', 'tags_type_name_index')) {
+        $errorMessage = 'Unable to create index tags_type_name_index';
+        $realtimeDb->exec('CREATE INDEX `tags_type_name_index` ON tags (`type`, `name`(10))');
+    }
+};
 
 // -------------------------------------------- Broker I/O Configuration -------------------------------------------- //
 
@@ -184,11 +224,13 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
 $removeConstraintFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
     // prevent side effect on the $removeFieldFromBrokerConfiguration function
     $errorMessage = 'Unable to update table cb_list_values';
-    $pearDB->executeQuery(
-        <<<SQL
-        ALTER TABLE cb_list_values DROP CONSTRAINT `fk_cb_list_values_1`
-        SQL
-    );
+    if ($pearDB->isConstraintExists('cb_list_values', 'fk_cb_list_values_1')) {
+        $pearDB->executeQuery(
+            <<<SQL
+            ALTER TABLE cb_list_values DROP CONSTRAINT `fk_cb_list_values_1`
+            SQL
+        );
+    }
 };
 
 /**
@@ -230,12 +272,16 @@ $createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage
 };
 
 try {
+    // DDL statements for real time database
     $createAgentInformationTable($pearDBO);
+    $addColumnToResourcesTable($pearDBO);
+    $createIndexForDowntimes($pearDBO);
+    $createIndexesForResourceStatus($pearDBO);
+
+    // DDL statements for configuration database
     $addConnectorToTopology($pearDB);
     $changeAccNameInTopology($pearDB);
-    $addColumnToResourcesTable($pearDBO);
     $removeConstraintFromBrokerConfiguration($pearDB);
-    $createIndexForDowntimes($pearDBO);
 
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -248,31 +294,40 @@ try {
 
     $pearDB->commit();
 
-} catch (CentreonDbException $e) {
+} catch (\Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: $versionOfTheUpgrade . $errorMessage
-            . ' - Code : ' . (int) $e->getCode()
-            . ' - Error : ' . $e->getMessage(),
+        message: "UPGRADE - {$version}: " . $errorMessage,
         customContext: [
-            'exception' => $e->getOptions(),
-            'trace' => $e->getTraceAsString(),
+            'exception' => [
+                'error_message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString()
+            ]
         ],
-        exception: $e
+        exception: $exception
     );
-
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (PDOException $ex) {
+    } catch (\PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
-            customContext: ['error_message' => $ex->getMessage(), 'trace' => $e->getTraceAsString()],
-            exception: $ex
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            customContext: [
+                'error_to_rollback' => $errorMessage,
+                'exception' => [
+                    'error_message' => $rollbackException->getMessage(),
+                    'trace' => $rollbackException->getTraceAsString()
+                ]
+            ],
+            exception: $rollbackException
+        );
+        throw new \Exception(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            (int) $rollbackException->getCode(),
+            $rollbackException
         );
     }
-
-    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

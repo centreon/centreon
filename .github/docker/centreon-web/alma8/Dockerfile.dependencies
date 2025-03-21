@@ -108,13 +108,20 @@ dnf install -y \
   php-pear \
   php-json
 
+sed -i "s#apache,nginx#apache#g" /etc/php-fpm.d/www.conf
+
 ###################
 # install plugins #
 ###################
 
 dnf install -y centreon-plugin-Operatingsystems-Linux-Snmp
 
-sed -i "s#apache,nginx#apache#g" /etc/php-fpm.d/www.conf
+######################
+# SNMP configuration #
+######################
+
+sed -i '/^agentaddress/d' /etc/snmp/snmpd.conf
+echo 'agentaddress  127.0.0.1' >> /etc/snmp/snmpd.conf
 
 dnf clean all --enablerepo=*
 
@@ -132,7 +139,6 @@ dnf install -y \
   centreon-common \
   centreon-gorgone \
   centreon-engine \
-  centreon-broker-cbmod \
   centreon-broker-cbd \
   centreon-connector
 

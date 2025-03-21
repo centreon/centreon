@@ -1,14 +1,31 @@
 Core\HostGroup\Domain\Model\HostGroup:
   attributes:
     id:
-      groups: ['HostGroup:Add']
+      groups: ['HostGroup:Add', 'HostGroup:List:Saas', 'HostGroup:List:OnPrem']
     name:
-      groups: ['HostGroup:Add']
+      groups: ['HostGroup:Add', 'HostGroup:List:Saas', 'HostGroup:List:OnPrem']
     alias:
-      groups: ['HostGroup:Add']
+      groups: ['HostGroup:Add','HostGroup:List:Saas', 'HostGroup:List:OnPrem']
     geoCoords:
-      groups: ['HostGroup:Add']
+      groups: ['HostGroup:Add', 'HostGroup:List:Saas', 'HostGroup:List:OnPrem']
     comment:
-      groups: ['HostGroup:Add']
+      groups: ['HostGroup:Add', 'HostGroup:List:OnPrem']
     iconId:
       groups: ['HostGroup:Add']
+    notes:
+      groups: ['HostGroup:List:OnPrem']
+    notesUrl:
+      serialized_name: 'notes_url'
+      groups: ['HostGroup:List:OnPrem']
+    actionUrl:
+      serialized_name: 'action_url'
+      groups: ['HostGroup:List:OnPrem']
+    iconMapId:
+      serialized_name: 'icon_map_id'
+      groups: ['HostGroup:List:OnPrem']
+    rrdRetention:
+      serialized_name: 'rrd'
+      groups: ['HostGroup:List:OnPrem']
+    isActivated:
+      serialized_name: 'is_activated'
+      groups: ['HostGroup:List:Saas', 'HostGroup:List:OnPrem']

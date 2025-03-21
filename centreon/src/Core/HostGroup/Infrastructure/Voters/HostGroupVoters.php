@@ -35,11 +35,13 @@ final class HostGroupVoters extends Voter
 {
     public const HOSTGROUP_DELETE = 'hostgroup_delete';
     public const HOSTGROUP_ADD = 'hostgroup_add';
+    public const HOSTGROUP_LIST = 'hostgroup_list';
     public const HOSTGROUP_ENABLE_DISABLE = 'hostgroup_enable_disable';
     public const HOSTGROUP_DUPLICATE = 'hostgroup_duplicate';
     public const HOSTGROUP_UPDATE = 'hostgroup_update';
     private const ALLOWED_ATTRIBUTES = [
         self::HOSTGROUP_ADD,
+        self::HOSTGROUP_LIST,
         self::HOSTGROUP_DELETE,
         self::HOSTGROUP_ENABLE_DISABLE,
         self::HOSTGROUP_DUPLICATE,
@@ -66,11 +68,12 @@ final class HostGroupVoters extends Voter
         }
 
         return match ($attribute) {
+            self::HOSTGROUP_LIST => $this->checkUserReadRights($user),
             self::HOSTGROUP_DELETE,
             self::HOSTGROUP_ADD,
             self::HOSTGROUP_ENABLE_DISABLE,
-            self::HOSTGROUP_DUPLICATE,
-            self::HOSTGROUP_UPDATE => $this->checkUserRights($user),
+            self::HOSTGROUP_UPDATE,
+            self::HOSTGROUP_DUPLICATE => $this->checkUserWriteRights($user),
             default => false,
         };
     }
@@ -82,8 +85,21 @@ final class HostGroupVoters extends Voter
      *
      * @return bool
      */
-    private function checkUserRights(ContactInterface $user): bool
+    private function checkUserWriteRights(ContactInterface $user): bool
     {
         return $user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE);
+    }
+
+    /**
+     * Check that user has rights to perform read operations on services.
+     *
+     * @param ContactInterface $user
+     *
+     * @return bool
+     */
+    private function checkUserReadRights(ContactInterface $user): bool
+    {
+        return $user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE)
+            || $user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ);
     }
 }

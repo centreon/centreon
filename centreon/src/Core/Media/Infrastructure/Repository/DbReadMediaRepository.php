@@ -28,6 +28,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
 use Psr\Log\LoggerInterface;
@@ -43,6 +44,7 @@ use Traversable;
  */
 class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRepositoryInterface
 {
+    use SqlMultipleBindTrait;
     private const MAX_ITEMS_BY_REQUEST = 100;
 
     public function __construct(DatabaseConnection $db, readonly private LoggerInterface $logger)
@@ -82,6 +84,51 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
         }
 
         return $this->createMedia($record);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIds(array $mediaIds): array
+    {
+        if ($mediaIds === []) {
+            return [];
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+            $mediaIds,
+            ':mediaId_',
+        );
+
+        $request = <<<SQL
+            SELECT
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            WHERE `img`.img_id IN ({$bindQuery})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $statement->execute();
+
+        $result = [];
+        foreach ($statement as $record) {
+            /** @var _Media $record */
+            $result[$record['img_id']] = $this->createMedia($record);
+        }
+
+        return $result;
     }
 
     /**

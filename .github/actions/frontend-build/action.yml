@@ -27,9 +27,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+    - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
       with:
-        version: 8
+        version: 10
         run_install: false
 
     - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
@@ -54,13 +54,13 @@ runs:
 
     - name: Cache index.html file
       if: ${{ inputs.index_cache_key != '' && inputs.index_file != '' }}
-      uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
       with:
         path: ${{ inputs.index_file }}
         key: ${{ inputs.index_cache_key }}
 
     - name: Cache static directory
-      uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
       with:
         path: ${{ inputs.static_directory }}
         key: ${{ inputs.static_cache_key }}

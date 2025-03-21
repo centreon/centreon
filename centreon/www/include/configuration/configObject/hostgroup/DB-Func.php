@@ -854,6 +854,18 @@ function getPollersForConfigChangeFlagFromHostgroupId(int $hostgroupId): array
     return findPollersForConfigChangeFlagFromHostIds($hostIds);
 }
 
+
+function isHostGroupActivated(int $hgId): bool
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare("SELECT hg_activate FROM hostgroup WHERE hg_id = :hg_id");
+    $statement->bindValue(':hg_id', $hgId, \PDO::PARAM_INT);
+    $statement->execute();
+
+    return (bool) $statement->fetchColumn();
+}
+
 // ---------- API CALLs ----------
 
 /**
