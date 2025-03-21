@@ -164,7 +164,7 @@ const visibleColumns = [
 const search = { $and: [] };
 
 const initialize = (
-  resourcesPath = 'resources/resourceListing'
+  countResourcesPath = 'resources/listing/count/count.json'
 ): ReturnType<typeof createStore> => {
   cy.clock(new Date(2020, 1, 1));
   cy.viewport('macbook-13');
@@ -199,11 +199,20 @@ const initialize = (
     path: downtimeEndpoint
   });
 
-  cy.fixture(resourcesPath).then((data) => {
+  cy.fixture('resources/resourceListing').then((data) => {
     cy.interceptAPIRequest({
       alias: 'resources',
       method: Method.GET,
       path: '**/resources?*',
+      response: data
+    });
+  });
+
+  cy.fixture(countResourcesPath).then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'countResources',
+      method: Method.GET,
+      path: '**/count?*',
       response: data
     });
   });
@@ -535,7 +544,7 @@ describe('CSV export', () => {
 
   it('export resources with default checks when clicking the CSV export button', () => {
     initialize();
-    cy.waitForRequest('@resources');
+    cy.waitForRequest('@countResources');
 
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
     cy.findByRole('dialog').as('modal').should('be.visible');
@@ -585,7 +594,7 @@ describe('CSV export', () => {
   it('export resources with custom checks when clicking the CSV export button', () => {
     const store = initialize();
     store.set(selectedColumnIdsAtom, visibleColumns);
-    cy.waitForRequest('@resources');
+    cy.waitForRequest('@countResources');
 
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
     cy.findByRole('dialog').as('modal').should('be.visible');
@@ -629,8 +638,8 @@ describe('CSV export', () => {
   });
 
   it('display the warning message and disable the export button when the number of resources exceeds 10,000', () => {
-    initialize('resources/listing/exportCsv.json');
-    cy.waitForRequest('@resources');
+    initialize('resources/listing/count/massiveCount.json');
+    cy.waitForRequest('@countResources');
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
     cy.findByRole('dialog').as('modal').should('be.visible');
     cy.get('@modal').contains(labelExportToCSV);

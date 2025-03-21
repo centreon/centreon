@@ -7,7 +7,7 @@ import { getColumns as getAllColumns } from '../../Listing/columns';
 import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
 import useGetCriteriaName from '../../Listing/useLoadResources/useGetCriteriaName';
 import { getSearch } from '../../Listing/useLoadResources/utils';
-import { resourcesEndpoint } from '../../api/endpoint';
+import { countResourcesEndpoint } from '../../api/endpoint';
 import { labelExportProcessingInProgress } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { csvExportEndpoint } from '../api/endpoint';
@@ -137,14 +137,14 @@ const useExportCsv = ({
   };
 
   const { data } = useFetchQuery({
-    getEndpoint: () => getEndpoint(resourcesEndpoint),
-    getQueryKey: () => ['exportedLines', getEndpoint(resourcesEndpoint)],
+    getEndpoint: () => getEndpoint(countResourcesEndpoint),
+    getQueryKey: () => ['exportedLines', getEndpoint(countResourcesEndpoint)],
     queryOptions: {
       suspense: false
     }
   });
 
-  const filteredCurrentLines = `${data?.result?.length} / ${maxResources}`;
+  const filteredCurrentLines = `${data?.count} / ${maxResources}`;
   const currentLines = `${data?.meta?.total} / ${maxResources}`;
 
   const numberExportedLines = isAllPagesChecked
