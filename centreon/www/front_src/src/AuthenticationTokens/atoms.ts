@@ -6,6 +6,7 @@ import { filtersInitialValues } from './utils';
 
 export const tokensToDeleteAtom = atom<Array<string>>([]);
 export const tokensToDisableAtom = atom<Array<string>>([]);
+export const tokensToEnableAtom = atom<Array<string>>([]);
 
 export const filtersAtom = atomWithStorage<Filter>(
   `${baseKey}_filters`,

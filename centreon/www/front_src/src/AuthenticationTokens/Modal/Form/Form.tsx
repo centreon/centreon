@@ -1,31 +1,29 @@
-import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { Form } from '@centreon/ui';
 import { FormActions } from '@centreon/ui/components';
 
-import useForm from './useForm';
-import useFormInputs from './useFormInputs';
-import useInitilialValues from './useInitilialValues';
-import useValidationSchema from './useValidationSchema';
-
+import { useAtomValue } from 'jotai';
 import { tokenAtom } from '../../atoms';
 import {
   labelCancel,
   labelDone,
   labelGenerateToken
 } from '../../translatedLabels';
+import useForm from './useForm';
+import useFormInputs from './useFormInputs';
+import useInitilialValues from './useInitilialValues';
+import useValidationSchema from './useValidationSchema';
 
 const Actions =
-  ({ close }) =>
+  ({ close, token }) =>
   (): JSX.Element => {
     const { t } = useTranslation();
-    const token = useAtomValue(tokenAtom);
 
     const actionsLabels = {
-      cancel: t(token ? labelDone : labelCancel),
+      cancel: t(labelCancel),
       submit: {
-        create: t(labelGenerateToken)
+        create: t(token ? labelDone : labelGenerateToken)
       }
     };
 
@@ -34,7 +32,7 @@ const Actions =
         labels={actionsLabels}
         variant={'create'}
         onCancel={close}
-        isSubmitButtonVisible={!token}
+        isCancelButtonVisible={!token}
       />
     );
   };
@@ -46,12 +44,14 @@ const TokenForm = ({ close }): JSX.Element => {
 
   const { createToken } = useForm();
 
+  const token = useAtomValue(tokenAtom);
+
   return (
     <Form
-      Buttons={Actions({ close })}
+      Buttons={Actions({ close, token })}
       initialValues={initialValues}
       inputs={inputs}
-      submit={(values, bag) => createToken?.(values, bag)}
+      submit={(values, bag) => (token ? close() : createToken?.(values, bag))}
       validationSchema={validationSchema}
     />
   );

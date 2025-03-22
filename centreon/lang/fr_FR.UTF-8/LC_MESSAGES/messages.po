@@ -19749,3 +19749,19 @@ msgstr "Dans 90 jours"
 
 msgid "In 1 year"
 msgstr "Dans 1 an"
+
+msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
+msgstr "Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</strong>. Si vous le désactivez, toutes les requêtes effectuées avec ce jeton seront rejetées. Voulez-vous vraiment le désactiver ? Vous devez exporter la configuration pour que le changement soit pris en compte."
+
+msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
+msgstr "Vous êtes sur le point de supprimer le jeton <strong>{{tokenName}}</strong>. Cette action est irréversible. Voulez-vous vraiment supprimer ce jeton ? Vous devez exporter la configuration pour que le changement soit pris en compte."
+
+msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
+msgstr "Vous êtes sur le point d'activer le jeton <strong>{{tokenName}}</strong>. Vous devez exporter la configuration pour que le changement soit pris en compte."
+
+msgid "Enable token"
+msgstr "Activer le jeton"
+
+msgid "Token enabled"
+msgstr "Jeton activé"
+

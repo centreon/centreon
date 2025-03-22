@@ -28,8 +28,6 @@ export const labelUntil = 'Until';
 export const labelAuthenticationTokens = 'Authentication tokens';
 export const labelRefresh = 'Refresh';
 export const labelAdd = 'Add';
-export const labelMsgConfirmationDeletionToken =
-  'You are about to delete the token <strong>{{tokenName}}</strong>. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
 export const labelFilters = 'Filters';
 
 export const labelDisabled = 'Disabled';
@@ -48,11 +46,19 @@ export const labelSecurityToken =
   'For security reasons, the token can only be displayed once. Remember to store it well.';
 export const labelDone = 'Done';
 export const labelDisbleToken = 'Disable token';
-export const labelMsgConfirmationDisableToken =
-  'You are about to disable the token <strong>{{tokenName}}</strong>. If you disable it, all requests made with this token will be rejected. Do you want to disable it ?';
 export const labelDisable = 'Disable';
 export const labelTokenDisabled = 'Token disabled';
 
 export const labelEnableDisable = 'Enable/Disable';
 export const labelTokenCopiedToTheClipboard =
   'Authentication token copied to the clipboard';
+
+export const labelMsgConfirmationDisableToken =
+  'You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account.';
+export const labelMsgConfirmationDeletionToken =
+  'You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account.';
+export const labelMsgConfirmationEnableToken =
+  'You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account.';
+export const labelEnableToken = 'Enable token';
+export const labelTokenEnabled = 'Token enabled';
+export const labelEnable = 'Enable';

@@ -17,7 +17,7 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useStyles();
 
-  const { isMutating, change, checked } = useStatus({ row });
+  const { change, checked } = useStatus({ row });
 
   return (
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>
@@ -29,7 +29,6 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
         color="primary"
         size="small"
         onClick={change}
-        disabled={isMutating}
       />
     </Tooltip>
   );

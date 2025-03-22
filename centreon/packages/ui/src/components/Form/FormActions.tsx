@@ -12,7 +12,7 @@ export type FormActionsProps = {
   labels: FormActionsLabels;
   onCancel: () => void;
   variant: FormVariant;
-  isSubmitButtonVisible?: boolean;
+  isCancelButtonVisible?: boolean;
 };
 
 export type FormActionsLabels = {
@@ -25,7 +25,7 @@ const FormActions = <TResource extends object>({
   onCancel,
   variant,
   enableSubmitWhenNotDirty,
-  isSubmitButtonVisible = true
+  isCancelButtonVisible = true
 }: FormActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { isSubmitting, dirty, isValid, submitForm } =
@@ -36,29 +36,29 @@ const FormActions = <TResource extends object>({
 
   return (
     <div className={classes.actions}>
-      <Button
-        aria-label={labels.cancel}
-        data-testid="cancel"
-        disabled={isSubmitting}
-        size="medium"
-        variant="secondary"
-        onClick={() => onCancel?.()}
-      >
-        {labels.cancel}
-      </Button>
-      {isSubmitButtonVisible && (
+      {isCancelButtonVisible && (
         <Button
-          aria-label={labels.submit[variant]}
-          data-testid="submit"
-          disabled={isSubmitDisabled}
+          aria-label={labels.cancel}
+          data-testid="cancel"
+          disabled={isSubmitting}
           size="medium"
-          type="submit"
-          variant="primary"
-          onClick={submitForm}
+          variant="secondary"
+          onClick={() => onCancel?.()}
         >
-          {labels.submit[variant]}
+          {labels.cancel}
         </Button>
       )}
+      <Button
+        aria-label={labels.submit[variant]}
+        data-testid="submit"
+        disabled={isSubmitDisabled}
+        size="medium"
+        type="submit"
+        variant="primary"
+        onClick={submitForm}
+      >
+        {labels.submit[variant]}
+      </Button>
     </div>
   );
 };

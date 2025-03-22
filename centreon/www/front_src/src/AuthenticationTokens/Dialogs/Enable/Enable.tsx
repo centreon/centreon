@@ -4,38 +4,37 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 
-import useDisable from './useDisable';
+import useEnable from './useEnable';
 
 import {
   labelCancel,
-  labelDisable,
-  labelDisbleToken,
-  labelMsgConfirmationDisableToken
+  labelEnable,
+  labelEnableToken,
+  labelMsgConfirmationEnableToken
 } from '../../translatedLabels';
 
-const DisableDialog = (): JSX.Element => {
+const EnableDialog = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const { close, confirm, isMutating, isOpened, name } = useDisable();
+  const { close, confirm, isMutating, isOpened, name } = useEnable();
 
   return (
     <Modal open={isOpened} size="large" onClose={close}>
-      <Modal.Header>{t(labelDisbleToken)}</Modal.Header>
+      <Modal.Header>{t(labelEnableToken)}</Modal.Header>
       <Modal.Body>
         <Typography>
           <Trans
-            defaults={labelMsgConfirmationDisableToken}
+            defaults={labelMsgConfirmationEnableToken}
             values={{ tokenName: name }}
             components={{ bold: <strong /> }}
           />
         </Typography>
       </Modal.Body>
       <Modal.Actions
-        isDanger
         disabled={isMutating}
         labels={{
           cancel: t(labelCancel),
-          confirm: t(labelDisable)
+          confirm: t(labelEnable)
         }}
         onCancel={close}
         onConfirm={confirm}
@@ -44,4 +43,4 @@ const DisableDialog = (): JSX.Element => {
   );
 };
 
-export default DisableDialog;
+export default EnableDialog;
