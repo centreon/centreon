@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 const token = {
   duration: '7 days',
@@ -108,5 +108,7 @@ Then('the "copy to clipboard" button is clicked', () => {
 });
 
 Then('the token is successfully copied', () => {
-  cy.get('.MuiAlert-message').contains('Token copied to the clipboard');
+  cy.get('.MuiAlert-message').contains(
+    'Authentication token copied to the clipboard'
+  );
 });
