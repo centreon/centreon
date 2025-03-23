@@ -1,5 +1,6 @@
 {
     "name": "slack",
+    "type": "api",
     "user": {
         "id": 4,
         "name": "centreon-gorgone"

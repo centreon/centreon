@@ -45,7 +45,7 @@ export const labelCreateAuthenticationToken = 'Create authentication token';
 export const labelSecurityToken =
   'For security reasons, the token can only be displayed once. Remember to store it well.';
 export const labelDone = 'Done';
-export const labelDisbleToken = 'Disable token';
+export const labelDisableToken = 'Disable token';
 export const labelDisable = 'Disable';
 export const labelTokenDisabled = 'Token disabled';
 

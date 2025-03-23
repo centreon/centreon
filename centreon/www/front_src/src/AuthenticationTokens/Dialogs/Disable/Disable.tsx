@@ -9,7 +9,7 @@ import useDisable from './useDisable';
 import {
   labelCancel,
   labelDisable,
-  labelDisbleToken,
+  labelDisableToken,
   labelMsgConfirmationDisableToken
 } from '../../translatedLabels';
 
@@ -20,7 +20,7 @@ const DisableDialog = (): JSX.Element => {
 
   return (
     <Modal open={isOpened} size="large" onClose={close}>
-      <Modal.Header>{t(labelDisbleToken)}</Modal.Header>
+      <Modal.Header>{t(labelDisableToken)}</Modal.Header>
       <Modal.Body>
         <Typography>
           <Trans

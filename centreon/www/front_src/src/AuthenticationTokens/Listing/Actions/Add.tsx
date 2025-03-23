@@ -8,7 +8,7 @@ import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router';
 import { modalStateAtom } from '../../atoms';
 import { TokenType } from '../../models';
-import { labelAdd, labelCreateNewToken } from '../../translatedLabels';
+import { labelAdd } from '../../translatedLabels';
 
 const Add = (): JSX.Element => {
   const { t } = useTranslation();
@@ -25,8 +25,8 @@ const Add = (): JSX.Element => {
 
   return (
     <Button
-      aria-label={t(labelCreateNewToken)}
-      data-testid={labelCreateNewToken}
+      aria-label={t(labelAdd)}
+      data-testid={labelAdd}
       icon={<AddIcon />}
       iconVariant="start"
       size="medium"
