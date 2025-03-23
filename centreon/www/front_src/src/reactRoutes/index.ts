@@ -49,7 +49,7 @@ const reactRoutes = [
   },
   {
     comp: lazy(() => import('../AuthenticationTokens')),
-    path: routeMap.apiTokens
+    path: routeMap.authTokens
   },
   {
     comp: lazy(() => import('../ResourceAccessManagement')),
