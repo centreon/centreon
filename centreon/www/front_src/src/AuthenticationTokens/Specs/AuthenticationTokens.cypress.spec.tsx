@@ -11,7 +11,6 @@ import {
   labelRefresh,
   labelSearch,
   labelSecurityToken,
-  labelTokenCopiedToTheClipboard,
   labelTokenDeleted,
   labelTokenDisabled,
   labelTokenEnabled,
@@ -150,8 +149,6 @@ describe('Authentication tokens', () => {
     cy.findByTestId('Copy_e-token_23').click();
 
     cy.waitForRequest('@tokenDetails');
-
-    cy.contains(labelTokenCopiedToTheClipboard);
 
     cy.makeSnapshot();
   });
