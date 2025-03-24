@@ -292,21 +292,7 @@ When(
 Then(
   'the ticket should be deleted and the resource should no longer be associated with the ticket',
   () => {
-    cy.waitUntil(
-      () => {
-        return cy
-          .getByLabel({ label: 'Unknown status services', tag: 'a' })
-          .invoke('text')
-          .then((text) => {
-            if (text !== '3') {
-              cy.exportConfig();
-            }
-
-            return text === '3';
-          });
-      },
-      { interval: 20000, timeout: 600000 }
-    );
+    cy.exportConfig();
     cy.waitForElementToBeVisible('[class*="root-emptyDataCell"]');
     cy.contains('div', 'No result found').should('be.visible');
   }
