@@ -1,0 +1,11 @@
+{
+  "address": "localhost",
+  "port": "3306",
+  "root_user": "root",
+  "root_password": "centreon",
+  "db_configuration": "centreon",
+  "db_storage": "centreon_storage",
+  "db_user": "centreon",
+  "db_password": "centreon",
+  "db_password_confirm": "centreon"
+}
