@@ -27,7 +27,7 @@ jobs:
 
       - name: Download actionlint
         id: get_actionlint
-        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/v1.7.1/scripts/download-actionlint.bash)
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash)
         shell: bash
 
       - name: Check workflow files
@@ -35,10 +35,8 @@ jobs:
           SHELLCHECK_OPTS: "--severity=error"
         run: |
           ${{ steps.get_actionlint.outputs.executable }} \
-            -ignore 'label "ubuntu-24.04" is unknown' \
-            -ignore 'label "common" is unknown' \
-            -ignore 'label "veracode" is unknown' \
-            -ignore 'label "infra" is unknown' \
+            -ignore 'label "centreon-(collect-arm64|ubuntu-22.04|common)" is unknown' \
+            -ignore 'label "infrastructure" is unknown' \
             -ignore '"github.head_ref" is potentially untrusted' \
             -pyflakes= \
             -color
