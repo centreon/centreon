@@ -25,7 +25,7 @@ $versionOfTheUpgrade = 'UPGRADE - 25.05.0: ';
  * @return void
  */
 $reOrderAndChangeType = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to update table topology to re order and change type of Submit Ticket menu access';
+    $errorMessage = 'Unable to update table topology to re order and change type of Create Ticket menu access';
     $pearDB->executeQuery(
         <<<'SQL'
             UPDATE `topology`
