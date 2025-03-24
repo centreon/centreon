@@ -1,4 +1,3 @@
-@REQ_MON-151129
 Feature: ServiceGroupConfiguration
   As a Centreon admin
   I want to manipulate a service group
