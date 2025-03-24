@@ -47,8 +47,6 @@ interface ReadAccessGroupRepositoryInterface
      * @throws RepositoryException
      *
      * @return AccessGroup[]
-     *
-     * @deprecated instead use {@see findByContactId}
      */
     public function findByContact(ContactInterface $contact): array;
 
