@@ -23,15 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Security\AccessGroup\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Collection\AccessGroupCollection;
 
 /**
  * Database repository for the access groups.
@@ -111,7 +114,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
             return $accessGroups;
         } catch (\Throwable $e) {
             throw new RepositoryException(
-                "Error while getting all access groups with filter : {$e->getMessage()}",
+                'Error while getting all access groups with filter',
                 ['filter' => $this->sqlRequestTranslator->getSearchValues()],
                 previous: $e
             );
@@ -124,7 +127,30 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
     public function findByContact(ContactInterface $contact): array
     {
         try {
-            $accessGroups = [];
+            $accessGroupsCollection = $this->findByContactId($contact->getId());
+
+            return $accessGroupsCollection->values();
+        } catch (RepositoryException $e) {
+            throw new RepositoryException(
+                'Error while getting access groups by contact',
+                ['contact_id' => $contact->getId()],
+                $e
+            );
+        }
+    }
+
+    /**
+     * Find all access groups according to a contact.
+     *
+     * @param int $contactId
+     *
+     * @throws RepositoryException
+     * @return AccessGroupCollection
+     */
+    public function findByContactId(int $contactId): AccessGroupCollection
+    {
+        try {
+            $accessGroups = new AccessGroupCollection();
             /**
              * Retrieve all access group from contact
              * and contact groups linked to contact.
@@ -151,21 +177,22 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
             $statement = $this->db->prepare($query);
 
-            $statement->bindValue(':contact_id', $contact->getId(), \PDO::PARAM_INT);
+            $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
             if ($statement->execute()) {
                 while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
                     /** @var _AccessGroupRecord $result */
-                    $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
+                    $accessGroup = DbAccessGroupFactory::createFromRecord($result);
+                    $accessGroups->add($accessGroup->getId(), $accessGroup);
                 }
 
                 return $accessGroups;
             }
 
             return $accessGroups;
-        } catch (\Throwable $e) {
+        } catch (\PDOException|CollectionException|AssertionFailedException $e) {
             throw new RepositoryException(
-                "Error while getting access groups by contact : {$e->getMessage()}",
-                ['contact_id' => $contact->getId()],
+                'Error while getting access groups by contact id',
+                ['contact_id' => $contactId],
                 $e
             );
         }
@@ -233,7 +260,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
             return $accessGroups;
         } catch (\Throwable $e) {
             throw new RepositoryException(
-                "Error while getting access groups by contact with filter : {$e->getMessage()}",
+                'Error while getting access groups by contact with filter',
                 ['contact_id' => $contact->getId(), 'filter' => $this->sqlRequestTranslator->getSearchValues()],
                 previous: $e
             );
@@ -272,7 +299,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
             return $accessGroups;
         } catch (\Throwable $e) {
             throw new RepositoryException(
-                "Error while getting access groups by ids : {$e->getMessage()}",
+                'Error while getting access groups by ids',
                 ['ids' => $accessGroupIds],
                 previous: $e
             );
@@ -306,7 +333,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
             return (bool) $statement->fetchColumn();
         } catch (\Throwable $e) {
             throw new RepositoryException(
-                "Error while checking access to resources : {$e->getMessage()}",
+                'Error while checking access to resources',
                 ['ids' => $accessGroupIds],
                 previous: $e
             );
@@ -333,7 +360,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
             return $statement->fetchAll(\PDO::FETCH_COLUMN);
         } catch (\Throwable $e) {
             throw new RepositoryException(
-                "Error while getting acl resources by host group id : {$e->getMessage()}",
+                'Error while getting acl resources by host group id',
                 ['hostGroupId' => $hostGroupId],
                 previous: $e
             );

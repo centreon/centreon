@@ -27,7 +27,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Class
@@ -60,7 +59,7 @@ final readonly class CountResources
     ): void {
         $response = new CountResourcesResponse();
 
-        if ($request->contact->isAdmin()) {
+        if ($request->isAdmin) {
             try {
                 $countFilteredResources = $this->readResourceRepository->countResources($request->resourceFilter);
                 $countTotalResources = $this->readResourceRepository->countResources();
@@ -70,8 +69,8 @@ final readonly class CountResources
                         message: 'An error occurred while counting resources with admin rights',
                         context: [
                             'use_case' => 'CountResources',
-                            'user_is_admin' => $request->contact->isAdmin(),
-                            'contact_id' => $request->contact->getId(),
+                            'user_is_admin' => $request->isAdmin,
+                            'contact_id' => $request->contactId,
                             'resources_filter' => $request->resourceFilter,
                         ],
                         exception: $exception
@@ -82,18 +81,15 @@ final readonly class CountResources
             }
         } else {
             try {
-                $accessGroupIds = array_map(
-                    static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
-                    $this->accessGroupRepository->findByContact($request->contact)
-                );
-                var_dump($accessGroupIds);
+                $accessGroups = $this->accessGroupRepository->findByContactId($request->contactId);
+                $accessGroupIds = $accessGroups->getIds();
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
                     new ErrorResponse(
                         message: 'An error occurred while finding access groups for the contact',
                         context: [
                             'use_case' => 'CountResources',
-                            'contact_id' => $request->contact->getId(),
+                            'contact_id' => $request->contactId,
                         ],
                         exception: $exception
                     )
@@ -114,8 +110,8 @@ final readonly class CountResources
                         message: 'An error occurred while counting resources by access group IDs',
                         context: [
                             'use_case' => 'CountResources',
-                            'user_is_admin' => $request->contact->isAdmin(),
-                            'contact_id' => $request->contact->getId(),
+                            'user_is_admin' => $request->isAdmin,
+                            'contact_id' => $request->contactId,
                             'resources_filter' => $request->resourceFilter,
                         ],
                         exception: $exception

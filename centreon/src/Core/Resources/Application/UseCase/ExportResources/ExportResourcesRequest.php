@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Resources\Application\UseCase\ExportResources;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Common\Domain\Collection\StringCollection;
 
 /**
  * Class
@@ -36,20 +36,22 @@ final readonly class ExportResourcesRequest {
     /**
      * ExportResourcesRequest constructor
      *
-     * @param ContactInterface $contact
      * @param string $exportedFormat
      * @param ResourceFilter $resourceFilter
      * @param bool $allPages
      * @param int $maxResults
-     * @param array<string> $columns
+     * @param StringCollection $columns
+     * @param int $contactId
+     * @param bool $isAdmin
      */
     public function __construct(
-        public ContactInterface $contact,
         public string $exportedFormat,
         public ResourceFilter $resourceFilter,
         public bool $allPages,
         public int $maxResults,
-        public array $columns,
+        public StringCollection $columns,
+        public int $contactId,
+        public bool $isAdmin
     )
     {}
 }

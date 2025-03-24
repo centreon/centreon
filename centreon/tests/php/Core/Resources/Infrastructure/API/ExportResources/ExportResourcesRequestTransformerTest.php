@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Resources\Infrastructure\API\ExportResources;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Resources\Infrastructure\API\ExportResources\ExportResourcesInput;
 use Core\Resources\Infrastructure\API\ExportResources\ExportResourcesRequestTransformer;
@@ -31,7 +31,9 @@ use Mockery;
 
 beforeEach(function () {
     $this->filter = Mockery::mock(ResourceFilter::class);
-    $this->contact = Mockery::mock(ContactInterface::class);
+    $this->contact = new Contact();
+    $this->contact->setId(1);
+    $this->contact->setAdmin(true);
 });
 
 it('test transform inputs to request to export resources with pagination', function () {
@@ -50,9 +52,10 @@ it('test transform inputs to request to export resources with pagination', funct
     expect($request->exportedFormat)->toBe('csv')
         ->and($request->allPages)->toBeFalse()
         ->and($request->maxResults)->toBe(0)
-        ->and($request->columns)->toBe(['status'])
+        ->and($request->columns->toArray())->toBe(['status'])
         ->and($request->resourceFilter)->toBe($this->filter)
-        ->and($request->contact)->toBe($this->contact);
+        ->and($request->contactId)->toBe(1)
+        ->and($request->isAdmin)->toBeTrue();
 });
 
 it('test transform inputs to request to export resources without pagination', function () {
@@ -71,7 +74,8 @@ it('test transform inputs to request to export resources without pagination', fu
     expect($request->exportedFormat)->toBe('csv')
         ->and($request->allPages)->toBeTrue()
         ->and($request->maxResults)->toBe(999)
-        ->and($request->columns)->toBe(['status'])
+        ->and($request->columns->toArray())->toBe(['status'])
         ->and($request->resourceFilter)->toBe($this->filter)
-        ->and($request->contact)->toBe($this->contact);
+        ->and($request->contactId)->toBe(1)
+        ->and($request->isAdmin)->toBeTrue();
 });

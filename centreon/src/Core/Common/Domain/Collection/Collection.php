@@ -168,7 +168,7 @@ abstract class Collection implements CollectionInterface
         $itemsBackup = $this->items;
         foreach ($collections as $collection) {
             if ($collection::class === static::class) {
-                foreach ($collection->all() as $key => $item) {
+                foreach ($collection->toArray() as $key => $item) {
                     $this->put($key, $item);
                 }
             } else {
@@ -187,7 +187,7 @@ abstract class Collection implements CollectionInterface
     /**
      * @return TItem[]
      */
-    public function all(): array
+    public function toArray(): array
     {
         return $this->items;
     }

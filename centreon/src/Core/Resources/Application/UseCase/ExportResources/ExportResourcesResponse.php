@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Resources\Application\UseCase\ExportResources;
 
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Core\Common\Domain\Collection\StringCollection;
 
 /**
  * Class
@@ -35,8 +36,8 @@ final class ExportResourcesResponse {
     /** @var \Traversable<ResourceEntity> */
     private \Traversable $resources;
 
-    /** @var array<string> */
-    private array $filteredColumns = [];
+    /** @var StringCollection */
+    private StringCollection $filteredColumns;
 
     /** @var string */
     private string $exportedFormat;
@@ -62,19 +63,19 @@ final class ExportResourcesResponse {
     }
 
     /**
-     * @return array<string>
+     * @return StringCollection
      */
-    public function getFilteredColumns(): array
+    public function getFilteredColumns(): StringCollection
     {
         return $this->filteredColumns;
     }
 
     /**
-     * @param array<string> $filteredColumns
+     * @param StringCollection $filteredColumns
      *
      * @return ExportResourcesResponse
      */
-    public function setFilteredColumns(array $filteredColumns): self
+    public function setFilteredColumns(StringCollection $filteredColumns): self
     {
         $this->filteredColumns = $filteredColumns;
 

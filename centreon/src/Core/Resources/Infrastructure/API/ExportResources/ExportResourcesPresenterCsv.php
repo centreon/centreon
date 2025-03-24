@@ -28,6 +28,8 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Domain\Collection\StringCollection;
+use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\CsvFormatter;
@@ -82,8 +84,15 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         }
 
         $csvResources = $this->transformToCsv($response->getResources());
-        if ($response->getFilteredColumns() !== []) {
-            $csvHeader = $this->setHeaderByFilteredColumns($response->getFilteredColumns());
+        if (! $response->getFilteredColumns()->isEmpty()) {
+            try {
+                $csvHeader = $this->getHeaderByFilteredColumns($response->getFilteredColumns());
+            } catch (CollectionException $e) {
+                $this->exceptionHandler->log($e);
+                $this->setResponseStatus(new ErrorResponse('An error occurred while filtering columns'));
+
+                return;
+            }
             $csvResources = $this->filterColumns($csvResources, $csvHeader);
         }
 
@@ -138,13 +147,14 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
     }
 
     /**
-     * @param array<string> $filteredColumns
+     * @param StringCollection $filteredColumns
      *
-     * @return array<string>
+     * @throws CollectionException
+     * @return StringCollection
      */
-    private function setHeaderByFilteredColumns(array $filteredColumns): array
+    private function getHeaderByFilteredColumns(StringCollection $filteredColumns): StringCollection
     {
-        $header = [
+        $header = StringCollection::create([
             'resource_type' => _('Resource Type'),
             'resource_name' => _('Resource Name'),
             'status' => _('Status'),
@@ -165,32 +175,35 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             'monitoring_server_name' => _('Monitoring Server'),
             'notification' => _('Notif'),
             'checks' => _('Check'),
-        ];
+        ]);
 
-        return array_filter($header, function ($key) use ($filteredColumns) {
+        /** @var string $key */
+        foreach ($header->keys() as $key) {
             // if the key is a resource or parent_resource, we keep all columns starting with this key
             if (str_starts_with($key, 'resource_')) {
                 $key = 'resource';
-            } else {
-                if (str_starts_with($key, 'parent_resource_')) {
-                    $key = 'parent_resource';
-                }
+            } elseif (str_starts_with($key, 'parent_resource_')) {
+                $key = 'parent_resource';
             }
 
-            return in_array($key, $filteredColumns, true);
-        }, ARRAY_FILTER_USE_KEY);
+            if (! $filteredColumns->contains($key)) {
+                $header->remove($key);
+            }
+        }
+
+        return $header;
     }
 
     /**
      * @param \Traversable<array<string,mixed>> $csvResources
-     * @param array<string> $columns
+     * @param StringCollection $columns
      *
      * @return \Traversable<array<string,mixed>>
      */
-    private function filterColumns(\Traversable $csvResources, array $columns): \Traversable
+    private function filterColumns(\Traversable $csvResources, StringCollection $columns): \Traversable
     {
         foreach ($csvResources as $resource) {
-            yield array_filter($resource, fn ($key) => in_array($key, $columns, true), ARRAY_FILTER_USE_KEY);
+            yield array_filter($resource, fn($key) => $columns->contains($key), ARRAY_FILTER_USE_KEY);
         }
     }
 
@@ -291,7 +304,6 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         $url = $this->replaceMacrosInUrl($url, $resource);
 
         if (! str_starts_with($url, 'http')) {
-
             $baseurl = $this->getHost(true);
 
             if (! str_starts_with($url, '/')) {

@@ -26,6 +26,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Resources\Application\UseCase\ExportResources\ExportResources;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
@@ -70,7 +71,15 @@ final class ExportResourcesController extends AbstractController
         Request $request,
         #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] ExportResourcesInput $input
     ): Response {
-        $useCaseRequest = $this->createExportRequest($request, $input);
+        try {
+            $useCaseRequest = $this->createExportRequest($request, $input);
+        } catch (TransformerException $e) {
+            $this->exceptionHandler->log($e);
+            $presenter->setResponseStatus(new ErrorResponse('Error while creating export request'));
+
+            return $presenter->show();
+        }
+
         $useCase($useCaseRequest, $presenter);
 
         // if a response status is set before iterating resources to export them, return it (in case of error)
@@ -95,6 +104,7 @@ final class ExportResourcesController extends AbstractController
      * @param Request $request
      * @param ExportResourcesInput $input
      *
+     * @throws TransformerException
      * @return ExportResourcesRequest
      */
     private function createExportRequest(Request $request, ExportResourcesInput $input): ExportResourcesRequest

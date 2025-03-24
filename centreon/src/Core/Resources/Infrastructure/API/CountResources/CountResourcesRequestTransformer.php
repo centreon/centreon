@@ -45,8 +45,9 @@ final readonly class CountResourcesRequestTransformer {
         ContactInterface $contact
     ): CountResourcesRequest {
         return new CountResourcesRequest(
-            contact: $contact,
             resourceFilter: $resourceFilter,
+            contactId: $contact->getId(),
+            isAdmin: $contact->isAdmin()
         );
     }
 }

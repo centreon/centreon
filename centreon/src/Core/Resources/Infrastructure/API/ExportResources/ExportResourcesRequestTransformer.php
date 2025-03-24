@@ -25,6 +25,9 @@ namespace Core\Resources\Infrastructure\API\ExportResources;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Common\Domain\Collection\StringCollection;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\TransformerException;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
 
 /**
@@ -39,6 +42,7 @@ final readonly class ExportResourcesRequestTransformer {
      * @param ResourceFilter $resourceFilter
      * @param ContactInterface $contact
      *
+     * @throws TransformerException
      * @return ExportResourcesRequest
      */
     public static function transform(
@@ -46,13 +50,22 @@ final readonly class ExportResourcesRequestTransformer {
         ResourceFilter $resourceFilter,
         ContactInterface $contact
     ): ExportResourcesRequest {
-        return new ExportResourcesRequest(
-            contact: $contact,
-            exportedFormat: $input->format ?? '',
-            resourceFilter: $resourceFilter,
-            allPages: (bool) $input->allPages,
-            maxResults: is_null($input->maxLines) ? 0 : (int) $input->maxLines,
-            columns: $input->columns ?? []
-        );
+        try {
+            return new ExportResourcesRequest(
+                exportedFormat: $input->format ?? '',
+                resourceFilter: $resourceFilter,
+                allPages: (bool) $input->allPages,
+                maxResults: is_null($input->maxLines) ? 0 : (int) $input->maxLines,
+                columns: is_null($input->columns) ? new StringCollection() : new StringCollection($input->columns),
+                contactId: $contact->getId(),
+                isAdmin: $contact->isAdmin()
+            );
+        } catch (CollectionException $e) {
+            throw new TransformerException(
+                'Error while transforming ExportResourcesInput to ExportResourcesRequest',
+                ['input' => $input],
+                $e
+            );
+        }
     }
 }

@@ -23,18 +23,21 @@ declare(strict_types=1);
 
 namespace Tests\Core\Resources\Infrastructure\API\CountResources;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Resources\Infrastructure\API\CountResources\CountResourcesRequestTransformer;
 use Mockery;
 
 beforeEach(function () {
     $this->filter = Mockery::mock(ResourceFilter::class);
-    $this->contact = Mockery::mock(ContactInterface::class);
+    $this->contact = new Contact();
+    $this->contact->setId(1);
+    $this->contact->setAdmin(true);
 });
 
 it('test transform inputs to request to count resources', function () {
     $request = CountResourcesRequestTransformer::transform($this->filter, $this->contact);
-    expect($request->contact)->toBe($this->contact)
+    expect($request->contactId)->toBe(1)
+        ->and($request->isAdmin)->toBeTrue()
         ->and($request->resourceFilter)->toBe($this->filter);
 });

@@ -29,7 +29,6 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Class
@@ -75,7 +74,7 @@ final readonly class ExportResources
             return;
         }
 
-        if ($request->contact->isAdmin()) {
+        if ($request->isAdmin) {
             try {
                 $resources = $this->readResourceRepository->iterateResources(
                     filter: $request->resourceFilter,
@@ -87,8 +86,8 @@ final readonly class ExportResources
                         message: 'An error occurred while iterating resources with admin rights',
                         context: [
                             'use_case' => 'ExportResources',
-                            'user_is_admin' => $request->contact->isAdmin(),
-                            'contact_id' => $request->contact->getId(),
+                            'user_is_admin' => $request->isAdmin,
+                            'contact_id' => $request->contactId,
                             'resources_filter' => $request->resourceFilter,
                         ],
                         exception: $exception
@@ -99,17 +98,15 @@ final readonly class ExportResources
             }
         } else {
             try {
-                $accessGroupIds = array_map(
-                    static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
-                    $this->accessGroupRepository->findByContact($request->contact)
-                );
+                $accessGroups = $this->accessGroupRepository->findByContactId($request->contactId);
+                $accessGroupIds = $accessGroups->getIds();
             } catch (RepositoryException $exception) {
                 $presenter->presentResponse(
                     new ErrorResponse(
                         message: 'An error occurred while finding access groups for the contact',
                         context: [
                             'use_case' => 'ExportResources',
-                            'contact_id' => $request->contact->getId(),
+                            'contact_id' => $request->contactId,
                         ],
                         exception: $exception
                     )
@@ -130,8 +127,8 @@ final readonly class ExportResources
                         message: 'An error occurred while iterating resources by access group IDs',
                         context: [
                             'use_case' => 'ExportResources',
-                            'user_is_admin' => $request->contact->isAdmin(),
-                            'contact_id' => $request->contact->getId(),
+                            'user_is_admin' => $request->isAdmin,
+                            'contact_id' => $request->contactId,
                             'resources_filter' => $request->resourceFilter,
                         ],
                         exception: $exception
@@ -156,6 +153,10 @@ final readonly class ExportResources
      */
     private function validateRequest(ExportResourcesRequest $request): ResponseStatusInterface|true
     {
+        if (! $request->contactId > 0) {
+            return new InvalidArgumentResponse('Invalid request, contact ID must be greater than 0');
+        }
+
         if (! in_array($request->exportedFormat, self::EXPORT_ALLOWED_FORMAT, true)) {
             return new InvalidArgumentResponse(
                 'Invalid request, format must be one of the following: ' . implode(', ', self::EXPORT_ALLOWED_FORMAT)

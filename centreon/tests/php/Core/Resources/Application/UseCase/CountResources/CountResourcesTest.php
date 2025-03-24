@@ -22,26 +22,20 @@ declare(strict_types=1);
 
 namespace Tests\Core\Resources\Application\UseCase\ExportResources;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\CountResources\CountResources;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesResponse;
-use Core\Resources\Application\UseCase\ExportResources\ExportResources;
-use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
-use Core\Resources\Application\UseCase\ExportResources\ExportResourcesResponse;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Collection\AccessGroupCollection;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Mockery;
 use Tests\Core\Resources\Application\UseCase\CountResources\CountResourcesPresenterStub;
 
 beforeEach(function () {
-    $this->contact = Mockery::mock(ContactInterface::class);
     $this->filters = Mockery::mock(ResourceFilter::class);
     $this->resourcesRepository = Mockery::mock(ReadResourceRepositoryInterface::class);
     $this->contactRepository = Mockery::mock(ReadAccessGroupRepositoryInterface::class);
@@ -49,14 +43,13 @@ beforeEach(function () {
 });
 
 it('count resources with an error from repository should throw an ErrorResponse', function () {
-    $this->contact->shouldReceive('isAdmin')->twice()->andReturn(true);
-    $this->contact->shouldReceive('getId')->once()->andReturn(1);
     $this->resourcesRepository
         ->shouldReceive('countResources')
         ->andThrow(Mockery::mock(RepositoryException::class));
     $request = new CountResourcesRequest(
-        contact: $this->contact,
-        resourceFilter: $this->filters
+        resourceFilter: $this->filters,
+        contactId: 1,
+        isAdmin: true
     );
     $useCase = new CountResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
@@ -64,7 +57,6 @@ it('count resources with an error from repository should throw an ErrorResponse'
 });
 
 it('count resources with admin mode should throw a response with all resources', function () {
-    $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
     $this->resourcesRepository
         ->shouldReceive('countResources')
         ->with($this->filters)
@@ -74,8 +66,9 @@ it('count resources with admin mode should throw a response with all resources',
         ->withNoArgs()
         ->andReturn(10);
     $request = new CountResourcesRequest(
-        contact: $this->contact,
-        resourceFilter: $this->filters
+        resourceFilter: $this->filters,
+        contactId: 1,
+        isAdmin: true
     );
     $useCase = new CountResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);
@@ -85,11 +78,9 @@ it('count resources with admin mode should throw a response with all resources',
 });
 
 it('count resources with acl should throw a response with allowed resources', function () {
-    $this->contact->shouldReceive('isAdmin')->once()->andReturn(false);
-    $accessGroup = new AccessGroup(1, 'test', 'test');
     $this->contactRepository
-        ->shouldReceive('findByContact')
-        ->andReturn([$accessGroup]);
+        ->shouldReceive('findByContactId')
+        ->andReturn(AccessGroupCollection::create([new AccessGroup(1, 'test', 'test')]));
     $this->resourcesRepository
         ->shouldReceive('countResourcesByAccessGroupIds')
         ->with([1], $this->filters)
@@ -99,8 +90,9 @@ it('count resources with acl should throw a response with allowed resources', fu
         ->with([1])
         ->andReturn(10);
     $request = new CountResourcesRequest(
-        contact: $this->contact,
-        resourceFilter: $this->filters
+        resourceFilter: $this->filters,
+        contactId: 1,
+        isAdmin: false
     );
     $useCase = new CountResources($this->resourcesRepository, $this->contactRepository);
     $useCase($request, $this->presenter);

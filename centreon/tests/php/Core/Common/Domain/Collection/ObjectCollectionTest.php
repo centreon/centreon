@@ -83,7 +83,7 @@ it('test merge', function () {
 it('return the array of items', function () {
     $this->collection->add(1, new \stdClass());
     $this->collection->add(2, new \stdClass());
-    expect($this->collection->all())->toBeArray()->toHaveCount(2);
+    expect($this->collection->toArray())->toBeArray()->toHaveCount(2);
 });
 
 it('add an item at the collection (add)', function () {
@@ -142,7 +142,7 @@ it('must not to remove an item and return false', function () {
 it('return an iterator', function () {
     $this->collection->add(1, new \stdClass());
     $items = iterator_to_array($this->collection->getIterator());
-    expect($items)->toEqual($this->collection->all());
+    expect($items)->toEqual($this->collection->toArray());
 });
 
 it('json serialize', function () {

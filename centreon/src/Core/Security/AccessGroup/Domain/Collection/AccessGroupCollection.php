@@ -21,27 +21,38 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Application\UseCase\CountResources;
+namespace Core\Security\AccessGroup\Domain\Collection;
 
-use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Common\Domain\Collection\ObjectCollection;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Class
  *
- * @class CountResourcesRequest
- * @package Core\Resources\Application\UseCase\CountResources
+ * @class AccessGroupCollection
+ * @package Core\Security\AccessGroup\Domain\Collection
+ * @extends ObjectCollection<AccessGroup>
  */
-final readonly class CountResourcesRequest {
+class AccessGroupCollection extends ObjectCollection
+{
     /**
-     * CountResourcesRequest constructor
+     * List all access group ids
      *
-     * @param ResourceFilter $resourceFilter
-     * @param int $contactId
-     * @param bool $isAdmin
+     * @return array<int>
      */
-    public function __construct(
-        public ResourceFilter $resourceFilter,
-        public int $contactId,
-        public bool $isAdmin
-    ) {}
+    public function getIds(): array
+    {
+        return array_map(
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
+            $this->toArray()
+        );
+    }
+
+    /**
+     * @return class-string<AccessGroup>
+     */
+    protected function itemClass(): string
+    {
+        return AccessGroup::class;
+    }
 }
