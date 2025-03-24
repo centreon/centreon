@@ -291,7 +291,11 @@ if ($form->validate()) {
 }
 
 if ($valid) {
-    require_once $path . 'listHostGroup.php';
+    ?>
+        <script type="text/javascript">
+            window.parent.location.href = './configuration/hosts/groups';
+        </script>
+    <?php
 } else {
     // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);
