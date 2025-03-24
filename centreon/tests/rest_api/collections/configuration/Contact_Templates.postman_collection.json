@@ -610,6 +610,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Contact Templates are not retrieved.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});\r",
@@ -1033,6 +1034,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Contact Templates are not retrieved.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});\r",

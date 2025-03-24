@@ -484,6 +484,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"var responseJson = pm.response.json();\r",
 									"pm.test(\"Configuration not updated.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});\r",
@@ -546,6 +547,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"var responseJson = pm.response.json();\r",
 									"pm.test(\"Configuration not updated.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});\r",

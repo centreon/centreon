@@ -572,6 +572,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"User parameters are not listed.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});\r",
@@ -637,6 +638,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Configuration not updated.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});\r",
@@ -699,6 +701,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Configuration not updated.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});\r",
@@ -1107,7 +1110,7 @@
 									"            \"user_interface_density\": { \"type\": \"string\" },\r",
 									"            \"default_page\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"            \"dashboard\": { \r",
-									"                \"type\": \"object\",\r",
+									"                \"type\": [ \"object\", \"null\" ],\r",
 									"                \"properties\": {\r",
 									"                    \"global_user_role\": { \"type\": \"string\" },\r",
 									"                    \"view_dashboards\": { \"type\": \"boolean\" },\r",
@@ -1307,7 +1310,7 @@
 									"            \"user_interface_density\": { \"type\": \"string\" },\r",
 									"            \"default_page\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"            \"dashboard\": { \r",
-									"                \"type\": \"object\",\r",
+									"                \"type\": [ \"object\", \"null\" ],\r",
 									"                \"properties\": {\r",
 									"                    \"global_user_role\": { \"type\": \"string\" },\r",
 									"                    \"view_dashboards\": { \"type\": \"boolean\" },\r",
