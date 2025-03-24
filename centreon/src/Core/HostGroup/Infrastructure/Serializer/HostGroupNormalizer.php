@@ -31,7 +31,7 @@ use Core\ResourceAccess\Domain\Model\TinyRule;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-final class HostGroupResponseNormalizer implements NormalizerInterface
+final class HostGroupNormalizer implements NormalizerInterface
 {
     use HttpUrlTrait;
 
