@@ -177,21 +177,18 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             'checks' => _('Check'),
         ]);
 
-        /** @var string $key */
-        foreach ($header->keys() as $key) {
+        return $header->filterOnKey(function ($key) use ($filteredColumns) {
             // if the key is a resource or parent_resource, we keep all columns starting with this key
             if (str_starts_with($key, 'resource_')) {
                 $key = 'resource';
-            } elseif (str_starts_with($key, 'parent_resource_')) {
-                $key = 'parent_resource';
+            } else {
+                if (str_starts_with($key, 'parent_resource_')) {
+                    $key = 'parent_resource';
+                }
             }
 
-            if (! $filteredColumns->contains($key)) {
-                $header->remove($key);
-            }
-        }
-
-        return $header;
+            return $filteredColumns->contains($key);
+        });
     }
 
     /**
