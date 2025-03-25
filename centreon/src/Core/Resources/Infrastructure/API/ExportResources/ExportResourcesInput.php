@@ -101,8 +101,7 @@ final readonly class ExportResourcesInput
         #[Assert\Json(
             message: 'search parameter must be a valid JSON'
         )]
-        public mixed $search,
-        public mixed $total,
+        public mixed $search
     ) {}
 
     #[Assert\Callback]
@@ -123,21 +122,6 @@ final readonly class ExportResourcesInput
             if ($allPages === true) {
                 $this->validateMaxLines($context);
             }
-        }
-    }
-
-    #[Assert\Callback]
-    public function validateTotal(ExecutionContextInterface $context): void
-    {
-        if (! is_null($this->total) && empty($this->total)) {
-            $context->buildViolation('total must not be empty')
-                ->atPath('total')
-                ->addViolation();
-        }
-        if (! is_null($this->total) && filter_var($this->total, FILTER_VALIDATE_INT) === false) {
-            $context->buildViolation('total must be an integer')
-                ->atPath('total')
-                ->addViolation();
         }
     }
 
