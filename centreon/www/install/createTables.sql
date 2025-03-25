@@ -1087,16 +1087,14 @@ CREATE TABLE `dependency_servicegroupParent_relation` (
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `downtime` (
-  `dt_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for a downtime entry',
-  `start_time` datetime DEFAULT NULL COMMENT 'Scheduled start time of the downtime',
-  `end_time` datetime DEFAULT NULL COMMENT 'Scheduled end time of the downtime',
-  `fixed` enum('0','1') DEFAULT '0' COMMENT 'Indicates whether the downtime is treated (fixed/confirmed = 1) or remains flexible (0)',
-  `trigger_id` int(11) DEFAULT NULL COMMENT 'Optional foreign key referencing a trigger associated with the downtime',
-  `comment` text COMMENT 'Description or comment associated with the downtime entry',
-  PRIMARY KEY (`dt_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table storing downtime entries for scheduled maintenance or service interruptions';
-
-
+  `dt_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary identifier for the downtime entry',
+  `dt_name` varchar(100) NOT NULL COMMENT 'Unique name of the downtime schedule',
+  `dt_description` varchar(255) DEFAULT NULL COMMENT 'Description of the downtime schedule',
+  `dt_activate` enum('0','1') DEFAULT '1' COMMENT 'Activation flag (1 = active, 0 = inactive)',
+  PRIMARY KEY (`dt_id`),
+  UNIQUE KEY `downtime_idx02` (`dt_name`),
+  KEY `downtime_idx01` (`dt_id`,`dt_activate`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table storing downtime definitions for scheduled maintenance or service interruptions';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
