@@ -166,7 +166,11 @@
     "phpstan:test:ci": "@phpstan:test --no-progress",
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "rector process --dry-run --debug",
-    "rector:exec": "rector process --debug"
+    "rector:exec": "rector process --debug",
+    "symfony:check": [
+      "sudo -u apache bin/console lint:yaml config src --parse-tags",
+      "sudo -u apache bin/console lint:container"
+    ]
   },
   "extra": {
     "symfony": {
