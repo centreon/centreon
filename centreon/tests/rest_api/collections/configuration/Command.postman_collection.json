@@ -2409,11 +2409,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command2Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new command \r",
-									"    var responseJson = JSON.parse(responseBody);\r",
 									"    pm.collectionVariables.set(\"Command2Id\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
@@ -2553,11 +2553,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command3Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new command \r",
-									"    var responseJson = JSON.parse(responseBody);\r",
 									"    pm.collectionVariables.set(\"Command3Id\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
