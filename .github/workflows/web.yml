@@ -359,6 +359,10 @@ jobs:
         working-directory: centreon
         shell: bash
 
+      - name: Check configuration of symfony
+        run: composer symfony:check
+        working-directory: centreon
+
       - name: Run of php-cs-fixer with strict_type
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
         working-directory: centreon
