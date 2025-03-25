@@ -67,7 +67,37 @@ it('return the keys of the collection as an array', function () {
     expect($this->collection->keys())->toEqual([1, 2]);
 });
 
-it('test merge', function () {
+it('test filter on values', function () {
+    $this->collection->add(1, 'foo');
+    $this->collection->add(2, 'bar');
+
+    $filtered = $this->collection->filterOnValue(fn($value) => $value === 'foo');
+    expect($filtered->length())->toBe(1)
+        ->and($filtered->keys())->toEqual([1])
+        ->and($filtered->get(1))->toBe('foo');
+});
+
+it('test filter on keys', function () {
+    $this->collection->add(1, 'foo');
+    $this->collection->add(2, 'bar');
+
+    $filtered = $this->collection->filterOnKey(fn($key) => $key === 1);
+    expect($filtered->length())->toBe(1)
+        ->and($filtered->keys())->toEqual([1])
+        ->and($filtered->get(1))->toBe('foo');
+});
+
+it('test filter on values and keys', function () {
+    $this->collection->add(1, 'foo');
+    $this->collection->add(2, 'bar');
+
+    $filtered = $this->collection->filterOnValueKey(fn($value, $key) => $value === 'foo' && $key === 1);
+    expect($filtered->length())->toBe(1)
+        ->and($filtered->keys())->toEqual([1])
+        ->and($filtered->get(1))->toBe('foo');
+});
+
+it('test merge string collections', function () {
     $collection1 = new StringCollection();
     $collection1->add(3, 'foo');
     $collection1->add(4, 'bar');

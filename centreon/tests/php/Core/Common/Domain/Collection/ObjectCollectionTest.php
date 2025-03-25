@@ -66,7 +66,46 @@ it('return the keys of the collection as an array', function () {
     expect($this->collection->keys())->toEqual([1, 2]);
 });
 
-it('test merge', function () {
+it('test filter on values', function () {
+    $class1 = new \stdClass();
+    $class1->value = 'foo';
+    $class2 = new \stdClass();
+    $class2->value = 'bar';
+    $this->collection->add(1, $class1);
+    $this->collection->add(2,  $class2);
+
+    $filtered = $this->collection->filterOnValue(fn($class) => $class->value === 'foo');
+    expect($filtered->length())->toBe(1)
+        ->and($filtered->get(1))->toBe($class1);
+});
+
+it('test filter on keys', function () {
+    $class1 = new \stdClass();
+    $class1->value = 'foo';
+    $class2 = new \stdClass();
+    $class2->value = 'bar';
+    $this->collection->add(1, $class1);
+    $this->collection->add(2,  $class2);
+
+    $filtered = $this->collection->filterOnKey(fn($key) => $key === 1);
+    expect($filtered->length())->toBe(1)
+        ->and($filtered->get(1))->toBe($class1);
+});
+
+it('test filter on values and keys', function () {
+    $class1 = new \stdClass();
+    $class1->value = 'foo';
+    $class2 = new \stdClass();
+    $class2->value = 'bar';
+    $this->collection->add(1, $class1);
+    $this->collection->add(2,  $class2);
+
+    $filtered = $this->collection->filterOnValueKey(fn($class, $key) => $class->value === 'foo' && $key === 1);
+    expect($filtered->length())->toBe(1)
+        ->and($filtered->get(1))->toBe($class1);
+});
+
+it('test merge object collections', function () {
     $collection1 = new ObjectCollectionStub();
     $collection1->add(3, new \stdClass());
     $collection1->add(4, new \stdClass());
