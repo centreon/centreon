@@ -304,7 +304,7 @@ function linkFieldsToStreamType(CentreonDB $pearDB, int $streamTypeId, array $fi
  */
 function insertStreams(CentreonDB $pearDB): array
 {
-    $pearDB->query("INSERT INTO cb_module VALUES (NULL, 'BBDO', NULL, NULL, 0, 1)");
+    $pearDB->query("INSERT INTO cb_module VALUES (NULL, 'BBDO', NULL, NULL, 0, 1) ON DUPLICATE KEY UPDATE name='BBDO', libname=NULL, loading_pos=NULL, is_bundle=0, is_activated=1");
     $moduleId = $pearDB->lastInsertId();
 
     $stmt = $pearDB->prepare(
