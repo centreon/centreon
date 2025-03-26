@@ -149,10 +149,8 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
 };
 
 try {
-    // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
-    // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
