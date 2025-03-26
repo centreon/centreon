@@ -481,6 +481,202 @@ it(
     }
 );
 
+it('test export resources input validation with all_pages equals to false without page and limit', function () {
+    $input = new ExportResourcesInput(
+        'csv',
+        'false',
+        null,
+        null,
+        null,
+        null,
+        '{"status_severity_code":"desc","last_status_change":"desc"}',
+        '{"$and":[]}'
+    );
+    $errors = $this->validator->validate($input);
+    expect($errors)->toHaveCount(2)
+        ->and($errors[0]->getMessage())->toBe('page is required when all_pages is false')
+        ->and($errors[1]->getMessage())->toBe('limit is required when all_pages is false');
+});
+
+it('test export resources input validation with all_pages equals to false with page and without limit', function () {
+    $input = new ExportResourcesInput(
+        'csv',
+        'false',
+        null,
+        null,
+        '1',
+        null,
+        '{"status_severity_code":"desc","last_status_change":"desc"}',
+        '{"$and":[]}'
+    );
+    $errors = $this->validator->validate($input);
+    expect($errors)->toHaveCount(1)
+        ->and($errors[0]->getMessage())->toBe('limit is required when all_pages is false');
+});
+
+it('test export resources input validation with all_pages equals to false with limit and without page', function () {
+    $input = new ExportResourcesInput(
+        'csv',
+        'false',
+        null,
+        null,
+        null,
+        '100',
+        '{"status_severity_code":"desc","last_status_change":"desc"}',
+        '{"$and":[]}'
+    );
+    $errors = $this->validator->validate($input);
+    expect($errors)->toHaveCount(1)
+        ->and($errors[0]->getMessage())->toBe('page is required when all_pages is false');
+});
+
+it(
+    'test export resources input validation with all_pages equals to false with limit and page with an invalid format for limit',
+    function () {
+        $input = new ExportResourcesInput(
+            'csv',
+            'false',
+            null,
+            null,
+            '1',
+            'toto',
+            '{"status_severity_code":"desc","last_status_change":"desc"}',
+            '{"$and":[]}'
+        );
+        $errors = $this->validator->validate($input);
+        expect($errors)->toHaveCount(1)
+            ->and($errors[0]->getMessage())->toBe('limit must be an integer');
+    }
+);
+
+it(
+    'test export resources input validation with all_pages equals to false with limit and page with an invalid format for page',
+    function () {
+        $input = new ExportResourcesInput(
+            'csv',
+            'false',
+            null,
+            null,
+            'toto',
+            '100',
+            '{"status_severity_code":"desc","last_status_change":"desc"}',
+            '{"$and":[]}'
+        );
+        $errors = $this->validator->validate($input);
+        expect($errors)->toHaveCount(1)
+            ->and($errors[0]->getMessage())->toBe('page must be an integer');
+    }
+);
+
+it('test export resources input validation with all_pages equals to false with valid limit and page', function () {
+    $input = new ExportResourcesInput(
+        'csv',
+        'false',
+        null,
+        null,
+        '1',
+        '100',
+        '{"status_severity_code":"desc","last_status_change":"desc"}',
+        '{"$and":[]}'
+    );
+    $errors = $this->validator->validate($input);
+    expect($errors)->toHaveCount(0);
+});
+
+it(
+    'test export resources input validation with all_pages equals to true without pagination and without max_lines',
+    function () {
+        $input = new ExportResourcesInput(
+            'csv',
+            'true',
+            null,
+            null,
+            null,
+            null,
+            '{"status_severity_code":"desc","last_status_change":"desc"}',
+            '{"$and":[]}'
+        );
+        $errors = $this->validator->validate($input);
+        expect($errors)->toHaveCount(1)
+            ->and($errors[0]->getMessage())->toBe('max_lines is required when all_pages is true');
+    }
+);
+
+it(
+    'test export resources input validation with all_pages equals to true without pagination and with an invalid max_lines',
+    function () {
+        $input = new ExportResourcesInput(
+            'csv',
+            'true',
+            null,
+            'toto',
+            null,
+            null,
+            '{"status_severity_code":"desc","last_status_change":"desc"}',
+            '{"$and":[]}'
+        );
+        $errors = $this->validator->validate($input);
+        expect($errors)->toHaveCount(2)
+            ->and($errors[0]->getMessage())->toBe('max_lines must be an integer')
+            ->and($errors[1]->getMessage())->toBe('max_lines must be less than or equal to 10000');
+    }
+);
+
+it(
+    'test export resources input validation with all_pages equals to true without pagination and with a max_lines greather than 10000',
+    function () {
+        $input = new ExportResourcesInput(
+            'csv',
+            'true',
+            null,
+            '12000',
+            null,
+            null,
+            '{"status_severity_code":"desc","last_status_change":"desc"}',
+            '{"$and":[]}'
+        );
+        $errors = $this->validator->validate($input);
+        expect($errors)->toHaveCount(1)
+            ->and($errors[0]->getMessage())->toBe('max_lines must be less than or equal to 10000');
+    }
+);
+
+it(
+    'test export resources input validation with all_pages equals to true without pagination and with a valid max_lines',
+    function () {
+        $input = new ExportResourcesInput(
+            'csv',
+            'true',
+            null,
+            '100',
+            null,
+            null,
+            '{"status_severity_code":"desc","last_status_change":"desc"}',
+            '{"$and":[]}'
+        );
+        $errors = $this->validator->validate($input);
+        expect($errors)->toHaveCount(0);
+    }
+);
+
+it(
+    'test export resources input validation with all_pages equals to true with pagination (should be ignored) and with a valid max_lines',
+    function () {
+        $input = new ExportResourcesInput(
+            'csv',
+            'true',
+            null,
+            '100',
+            '1',
+            '100',
+            '{"status_severity_code":"desc","last_status_change":"desc"}',
+            '{"$and":[]}'
+        );
+        $errors = $this->validator->validate($input);
+        expect($errors)->toHaveCount(0);
+    }
+);
+
 // columns parameter
 
 it('test export resources input validation with no columns', function () {

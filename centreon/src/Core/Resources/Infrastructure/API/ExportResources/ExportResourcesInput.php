@@ -117,7 +117,12 @@ final readonly class ExportResourcesInput
                 ->atPath('all_pages')
                 ->addViolation();
         } else {
-            $allPages = (bool) $this->allPages;
+            $allPages = filter_var($this->allPages, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if (is_null($allPages)) {
+                $context->buildViolation('all_pages parameter must be a boolean')
+                    ->atPath('all_pages')
+                    ->addViolation();
+            }
             $this->validatePaginationByAllPages($context, $allPages);
             if ($allPages === true) {
                 $this->validateMaxLines($context);
@@ -147,19 +152,7 @@ final readonly class ExportResourcesInput
                 ->addViolation();
         }
 
-        if ($allPages) {
-            if (! is_null($this->page)) {
-                $context->buildViolation('page is not allowed when all_pages is true')
-                    ->atPath('page')
-                    ->addViolation();
-            }
-
-            if (! is_null($this->limit)) {
-                $context->buildViolation('limit is not allowed when all_pages is true')
-                    ->atPath('limit')
-                    ->addViolation();
-            }
-        } else {
+        if (!$allPages) {
             if (is_null($this->page)) {
                 $context->buildViolation('page is required when all_pages is false')
                     ->atPath('page')
