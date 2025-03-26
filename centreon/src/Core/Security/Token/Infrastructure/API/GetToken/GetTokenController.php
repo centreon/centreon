@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Core\Security\Token\Application\UseCase\GetToken\GetToken;
+use Core\Security\Token\Infrastructure\Voter\TokenVoters;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -34,7 +35,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class GetTokenController extends AbstractController
 {
     #[IsGranted(
-        'token_list',
+        TokenVoters::TOKEN_LIST,
         'userId',
         'You are not allowed to access API tokens',
         Response::HTTP_FORBIDDEN

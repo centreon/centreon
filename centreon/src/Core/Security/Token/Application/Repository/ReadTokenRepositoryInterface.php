@@ -108,5 +108,5 @@ interface ReadTokenRepositoryInterface
      *
      * @return string|null
      */
-    public function findTokenString(string $tokenName,int $userId): ?string;
+    public function findTokenString(string $tokenName, int $userId): ?string;
 }
