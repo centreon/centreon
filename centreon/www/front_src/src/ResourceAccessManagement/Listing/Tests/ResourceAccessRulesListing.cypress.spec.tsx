@@ -299,8 +299,6 @@ describe('Listing row actions: Delete button', () => {
     cy.findByText(labelDeleteResourceAccessRuleWarning).should('not.exist');
     cy.findByTestId(labelCancel).should('not.exist');
     cy.findByLabelText(labelDelete).should('not.exist');
-
-    cy.makeSnapshot();
   });
 
   it('displays a success message after successful deletion', () => {
@@ -313,8 +311,6 @@ describe('Listing row actions: Delete button', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findByText(labelResourceAccessRuleDeletedSuccess).should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('displays an error message upon failed deletion', () => {
@@ -335,8 +331,6 @@ describe('Listing row actions: Delete button', () => {
     cy.waitForRequest('@deleteResourceAccessRuleFailedRequest');
 
     cy.findByText('internal server error').should('be.visible');
-
-    cy.makeSnapshot();
   });
 });
 
@@ -367,8 +361,6 @@ describe('Listing row actions enable-disable action', () => {
     cy.waitForRequest('@activateRuleRequest');
 
     cy.findByText('internal server error').should('be.visible');
-
-    cy.makeSnapshot();
   });
 });
 
@@ -396,8 +388,6 @@ describe('Listing header actions: mass delete', () => {
     cy.findByTestId(labelDeleteMultipleResourceAccessRules).should(
       'be.not.disabled'
     );
-
-    cy.makeSnapshot();
   });
 
   it('displays a confirmation dialog when multiple delete button is clicked', () => {
@@ -412,8 +402,6 @@ describe('Listing header actions: mass delete', () => {
     cy.findByText(labelDeleteResourceAccessRulesWarning).should('be.visible');
     cy.findByText(labelDelete).should('be.visible');
     cy.findByText(labelCancel).should('be.visible');
-
-    cy.makeSnapshot();
 
     cy.findByText(labelCancel).click();
   });
