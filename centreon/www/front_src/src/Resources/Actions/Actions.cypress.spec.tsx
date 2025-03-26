@@ -134,25 +134,6 @@ const anomalyDetection = {
   type: 'anomaly-detection'
 };
 
-const allColumns = [
-  'status',
-  'resource',
-  'parent_resource',
-  'duration',
-  'tries',
-  'last_check',
-  'information',
-  'severity',
-  'notes_url',
-  'action_url',
-  'state',
-  'alias',
-  'parent_alias',
-  'fqdn',
-  'monitoring_server_name',
-  'notification',
-  'checks'
-];
 const visibleColumns = [
   'resource',
   'parent_resource',
