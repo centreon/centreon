@@ -458,6 +458,146 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findRuleByResourceId(string $type, int $resourceId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    SELECT
+                        acl_groups.acl_group_id AS `id`,
+                        acl_groups.acl_group_name AS `name`,
+                        acl_groups.cloud_description AS `description`,
+                        acl_groups.acl_group_activate AS `is_enabled`
+                    FROM `:db`.acl_groups
+                    INNER JOIN `:db`.dataset_filters
+                        ON dataset_filters.acl_group_id = acl_groups.acl_group_id
+                        AND (
+                            type = :type
+                            OR type = 'all'
+                        )
+                        AND (
+                            dataset_filters.resource_ids = ''
+                            OR dataset_filters.resource_ids REGEXP('(^|,)({$resourceId})(,|$)')
+                        )
+                    WHERE acl_groups.cloud_specific = 1
+                SQL
+        ));
+
+        $statement->bindValue(':type', $type, \PDO::PARAM_STR);
+        $statement->execute();
+
+        $rules = [];
+
+        foreach ($statement as $data) {
+            /** @var _TinyRule $data */
+            $rules[] = $this->createTinyRuleFromArray($data);
+        }
+
+        return $rules;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findRuleByResourceIdAndContactId(string $type, int $resourceId, int $userId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    SELECT
+                        acl_groups.acl_group_id AS `id`,
+                        acl_groups.acl_group_name AS `name`,
+                        acl_groups.cloud_description AS `description`,
+                        acl_groups.acl_group_activate AS `is_enabled`
+                    FROM `:db`.acl_groups
+                    INNER JOIN `:db`.dataset_filters
+                        ON dataset_filters.acl_group_id = acl_groups.acl_group_id
+                        AND type = :type
+                        AND dataset_filters.resource_ids REGEXP('(^|,)({$resourceId})(,|$)')
+                    WHERE acl_groups.cloud_specific = 1
+                        AND (
+                            all_contacts = 1
+                            OR acl_groups.acl_group_id IN (
+                                SELECT agcr.acl_group_id
+                                FROM `:db`.acl_group_contacts_relations agcr
+                                WHERE agcr.contact_contact_id = :userId
+                            )
+                        )
+                SQL
+        ));
+
+        $statement->bindValue(':type', $type, \PDO::PARAM_STR);
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_STR);
+        $statement->execute();
+
+        $rules = [];
+
+        foreach ($statement as $data) {
+            /** @var _TinyRule $data */
+            $rules[] = $this->createTinyRuleFromArray($data);
+        }
+
+        return $rules;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findRuleByResourceIdAndContactGroups(string $type, int $resourceId, array $contactGroups): array
+    {
+        if ($contactGroups === []) {
+            return [];
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+            array_map(
+                fn (ContactGroup $contactGroup) => $contactGroup->getId(),
+                $contactGroups
+            ),
+            ':contactgroup_'
+        );
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    SELECT
+                        acl_groups.acl_group_id AS `id`,
+                        acl_groups.acl_group_name AS `name`,
+                        acl_groups.cloud_description AS `description`,
+                        acl_groups.acl_group_activate AS `is_enabled`
+                    FROM `:db`.acl_groups
+                    INNER JOIN `:db`.dataset_filters
+                        ON dataset_filters.acl_group_id = acl_groups.acl_group_id
+                        AND type = :type
+                        AND dataset_filters.resource_ids REGEXP('(^|,)({$resourceId})(,|$)')
+                    WHERE acl_groups.cloud_specific = 1
+                        AND (
+                            all_contact_groups = 1
+                            OR acl_groups.acl_group_id IN (
+                                SELECT agcgr.acl_group_id
+                                FROM `:db`.acl_group_contactgroups_relations agcgr
+                                WHERE agcgr.cg_cg_id IN ({$bindQuery})
+                            )
+                        )
+                SQL
+        ));
+
+        $statement->bindValue(':type', $type, \PDO::PARAM_STR);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $rules = [];
+
+        foreach ($statement as $data) {
+            /** @var _TinyRule $data */
+            $rules[] = $this->createTinyRuleFromArray($data);
+        }
+
+        return $rules;
+    }
+
+    /**
      * @param int $ruleId
      *
      * @return int[]

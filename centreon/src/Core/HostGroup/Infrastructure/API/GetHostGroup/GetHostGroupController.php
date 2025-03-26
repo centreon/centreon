@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\HostGroup\Infrastructure\API\FindHostGroups;
+namespace Core\HostGroup\Infrastructure\API\GetHostGroup;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\HostGroup\Application\UseCase\FindHostGroups\FindHostGroups;
+use Core\HostGroup\Application\UseCase\GetHostGroup\GetHostGroup;
 use Core\HostGroup\Infrastructure\Voters\HostGroupVoters;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,18 +38,23 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
     'You are not allowed to access host groups',
     Response::HTTP_FORBIDDEN
 )]
-final class FindHostGroupsController extends AbstractController
+final class GetHostGroupController extends AbstractController
 {
     public function __invoke(
-        FindHostGroups $useCase,
-        StandardPresenter $presenter
+        int $hostGroupId,
+        GetHostGroup $useCase,
+        StandardPresenter $presenter,
+        bool $isCloudPlatform,
     ): Response {
-        $response = $useCase();
+        $response = $useCase($hostGroupId);
 
         if ($response instanceof ResponseStatusInterface) {
             return $this->createResponse($response);
         }
 
-        return JsonResponse::fromJsonString($presenter->present($response, ['groups' => ['HostGroup:List']]));
+        return JsonResponse::fromJsonString($presenter->present(
+            $response,
+            ['groups' => ['HostGroup:Get'], 'is_cloud_platform' => $isCloudPlatform]
+        ));
     }
 }

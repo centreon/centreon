@@ -178,4 +178,14 @@ interface ReadHostRepositoryInterface
      * @return SimpleEntity[]
      */
     public function findByHostGroup(int $hostGroupId): array;
+
+    /**
+     * @param int $hostGroupId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return SimpleEntity[]
+     */
+    public function findByHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): array;
 }
