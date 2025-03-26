@@ -161,8 +161,6 @@ describe('Resource Access Rules Listing', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.contains('rule1').should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('executes a get resource access rules request after updating limit param', () => {
@@ -185,8 +183,6 @@ describe('Resource Access Rules Listing', () => {
     });
 
     cy.contains('rule1').should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('executes a listing request with an updated page parameter when change page action is clicked', () => {
@@ -217,8 +213,6 @@ describe('Resource Access Rules Listing', () => {
     });
 
     cy.contains('rule1').should('be.visible');
-
-    cy.makeSnapshot();
   });
 });
 
@@ -246,10 +240,6 @@ describe('column sorting', () => {
       });
 
       cy.contains('rule1').should('be.visible');
-
-      cy.makeSnapshot(
-        `column sorting --  executes a listing request when ${label} column is clicked`
-      );
     });
   });
 });
@@ -289,8 +279,6 @@ describe('Listing row actions: Delete button', () => {
     cy.findByText(labelDeleteResourceAccessRuleWarning).should('be.visible');
     cy.findByTestId(labelCancel).should('be.visible');
     cy.findByLabelText(labelDelete).should('be.visible');
-
-    cy.makeSnapshot();
     cy.findByTestId(labelCancel).click();
   });
 
