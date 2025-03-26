@@ -1,6 +1,6 @@
 name: columns
 in: query
-description: Columns to include in the export
+description: Columns to include in the export (ex columns[]=status&columns[]=resource)
 required: false
 schema:
   type: array
