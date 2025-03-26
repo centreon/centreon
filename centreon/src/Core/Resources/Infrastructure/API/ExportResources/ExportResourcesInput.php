@@ -122,10 +122,11 @@ final readonly class ExportResourcesInput
                 $context->buildViolation('all_pages parameter must be a boolean')
                     ->atPath('all_pages')
                     ->addViolation();
-            }
-            $this->validatePaginationByAllPages($context, $allPages);
-            if ($allPages === true) {
-                $this->validateMaxLines($context);
+            } else {
+                $this->validatePaginationByAllPages($context, $allPages);
+                if ($allPages === true) {
+                    $this->validateMaxLines($context);
+                }
             }
         }
     }
