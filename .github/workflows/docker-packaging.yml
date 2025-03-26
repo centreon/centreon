@@ -58,6 +58,9 @@ jobs:
           - runner: ubuntu-24.04
             dockerfile: packaging-nfpm-jammy
             image: packaging-nfpm-jammy
+          - runner: ubuntu-24.04
+            dockerfile: packaging-nfpm-noble
+            image: packaging-nfpm-noble
           - runner: centreon-collect-arm64
             dockerfile: packaging-bullseye
             image: packaging-bullseye-arm64
