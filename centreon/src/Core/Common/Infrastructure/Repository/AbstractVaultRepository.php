@@ -24,10 +24,16 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Application\UseCase\VaultTrait;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Symfony\Component\HttpClient\AmpHttpClient;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 
 abstract class AbstractVaultRepository
 {
@@ -62,7 +68,7 @@ abstract class AbstractVaultRepository
 
     public function __construct(
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
-        protected HttpClientInterface $httpClient
+        protected AmpHttpClient $httpClient
     ) {
         $this->vaultConfiguration = $configurationRepository->find();
     }
@@ -214,5 +220,74 @@ abstract class AbstractVaultRepository
         }
 
         return $response->toArray();
+    }
+
+    /**
+     *
+     * @param string $method
+     * @param array<string, string> $urls urls indexed by ResourceUUID
+     * @param null|array $data
+     * @return array<string, array<string,string>> vault content indexed by ResourceUUID
+     * @throws \Exception
+     * @throws \Error
+     * @throws TransportExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws ServerExceptionInterface
+     */
+    protected function sendMultiplexedRequest(string $method, array $urls, ?array $data = null): array
+    {
+            $clientToken = $this->getAuthenticationToken();
+            $options = [
+                'headers' => ['X-Vault-Token' => $clientToken],
+            ];
+            if ($method === 'POST') {
+                $options['json'] = ['data' => $data];
+            }
+
+            $responses = [];
+            $responseData = [];
+            foreach ($urls as $uuid => $url) {
+                $responseData[$uuid] = [];
+                try {
+                    $responses[] = $this->httpClient->request($method, $url, $options);
+                } catch (TransportExceptionInterface $ex) {
+                    $this->error(
+                        'Error while sending multiplexed request to vault, process continue',
+                        ['url' => $url, 'exception' => $ex,]
+                    );
+
+                    continue;
+
+                }
+            }
+
+            foreach ($this->httpClient->stream($responses) as $response => $chunk) {
+                try {
+                    if ($chunk->isFirst()) {
+                        if ($response->getStatusCode() !== Response::HTTP_OK) {
+                            $this->error('Error HTTP CODE:' . $response->getStatusCode());
+                            continue;
+                        }
+                    }
+                    if ($chunk->isLast()) {
+                        foreach (array_keys($responseData) as $uuid) {
+                            if (strpos($response->getInfo('url'), $uuid) !== false) {
+                                $responseData[$uuid] = $response->toArray();
+                            }
+                        }
+                    }
+                } catch (\Exception $ex) {
+                    $this->error(
+                        'Error while processing multiplexed request to vault, process continue',
+                        ['exception' => $ex,]
+                    );
+
+                    continue;
+                }
+            }
+
+            return $responseData;
     }
 }

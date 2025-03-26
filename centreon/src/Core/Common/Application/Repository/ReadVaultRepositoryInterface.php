@@ -44,6 +44,14 @@ interface ReadVaultRepositoryInterface
     public function findFromPath(string $path): array;
 
     /**
+     * Get Vault content from given paths.
+     *
+     * @param array<int, string> $paths List of paths to get indexed by resource ID.
+     * @return array<int, array<string,string>> Vault content indexed by resource ID.
+     */
+    public function findFromPaths(array $paths): array;
+
+    /**
      * Test a vault configuration validity.
      *
      * @param VaultConfiguration|NewVaultConfiguration $vaultConfiguration

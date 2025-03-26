@@ -25,12 +25,13 @@ namespace Core\Common\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
 use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRepositoryInterface
 {
-    use LoggerTrait;
+    use LoggerTrait, VaultTrait;
 
     /**
      * @inheritDoc
@@ -57,6 +58,46 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
         }
 
         return [];
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * This method will use multiplexing to get the content of multiple paths at once. and enhance performance for the
+     * case of thousands of paths.
+     */
+    public function findFromPaths(array $paths): array
+    {
+        if ($this->vaultConfiguration === null) {
+            throw new \LogicException('Vault not configured');
+        }
+        $urls = [];
+        foreach ($paths as $resourceId => $path) {
+                $customPathElements = explode('::', $path);
+                $uuid = $this->getUuidFromPath($path);
+                // remove vault key from path
+                array_pop($customPathElements);
+
+                // Keep only the uri from the path
+                $customPath = end($customPathElements);
+                $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
+                    . '/v1/' . $customPath;
+                $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
+                $urls[$uuid] = $url;
+        }
+        $responses = $this->sendMultiplexedRequest('GET', $urls);
+        $vaultData = [];
+        foreach ($responses as $uuid => $response) {
+                foreach ($paths as $resourceId => $path) {
+                    if (strpos($path, $uuid) !== false) {
+
+                        $data = $response['data']['data'];
+                        $vaultData[$resourceId] = $data;
+                    }
+                }
+        }
+
+        return $vaultData;
     }
 
     public function testVaultConnection(VaultConfiguration|NewVaultConfiguration $vaultConfiguration): bool

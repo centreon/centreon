@@ -18,6 +18,7 @@
     "ext-posix": "*",
     "ext-simplexml": "*",
     "ext-zip": "*",
+    "amphp/http-client": "^4.6",
     "beberlei/assert": "^3.3",
     "curl/curl": "^2.3",
     "doctrine/annotations": "^1.0",

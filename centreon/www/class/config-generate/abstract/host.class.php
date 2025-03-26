@@ -188,36 +188,8 @@ abstract class AbstractHost extends AbstractObject
             return 1;
         }
 
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
-
-        if (is_null($this->stmt_macro)) {
-            $this->stmt_macro = $this->backend_instance->db->prepare("SELECT
-              host_macro_name, host_macro_value, is_password
-            FROM on_demand_macro_host
-            WHERE host_host_id = :host_id
-            ");
-        }
-        $this->stmt_macro->bindParam(':host_id', $host['host_id'], PDO::PARAM_INT);
-        $this->stmt_macro->execute();
-        $macros = $this->stmt_macro->fetchAll(PDO::FETCH_ASSOC);
-
-        $host['macros'] = [];
-        foreach ($macros as $macro) {
-            $hostMacroName = preg_replace(
-                '/\$_HOST(.*)\$/',
-                '_$1',
-                $macro['host_macro_name']);
-            $host['macros'][$hostMacroName] = $macro['host_macro_value'];
-        }
-        if (! is_null($host['host_snmp_community']) && $host['host_snmp_community'] !== '') {
-                $host['macros']['_SNMPCOMMUNITY'] = $host['host_snmp_community'];
-        }
-        if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
-            $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
-        }
-
+        $host['macros'] = Macro::getInstance($this->dependencyInjector)
+            ->getHostMacroByHostId($host['host_id']);
         return 0;
     }
 
