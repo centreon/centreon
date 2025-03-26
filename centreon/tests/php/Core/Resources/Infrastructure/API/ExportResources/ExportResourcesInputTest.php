@@ -76,8 +76,7 @@ it('test export resources input validation with an invalid type for format', fun
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -118,7 +117,7 @@ it('test export resources input validation with a valid format', function () {
 // sort_by parameter
 
 it('test export resources input validation with no sort_by', function () {
-    $input = new ExportResourcesInput('csv', '0', null, null, '1', '100', null, '{"$and":[]}', null);
+    $input = new ExportResourcesInput('csv', '0', null, null, '1', '100', null, '{"$and":[]}');
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
         ->and($errors[0]->getMessage())->toBe('sort_by parameter is required')
@@ -126,14 +125,14 @@ it('test export resources input validation with no sort_by', function () {
 });
 
 it('test export resources input validation with an empty sort_by', function () {
-    $input = new ExportResourcesInput('csv', '0', null, null, '1', '100', '', '{"$and":[]}', null);
+    $input = new ExportResourcesInput('csv', '0', null, null, '1', '100', '', '{"$and":[]}');
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('sort_by parameter must not be empty');
 });
 
 it('test export resources input validation with an invalid value for sort_by', function () {
-    $input = new ExportResourcesInput('csv', '0', null, null, '1', '100', 'toto', '{"$and":[]}', null);
+    $input = new ExportResourcesInput('csv', '0', null, null, '1', '100', 'toto', '{"$and":[]}');
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
         ->and($errors[0]->getMessage())->toBe('sort_by parameter must be a valid JSON');
