@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Core\Security\Token\Application\UseCase\GetToken\GetToken;
-use Core\Security\Token\Infrastructure\Voter\TokenVoters;
+use Core\Security\Token\Infrastructure\Voters\TokenVoters;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
