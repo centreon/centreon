@@ -207,7 +207,7 @@ const Listing = <
     columnConfiguration,
     columns
   });
-  const { dataStyle, getGridTemplateColumn } = useStyleTable({
+  const { dataStyle, gridTemplateColumn } = useStyleTable({
     checkable,
     currentVisibleColumns,
     listingVariant
@@ -291,7 +291,7 @@ const Listing = <
 
   const { classes } = useListingStyles({
     dataStyle,
-    getGridTemplateColumn,
+    gridTemplateColumn,
     isResponsive,
     rows: rowsToDisplay
   });

@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isNil, pick, type } from 'ramda';
+import { equals, isNil, pick, type, update } from 'ramda';
 import { CSSObject } from 'tss-react';
 
 import { Theme } from '@mui/material';
@@ -19,7 +19,7 @@ interface TableStyle {
 
 interface TableStyleState {
   dataStyle: Style;
-  getGridTemplateColumn: string;
+  gridTemplateColumn: string;
 }
 
 const isCompactMode = equals<ListingVariant | undefined>(
@@ -49,25 +49,42 @@ const useStyleTable = ({
 
   const updateStyleTable = useSetAtom(tableStyleDerivedAtom);
 
-  const getGridTemplateColumn = (): string => {
+  const gridTemplateColumn = useMemo((): string => {
     const checkbox = checkable ? 'fit-content(1rem) ' : ''; // SelectAction (checkbox) cell adjusts to content
 
-    const columnTemplate = currentVisibleColumns
-      ?.filter((column) => column)
-      ?.map(({ width, shortLabel }) => {
-        if (!isNil(shortLabel)) {
-          return 'min-content';
-        }
-        if (isNil(width)) {
-          return 'auto';
-        }
+    const columnTemplate: Array<string> =
+      currentVisibleColumns
+        ?.filter((column) => column)
+        ?.map(({ width, shortLabel }) => {
+          if (!isNil(shortLabel)) {
+            return 'min-content';
+          }
+          if (isNil(width)) {
+            return 'auto';
+          }
 
-        return equals(type(width), 'Number') ? `${width}px` : width;
-      })
-      .join(' ');
+          return (
+            equals(type(width), 'Number') ? `${width}px` : width
+          ) as string;
+        }) || [];
 
-    return `${checkbox}${columnTemplate}`;
-  };
+    const hasOnlyNonContainerResponsiveColumns = columnTemplate.every(
+      (width: string) =>
+        !width.includes('auto') || !width.includes('fr') || !width.includes('%')
+    );
+
+    if (hasOnlyNonContainerResponsiveColumns) {
+      const fixedColumnTemplate = update(
+        columnTemplate.length - 1,
+        'auto',
+        columnTemplate
+      );
+
+      return `${checkbox}${fixedColumnTemplate.join(' ')}`;
+    }
+
+    return `${checkbox}${columnTemplate.join(' ')}`;
+  }, [checkable, currentVisibleColumns]);
 
   useEffect(() => {
     if (listingVariant) {
@@ -77,7 +94,7 @@ const useStyleTable = ({
 
   return {
     dataStyle,
-    getGridTemplateColumn: getGridTemplateColumn()
+    gridTemplateColumn: gridTemplateColumn
   };
 };
 
