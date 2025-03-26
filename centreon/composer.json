@@ -167,9 +167,17 @@
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "rector process --dry-run --debug",
     "rector:exec": "rector process --debug",
+    "symfony:check:yaml:ci": "bin/console lint:yaml config src --parse-tags",
+    "symfony:check:container:ci": "bin/console lint:container",
+    "symfony:check:ci": [
+      "@symfony:check:yaml:ci",
+      "@symfony:check:container:ci"
+    ],
+    "symfony:check:yaml": "sudo -u apache bin/console lint:yaml config src --parse-tags",
+    "symfony:check:container": "sudo -u apache bin/console lint:container",
     "symfony:check": [
-      "sudo -u apache bin/console lint:yaml config src --parse-tags",
-      "sudo -u apache bin/console lint:container"
+      "@symfony:check:yaml",
+      "@symfony:check:container"
     ]
   },
   "extra": {
