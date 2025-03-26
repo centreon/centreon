@@ -27,13 +27,52 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 $errorMessage = '';
 
-// TODO add your functions here
+// -------------------------------------------- Host Group Configuration -------------------------------------------- //
+
+/**
+ * Update topology for host group configuration pages.
+ *
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ */
+$updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve data from topology table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `topology`
+            WHERE `topology_name` = 'Host Groups'
+                AND `topology_page` = 60105
+        SQL
+    );
+    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
+
+    if (! $topologyAlreadyExists) {
+        $errorMessage = 'Unable to insert new host group configuration topology';
+        $pearDB->executeQuery(
+            <<<'SQL'
+                INSERT INTO `topology` (`topology_name`,`topology_url`,`readonly`,`is_react`,`topology_parent`,`topology_page`,`topology_order`,`topology_group`,`topology_show`)
+                VALUES ('Host Groups', '/configuration/hosts/groups', '1', '1', 601, 60105,21,1,'1')
+            SQL
+        );
+    }
+
+    $errorMessage = 'Unable to update old host group configuration topology';
+    $pearDB->executeQuery(
+        <<<'SQL'
+            UPDATE `topology`
+            SET `topology_name` = 'Host Groups (deprecated)',
+                `topology_show` =  '0'
+            WHERE `topology_page` = 60102
+        SQL
+    );
+};
+
+
 
 try {
-    // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
-    // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
@@ -41,7 +80,7 @@ try {
         $pearDB->beginTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
+    $updateTopologyForHostGroup($pearDB);
 
     $pearDB->commit();
 
