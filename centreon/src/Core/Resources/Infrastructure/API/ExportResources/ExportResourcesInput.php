@@ -152,7 +152,7 @@ final readonly class ExportResourcesInput
                 ->addViolation();
         }
 
-        if (!$allPages) {
+        if (! $allPages) {
             if (is_null($this->page)) {
                 $context->buildViolation('page is required when all_pages is false')
                     ->atPath('page')
