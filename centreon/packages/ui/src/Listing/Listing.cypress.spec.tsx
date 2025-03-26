@@ -227,8 +227,8 @@ describe('Listing', () => {
 
       cy.contains('Sub Item 0').realHover();
 
-      cy.get('[data-isHovered="true"]').should('have.length', 1);
-      cy.get('[data-isHovered="true"]').contains('Sub Item 0').should('exist');
+      cy.get('[data-is-hovered="true"]').should('have.length', 1);
+      cy.get('[data-is-hovered="true"]').contains('Sub Item 0').should('exist');
 
       cy.findByLabelText('Collapse 0').click();
       cy.findByLabelText('Collapse 2').click();

@@ -3,15 +3,20 @@ import { useEffect } from 'react';
 import {
   UseMutationOptions,
   UseMutationResult,
-  useMutation
+  useMutation,
+  useQueryClient
 } from '@tanstack/react-query';
-import { includes, omit } from 'ramda';
+import { equals, includes, omit, type } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
 import { CatchErrorProps, ResponseError, customFetch } from '../customFetch';
 import { errorLog } from '../logger';
+import {
+  OptimisticListing,
+  useOptimisticMutation
+} from './useOptimisticMutation';
 
 export enum Method {
   DELETE = 'DELETE',
@@ -46,6 +51,7 @@ export type UseMutationQueryProps<T, TMeta> = {
     variables: Variables<TMeta, T>,
     context: unknown
   ) => unknown;
+  optimisticListing?: OptimisticListing;
 } & Omit<
   UseMutationOptions<{ _meta?: TMeta; payload: T }>,
   'mutationFn' | 'onError' | 'onMutate' | 'onSuccess' | 'mutateAsync' | 'mutate'
@@ -79,9 +85,14 @@ const useMutationQuery = <T extends object, TMeta>({
   onError,
   onSuccess,
   onSettled,
-  baseEndpoint
+  baseEndpoint,
+  optimisticListing
 }: UseMutationQueryProps<T, TMeta>): UseMutationQueryState<T, TMeta> => {
   const { showErrorMessage } = useSnackbar();
+
+  const queryClient = useQueryClient();
+  const { getListingQueryKey, getOptimisticMutationItems, getPreviousListing } =
+    useOptimisticMutation({ optimisticListing });
 
   const queryData = useMutation<
     T | ResponseError,
@@ -100,7 +111,7 @@ const useMutationQuery = <T extends object, TMeta>({
         defaultFailureMessage,
         endpoint: getEndpoint(_meta as TMeta),
         headers: new Headers({
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           ...fetchHeaders
         }),
         isMutation: true,
@@ -108,11 +119,57 @@ const useMutationQuery = <T extends object, TMeta>({
         payload
       });
     },
-    onError,
-    onMutate,
+    onError: (error, variables, context) => {
+      if (optimisticListing?.enabled) {
+        const listingQueryKey = getListingQueryKey();
+        queryClient.setQueriesData(
+          { queryKey: listingQueryKey },
+          context.previousListing
+        );
+      }
+
+      onError?.(error, variables, context);
+    },
+    onMutate: optimisticListing?.enabled
+      ? ({ payload, _meta }) => {
+          const listingQueryKey = getListingQueryKey();
+          const newListing = getOptimisticMutationItems({
+            method,
+            payload,
+            _meta
+          });
+          const previousListing = getPreviousListing();
+
+          queryClient.setQueriesData({ queryKey: listingQueryKey }, newListing);
+
+          return { previousListing };
+        }
+      : onMutate,
     onSettled,
     onSuccess: (data, variables, context) => {
+      if (optimisticListing?.enabled) {
+        const isQueryKeyArray = equals(
+          type(optimisticListing.queryKey),
+          'Array'
+        );
+        const listingQueryKey = isQueryKeyArray
+          ? optimisticListing?.queryKey
+          : [optimisticListing?.queryKey];
+
+        queryClient.invalidateQueries({
+          queryKey: listingQueryKey
+        });
+      }
+
       if (data?.isError) {
+        if (optimisticListing?.enabled) {
+          const listingQueryKey = getListingQueryKey();
+          queryClient.setQueriesData(
+            { queryKey: listingQueryKey },
+            context.previousListing
+          );
+        }
+
         onError?.(data, variables, context);
 
         return;

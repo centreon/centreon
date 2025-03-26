@@ -135,9 +135,8 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
 $attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 
-//Init Smarty
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tabAction = [];
 $tabAction["a"] = _("Added");

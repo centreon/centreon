@@ -19,9 +19,9 @@
       "layout": {
         "x": 0,
         "y": 0,
-        "width": 3,
+        "width": 6,
         "height": 3,
-        "min_width": 2,
+        "min_width": 4,
         "min_height": 2
       },
       "widget_type": "/widgets/clock",
@@ -43,11 +43,11 @@
       "id": 31,
       "name": "centreon-widget-clock",
       "layout": {
-        "x": 6,
+        "x": 12,
         "y": 0,
-        "width": 3,
+        "width": 6,
         "height": 3,
-        "min_width": 2,
+        "min_width": 4,
         "min_height": 2
       },
       "widget_type": "/widgets/clock",
@@ -69,11 +69,11 @@
       "id": 32,
       "name": "centreon-widget-clock",
       "layout": {
-        "x": 8,
+        "x": 16,
         "y": 3,
-        "width": 3,
+        "width": 6,
         "height": 3,
-        "min_width": 2,
+        "min_width": 4,
         "min_height": 2
       },
       "widget_type": "/widgets/clock",
@@ -97,9 +97,9 @@
       "layout": {
         "x": 0,
         "y": 3,
-        "width": 5,
+        "width": 10,
         "height": 3,
-        "min_width": 2,
+        "min_width": 4,
         "min_height": 2
       },
       "widget_type": "/widgets/clock",

@@ -1,0 +1,4 @@
+Core\Common\Domain\NotEmptyString:
+  attributes:
+    value:
+      groups: ['NotEmptyString:Read']

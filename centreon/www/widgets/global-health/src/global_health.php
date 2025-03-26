@@ -64,12 +64,10 @@ $dbb = $dependencyInjector['realtime_db'];
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
-/**
- * Displaying a Smarty Template
- */
+// Smarty template initialization
 $path = $centreon_path . 'www/widgets/global-health/src/';
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, './', $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
+
 $template->assign('session', session_id());
 $template->assign('host_label', _('Hosts'));
 $template->assign('svc_label', _('Services'));

@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 
-import { Axis } from '@visx/visx';
+import type { Axis } from '@visx/visx';
 import { isNil } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
-import { formatMetricValue, getUnits } from '../timeSeries';
+import { formatMetricValueWithUnit, getUnits } from '../timeSeries';
 import { commonTickLabelProps } from '../utils';
 
-import { Data, LabelProps } from './models';
+import type { Data, LabelProps } from './models';
 
 interface AxisYData {
   displayUnit: boolean;
@@ -69,7 +69,11 @@ const useAxisY = ({
         return '';
       }
 
-      return formatMetricValue({ base: data.baseAxis, unit, value }) as string;
+      return formatMetricValueWithUnit({
+        base: data.baseAxis,
+        unit,
+        value
+      }) as string;
     };
 
   const labelProps = ({

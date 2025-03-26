@@ -183,11 +183,8 @@ $form->addRule('hc_severity_level', _("Can't be equal to 0"), 'shouldNotBeEqTo0'
 
 $form->addFormRule('checkSeverity');
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     "helpattr",
