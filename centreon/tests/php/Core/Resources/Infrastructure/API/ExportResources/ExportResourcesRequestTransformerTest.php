@@ -45,8 +45,7 @@ it('test transform inputs to request to export resources with pagination', funct
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $request = ExportResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
     expect($request->exportedFormat)->toBe('csv')
@@ -67,8 +66,7 @@ it('test transform inputs to request to export resources without pagination', fu
         null,
         null,
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $request = ExportResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
     expect($request->exportedFormat)->toBe('csv')

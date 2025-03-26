@@ -42,8 +42,7 @@ it('test export resources input validation with no format', function () {
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
@@ -60,8 +59,7 @@ it('test export resources input validation with an empty format', function () {
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
@@ -95,8 +93,7 @@ it('test export resources input validation with an invalid value for format', fu
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -112,8 +109,7 @@ it('test export resources input validation with a valid format', function () {
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);
@@ -152,8 +148,7 @@ it('test export resources input validation with sort_by with an invalid json', f
         '1',
         '100',
         '{status_severity_code:"desc",last_status_change:"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -169,8 +164,7 @@ it('test export resources input validation with a valid json for sort_by', funct
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);
@@ -187,7 +181,6 @@ it('test export resources input validation with no search', function () {
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        null,
         null
     );
     $errors = $this->validator->validate($input);
@@ -205,8 +198,7 @@ it('test export resources input validation with an empty search', function () {
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '',
-        null
+        ''
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -222,8 +214,7 @@ it('test export resources input validation with search with an invalid value', f
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        'toto',
-        null
+        'toto'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -239,8 +230,7 @@ it('test export resources input validation with search with an invalid json', fu
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{$and:[]}',
-        null
+        '{$and:[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -256,8 +246,7 @@ it('test export resources input validation with search with a valid json', funct
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);
@@ -274,8 +263,7 @@ it('test export resources input validation with no all_pages', function () {
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
@@ -292,8 +280,7 @@ it('test export resources input validation with an empty all_pages', function ()
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
@@ -310,8 +297,7 @@ it('test export resources input validation with an invalid type for all_pages', 
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -327,8 +313,7 @@ it('test export resources input validation with all_pages equals to 0 without pa
         null,
         null,
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
@@ -345,8 +330,7 @@ it('test export resources input validation with all_pages equals to 0 with page 
         '1',
         null,
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -362,8 +346,7 @@ it('test export resources input validation with all_pages equals to 0 with limit
         null,
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -381,8 +364,7 @@ it(
             '1',
             'toto',
             '{"status_severity_code":"desc","last_status_change":"desc"}',
-            '{"$and":[]}',
-            null
+            '{"$and":[]}'
         );
         $errors = $this->validator->validate($input);
         expect($errors)->toHaveCount(1)
@@ -401,8 +383,7 @@ it(
             'toto',
             '100',
             '{"status_severity_code":"desc","last_status_change":"desc"}',
-            '{"$and":[]}',
-            null
+            '{"$and":[]}'
         );
         $errors = $this->validator->validate($input);
         expect($errors)->toHaveCount(1)
@@ -419,8 +400,7 @@ it('test export resources input validation with all_pages equals to 0 with valid
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);
@@ -437,8 +417,7 @@ it(
             null,
             null,
             '{"status_severity_code":"desc","last_status_change":"desc"}',
-            '{"$and":[]}',
-            null
+            '{"$and":[]}'
         );
         $errors = $this->validator->validate($input);
         expect($errors)->toHaveCount(1)
@@ -457,8 +436,7 @@ it(
             null,
             null,
             '{"status_severity_code":"desc","last_status_change":"desc"}',
-            '{"$and":[]}',
-            null
+            '{"$and":[]}'
         );
         $errors = $this->validator->validate($input);
         expect($errors)->toHaveCount(2)
@@ -478,8 +456,7 @@ it(
             null,
             null,
             '{"status_severity_code":"desc","last_status_change":"desc"}',
-            '{"$and":[]}',
-            null
+            '{"$and":[]}'
         );
         $errors = $this->validator->validate($input);
         expect($errors)->toHaveCount(1)
@@ -498,81 +475,12 @@ it(
             null,
             null,
             '{"status_severity_code":"desc","last_status_change":"desc"}',
-            '{"$and":[]}',
-            null
+            '{"$and":[]}'
         );
         $errors = $this->validator->validate($input);
         expect($errors)->toHaveCount(0);
     }
 );
-
-// total parameter
-
-it('test export resources input validation with no total', function () {
-    $input = new ExportResourcesInput(
-        'csv',
-        '0',
-        null,
-        null,
-        '1',
-        '100',
-        '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
-    );
-    $errors = $this->validator->validate($input);
-    expect($errors)->toHaveCount(0);
-});
-
-it('test export resources input validation with an empty total', function () {
-    $input = new ExportResourcesInput(
-        'csv',
-        '0',
-        null,
-        null,
-        '1',
-        '100',
-        '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        'toto'
-    );
-    $errors = $this->validator->validate($input);
-    expect($errors)->toHaveCount(1)
-        ->and($errors[0]->getMessage())->toBe('total must be an integer');
-});
-
-it('test export resources input validation with an invalid total', function () {
-    $input = new ExportResourcesInput(
-        'csv',
-        '0',
-        null,
-        null,
-        '1',
-        '100',
-        '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        'toto'
-    );
-    $errors = $this->validator->validate($input);
-    expect($errors)->toHaveCount(1)
-        ->and($errors[0]->getMessage())->toBe('total must be an integer');
-});
-
-it('test export resources input validation with a valid total', function () {
-    $input = new ExportResourcesInput(
-        'csv',
-        '0',
-        null,
-        null,
-        '1',
-        '100',
-        '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        '100'
-    );
-    $errors = $this->validator->validate($input);
-    expect($errors)->toHaveCount(0);
-});
 
 // columns parameter
 
@@ -585,8 +493,7 @@ it('test export resources input validation with no columns', function () {
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);
@@ -601,8 +508,7 @@ it('test export resources input validation with an empty columns', function () {
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
@@ -619,8 +525,7 @@ it('test export resources input validation with an invalid columns', function ()
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
@@ -637,8 +542,7 @@ it('test export resources input validation with columns with an empty value', fu
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
@@ -657,8 +561,7 @@ it('test export resources input validation with columns with an invalid value', 
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
@@ -676,8 +579,7 @@ it('test export resources input validation with columns with a valid value', fun
         '1',
         '100',
         '{"status_severity_code":"desc","last_status_change":"desc"}',
-        '{"$and":[]}',
-        null
+        '{"$and":[]}'
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(0);
