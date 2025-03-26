@@ -89,23 +89,6 @@ beforeEach(function (): void {
         id: 1,
         name: 'rule-A',
     );
-    // $this->testedHostGroupResponse = (function () {
-    //     $response = new GetHostGroupResponse();
-    //     $response->id = 1;
-    //     $response->name = 'hg-name';
-    //     $response->alias = 'hg-alias';
-    //     $response->notes = '';
-    //     $response->notesUrl = '';
-    //     $response->actionUrl = '';
-    //     $response->iconId = null;
-    //     $response->iconMapId = null;
-    //     $response->rrdRetention = null;
-    //     $response->geoCoords = '-2,100';
-    //     $response->comment = '';
-    //     $response->isActivated = true;
-
-    //     return $response;
-    // })();
 });
 
 it(
