@@ -360,7 +360,7 @@ jobs:
         shell: bash
 
       - name: Check configuration of symfony
-        run: composer symfony:check
+        run: composer symfony:check:ci
         working-directory: centreon
 
       - name: Run of php-cs-fixer with strict_type
