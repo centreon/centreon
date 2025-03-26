@@ -16,7 +16,7 @@ require __DIR__ . '/../../../php/generate_routes.php';
 
 //error specific content
 $errorMessage = '';
-$versionOfTheUpgrade = 'UPGRADE - 25.05.0: ';
+$versionOfTheUpgrade = 'UPGRADE - 25.01.1: ';
 
 /**
  * @param CentreonDB $pearDB
