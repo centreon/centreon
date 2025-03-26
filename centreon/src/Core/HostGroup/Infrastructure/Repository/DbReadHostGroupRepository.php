@@ -562,8 +562,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                SELECT
-                    UNIQUE(hrel.hostgroup_hg_id),
+                SELECT DISTINCT hrel.hostgroup_hg_id,
                     h.host_id,
                     IF (h.host_activate = '0', false, true) as is_activated
                 FROM `:db`.host h
