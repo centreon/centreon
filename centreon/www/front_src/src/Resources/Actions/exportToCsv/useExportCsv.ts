@@ -105,29 +105,42 @@ const useExportCsv = ({
       const authorizedColumns = columns?.filter(
         ({ id }) => !equals(id, unauthorizedColumn)
       );
-      return authorizedColumns?.map(({ id }) => id);
+      return authorizedColumns
+        ?.map(({ id }) => id)
+        .map((column) => `columns[]=${column}`)
+        .join('&');
     }
 
-    return selectedColumnIds?.filter(
+    const filteredColumns = selectedColumnIds?.filter(
       (item) => !equals(item, unauthorizedColumn)
     );
+
+    return filteredColumns.map((column) => `columns[]=${column}`).join('&');
   };
 
-  const getParameters = () => {
+  const getParameters = (includePagination = true) => {
     const { filtersParameters, queryParameters } = getCurrentFilterParameters();
+    const sort = getCriteriaValue('sort');
 
-    const paginationParameters = {
-      page: listing?.meta?.page || 1,
-      limit: listing?.meta?.limit || 10
+    const paginationParameters = includePagination
+      ? {
+          page: listing?.meta?.page || 1,
+          limit: listing?.meta?.limit || 10,
+          sort: { [sort?.[0] as string]: sort?.[1] || '' }
+        }
+      : {};
+
+    const parameters = {
+      ...filtersParameters,
+      ...paginationParameters
     };
-
-    const parameters = { ...filtersParameters, ...paginationParameters };
 
     return { parameters, customQueryParameters: [...queryParameters] };
   };
 
-  const getEndpoint = (baseEndpoint: string): string => {
-    const { parameters, customQueryParameters } = getParameters();
+  const getEndpoint = ({ baseEndpoint, includePagination = true }): string => {
+    const { parameters, customQueryParameters } =
+      getParameters(includePagination);
 
     return buildListingEndpoint({
       parameters,
@@ -137,8 +150,15 @@ const useExportCsv = ({
   };
 
   const { data } = useFetchQuery({
-    getEndpoint: () => getEndpoint(countResourcesEndpoint),
-    getQueryKey: () => ['exportedLines', getEndpoint(countResourcesEndpoint)],
+    getEndpoint: () =>
+      getEndpoint({
+        baseEndpoint: countResourcesEndpoint,
+        includePagination: false
+      }),
+    getQueryKey: () => [
+      'exportedLines',
+      getEndpoint({ baseEndpoint: countResourcesEndpoint })
+    ],
     queryOptions: {
       suspense: false
     }
@@ -165,13 +185,16 @@ const useExportCsv = ({
       baseEndpoint: csvExportEndpoint,
       customQueryParameters: [
         ...customQueryParameters,
-        { name: 'format', value: 'csv' },
-        { name: 'columns', value: getColumns() },
-        { name: 'all_pages', value: isAllPagesChecked }
+        { name: 'all_pages', value: isAllPagesChecked },
+        { name: 'max_lines', value: 10000 }
       ]
     });
 
-    window.open(endpoint, 'noopener', 'noreferrer');
+    window.open(
+      `${endpoint}&${getColumns()}&format=csv`,
+      'noopener',
+      'noreferrer'
+    );
   };
 
   return { exportCsv, disableExport, numberExportedLines };

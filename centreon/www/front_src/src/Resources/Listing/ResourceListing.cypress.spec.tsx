@@ -11,18 +11,13 @@ import {
 import Resources from '..';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { Type } from '../Actions/model';
-import { panelWidthStorageAtom } from '../Details/detailsAtoms';
 import useDetails from '../Details/useDetails';
-import { applyFilterDerivedAtom } from '../Filter/filterAtoms';
-import { allFilter } from '../Filter/models';
 import useFilter from '../Filter/useFilter';
 import { Visualization } from '../models';
 import {
   labelAcknowledged,
   labelAll,
-  labelDisplayView,
   labelInDowntime,
-  labelMoreActions,
   labelResourceFlapping,
   labelViewByHost,
   labelViewByService
@@ -32,7 +27,7 @@ import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from './columns';
-import { enabledAutorefreshAtom, selectedColumnIdsAtom } from './listingAtoms';
+import { selectedColumnIdsAtom } from './listingAtoms';
 import {
   columnToSort,
   columns,
