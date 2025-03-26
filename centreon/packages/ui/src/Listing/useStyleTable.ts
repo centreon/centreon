@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isNil, pick, type, update } from 'ramda';
+import { equals, isEmpty, isNil, pick, type, update } from 'ramda';
 import { CSSObject } from 'tss-react';
 
 import { Theme } from '@mui/material';
@@ -12,14 +12,11 @@ import { Column, TableStyleAtom as Style } from './models';
 import { tableStyleAtom, tableStyleDerivedAtom } from './tableAtoms';
 
 interface TableStyle {
-  checkable?: boolean;
-  currentVisibleColumns?: Array<Column>;
   listingVariant?: ListingVariant;
 }
 
 interface TableStyleState {
   dataStyle: Style;
-  gridTemplateColumn: string;
 }
 
 const isCompactMode = equals<ListingVariant | undefined>(
@@ -40,15 +37,33 @@ export const getTextStyleByViewMode = ({
     theme.typography[isCompactMode(listingVariant) ? 'body2' : 'body1']
   );
 
-const useStyleTable = ({
-  checkable,
-  currentVisibleColumns,
-  listingVariant
-}: TableStyle): TableStyleState => {
+const useStyleTable = ({ listingVariant }: TableStyle): TableStyleState => {
   const dataStyle = useAtomValue(tableStyleAtom);
 
   const updateStyleTable = useSetAtom(tableStyleDerivedAtom);
 
+  useEffect(() => {
+    if (listingVariant) {
+      updateStyleTable({ listingVariant });
+    }
+  }, [listingVariant]);
+
+  return {
+    dataStyle
+  };
+};
+
+export default useStyleTable;
+
+interface UseColumnStyleProps {
+  checkable?: boolean;
+  currentVisibleColumns?: Array<Column>;
+}
+
+export const useColumnStyle = ({
+  checkable,
+  currentVisibleColumns
+}: UseColumnStyleProps): string => {
   const gridTemplateColumn = useMemo((): string => {
     const checkbox = checkable ? 'fit-content(1rem) ' : ''; // SelectAction (checkbox) cell adjusts to content
 
@@ -68,12 +83,17 @@ const useStyleTable = ({
           ) as string;
         }) || [];
 
-    const hasOnlyNonContainerResponsiveColumns = columnTemplate.every(
-      (width: string) =>
-        !width.includes('auto') || !width.includes('fr') || !width.includes('%')
-    );
+    const hasOnlyContainerResponsiveColumns =
+      !isEmpty(columnTemplate) &&
+      columnTemplate.every(
+        (width: string) =>
+          width.includes('auto') ||
+          width.includes('fr') ||
+          width.includes('%') ||
+          width.includes('px')
+      );
 
-    if (hasOnlyNonContainerResponsiveColumns) {
+    if (!hasOnlyContainerResponsiveColumns) {
       const fixedColumnTemplate = update(
         columnTemplate.length - 1,
         'auto',
@@ -86,16 +106,5 @@ const useStyleTable = ({
     return `${checkbox}${columnTemplate.join(' ')}`;
   }, [checkable, currentVisibleColumns]);
 
-  useEffect(() => {
-    if (listingVariant) {
-      updateStyleTable({ listingVariant });
-    }
-  }, [listingVariant]);
-
-  return {
-    dataStyle,
-    gridTemplateColumn: gridTemplateColumn
-  };
+  return gridTemplateColumn;
 };
-
-export default useStyleTable;
