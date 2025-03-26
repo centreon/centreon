@@ -421,8 +421,6 @@ describe('Listing header actions: mass delete', () => {
 
     cy.waitForRequest('@deleteResourceAccessRulesRequest');
     cy.findByText(labelResourceAccessRulesDeletedSuccess).should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('displays a warning message containing the list of names that failed to delete', () => {
@@ -445,8 +443,6 @@ describe('Listing header actions: mass delete', () => {
     cy.waitForRequest('@deleteResourceAccessRulesRequest');
     cy.waitForRequest('@defaultRequest');
     cy.findByText(warningMessage).should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('displays an error message when the deletion of all rules fails', () => {
@@ -467,8 +463,6 @@ describe('Listing header actions: mass delete', () => {
 
     cy.waitForRequest('@deleteResourceAccessRulesRequest');
     cy.findByText(labelFailedToDeleteSelectedRules).should('be.visible');
-
-    cy.makeSnapshot();
   });
 });
 
@@ -507,8 +501,6 @@ describe('Listing action: duplicate a rule', () => {
     cy.findByLabelText(labelResourceAccessRuleName).should('be.visible');
     cy.findByText(labelCancel).should('be.visible');
     cy.findByText(labelDuplicate).should('be.visible');
-
-    cy.makeSnapshot();
     cy.findByText(labelCancel).click();
   });
 
@@ -521,8 +513,6 @@ describe('Listing action: duplicate a rule', () => {
     cy.findByText(labelEnterNameForDuplicatedRule).click();
 
     cy.findByText(labelRequired).should('be.visible');
-
-    cy.makeSnapshot();
     cy.findByText(labelCancel).click();
   });
 
@@ -535,8 +525,6 @@ describe('Listing action: duplicate a rule', () => {
 
     cy.findByText(labelEnterNameForDuplicatedRule).click();
     cy.findByText(labelNameAlreadyExists).should('be.visible');
-
-    cy.makeSnapshot();
     cy.findByText(labelCancel).click();
   });
 
@@ -552,8 +540,6 @@ describe('Listing action: duplicate a rule', () => {
     cy.waitForRequest('@postRequest');
 
     cy.findByText(labelRuleDuplicatedSuccess).should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('displays an error message when duplication of a rule fails', () => {
@@ -576,7 +562,5 @@ describe('Listing action: duplicate a rule', () => {
     cy.waitForRequest('@postErrorRequest');
 
     cy.findByText('internal server error').should('be.visible');
-
-    cy.makeSnapshot();
   });
 });
