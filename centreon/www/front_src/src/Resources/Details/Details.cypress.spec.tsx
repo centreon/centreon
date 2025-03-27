@@ -758,7 +758,5 @@ describe('Details', () => {
 
     cy.contains('Linux-servers').realHover();
     cy.findByLabelText('Linux-servers Configure').should('not.exist');
-
-    cy.makeSnapshot();
   });
 });
