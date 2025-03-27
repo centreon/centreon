@@ -33,6 +33,7 @@ use Core\AgentConfiguration\Application\Factory\AgentConfigurationFactory;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConnectionMode;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -84,6 +85,9 @@ final class UpdateAgentConfiguration
             }
 
             $request->pollerIds = array_unique($request->pollerIds);
+            $connectionMode = $request->connectionMode
+                ? ConnectionMode::from($request->connectionMode)
+                : ConnectionMode::SECURE;
 
             $this->validator->validateRequestOrFail($request, $agentConfiguration);
 
@@ -91,7 +95,8 @@ final class UpdateAgentConfiguration
                 id: $agentConfiguration->getId(),
                 name: $request->name,
                 type: $agentConfiguration->getType(),
-                parameters: $request->configuration
+                parameters: $request->configuration,
+                connectionMode: $connectionMode,
             );
 
             $this->save($updatedAgentConfiguration, $request->pollerIds);

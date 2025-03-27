@@ -31,6 +31,8 @@ final class UpdateAgentConfigurationRequest
 
     public string $type = '';
 
+    public ?string $connectionMode = '';
+
 	/** @var int[] */
 	public array $pollerIds = [];
 

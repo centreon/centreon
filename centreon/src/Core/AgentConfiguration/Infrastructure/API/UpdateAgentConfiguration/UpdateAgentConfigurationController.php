@@ -73,6 +73,7 @@ final class UpdateAgentConfigurationController extends AbstractController
          * @var array{
          *     name:string,
          *     type:string,
+         *     connection_mode:string|null,
          *     poller_ids:int[],
          *     configuration:array<string,mixed>
          * } $data
@@ -91,6 +92,7 @@ final class UpdateAgentConfigurationController extends AbstractController
         $updateRequest->id = $id;
         $updateRequest->type = $data['type'];
         $updateRequest->name = $data['name'];
+        $updateRequest->connectionMode = $data['connection_mode'];
         $updateRequest->pollerIds = $data['poller_ids'];
         $updateRequest->configuration = $data['configuration'];
 
