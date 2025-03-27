@@ -23,13 +23,15 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
 
+use Core\AgentConfiguration\Domain\Model\ConnectionMode;
+
 final class AddAgentConfigurationRequest
 {
     public string $name = '';
 
     public string $type = '';
 
-    public ?string $connectionMode = '';
+    public ConnectionMode $connectionMode = ConnectionMode::SECURE;
 
 	/** @var int[] */
 	public array $pollerIds = [];

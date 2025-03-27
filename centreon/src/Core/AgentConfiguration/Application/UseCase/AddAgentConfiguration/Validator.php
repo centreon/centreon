@@ -72,7 +72,6 @@ class Validator
         $this->validatePollersOrFail($request);
         $this->validateTypeOrFail($request);
         $this->validateParametersOrFail($request);
-        $this->validateConnectionModeOrFail($request);
     }
 
     /**
@@ -149,22 +148,6 @@ class Validator
     public function validateTypeOrFail(AddAgentConfigurationRequest $request): void
     {
         Type::from($request->type);
-    }
-
-    /**
-     * Validate connection mode.
-     *
-     * @param AddAgentConfigurationRequest $request
-     *
-     * @throws ValueError
-     */
-    public function validateConnectionModeOrFail(AddAgentConfigurationRequest $request): void
-    {
-        if (null === $request->connectionMode) {
-            return;
-        }
-
-        ConnectionMode::from($request->connectionMode);
     }
 
     /**

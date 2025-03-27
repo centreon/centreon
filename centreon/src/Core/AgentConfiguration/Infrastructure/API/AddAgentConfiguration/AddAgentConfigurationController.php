@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfiguration;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
+use Core\AgentConfiguration\Domain\Model\ConnectionMode;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,7 +89,9 @@ final class AddAgentConfigurationController extends AbstractController
         $addRequest = new AddAgentConfigurationRequest();
         $addRequest->type = $data['type'];
         $addRequest->name = $data['name'];
-        $addRequest->connectionMode = $data['connection_mode'];
+        $addRequest->connectionMode = $data['connection_mode'] === "no-tls"
+            ? ConnectionMode::NO_TLS
+            : ConnectionMode::SECURE;
         $addRequest->pollerIds = $data['poller_ids'];
         $addRequest->configuration = $data['configuration'];
 
