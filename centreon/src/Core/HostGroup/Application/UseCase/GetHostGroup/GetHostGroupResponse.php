@@ -35,6 +35,7 @@ final class GetHostGroupResponse implements StandardResponseInterface
      * @param HostGroup $hostgroup
      * @param SimpleEntity[] $hosts
      * @param TinyRule[] $rules
+     * @param ?Media $icon
      */
     public function __construct(
         readonly public HostGroup $hostgroup,
