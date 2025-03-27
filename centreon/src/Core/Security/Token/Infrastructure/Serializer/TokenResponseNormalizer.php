@@ -24,11 +24,12 @@ declare(strict_types=1);
 namespace Core\Security\Token\Infrastructure\Serializer;
 
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenResponse;
+use Core\Security\Token\Application\UseCase\GetToken\GetTokenResponse;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class AddTokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInterface
+class TokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
 
@@ -46,9 +47,19 @@ class AddTokenResponseNormalizer implements NormalizerInterface, NormalizerAware
         ?string $format = null,
         array $context = []
     ): array {
-        /** @var array<string, mixed> $response */
+        /**
+         * @var array<string, mixed> $response
+         * @var array{groups?:string[]} $context
+         */
         $response = $this->normalizer->normalize($object->getData()->apiToken, $format, $context);
-        $response['token'] = $object->getData()->token;
+
+        $matches = array_filter(
+            $context['groups'] ?? [],
+            fn(string $group): bool => in_array($group, ['Token:Add', 'Token:Get'], true)
+        );
+        if ($matches !== []) {
+            $response['token'] = $object->getData()->token;
+        }
 
         return $response;
     }
@@ -58,6 +69,6 @@ class AddTokenResponseNormalizer implements NormalizerInterface, NormalizerAware
      */
     public function supportsNormalization(mixed $data, ?string $format = null): bool
     {
-        return $data instanceof AddTokenResponse;
+        return $data instanceof AddTokenResponse || $data instanceof GetTokenResponse;
     }
 }

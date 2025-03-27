@@ -209,6 +209,28 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findTokenString(string $tokenName, int $userId): ?string
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT sat.token
+                FROM `:db`.security_authentication_tokens sat
+                WHERE sat.token_name = :tokenName
+                    AND sat.user_id = :userId
+                SQL
+        ));
+        $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetchColumn();
+
+        return $result ? (string) $result : null;
+    }
+
+    /**
      * @param int|null $userId
      * @param RequestParametersInterface $requestParameters
      *

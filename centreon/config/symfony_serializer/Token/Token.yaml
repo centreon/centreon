@@ -1,20 +1,20 @@
 Core\Security\Token\Domain\Model\Token:
   attributes:
     name:
-      groups: ['Token:List', 'Token:Add']
+      groups: ['Token:List', 'Token:Add', 'Token:Get']
     userId:
-      groups: ['Token:List', 'Token:Add']
+      groups: ['Token:List', 'Token:Add', 'Token:Get']
     userName:
-      groups: ['Token:List', 'Token:Add']
+      groups: ['Token:List', 'Token:Add', 'Token:Get']
     creatorId:
-      groups: ['Token:List', 'Token:Add']
+      groups: ['Token:List', 'Token:Add', 'Token:Get']
     creatorName:
-      groups: ['Token:List', 'Token:Add']
+      groups: ['Token:List', 'Token:Add', 'Token:Get']
     creationDate:
-      groups: ['Token:List', 'Token:Add']
+      groups: ['Token:List', 'Token:Add', 'Token:Get']
     expirationDate:
-      groups: ['Token:List', 'Token:Add']
+      groups: ['Token:List', 'Token:Add', 'Token:Get']
     type:
-      groups: ['Token:List', 'Token:Add']
+      groups: ['Token:List', 'Token:Add', 'Token:Get']
     isRevoked:
-      groups: ['Token:List', 'Token:Add']
+      groups: ['Token:List', 'Token:Add', 'Token:Get']
