@@ -73,6 +73,7 @@ const getDetailCardLines = ({
   const activeChecksDisabled = details.has_active_checks_enabled === false;
 
   const displayChecksIcon = checksDisabled || activeChecksDisabled;
+  console.log(details.type);
 
   return [
     {

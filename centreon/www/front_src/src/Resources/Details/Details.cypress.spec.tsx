@@ -72,6 +72,7 @@ import useDetails from './useDetails';
 import useLoadDetails from './useLoadDetails';
 
 import Details from '.';
+import { router } from './tabs/Details/DetailsCard/GroupChip';
 
 const resourceServiceId = 1;
 
@@ -191,8 +192,11 @@ const interceptDetailsRequest = ({ store, dataPath, alias }): void => {
   });
 };
 
-const initialize = (store): void => {
+const initialize = (store) => {
   cy.viewport('macbook-13');
+
+  const navigate = cy.stub();
+  cy.stub(router, 'useNavigate').returns(navigate);
 
   cy.mount({
     Component: (
@@ -207,6 +211,10 @@ const initialize = (store): void => {
       </SnackbarProvider>
     )
   });
+
+  return {
+    navigate
+  };
 };
 
 const initializeTimeLineTab = ({
@@ -373,7 +381,7 @@ describe('Details', () => {
     checkActionsButton();
     cy.makeSnapshot();
   });
-  it.only('displays the acknowledgment modal when the "Acknowledge" button is clicked and sends the acknowledgment action', () => {
+  it('displays the acknowledgment modal when the "Acknowledge" button is clicked and sends the acknowledgment action', () => {
     const store = getStore();
 
     interceptDetailsRequest({
@@ -716,4 +724,41 @@ describe('Details', () => {
       cy.makeSnapshot();
     });
   }
+
+  it('redirects the user to the host groups configuration page when the host group chip is clicked', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithoutAcknowledgement',
+      dataPath: 'resources/details/tabs/details/detailsHost.json',
+      store
+    });
+    const { navigate } = initialize(store);
+
+    cy.contains('Linux-servers').realHover();
+    cy.findByLabelText('Linux-servers Configure')
+      .click()
+      .then(() => {
+        expect(navigate).to.be.calledWith(
+          '/configuration/hosts/groups?mode=edit&id=0'
+        );
+      });
+  });
+
+  it('does not display the configuration icon when the endpoint is not available for the current user', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithoutAcknowledgement',
+      dataPath:
+        'resources/details/tabs/details/detailsHostWithoutGroupConfiguration.json',
+      store
+    });
+    initialize(store);
+
+    cy.contains('Linux-servers').realHover();
+    cy.findByLabelText('Linux-servers Configure').should('not.exist');
+
+    cy.makeSnapshot();
+  });
 });

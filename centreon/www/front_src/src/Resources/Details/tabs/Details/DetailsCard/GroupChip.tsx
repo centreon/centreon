@@ -53,11 +53,15 @@ interface Props {
   type: CriteriaNames;
 }
 
+export const router = {
+  useNavigate
+};
+
 const GroupChip = ({ group, type }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = router.useNavigate();
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   const setCriteriaAndNewFilter = useSetAtom(
