@@ -106,6 +106,10 @@ dnf install -y \
   php-pear \
   php-json
 
+# composer installing https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
+ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
 ###################
 # install plugins #
 ###################
