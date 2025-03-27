@@ -131,4 +131,44 @@ interface ReadResourceAccessRepositoryInterface
      * @return int[] array of Rule IDs
      */
     public function existByTypeAndResourceId(string $type, int $resourceId): array;
+
+    /**
+     * Retrieve rules by host group ID.
+     *
+     * @param string $type dataset filter type
+     * @param int $resourceId
+     *
+     * @throws \Throwable
+     *
+     * @return TinyRule[]
+     */
+    public function findRuleByResourceId(string $type, int $resourceId): array;
+
+    /**
+     * Retrieve rules by resource ID and user ID for a specified type.
+     * Exclude rules that have dataset with type "All resources" and with "all [type]" checked.
+     *
+     * @param string $type dataset filter type
+     * @param int $resourceId
+     * @param int $userId
+     *
+     * @throws \Throwable
+     *
+     * @return TinyRule[]
+     */
+    public function findRuleByResourceIdAndContactId(string $type, int $resourceId, int $userId): array;
+
+    /**
+     * Retrieve rules by resource ID and contact groups for a specified type.
+     * Exclude rules that have dataset with type "All resources" and with "all [type]" checked.
+     *
+     * @param string $type dataset filter type
+     * @param ContactGroup[] $contactGroups
+     * @param int $resourceId
+     *
+     * @throws \Throwable
+     *
+     * @return TinyRule[]
+     */
+    public function findRuleByResourceIdAndContactGroups(string $type, int $resourceId, array $contactGroups): array;
 }

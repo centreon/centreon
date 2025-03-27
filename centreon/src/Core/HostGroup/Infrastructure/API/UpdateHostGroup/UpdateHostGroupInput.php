@@ -54,6 +54,7 @@ final class UpdateHostGroupInput
         #[Assert\Type('string')]
         public readonly mixed $comment,
 
+        #[Assert\Type('integer')]
         public readonly mixed $iconId,
 
         #[Assert\NotNull()]

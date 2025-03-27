@@ -32,6 +32,6 @@ services:
     arguments:
       $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
 
-  Core\HostGroup\Infrastructure\Serializer\HostGroupResponseNormalizer:
+  Core\HostGroup\Infrastructure\Serializer\HostGroupNormalizer:
     arguments:
       $mediaPath: '%media_path%'
