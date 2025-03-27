@@ -24,6 +24,7 @@ declare(strict_types=1);
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration as ModelAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\Type;
 
 /**
@@ -78,10 +79,14 @@ class AgentConfiguration extends AbstractObjectJSON
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
             'port' => ModelAgentConfiguration::DEFAULT_PORT,
-            'encryption' => true,
-            'public_cert' => $data['otel_public_certificate'],
-            'private_key' => $data['otel_private_key'],
-            'ca_certificate' => $data['otel_ca_certificate'] !== null
+            'encryption' => ! empty($data['otel_public_certificate']) && ! empty($data['otel_private_key']),
+            'public_cert' => ! empty($data['otel_public_certificate'])
+                ? $data['otel_public_certificate']
+                : '',
+            'private_key' => ! empty($data['otel_private_key'])
+                ? $data['otel_private_key']
+                : '',
+            'ca_certificate' => ! empty($data['otel_ca_certificate'])
                 ? $data['otel_ca_certificate']
                 : '',
         ];
@@ -103,12 +108,13 @@ class AgentConfiguration extends AbstractObjectJSON
                 'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
             ]
         ];
+
         if ($data['is_reverse']) {
             $configuration['centreon_agent']['reverse_connections'] = array_map(
                 static fn(array $host): array => [
                     'host' => $host['address'],
                     'port' => $host['port'],
-                    'encryption' => true,
+                    'encryption' => $configuration['otel_server']['encryption'],
                     'ca_certificate' => $host['poller_ca_certificate'] !== null
                         ? $host['poller_ca_certificate']
                         : '',
@@ -132,14 +138,20 @@ class AgentConfiguration extends AbstractObjectJSON
      */
     private function formatTelegraphConfiguration(array $data): array
     {
+        $otelConfiguration = $this->formatOtelConfiguration($data);
+
         return [
-            'otel_server' => $this->formatOtelConfiguration($data),
+            'otel_server' => $otelConfiguration,
             'telegraf_conf_server' => [
                 'http_server' => [
                     'port' => $data['conf_server_port'],
-                    'encryption' => true,
-                    'public_cert' => $data['conf_certificate'],
-                    'private_key' => $data['conf_private_key'],
+                    'encryption' => $otelConfiguration['encryption'],
+                    'public_cert' => $data['conf_certificate'] !== null
+                        ? $data['conf_certificate']
+                        : '',
+                    'private_key' => $data['conf_private_key'] !== null
+                        ? $data['conf_private_key']
+                        : '',
                 ]
             ]
         ];
