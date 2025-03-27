@@ -11,11 +11,24 @@ properties:
     maxLength: 200
     description: "Host group alias"
     example: "All MySQL Servers"
-  icon_id:
-    type: integer
+  icon:
+    type: object
     nullable: true
-    description: "Define the image ID that should be associated with this host group"
-    example: 1
+    description: "Host group icon"
+    properties:
+      id:
+        type: integer
+        description: "Icon ID"
+        example: 1
+      name:
+        type: string
+        maxLength: 200
+        description: "Icon name"
+        example: "folder/image.png"
+      url:
+        type: string
+        description: "Icon URL"
+        example: "/centreon/img/media/folder/image.png"
   geo_coords:
     type: string
     nullable: true
