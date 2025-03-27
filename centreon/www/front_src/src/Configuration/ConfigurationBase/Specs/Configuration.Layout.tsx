@@ -66,9 +66,7 @@ export default (resourceType: string): void => {
 
       cy.get('[data-testid="advanced-filters"]').should('be.visible');
 
-      cy.makeSnapshot(
-        `${resourceType}: displays and interacts with filters`
-      );
+      cy.makeSnapshot(`${resourceType}: displays and interacts with filters`);
     });
   });
 };

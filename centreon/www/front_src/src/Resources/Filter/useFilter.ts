@@ -72,7 +72,6 @@ const useFilter = (): void => {
   }, [currentFilter.criterias]);
 
   useEffect(() => {
-    console.log(window.location.pathname);
     if (getUrlQueryParameters().fromTopCounter) {
       return;
     }

@@ -9,12 +9,12 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { Chip, Grid, Tooltip, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
+import { equals } from 'ramda';
+import { useNavigate } from 'react-router';
+import routeMap from 'www/front_src/src/reactRoutes/routeMap';
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../../../Filter/filterAtoms';
 import { Category, Group } from '../../../models';
-import { useNavigate } from 'react-router';
-import routeMap from 'www/front_src/src/reactRoutes/routeMap';
-import { equals } from 'ramda';
 
 const useStyles = makeStyles()((theme) => ({
   chip: {
