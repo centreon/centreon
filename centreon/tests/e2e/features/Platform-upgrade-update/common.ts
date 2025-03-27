@@ -17,6 +17,18 @@ const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
     throw new Error(`Cannot parse major version ${majorVersionFrom}`);
   }
 
+  cy.log(
+    `Getting Centreon previous major version of ${majorVersionFrom}. Is cloud ? ${Cypress.env(
+      'IS_CLOUD'
+    )}`
+  );
+
+  if (Cypress.env('IS_CLOUD')) {
+    return cy
+      .getLastUpdatePhpVersion()
+      .then((updatePhpVersion) => updatePhpVersion) as unknown as string;
+  }
+
   let year = match[1];
   let month = match[2];
 
@@ -105,7 +117,7 @@ const installDatabase = (): void => {
         `bash -e <<EOF
           curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --skip-maxscale --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
 EOF`,
-        `dnf install -y mariadb-server mariadb`,
+        `dnf install -y mariadb-server mariadb`
       ],
       name: 'web'
     });
@@ -122,12 +134,11 @@ EOF`,
           curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-10.11"
 EOF`,
         `apt-get update`,
-        `apt-get install -y mariadb-server mariadb-client`,
+        `apt-get install -y mariadb-server mariadb-client`
       ],
       name: 'web'
     });
   }
-
 };
 
 const installCentreon = (version: string): Cypress.Chainable => {
@@ -141,12 +152,15 @@ const installCentreon = (version: string): Cypress.Chainable => {
   cy.execInContainer({
     command: [
       `mkdir -p /usr/lib/centreon/plugins`,
-      `chmod 0755 /usr/lib/centreon/plugins`,
+      `chmod 0755 /usr/lib/centreon/plugins`
     ],
     name: 'web'
   });
 
-  if (Number(versionMatches[1]) > 24 || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10)) {
+  if (
+    Number(versionMatches[1]) > 24 ||
+    (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10)
+  ) {
     // database is not installed in dependencies containers > 24.10
     installDatabase();
   }
@@ -173,7 +187,10 @@ const installCentreon = (version: string): Cypress.Chainable => {
     if (Number(versionMatches[1]) < 24) {
       packageDistribPrefix = '-';
       packageDistribName = Cypress.env('WEB_IMAGE_OS');
-    } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) {
+    } else if (
+      Number(versionMatches[1]) === 24 &&
+      Number(versionMatches[2]) < 10
+    ) {
       packageDistribPrefix = '-1~';
       packageDistribName = Cypress.env('WEB_IMAGE_OS');
     } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
@@ -183,7 +200,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
       packageDistribPrefix = '-*-';
       packageDistribName = '0ubuntu.22.04';
     } else {
-      throw new Error(`Distrib ${Cypress.env('WEB_IMAGE_OS')} not managed in update/upgrade tests.`);
+      throw new Error(
+        `Distrib ${Cypress.env(
+          'WEB_IMAGE_OS'
+        )} not managed in update/upgrade tests.`
+      );
     }
 
     const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
@@ -196,7 +217,10 @@ const installCentreon = (version: string): Cypress.Chainable => {
     if (Number(versionMatches[1]) < 24) {
       packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
     }
-    const phpVersion = Number(versionMatches[1]) <= 24 && Number(versionMatches[2]) < 10 ? '8.1' : '8.2';
+    const phpVersion =
+      Number(versionMatches[1]) <= 24 && Number(versionMatches[2]) < 10
+        ? '8.1'
+        : '8.2';
 
     cy.execInContainer({
       command: [
@@ -320,7 +344,11 @@ const updatePlatformPackages = (): Cypress.Chainable => {
       let installCommands: Array<string> = [];
 
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-        if ([Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes('testing')) {
+        if (
+          [Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes(
+            'testing'
+          )
+        ) {
           installCommands = [
             ...installCommands,
             `dnf config-manager --set-disabled 'centreon*unstable*'`
@@ -332,7 +360,11 @@ const updatePlatformPackages = (): Cypress.Chainable => {
           ];
         }
       } else {
-        if ([Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes('testing')) {
+        if (
+          [Cypress.env('STABILITY'), Cypress.env('TARGET_STABILITY')].includes(
+            'testing'
+          )
+        ) {
           installCommands = [
             ...installCommands,
             `rm -f /etc/apt/sources.list.d/centreon*unstable*`
@@ -433,54 +465,66 @@ const insertResources = (): Cypress.Chainable => {
 const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
   return cy.getWebVersion().then(({ major_version, minor_version }) => {
     const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
-    
+
     // Check if the version-specific file already exists
-    return cy.execInContainer({
-      command: `ls ${targetUpdateFile} || echo "File not found"`,
-      name: 'web'
-    }).then((fileCheckResult) => {
-      // If version-specific file already exists, no action needed
-      if (!fileCheckResult.output.includes("File not found")) {
-        cy.log(`Version-specific update file already exists in container: ${targetUpdateFile}`);
-        return cy.wrap(null);
-      }
-      
-      // If version-specific file does not exist => copy content from Update-next.php
-      return cy.exec(`ls ../../www/install/php/Update-next.php || echo ""`)
-      .then((result) => {
-        const updateNextFile = result.stdout.trim();
-        if (!updateNextFile) {
-          cy.log("Update-next.php file not found");
+    return cy
+      .execInContainer({
+        command: `ls ${targetUpdateFile} || echo "File not found"`,
+        name: 'web'
+      })
+      .then((fileCheckResult) => {
+        // If version-specific file already exists, no action needed
+        if (!fileCheckResult.output.includes('File not found')) {
+          cy.log(
+            `Version-specific update file already exists in container: ${targetUpdateFile}`
+          );
+
           return cy.wrap(null);
         }
 
-        // Copy the Update-next.php content to container with proper name
-        return cy.copyToContainer({
-          source: updateNextFile,
-          destination: targetUpdateFile,
-          type: CopyToContainerContentType.File
-        })
-        .then(() => {
-          // Check if file was copied successfully
-          return cy.execInContainer({
-            command: `ls -la ${targetUpdateFile} || echo "File not found after copy"`,
-            name: 'web'
-          }).then((lsResult) => {
+        // If version-specific file does not exist => copy content from Update-next.php
+        return cy
+          .exec(`ls ../../www/install/php/Update-next.php || echo ""`)
+          .then((result) => {
+            const updateNextFile = result.stdout.trim();
+            if (!updateNextFile) {
+              cy.log('Update-next.php file not found');
 
-            if (lsResult.output.includes("File not found")) {
-              cy.log("WARNING: Copy operation did not create the target file");
               return cy.wrap(null);
             }
 
-            // Change version in the file
-            return cy.execInContainer({
-              command: `sed -i "s/version = '';/version = '${major_version}.${minor_version}';/g" ${targetUpdateFile}`,
-              name: 'web'
-            });
+            // Copy the Update-next.php content to container with proper name
+            return cy
+              .copyToContainer({
+                destination: targetUpdateFile,
+                source: updateNextFile,
+                type: CopyToContainerContentType.File
+              })
+              .then(() => {
+                // Check if file was copied successfully
+                return cy
+                  .execInContainer({
+                    command: `ls -la ${targetUpdateFile} || echo "File not found after copy"`,
+                    name: 'web'
+                  })
+                  .then((lsResult) => {
+                    if (lsResult.output.includes('File not found')) {
+                      cy.log(
+                        'WARNING: Copy operation did not create the target file'
+                      );
+
+                      return cy.wrap(null);
+                    }
+
+                    // Change version in the file
+                    return cy.execInContainer({
+                      command: `sed -i "s/version = '';/version = '${major_version}.${minor_version}';/g" ${targetUpdateFile}`,
+                      name: 'web'
+                    });
+                  });
+              });
           });
-        });
       });
-    });
   });
 };
 
@@ -489,8 +533,7 @@ When('administrator updates packages to current version', () => {
 });
 
 When('administrator runs the update procedure', () => {
-  prepareUpdateFileForUpgrade()
-  .then(() => {
+  prepareUpdateFileForUpgrade().then(() => {
     cy.visit('/');
 
     cy.wait('@getStep1', { timeout: 60000 }).then(() => {
@@ -649,13 +692,13 @@ Then('Poller configuration should be fully generated', () => {
 });
 
 export {
-  localPackageDirectory,
+  checkPlatformVersion,
   containerPackageDirectory,
+  dateBeforeLogin,
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
+  insertResources,
   installCentreon,
-  updatePlatformPackages,
-  checkPlatformVersion,
-  dateBeforeLogin,
-  insertResources
+  localPackageDirectory,
+  updatePlatformPackages
 };

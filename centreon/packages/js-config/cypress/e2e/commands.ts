@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import path from 'path';
 import 'cypress-wait-until';
+import path from 'path';
 
 import './commands/configuration';
 import './commands/monitoring';
@@ -73,6 +73,22 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
       throw new Error('Current web version cannot be parsed.');
     });
 });
+
+Cypress.Commands.add('getLastUpdatePhpVersion', (): Cypress.Chainable => {
+  return cy
+    .exec(
+      `find centreon/www/install/php -type f -name 'Update-*.php' | grep -E 'Update-[0-9]+\.[0-9]+\.[0-9]+\.php' | sort -V | tail -n 1 | awk -F'[-.]' '{print $2"."$3"."$4}'` 
+    )
+    .then(({ stdout }) => {
+      const found = stdout.match(/(\d+\.\d+)\.(\d+)/);
+      if (found) {
+        return cy.wrap({ major_version: found[1], minor_version: found[2] });
+      }
+
+      throw new Error('Update PHP file version cannot be parsed.');
+    });
+});
+
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
   return cy
@@ -911,6 +927,7 @@ declare global {
       getLogDirectory: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;
+      getLastUpdatePhpVersion: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       insertDashboard: (dashboard: Dashboard) => Cypress.Chainable;
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
@@ -976,4 +993,5 @@ declare global {
   }
 }
 
-export {};
+export { };
+
