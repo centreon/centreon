@@ -47,6 +47,11 @@ const globalActions = [
     {
         action: "GRANTRW",
         object: "ACLMENU",
+        values: "name-administrator-ACLMENU;4;Administration"
+    },
+    {
+        action: "GRANTRW",
+        object: "ACLMENU",
         values: "name-administrator-ACLMENU;1;Monitoring;Performances"
     },
     {
@@ -273,7 +278,6 @@ async function run() {
     try {
         const token = await login();
         const userCount = NUMBER_OF_USERS;
-
         await executeGlobalActions(token);
         await executeAllActions(token, userCount);
     } catch (error) {
