@@ -24,9 +24,11 @@ const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
   );
 
   if (Cypress.env('IS_CLOUD')) {
-    return cy
-      .getLastUpdatePhpVersion()
-      .then((updatePhpVersion) => updatePhpVersion) as unknown as string;
+    return cy.getLastUpdatePhpVersion().then((updatePhpVersion) => {
+      cy.log('Last update PHP version founded is : ', updatePhpVersion);
+
+      return updatePhpVersion;
+    }) as unknown as string;
   }
 
   let year = match[1];
