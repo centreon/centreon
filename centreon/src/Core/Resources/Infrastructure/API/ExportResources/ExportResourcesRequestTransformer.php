@@ -36,7 +36,8 @@ use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
  * @class ExportResourcesRequestTransformer
  * @package Core\Resources\Infrastructure\API\ExportResources
  */
-final readonly class ExportResourcesRequestTransformer {
+final readonly class ExportResourcesRequestTransformer
+{
     /**
      * @param ExportResourcesInput $input
      * @param ResourceFilter $resourceFilter
@@ -50,22 +51,32 @@ final readonly class ExportResourcesRequestTransformer {
         ResourceFilter $resourceFilter,
         ContactInterface $contact
     ): ExportResourcesRequest {
-        try {
-            return new ExportResourcesRequest(
-                exportedFormat: $input->format ?? '',
-                resourceFilter: $resourceFilter,
-                allPages: (bool) $input->allPages,
-                maxResults: is_null($input->maxLines) ? 0 : (int) $input->maxLines,
-                columns: is_null($input->columns) ? new StringCollection() : new StringCollection($input->columns),
-                contactId: $contact->getId(),
-                isAdmin: $contact->isAdmin()
+        $allPages = filter_var($input->allPages, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if ($allPages === null) {
+            throw new TransformerException(
+                'Error while transforming input to request for export resources with all_pages',
+                ['input_all_pages' => $input->allPages, 'all_pages' => $allPages]
             );
+        }
+
+        try {
+            $columns = is_null($input->columns) ? new StringCollection() : new StringCollection($input->columns);
         } catch (CollectionException $e) {
             throw new TransformerException(
-                'Error while transforming ExportResourcesInput to ExportResourcesRequest',
-                ['input' => $input],
+                'Error while transforming input to request for export resources with columns',
+                ['columns' => $input->columns],
                 $e
             );
         }
+
+        return new ExportResourcesRequest(
+            exportedFormat: $input->format ?? '',
+            resourceFilter: $resourceFilter,
+            allPages: $allPages,
+            maxResults: is_null($input->maxLines) ? 0 : (int) $input->maxLines,
+            columns: $columns,
+            contactId: $contact->getId(),
+            isAdmin: $contact->isAdmin()
+        );
     }
 }
