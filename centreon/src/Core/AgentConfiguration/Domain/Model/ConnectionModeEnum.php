@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Domain\Model;
 
-enum ConnectionMode: string {
-    case SECURE = 'secure';
-    case NO_TLS = 'no-tls';
+enum ConnectionModeEnum {
+    case SECURE;
+    case NO_TLS;
 }

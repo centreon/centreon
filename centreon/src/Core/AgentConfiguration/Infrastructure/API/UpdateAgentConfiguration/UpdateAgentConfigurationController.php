@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfiguration;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
@@ -92,7 +93,9 @@ final class UpdateAgentConfigurationController extends AbstractController
         $updateRequest->id = $id;
         $updateRequest->type = $data['type'];
         $updateRequest->name = $data['name'];
-        $updateRequest->connectionMode = $data['connection_mode'];
+        $updateRequest->connectionMode = $data['connection_mode'] === 'no-tls'
+            ? ConnectionModeEnum::NO_TLS
+            : ConnectionModeEnum::SECURE;
         $updateRequest->pollerIds = $data['poller_ids'];
         $updateRequest->configuration = $data['configuration'];
 

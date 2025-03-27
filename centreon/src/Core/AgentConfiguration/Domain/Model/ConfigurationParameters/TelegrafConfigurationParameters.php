@@ -26,11 +26,11 @@ namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
-use Core\AgentConfiguration\Domain\Model\ConnectionMode;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 /**
  * @phpstan-type _TelegrafParameters array{
- *      connection_mode?: ?string,
+ *      connection_mode?: ConnectionModeEnum,
  *	    otel_public_certificate: string,
  *	    otel_ca_certificate: string|null,
  *	    otel_private_key: string,
@@ -55,18 +55,21 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     public function __construct(
         array $parameters
     ){
-        $connectionMode = $parameters['connection_mode'] ?? (
-            empty($parameters['otel_public_certificate'])
+        if (isset($parameters['connection_mode'])) {
+            $connectionMode = $parameters['connection_mode'];
+        } else {
+            $connectionMode = (empty($parameters['otel_public_certificate'])
                 || empty($parameters['otel_private_key'])
                 || empty($parameters['conf_certificate'])
-                || empty($parameters['conf_private_key'])
-            ? ConnectionMode::NO_TLS->value : ConnectionMode::SECURE->value
-        );
+                || empty($parameters['conf_private_key']))
+                    ? ConnectionModeEnum::NO_TLS
+                    : ConnectionModeEnum::SECURE;
+        }
 
         /** @var _TelegrafParameters $parameters */
         Assertion::range($parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
 
-        if ($connectionMode === ConnectionMode::SECURE->value) {
+        if ($connectionMode === ConnectionModeEnum::SECURE) {
             $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
             $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
             $this->validateCertificate($parameters['conf_certificate'], 'configuration.conf_certificate');

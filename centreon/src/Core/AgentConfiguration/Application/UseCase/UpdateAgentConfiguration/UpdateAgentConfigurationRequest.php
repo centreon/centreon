@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration;
 
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
+
 final class UpdateAgentConfigurationRequest
 {
     public int $id = 0;
@@ -31,7 +33,7 @@ final class UpdateAgentConfigurationRequest
 
     public string $type = '';
 
-    public ?string $connectionMode = '';
+    public ConnectionModeEnum $connectionMode = ConnectionModeEnum::SECURE;
 
 	/** @var int[] */
 	public array $pollerIds = [];

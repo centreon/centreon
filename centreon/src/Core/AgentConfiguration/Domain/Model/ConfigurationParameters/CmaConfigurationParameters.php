@@ -26,12 +26,12 @@ namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
-use Core\AgentConfiguration\Domain\Model\ConnectionMode;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 /**
  * @phpstan-type _CmaParameters array{
  *	    is_reverse: bool,
- *		connection_mode?: ?string,
+ *		connection_mode?: ConnectionModeEnum,
  *		otel_public_certificate: string,
  *		otel_private_key: string,
  *		otel_ca_certificate: ?string,
@@ -60,13 +60,16 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      */
     public function __construct(array $parameters)
     {
-        $connectionMode = $parameters['connection_mode'] ?? (
-            empty($parameters['otel_public_certificate']) || empty($parameters['otel_private_key'])
-            ? ConnectionMode::NO_TLS->value : ConnectionMode::SECURE->value
-        );
+        if (isset($parameters['connection_mode'])) {
+            $connectionMode = $parameters['connection_mode'];
+        } else {
+            $connectionMode = (empty($parameters['otel_public_certificate']) || empty($parameters['otel_private_key']))
+                ? ConnectionModeEnum::NO_TLS
+                : ConnectionModeEnum::SECURE;
+        }
 
         /** @var _CmaParameters $parameters */
-        if ($connectionMode === ConnectionMode::SECURE->value) {
+        if ($connectionMode === ConnectionModeEnum::SECURE) {
             $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
             $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
             if ($parameters['otel_ca_certificate'] !== null) {
@@ -146,15 +149,15 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      * Validates the host certificate.
      *
      * @param string|null $certificate
-     * @param ?string $connectionMode
+     * @param ConnectionModeEnum $connectionMode
      * @param string $field Used for error reporting
      *
      * @throws AssertionFailedException
      */
-    private function validateHostCertificate(?string $certificate, ?string $connectionMode, string $field): void
+    private function validateHostCertificate(?string $certificate, ConnectionModeEnum $connectionMode, string $field): void
     {
         if ($certificate !== null && is_string($certificate)) {
-            if ($connectionMode === ConnectionMode::SECURE->value) {
+            if ($connectionMode === ConnectionModeEnum::SECURE) {
                 Assertion::notEmptyString($certificate, $field);
             }
             Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
