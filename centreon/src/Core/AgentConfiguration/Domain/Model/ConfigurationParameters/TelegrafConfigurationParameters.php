@@ -30,6 +30,7 @@ use Core\AgentConfiguration\Domain\Model\ConnectionMode;
 
 /**
  * @phpstan-type _TelegrafParameters array{
+ *      connection_mode?: ?string,
  *	    otel_public_certificate: string,
  *	    otel_ca_certificate: string|null,
  *	    otel_private_key: string,
@@ -80,6 +81,8 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
             $this->validateOptionalCertificate($parameters['conf_private_key'], 'configuration.conf_private_key');
             $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
         }
+
+        unset($parameters['connection_mode']);
 
         $this->parameters = $parameters;
     }

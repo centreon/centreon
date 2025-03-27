@@ -1375,7 +1375,7 @@
 									"pm.test(\"The AC has not been created, because the configuration values are not correct.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[configuration.otel_public_certificate] Integer value found, but a string is required\\n[configuration.otel_ca_certificate] Integer value found, but a string or a null is required\\n[configuration.otel_private_key] Boolean value found, but a string is required\\n[configuration.conf_server_port] String value found, but an integer is required\\n[configuration.conf_certificate] Boolean value found, but a string is required\\n[configuration.conf_private_key] Integer value found, but a string is required\\n\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"[configuration.otel_public_certificate] Integer value found, but a null or a string is required\\n[configuration.otel_ca_certificate] Integer value found, but a string or a null is required\\n[configuration.otel_private_key] Boolean value found, but a null or a string is required\\n[configuration.conf_server_port] String value found, but an integer is required\\n[configuration.conf_certificate] Boolean value found, but a null or a string is required\\n[configuration.conf_private_key] Integer value found, but a null or a string is required\\n\");\r",
 									"\r",
 									"});"
 								],

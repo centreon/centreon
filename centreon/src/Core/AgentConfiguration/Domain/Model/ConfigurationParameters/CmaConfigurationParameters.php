@@ -31,6 +31,7 @@ use Core\AgentConfiguration\Domain\Model\ConnectionMode;
 /**
  * @phpstan-type _CmaParameters array{
  *	    is_reverse: bool,
+ *		connection_mode?: ?string,
  *		otel_public_certificate: string,
  *		otel_private_key: string,
  *		otel_ca_certificate: ?string,
@@ -87,6 +88,8 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
             $this->validateHostCertificate($host['poller_ca_certificate'], $connectionMode, 'configuration.hosts[].poller_ca_certificate');
             $this->validateOptionalCertificate($host['poller_ca_name'], 'configuration.hosts[].poller_ca_name');
         }
+
+        unset($parameters['connection_mode']);
 
         $this->parameters = $parameters;
     }
