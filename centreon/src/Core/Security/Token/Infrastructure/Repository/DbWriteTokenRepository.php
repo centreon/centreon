@@ -29,6 +29,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\NewToken;
 use Core\Security\Token\Domain\Model\Token;
+use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteTokenRepositoryInterface
 {
@@ -139,7 +140,7 @@ class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteToken
         );
         $statement->bindValue(
             ':expireAt',
-            $token->getExpirationDate()->getTimestamp(),
+            $token->getExpirationDate()?->getTimestamp(),
             \PDO::PARAM_INT
         );
         $statement->execute();
@@ -165,7 +166,7 @@ class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteToken
                         `token_name`, `token_type`, `creator_id`, `creator_name`)
                     VALUES
                         (:token, :tokenId, :configurationId, :userId,
-                        :tokenName, 'manual', :creatorId, :creatorName)
+                        :tokenName, :tokenType, :creatorId, :creatorName)
                     SQL
             )
         );
@@ -178,6 +179,13 @@ class DbWriteTokenRepository extends AbstractRepositoryRDB implements WriteToken
         );
         $statement->bindValue(':userId', $token->getUserId(), \PDO::PARAM_INT);
         $statement->bindValue(':tokenName', $token->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(
+            ':tokenType',
+            $token->getType() === TokenTypeEnum::API
+                ? 'api'
+                : 'cma',
+            \PDO::PARAM_STR
+        );
         $statement->bindValue(':creatorId', $token->getCreatorId(), \PDO::PARAM_INT);
         $statement->bindValue(':creatorName', $token->getCreatorName(), \PDO::PARAM_STR);
 

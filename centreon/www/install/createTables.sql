@@ -2396,7 +2396,7 @@ CREATE TABLE `security_authentication_tokens` (
   `provider_configuration_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `token_name` varchar(255) DEFAULT NULL,
-  `token_type` enum('auto', 'manual') NOT NULL DEFAULT 'auto',
+  `token_type` enum('auto', 'api', 'cma') NOT NULL DEFAULT 'auto',
   `creator_id` int(11) DEFAULT NULL,
   `creator_name` varchar(255) DEFAULT NULL,
   `is_revoked` BOOLEAN NOT NULL DEFAULT 0,

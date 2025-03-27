@@ -1,6 +1,5 @@
 @REQ_MON-21278
 Feature: Delete API Token
-
   As an administrator
   I want to delete an API token using the "delete token" icon
   So that I can manage the tokens effectively

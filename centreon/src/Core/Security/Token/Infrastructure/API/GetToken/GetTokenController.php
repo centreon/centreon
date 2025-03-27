@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,48 +19,43 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\Security\Token\Infrastructure\API\FindTokens;
+namespace Core\Security\Token\Infrastructure\API\GetToken;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\StandardPresenter;
-use Core\Security\Token\Application\UseCase\FindTokens\FindTokens;
+use Core\Security\Token\Application\UseCase\GetToken\GetToken;
 use Core\Security\Token\Infrastructure\Voters\TokenVoters;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted(
-    TokenVoters::TOKEN_LIST,
-    null,
-    'You are not allowed to list the tokens',
-    Response::HTTP_FORBIDDEN
-)]
-final class FindTokensController extends AbstractController
+final class GetTokenController extends AbstractController
 {
-    /**
-     * @param FindTokens $useCase
-     * @param StandardPresenter $presenter
-     *
-     * @return Response
-     */
-    public function __invoke(FindTokens $useCase, StandardPresenter $presenter): Response
-    {
-        $response = $useCase();
+    #[IsGranted(
+        TokenVoters::TOKEN_LIST,
+        'userId',
+        'You are not allowed to access API tokens',
+        Response::HTTP_FORBIDDEN
+    )]
+    public function __invoke(
+        StandardPresenter $presenter,
+        GetToken $useCase,
+        string $tokenName,
+        ?int $userId = null,
+    ): Response {
+
+        $response = $useCase($tokenName, $userId);
+
         if ($response instanceof ResponseStatusInterface) {
             return $this->createResponse($response);
         }
 
-        return JsonResponse::fromJsonString(
-            $presenter->present(
-                $response,
-                [
-                    'groups' => ['Token:List'],
-                ]
-            ),
-            Response::HTTP_OK
-        );
+        return JsonResponse::fromJsonString($presenter->present(
+            $response,
+            ['groups' => ['Token:Get']]
+        ));
     }
 }
