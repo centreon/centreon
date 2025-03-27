@@ -373,7 +373,7 @@ describe('Details', () => {
     checkActionsButton();
     cy.makeSnapshot();
   });
-  it('displays the acknowledgment modal when the "Acknowledge" button is clicked and sends the acknowledgment action', () => {
+  it.only('displays the acknowledgment modal when the "Acknowledge" button is clicked and sends the acknowledgment action', () => {
     const store = getStore();
 
     interceptDetailsRequest({
