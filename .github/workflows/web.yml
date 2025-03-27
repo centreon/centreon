@@ -359,10 +359,6 @@ jobs:
         working-directory: centreon
         shell: bash
 
-      - name: Check configuration of symfony
-        run: composer symfony:check:ci
-        working-directory: centreon
-
       - name: Run of php-cs-fixer with strict_type
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
         working-directory: centreon
@@ -504,6 +500,10 @@ jobs:
         if: ${{ matrix.package_extension == 'deb' }}
         run: rm -f centreon/packaging/*-selinux.yaml
         shell: bash
+
+      - name: Check configuration of symfony
+        run: composer symfony:check
+        working-directory: centreon
 
       - name: Package Centreon
         uses: ./.github/actions/package-nfpm
