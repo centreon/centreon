@@ -1,0 +1,26 @@
+name: columns
+in: query
+description: Columns to include in the export (ex columns[]=status&columns[]=resource)
+required: false
+schema:
+  type: array
+  items:
+    type: string
+    enum:
+      - resource
+      - status
+      - parent_resource
+      - duration
+      - last_check
+      - information
+      - tries
+      - severity
+      - notes_url
+      - action_url
+      - state
+      - alias
+      - parent_alias
+      - fqdn
+      - monitoring_server_name
+      - notification
+      - checks

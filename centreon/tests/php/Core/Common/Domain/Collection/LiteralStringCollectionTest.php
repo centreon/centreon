@@ -68,7 +68,34 @@ it('return the keys of the collection as an array', function () {
     expect($this->collection->keys())->toEqual([1, 2]);
 });
 
-it('test merge', function () {
+it('test filter on values', function () {
+    $this->collection->add(1, new LiteralString('foo'));
+    $this->collection->add(2, new LiteralString('bar'));
+
+    $collection = $this->collection->filterOnValue(fn (LiteralString $item) => $item->getValue() === 'foo');
+    expect($collection->length())->toBe(1)
+        ->and($collection->get(1)->getValue())->toBe('foo');
+});
+
+it('test filter on keys', function () {
+    $this->collection->add(1, new LiteralString('foo'));
+    $this->collection->add(2, new LiteralString('bar'));
+
+    $collection = $this->collection->filterOnKey(fn (int $key) => $key === 1);
+    expect($collection->length())->toBe(1)
+        ->and($collection->get(1)->getValue())->toBe('foo');
+});
+
+it('test filter on values and keys', function () {
+    $this->collection->add(1, new LiteralString('foo'));
+    $this->collection->add(2, new LiteralString('bar'));
+
+    $collection = $this->collection->filterOnValueKey(fn (LiteralString $item, int $key) => $item->getValue() === 'foo' && $key === 1);
+    expect($collection->length())->toBe(1)
+        ->and($collection->get(1)->getValue())->toBe('foo');
+});
+
+it('test merge LiteralString collections', function () {
     $collection1 = new LiteralStringCollection();
     $collection1->add(3, new LiteralString('foo'));
     $collection1->add(4, new LiteralString('bar'));
@@ -85,7 +112,7 @@ it('test merge', function () {
 it('return the array of items', function () {
     $this->collection->add(1, new LiteralString('foo'));
     $this->collection->add(2, new LiteralString('bar'));
-    expect($this->collection->all())->toBeArray()->toHaveCount(2);
+    expect($this->collection->toArray())->toBeArray()->toHaveCount(2);
 });
 
 it('add an item at the collection (add)', function () {
@@ -144,7 +171,7 @@ it('must not to remove an item and return false', function () {
 it('return an iterator', function () {
     $this->collection->add(1, new LiteralString('foo'));
     $items = iterator_to_array($this->collection->getIterator());
-    expect($items)->toEqual($this->collection->all());
+    expect($items)->toEqual($this->collection->toArray());
 });
 
 it('json serialize', function () {
