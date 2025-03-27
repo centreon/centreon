@@ -112,10 +112,6 @@ apt-get install -y \
   php8.2-curl \
   php8.2-zip
 
-# composer installing https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
-ENV COMPOSER_ALLOW_SUPERUSER=1
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
-
 ###################
 # install plugins #
 ###################
@@ -154,3 +150,7 @@ apt-get install -y \
 apt-get clean
 
 EOF
+
+# composer installing https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
+ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
