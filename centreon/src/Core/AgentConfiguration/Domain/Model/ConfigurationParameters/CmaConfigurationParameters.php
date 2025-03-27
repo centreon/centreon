@@ -60,6 +60,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      */
     public function __construct(array $parameters)
     {
+        /** @var _CmaParameters $parameters */
         if (isset($parameters['connection_mode'])) {
             $connectionMode = $parameters['connection_mode'];
         } else {
@@ -68,7 +69,6 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                 : ConnectionModeEnum::SECURE;
         }
 
-        /** @var _CmaParameters $parameters */
         if ($connectionMode === ConnectionModeEnum::SECURE) {
             $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
             $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');

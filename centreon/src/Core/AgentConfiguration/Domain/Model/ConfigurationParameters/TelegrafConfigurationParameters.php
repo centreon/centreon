@@ -55,6 +55,7 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     public function __construct(
         array $parameters
     ){
+        /** @var _TelegrafParameters $parameters */
         if (isset($parameters['connection_mode'])) {
             $connectionMode = $parameters['connection_mode'];
         } else {
@@ -66,7 +67,6 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
                     : ConnectionModeEnum::SECURE;
         }
 
-        /** @var _TelegrafParameters $parameters */
         Assertion::range($parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
 
         if ($connectionMode === ConnectionModeEnum::SECURE) {
