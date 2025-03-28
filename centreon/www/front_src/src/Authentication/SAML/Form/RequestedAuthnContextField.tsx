@@ -7,7 +7,7 @@ import { labelRequestedAuthnContext } from '../translatedLabels';
 import { RequestedAuthnContextValue, SAMLConfiguration } from '../models';
 
 const RequestedAuthnContextField = (): React.JSX.Element => {
-  const { values, setFieldValue, errors, touched } =
+  const { setFieldValue, errors, touched } =
     useFormikContext<SAMLConfiguration>();
 
   const changeValue = (event): void => {
