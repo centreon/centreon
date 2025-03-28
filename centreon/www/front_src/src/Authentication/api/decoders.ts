@@ -9,7 +9,7 @@ import {
   OpenidConfiguration,
   RolesMapping
 } from '../Openid/models';
-import { SAMLConfiguration } from '../SAML/models';
+import { RequestedAuthnContextValue, SAMLConfiguration } from '../SAML/models';
 import { WebSSOConfiguration } from '../WebSSO/models';
 import {
   contactTemplateDecoder,
@@ -282,6 +282,10 @@ export const SAMLConfigurationDecoder = JsonDecoder.object<SAMLConfiguration>(
     logoutFrom: JsonDecoder.boolean,
     logoutFromUrl: JsonDecoder.nullable(JsonDecoder.string),
     remoteLoginUrl: JsonDecoder.string,
+    requestedAuthnContext: JsonDecoder.enumeration(
+      RequestedAuthnContextValue,
+      'Requested Authentication Context'
+    ),
     rolesMapping: SAMLRolesMapping,
     userIdAttribute: JsonDecoder.string
   },
@@ -299,6 +303,7 @@ export const SAMLConfigurationDecoder = JsonDecoder.object<SAMLConfiguration>(
     logoutFrom: 'logout_from',
     logoutFromUrl: 'logout_from_url',
     remoteLoginUrl: 'remote_login_url',
+    requestedAuthnContext: 'requested_authn_context',
     rolesMapping: 'roles_mapping',
     userIdAttribute: 'user_id_attribute'
   }

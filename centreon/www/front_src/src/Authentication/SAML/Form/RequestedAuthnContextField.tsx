@@ -14,7 +14,7 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
     setFieldValue('requestedAuthnContext', event.target.value);
   };
 
-  const options: SelectEntry[] = [
+  const options: Array<SelectEntry> = [
     { id: 1, name: RequestedAuthnContextValue.Minimum },
     { id: 2, name: RequestedAuthnContextValue.Exact },
     { id: 3, name: RequestedAuthnContextValue.Better },
@@ -34,10 +34,7 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
       label={labelRequestedAuthnContext}
       name="requestedAuthnContext"
       options={options}
-      selectedOptionId={
-        values.requestedAuthnContext
-          || RequestedAuthnContextValue.Minimum
-      }
+      selectedOptionId={values.requestedAuthnContext || 1}
       onChange={changeValue}
     />
   );
