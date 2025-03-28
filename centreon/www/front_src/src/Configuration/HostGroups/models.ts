@@ -30,5 +30,5 @@ export interface HostGroupItem extends NamedEntity {
   isActivated: boolean;
   hosts: Array<NamedEntity>;
   resourceAccessRules?: Array<NamedEntity>;
-  icon: null | (NamedEntity & { url: string });
+  icon?: null | (NamedEntity & { url: string });
 }

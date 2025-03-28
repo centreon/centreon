@@ -32,6 +32,7 @@ use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
+use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -45,6 +46,7 @@ final class GetHostGroup
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
+        private readonly ReadMediaRepositoryInterface $readMediaRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly bool $isCloudPlatform,
         private readonly ContactInterface $user
@@ -64,10 +66,12 @@ final class GetHostGroup
                 }
 
                 $hosts = $this->readHostRepository->findByHostGroup($hostGroupId);
+                $icon = $hostGroup->getIconId() === null
+                    ? null
+                    : $this->readMediaRepository->findById($hostGroup->getIconId());
                 $rules = $this->isCloudPlatform
                     ? $this->readResourceAccessRepository->findRuleByResourceId(HostGroupFilterType::TYPE_NAME, $hostGroupId)
                     : [];
-
             } else {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
 
@@ -79,6 +83,9 @@ final class GetHostGroup
                 }
 
                 $hosts = $this->readHostRepository->findByHostGroupAndAccessGroups($hostGroupId, $accessGroups);
+                $icon = $hostGroup->getIconId() === null
+                    ? null
+                    : $this->readMediaRepository->findById($hostGroup->getIconId());
                 $rules = [];
 
                 if ($this->isCloudPlatform) {
@@ -99,7 +106,7 @@ final class GetHostGroup
 
             }
 
-            return new GetHostGroupResponse($hostGroup, $hosts, $rules);
+            return new GetHostGroupResponse($hostGroup, $hosts, $rules, $icon);
         } catch (\Throwable $ex) {
             $this->error(
                 "Error while retrieving a host group: {$ex->getMessage()}",

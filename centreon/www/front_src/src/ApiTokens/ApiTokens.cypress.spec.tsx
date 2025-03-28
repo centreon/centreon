@@ -3,7 +3,7 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import i18next from 'i18next';
-import { Provider, createStore, useAtomValue } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { equals } from 'ramda';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
@@ -13,8 +13,7 @@ import {
   Method,
   QueryParameter,
   SnackbarProvider,
-  TestQueryProvider,
-  useLocaleDateTimeFormat
+  TestQueryProvider
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 

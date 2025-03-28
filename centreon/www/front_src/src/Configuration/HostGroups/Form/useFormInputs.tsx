@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
-import IconFiled from './IconFiled';
+import IconFiled from './IconFilled';
 
 import {
   hostListEndpoint,

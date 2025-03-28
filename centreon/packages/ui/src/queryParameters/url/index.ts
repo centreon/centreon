@@ -25,7 +25,10 @@ const getUrlQueryParameters = <
 
   const entries = [...urlParams.entries()].map<[string, string]>(
     ([key, value]) => {
-      if (startsWith('/', value)) {
+      if (
+        startsWith('/', value) ||
+        (!startsWith('{', value) && !startsWith('[', value))
+      ) {
         return [key, value];
       }
 
