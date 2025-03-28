@@ -106,11 +106,11 @@ When('the user changes the properties of a meta service', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="meta_name"]');
   cy.getIframeBody()
     .find('input[name="meta_name"]')
-    .clear()
+    .clear({force:true})
     .type('metaServiceNameChanged');
   cy.getIframeBody()
     .find('input[name="meta_display"]')
-    .clear()
+    .clear({force:true})
     .type('metaServiceOutputFormatChanged');
   cy.getIframeBody().find('input[name="warning"]').clear().type('50');
   cy.getIframeBody().find('input[name="critical"]').clear().type('75');
