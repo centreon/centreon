@@ -1,6 +1,6 @@
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
-import { configurationAtom } from '../../atoms';
+import { configurationAtom } from '../atoms';
 
 interface UseGetAllProps {
   sortField: string;
@@ -36,7 +36,7 @@ const useGetAll = ({
           sort
         }
       }),
-    getQueryKey: () => ['listHostGroups', sortField, sortOrder, limit, page],
+    getQueryKey: () => ['listResources', sortField, sortOrder, limit, page],
     queryOptions: {
       refetchOnMount: false,
       staleTime: 0,

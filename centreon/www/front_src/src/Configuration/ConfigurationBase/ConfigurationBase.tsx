@@ -1,12 +1,74 @@
+import { useAtom, useSetAtom } from 'jotai';
+import { isEmpty, isNil, isNotNil, not } from 'ramda';
+import { useEffect, useMemo } from 'react';
 import { ConfigurationBase } from '../models';
+import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
+
 import Page from './Page';
+import { columnsAtomKey, filtersAtomKey } from './constants';
 
 const Base = ({
   columns,
   resourceType,
-  Form
+  form,
+  api,
+  filtersConfiguration,
+  filtersInitialValues,
+  defaultSelectedColumnIds,
+  hasWriteAccess
 }: ConfigurationBase): JSX.Element => {
-  return <Page columns={columns} resourceType={resourceType} Form={Form} />;
+  const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const [filters, setFilters] = useAtom(filtersAtom);
+  const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
+
+  useEffect(() => {
+    setConfiguration({
+      resourceType,
+      api,
+      filtersConfiguration,
+      filtersInitialValues,
+      defaultSelectedColumnIds
+    });
+
+    if (isNil(localStorage.getItem(filtersAtomKey))) {
+      setFilters(filtersInitialValues);
+    }
+
+    if (isNil(localStorage.getItem(columnsAtomKey))) {
+      setSelectedColumnIds(defaultSelectedColumnIds);
+    }
+  }, [
+    setConfiguration,
+    api,
+    filtersConfiguration,
+    defaultSelectedColumnIds,
+    filtersInitialValues
+  ]);
+
+  const isConfigurationValid = useMemo(
+    () =>
+      configuration?.api?.endpoints &&
+      configuration?.resourceType &&
+      configuration?.filtersConfiguration &&
+      !isEmpty(configuration?.defaultSelectedColumnIds) &&
+      !isEmpty(configuration?.filtersInitialValues) &&
+      !isEmpty(filters) &&
+      isNotNil(hasWriteAccess),
+    [configuration, filters]
+  ) as boolean;
+
+  if (not(isConfigurationValid)) {
+    return <div />;
+  }
+
+  return (
+    <Page
+      columns={columns}
+      resourceType={resourceType}
+      form={form}
+      hasWriteAccess={hasWriteAccess}
+    />
+  );
 };
 
 export default Base;
