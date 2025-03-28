@@ -7,7 +7,7 @@ import { labelRequestedAuthnContext } from '../translatedLabels';
 import { RequestedAuthnContextValue, SAMLConfiguration } from '../models';
 
 const RequestedAuthnContextField = (): React.JSX.Element => {
-  const { setFieldValue, errors, touched } =
+  const { values, setFieldValue, errors, touched } =
     useFormikContext<SAMLConfiguration>();
 
   const changeValue = (event): void => {
@@ -34,7 +34,10 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
       label={labelRequestedAuthnContext}
       name="requestedAuthnContext"
       options={options}
-      selectedOptionId={RequestedAuthnContextValue.Minimum}
+      selectedOptionId={
+        values.requestedAuthnContext
+          || RequestedAuthnContextValue.Minimum
+      }
       onChange={changeValue}
     />
   );
