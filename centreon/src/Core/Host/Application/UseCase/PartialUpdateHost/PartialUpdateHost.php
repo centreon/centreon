@@ -402,7 +402,11 @@ final class PartialUpdateHost
             );
         }
 
-        if ($this->writeVaultRepository->isVaultConfigured() && ! $dto->snmpCommunity instanceOf NoValue) {
+        if (
+            $this->writeVaultRepository->isVaultConfigured()
+            && ! $dto->snmpCommunity instanceOf NoValue &&
+            ! $this->isAVaultPath($dto->snmpCommunity)
+        ) {
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
                 [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $host->getSnmpCommunity()]

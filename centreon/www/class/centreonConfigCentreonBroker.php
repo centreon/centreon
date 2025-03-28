@@ -941,7 +941,6 @@ class CentreonConfigCentreonBroker
                         $matches[1],
                         $configGroupId
                     );
-                    // if password === vault path recup dans le vault
                     $output["lua_parameter__value_{$matches[1]}"] = $originalPassword;
                 }
             }
@@ -1861,8 +1860,8 @@ class CentreonConfigCentreonBroker
 
     private function retrievePasswordsFromVault(array &$values, ReadVaultRepositoryInterface $readVaultRepository): void
     {
-        foreach ($values['output'] as $configGroupId => &$output) {
-            foreach ($output as $key => &$value) {
+        foreach ($values['output'] as &$output) {
+            foreach ($output as &$value) {
                 if (is_string($value) && $this->isAVaultPath($value)) {
                     $vaultValue = $readVaultRepository->findFromPath($value);
                     $parameterKey = end(explode("::", $value));

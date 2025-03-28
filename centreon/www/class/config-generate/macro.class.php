@@ -156,6 +156,7 @@ class Macro extends AbstractObject
                 host_id, host_snmp_community
                 FROM host
                 WHERE host_snmp_community IS NOT NULL
+                OR host_snmp_community != '';
                 SQL
         );
 

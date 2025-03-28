@@ -190,6 +190,9 @@ abstract class AbstractHost extends AbstractObject
 
         $host['macros'] = Macro::getInstance($this->dependencyInjector)
             ->getHostMacroByHostId($host['host_id']);
+        if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
+            $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
+        }
         return 0;
     }
 

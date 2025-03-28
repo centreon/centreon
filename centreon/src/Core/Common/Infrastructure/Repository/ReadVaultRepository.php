@@ -90,7 +90,6 @@ class ReadVaultRepository extends AbstractVaultRepository implements ReadVaultRe
         foreach ($responses as $uuid => $response) {
                 foreach ($paths as $resourceId => $path) {
                     if (strpos($path, $uuid) !== false) {
-
                         $data = $response['data']['data'];
                         $vaultData[$resourceId] = $data;
                     }

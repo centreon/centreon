@@ -27,13 +27,18 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Exception;
+use Error;
 use Symfony\Component\HttpClient\AmpHttpClient;
+use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\{
+    TransportExceptionInterface,
+    DecodingExceptionInterface,
+    RedirectionExceptionInterface,
+    ClientExceptionInterface,
+    ServerExceptionInterface
+};
 
 abstract class AbstractVaultRepository
 {
@@ -223,18 +228,15 @@ abstract class AbstractVaultRepository
     }
 
     /**
+     * * Send a multiplexed request to vault.
      *
      * @param string $method
-     * @param array<string, string> $urls urls indexed by ResourceUUID
+     * @param array $urls
      * @param null|array $data
-     * @return array<string, array<string,string>> vault content indexed by ResourceUUID
-     * @throws \Exception
-     * @throws \Error
+     * @return array
+     * @throws Exception
+     * @throws Error
      * @throws TransportExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ClientExceptionInterface
-     * @throws ServerExceptionInterface
      */
     protected function sendMultiplexedRequest(string $method, array $urls, ?array $data = null): array
     {
@@ -267,7 +269,10 @@ abstract class AbstractVaultRepository
                 try {
                     if ($chunk->isFirst()) {
                         if ($response->getStatusCode() !== Response::HTTP_OK) {
-                            $this->error('Error HTTP CODE:' . $response->getStatusCode());
+                            $this->error(
+                                message: 'Error HTTP CODE:' . $response->getStatusCode(),
+                                context: ['url' => $response->getInfo('url'), 'expected_status_code' => Response::HTTP_OK]
+                            );
                             continue;
                         }
                     }
@@ -280,8 +285,11 @@ abstract class AbstractVaultRepository
                     }
                 } catch (\Exception $ex) {
                     $this->error(
-                        'Error while processing multiplexed request to vault, process continue',
-                        ['exception' => $ex,]
+                        message: 'Error while processing multiplexed request to vault, process continue',
+                        context: [
+                            'url' => $response->getInfo('url'),
+                            'exception' => $ex,
+                        ]
                     );
 
                     continue;
