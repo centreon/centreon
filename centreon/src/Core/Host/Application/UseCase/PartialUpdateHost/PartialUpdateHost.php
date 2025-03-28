@@ -404,8 +404,8 @@ final class PartialUpdateHost
 
         if (
             $this->writeVaultRepository->isVaultConfigured()
-            && ! $dto->snmpCommunity instanceOf NoValue &&
-            ! $this->isAVaultPath($dto->snmpCommunity)
+            && ! $dto->snmpCommunity instanceOf NoValue
+            && ! $this->isAVaultPath($dto->snmpCommunity)
         ) {
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,

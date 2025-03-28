@@ -46,8 +46,8 @@ interface ReadVaultRepositoryInterface
     /**
      * Get Vault content from given paths.
      *
-     * @param array<int, string> $paths List of paths to get indexed by resource ID.
-     * @return array<int, array<string,string>> Vault content indexed by resource ID.
+     * @param array<int, string> $paths list of paths to get indexed by resource ID
+     * @return array<int, array<string,string>> vault content indexed by resource ID
      */
     public function findFromPaths(array $paths): array;
 

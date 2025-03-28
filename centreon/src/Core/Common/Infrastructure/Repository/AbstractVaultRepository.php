@@ -24,20 +24,14 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Common\Application\UseCase\VaultTrait;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Exception;
 use Error;
+use Exception;
 use Symfony\Component\HttpClient\AmpHttpClient;
-use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\{
-    TransportExceptionInterface,
-    DecodingExceptionInterface,
-    RedirectionExceptionInterface,
-    ClientExceptionInterface,
-    ServerExceptionInterface
+    TransportExceptionInterface
 };
 
 abstract class AbstractVaultRepository
@@ -101,7 +95,7 @@ abstract class AbstractVaultRepository
     /**
      * Connect to vault to get an authenticationToken.
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return string
      */
@@ -127,7 +121,7 @@ abstract class AbstractVaultRepository
             $loginResponse = $this->httpClient->request('POST', $url, ['json' => $body]);
 
             $content = json_decode($loginResponse->getContent(), true);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->error($url . ' did not respond with a 2XX status');
 
             throw $ex;
@@ -136,7 +130,7 @@ abstract class AbstractVaultRepository
         if (! isset($content['auth']['client_token'])) {
             $this->error($url . ' Unable to retrieve client token from Vault');
 
-            throw new \Exception('Unable to authenticate to Vault');
+            throw new Exception('Unable to authenticate to Vault');
         }
 
         return $content['auth']['client_token'];
@@ -172,7 +166,7 @@ abstract class AbstractVaultRepository
      * @param string $url
      * @param array<mixed> $data
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return array<mixed>
      */
@@ -216,7 +210,7 @@ abstract class AbstractVaultRepository
             && $response->getStatusCode() !== Response::HTTP_OK
         ) {
 
-            throw new \Exception('Error ' . $response->getStatusCode());
+            throw new Exception('Error ' . $response->getStatusCode());
         }
 
         if ($method === 'DELETE') {
@@ -233,10 +227,10 @@ abstract class AbstractVaultRepository
      * @param string $method
      * @param array $urls
      * @param null|array $data
-     * @return array
      * @throws Exception
      * @throws Error
      * @throws TransportExceptionInterface
+     * @return array
      */
     protected function sendMultiplexedRequest(string $method, array $urls, ?array $data = null): array
     {
@@ -257,11 +251,10 @@ abstract class AbstractVaultRepository
                 } catch (TransportExceptionInterface $ex) {
                     $this->error(
                         'Error while sending multiplexed request to vault, process continue',
-                        ['url' => $url, 'exception' => $ex,]
+                        ['url' => $url, 'exception' => $ex]
                     );
 
                     continue;
-
                 }
             }
 
@@ -278,12 +271,12 @@ abstract class AbstractVaultRepository
                     }
                     if ($chunk->isLast()) {
                         foreach (array_keys($responseData) as $uuid) {
-                            if (strpos($response->getInfo('url'), $uuid) !== false) {
+                            if (str_contains($response->getInfo('url'), $uuid)  ) {
                                 $responseData[$uuid] = $response->toArray();
                             }
                         }
                     }
-                } catch (\Exception $ex) {
+                } catch (Exception $ex) {
                     $this->error(
                         message: 'Error while processing multiplexed request to vault, process continue',
                         context: [
