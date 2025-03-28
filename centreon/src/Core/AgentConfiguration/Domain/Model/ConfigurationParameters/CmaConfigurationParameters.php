@@ -26,10 +26,12 @@ namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 /**
  * @phpstan-type _CmaParameters array{
  *	    is_reverse: bool,
+ *		connection_mode?: ConnectionModeEnum,
  *		otel_public_certificate: string,
  *		otel_private_key: string,
  *		otel_ca_certificate: ?string,
@@ -63,31 +65,38 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         $parameters = $this->normalizeCertificatePaths($parameters);
 
         /** @var _CmaParameters $parameters */
-        Assertion::notEmptyString($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
-        Assertion::maxLength($parameters['otel_public_certificate'], self::MAX_LENGTH, 'configuration.otel_public_certificate');
-        Assertion::notEmptyString($parameters['otel_private_key'], 'configuration.otel_private_key');
-        Assertion::maxLength($parameters['otel_private_key'], self::MAX_LENGTH, 'configuration.otel_private_key');
-        if ($parameters['otel_ca_certificate'] !== null) {
-            Assertion::notEmptyString($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
-            Assertion::maxLength($parameters['otel_ca_certificate'], self::MAX_LENGTH, 'configuration.otel_ca_certificate');
+        if (isset($parameters['connection_mode'])) {
+            $connectionMode = $parameters['connection_mode'];
+        } else {
+            $connectionMode = (empty($parameters['otel_public_certificate']) || empty($parameters['otel_private_key']))
+                ? ConnectionModeEnum::NO_TLS
+                : ConnectionModeEnum::SECURE;
         }
 
-        if ($parameters['is_reverse'] === false && $parameters['hosts'] !== []) {
+        if ($connectionMode === ConnectionModeEnum::SECURE) {
+            $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
+            $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
+            if ($parameters['otel_ca_certificate'] !== null) {
+                $this->validateCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+            }
+        } else {
+            $this->validateOptionalCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
+            $this->validateOptionalCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
+            $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+        }
+
+        if (! $parameters['is_reverse'] && ! empty($parameters['hosts'])) {
             $parameters['hosts'] = [];
         }
 
         foreach ($parameters['hosts'] as $host) {
             Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
             Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
-            if ($host['poller_ca_certificate'] !== null) {
-                Assertion::notEmptyString($host['poller_ca_certificate'], 'configurationhosts[].poller_ca_certificate');
-                Assertion::maxLength($host['poller_ca_certificate'], self::MAX_LENGTH, 'configuration.hosts[].poller_ca_certificate');
-            }
-            if ($host['poller_ca_name'] !== null) {
-                Assertion::notEmptyString($host['poller_ca_name'], 'configuration.hosts[].poller_ca_name');
-                Assertion::maxLength($host['poller_ca_name'], self::MAX_LENGTH, 'configuration.hosts[].poller_ca_name');
-            }
+            $this->validateHostCertificate($host['poller_ca_certificate'], $connectionMode, 'configuration.hosts[].poller_ca_certificate');
+            $this->validateOptionalCertificate($host['poller_ca_name'], 'configuration.hosts[].poller_ca_name');
         }
+
+        unset($parameters['connection_mode']);
 
         $this->parameters = $parameters;
     }
@@ -102,6 +111,9 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         return $this->parameters;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getBrokerDirective(): ?string
     {
         return self::BROKER_MODULE_DIRECTIVE;
@@ -155,5 +167,54 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         return str_starts_with($path, self::CERTIFICATE_BASE_PATH)
             ? $path
             : self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
+    }
+
+    /**
+     * Validates a certificate.
+     *
+     * @param ?string $certificate
+     * @param string $field Used for error reporting
+     * 
+     * @throws AssertionFailedException
+     */
+    private function validateCertificate(?string $certificate, string $field): void
+    {
+        Assertion::notNull($certificate, $field);
+        Assertion::notEmptyString($certificate, $field);
+        Assertion::maxLength((string) $certificate, self::MAX_LENGTH, $field);
+    }
+
+    /**
+     * Validates an optional certificate.
+     *
+     * @param ?string $certificate
+     * @param string $field Used for error reporting
+     * 
+     * @throws AssertionFailedException
+     */
+    private function validateOptionalCertificate(?string $certificate, string $field): void
+    {
+        if ($certificate !== null && $certificate !== '') {
+            Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
+        }
+    }
+
+    /**
+     * Validates the host certificate.
+     *
+     * @param string|null $certificate
+     * @param ConnectionModeEnum $connectionMode
+     * @param string $field Used for error reporting
+     *
+     * @throws AssertionFailedException
+     */
+    private function validateHostCertificate(?string $certificate, ConnectionModeEnum $connectionMode, string $field): void
+    {
+        if ($certificate !== null && is_string($certificate)) {
+            if ($connectionMode === ConnectionModeEnum::SECURE) {
+                Assertion::notEmptyString($certificate, $field);
+            }
+            Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
+        }
     }
 }

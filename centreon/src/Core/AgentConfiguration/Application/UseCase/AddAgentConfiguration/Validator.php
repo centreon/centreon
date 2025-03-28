@@ -146,7 +146,7 @@ class Validator
      */
     public function validateTypeOrFail(AddAgentConfigurationRequest $request): void
     {
-        $type = Type::from($request->type);
+        Type::from($request->type);
     }
 
     /**
