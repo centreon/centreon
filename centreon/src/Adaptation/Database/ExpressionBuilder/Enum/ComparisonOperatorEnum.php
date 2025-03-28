@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,12 +21,19 @@
 
 declare(strict_types=1);
 
-namespace CentreonOpenTickets\Providers\Application\UseCase;
+namespace Adaptation\Database\ExpressionBuilder\Enum;
 
-use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-
-interface FindProvidersPresenterInterface extends PresenterInterface
-{
-    public function presentResponse(FindProvidersResponse|ResponseStatusInterface $response): void;
+/**
+ * Enum
+ *
+ * @class   ComparisonOperatorEnum
+ * @package Adaptation\Database\ExpressionBuilder\Enum
+ */
+enum ComparisonOperatorEnum: string {
+    case EQUAL = '=';
+    case NOT_EQUAL = '<>';
+    case GREATER_THAN = '>';
+    case GREATER_THAN_OR_EQUAL = '>=';
+    case LESS_THAN = '<';
+    case LESS_THAN_OR_EQUAL = '<=';
 }
