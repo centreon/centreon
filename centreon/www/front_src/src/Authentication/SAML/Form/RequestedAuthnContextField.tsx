@@ -34,7 +34,7 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
       label={labelRequestedAuthnContext}
       name="requestedAuthnContext"
       options={options}
-      selectedOptionId={values.requestedAuthnContext}
+      selectedOptionId={RequestedAuthnContextValue.Minimum}
       onChange={changeValue}
     />
   );
