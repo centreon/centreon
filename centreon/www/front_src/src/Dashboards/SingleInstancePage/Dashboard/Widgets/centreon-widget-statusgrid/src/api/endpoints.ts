@@ -13,7 +13,6 @@ import {
   QueryParameter,
   buildListingEndpoint
 } from '@centreon/ui';
-import { getFormattedResources } from '../../../../utils';
 import { Resource } from '../../../models';
 import { formatBAStatus, formatStatus } from '../../../utils';
 
@@ -68,9 +67,7 @@ export const getListingCustomQueryParameters = ({
   states,
   resources
 }: GetCustomQueryParametersProps): Array<QueryParameter> => {
-  const formattedResources = getFormattedResources({ array: resources });
-
-  const resourcesToApplyToCustomParameters = formattedResources.filter(
+  const resourcesToApplyToCustomParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
   );
 
@@ -106,8 +103,7 @@ export const getListingQueryParameters = ({
   limit,
   page
 }: GetListingQueryParametersProps): ListingParameters => {
-  const formattedResources = getFormattedResources({ array: resources });
-  const resourcesToApplyToSearchParameters = formattedResources.filter(
+  const resourcesToApplyToSearchParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
   );
 
@@ -181,9 +177,7 @@ export const buildCondensedViewEndpoint = ({
   baseEndpoint,
   statuses
 }: BuildResourcesEndpointProps): string => {
-  const formattedResources = getFormattedResources({ array: resources });
-
-  const resourcesToApply = formattedResources.map((resource) => {
+  const resourcesToApply = resources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
       return {
         ...resource,
