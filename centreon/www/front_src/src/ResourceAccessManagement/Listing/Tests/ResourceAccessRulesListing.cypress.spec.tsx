@@ -161,6 +161,8 @@ describe('Resource Access Rules Listing', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.contains('rule1').should('be.visible');
+
+    cy.makeSnapshot();
   });
 
   it('executes a get resource access rules request after updating limit param', () => {
@@ -183,6 +185,8 @@ describe('Resource Access Rules Listing', () => {
     });
 
     cy.contains('rule1').should('be.visible');
+
+    cy.makeSnapshot();
   });
 
   it('executes a listing request with an updated page parameter when change page action is clicked', () => {
@@ -213,6 +217,8 @@ describe('Resource Access Rules Listing', () => {
     });
 
     cy.contains('rule1').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
 
@@ -240,6 +246,10 @@ describe('column sorting', () => {
       });
 
       cy.contains('rule1').should('be.visible');
+
+      cy.makeSnapshot(
+        `column sorting --  executes a listing request when ${label} column is clicked`
+      );
     });
   });
 });
@@ -279,6 +289,8 @@ describe('Listing row actions: Delete button', () => {
     cy.findByText(labelDeleteResourceAccessRuleWarning).should('be.visible');
     cy.findByTestId(labelCancel).should('be.visible');
     cy.findByLabelText(labelDelete).should('be.visible');
+
+    cy.makeSnapshot();
     cy.findByTestId(labelCancel).click();
   });
 
@@ -299,6 +311,8 @@ describe('Listing row actions: Delete button', () => {
     cy.findByText(labelDeleteResourceAccessRuleWarning).should('not.exist');
     cy.findByTestId(labelCancel).should('not.exist');
     cy.findByLabelText(labelDelete).should('not.exist');
+
+    cy.makeSnapshot();
   });
 
   it('displays a success message after successful deletion', () => {
@@ -311,6 +325,8 @@ describe('Listing row actions: Delete button', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findByText(labelResourceAccessRuleDeletedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
   });
 
   it('displays an error message upon failed deletion', () => {
@@ -331,6 +347,8 @@ describe('Listing row actions: Delete button', () => {
     cy.waitForRequest('@deleteResourceAccessRuleFailedRequest');
 
     cy.findByText('internal server error').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
 
@@ -361,6 +379,8 @@ describe('Listing row actions enable-disable action', () => {
     cy.waitForRequest('@activateRuleRequest');
 
     cy.findByText('internal server error').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
 
@@ -388,6 +408,8 @@ describe('Listing header actions: mass delete', () => {
     cy.findByTestId(labelDeleteMultipleResourceAccessRules).should(
       'be.not.disabled'
     );
+
+    cy.makeSnapshot();
   });
 
   it('displays a confirmation dialog when multiple delete button is clicked', () => {
@@ -402,6 +424,8 @@ describe('Listing header actions: mass delete', () => {
     cy.findByText(labelDeleteResourceAccessRulesWarning).should('be.visible');
     cy.findByText(labelDelete).should('be.visible');
     cy.findByText(labelCancel).should('be.visible');
+
+    cy.makeSnapshot();
 
     cy.findByText(labelCancel).click();
   });
@@ -421,6 +445,8 @@ describe('Listing header actions: mass delete', () => {
 
     cy.waitForRequest('@deleteResourceAccessRulesRequest');
     cy.findByText(labelResourceAccessRulesDeletedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
   });
 
   it('displays a warning message containing the list of names that failed to delete', () => {
@@ -443,6 +469,8 @@ describe('Listing header actions: mass delete', () => {
     cy.waitForRequest('@deleteResourceAccessRulesRequest');
     cy.waitForRequest('@defaultRequest');
     cy.findByText(warningMessage).should('be.visible');
+
+    cy.makeSnapshot();
   });
 
   it('displays an error message when the deletion of all rules fails', () => {
@@ -463,6 +491,8 @@ describe('Listing header actions: mass delete', () => {
 
     cy.waitForRequest('@deleteResourceAccessRulesRequest');
     cy.findByText(labelFailedToDeleteSelectedRules).should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
 
@@ -501,6 +531,8 @@ describe('Listing action: duplicate a rule', () => {
     cy.findByLabelText(labelResourceAccessRuleName).should('be.visible');
     cy.findByText(labelCancel).should('be.visible');
     cy.findByText(labelDuplicate).should('be.visible');
+
+    cy.makeSnapshot();
     cy.findByText(labelCancel).click();
   });
 
@@ -513,6 +545,8 @@ describe('Listing action: duplicate a rule', () => {
     cy.findByText(labelEnterNameForDuplicatedRule).click();
 
     cy.findByText(labelRequired).should('be.visible');
+
+    cy.makeSnapshot();
     cy.findByText(labelCancel).click();
   });
 
@@ -525,6 +559,8 @@ describe('Listing action: duplicate a rule', () => {
 
     cy.findByText(labelEnterNameForDuplicatedRule).click();
     cy.findByText(labelNameAlreadyExists).should('be.visible');
+
+    cy.makeSnapshot();
     cy.findByText(labelCancel).click();
   });
 
@@ -540,6 +576,8 @@ describe('Listing action: duplicate a rule', () => {
     cy.waitForRequest('@postRequest');
 
     cy.findByText(labelRuleDuplicatedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
   });
 
   it('displays an error message when duplication of a rule fails', () => {
@@ -562,5 +600,7 @@ describe('Listing action: duplicate a rule', () => {
     cy.waitForRequest('@postErrorRequest');
 
     cy.findByText('internal server error').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
