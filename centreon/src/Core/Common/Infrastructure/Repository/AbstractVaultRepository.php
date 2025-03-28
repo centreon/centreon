@@ -26,8 +26,6 @@ namespace Core\Common\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Error;
-use Exception;
 use Symfony\Component\HttpClient\AmpHttpClient;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\{
@@ -222,14 +220,12 @@ abstract class AbstractVaultRepository
     }
 
     /**
-     * * Send a multiplexed request to vault.
+     * Send a multiplexed request to vault.
      *
      * @param string $method
      * @param array<string,string> $urls indexed by their uuid
      * @param null|array<mixed> $data
-     * @throws Exception
-     * @throws Error
-     * @throws TransportExceptionInterface
+     *
      * @return array<string, mixed> $response data indexed by their uuid
      */
     protected function sendMultiplexedRequest(string $method, array $urls, ?array $data = null): array
@@ -276,7 +272,7 @@ abstract class AbstractVaultRepository
                             }
                         }
                     }
-                } catch (Exception $ex) {
+                } catch (\Exception $ex) {
                     $this->error(
                         message: 'Error while processing multiplexed request to vault, process continue',
                         context: [

@@ -181,8 +181,6 @@ class Macro extends AbstractObject
     }
 
     /**
-     * Undocumented function
-     *
      * @param array{int, array{string, string}} $macros Macros on format [ResourceId => [MacroName, MacroValue]]
      * @return array{int, string} vault path indexed by service id.
      */

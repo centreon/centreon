@@ -57,7 +57,7 @@ class Resource extends AbstractObject
     /** @var string[] */
     protected $attributes_hash = ['resources'];
 
-        /**
+    /**
      * Macro constructor
      *
      * @param Container $dependencyInjector
@@ -115,6 +115,7 @@ class Resource extends AbstractObject
                 }
             }
         }
+
         $this->generateFile($object);
     }
 }
