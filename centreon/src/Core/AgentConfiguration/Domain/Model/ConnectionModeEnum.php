@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,23 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration;
+namespace Core\AgentConfiguration\Domain\Model;
 
-use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
-
-final class UpdateAgentConfigurationRequest
-{
-    public int $id = 0;
-
-    public string $name = '';
-
-    public string $type = '';
-
-    public ConnectionModeEnum $connectionMode = ConnectionModeEnum::SECURE;
-
-	/** @var int[] */
-	public array $pollerIds = [];
-
-    /** @var array<string,mixed> */
-    public array $configuration = [];
+enum ConnectionModeEnum {
+    case SECURE;
+    case NO_TLS;
 }

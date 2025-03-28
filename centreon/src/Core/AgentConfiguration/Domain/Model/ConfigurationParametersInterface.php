@@ -30,5 +30,10 @@ interface ConfigurationParametersInterface
      */
     public function getData(): array;
 
+    /**
+     * Retrieves the broker directive.
+     *
+     * @return ?string
+     */
     public function getBrokerDirective(): ?string;
 }
