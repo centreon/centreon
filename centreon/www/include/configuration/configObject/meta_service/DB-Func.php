@@ -46,12 +46,24 @@ require_once _CENTREON_PATH_ . 'www/class/centreonMeta.class.php';
  *
  * @param mixed $value
  * @param int $targetParamType
+ * @param bool $sanitize
  * @return array<mixed, int>
  */
-function bind($value, $targetParamType) {
+function bind($value, $targetParamType, $sanitize = true) {
     if ($value === null || $value === '') {
-        return [null, PDO::PARAM_NULL];
+        return [null, \PDO::PARAM_NULL];
     }
+
+    if ($sanitize) {
+        $value = match ($targetParamType) {
+            \PDO::PARAM_BOOL => filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
+            \PDO::PARAM_INT  => filter_var($value, FILTER_VALIDATE_INT) !== false ? (int) $value : 0,
+            default => HtmlSanitizer::createFromString((string)$value)
+                        ->sanitize()
+                        ->getString()
+        };
+    }
+
     return [$value, $targetParamType];
 }
 
@@ -71,7 +83,7 @@ function testExistence($name = null)
     try {
         $statement = $pearDB->prepareQuery($query);
         $bindParams = [
-            ':meta_name' => bind(htmlentities($name, ENT_QUOTES, "UTF-8"), PDO::PARAM_STR)
+            ':meta_name' => bind($name, \PDO::PARAM_STR)
         ];
         $pearDB->executePreparedQuery($statement, $bindParams, true);
         $meta = $pearDB->fetch($statement);
@@ -115,7 +127,7 @@ function enableMetaServiceInDB($metaId = null)
     try {
         $statement = $pearDB->prepareQuery($query);
         $bindParams = [
-            ':meta_id' => bind($metaId, PDO::PARAM_INT)
+            ':meta_id' => bind($metaId, \PDO::PARAM_INT)
         ];
         $pearDB->executePreparedQuery($statement, $bindParams, true);
     } catch (CentreonDbException $exception) {
@@ -150,7 +162,7 @@ function disableMetaServiceInDB($metaId = null)
     try {
         $statement = $pearDB->prepareQuery($query);
         $bindParams = [
-            ':meta_id' => bind($metaId, PDO::PARAM_INT)
+            ':meta_id' => bind($metaId, \PDO::PARAM_INT)
         ];
         $pearDB->executePreparedQuery($statement, $bindParams, true);
     } catch (CentreonDbException $exception) {
@@ -190,7 +202,7 @@ function removeRelationLastMetaServiceDependency(int $serviceId): void
     try {
         $statement = $pearDB->prepareQuery($query);
         $bindParams = [
-            ':serviceId' => bind($serviceId, PDO::PARAM_INT)
+            ':serviceId' => bind($serviceId, \PDO::PARAM_INT)
         ];
         $pearDB->executePreparedQuery($statement, $bindParams, true);
         $result = $pearDB->fetch($statement);
@@ -213,7 +225,7 @@ function removeRelationLastMetaServiceDependency(int $serviceId): void
         try {
             $statementDel = $pearDB->prepareQuery($queryDel);
             $bindParamsDel = [
-                ':dep_id' => bind($result['id'], PDO::PARAM_INT)
+                ':dep_id' => bind($result['id'], \PDO::PARAM_INT)
             ];
             $pearDB->executePreparedQuery($statementDel, $bindParamsDel, true);
         } catch (CentreonDbException $exception) {
@@ -248,7 +260,7 @@ function deleteMetaServiceInDB($metas = [])
         try {
             $statement = $pearDB->prepareQuery($query);
             $bindParams = [
-                ':meta_id' => bind($metaId, PDO::PARAM_INT)
+                ':meta_id' => bind($metaId, \PDO::PARAM_INT)
             ];
             $pearDB->executePreparedQuery($statement, $bindParams, true);
         } catch (CentreonDbException $exception) {
@@ -269,7 +281,7 @@ function deleteMetaServiceInDB($metas = [])
         try {
             $statement2 = $pearDB->prepareQuery($query2);
             $bindParams2 = [
-                ':service_description' => bind('meta_' . $metaId, PDO::PARAM_STR)
+                ':service_description' => bind('meta_' . $metaId, \PDO::PARAM_STR)
             ];
             $pearDB->executePreparedQuery($statement2, $bindParams2, true);
         } catch (CentreonDbException $exception) {
@@ -305,7 +317,7 @@ function enableMetricInDB($msrId = null)
     try {
         $statement = $pearDB->prepareQuery($query);
         $bindParams = [
-            ':msr_id' => bind($msrId, PDO::PARAM_INT)
+            ':msr_id' => bind($msrId, \PDO::PARAM_INT)
         ];
         $pearDB->executePreparedQuery($statement, $bindParams, true);
     } catch (CentreonDbException $exception) {
@@ -340,7 +352,7 @@ function disableMetricInDB($msrId = null)
     try {
         $statement = $pearDB->prepareQuery($query);
         $bindParams = [
-            ':msr_id' => bind($msrId, PDO::PARAM_INT)
+            ':msr_id' => bind($msrId, \PDO::PARAM_INT)
         ];
         $pearDB->executePreparedQuery($statement, $bindParams, true);
     } catch (CentreonDbException $exception) {
@@ -373,7 +385,7 @@ function deleteMetricInDB($metrics = [])
         try {
             $statement = $pearDB->prepareQuery($query);
             $bindParams = [
-                ':msr_id' => bind($msrId, PDO::PARAM_INT)
+                ':msr_id' => bind($msrId, \PDO::PARAM_INT)
             ];
             $pearDB->executePreparedQuery($statement, $bindParams, true);
         } catch (CentreonDbException $exception) {
@@ -409,7 +421,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
         try {
             $statement = $pearDB->prepareQuery($query);
             $bindParams = [
-                ':meta_id' => bind($metaId, PDO::PARAM_INT)
+                ':meta_id' => bind($metaId, \PDO::PARAM_INT)
             ];
             $pearDB->executePreparedQuery($statement, $bindParams, true);
             $row = $pearDB->fetch($statement);
@@ -446,7 +458,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                 $statementInsert = $pearDB->prepareQuery($insertQuery);
                 $bindParamsInsert = [];
                 foreach ($row as $column => $value) {
-                    $bindParamsInsert[":$column"] = bind($value, PDO::PARAM_STR);
+                    $bindParamsInsert[":$column"] = bind($value, \PDO::PARAM_STR);
                 }
                 $pearDB->executePreparedQuery($statementInsert, $bindParamsInsert, true);
                 $newMetaId = $pearDB->lastInsertId();
@@ -458,7 +470,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     $queryContacts = "SELECT DISTINCT contact_id FROM meta_contact WHERE meta_id = :meta_id";
                     $statementContacts = $pearDB->prepareQuery($queryContacts);
                     $bindParamsContacts = [
-                        ':meta_id' => bind($metaId, PDO::PARAM_INT)
+                        ':meta_id' => bind($metaId, \PDO::PARAM_INT)
                     ];
                     $pearDB->executePreparedQuery($statementContacts, $bindParamsContacts, true);
                     $contacts = $pearDB->fetchAll($statementContacts);
@@ -466,8 +478,8 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         $queryInsertContact = "INSERT INTO meta_contact (meta_id, contact_id) VALUES (:meta_id, :contact_id)";
                         $statementInsertContact = $pearDB->prepareQuery($queryInsertContact);
                         $bindParamsInsertContact = [
-                            ':meta_id'    => bind((int) $newMetaId, PDO::PARAM_INT),
-                            ':contact_id' => bind((int) $contact["contact_id"], PDO::PARAM_INT)
+                            ':meta_id'    => bind((int) $newMetaId, \PDO::PARAM_INT),
+                            ':contact_id' => bind((int) $contact["contact_id"], \PDO::PARAM_INT)
                         ];
                         $pearDB->executePreparedQuery($statementInsertContact, $bindParamsInsertContact, true);
                     }
@@ -476,7 +488,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     $queryCG = "SELECT DISTINCT cg_cg_id FROM meta_contactgroup_relation WHERE meta_id = :meta_id";
                     $statementCG = $pearDB->prepareQuery($queryCG);
                     $bindParamsCG = [
-                        ':meta_id' => bind($metaId, PDO::PARAM_INT)
+                        ':meta_id' => bind($metaId, \PDO::PARAM_INT)
                     ];
                     $pearDB->executePreparedQuery($statementCG, $bindParamsCG, true);
                     $cgroups = $pearDB->fetchAll($statementCG);
@@ -484,8 +496,8 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         $queryInsertCG = "INSERT INTO meta_contactgroup_relation (meta_id, cg_cg_id) VALUES (:meta_id, :cg_cg_id)";
                         $statementInsertCG = $pearDB->prepareQuery($queryInsertCG);
                         $bindParamsInsertCG = [
-                            ':meta_id'   => bind((int) $newMetaId, PDO::PARAM_INT),
-                            ':cg_cg_id'  => bind((int) $cg["cg_cg_id"], PDO::PARAM_INT)
+                            ':meta_id'   => bind((int) $newMetaId, \PDO::PARAM_INT),
+                            ':cg_cg_id'  => bind((int) $cg["cg_cg_id"], \PDO::PARAM_INT)
                         ];
                         $pearDB->executePreparedQuery($statementInsertCG, $bindParamsInsertCG, true);
                     }
@@ -494,7 +506,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     $queryMetric = "SELECT * FROM meta_service_relation WHERE meta_id = :meta_id";
                     $statementMetric = $pearDB->prepareQuery($queryMetric);
                     $bindParamsMetric = [
-                        ':meta_id' => bind($metaId, PDO::PARAM_INT)
+                        ':meta_id' => bind($metaId, \PDO::PARAM_INT)
                     ];
                     $pearDB->executePreparedQuery($statementMetric, $bindParamsMetric, true);
                     $metrics = $pearDB->fetchAll($statementMetric);
@@ -508,7 +520,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         $statementInsertMetric = $pearDB->prepareQuery($insertMetricQuery);
                         $bindParamsMetricInsert = [];
                         foreach ($metric as $column => $value) {
-                            $bindParamsMetricInsert[":$column"] = bind($value, PDO::PARAM_STR);
+                            $bindParamsMetricInsert[":$column"] = bind($value, \PDO::PARAM_STR);
                         }
                         $pearDB->executePreparedQuery($statementInsertMetric, $bindParamsMetricInsert, true);
                     }
@@ -575,7 +587,7 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
         $query = "SELECT * FROM meta_service_relation WHERE msr_id = :msr_id LIMIT 1";
         try {
             $statement = $pearDB->prepareQuery($query);
-            $bindParams = [':msr_id' => bind($msrId, PDO::PARAM_INT)];
+            $bindParams = [':msr_id' => bind($msrId, \PDO::PARAM_INT)];
             $pearDB->executePreparedQuery($statement, $bindParams, true);
             $row = $pearDB->fetch($statement);
         } catch (CentreonDbException $exception) {
@@ -606,7 +618,7 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
                 $statementInsert = $pearDB->prepareQuery($insertQuery);
                 $bindParamsInsert = [];
                 foreach ($row as $col => $val) {
-                    $bindParamsInsert[":$col"] = bind($val, PDO::PARAM_STR);
+                    $bindParamsInsert[":$col"] = bind($val, \PDO::PARAM_STR);
                 }
                 $pearDB->executePreparedQuery($statementInsert, $bindParamsInsert, true);
             } catch (CentreonDbException $exception) {
@@ -677,27 +689,27 @@ function insertMetaService($ret = [])
             )
         SQL;
     $params = [
-        ':meta_name' => bind(isset($ret["meta_name"]) ? htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':meta_display' => bind(isset($ret["meta_display"]) ? htmlentities($ret["meta_display"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':check_period' => bind($ret["check_period"] ?? null, PDO::PARAM_STR),
-        ':max_check_attempts' => bind($ret["max_check_attempts"] ?? null, PDO::PARAM_INT),
-        ':normal_check_interval' => bind($ret["normal_check_interval"] ?? null, PDO::PARAM_STR),
-        ':retry_check_interval' => bind($ret["retry_check_interval"] ?? null, PDO::PARAM_STR),
-        ':notification_interval' => bind($ret["notification_interval"] ?? null, PDO::PARAM_STR),
-        ':notification_period' => bind($ret["notification_period"] ?? null, PDO::PARAM_STR),
-        ':notification_options' => bind(isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null, PDO::PARAM_STR),
-        ':notifications_enabled' => bind((isset($ret["notifications_enabled"]["notifications_enabled"]) && $ret["notifications_enabled"]["notifications_enabled"] != '2') ? (int) $ret["notifications_enabled"]["notifications_enabled"] : '2', PDO::PARAM_STR),
-        ':calcul_type' => bind($ret["calcul_type"] ?? null, PDO::PARAM_STR),
-        ':data_source_type' => bind((int)$ret["data_source_type"], PDO::PARAM_INT),
-        ':meta_select_mode' => bind($ret["meta_select_mode"]["meta_select_mode"] ?? null, PDO::PARAM_STR),
-        ':regexp_str' => bind(isset($ret["regexp_str"]) ? htmlentities($ret["regexp_str"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':metric' => bind(isset($ret["metric"]) ? htmlentities($ret["metric"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':warning' => bind(isset($ret["warning"]) ? htmlentities($ret["warning"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':critical' => bind(isset($ret["critical"]) ? htmlentities($ret["critical"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':graph_id' => bind($ret["graph_id"] ?? null, PDO::PARAM_STR),
-        ':meta_comment' => bind(isset($ret["meta_comment"]) ? htmlentities($ret["meta_comment"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':geo_coords' => bind(isset($ret["geo_coords"]) ? htmlentities($ret["geo_coords"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':meta_activate' => bind(isset($ret["meta_activate"]["meta_activate"]) ? $ret["meta_activate"]["meta_activate"] : null, PDO::PARAM_STR),
+        ':meta_name' => bind($ret["meta_name"] ?? null, \PDO::PARAM_STR),
+        ':meta_display' => bind($ret["meta_display"] ?? null, \PDO::PARAM_STR),
+        ':check_period' => bind($ret["check_period"] ?? null, \PDO::PARAM_STR),
+        ':max_check_attempts' => bind($ret["max_check_attempts"] ?? null, \PDO::PARAM_INT),
+        ':normal_check_interval' => bind($ret["normal_check_interval"] ?? null, \PDO::PARAM_STR),
+        ':retry_check_interval' => bind($ret["retry_check_interval"] ?? null, \PDO::PARAM_STR),
+        ':notification_interval' => bind($ret["notification_interval"] ?? null, \PDO::PARAM_STR),
+        ':notification_period' => bind($ret["notification_period"] ?? null, \PDO::PARAM_STR),
+        ':notification_options' => bind(isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null, \PDO::PARAM_STR),
+        ':notifications_enabled' => bind($ret["notifications_enabled"]["notifications_enabled"] ?? '2', \PDO::PARAM_STR),
+        ':calcul_type' => bind($ret["calcul_type"] ?? null, \PDO::PARAM_STR),
+        ':data_source_type' => bind((int)$ret["data_source_type"], \PDO::PARAM_INT),
+        ':meta_select_mode' => bind($ret["meta_select_mode"]["meta_select_mode"] ?? null, \PDO::PARAM_STR),
+        ':regexp_str' => bind($ret["regexp_str"] ?? null, \PDO::PARAM_STR),
+        ':metric' => bind($ret["metric"] ?? null, \PDO::PARAM_STR),
+        ':warning' => bind($ret["warning"] ?? null, \PDO::PARAM_STR),
+        ':critical' => bind($ret["critical"] ?? null, \PDO::PARAM_STR),
+        ':graph_id' => bind($ret["graph_id"] ?? null, \PDO::PARAM_STR),
+        ':meta_comment' => bind($ret["meta_comment"] ?? null, \PDO::PARAM_STR),
+        ':geo_coords' => bind($ret["geo_coords"] ?? null, \PDO::PARAM_STR),
+        ':meta_activate' => bind($ret["meta_activate"]["meta_activate"] ?? null, \PDO::PARAM_STR),
     ];
     try {
         $statement = $pearDB->prepareQuery($query);
@@ -768,28 +780,28 @@ function updateMetaService($metaId = null)
             WHERE meta_id = :meta_id
         SQL;
     $params = [
-        ':meta_name'             => bind(isset($ret["meta_name"]) ? htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':meta_display'          => bind(isset($ret["meta_display"]) ? htmlentities($ret["meta_display"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':check_period'          => bind($ret["check_period"] ?? null, PDO::PARAM_STR),
-        ':max_check_attempts'    => bind($ret["max_check_attempts"] ?? null, PDO::PARAM_INT),
-        ':normal_check_interval' => bind($ret["normal_check_interval"] ?? null, PDO::PARAM_STR),
-        ':retry_check_interval'  => bind($ret["retry_check_interval"] ?? null, PDO::PARAM_STR),
-        ':notification_interval' => bind($ret["notification_interval"] ?? null, PDO::PARAM_STR),
-        ':notification_period'   => bind($ret["notification_period"] ?? null, PDO::PARAM_STR),
-        ':notification_options'  => bind(isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null, PDO::PARAM_STR),
-        ':notifications_enabled' => bind((isset($ret["notifications_enabled"]["notifications_enabled"]) && $ret["notifications_enabled"]["notifications_enabled"] != '2') ? (int) $ret["notifications_enabled"]["notifications_enabled"] : '2', PDO::PARAM_STR),
-        ':calcul_type'           => bind($ret["calcul_type"] ?? null, PDO::PARAM_STR),
-        ':data_source_type'      => bind($ret["data_source_type"] ?? 0, PDO::PARAM_INT),
-        ':meta_select_mode'      => bind($ret["meta_select_mode"]["meta_select_mode"] ?? null, PDO::PARAM_STR),
-        ':regexp_str'            => bind(isset($ret["regexp_str"]) ? htmlentities($ret["regexp_str"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':metric'                => bind(isset($ret["metric"]) ? htmlentities($ret["metric"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':warning'               => bind(isset($ret["warning"]) ? htmlentities($ret["warning"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':critical'              => bind(isset($ret["critical"]) ? htmlentities($ret["critical"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':graph_id'              => bind($ret["graph_id"] ?? null, PDO::PARAM_STR),
-        ':meta_comment'          => bind(isset($ret["meta_comment"]) ? htmlentities($ret["meta_comment"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':geo_coords'            => bind(isset($ret["geo_coords"]) ? htmlentities($ret["geo_coords"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':meta_activate'         => bind(isset($ret["meta_activate"]["meta_activate"]) ? $ret["meta_activate"]["meta_activate"] : null, PDO::PARAM_STR),
-        ':meta_id'               => bind($metaId, PDO::PARAM_INT),
+        ':meta_name'             => bind($ret["meta_name"] ?? null, \PDO::PARAM_STR),
+        ':meta_display'          => bind($ret["meta_display"] ?? null, \PDO::PARAM_STR),
+        ':check_period'          => bind($ret["check_period"] ?? null, \PDO::PARAM_STR),
+        ':max_check_attempts'    => bind($ret["max_check_attempts"] ?? null, \PDO::PARAM_INT),
+        ':normal_check_interval' => bind($ret["normal_check_interval"] ?? null, \PDO::PARAM_STR),
+        ':retry_check_interval'  => bind($ret["retry_check_interval"] ?? null, \PDO::PARAM_STR),
+        ':notification_interval' => bind($ret["notification_interval"] ?? null, \PDO::PARAM_STR),
+        ':notification_period'   => bind($ret["notification_period"] ?? null, \PDO::PARAM_STR),
+        ':notification_options'  => bind(isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null, \PDO::PARAM_STR),
+        ':notifications_enabled' => bind($ret["notifications_enabled"]["notifications_enabled"] ?? '2', \PDO::PARAM_STR),
+        ':calcul_type'           => bind($ret["calcul_type"] ?? null, \PDO::PARAM_STR),
+        ':data_source_type'      => bind($ret["data_source_type"] ?? 0, \PDO::PARAM_INT),
+        ':meta_select_mode'      => bind($ret["meta_select_mode"]["meta_select_mode"] ?? null, \PDO::PARAM_STR),
+        ':regexp_str'            => bind($ret["regexp_str"] ?? null, \PDO::PARAM_STR),
+        ':metric'                => bind($ret["metric"] ?? null, \PDO::PARAM_STR),
+        ':warning'               => bind($ret["warning"] ?? null, \PDO::PARAM_STR),
+        ':critical'              => bind($ret["critical"] ?? null, \PDO::PARAM_STR),
+        ':graph_id'              => bind($ret["graph_id"] ?? null, \PDO::PARAM_STR),
+        ':meta_comment'          => bind($ret["meta_comment"] ?? null, \PDO::PARAM_STR),
+        ':geo_coords'            => bind($ret["geo_coords"] ?? null, \PDO::PARAM_STR),
+        ':meta_activate'         => bind($ret["meta_activate"]["meta_activate"] ?? null, \PDO::PARAM_STR),
+        ':meta_id'               => bind($metaId, \PDO::PARAM_INT),
     ];
     try {
         $statement = $pearDB->prepareQuery($query);
@@ -830,7 +842,7 @@ function updateMetaServiceContact($metaId)
     $queryPurge = "DELETE FROM meta_contact WHERE meta_id = :meta_id";
     try {
         $statement = $pearDB->prepareQuery($queryPurge);
-        $bindParams = [':meta_id' => bind($metaId, PDO::PARAM_INT)];
+        $bindParams = [':meta_id' => bind($metaId, \PDO::PARAM_INT)];
         $pearDB->executePreparedQuery($statement, $bindParams, true);
     } catch (CentreonDbException $exception) {
         CentreonLog::create()->error(
@@ -853,8 +865,8 @@ function updateMetaServiceContact($metaId)
         $bindParams = [];
         foreach ($ret as $key => $contactId) {
             $values[] = "(:metaId_$key, :contactId_$key)";
-            $bindParams[":metaId_$key"] = bind((int)$metaId, PDO::PARAM_INT);
-            $bindParams[":contactId_$key"] = bind((int)$contactId, PDO::PARAM_INT);
+            $bindParams[":metaId_$key"] = bind((int)$metaId, \PDO::PARAM_INT);
+            $bindParams[":contactId_$key"] = bind((int)$contactId, \PDO::PARAM_INT);
         }
         $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES " . implode(", ", $values);
         $statement = $pearDB->prepareQuery($queryAddRelation);
@@ -877,7 +889,7 @@ function updateMetaServiceContactGroup($metaId = null)
     $queryDelete = "DELETE FROM meta_contactgroup_relation WHERE meta_id = :meta_id";
     try {
         $statement = $pearDB->prepareQuery($queryDelete);
-        $bindParams = [':meta_id' => bind($metaId, PDO::PARAM_INT)];
+        $bindParams = [':meta_id' => bind($metaId, \PDO::PARAM_INT)];
         $pearDB->executePreparedQuery($statement, $bindParams, true);
     } catch (CentreonDbException $exception) {
         CentreonLog::create()->error(
@@ -909,8 +921,8 @@ function updateMetaServiceContactGroup($metaId = null)
         $bindParams = [];
         try {
             $statementInsert = $pearDB->prepareQuery($queryInsert);
-            $bindParams[':meta_id'] = bind((int)$metaId, PDO::PARAM_INT);
-            $bindParams[':cg_cg_id'] = bind((int)$group, PDO::PARAM_INT);
+            $bindParams[':meta_id'] = bind((int)$metaId, \PDO::PARAM_INT);
+            $bindParams[':cg_cg_id'] = bind((int)$group, \PDO::PARAM_INT);
             $pearDB->executePreparedQuery($statementInsert, $bindParams, true);
         } catch (CentreonDbException $exception) {
             CentreonLog::create()->error(
@@ -972,11 +984,11 @@ function insertMetric($ret = [])
             VALUES (:meta_id, :host_id, :metric_id, :msr_comment, :activate)
         SQL;
     $params = [
-        ':meta_id'     => bind($ret["meta_id"] ?? null, PDO::PARAM_INT),
-        ':host_id'     => bind($ret["host_id"] ?? null, PDO::PARAM_INT),
-        ':metric_id'   => bind(isset($ret["metric_sel"][1]) ? $ret["metric_sel"][1] : null, PDO::PARAM_INT),
-        ':msr_comment' => bind(isset($ret["msr_comment"]) ? htmlentities($ret["msr_comment"]) : null, PDO::PARAM_STR),
-        ':activate'    => bind(isset($ret["activate"]["activate"]) ? $ret["activate"]["activate"] : null, PDO::PARAM_STR),
+        ':meta_id'     => bind($ret["meta_id"] ?? null, \PDO::PARAM_INT),
+        ':host_id'     => bind($ret["host_id"] ?? null, \PDO::PARAM_INT),
+        ':metric_id'   => bind($ret["metric_sel"][1] ?? null, \PDO::PARAM_INT),
+        ':msr_comment' => bind($ret["msr_comment"] ?? null, \PDO::PARAM_STR),
+        ':activate'    => bind($ret["activate"]["activate"] ?? null, \PDO::PARAM_STR),
     ];
     try {
         $statement = $pearDB->prepareQuery($query);
@@ -1023,12 +1035,12 @@ function updateMetric($msrId = null)
             WHERE msr_id = :msr_id
         SQL;
     $params = [
-        ':meta_id'     => bind($ret["meta_id"] ?? null, PDO::PARAM_INT),
-        ':host_id'     => bind($ret["host_id"] ?? null, PDO::PARAM_INT),
-        ':metric_id'   => bind(isset($ret["metric_sel"][1]) ? $ret["metric_sel"][1] : null, PDO::PARAM_INT),
-        ':msr_comment' => bind(isset($ret["msr_comment"]) ? htmlentities($ret["msr_comment"], ENT_QUOTES, "UTF-8") : null, PDO::PARAM_STR),
-        ':activate'    => bind(isset($ret["activate"]["activate"]) ? $ret["activate"]["activate"] : null, PDO::PARAM_STR),
-        ':msr_id'      => bind($msrId, PDO::PARAM_INT),
+        ':meta_id'     => bind($ret["meta_id"] ?? null, \PDO::PARAM_INT),
+        ':host_id'     => bind($ret["host_id"] ?? null, \PDO::PARAM_INT),
+        ':metric_id'   => bind($ret["metric_sel"][1] ?? null, \PDO::PARAM_INT),
+        ':msr_comment' => bind($ret["msr_comment"] ?? null, \PDO::PARAM_STR),
+        ':activate'    => bind($ret["activate"]["activate"] ?? null, \PDO::PARAM_STR),
+        ':msr_id'      => bind($msrId, \PDO::PARAM_INT),
     ];
     try {
         $statement = $pearDB->prepareQuery($query);
