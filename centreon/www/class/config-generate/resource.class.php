@@ -105,11 +105,13 @@ class Resource extends AbstractObject
                 $vaultPaths[] = $value['resource_line'];
             }
         }
-        $vaultData = $this->readVaultRepository->findFromPaths($vaultPaths);
-        foreach ($vaultData as $vaultValues) {
-            foreach ($vaultValues as $vaultKey => $vaultValue) {
-                if (array_key_exists($vaultKey, $object['resources']) || array_key_exists('$' . $vaultKey . '$', $object['resources'])) {
-                    $object['resources'][$vaultKey] = $vaultValue;
+        if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
+            $vaultData = $this->readVaultRepository->findFromPaths($vaultPaths);
+            foreach ($vaultData as $vaultValues) {
+                foreach ($vaultValues as $vaultKey => $vaultValue) {
+                    if (array_key_exists($vaultKey, $object['resources']) || array_key_exists('$' . $vaultKey . '$', $object['resources'])) {
+                        $object['resources'][$vaultKey] = $vaultValue;
+                    }
                 }
             }
         }
