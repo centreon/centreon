@@ -501,6 +501,10 @@ jobs:
         run: rm -f centreon/packaging/*-selinux.yaml
         shell: bash
 
+      - name: Check configuration of symfony
+        run: composer symfony:check
+        working-directory: centreon
+
       - name: Package Centreon
         uses: ./.github/actions/package-nfpm
         with:
