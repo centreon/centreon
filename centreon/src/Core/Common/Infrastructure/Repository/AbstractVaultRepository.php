@@ -225,12 +225,12 @@ abstract class AbstractVaultRepository
      * * Send a multiplexed request to vault.
      *
      * @param string $method
-     * @param array $urls
-     * @param null|array $data
+     * @param array<string,string> $urls indexed by their uuid
+     * @param null|array<mixed> $data
      * @throws Exception
      * @throws Error
      * @throws TransportExceptionInterface
-     * @return array
+     * @return array<string, mixed> $response data indexed by their uuid
      */
     protected function sendMultiplexedRequest(string $method, array $urls, ?array $data = null): array
     {
