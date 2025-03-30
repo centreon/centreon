@@ -67,8 +67,7 @@ module.exports = {
                 }
               }
             }
-          },
-          rspack.CssExtractRspackPlugin.loader
+          }
         ]
       }
     ]
