@@ -27,7 +27,6 @@ const getBaseConfiguration = ({
     css: true
   },
   plugins: [
-    new rspack.CssExtractRspackPlugin(),
     moduleName &&
     new rspack.container.ModuleFederationPlugin({
       filename: 'remoteEntry.[chunkhash:8].js',
