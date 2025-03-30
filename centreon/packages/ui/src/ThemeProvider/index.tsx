@@ -4,6 +4,7 @@ import { CSSInterpolation } from 'tss-react';
 
 import {
   ButtonProps,
+  GlobalStyles,
   InputBaseProps,
   ThemeProvider as MuiThemeProvider,
   StyledEngineProvider,
@@ -304,8 +305,9 @@ const ThemeProvider = ({ children }: Props): JSX.Element => {
   );
 
   return (
-    <StyledEngineProvider injectFirst>
+    <StyledEngineProvider injectFirst enableCssLayer>
       <MuiThemeProvider theme={theme}>
+        <GlobalStyles styles="@layer theme,base,mui,components,utilities;" />
         <CssBaseline />
         {children}
       </MuiThemeProvider>

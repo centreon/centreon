@@ -1,3 +1,5 @@
+const { rspack } = require('@rspack/core');
+
 const isDev = process.env.NODE_ENV !== 'production';
 
 const excludeNodeModulesExceptCentreonUi =
@@ -51,8 +53,23 @@ module.exports = {
         type: 'asset/resource'
       },
       {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader']
+        test: /\.css$/,
+        type: 'css',
+        use: [
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: {
+                  '@tailwindcss/postcss': {
+                    base: './www/front_src/src/'
+                  }
+                }
+              }
+            }
+          },
+          rspack.CssExtractRspackPlugin.loader
+        ]
       }
     ]
   }),

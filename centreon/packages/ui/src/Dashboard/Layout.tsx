@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSetAtom } from 'jotai';
 import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
 
 import { ParentSize, useMemoComponent } from '..';
 
