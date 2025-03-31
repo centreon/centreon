@@ -40,7 +40,7 @@ jobs:
           - runner: ubuntu-24.04
             dockerfile: packaging-bullseye
             image: packaging-bullseye
-          - runner: ["self-hosted", "collect-arm64"]
+          - runner: centreon-collect-arm64
             dockerfile: packaging-bullseye
             image: packaging-bullseye-arm64
 
