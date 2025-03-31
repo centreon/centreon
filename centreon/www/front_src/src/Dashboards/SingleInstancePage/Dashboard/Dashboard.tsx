@@ -12,7 +12,7 @@ import { Divider } from '@mui/material';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { resource, type Dashboard as DashboardType } from '../../api/models';
+import { type Dashboard as DashboardType, resource } from '../../api/models';
 import { isSharesOpenAtom } from '../../atoms';
 import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { DashboardConfigModal } from '../../components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
@@ -20,6 +20,7 @@ import { useDashboardConfig } from '../../components/DashboardLibrary/DashboardC
 import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
 
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import FavoriteAction from '../../components/DashboardLibrary/DashboardListing/Actions/favoriteAction';
 import { AddWidgetButton } from './AddEditWidget';
 import { useDashboardStyles } from './Dashboard.styles';
@@ -30,14 +31,13 @@ import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
 import DeleteWidgetModal from './components/DeleteWidgetModal';
 import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
-import { useQueryClient } from '@tanstack/react-query';
-
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
 
   const { dashboardId } = routerParams.useParams();
   const queryClient = useQueryClient();
+  const isFetchingListing = useIsFetching({ queryKey: [resource.dashboards] });
 
   const { dashboard, panels, refetch } = useDashboardDetails({
     dashboardId: dashboardId as string
@@ -82,9 +82,9 @@ const Dashboard = (): ReactElement => {
   };
 
   const updateFavorites = (): void => {
-    refetch?.()
+    refetch?.();
     queryClient.invalidateQueries({ queryKey: [resource.dashboards] });
-  }
+  };
 
   useEffect(() => {
     return () => {
@@ -108,6 +108,7 @@ const Dashboard = (): ReactElement => {
                   dashboardId={dashboard?.id as number}
                   isFavorite={dashboard?.isFavorite as boolean}
                   refetch={updateFavorites}
+                  isFetching={isFetchingListing > 0}
                 />
               }
             />

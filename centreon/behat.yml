@@ -19,18 +19,6 @@ default:
       paths: [ "%paths.base%/features/AcknowledgementTimeout.feature" ]
       contexts: [ AcknowledgementTimeoutContext ]
 
-    partitioning:
-      paths: [ "%paths.base%/features/Partitioning.feature" ]
-      contexts: [ PartitioningContext ]
-
-    knowledge_base:
-      paths: [ "%paths.base%/features/KnowledgeBase.feature" ]
-      contexts: [ KnowledgeBaseContext ]
-
-    disable_fields_on_blocked_objects:
-      paths: [ "%paths.base%/features/DisableFieldsOnBlockedObjects.feature" ]
-      contexts: [ DisableFieldsOnBlockedObjectsContext ]
-
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
@@ -38,10 +26,6 @@ default:
     meta_services_downtime:
       paths: [ "%paths.base%/features/DowntimeService.feature" ]
       contexts: [ DowntimeServiceContext ]
-
-    limit_metric_in_chart:
-      paths: [ "%paths.base%/features/LimitMetricInChart.feature" ]
-      contexts: [ LimitMetricInChartContext ]
 
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
@@ -59,28 +43,12 @@ default:
       paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
       contexts: [ DowntimeRecurrentContext ]
 
-    autologin:
-      paths: [ "%paths.base%/features/Autologin.feature" ]
-      contexts: [ AutologinContext ]
-
-    autologin_options:
-      paths: [ "%paths.base%/features/AutologinOptions.feature" ]
-      contexts: [ AutologinOptionsContext ]
-
-    ldap:
-      paths: [ "%paths.base%/features/Ldap.feature" ]
-      contexts: [ LdapContext ]
-
     custom_views_locked:
       paths: [ "%paths.base%/features/CustomViews/Locked.feature" ]
       contexts: [ CustomViewsContext ]
 
     custom_views_unlocked:
       paths: [ "%paths.base%/features/CustomViews/Unlocked.feature" ]
-      contexts: [ CustomViewsContext ]
-
-    custom_views_public:
-      paths: [ "%paths.base%/features/CustomViews/Public.feature" ]
       contexts: [ CustomViewsContext ]
 
     host_template_configuration:
@@ -91,21 +59,9 @@ default:
       paths: [ "%paths.base%/features/RestApi.feature" ]
       contexts: [ RestApiContext ]
 
-    ldap_manual_import:
-      paths: [ "%paths.base%/features/LdapManualImport.feature" ]
-      contexts: [ LdapManualImportContext ]
-
-    connector_configuration:
-      paths: [ "%paths.base%/features/ConnectorConfiguration.feature" ]
-      contexts: [ ConnectorConfigurationContext ]
-
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]
       contexts: [ ClapiContext ]
-
-    uri:
-      paths: [ "%paths.base%/features/URI.feature" ]
-      contexts: [ URIContext ]
 
     centreon_module_api:
       paths: [ "%paths.base%/features/CentreonModuleAPI.feature" ]

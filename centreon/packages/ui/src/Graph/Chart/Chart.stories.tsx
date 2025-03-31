@@ -669,7 +669,7 @@ export const linesAndBarsMixedCenteredZero: Story = {
   )
 };
 const CustomYUnits = (props): JSX.Element => {
-  const [leftUnit, setLeftUnit] = useState('b');
+  const [leftUnit, setLeftUnit] = useState('B');
   const [rightUnit, setRightUnit] = useState('ms');
 
   return (

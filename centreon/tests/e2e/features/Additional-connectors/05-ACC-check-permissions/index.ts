@@ -62,7 +62,7 @@ When('the admin user clicks on Add', () => {
 });
 
 Then('a pop-up menu with the form is displayed', () => {
-  cy.contains('Create additional connector configuration').should('be.visible');
+  cy.contains('Create additional configuration').should('be.visible');
 });
 
 When('the admin user fills in all the informations', () => {
@@ -92,7 +92,7 @@ When('the admin user clicks on Save', () => {
 
 Then('the creation form is closed', () => {
   cy.wait('@addAdditionalConnector');
-  cy.get('Create additional connector configuration').should('not.exist');
+  cy.get('Create additional configuration').should('not.exist');
 });
 
 Then(
@@ -120,7 +120,7 @@ Then(
   'a pop up is displayed with all of the additional connector information',
   () => {
     cy.wait('@getConnectorDetail');
-    cy.contains('Update additional connector configuration').should(
+    cy.contains('Update additional configuration').should(
       'be.visible'
     );
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
@@ -174,7 +174,7 @@ When('the user clicks on Save', () => {
 
 Then('the update form is closed', () => {
   cy.wait('@updateConnectorDetail');
-  cy.get('Update additional connector configuration').should('not.exist');
+  cy.get('Update additional configuration').should('not.exist');
 });
 
 Then(
@@ -315,7 +315,7 @@ When(
   'a pop up is displayed with all of the additional connector information with the 2 pollers',
   () => {
     cy.wait('@getConnectorDetail');
-    cy.contains('Update additional connector configuration').should(
+    cy.contains('Update additional configuration').should(
       'be.visible'
     );
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
@@ -342,12 +342,12 @@ When(
 );
 
 Then('the user can update the additional connector configuration', () => {
-  cy.contains('Update additional connector configuration').should('be.visible');
+  cy.contains('Update additional configuration').should('be.visible');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.getByTestId({ testId: 'CancelIcon' }).eq(0).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   cy.wait('@updateConnectorDetail');
-  cy.get('Update additional connector configuration').should('not.exist');
+  cy.get('Update additional configuration').should('not.exist');
 });
 
 Given(
@@ -434,10 +434,10 @@ Then('an error message is displayed', () => {
     .should('be.visible')
     .and(
       'contain.text',
-      "An additional connector configuration of type 'vmware_v6' is already associated with poller ID(s) '3'"
+      "An additional configuration of type 'vmware_v6' is already associated with poller ID(s) '3'"
     );
 });
 
 Then('the creation form is still open', () => {
-  cy.contains('Create additional connector configuration').should('be.visible');
+  cy.contains('Create additional configuration').should('be.visible');
 });

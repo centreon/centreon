@@ -526,7 +526,14 @@ describe('column sorting', () => {
         requestAlias: `dataToListingTableDesc${label}`
       });
 
-      cy.contains('notification1');
+      cy.findByLabelText(`Column ${label}`).click();
+
+      cy.waitForRequestAndVerifyQueries({
+        queries: [{ key: 'sort_by', value: { [sortBy]: 'asc' } }],
+        requestAlias: `dataToListingTableAsc${label}`
+      });
+
+      cy.contains('notification1').should('exist');
     });
   });
 });

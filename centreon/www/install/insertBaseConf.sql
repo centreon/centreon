@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.10.5');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.10.6');
 
 --
 -- Contenu de la table `contact`
@@ -224,7 +224,9 @@ INSERT INTO `giv_graphs_template` (`graph_id`, `name`, `vertical_label`, `width`
 --
 INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
 (1, 'Perl Connector', '', 'centreon_connector_perl --log-file=@monitoring_varlog@/connector-perl.log', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-(2, 'SSH Connector', '', 'centreon_connector_ssh --log-file=@monitoring_varlog@/connector-ssh.log', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+(2, 'SSH Connector', '', 'centreon_connector_ssh --log-file=@monitoring_varlog@/connector-ssh.log', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(3,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(4, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
 
 
 --

@@ -8,6 +8,8 @@ services:
       - db
     environment:
       MYSQL_HOST: db
+      CENTREON_DATASET: ${CENTREON_DATASET:-1}
+      CENTREON_LANG: ${CENTREON_LANG:-en_US}
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s

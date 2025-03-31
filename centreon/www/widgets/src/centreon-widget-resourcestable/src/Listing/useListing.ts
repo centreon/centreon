@@ -125,13 +125,15 @@ const useListing = ({
   );
 
   useEffect(() => {
-    if (isOpenTicketEnabled) {
+    if (isOpenTicketEnabled && isFromPreview) {
       setPanelOptions?.({ displayType: DisplayType.Service });
 
       return;
     }
 
-    setPanelOptions?.({ provider: {} });
+    if (isFromPreview) {
+      setPanelOptions?.({ provider: {} });
+    }
   }, [isOpenTicketEnabled]);
 
   const isOpenTicketInstalled = useIsOpenTicketInstalled();
@@ -224,7 +226,7 @@ const useListing = ({
   };
 
   useEffect(() => {
-    if (!hasMetaService) {
+    if (!hasMetaService || !isFromPreview) {
       return;
     }
 
