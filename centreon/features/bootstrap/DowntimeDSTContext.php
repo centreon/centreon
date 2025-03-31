@@ -167,7 +167,7 @@ class DowntimeDSTContext extends CentreonContext
             'end_day' => '03/25/2029',
             'end_time' => '24:00',
             'expected_start' => '2029-03-25 00:00',
-            'expected_end' => '2025-03-31 00:00',
+            'expected_end' => '2029-03-26 00:00',
             'expected_duration' => '82800', // 23h
             'faketime' => '2029-03-25 23:56:00'
         );
