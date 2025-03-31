@@ -126,7 +126,10 @@ const useExportCsv = ({
       ? {
           page: listing?.meta?.page || 1,
           limit: listing?.meta?.limit || 10,
-          sort: { [sort?.[0] as string]: sort?.[1] || '' }
+          sort: {
+            [sort?.[0] as string]: sort?.[1] || '',
+            last_status_change: 'desc'
+          }
         }
       : {};
 
