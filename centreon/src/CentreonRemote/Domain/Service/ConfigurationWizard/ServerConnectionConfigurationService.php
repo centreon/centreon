@@ -190,8 +190,9 @@ abstract class ServerConnectionConfigurationService
      */
     protected function insertConfigResources($serverID): void
     {
-        $sql = 'SELECT `resource_id`, `resource_name` FROM `cfg_resource`';
-        $sql .= "WHERE `resource_name` IN('\$USER1$', '\$CENTREONPLUGINS$') ORDER BY `resource_name` DESC";
+        $sql = 'SELECT min(`resource_id`) as resource_id, `resource_name` FROM `cfg_resource`';
+        $sql .= "WHERE `resource_name` IN('\$USER1$', '\$CENTREONPLUGINS$')";
+        $sql .= "GROUP BY (`resource_name`) ORDER BY `resource_name` DESC";
         $this->getDbAdapter()->query($sql);
         $results = $this->getDbAdapter()->results();
 
