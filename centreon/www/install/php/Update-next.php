@@ -1,4 +1,7 @@
 <?php
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -68,7 +71,40 @@ $updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage)
     );
 };
 
+$updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve SAML provider configuration';
+    $samlConfiguration = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM `provider_configuration`
+            WHERE `type` = 'saml'
+            SQL
+    );
 
+    if (!isset($samlConfiguration['custom_configuration'])) {
+        throw new \Exception('SAML custom configuration is missing');
+    }
+
+    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+
+    if (!isset($customConfiguration['requested_authn_context'])) {
+        $customConfiguration['requested_authn_context'] = 'minimum';
+        $query = <<<'SQL'
+                UPDATE `provider_configuration`
+                SET `custom_configuration` = :custom_configuration
+                WHERE `type` = 'saml'
+            SQL;
+        $queryParameters = QueryParameters::create(
+            [
+                QueryParameter::string(
+                    'custom_configuration',
+                    json_encode($customConfiguration, JSON_THROW_ON_ERROR)
+                )
+            ]
+        );
+
+        $pearDB->update($query, $queryParameters);
+    }
+};
 
 try {
     // TODO add your function calls to update the real time database structure here
@@ -81,6 +117,7 @@ try {
     }
 
     $updateTopologyForHostGroup($pearDB);
+    $updateSamlProviderConfiguration($pearDB);
 
     $pearDB->commit();
 
