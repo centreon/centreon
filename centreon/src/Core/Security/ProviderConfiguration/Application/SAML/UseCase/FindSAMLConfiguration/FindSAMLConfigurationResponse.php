@@ -77,6 +77,9 @@ final class FindSAMLConfigurationResponse
     /** @var string */
     public string $userIdAttribute = '';
 
+    /** @var string */
+    public string $requestedAuthnContext = 'Minimum';
+
     /** @var bool */
     public bool $logoutFrom = true;
 
