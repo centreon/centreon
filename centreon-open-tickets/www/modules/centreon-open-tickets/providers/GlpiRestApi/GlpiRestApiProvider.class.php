@@ -1127,40 +1127,6 @@ class GlpiRestApiProvider extends AbstractProvider
     }
 
     /*
-    * get groups from user ID
-    *
-    * @return {array} $this->glpiCallResult['response'] list of groups
-    *
-    * throw \Exception if we can't get groups data
-    */
-    protected function getUserId()
-    {
-        // try to get userID
-        try {
-            $userId = $this->getCache('userId');
-
-            // is there's no userId, we are going to get it from glpi
-            if (is_null($userId)) {
-                // add the api endpoint and method to our info array
-                $info['query_endpoint'] = '/getFullSession';
-                $info['method'] = 0;
-                // set headers
-                $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
-
-                // get user Id from glpi
-                $result = $this->curlQuery($info);
-                $userId = $result['session']['glpiID'];
-                // put user id in cache
-                $this->setCache('userId', $userId, 8 * 3600);
-            }
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
-        }
-
-        return $userId;
-    }
-
-    /*
     * get groups from glpi
     *
     * @return {array} $this->glpiCallResult['response'] list of groups
@@ -1170,7 +1136,7 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function getGroups()
     {
         // add the api endpoint and method to our info array
-        $info['query_endpoint'] = '/User/' . $this->getUserId() . '/group';
+        $info['query_endpoint'] = '/Group';
         $info['method'] = 0;
         // set headers
         $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
