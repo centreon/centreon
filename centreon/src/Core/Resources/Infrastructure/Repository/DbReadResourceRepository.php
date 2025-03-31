@@ -502,7 +502,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
         if ($onlyCount) {
-            $query = <<<'SQL'
+            $query .= <<<'SQL'
                 SELECT COUNT(DISTINCT resources.resource_id), 1 AS REALTIME
                 SQL;
         } else {
