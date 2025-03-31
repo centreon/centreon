@@ -168,7 +168,7 @@ class DowntimeDSTContext extends CentreonContext
             'end_time' => '24:00',
             'expected_start' => '2029-03-25 00:00',
             'expected_end' => '2029-03-26 00:00',
-            'expected_duration' => '86400',
+            'expected_duration' => '82800',
             'faketime' => '2029-03-25 23:56:00'
         );
     }
@@ -340,11 +340,15 @@ class DowntimeDSTContext extends CentreonContext
                     $dateStart->setTimestamp($startTimestamp);
                     $dateEnd = new DateTime('now', new \DateTimeZone('Europe/Paris'));
                     $dateEnd->setTimestamp($endTimestamp);
-
+                    $endStartDifference = $endTimestamp - $startTimestamp;
                     if ($dateStart->format('Y-m-d H:i') != $context->downtimeProperties['expected_start'] ||
                         $dateEnd->format('Y-m-d H:i') != $context->downtimeProperties['expected_end'] ||
-                        ($endTimestamp - $startTimestamp) != (int)$context->downtimeProperties['expected_duration']) {
-                        throw new \Exception('Downtime external command parameters are wrong (start, end or duration)');
+                        $endStartDifference != (int)$context->downtimeProperties['expected_duration']) {
+                        throw new \Exception(
+                            "Downtime external command parameters are wrong " .
+                            "(start: $startTimestamp, end: $endTimestamp  or duration: " .
+                            "$endStartDifference ($context->downtimeProperties['expected_duration'] give) )"
+                        );
                     }
                     $storageDb = $context->getStorageDatabase();
                     $res = $storageDb->query(
