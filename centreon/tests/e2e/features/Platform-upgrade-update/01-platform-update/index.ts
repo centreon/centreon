@@ -7,6 +7,11 @@ import {
 } from '../common';
 
 beforeEach(() => {
+  // clear network cache to avoid chunk loading issues
+  cy.wrap(Cypress.automation('remote:debugger:protocol', {
+    command: 'Network.clearBrowserCache',
+  }));
+
   cy.getWebVersion().then(({ major_version }) => {
     cy.intercept({
       method: 'GET',
@@ -155,5 +160,8 @@ Given(
 );
 
 afterEach(() => {
-  cy.visitEmptyPage().stopContainer({ name: 'web' });
+  cy
+    .visitEmptyPage()
+    .copyWebContainerLogs({ name: 'web' })
+    .stopContainer({ name: 'web' });
 });

@@ -98,3 +98,14 @@ export interface PlatformFeatures {
   featureFlags: FeatureFlags;
   isCloudPlatform: boolean;
 }
+
+export interface PlatformVersions {
+  modules: Record<string, Version>;
+  web: Version;
+  widgets: Record<string, Version | null>;
+}
+
+export interface UserPermissions {
+  poller_statistics: boolean;
+  top_counter: boolean;
+}

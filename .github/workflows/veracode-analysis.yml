@@ -118,7 +118,7 @@ jobs:
     needs: [build]
     name: Run a pipeline scan
     if: needs.build.outputs.skip_analysis == 'false'
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -275,6 +275,7 @@ jobs:
           jira_api_token: ${{ secrets.jira_api_token }}
           module_name: ${{ inputs.module_name }}
           ticket_labels: '["Veracode", "Pipeline"]'
+          ticket_squad: "DevSecOps"
 
   clean-artifact:
     needs: [pipeline-scan]
