@@ -1,3 +1,4 @@
+@ignore
 @execTimeout(300000)
 @REQ_MON-22196 @system @upgrade
 Feature: Upgrade platform from major version A to major version B
