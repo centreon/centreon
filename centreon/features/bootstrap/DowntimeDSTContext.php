@@ -108,9 +108,9 @@ class DowntimeDSTContext extends CentreonContext
     {
         // on Europe/Paris at 2AM, we jump to 3AM
         $this->downtimeProperties = array(
-            'start_day' => '03/30/2025',
+            'start_day' => '03/25/2029',
             'start_time' => '02:30',
-            'end_day' => '03/30/2025',
+            'end_day' => '03/25/2029',
             'end_time' => '03:30',
             'expected_start' => '2025-03-30 03:00',
             'expected_end' => '2025-03-30 03:30',
@@ -126,9 +126,9 @@ class DowntimeDSTContext extends CentreonContext
     {
         // on Europe/Paris at 2AM, we jump to 3AM
         $this->downtimeProperties = array(
-            'start_day' => '03/30/2025',
+            'start_day' => '03/25/2029',
             'start_time' => '01:30',
-            'end_day' => '03/30/2025',
+            'end_day' => '03/25/2029',
             'end_time' => '02:30',
             'expected_start' => '2025-03-30 01:30',
             'expected_end' => '2025-03-30 03:00',
@@ -144,9 +144,9 @@ class DowntimeDSTContext extends CentreonContext
     {
         // on Europe/Paris at 2AM, we jump to 3AM
         $this->downtimeProperties = array(
-            'start_day' => '03/30/2025',
+            'start_day' => '03/25/2029',
             'start_time' => '02:03',
-            'end_day' => '03/30/2025',
+            'end_day' => '03/25/2029',
             'end_time' => '02:33',
             'expected_start' => '',
             'expected_end' => '',
@@ -162,9 +162,9 @@ class DowntimeDSTContext extends CentreonContext
     {
         // on Europe/Paris at 2AM, we jump to 3AM
         $this->downtimeProperties = array(
-            'start_day' => '03/30/2025',
+            'start_day' => '03/25/2029',
             'start_time' => '00:00',
-            'end_day' => '03/30/2025',
+            'end_day' => '03/25/2029',
             'end_time' => '24:00',
             'expected_start' => '2025-03-30 00:00',
             'expected_end' => '2025-03-31 00:00',
