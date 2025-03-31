@@ -112,10 +112,10 @@ class DowntimeDSTContext extends CentreonContext
             'start_time' => '02:30',
             'end_day' => '03/25/2029',
             'end_time' => '03:30',
-            'expected_start' => '2025-03-30 03:00',
-            'expected_end' => '2025-03-30 03:30',
+            'expected_start' => '2029-03-25 03:00',
+            'expected_end' => '2029-03-25 03:30',
             'expected_duration' => '1800', // 30m
-            'faketime' => '2025-03-30 01:56:00'
+            'faketime' => '2029-03-25 01:56:00'
         );
     }
 
@@ -130,10 +130,10 @@ class DowntimeDSTContext extends CentreonContext
             'start_time' => '01:30',
             'end_day' => '03/25/2029',
             'end_time' => '02:30',
-            'expected_start' => '2025-03-30 01:30',
-            'expected_end' => '2025-03-30 03:00',
+            'expected_start' => '2029-03-25 01:30',
+            'expected_end' => '2029-03-25 03:00',
             'expected_duration' => '1800', // 30m
-            'faketime' => '2025-03-30 01:26:00'
+            'faketime' => '2029-03-25 01:26:00'
         );
     }
 
@@ -151,7 +151,7 @@ class DowntimeDSTContext extends CentreonContext
             'expected_start' => '',
             'expected_end' => '',
             'expected_duration' => '0',
-            'faketime' => '2025-03-30 01:58:00'
+            'faketime' => '2029-03-25 01:58:00'
         );
     }
 
@@ -166,10 +166,10 @@ class DowntimeDSTContext extends CentreonContext
             'start_time' => '00:00',
             'end_day' => '03/25/2029',
             'end_time' => '24:00',
-            'expected_start' => '2025-03-30 00:00',
+            'expected_start' => '2029-03-25 00:00',
             'expected_end' => '2025-03-31 00:00',
             'expected_duration' => '82800', // 23h
-            'faketime' => '2025-03-29 23:56:00'
+            'faketime' => '2029-03-25 23:56:00'
         );
     }
 
@@ -196,7 +196,7 @@ class DowntimeDSTContext extends CentreonContext
             'expected_start' => '2025-03-31 00:00',
             'expected_end' => '2025-04-01 00:00',
             'expected_duration' => '86400', // 24h
-            'faketime' => '2025-03-30 23:58:00'
+            'faketime' => '2029-03-25 23:58:00'
         );
     }
 
