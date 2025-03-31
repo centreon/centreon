@@ -60,8 +60,8 @@ const getBaseConfiguration = ({
     }
   },
   output: {
-    chunkFilename: '[name].[chunkhash:8].chunk.js',
-    filename: '[name].[chunkhash:8].js',
+    chunkFilename: '[name].[contenthash].[chunkhash].[hash].js',
+		filename: '[name].[contenthash].[hash].js',
     libraryTarget: 'umd',
     umdNamedDefine: true
   },
