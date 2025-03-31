@@ -33,7 +33,8 @@ const useExportCsv = ({
 }: Parameters): UseExportCsv => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
-  const { getCriteriaNames, getCriteriaValue } = useGetCriteriaName();
+  const { getCriteriaNames, getCriteriaValue, getCriteriaIds } =
+    useGetCriteriaName();
   const visualization = useAtomValue(selectedVisualizationAtom);
   const selectedColumnIds = useAtomValue(selectedColumnIdsAtom);
 
@@ -133,12 +134,20 @@ const useExportCsv = ({
         }
       : {};
 
+    const types = getCriteriaIds('resource_types');
+
     const parameters = {
       ...filtersParameters,
       ...paginationParameters
     };
 
-    return { parameters, customQueryParameters: [...queryParameters] };
+    return {
+      parameters,
+      customQueryParameters: [
+        ...queryParameters,
+        { name: 'types', value: types }
+      ]
+    };
   };
 
   const getEndpoint = ({ baseEndpoint, includePagination = true }): string => {
@@ -160,7 +169,10 @@ const useExportCsv = ({
       }),
     getQueryKey: () => [
       'exportedLines',
-      getEndpoint({ baseEndpoint: countResourcesEndpoint })
+      getEndpoint({
+        baseEndpoint: countResourcesEndpoint,
+        includePagination: false
+      })
     ],
     queryOptions: {
       suspense: false
