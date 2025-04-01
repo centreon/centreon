@@ -37,7 +37,7 @@ const Links = <TData extends BaseProp>({
 
     const LinkComponent = getLinkComponent(treeLink?.type);
 
-    const key = `${link.source.data.data.id}-${link.source.data.data.name}-${ancestorIds}_${link.target.data.data.id}-${link.target.data.data.name}-${descendantIds}-${idx}-`;
+    const key = `${link.source.data.data.id}-${link.source.data.data.name}-${ancestorIds}_${link.target.data.data.id}-${link.target.data.data.name}-${descendantIds}-${idx}`;
 
     return (
       <LinkComponent
