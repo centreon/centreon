@@ -333,22 +333,18 @@ class DowntimeDSTContext extends CentreonContext
                     $output,
                     $matches
                 )) {
-                    $startTimestamp = (int) end($matches[1]);
-                    $endTimestamp = (int) end($matches[2]);
+                    $startTimestamp = (int)end($matches[1]);
+                    $endTimestamp = (int)end($matches[2]);
 
-                    $dateStart = DateTime::createFromFormat('U', (int) end($matches[1]), new \DateTimeZone('Europe/Paris'));
-                    $dateEnd = DateTime::createFromFormat('U', (int) end($matches[2]), new \DateTimeZone('Europe/Paris'));
+                    $dateStart = new DateTime('now', new \DateTimeZone('Europe/Paris'));
+                    $dateStart->setTimestamp($startTimestamp);
+                    $dateEnd = new DateTime('now', new \DateTimeZone('Europe/Paris'));
+                    $dateEnd->setTimestamp($endTimestamp);
 
-                    $durationComputed = $endTimestamp - $startTimestamp;
-                    $durationGiven = (int) $context->downtimeProperties['expected_duration'];
                     if ($dateStart->format('Y-m-d H:i') != $context->downtimeProperties['expected_start'] ||
                         $dateEnd->format('Y-m-d H:i') != $context->downtimeProperties['expected_end'] ||
-                        $durationComputed != $durationGiven) {
-                        throw new \Exception(
-                            "Downtime external command parameters are wrong " .
-                            "(start: $startTimestamp, end: $endTimestamp  or duration: " .
-                            "$durationComputed ($durationGiven given) )"
-                        );
+                        ($endTimestamp - $startTimestamp) != (int)$context->downtimeProperties['expected_duration']) {
+                            throw new \Exception('Downtime external command parameters are wrong (start, end or duration)');
                     }
                     $storageDb = $context->getStorageDatabase();
                     $res = $storageDb->query(
