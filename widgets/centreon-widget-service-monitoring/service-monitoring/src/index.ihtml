@@ -29,7 +29,7 @@
         <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/jquery/plugins/pagination/jquery.pagination.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/centreon/popin.js"></script>
-        <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.min.2.21.js"></script>
+        <script type="text/javascript" src="../../include/common/javascript/moment-with-locales.min.2.29.4.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/moment-timezone-with-data.min.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/centreon/dateMoment.js"></script>
         <script type="text/javascript" src="../../include/common/javascript/centreon/centreon-localStorage.js"></script>
