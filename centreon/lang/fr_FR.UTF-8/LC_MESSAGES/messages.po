@@ -19797,5 +19797,12 @@ msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
 msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
+msgid "Reporting period"
+msgstr "Période du rapport"
 
+msgid "Business Activity availability"
+msgstr "Disponibilité d'une Activité Métier"
+
+msgid "Displays availability and alerts of a Business Activity for a given period."
+msgstr "Affiche la disponibilité et les alertes d'une Activité Métier pour une période donnée."
 

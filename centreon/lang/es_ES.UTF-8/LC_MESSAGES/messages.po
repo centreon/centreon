@@ -18029,3 +18029,12 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Display average as"
 # msgstr ""
 
+# msgid "Reporting period"
+# msgstr ""
+
+# msgid "Business Activity availability"
+# msgstr ""
+
+# msgid "Displays availability and alerts of a Business Activity for a given period."
+# msgstr ""
+

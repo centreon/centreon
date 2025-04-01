@@ -26,6 +26,10 @@ const internalWidgets: Array<
     panelDefaultHeight: 6
   },
   {
+    name: 'baavailability',
+    panelDefaultWidth: 12
+  },
+  {
     name: 'metriccapacityplanning',
     panelMinHeight: 4,
     panelMinWidth: 8,
