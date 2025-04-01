@@ -80,8 +80,8 @@ $updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMes
             SQL
     );
 
-    if (!isset($samlConfiguration['custom_configuration'])) {
-        throw new \Exception('SAML custom configuration is missing');
+    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
+        throw new \Exception('SAML configuration is missing');
     }
 
     $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
