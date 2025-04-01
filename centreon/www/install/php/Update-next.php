@@ -83,28 +83,16 @@ $addCMATypeToTokenTable = function () use ($pearDB, &$errorMessage) {
 };
 
 $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage) {
-    $errorMessage = 'Unable to retrieve data from topology table';
-    $statement = $pearDB->executeQuery(
+    $errorMessage = 'Unable to update new authentication tokens topology';
+    $pearDB->executeQuery(
         <<<'SQL'
-            SELECT 1 FROM `topology`
-            WHERE `topology_name` = 'API Tokens'
-                AND `topology_url` = '/administration/api-token'
+            UPDATE `topology`
+                SET
+                    `topology_name`= 'Authentication Tokens',
+                    `topology_url`= '/administration/authentication-token'
+            WHERE `topology_name` = 'API Tokens' AND `topology_url` = '/administration/api-token';
         SQL
     );
-    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
-
-    if (! $topologyAlreadyExists) {
-        $errorMessage = 'Unable to update new authentication tokens topology';
-        $pearDB->executeQuery(
-            <<<'SQL'
-                UPDATE `topology`
-                    SET
-                        `topology_name`= 'Authentication Tokens',
-                        `topology_url`= '/administration/authentication-token'
-                WHERE `topology_name` = 'API Tokens' AND `topology_url` = '/administration/api-token';
-            SQL
-        );
-    }
 };
 
 try {
