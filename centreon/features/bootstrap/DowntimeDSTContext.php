@@ -189,14 +189,14 @@ class DowntimeDSTContext extends CentreonContext
     public function aDowntimeOfNextDayOfSummerChangingDate()
     {
         $this->downtimeProperties = array(
-            'start_day' => '03/25/2029',
+            'start_day' => '03/26/2029',
             'start_time' => '00:00',
-            'end_day' => '03/25/2029',
+            'end_day' => '03/26/2029',
             'end_time' => '24:00',
-            'expected_start' => '2029-03-25 00:00',
-            'expected_end' => '2029-03-26 00:00',
+            'expected_start' => '2029-03-26 00:00',
+            'expected_end' => '2029-03-27 00:00',
             'expected_duration' => '86400', // 24h
-            'faketime' => '2029-03-24 23:58:00'
+            'faketime' => '2029-03-25 23:58:00'
         );
     }
 
@@ -344,7 +344,9 @@ class DowntimeDSTContext extends CentreonContext
                     if ($dateStart->format('Y-m-d H:i') != $context->downtimeProperties['expected_start'] ||
                         $dateEnd->format('Y-m-d H:i') != $context->downtimeProperties['expected_end'] ||
                         ($endTimestamp - $startTimestamp) != (int)$context->downtimeProperties['expected_duration']) {
-                            throw new \Exception('Downtime external command parameters are wrong (start, end or duration)');
+                            throw new \Exception(
+                                'Downtime external command parameters are wrong (start, end or duration)'
+                            );
                     }
                     $storageDb = $context->getStorageDatabase();
                     $res = $storageDb->query(
