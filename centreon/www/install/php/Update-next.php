@@ -88,8 +88,8 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
         <<<'SQL'
             UPDATE `topology`
                 SET
-                    `topology_name`= 'Authentication Tokens',
-                    `topology_url`= '/administration/authentication-token'
+                    `topology_name` = 'Authentication Tokens',
+                    `topology_url` = '/administration/authentication-token'
             WHERE `topology_name` = 'API Tokens' AND `topology_url` = '/administration/api-token';
         SQL
     );
