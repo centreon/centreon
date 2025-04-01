@@ -82,11 +82,36 @@ $addCMATypeToTokenTable = function () use ($pearDB, &$errorMessage) {
     $pearDB->executeQuery($queryRemoveManualType);
 };
 
+$updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Unable to retrieve data from topology table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT 1 FROM `topology`
+            WHERE `topology_name` = 'API Tokens'
+                AND `topology_url` = '/administration/api-token'
+        SQL
+    );
+    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
+
+    if (! $topologyAlreadyExists) {
+        $errorMessage = 'Unable to update new authentication tokens topology';
+        $pearDB->executeQuery(
+            <<<'SQL'
+                UPDATE `topology`
+                    SET
+                        `topology_name`= 'Authentication Tokens',
+                        `topology_url`= '/administration/authentication-token'
+                WHERE `topology_name` = 'API Tokens' AND `topology_url` = '/administration/api-token';
+            SQL
+        );
+    }
+};
+
 try {
     // TODO add your function calls to update the real time database structure here
 
-    $addCMATypeToTokenTable($pearDB);
-
+    $addCMATypeToTokenTable();
+    $updateTopologyForAuthenticationTokens();
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();

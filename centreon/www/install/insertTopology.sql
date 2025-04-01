@@ -73,7 +73,7 @@ INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topo
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (109,'Databases',505,50503,60,1,'./include/options/db/viewDBInfos.php',NULL,'0','0','1',NULL,NULL,NULL,'1');
 
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`) VALUES ('About', '/administration/about', '1', '1', 5,506,15,1);
-INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_show`) VALUES ('API Tokens', '/administration/api-token', '1', '1', 5, 515, 16, 1, '1');
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_show`) VALUES ('Authentication Tokens', '/administration/authentication-token', '1', '1', 5, 515, 16, 1, '1');
 
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (119,'My Account',501,50104,40,1,'./include/Administration/myAccount/formMyAccount.php','&o=c','0','0','1',NULL,NULL,NULL,'1');
 
