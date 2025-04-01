@@ -35,7 +35,7 @@ on:
 jobs:
   build:
     name: Binary preparation
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Set routing mode
