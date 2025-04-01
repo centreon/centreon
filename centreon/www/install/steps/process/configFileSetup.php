@@ -106,7 +106,9 @@ file_put_contents($centreonConfPmFile, $contents);
 $gorgoneDatabaseFile = $centreonEtcPath . '/config.d/10-database.yaml';
 $contents = file_get_contents('../../var/databaseTemplate.yaml');
 $contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
+$oldMask = umask(0226);
 file_put_contents($gorgoneDatabaseFile, $contents);
+umask($oldMask);
 
 /**
  * Gorgone API configuration file
