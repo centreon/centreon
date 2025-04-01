@@ -45,6 +45,7 @@ class FindSAMLConfigurationPresenter extends AbstractPresenter implements FindSA
             'remote_login_url' => $data->remoteLoginUrl,
             'certificate' => $data->publicCertificate,
             'user_id_attribute' => $data->userIdAttribute,
+            'requested_authn_context' => $data->requestedAuthnContext,
             'logout_from' => $data->logoutFrom,
             'logout_from_url' => $data->logoutFromUrl,
             'auto_import' => $data->isAutoImportEnabled,
