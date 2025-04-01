@@ -168,8 +168,8 @@ class DowntimeDSTContext extends CentreonContext
             'end_time' => '24:00',
             'expected_start' => '2029-03-25 00:00',
             'expected_end' => '2029-03-26 00:00',
-            'expected_duration' => '82800',
-            'faketime' => '2029-03-25 23:56:00'
+            'expected_duration' => '82800', //23h
+            'faketime' => '2029-03-24 23:56:00'
         );
     }
 
@@ -196,7 +196,7 @@ class DowntimeDSTContext extends CentreonContext
             'expected_start' => '2029-03-25 00:00',
             'expected_end' => '2029-03-26 00:00',
             'expected_duration' => '86400', // 24h
-            'faketime' => '2029-03-25 23:58:00'
+            'faketime' => '2029-03-24 23:58:00'
         );
     }
 
@@ -336,10 +336,9 @@ class DowntimeDSTContext extends CentreonContext
                     $startTimestamp = (int) end($matches[1]);
                     $endTimestamp = (int) end($matches[2]);
 
-                    $dateStart = new DateTime('now', new \DateTimeZone('Europe/Paris'));
-                    $dateStart->setTimestamp($startTimestamp);
-                    $dateEnd = new DateTime('now', new \DateTimeZone('Europe/Paris'));
-                    $dateEnd->setTimestamp($endTimestamp);
+                    $dateStart = DateTime::createFromFormat('U', (int) end($matches[1]), new \DateTimeZone('Europe/Paris'));
+                    $dateEnd = DateTime::createFromFormat('U', (int) end($matches[2]), new \DateTimeZone('Europe/Paris'));
+
                     $durationComputed = $endTimestamp - $startTimestamp;
                     $durationGiven = (int) $context->downtimeProperties['expected_duration'];
                     if ($dateStart->format('Y-m-d H:i') != $context->downtimeProperties['expected_start'] ||
