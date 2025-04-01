@@ -15,10 +15,10 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
   };
 
   const options: Array<SelectEntry> = [
-    { id: 1, name: RequestedAuthnContextValue.Minimum },
-    { id: 2, name: RequestedAuthnContextValue.Exact },
-    { id: 3, name: RequestedAuthnContextValue.Better },
-    { id: 4, name: RequestedAuthnContextValue.Maximum },
+    { id: 1, name: RequestedAuthnContextValue.Minimum.toUpperCase() },
+    { id: 2, name: RequestedAuthnContextValue.Exact.toUpperCase() },
+    { id: 3, name: RequestedAuthnContextValue.Better.toUpperCase() },
+    { id: 4, name: RequestedAuthnContextValue.Maximum.toUpperCase() },
   ];
 
   const error = touched?.requestedAuthnContext

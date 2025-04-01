@@ -49,8 +49,8 @@ export interface SAMLConfigurationToAPI {
 }
 
 export enum RequestedAuthnContextValue {
-  Minimum = 'Minimum',
-  Exact = 'Exact',
-  Better = 'Better',
-  Maximum = 'Maximum',
+  Minimum = 'minimum',
+  Exact = 'exact',
+  Better = 'better',
+  Maximum = 'maximum',
 }
