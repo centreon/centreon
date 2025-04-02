@@ -292,7 +292,7 @@ class CentreonCeip extends CentreonWebService
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
                             $productLicense = 'IT-100 Edition';
-                        } else if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                        } else if ((int) $hostsLimitation === -1 && $licenseDurationInMonths > 3) {
                             $productLicense = 'MSP Edition';
                             $fingerprint = $fingerprintService->calculateFingerprint();
                         }
@@ -300,7 +300,7 @@ class CentreonCeip extends CentreonWebService
                     if (in_array($module, ['mbi', 'bam', 'map'], true)) {
                         $productLicense = 'Business Edition';
                         $fingerprint = $fingerprintService->calculateFingerprint();
-                        if ($hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                        if ((int) $hostsLimitation === -1 && $licenseDurationInMonths > 3) {
                             $productLicense = 'MSP Edition';
                         }
                         break;
