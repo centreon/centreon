@@ -19838,9 +19838,6 @@ msgstr "Jeton désactivé"
 msgid "Token deleted"
 msgstr "Jeton supprimé"
 
-msgid "Enable/Disable"
-msgstr "Activer/Désactiver"
-
 msgid "Last 60 days"
 msgstr "Les 60 derniers jours"
 
@@ -19879,4 +19876,3 @@ msgstr "Activer le jeton"
 
 msgid "Token enabled"
 msgstr "Jeton activé"
-
