@@ -84,15 +84,19 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         }
 
         $csvResources = $this->transformToCsv($response->getResources());
-        if (! $response->getFilteredColumns()->isEmpty()) {
-            try {
-                $csvHeader = $this->getHeaderByFilteredColumns($response->getFilteredColumns());
-            } catch (CollectionException $e) {
-                $this->exceptionHandler->log($e);
-                $this->setResponseStatus(new ErrorResponse('An error occurred while filtering columns'));
 
-                return;
-            }
+        try {
+            $csvHeader = $this->getHeaderByFilteredColumns($response->getFilteredColumns());
+        } catch (CollectionException $e) {
+            $this->exceptionHandler->log($e);
+            $this->setResponseStatus(new ErrorResponse('An error occurred while filtering columns'));
+
+            return;
+        }
+
+        $this->viewModel->setHeaders($csvHeader);
+
+        if (! $response->getFilteredColumns()->isEmpty()) {
             $csvResources = $this->filterColumns($csvResources, $csvHeader);
         }
 
@@ -176,6 +180,10 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             'notification' => _('Notif'),
             'checks' => _('Check'),
         ]);
+
+        if ($filteredColumns->isEmpty()) {
+            return $header;
+        }
 
         return $header->filterOnKey(function ($key) use ($filteredColumns) {
             // if the key is a resource or parent_resource, we keep all columns starting with this key

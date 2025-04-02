@@ -22,18 +22,42 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\ExportResources;
 
+use Core\Common\Domain\Collection\StringCollection;
+
 /**
  * Class
  *
  * @class ExportResourcesViewModel
  * @package Core\Resources\Infrastructure\API\ExportResources
  */
-final class ExportResourcesViewModel {
+final class ExportResourcesViewModel
+{
+    /** @var StringCollection */
+    private StringCollection $headers;
+
     /** @var \Traversable<array<string,mixed>> */
     private \Traversable $resources;
 
     /** @var string */
     private string $exportedFormat;
+
+    /**
+     * @return StringCollection
+     */
+    public function getHeaders(): StringCollection
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @param StringCollection $headers
+     *
+     * @return void
+     */
+    public function setHeaders(StringCollection $headers): void
+    {
+        $this->headers = $headers;
+    }
 
     /**
      * @return \Traversable<array<string,mixed>>

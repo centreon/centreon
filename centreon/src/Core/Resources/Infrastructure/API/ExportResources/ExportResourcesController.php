@@ -87,10 +87,8 @@ final class ExportResourcesController extends AbstractController
             return $presenter->show();
         }
 
-        $resources = $presenter->getViewModel()->getResources();
-
         if ($presenter->getViewModel()->getExportedFormat() === 'csv') {
-            return $this->createCsvResponse($resources);
+            return $this->createCsvResponse($presenter->getViewModel());
         }
 
         $presenter->setResponseStatus(new ErrorResponse('Export format not supported'));
@@ -147,20 +145,26 @@ final class ExportResourcesController extends AbstractController
     }
 
     /**
-     * @param \Traversable<array<string,mixed>> $resources
+     * @param ExportResourcesViewModel $viewModel
      *
      * @return Response
      */
-    private function createCsvResponse(\Traversable $resources): Response
+    private function createCsvResponse(ExportResourcesViewModel $viewModel): Response
     {
+        $csvHeaders = $viewModel->getHeaders();
+        $resources = $viewModel->getResources();
         /* create a streamed response to avoid memory issues with large data. If an error occurs during the export,
         the error message will be displayed in the csv file and logged (streamed response) */
-        $response = new StreamedResponse(function () use ($resources): void {
+        $response = new StreamedResponse(function () use ($csvHeaders, $resources): void {
             $csvEncoder = new CsvEncoder();
             try {
-                foreach ($resources as $index => $resource) {
+                echo $csvEncoder->encode($csvHeaders->values(), CsvEncoder::FORMAT, [
+                    CsvEncoder::NO_HEADERS_KEY => true,
+                    CsvEncoder::DELIMITER_KEY => ';',
+                ]);
+                foreach ($resources as $resource) {
                     echo $csvEncoder->encode($resource, CsvEncoder::FORMAT, [
-                        CsvEncoder::NO_HEADERS_KEY => $index > 0,
+                        CsvEncoder::NO_HEADERS_KEY => true,
                         CsvEncoder::DELIMITER_KEY => ';',
                     ]);
                 }
@@ -182,9 +186,7 @@ final class ExportResourcesController extends AbstractController
      *
      * @return string
      */
-    private function getCsvFileName(
-        string $exportView = self::EXPORT_VIEW_TYPE,
-    ): string {
+    private function getCsvFileName(string $exportView = self::EXPORT_VIEW_TYPE,): string {
         $dateNormalized = str_replace([' ', ':', ',', '/'], '-', $this->getDateFormatted());
 
         return "ResourceStatusExport_{$exportView}_{$dateNormalized}.csv";
