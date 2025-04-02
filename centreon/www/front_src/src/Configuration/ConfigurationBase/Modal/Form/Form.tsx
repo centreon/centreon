@@ -11,7 +11,7 @@ import { CloseModalConfirmation } from '../../Dialogs';
 import { Box } from '@mui/material';
 import { ObjectSchema } from 'yup';
 import { isFormDirtyAtom } from '../../atoms';
-import { labelCancel, labelCreate, labelUpdate } from '../../translatedLabels';
+import { labelCancel, labelSave } from '../../translatedLabels';
 import { useFormStyles } from './Form.styles';
 
 export type HostGroupFormProps = {
@@ -54,8 +54,8 @@ const Actions =
     const actionsLabels = {
       cancel: t(labelCancel),
       submit: {
-        create: t(labelCreate),
-        update: t(labelUpdate)
+        create: t(labelSave),
+        update: t(labelSave)
       }
     };
 
