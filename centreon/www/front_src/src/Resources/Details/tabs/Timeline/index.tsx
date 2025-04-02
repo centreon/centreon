@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { isEmpty, isNil, path, prop } from 'ramda';
+import { equals, isEmpty, isNil, path, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
