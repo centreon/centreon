@@ -88,7 +88,7 @@ interface ReadTokenRepositoryInterface
     public function existsByNameAndUserId(string $tokenName, int $userId): bool;
 
     /**
-     * Check if the token type is auto.
+     * Check if the token type is manual.
      *
      * @param string $token
      *
@@ -96,5 +96,5 @@ interface ReadTokenRepositoryInterface
      *
      * @return bool
      */
-    public function isTokenTypeAuto(string $token): bool;
+    public function isTokenTypeManual(string $token): bool;
 }
