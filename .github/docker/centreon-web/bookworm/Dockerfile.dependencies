@@ -134,6 +134,10 @@ COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
+# composer installing https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
+ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
 FROM web_dependencies AS web_dependencies_collect
 
 RUN bash -e <<EOF
@@ -150,7 +154,3 @@ apt-get install -y \
 apt-get clean
 
 EOF
-
-# composer installing https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
-ENV COMPOSER_ALLOW_SUPERUSER=1
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
