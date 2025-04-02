@@ -19817,5 +19817,14 @@ msgstr "Nom de la ressource parent"
 msgid "Parent Resource Status"
 msgstr "Statut de la ressource parent"
 
+msgid "An error occurred while filtering columns"
+msgstr "Une erreur est survenue lors du filtrage des colonnes"
+
+msgid "Error while creating export request"
+msgstr "Erreur lors de la création de la demande d'exportation"
+
+msgid "Export format not supported"
+msgstr "Format d'export non supporté"
+
 
 
