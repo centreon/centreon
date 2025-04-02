@@ -442,9 +442,20 @@ class CentreonCeip extends CentreonWebService
      */
     private function getLaccess(): string
     {
-        $sql = "SELECT `value` FROM `options` WHERE `key` = 'LACCESS' LIMIT 1";
+        $sql = "SELECT `value` FROM `options` WHERE `key` = 'impCompanyToken' LIMIT 1";
+        $impCompanyToken = (string) $this->sqlFetchValue($sql);
 
-        return (string) $this->sqlFetchValue($sql);
+        $decodedToken = json_decode($impCompanyToken, true);
+        if (is_array($decodedToken) && isset($decodedToken['token'])) {
+            return $decodedToken['token'];
+        }
+
+        $this->logger->error(
+            "Invalid JSON format in options table for key 'impCompanyToken'",
+            ['context' => $impCompanyToken]
+        );
+
+        return '';
     }
 
     /**
