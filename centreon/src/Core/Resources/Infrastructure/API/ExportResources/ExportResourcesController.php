@@ -71,6 +71,7 @@ final class ExportResourcesController extends AbstractController
         Request $request,
         #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] ExportResourcesInput $input
     ): Response {
+        $this->exceptionHandler->log(new \RuntimeException('ExportResourcesController invoked'));
         try {
             $useCaseRequest = $this->createExportRequest($request, $input);
         } catch (TransformerException $e) {
@@ -186,7 +187,7 @@ final class ExportResourcesController extends AbstractController
      *
      * @return string
      */
-    private function getCsvFileName(string $exportView = self::EXPORT_VIEW_TYPE,): string {
+    private function getCsvFileName(string $exportView = self::EXPORT_VIEW_TYPE): string {
         $dateNormalized = str_replace([' ', ':', ',', '/'], '-', $this->getDateFormatted());
 
         return "ResourceStatusExport_{$exportView}_{$dateNormalized}.csv";
