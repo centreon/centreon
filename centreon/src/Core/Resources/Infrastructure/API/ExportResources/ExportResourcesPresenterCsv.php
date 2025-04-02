@@ -140,7 +140,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                 _('Parent alias') => $resource->getParent()?->getAlias() ?? '',
                 _('FQDN / Address') => $resource->getFqdn() ?? '',
                 _('Monitoring Server') => $resource->getMonitoringServerName(),
-                _('Notif') => $resource->isNotificationEnabled() ? _('Enabled') : ('Disabled'),
+                _('Notif') => $resource->isNotificationEnabled() ? _('Notifications enabled') : _('Notifications disabled'),
                 _('Check') => _($this->getResourceCheck($resource)),
             ];
         }
