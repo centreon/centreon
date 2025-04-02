@@ -282,9 +282,9 @@ export const SAMLConfigurationDecoder = JsonDecoder.object<SAMLConfiguration>(
     logoutFrom: JsonDecoder.boolean,
     logoutFromUrl: JsonDecoder.nullable(JsonDecoder.string),
     remoteLoginUrl: JsonDecoder.string,
-    requestedAuthnContext: JsonDecoder.enumeration(
+    requestedAuthnContext: JsonDecoder.enumeration<RequestedAuthnContextValue>(
       RequestedAuthnContextValue,
-      'Requested Authentication Context'
+      'Requested authentication context'
     ),
     rolesMapping: SAMLRolesMapping,
     userIdAttribute: JsonDecoder.string
