@@ -12,8 +12,6 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
   const { values, setFieldValue, errors, touched } =
     useFormikContext<SAMLConfiguration>();
 
-  console.log(values.requestedAuthnContext);
-
   const changeValue = (event): void => {
     setFieldValue('requestedAuthnContext', event.target.value);
   };
