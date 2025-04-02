@@ -135,6 +135,7 @@ const useExportCsv = ({
       : {};
 
     const types = getCriteriaIds('resource_types');
+    const statuses = getCriteriaIds('statuses');
 
     const parameters = {
       ...filtersParameters,
@@ -145,7 +146,11 @@ const useExportCsv = ({
       parameters,
       customQueryParameters: [
         ...queryParameters,
-        { name: 'types', value: types }
+        { name: 'types', value: types },
+        {
+          name: 'statuses',
+          value: statuses?.map((status) => status.toUpperCase())
+        }
       ]
     };
   };
