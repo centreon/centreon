@@ -43,6 +43,7 @@ export const IconButton = ({
   title = '',
   ariaLabel,
   className,
+  dataTestid,
   tooltipPlacement,
   tooltipClassName,
   dataTestid,

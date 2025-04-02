@@ -93,6 +93,12 @@ export const useTextFieldStyles = makeStyles<{ hasMarginBottom: boolean }>()(
       flexDirection: 'column',
       gap: theme.spacing(0.5),
       marginBottom: hasMarginBottom ? theme.spacing(0.5) : 0
+    },
+    inputContainer: {
+      alignItems: 'center',
+      display: 'flex',
+      flexDirection: 'row',
+      gap: theme.spacing(1)
     }
   })
 );
