@@ -46,7 +46,6 @@ export const IconButton = ({
   dataTestid,
   tooltipPlacement,
   tooltipClassName,
-  dataTestid,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
