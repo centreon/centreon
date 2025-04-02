@@ -79,6 +79,16 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
 }));
 
 export const useWidgetSelectionStyles = makeStyles()((theme) => ({
+  groupContainer: {
+    width: '100%',
+    paddingLeft: theme.spacing(4),
+    backgroundColor: theme.palette.background.listingHeader,
+    color: theme.palette.common.white,
+    '&:hover': {
+      backgroundColor: theme.palette.background.listingHeader,
+      color: theme.palette.common.white
+    }
+  },
   selectField: {
     flexGrow: 1
   },

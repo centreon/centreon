@@ -6,6 +6,7 @@ Feature: Print configuration warnings
   Background:
     Given An admin user is logged in Centreon
 
+  @TEST_MON-162170
   Scenario: Notifications enabled on service without notification period
     Given a service with notifications enabled
     And the service has no notification period

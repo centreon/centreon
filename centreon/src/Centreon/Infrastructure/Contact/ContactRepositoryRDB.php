@@ -555,6 +555,12 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             case 'delete_poller_cfg':
                 $contact->addRole(Contact::ROLE_DELETE_POLLER_CFG);
                 break;
+            case 'top_counter':
+                $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER);
+                break;
+            case 'poller_stats':
+                $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS);
+                break;
         }
     }
 

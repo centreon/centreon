@@ -1,4 +1,4 @@
-import { cond, equals, keys } from 'ramda';
+import { cond, equals, isNil, keys } from 'ramda';
 
 import { Box } from '@mui/material';
 
@@ -17,13 +17,15 @@ export const getStatus = cond([
 ]);
 
 const SubItem = ({ row }: ComponentColumnProps): JSX.Element => {
-  const statusCount = row?.childrenCount;
   const { classes } = useStyles({});
+
+  const statusCount = row?.childrenCount;
+  const isNestedRow = isNil(row?.children);
 
   return (
     <Box className={classes.statusCount}>
-      {row?.resource_name && (
-        <Box className={classes.status}>
+      {row?.resource_name && isNestedRow && (
+        <Box className={classes.nestedStatus}>
           <StatusChip
             content={getStatus(row?.status.name.toLowerCase())?.label}
             severityCode={getStatus(row?.status.name.toLowerCase())?.severity}
@@ -31,6 +33,7 @@ const SubItem = ({ row }: ComponentColumnProps): JSX.Element => {
           <p>{row?.resource_name}</p>
         </Box>
       )}
+
       {keys(statusCount)?.map((item) => {
         if (statusCount?.[item]) {
           return (

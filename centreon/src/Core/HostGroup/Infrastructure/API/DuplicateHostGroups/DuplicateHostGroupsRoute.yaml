@@ -1,0 +1,5 @@
+DuplicateHostGroups:
+  methods: POST
+  path: /configuration/hosts/groups/_duplicate
+  controller: 'Core\HostGroup\Infrastructure\API\DuplicateHostGroups\DuplicateHostGroupsController'
+  condition: "request.attributes.get('version') >= 25.03"

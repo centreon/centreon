@@ -67,4 +67,15 @@ interface ReadResourceAccessRepositoryInterface
      * @return bool
      */
     public function exists(int $ruleId): bool;
+
+    /**
+     * Retrieve Datasets by Host Group ID.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<int>> [datasetId => [ResourceId1,ResourceId2, ...]]
+     */
+    public function findDatasetResourceIdsByHostGroupId(int $hostGroupId): array;
 }

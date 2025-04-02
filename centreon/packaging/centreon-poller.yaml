@@ -86,8 +86,6 @@ overrides:
       - centreon-trap = ${VERSION}-${RELEASE}${DIST}
       - centreon-engine >= ${MAJOR_VERSION}
       - centreon-engine < ${NEXT_MAJOR_VERSION}
-      - centreon-broker-cbmod >= ${MAJOR_VERSION}
-      - centreon-broker-cbmod < ${NEXT_MAJOR_VERSION}
       - centreon-connector >= ${MAJOR_VERSION}
       - centreon-connector < ${NEXT_MAJOR_VERSION}
       - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
@@ -127,8 +125,6 @@ overrides:
       - centreon-trap (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-engine (>= ${MAJOR_VERSION}~)"
       - "centreon-engine (<< ${NEXT_MAJOR_VERSION}~)"
-      - "centreon-broker-cbmod (>= ${MAJOR_VERSION}~)"
-      - "centreon-broker-cbmod (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-connector (>= ${MAJOR_VERSION}~)"
       - "centreon-connector (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-gorgone-centreon-config (>= ${MAJOR_VERSION}~)"

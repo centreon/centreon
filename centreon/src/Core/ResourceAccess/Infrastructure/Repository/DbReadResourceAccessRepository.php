@@ -29,6 +29,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\ResourceAccess\Domain\Model\TinyRule;
@@ -226,6 +227,35 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         }
 
         return $rules;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findDatasetResourceIdsByHostGroupId(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    SELECT id, resource_ids FROM dataset_filters
+                    INNER JOIN acl_resources_hg_relations arhr
+                        ON arhr.acl_res_id = dataset_filters.acl_resource_id
+                    WHERE hg_hg_id = :hostGroupId
+                SQL
+        ));
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $datasetFilters = [];
+
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /**
+             * @var array{id: int, resource_ids: string} $record
+             */
+            $datasetFilters[$record['id']] = array_map('intval', explode(',', $record['resource_ids']));
+        }
+
+        return $datasetFilters;
     }
 
     /**

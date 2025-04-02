@@ -185,6 +185,7 @@ const resourcesRequests = (): void => {
       response: data
     });
   });
+
   cy.fixture('Widgets/ResourcesTable/downtime.json').then((data) => {
     cy.interceptAPIRequest({
       alias: 'getDowntime',
@@ -359,9 +360,13 @@ describe('View by all', () => {
     cy.findByLabelText(labelForcedCheck).click();
 
     cy.waitForRequest('@postCheckCommand').then(({ request }) => {
-      expect(request.body).equal(
-        '{"check":{"is_forced":true},"resources":[{"id":19,"parent":{"id":14},"type":"service"},{"id":24,"parent":{"id":14},"type":"service"}]}'
-      );
+      expect(request.body).to.deep.equal({
+        check: { is_forced: true },
+        resources: [
+          { id: 19, parent: { id: 14 }, type: 'service' },
+          { id: 24, parent: { id: 14 }, type: 'service' }
+        ]
+      });
     });
 
     cy.contains(labelForcedCheckCommandSent).should('be.visible');
@@ -383,9 +388,13 @@ describe('View by all', () => {
     cy.findByLabelText(labelCheck).click();
 
     cy.waitForRequest('@postCheckCommand').then(({ request }) => {
-      expect(request.body).equal(
-        '{"check":{"is_forced":false},"resources":[{"id":19,"parent":{"id":14},"type":"service"},{"id":24,"parent":{"id":14},"type":"service"}]}'
-      );
+      expect(request.body).to.deep.equal({
+        check: { is_forced: false },
+        resources: [
+          { id: 19, parent: { id: 14 }, type: 'service' },
+          { id: 24, parent: { id: 14 }, type: 'service' }
+        ]
+      });
     });
 
     cy.contains(labelCheckCommandSent).should('be.visible');
@@ -451,7 +460,7 @@ describe('View by all', () => {
     cy.findAllByLabelText(labelSetDowntime).eq(1).click();
 
     cy.waitForRequest('@postDowntime').then(({ request }) => {
-      expect(request.body).deep.equal({
+      expect(request.body).to.deep.equal({
         downtime: {
           comment: 'Downtime set by ',
           duration: 3600,
@@ -818,14 +827,12 @@ describe('Open tickets', () => {
     cy.contains(labelConfirm).click();
 
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
-      expect(request.body).equal(
-        JSON.stringify({
-          data: {
-            selection: '14;19',
-            rule_id: '1'
-          }
-        })
-      );
+      expect(request.body).to.deep.equal({
+        data: {
+          selection: '14;19',
+          rule_id: '1'
+        }
+      });
     });
 
     cy.contains(labelTicketClosed).should('be.visible');
@@ -863,14 +870,12 @@ describe('Open tickets', () => {
     cy.contains(labelConfirm).click();
 
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
-      expect(request.body).equal(
-        JSON.stringify({
-          data: {
-            selection: '6',
-            rule_id: '1'
-          }
-        })
-      );
+      expect(request.body).to.deep.equal({
+        data: {
+          selection: '6',
+          rule_id: '1'
+        }
+      });
     });
 
     cy.contains(labelTicketClosed).should('be.visible');

@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
@@ -7,9 +7,11 @@ import {
   pageAtom,
   searchAtom,
   sortFieldAtom,
-  sortOrderAtom
+  sortOrderAtom,
+  totalAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
 
+import { useEffect } from 'react';
 import { onlyFavoriteDashboardsAtom } from '../components/DashboardLibrary/DashboardListing/Actions/favoriteFilter/atoms';
 import { dashboardListDecoder } from './decoders';
 import { dashboardsEndpoint, dashboardsFavoriteEndpoint } from './endpoints';
@@ -28,6 +30,7 @@ const useListDashboards = (): UseListDashboards => {
   const sortField = useAtomValue(sortFieldAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const searchValue = useAtomValue(searchAtom);
+  const setTotal = useSetAtom(totalAtom);
   const onlyFavoriteDashboards = useAtomValue(onlyFavoriteDashboardsAtom);
 
   const sort = { [sortField]: sortOrder };
@@ -71,6 +74,10 @@ const useListDashboards = (): UseListDashboards => {
       suspense: false
     }
   });
+
+  useEffect(() => {
+    setTotal(data?.meta?.total || 0);
+  }, [data?.meta?.total]);
 
   return {
     data,

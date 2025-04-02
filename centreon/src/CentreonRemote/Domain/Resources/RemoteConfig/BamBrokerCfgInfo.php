@@ -54,13 +54,6 @@ class BamBrokerCfgInfo
                     'grp_level' => '0',
                 ],
                 [
-                    'config_key' => 'check_replication',
-                    'config_value' => 'no',
-                    'config_group' => 'output',
-                    'config_group_id' => '4',
-                    'grp_level' => '0',
-                ],
-                [
                     'config_key' => 'command_file',
                     'config_value' => '/var/lib/centreon-engine/rw/centengine.cmd',
                     'config_group' => 'output',
@@ -170,13 +163,6 @@ class BamBrokerCfgInfo
                 [
                     'config_key' => 'category',
                     'config_value' => 'bam',
-                    'config_group' => 'output',
-                    'config_group_id' => '5',
-                    'grp_level' => '0',
-                ],
-                [
-                    'config_key' => 'check_replication',
-                    'config_value' => 'no',
                     'config_group' => 'output',
                     'config_group_id' => '5',
                     'grp_level' => '0',

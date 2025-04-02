@@ -9,7 +9,7 @@ const Search = (): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useActionsStyles();
 
-  const { change } = useSearch();
+  const { search, change } = useSearch();
 
   return (
     <SearchField
@@ -20,6 +20,7 @@ const Search = (): JSX.Element => {
       placeholder={t(labelSearch)}
       onChange={change}
       EndAdornment={Filters}
+      value={search}
     />
   );
 };

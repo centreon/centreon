@@ -567,7 +567,7 @@ describe('Format value with unit', () => {
 
     if (unit === 'ms') {
       return {
-        expectedResult: '34.23 seconds',
+        expectedResult: '34.23k ms',
         unit,
         value: 34232
       };

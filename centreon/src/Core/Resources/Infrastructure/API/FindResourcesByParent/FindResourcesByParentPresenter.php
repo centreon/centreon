@@ -206,6 +206,8 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
             ],
             'is_in_downtime' => $response->isInDowntime,
             'is_acknowledged' => $response->isAcknowledged,
+            'is_in_flapping' => $response->isInFlapping,
+            'percent_state_change' => $response->percentStateChange,
             'has_active_checks_enabled' => $response->withActiveChecks,
             'has_passive_checks_enabled' => $response->withPassiveChecks,
             'last_status_change' => $this->formatDateToIso8601($response->lastStatusChange),
