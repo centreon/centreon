@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -18,10 +16,10 @@ const ExpirationDate = (): JSX.Element => {
     setFilters({ ...filters, expirationDate });
   };
 
-  const dataExpirationDate = useMemo(
-    () => ({ date: filters.expirationDate, setDate: setExpirationDate }),
-    [filters.expirationDate]
-  );
+  const dataExpirationDate = {
+    date: filters.expirationDate,
+    setDate: setExpirationDate
+  };
 
   return (
     <DateFilter

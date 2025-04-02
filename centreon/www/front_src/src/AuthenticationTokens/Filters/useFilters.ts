@@ -6,6 +6,7 @@ import { Filter, NamedEntity } from '../models';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
+import { useEffect, useState } from 'react';
 import { filtersAtom } from '../atoms';
 import { filtersInitialValues } from '../utils';
 
@@ -20,7 +21,7 @@ interface UseFiltersState {
   deleteUser: (_, item) => void;
   deleteType: (_, item) => void;
   isOptionEqualToValue: (option, selectedValue) => boolean;
-  handleSearch: () => void;
+  reload: () => void;
   reset: () => void;
   filters: Filter;
 }
@@ -35,6 +36,8 @@ export const getUniqData = (data): Array<NamedEntity> => {
 
 const useFilters = (): UseFiltersState => {
   const queryClient = useQueryClient();
+
+  const [isClearClicked, setIsClearClicked] = useState(false);
 
   const [filters, setFilters] = useAtom(filtersAtom);
 
@@ -99,15 +102,22 @@ const useFilters = (): UseFiltersState => {
       : equals(option.name.toString(), selectedValue.name.toString());
   };
 
-  const handleSearch = (): void => {
+  const reload = (): void => {
     queryClient.invalidateQueries({ queryKey: ['listTokens'] });
   };
 
   const reset = (): void => {
     setFilters(filtersInitialValues);
 
-    queryClient.invalidateQueries({ queryKey: ['listTokens'] });
+    setIsClearClicked(true);
   };
+
+  useEffect(() => {
+    if (isClearClicked) {
+      reload();
+      setIsClearClicked(false);
+    }
+  }, [filters, isClearClicked]);
 
   return {
     isClearDisabled,
@@ -120,7 +130,7 @@ const useFilters = (): UseFiltersState => {
     deleteUser,
     deleteType,
     isOptionEqualToValue,
-    handleSearch,
+    reload,
     reset,
     filters
   };

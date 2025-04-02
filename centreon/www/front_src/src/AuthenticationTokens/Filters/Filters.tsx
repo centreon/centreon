@@ -48,7 +48,7 @@ const Filters = (): JSX.Element => {
     deleteUser,
     deleteType,
     isOptionEqualToValue,
-    handleSearch,
+    reload,
     reset
   } = useFilters();
 
@@ -64,7 +64,8 @@ const Filters = (): JSX.Element => {
 
       <MultiAutocompleteField
         chipProps={{
-          onDelete: deleteType
+          onDelete: deleteType,
+          color: 'primary'
         }}
         dataTestId={labelTypes}
         isOptionEqualToValue={isOptionEqualToValue}
@@ -81,7 +82,8 @@ const Filters = (): JSX.Element => {
         disableClearable={false}
         disableSortedOptions
         chipProps={{
-          onDelete: deleteUser
+          onDelete: deleteUser,
+          color: 'primary'
         }}
         dataTestId={labelUsers}
         field="name"
@@ -96,7 +98,8 @@ const Filters = (): JSX.Element => {
         disableClearable={false}
         disableSortedOptions
         chipProps={{
-          onDelete: deleteCreator
+          onDelete: deleteCreator,
+          color: 'primary'
         }}
         dataTestId={labelCreators}
         field="creator.name"
@@ -123,7 +126,7 @@ const Filters = (): JSX.Element => {
           data-testid={labelSearch}
           disabled={isLoading}
           size="small"
-          onClick={handleSearch}
+          onClick={reload}
         >
           {t(labelSearch)}
         </Button>

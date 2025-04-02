@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -18,10 +16,10 @@ const CreationDate = (): JSX.Element => {
     setFilters({ ...filters, creationDate });
   };
 
-  const dataCreationDate = useMemo(
-    () => ({ date: filters.creationDate, setDate: setCreationDate }),
-    [filters.creationDate]
-  );
+  const dataCreationDate = {
+    date: filters.creationDate,
+    setDate: setCreationDate
+  };
 
   return (
     <DateFilter
