@@ -105,7 +105,20 @@ Given(
       let major_version_from = '0';
       switch (major_version_from_expression) {
         case 'n - 1':
-          major_version_from = getCentreonPreviousMajorVersion(major_version);
+          const previousVersion = getCentreonPreviousMajorVersion(major_version);
+          if (Cypress.env('IS_CLOUD')) {
+          const versionFilePath = `../www/install/php/*${previousVersion}*`;
+          cy.task("fileExists", versionFilePath).then((exists) => {
+            if (exists) {
+              major_version_from = previousVersion;
+            } else {
+              major_version_from =
+                getCentreonPreviousMajorVersion(previousVersion);
+            }
+          })
+          } else{
+            major_version_from = previousVersion;
+          };
           break;
         case 'n - 2':
           major_version_from = getCentreonPreviousMajorVersion(
