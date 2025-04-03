@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useFormikContext } from 'formik';
-import { equals, find, map } from 'ramda';
+import { equals, find } from 'ramda';
 
 import { SelectEntry, SelectField } from '@centreon/ui';
 
