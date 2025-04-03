@@ -16,6 +16,7 @@ import {
 
 import { Resource } from '../../../models';
 import { formatBAStatus, formatStatus } from '../../../utils';
+import { getFormattedResources } from '../../../../../front_src/src/Dashboards/SingleInstancePage/Dashboard/utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const hostsEndpoint = '/monitoring/resources/hosts';
@@ -68,7 +69,10 @@ export const getListingCustomQueryParameters = ({
   states,
   resources
 }: GetCustomQueryParametersProps): Array<QueryParameter> => {
-  const resourcesToApplyToCustomParameters = resources.filter(
+
+  const formattedResources = getFormattedResources({ array: resources });
+
+  const resourcesToApplyToCustomParameters = formattedResources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
   );
 
@@ -104,7 +108,9 @@ export const getListingQueryParameters = ({
   limit,
   page
 }: GetListingQueryParametersProps): ListingParameters => {
-  const resourcesToApplyToSearchParameters = resources.filter(
+  const formattedResources = getFormattedResources({ array: resources });
+
+  const resourcesToApplyToSearchParameters = formattedResources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
   );
 
@@ -178,7 +184,9 @@ export const buildCondensedViewEndpoint = ({
   baseEndpoint,
   statuses
 }: BuildResourcesEndpointProps): string => {
-  const formattedResources = resources.map((resource) => {
+
+  const formattedResources = getFormattedResources({ array: resources });
+  const resourcesToApply  = formattedResources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
       return {
         ...resource,
@@ -189,7 +197,7 @@ export const buildCondensedViewEndpoint = ({
     return { ...resource, resourceType: 'name' };
   });
 
-  const searchConditions = formattedResources.map(
+  const searchConditions = resourcesToApply.map(
     ({ resourceType, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({
         field: resourceType,
