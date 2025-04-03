@@ -684,7 +684,7 @@ jobs:
   symfony-check:
     runs-on: ubuntu-24.04
     needs: [get-environment, dockerize]
-    name: symfony-check-${{ matrix.operating_system }}
+    name: symfony-check
     steps:
       - name: Installing of development dependencies
         run: composer install --optimize-autoloader
