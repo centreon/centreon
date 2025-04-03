@@ -78,6 +78,7 @@ final class AddAgentConfiguration
             $newAc = AgentConfigurationFactory::createNewAgentConfiguration(
                 name: $request->name,
                 type: $type,
+                connectionMode: $request->connectionMode,
                 parameters: $request->configuration,
             );
 

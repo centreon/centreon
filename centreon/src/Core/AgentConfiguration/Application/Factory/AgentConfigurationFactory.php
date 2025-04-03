@@ -27,6 +27,7 @@ use Assert\AssertionFailedException;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Type;
 
@@ -35,6 +36,7 @@ class AgentConfigurationFactory
     /**
      * @param string $name
      * @param Type $type
+     * @param ConnectionModeEnum $connectionMode
      * @param array<string,mixed> $parameters
      *
      * @throws AssertionFailedException
@@ -44,9 +46,12 @@ class AgentConfigurationFactory
     public static function createNewAgentConfiguration(
         string $name,
         Type $type,
+        ConnectionModeEnum $connectionMode,
         array $parameters,
     ): NewAgentConfiguration
     {
+        $parameters['connection_mode'] = $connectionMode;
+
         return new NewAgentConfiguration(
             name: $name,
             type: $type,
@@ -62,6 +67,7 @@ class AgentConfigurationFactory
      * @param string $name
      * @param Type $type
      * @param array<string,mixed> $parameters
+     * @param ConnectionModeEnum $connectionMode
      *
      * @throws AssertionFailedException
      *
@@ -72,8 +78,11 @@ class AgentConfigurationFactory
         string $name,
         Type $type,
         array $parameters,
+        ConnectionModeEnum $connectionMode,
     ): AgentConfiguration
     {
+        $parameters['connection_mode'] = $connectionMode;
+
         return new AgentConfiguration(
             id: $id,
             name: $name,

@@ -91,7 +91,8 @@ final class UpdateAgentConfiguration
                 id: $agentConfiguration->getId(),
                 name: $request->name,
                 type: $agentConfiguration->getType(),
-                parameters: $request->configuration
+                parameters: $request->configuration,
+                connectionMode: $request->connectionMode,
             );
 
             $this->save($updatedAgentConfiguration, $request->pollerIds);

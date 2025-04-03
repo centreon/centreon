@@ -55,9 +55,10 @@ class TelegrafValidator implements TypeValidatorInterface
                     str_ends_with($key, '_certificate')
                     || str_ends_with($key, '_key')
                 )
-                && 1 === preg_match('/\.\/|\.\.\/|\.cert$|\.crt$|\.key$/', (string) $value)
+                && is_string($value)
+                && 1 === preg_match('/\.\/|\.\.\/|\.cert$|\.crt$|\.key$/', $value)
             ) {
-                throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
+                throw AgentConfigurationException::invalidFilename("configuration.{$key}", $value);
             }
         }
     }

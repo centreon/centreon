@@ -25,9 +25,11 @@ namespace Core\AdditionalConnectorConfiguration\Application\Validation;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 beforeEach(function (): void {
     $this->parameters = [
+        'connection_mode' => ConnectionModeEnum::SECURE,
         'otel_public_certificate' => 'otel_certif_filename',
         'otel_ca_certificate' => 'ca_certif_filename',
         'otel_private_key' => 'otel_key_filename',
