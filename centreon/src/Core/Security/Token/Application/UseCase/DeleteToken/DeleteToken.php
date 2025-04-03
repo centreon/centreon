@@ -55,7 +55,7 @@ final class DeleteToken
     public function __invoke( PresenterInterface $presenter, string $tokenName, ?int $userId = null): void
     {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW)) {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)) {
                 $this->error(
                     "User doesn't have sufficient rights to delete a token",
                     ['user_id' => $this->user->getId()]
