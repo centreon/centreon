@@ -28,6 +28,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
+use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
+use Core\Resources\Infrastructure\API\ExportResources\Enum\ExportViewEnum;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
@@ -38,13 +40,6 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
  */
 final readonly class ExportResources
 {
-    /**
-     * Allowed export formats
-     *
-     * @var array<string>
-     */
-    private const EXPORT_ALLOWED_FORMAT = ['csv'];
-
     /**
      * ExportResources constructor
      *
@@ -74,76 +69,42 @@ final readonly class ExportResources
             return;
         }
 
-        if ($request->isAdmin) {
-            try {
+        try {
+            if ($request->isAdmin) {
                 $resources = $this->readResourceRepository->iterateResources(
                     filter: $request->resourceFilter,
                     maxResults: $request->allPages ? $request->maxResults : 0
                 );
-            } catch (RepositoryException $exception) {
-                $presenter->presentResponse(
-                    new ErrorResponse(
-                        message: 'An error occurred while iterating resources with admin rights',
-                        context: [
-                            'use_case' => 'ExportResources',
-                            'user_is_admin' => $request->isAdmin,
-                            'contact_id' => $request->contactId,
-                            'resources_filter' => $request->resourceFilter,
-                        ],
-                        exception: $exception
-                    )
-                );
-
-                return;
-            }
-        } else {
-            try {
+            } else {
                 $accessGroups = $this->accessGroupRepository->findByContactId($request->contactId);
                 $accessGroupIds = $accessGroups->getIds();
-            } catch (RepositoryException $exception) {
-                $presenter->presentResponse(
-                    new ErrorResponse(
-                        message: 'An error occurred while finding access groups for the contact',
-                        context: [
-                            'use_case' => 'ExportResources',
-                            'contact_id' => $request->contactId,
-                        ],
-                        exception: $exception
-                    )
-                );
 
-                return;
-            }
-
-            try {
                 $resources = $this->readResourceRepository->iterateResourcesByAccessGroupIds(
                     filter: $request->resourceFilter,
                     accessGroupIds: $accessGroupIds,
                     maxResults: $request->allPages ? $request->maxResults : 0
                 );
-            } catch (RepositoryException $exception) {
-                $presenter->presentResponse(
-                    new ErrorResponse(
-                        message: 'An error occurred while iterating resources by access group IDs',
-                        context: [
-                            'use_case' => 'ExportResources',
-                            'user_is_admin' => $request->isAdmin,
-                            'contact_id' => $request->contactId,
-                            'resources_filter' => $request->resourceFilter,
-                        ],
-                        exception: $exception
-                    )
-                );
-
-                return;
             }
+
+            $response->setExportedFormat($request->exportedFormat);
+            $response->setFilteredColumns($request->columns);
+            $response->setResources($resources);
+
+            $presenter->presentResponse($response);
+        } catch (RepositoryException $exception) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: 'An error occurred while iterating resources',
+                    context: [
+                        'use_case' => 'ExportResources',
+                        'user_is_admin' => $request->isAdmin,
+                        'contact_id' => $request->contactId,
+                        'resources_filter' => $request->resourceFilter,
+                    ],
+                    exception: $exception
+                )
+            );
         }
-
-        $response->setExportedFormat($request->exportedFormat);
-        $response->setFilteredColumns($request->columns);
-        $response->setResources($resources);
-
-        $presenter->presentResponse($response);
     }
 
     /**
@@ -157,9 +118,9 @@ final readonly class ExportResources
             return new InvalidArgumentResponse('Invalid request, contact ID must be greater than 0');
         }
 
-        if (! in_array($request->exportedFormat, self::EXPORT_ALLOWED_FORMAT, true)) {
+        if (is_null(AllowedFormatEnum::tryFrom($request->exportedFormat))) {
             return new InvalidArgumentResponse(
-                'Invalid request, format must be one of the following: ' . implode(', ', self::EXPORT_ALLOWED_FORMAT)
+                'Invalid request, format must be one of the following: ' . AllowedFormatEnum::getAllowedFormatsAsString()
             );
         }
 

@@ -63,8 +63,8 @@ it('test export resources input validation with an empty format', function () {
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(2)
-        ->and($errors[0]->getMessage())->toBe('format parameter must not be empty')
-        ->and($errors[1]->getMessage())->toBe('format must be one of the following: "csv"');
+        ->and($errors[0]->getMessage())->toBe('format parameter must be one of the following: csv')
+        ->and($errors[1]->getMessage())->toBe('format parameter must not be empty');
 });
 
 it('test export resources input validation with an invalid type for format', function () {
@@ -80,7 +80,7 @@ it('test export resources input validation with an invalid type for format', fun
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
-        ->and($errors[0]->getMessage())->toBe('format must be one of the following: "csv"');
+        ->and($errors[0]->getMessage())->toBe('format parameter must be one of the following: csv');
 });
 
 it('test export resources input validation with an invalid value for format', function () {
@@ -96,7 +96,7 @@ it('test export resources input validation with an invalid value for format', fu
     );
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
-        ->and($errors[0]->getMessage())->toBe('format must be one of the following: "csv"');
+        ->and($errors[0]->getMessage())->toBe('format parameter must be one of the following: csv');
 });
 
 it('test export resources input validation with a valid format', function () {

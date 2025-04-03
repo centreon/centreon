@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\ExportResources;
 
+use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 final readonly class ExportResourcesInput
 {
-    public const EXPORT_ALLOWED_FORMAT = ['csv'];
     public const EXPORT_MAX_LINES = 10000;
     public const EXPORT_ALLOWED_COLUMNS = [
         'resource',
@@ -56,10 +56,6 @@ final readonly class ExportResourcesInput
         )]
         #[Assert\NotBlank(
             message: 'format parameter must not be empty'
-        )]
-        #[Assert\Choice(
-            choices: self::EXPORT_ALLOWED_FORMAT,
-            message: 'format must be one of the following: {{ choices }}'
         )]
         public mixed $format,
         #[Assert\NotNull(
@@ -103,6 +99,20 @@ final readonly class ExportResourcesInput
         )]
         public mixed $search
     ) {}
+
+    #[Assert\Callback]
+    public function validateFormat(ExecutionContextInterface $context): void
+    {
+        if (
+            ! is_null($this->format)
+            && (! is_string($this->format) || is_null(AllowedFormatEnum::tryFrom($this->format)))
+        ) {
+            $listAllowedFormat = AllowedFormatEnum::getAllowedFormatsAsString();
+            $context->buildViolation("format parameter must be one of the following: {$listAllowedFormat}")
+                ->atPath('format')
+                ->addViolation();
+        }
+    }
 
     #[Assert\Callback]
     public function validateAllPages(ExecutionContextInterface $context): void

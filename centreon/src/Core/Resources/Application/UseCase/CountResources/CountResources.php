@@ -59,72 +59,39 @@ final readonly class CountResources
     ): void {
         $response = new CountResourcesResponse();
 
-        if ($request->isAdmin) {
-            try {
+        try {
+            if ($request->isAdmin) {
                 $countFilteredResources = $this->readResourceRepository->countResources($request->resourceFilter);
                 $countTotalResources = $this->readResourceRepository->countResources();
-            } catch (RepositoryException $exception) {
-                $presenter->presentResponse(
-                    new ErrorResponse(
-                        message: 'An error occurred while counting resources with admin rights',
-                        context: [
-                            'use_case' => 'CountResources',
-                            'user_is_admin' => $request->isAdmin,
-                            'contact_id' => $request->contactId,
-                            'resources_filter' => $request->resourceFilter,
-                        ],
-                        exception: $exception
-                    )
-                );
-
-                return;
-            }
-        } else {
-            try {
+            } else {
                 $accessGroups = $this->accessGroupRepository->findByContactId($request->contactId);
                 $accessGroupIds = $accessGroups->getIds();
-            } catch (RepositoryException $exception) {
-                $presenter->presentResponse(
-                    new ErrorResponse(
-                        message: 'An error occurred while finding access groups for the contact',
-                        context: [
-                            'use_case' => 'CountResources',
-                            'contact_id' => $request->contactId,
-                        ],
-                        exception: $exception
-                    )
-                );
 
-                return;
-            }
-
-            try {
                 $countFilteredResources = $this->readResourceRepository->countResourcesByAccessGroupIds(
                     $accessGroupIds,
                     $request->resourceFilter
                 );
+
                 $countTotalResources = $this->readResourceRepository->countResourcesByAccessGroupIds($accessGroupIds);
-            } catch (RepositoryException $exception) {
-                $presenter->presentResponse(
-                    new ErrorResponse(
-                        message: 'An error occurred while counting resources by access group IDs',
-                        context: [
-                            'use_case' => 'CountResources',
-                            'user_is_admin' => $request->isAdmin,
-                            'contact_id' => $request->contactId,
-                            'resources_filter' => $request->resourceFilter,
-                        ],
-                        exception: $exception
-                    )
-                );
-
-                return;
             }
+
+            $response->setTotalFilteredResources($countFilteredResources);
+            $response->setTotalResources($countTotalResources);
+
+            $presenter->presentResponse($response);
+        } catch (RepositoryException $exception) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: 'An error occurred while counting resources',
+                    context: [
+                        'use_case' => 'CountResources',
+                        'user_is_admin' => $request->isAdmin,
+                        'contact_id' => $request->contactId,
+                        'resources_filter' => $request->resourceFilter,
+                    ],
+                    exception: $exception
+                )
+            );
         }
-
-        $response->setTotalFilteredResources($countFilteredResources);
-        $response->setTotalResources($countTotalResources);
-
-        $presenter->presentResponse($response);
     }
 }

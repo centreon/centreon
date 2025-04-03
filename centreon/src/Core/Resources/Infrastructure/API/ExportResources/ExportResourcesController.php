@@ -28,8 +28,10 @@ use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Infrastructure\ExceptionHandler;
+use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
 use Core\Resources\Application\UseCase\ExportResources\ExportResources;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
+use Core\Resources\Infrastructure\API\ExportResources\Enum\ExportViewEnum;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,8 +44,6 @@ use Symfony\Component\Serializer\Encoder\CsvEncoder;
  */
 final class ExportResourcesController extends AbstractController
 {
-    private const EXPORT_VIEW_TYPE = 'all';
-
     /**
      * ExportResourcesController constructor
      *
@@ -71,7 +71,6 @@ final class ExportResourcesController extends AbstractController
         Request $request,
         #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] ExportResourcesInput $input
     ): Response {
-        $this->exceptionHandler->log(new \RuntimeException('ExportResourcesController invoked'));
         try {
             $useCaseRequest = $this->createExportRequest($request, $input);
         } catch (TransformerException $e) {
@@ -88,7 +87,7 @@ final class ExportResourcesController extends AbstractController
             return $presenter->show();
         }
 
-        if ($presenter->getViewModel()->getExportedFormat() === 'csv') {
+        if ($presenter->getViewModel()->getExportedFormat() === AllowedFormatEnum::CSV->value) {
             return $this->createCsvResponse($presenter->getViewModel());
         }
 
@@ -183,14 +182,14 @@ final class ExportResourcesController extends AbstractController
     }
 
     /**
-     * @param string $exportView
+     * @param ExportViewEnum $exportView
      *
      * @return string
      */
-    private function getCsvFileName(string $exportView = self::EXPORT_VIEW_TYPE): string {
+    private function getCsvFileName(ExportViewEnum $exportView = ExportViewEnum::ALL): string {
         $dateNormalized = str_replace([' ', ':', ',', '/'], '-', $this->getDateFormatted());
 
-        return "ResourceStatusExport_{$exportView}_{$dateNormalized}.csv";
+        return "ResourceStatusExport_{$exportView->value}_{$dateNormalized}.csv";
     }
 
     /**
