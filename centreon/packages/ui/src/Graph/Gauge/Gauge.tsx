@@ -10,13 +10,15 @@ export interface Props {
   data?: LineChartData;
   displayAsRaw?: boolean;
   thresholds: Thresholds;
+  max?: number;
 }
 
 export const Gauge = ({
   thresholds,
   data,
   displayAsRaw,
-  baseColor
+  baseColor,
+  max
 }: Props): JSX.Element | null => {
   if (!data) {
     return null;
@@ -34,6 +36,7 @@ export const Gauge = ({
           metric={metric}
           thresholds={thresholds}
           width={width}
+          max={max}
         />
       )}
     </ParentSize>

@@ -35,7 +35,8 @@ const ResponsiveSingleBar = ({
   displayAsRaw,
   baseColor,
   size = 'medium',
-  showLabels = true
+  showLabels = true,
+  max
 }: Props): JSX.Element => {
   const { classes } = useTooltipStyles();
   const theme = useTheme();
@@ -51,11 +52,13 @@ const ResponsiveSingleBar = ({
       ])
     : [0];
 
-  const adaptedMaxValue = Math.max(
-    metric.maximum_value || 0,
-    Math.max(...thresholdValues) * 1.1,
-    head(metric.data) as number
-  );
+  const adaptedMaxValue =
+    max ||
+    Math.max(
+      metric.maximum_value || 0,
+      Math.max(...thresholdValues) * 1.1,
+      head(metric.data) as number
+    );
 
   const { showTooltip, hideTooltip, tooltipOpen, tooltipData } =
     Tooltip.useTooltip();

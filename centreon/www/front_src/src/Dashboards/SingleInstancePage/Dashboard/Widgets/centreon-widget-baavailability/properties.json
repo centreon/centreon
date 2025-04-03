@@ -39,15 +39,15 @@
           "name": "Yesterday"
         },
         {
-          "id": 2,
+          "id": 7,
           "name": "This week"
         },
         {
-          "id": 3,
+          "id": 31,
           "name": "This month"
         },
         {
-          "id": 4,
+          "id": 365,
           "name": "This year"
         }
       ]
