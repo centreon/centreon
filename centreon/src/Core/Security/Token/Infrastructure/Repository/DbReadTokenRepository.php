@@ -23,58 +23,93 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Common\Domain\TrimmedString;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\Token;
+use Core\Security\Token\Domain\Model\TokenFactory;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 /**
- * @phpstan-type _Token array{
- *      token_name: string,
- *      user_id: int,
- *      user_name: string,
- *      creator_id: int|null,
- *      creator_name: string,
- *      provider_token_creation_date: int,
- *      provider_token_expiration_date: ?int,
- *      token_type: string,
- *      is_revoked: int
- *  }
+ * @phpstan-import-type _ApiToken from \Core\Security\Token\Domain\Model\TokenFactory
+ * @phpstan-import-type _JwtToken from \Core\Security\Token\Domain\Model\TokenFactory
+ * @phpstan-import-type _Token from \Core\Security\Token\Domain\Model\TokenFactory
  */
-class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRepositoryInterface
+class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepositoryInterface
 {
     use LoggerTrait;
-    private const TYPE_API = 'api';
-    private const TYPE_AUTO = 'auto';
-    private const TYPE_CMA = 'cma';
+    private const TYPE_API_MANUAL = 'manual';
+    private const TYPE_API_AUTO = 'auto';
 
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
+    /** @var SqlRequestParametersTranslator */
+    private SqlRequestParametersTranslator $sqlRequestTranslator;
+
+    public function __construct(
+        ConnectionInterface $connection,
+        QueryBuilderInterface $queryBuilder,
+        SqlRequestParametersTranslator $sqlRequestTranslator,
+    )
     {
-        $this->db = $db;
+        parent::__construct($connection, $queryBuilder);
+        $this->sqlRequestTranslator = $sqlRequestTranslator;
+        $this->sqlRequestTranslator
+            ->getRequestParameters()
+            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $this->sqlRequestTranslator->setConcordanceArray([
+            'user.id' => 'user_id',
+            'user.name' => 'user_name',
+            'token_name' => 'token_name',
+            'creator.id' => 'creator_id',
+            'creator.name' => 'creator_name',
+            'creation_date' => 'creation_date',
+            'expiration_date' => 'expiration_date',
+            'is_revoked' => 'is_revoked',
+            'type' => 'token_type',
+        ]);
+        $normaliserClass = new class implements NormalizerInterface
+        {
+            /**
+             * @inheritDoc
+             */
+            public function normalize($valueToNormalize)
+            {
+                return $valueToNormalize;
+            }
+        };
+        $this->sqlRequestTranslator->addNormalizer(
+            'creation_date',
+            $normaliserClass
+        );
+        $this->sqlRequestTranslator->addNormalizer(
+            'expiration_date',
+            $normaliserClass
+        );
     }
 
-    public function findByIdAndRequestParameters(int $userId, RequestParametersInterface $requestParameters): array
+    public function findByUserIdAndRequestParameters(int $userId): array
     {
-        return $this->findAllByRequestParameters($userId, $requestParameters);
+        return $this->findAllByRequestParameters($userId);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): array
+    public function findByRequestParameters(): array
     {
-        return $this->findAllByRequestParameters(null, $requestParameters);
+        return $this->findAllByRequestParameters(null);
     }
 
     /**
@@ -82,36 +117,72 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
      */
     public function find(string $tokenString): ?Token
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            sprintf(<<<'SQL'
-                SELECT
-                    sat.token_name,
-                    sat.user_id,
-                    contact.contact_name as user_name,
-                    sat.creator_id,
-                    sat.creator_name,
-                    sat.is_revoked,
-                    sat.token_type,
-                    provider_token.creation_date as provider_token_creation_date,
-                    provider_token.expiration_date as provider_token_expiration_date
-                FROM `:db`.security_authentication_tokens sat
-                INNER JOIN `:db`.security_token provider_token
-                    ON provider_token.id = sat.provider_token_id
-                INNER JOIN `:db`.contact
-                    ON contact.contact_id = sat.user_id
-                WHERE sat.token = :token
-                    AND sat.token_type IN (%s)
-                SQL,
-                "'" . self::TYPE_API . "'," ."'" . self::TYPE_CMA ."'"
-            )
-        ));
-        $statement->bindValue(':token', $tokenString, \PDO::PARAM_STR);
-        $statement->execute();
+        try {
+            $result = $this->connection->fetchAssociative(
+                <<<'SQL'
+                    SELECT
+                        sat.token_name as name,
+                        sat.user_id,
+                        contact.contact_name as user_name,
+                        sat.creator_id,
+                        sat.creator_name,
+                        provider_token.creation_date,
+                        provider_token.expiration_date,
+                        sat.is_revoked,
+                        null as token_string,
+                        null as encoding_key,
+                        'API' as token_type
+                    FROM security_authentication_tokens sat
+                    INNER JOIN security_token provider_token
+                        ON provider_token.id = sat.provider_token_id
+                    INNER JOIN contact
+                        ON contact.contact_id = sat.user_id
+                    WHERE sat.token = :tokenString
+                        AND sat.token_type  = :tokenApiType
+                    UNION
+                    SELECT
+                        token_name as name,
+                        null as user_id,
+                        null as user_name,
+                        creator_id,
+                        creator_name,
+                        creation_date,
+                        expiration_date,
+                        is_revoked,
+                        token_string,
+                        encoding_key,
+                        'JWT' as token_type
+                    FROM jwt_tokens
+                    WHERE token_string = :tokenString
+                    SQL,
+                QueryParameters::create([
+                    QueryParameter::string('tokenString', $tokenString),
+                    QueryParameter::string('tokenApiType', self::TYPE_API_MANUAL),
+                ])
+            );
 
-        /** @var false|_Token */
-        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+            if ($result !== []) {
+                /** @var _Token $result */
+                return TokenFactory::create(
+                    $result['token_type'] === 'JWT' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+                    $result
+                );
+            }
 
-        return $result ? $this->createToken($result) : null;
+            return null;
+            // TODO DateTimeException|AssertionException -> getContext() do not exist
+        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+            $this->error(
+                'finding token by token string failed',
+                ['exception' => $exception->getContext()]
+            );
+
+            throw new RepositoryException(
+                'finding token by token string failed',
+                ['exception' => $exception->getContext()],
+                $exception
+            );
+        }
     }
 
     /**
@@ -119,38 +190,76 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
      */
     public function findByNameAndUserId(string $tokenName, int $userId): ?Token
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            sprintf(<<<'SQL'
-                SELECT
-                    sat.token_name,
-                    sat.user_id,
-                    contact.contact_name as user_name,
-                    sat.creator_id,
-                    sat.creator_name,
-                    sat.is_revoked,
-                    sat.token_type,
-                    provider_token.creation_date as provider_token_creation_date,
-                    provider_token.expiration_date as provider_token_expiration_date
-                FROM `:db`.security_authentication_tokens sat
-                INNER JOIN `:db`.security_token provider_token
-                    ON provider_token.id = sat.provider_token_id
-                INNER JOIN `:db`.contact
-                    ON contact.contact_id = sat.user_id
-                WHERE sat.token_name = :tokenName
-                    AND sat.user_id = :userId
-                    AND sat.token_type IN (%s)
-                SQL,
-                "'" . self::TYPE_API . "'," ."'" . self::TYPE_CMA ."'"
-            )
-        ));
-        $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
-        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
-        $statement->execute();
+        try {
+            $result = $this->connection->fetchAssociative(
+                <<<'SQL'
+                    SELECT
+                        sat.token_name as name,
+                        sat.user_id,
+                        contact.contact_name as user_name,
+                        sat.creator_id,
+                        sat.creator_name,
+                        provider_token.creation_date,
+                        provider_token.expiration_date,
+                        sat.is_revoked,
+                        null as token_string,
+                        null as encoding_key,
+                        'API' as token_type
+                    FROM security_authentication_tokens sat
+                    INNER JOIN security_token provider_token
+                        ON provider_token.id = sat.provider_token_id
+                    INNER JOIN contact
+                        ON contact.contact_id = sat.user_id
+                    WHERE sat.token_name = :tokenName
+                        AND sat.user_id = :userId
+                        AND sat.token_type = :tokenApiType
+                    UNION
+                    SELECT
+                        token_name as name,
+                        null as user_id,
+                        null as user_name,
+                        creator_id,
+                        creator_name,
+                        creation_date,
+                        expiration_date,
+                        is_revoked,
+                        token_string,
+                        encoding_key,
+                        'JWT' as token_type
+                    FROM jwt_tokens
+                    WHERE token_name = :tokenName
+                    SQL,
+                QueryParameters::create([
+                    QueryParameter::string('tokenName', $tokenName),
+                    QueryParameter::int('userId', $userId),
+                    QueryParameter::string('tokenApiType', self::TYPE_API_MANUAL),
+                ])
+            );
 
-        /** @var false|_Token */
-        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+            if ($result === false) {
+                return null;
+            }
 
-        return $result ? $this->createToken($result) : null;
+            /** @var _Token $result */
+            return TokenFactory::create(
+                $result['token_type'] === 'JWT' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+                $result
+            );
+
+            // TODO DateTimeException|AssertionException -> getContext() do not exist
+        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+            $this->error(
+                'finding token by name and user ID failed',
+                ['token_name' => $tokenName, 'user_id' => $userId, 'exception' => $exception->getContext()]
+            );
+
+            throw new RepositoryException(
+                'finding token by name and user ID failed',
+                ['token_name' => $tokenName, 'user_id' => $userId, 'exception' => $exception->getContext()],
+                $exception
+            );
+        }
+
     }
 
     /**
@@ -158,22 +267,39 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
      */
     public function existsByNameAndUserId(string $tokenName, int $userId): bool
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            sprintf(<<<'SQL'
-                SELECT 1
-                FROM `:db`.security_authentication_tokens sat
-                WHERE sat.token_name = :tokenName
-                    AND sat.user_id = :userId
-                    AND sat.token_type IN (%s)
-                SQL,
-                "'" . self::TYPE_API . "'," ."'" . self::TYPE_CMA ."'"
-            )
-        ));
-        $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
-        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
-        $statement->execute();
+        try {
+            $result = $this->connection->fetchOne(
+                <<<'SQL'
+                    SELECT 1
+                    FROM security_authentication_tokens sat
+                    WHERE sat.token_name = :tokenName
+                        AND sat.user_id = :userId
+                        AND sat.token_type = :tokenApiType
+                    UNION
+                    SELECT 1
+                    FROM jwt_tokens
+                    WHERE token_name = :tokenName
+                    SQL,
+                QueryParameters::create([
+                    QueryParameter::string('tokenName', $tokenName),
+                    QueryParameter::int('userId', $userId),
+                    QueryParameter::string('tokenApiType', self::TYPE_API_MANUAL),
+                ]),
+            );
 
-        return (bool) $statement->fetchColumn();
+            return (bool) $result;
+        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+            $this->error(
+                'finding token by name and user ID failed',
+                ['token_name' => $tokenName, 'user_id' => $userId, 'exception' => $exception->getContext()]
+            );
+
+            throw new RepositoryException(
+                'finding token by name and user ID failed',
+                ['token_name' => $tokenName, 'user_id' => $userId, 'exception' => $exception->getContext()],
+                $exception
+            );
+        }
     }
 
     /**
@@ -182,195 +308,144 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
     public function isTokenTypeAuto(string $token): bool
     {
         try {
-            $statement = $this->db->prepare($this->translateDbName(
-                sprintf(<<<'SQL'
+            $result = $this->connection->fetchAssociative(
+                <<<'SQL'
                     SELECT 1
-                    FROM `:db`.security_authentication_tokens sat
+                    FROM security_authentication_tokens sat
                     WHERE sat.token = :token
-                        AND sat.token_type = '%s'
+                        AND sat.token_type = :tokenType
                     SQL,
-                    self::TYPE_AUTO
-                )
-            )
+                QueryParameters::create([
+                    QueryParameter::string('token', $token),
+                    QueryParameter::string('tokenType', self::TYPE_API_AUTO),
+                ])
             );
 
-            $statement->execute([':token' => $token]);
-            $result = $statement->fetch(\PDO::FETCH_ASSOC);
-
             return ! empty($result);
-        } catch (\PDOException $exception) {
-            $this->error('Database error while checking token type', [
-                'error' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString(),
-            ]);
+        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+            $this->error(
+                'check is token of type auto failed',
+                ['exception' => $exception->getContext()]
+            );
 
-            throw $exception;
+            throw new RepositoryException(
+                'check is token of type auto failed',
+                ['exception' => $exception->getContext()],
+                $exception
+            );
         }
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findTokenString(string $tokenName, int $userId): ?string
-    {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                SELECT sat.token
-                FROM `:db`.security_authentication_tokens sat
-                WHERE sat.token_name = :tokenName
-                    AND sat.user_id = :userId
-                SQL
-        ));
-        $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
-        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        $result = $statement->fetchColumn();
-
-        return $result ? (string) $result : null;
-    }
-
-    /**
      * @param int|null $userId
-     * @param RequestParametersInterface $requestParameters
      *
      * @throws AssertionFailedException
      *
      * @return list<Token>
      */
-    private function findAllByRequestParameters(?int $userId, RequestParametersInterface $requestParameters): array
+    private function findAllByRequestParameters(?int $userId): array
     {
-        $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
-        $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlRequestTranslator->setConcordanceArray([
-            'user.id' => 'sat.user_id',
-            'user.name' => 'contact.contact_name',
-            'token_name' => 'sat.token_name',
-            'creator.id' => 'sat.creator_id',
-            'creator.name' => 'sat.creator_name',
-            'creation_date' => 'provider_token.creation_date',
-            'expiration_date' => 'provider_token.expiration_date',
-            'is_revoked' => 'sat.is_revoked',
-            'type' => 'sat.token_type',
-        ]);
-        $this->addDateNormalizer($sqlRequestTranslator, ['creation_date', 'expiration_date']);
+        // Search
+        $search = $this->sqlRequestTranslator->translateSearchParameterToSql();
 
-        $request = <<<'SQL_WRAP'
-            SELECT SQL_CALC_FOUND_ROWS
-                sat.token_name,
+        // Sort
+        $sort = $this->sqlRequestTranslator->translateSortParameterToSql();
+        $sort .= ! is_null($sort)
+            ? $sort
+            : ' ORDER BY creation_date ASC';
+        // Pagination
+        $pagination = $this->sqlRequestTranslator->translatePaginationToSql();
+
+        $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+            $this->sqlRequestTranslator->getSearchValues()
+        )
+            ->add('tokenApiType', QueryParameter::string('tokenApiType', self::TYPE_API_MANUAL));
+
+        $userIdFilter = $userId !== null ? ' AND user_id = :user_id ' : '';
+        $creatorIdFilter = $userId !== null ? ' WHERE creator_id = :user_id ' : '';
+        if ($userId !== null) {
+            $queryParameters->add('user_id', QueryParameter::int('user_id', $userId));
+        }
+
+        $apiTokens = <<<SQL
+            SELECT
+                sat.token_name as name,
                 sat.user_id,
                 contact.contact_name as user_name,
                 sat.creator_id,
                 sat.creator_name,
+                provider_token.creation_date,
+                provider_token.expiration_date,
                 sat.is_revoked,
-                sat.token_type,
-                provider_token.creation_date as provider_token_creation_date,
-                provider_token.expiration_date as provider_token_expiration_date
-            FROM `:db`.security_authentication_tokens sat
-            INNER JOIN `:db`.security_token provider_token
+                'API' as token_type,
+                null as token_string,
+                null as encoding_key
+            FROM security_authentication_tokens sat
+            INNER JOIN security_token provider_token
                 ON provider_token.id = sat.provider_token_id
-            INNER JOIN `:db`.contact
+            INNER JOIN contact
                 ON contact.contact_id = sat.user_id
-            SQL_WRAP;
+            WHERE sat.token_type = :tokenApiType
+            {$userIdFilter}
+            SQL;
+        $jwtTokens = <<<SQL
+            SELECT
+                token_name as name,
+                null as user_id,
+                null as user_name,
+                creator_id,
+                creator_name,
+                creation_date,
+                expiration_date,
+                is_revoked,
+                'CMA' as token_type,
+                token_string,
+                encoding_key
+            FROM jwt_tokens
+            {$creatorIdFilter}
+            SQL;
 
-        // Search
-        $search = $sqlRequestTranslator->translateSearchParameterToSql();
-        $search .= $search === null ? ' WHERE ' : ' AND ';
-        $search .= sprintf('sat.token_type IN (%s)', "'" . self::TYPE_API . "'," . "'" . self::TYPE_CMA . "'");
-        $request .= $search;
-        if ($userId !== null) {
-            $request .= ' AND sat.user_id = :user_id';
-        }
-        // Sort
-        $sortRequest = $sqlRequestTranslator->translateSortParameterToSql();
-        $request .= ! is_null($sortRequest)
-            ? $sortRequest
-            : ' ORDER BY provider_token.creation_date ASC';
+        $results = $this->connection->fetchAllAssociative(
+            <<<SQL
+                SELECT SQL_CALC_FOUND_ROWS
+                    name,
+                    user_id,
+                    user_name,
+                    creator_id,
+                    creator_name,
+                    creation_date,
+                    expiration_date,
+                    is_revoked,
+                    token_type,
+                    token_string,
+                    encoding_key
+                FROM (
+                    {$apiTokens}
+                    UNION
+                    {$jwtTokens}
+                ) AS tokenUnion
+                {$search}
+                {$sort}
+                {$pagination}
+                SQL,
+            $queryParameters
+        );
 
-        // Pagination
-        $request .= $sqlRequestTranslator->translatePaginationToSql();
-
-        $statement = $this->db->prepare($this->translateDbName($request));
         $tokens = [];
-
-        if ($statement === false) {
-            return $tokens;
-        }
-
-        foreach ($sqlRequestTranslator->getSearchValues() as $key => $data) {
-            $type = key($data);
-            if ($type !== null) {
-                $value = $data[$type];
-                $statement->bindValue($key, $value, $type);
-            }
-        }
-        if ($userId !== null) {
-            $statement->bindValue(':user_id', $userId, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
-        foreach ($statement as $result) {
+        foreach ($results as $result) {
             /** @var _Token $result */
-            $tokens[] = $this->createToken($result);
+            $tokens[] = TokenFactory::create(
+                $result['token_type'] === 'CMA' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+                $result
+            );
+        }
+
+        // get total for pagination
+        if (($total = $this->connection->fetchOne('SELECT FOUND_ROWS() from contact')) !== false) {
+            /** @var int $total */
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
 
         return $tokens;
-    }
-
-    /**
-     * @param _Token $data
-     *
-     * @throws AssertionFailedException
-     *
-     * @return Token
-     */
-    private function createToken(array $data): Token
-    {
-        return new Token(
-            name: new TrimmedString($data['token_name']),
-            userId: (int) $data['user_id'],
-            userName: new TrimmedString($data['user_name']),
-            creatorId: $data['creator_id'] !== null ? (int) $data['creator_id'] : null,
-            creatorName: new TrimmedString($data['creator_name']),
-            creationDate: (new \DateTimeImmutable())->setTimestamp((int) $data['provider_token_creation_date']),
-            expirationDate: $data['provider_token_expiration_date'] !== null
-                ? (new \DateTimeImmutable())->setTimestamp((int) $data['provider_token_expiration_date'])
-                : null,
-            isRevoked: (bool) $data['is_revoked'],
-            type: $data['token_type'] === self::TYPE_API ? TokenTypeEnum::API : TokenTypeEnum::CMA
-        );
-    }
-
-    /**
-     * @param SqlRequestParametersTranslator $sqlRequestTranslator
-     * @param string[] $parameters
-     */
-    private function addDateNormalizer(SqlRequestParametersTranslator $sqlRequestTranslator, array $parameters): void
-    {
-        foreach ($parameters as $parameterName) {
-            $sqlRequestTranslator->addNormalizer(
-                $parameterName,
-                new class implements NormalizerInterface
-                {
-                    /**
-                     * @inheritDoc
-                     */
-                    public function normalize($valueToNormalize)
-                    {
-                        $date = new \DateTime((string) $valueToNormalize);
-
-                        return $date->getTimestamp();
-                    }
-                }
-            );
-        }
     }
 }
