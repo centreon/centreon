@@ -22,11 +22,9 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\CountResources;
 
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Domain\Exception\InternalErrorException;
 use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesPresenterInterface;
@@ -39,6 +37,9 @@ use Core\Resources\Application\UseCase\CountResources\CountResourcesResponse;
  * @package Core\Resources\Infrastructure\API\CountResources
  */
 class CountResourcesPresenterJson extends AbstractPresenter implements CountResourcesPresenterInterface {
+    /** @var CountResourcesViewModel */
+    private CountResourcesViewModel $viewModel;
+
     /**
      * CountResourcesPresenterJson constructor
      *
@@ -59,6 +60,7 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
      */
     public function presentResponse(CountResourcesResponse|ResponseStatusInterface $response): void
     {
+        $this->viewModel = new CountResourcesViewModel();
 
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
@@ -69,43 +71,15 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
             return;
         }
 
-        try {
-            $search = $this->formatSearchParameter($input->search ?? '');
-
-            $this->present(
-                [
-                    'count' => $response->getTotalFilteredResources(),
-                    'meta' => [
-                        'search' => $search,
-                        'total' => $response->getTotalResources(),
-                    ],
-                ]
-            );
-        } catch (InternalErrorException $exception) {
-            $this->exceptionHandler->log($exception);
-            $this->setResponseStatus(new ErrorResponse($exception->getMessage()));
-        }
+        $this->viewModel->setTotalFilteredResources($response->getTotalFilteredResources());
+        $this->viewModel->setTotalResources($response->getTotalResources());
     }
 
     /**
-     * @param string $search
-     *
-     * @throws InternalErrorException
-     * @return array<string,mixed>
+     * @return CountResourcesViewModel
      */
-    private function formatSearchParameter(string $search): array
+    public function getViewModel(): CountResourcesViewModel
     {
-        try {
-            $requestParameters = new RequestParameters();
-            $requestParameters->setSearch($search);
-
-            return (array) $requestParameters->toArray()['search'];
-        } catch (\Throwable $exception) {
-            throw new InternalErrorException(
-                'Error while formatting search parameter',
-                ['search' => $search],
-                $exception
-            );
-        }
+        return $this->viewModel;
     }
 }
