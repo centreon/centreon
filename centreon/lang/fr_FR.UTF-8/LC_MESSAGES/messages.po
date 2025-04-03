@@ -19803,7 +19803,7 @@ msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
 msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
-# EXPORT CSV
+# ---- EXPORT CSV ----
 
 msgid "Resource Type"
 msgstr "Type de ressource"
