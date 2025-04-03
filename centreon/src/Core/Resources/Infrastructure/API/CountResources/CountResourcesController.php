@@ -70,26 +70,10 @@ final class CountResourcesController extends AbstractController
         #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] CountResourcesInput $input,
     ): Response {
         $useCaseRequest = $this->createCountRequest($request);
+
         $useCase($useCaseRequest, $presenter);
 
-        try {
-            $presenter->present(
-                [
-                    'count' => $presenter->getViewModel()->getTotalFilteredResources(),
-                    'meta' => [
-                        'search' => $this->formatSearchParameter($input->search ?? ''),
-                        'total' => $presenter->getViewModel()->getTotalResources(),
-                    ],
-                ]
-            );
-
-            return $presenter->show();
-        } catch (InternalErrorException $exception) {
-            $this->exceptionHandler->log($exception, ['request' => $request->query->all()]);
-            $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
-
-            return $presenter->show();
-        }
+        return $presenter->show();
     }
 
     // -------------------------------- PRIVATE METHODS --------------------------------
@@ -135,27 +119,5 @@ final class CountResourcesController extends AbstractController
             ->setOnlyWithPerformanceData($filter[RequestValidator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY])
             ->setOnlyWithTicketsOpened($filter[RequestValidator::PARAM_RESOURCES_WITH_OPENED_TICKETS])
             ->setRuleId($filter[RequestValidator::PARAM_OPEN_TICKET_RULE_ID]);
-    }
-
-    /**
-     * @param string $search
-     *
-     * @throws InternalErrorException
-     * @return array<string,mixed>
-     */
-    private function formatSearchParameter(string $search): array
-    {
-        try {
-            $requestParameters = new RequestParameters();
-            $requestParameters->setSearch($search);
-
-            return (array) $requestParameters->toArray()['search'];
-        } catch (\Throwable $exception) {
-            throw new InternalErrorException(
-                'Error while formatting search parameter',
-                ['search' => $search],
-                $exception
-            );
-        }
     }
 }
