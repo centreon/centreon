@@ -150,14 +150,26 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
 
 // -------------------------------------------- Token -------------------------------------------- //
 
-$addCMATypeToTokenTable = function () use ($pearDB, &$errorMessage) {
-    $errorMessage = 'Failed to add column cma type to table security_authentication_tokens';
-    $queryAddApiType = "ALTER TABLE security_authentication_tokens MODIFY COLUMN token_type enum('auto','manual','cma','api') DEFAULT 'auto'";
-    $pearDB->executeQuery($queryAddApiType);
-    $queryUpdateType = "UPDATE security_authentication_tokens SET token_type = 'api' WHERE token_type = 'manual'";
-    $pearDB->executeQuery($queryUpdateType);
-    $queryRemoveManualType = "ALTER TABLE security_authentication_tokens MODIFY COLUMN token_type enum('auto','api','cma') DEFAULT 'auto'";
-    $pearDB->executeQuery($queryRemoveManualType);
+$createJwtTable = function () use ($pearDB, &$errorMessage) {
+    $errorMessage = 'Failed to create table jwt_tokens';
+
+    $pearDB->executeQuery(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `jwt_tokens` (
+                `token_string` varchar(4096) DEFAULT NULL COMMENT 'Encoded JWT token',
+                `token_name` VARCHAR(255) NOT NULL COMMENT 'Token name',
+                `creator_id` INT(11) DEFAULT NULL COMMENT 'User ID of the token creator',
+                `creator_name` VARCHAR(255) DEFAULT NULL COMMENT 'User name of the token creator',
+                `encoding_key` VARCHAR(255) DEFAULT NULL COMMENT 'encoding key',
+                `is_revoked` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Define if token is revoked',
+                `creation_date` bigint UNSIGNED NOT NULL COMMENT 'Creation date of the token',
+                `expiration_date` bigint UNSIGNED DEFAULT NULL COMMENT 'Expiration date of the token',
+                PRIMARY KEY (`token_name`),
+                CONSTRAINT `jwt_tokens_user_id_fk` FOREIGN KEY (`creator_id`)
+                REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for JWT tokens'
+            SQL
+    );
 };
 
 $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessage) {
@@ -174,10 +186,10 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
 };
 
 try {
-    // TODO add your function calls to update the real time database structure here
+    $createJwtTable($peadDB);
 
-    $addCMATypeToTokenTable();
     $updateTopologyForAuthenticationTokens();
+
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();

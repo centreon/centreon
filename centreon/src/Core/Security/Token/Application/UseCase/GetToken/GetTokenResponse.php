@@ -29,8 +29,8 @@ use Core\Security\Token\Domain\Model\Token;
 final class GetTokenResponse implements StandardResponseInterface
 {
     public function __construct(
-        public Token $apiToken,
-        public string $token,
+        public Token $token,
+        public string $tokenString,
     )
     {
     }

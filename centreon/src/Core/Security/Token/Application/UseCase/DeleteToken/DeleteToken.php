@@ -28,13 +28,15 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\ApiToken;
+use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\Token;
 
 final class DeleteToken
 {
@@ -79,17 +81,13 @@ final class DeleteToken
                 return;
             }
 
-            if (
-                ! $this->user->isAdmin()
-                && $token->getUserId() !== $this->user->getId()
-                && ! $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS)
-            ) {
+            if (! $this->canUserDeleteToken($this->user, $token)) {
                 $this->error(
                     'Not allowed to delete token linked to user who isn\'t the requester',
                     ['token_name' => $tokenName, 'user_id' => $userId, 'requester_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new InvalidArgumentResponse(TokenException::notAllowedToDeleteTokenForUser($token->getUserId()))
+                    new ForbiddenResponse(TokenException::notAllowedToDeleteTokenForUser($userId))
                 );
 
                 return;
@@ -104,5 +102,17 @@ final class DeleteToken
             );
             $this->error((string) $ex);
         }
+    }
+
+    private function canUserDeleteToken(
+        ContactInterface $user,
+        Token $token,
+    ): bool {
+        return (bool) (
+            $user->isAdmin()
+            || $user->hasRole(Contact::ROLE_MANAGE_TOKENS)
+            || ($token instanceof ApiToken && $token->getUserId() === $user->getId())
+            || ($token instanceof JwtToken && $token->getCreatorId() === $user->getId())
+        );
     }
 }
