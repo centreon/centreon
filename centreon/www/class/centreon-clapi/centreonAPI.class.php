@@ -61,6 +61,8 @@ require_once __DIR__ . '/../centreonAuth.class.php';
 require_once _CENTREON_PATH_ . "www/class/centreonAuth.LDAP.class.php";
 require_once _CENTREON_PATH_ . 'www/class/centreonLog.class.php';
 require_once realpath(__DIR__ . "/../centreonSession.class.php");
+require_once _CENTREON_PATH_ . '/bootstrap.php';
+
 
 /*
  * General Centreon Management
@@ -99,7 +101,7 @@ class CentreonAPI
     /** @var CentreonXML */
     public $xmlObj;
     /** @var int */
-    public $debug = 0;
+    public $debug = 1;
     /** @var mixed|string */
     public $variables;
     /** @var string */

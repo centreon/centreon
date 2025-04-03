@@ -33,7 +33,8 @@ class Upgrader extends Module
      */
     public function upgrade()
     {
-        $this->upgradeModuleConfiguration();
+        try {
+            $this->upgradeModuleConfiguration();
 
         $moduleInstalledInformation = $this->informationObj->getInstalledInformation($this->moduleName);
 
@@ -76,6 +77,11 @@ class Upgrader extends Module
         $this->upgradeVersion($this->moduleConfiguration['mod_release']);
 
         return $this->moduleId;
+
+        } catch (\Exception $e) {
+            throw new \Exception('Module upgrade failed here: ' . $e->__toString());
+        }
+
     }
 
     /**
