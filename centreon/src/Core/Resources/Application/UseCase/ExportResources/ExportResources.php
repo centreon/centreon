@@ -29,7 +29,6 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
-use Core\Resources\Infrastructure\API\ExportResources\Enum\ExportViewEnum;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
