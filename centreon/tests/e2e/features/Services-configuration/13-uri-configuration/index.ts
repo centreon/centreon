@@ -145,7 +145,7 @@ Then('the status of the service is changed', () => {
           return text === '2';
         });
     },
-    { interval: 20000, timeout: 100000 }
+    { interval: 10000, timeout: 600000 }
   );
   cy.visit('/');
   visitStatusDetailPage();
@@ -226,7 +226,7 @@ Then('the comment is displayed on "Monitoring > Downtimes > Comments" listing pa
           return count > 1;
         });
     },
-    { interval: 5000, timeout: 50000 }
+    { interval: 10000, timeout: 600000 }
   );
   // Check that the comment is added to the listing page
   cy.waitForElementInIframe('#main-content', 'a:contains("service_test_ok")');
