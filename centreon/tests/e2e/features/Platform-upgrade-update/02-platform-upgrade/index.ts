@@ -107,11 +107,13 @@ Given(
         case 'n - 1':
           const previousVersion = getCentreonPreviousMajorVersion(major_version);
           if (Cypress.env('IS_CLOUD')) {
-          const versionFilePath = `../www/install/php/*${previousVersion}*`;
+          const versionFilePath = `../www/install/php/Update-${previousVersion}*.php`;
           cy.task("fileExists", versionFilePath).then((exists) => {
             if (exists) {
+              cy.log("The file exists");
               major_version_from = previousVersion;
             } else {
+              cy.log("The file does not exist");
               major_version_from =
                 getCentreonPreviousMajorVersion(previousVersion);
             }
