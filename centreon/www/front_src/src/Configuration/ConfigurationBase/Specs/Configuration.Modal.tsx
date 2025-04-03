@@ -1,4 +1,4 @@
-import { labelCreate, labelUpdate } from '../translatedLabels';
+import { labelSave } from '../translatedLabels';
 import initialize, { mockModalRequests } from './initialize';
 import { groups, inputs } from './utils';
 
@@ -20,7 +20,7 @@ export default (resourceType): void => {
 
         cy.get(`button[data-testid="submit"`)
           .should('be.visible')
-          .should('have.text', labelCreate)
+          .should('have.text', labelSave)
           .should('be.disabled');
 
         cy.makeSnapshot(
@@ -85,7 +85,7 @@ export default (resourceType): void => {
         cy.contains(`Modify a ${resourceType}`);
 
         cy.get(`button[data-testid="submit"`)
-          .should('have.text', labelUpdate)
+          .should('have.text', labelSave)
           .should('be.disabled');
 
         cy.makeSnapshot(

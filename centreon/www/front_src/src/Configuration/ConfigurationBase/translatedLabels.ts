@@ -64,5 +64,4 @@ export const labelDuplicateResourcesConfirmation = (type) =>
   `You are about to duplicate <strong>{{ count }} ${type}.</strong> How many duplications would you like to make?`;
 
 // Form
-export const labelCreate = 'Create';
-export const labelUpdate = 'Update';
+export const labelSave = 'Save';

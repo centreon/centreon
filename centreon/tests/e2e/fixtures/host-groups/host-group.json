@@ -22,6 +22,7 @@
         "icon_id": 1,
         "geo_coords": "2.3522219,48.856614",
         "comment": "comment!",
-        "hosts": [15]
+        "hosts": [15],
+        "is_activated": false
     }
 }
