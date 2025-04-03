@@ -427,7 +427,6 @@ describe('Login Page', () => {
 
 describe('Default custom login page', () => {
   beforeEach(() => {
-    setupBeforeEach();
     store.set(platformVersionsAtom, retrievedWebWithItEditionInstalled);
     cy.fixture('login/defaultLoginPageCustomization.json').then((fixture) =>
       cy.interceptAPIRequest({
@@ -437,6 +436,7 @@ describe('Default custom login page', () => {
         response: fixture
       })
     );
+    setupBeforeEach();
   });
 
   it('displays the login page with default custom login data when the IT edition extensions module is installed', () => {
@@ -467,7 +467,6 @@ describe('Default custom login page', () => {
 
 describe('Custom login page with data', () => {
   beforeEach(() => {
-    setupBeforeEach();
     store.set(platformVersionsAtom, retrievedWebWithItEditionInstalled);
     cy.fixture('login/loginPageCustomization.json').then((fixture) =>
       cy.interceptAPIRequest({
@@ -477,6 +476,7 @@ describe('Custom login page with data', () => {
         response: fixture
       })
     );
+    setupBeforeEach();
   });
 
   it('displays the login page when it is customized', () => {
