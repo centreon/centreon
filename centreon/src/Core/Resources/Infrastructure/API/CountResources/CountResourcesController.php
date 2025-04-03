@@ -26,10 +26,6 @@ namespace Core\Resources\Infrastructure\API\CountResources;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\RequestParameters\RequestParameters;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Common\Domain\Exception\InternalErrorException;
-use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Resources\Application\UseCase\CountResources\CountResources;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
@@ -47,12 +43,10 @@ final class CountResourcesController extends AbstractController
      *
      * @param ContactInterface $contact
      * @param RequestValidator $validator
-     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         private readonly ContactInterface $contact,
         private readonly RequestValidator $validator,
-        private readonly ExceptionHandler $exceptionHandler
     ) {}
 
     /**
