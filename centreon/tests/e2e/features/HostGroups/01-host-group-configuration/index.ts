@@ -189,11 +189,16 @@ Then('these properties are updated', () => {
 
 When('the user duplicates the configured host group', () => {
   cy.updateHostGroupViaApi(hostGroups.forDuplicate, hostGroups.default.name);
-  checkFirstHostGroupFromListing();
-
-  cy.getIframeBody().find('select').eq(0).select('Duplicate');
-  cy.wait('@getTimeZone');
-  cy.exportConfig();
+  cy.navigateTo({
+    page: 'Host Groups',
+    rootItemNumber: 3,
+    subMenu: 'Hosts'
+  });
+  cy.wait('@getGroups');
+  cy.getByTestId({ testId: 'ContentCopyOutlinedIcon' }).eq(1).click();
+  cy.get('[type="submit"][aria-label="Duplicate"]')
+    .click();
+  cy.wait('@getGroups');
 });
 
 Then('a new host group is created with identical properties', () => {
