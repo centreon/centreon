@@ -40,6 +40,7 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
     <SelectField
       fullWidth
       required
+      aria-label={labelRequestedAuthnContext}
       dataTestId={labelRequestedAuthnContext}
       error={error as string}
       label={labelRequestedAuthnContext}
