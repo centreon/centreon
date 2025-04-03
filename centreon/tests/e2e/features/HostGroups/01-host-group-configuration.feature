@@ -7,7 +7,6 @@ Feature: HostGroupConfiguration
     Given an admin user is logged in a Centreon server
     And a host group is configured
 
-  @ignore
   @TEST_MON-158792
   Scenario: Edit some properties of a host group
     When the user changes some properties of the configured host group
