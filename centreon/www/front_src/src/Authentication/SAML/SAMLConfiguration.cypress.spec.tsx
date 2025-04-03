@@ -144,7 +144,7 @@ describe('SAMLConfiguration', () => {
       'have.value',
       retrievedSAMLConfiguration.user_id_attribute
     );
-    cy.findByTestId(labelRequestedAuthnContext).should('have.value', 1);
+    cy.findByTestId(labelRequestedAuthnContext).should('have.value', 'minimum');
     cy.findByLabelText(labelCentreonUIOnly).should('not.be.checked');
     cy.findByLabelText(labelBothIdentityProviderAndCentreonUI).should(
       'be.checked'

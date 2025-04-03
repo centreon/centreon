@@ -6,7 +6,6 @@ import { SelectEntry, SelectField } from '@centreon/ui';
 
 import { labelRequestedAuthnContext } from '../translatedLabels';
 import { RequestedAuthnContextValue, SAMLConfiguration } from '../models';
-import { capitalize } from '@mui/material';
 
 const RequestedAuthnContextField = (): React.JSX.Element => {
   const { values, setFieldValue, errors, touched } =
@@ -17,20 +16,15 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
   };
 
   const options: Array<SelectEntry> = [
-    { id: 1, name: RequestedAuthnContextValue.Minimum },
-    { id: 2, name: RequestedAuthnContextValue.Exact },
-    { id: 3, name: RequestedAuthnContextValue.Better },
-    { id: 4, name: RequestedAuthnContextValue.Maximum },
+    { id: RequestedAuthnContextValue.Minimum, name: 'Minimum' },
+    { id: RequestedAuthnContextValue.Exact, name: 'Exact' },
+    { id: RequestedAuthnContextValue.Better, name: 'Better' },
+    { id: RequestedAuthnContextValue.Maximum, name: 'Maximum' },
   ];
 
   const selectedOption = find(
-    (option: SelectEntry) => equals(option.name, values.requestedAuthnContext)
+    (option: SelectEntry) => equals(option.id, values.requestedAuthnContext)
   )(options);
-
-  const capitalizedOptions = map(
-    (option: SelectEntry) => ({ ...option, name: capitalize(option.name)}),
-    options
-  ); 
 
   const error = touched?.requestedAuthnContext
     ? errors?.requestedAuthnContext
@@ -45,8 +39,11 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
       error={error as string}
       label={labelRequestedAuthnContext}
       name="requestedAuthnContext"
-      options={capitalizedOptions}
-      selectedOptionId={selectedOption?.id || 1}
+      options={options}
+      selectedOptionId={
+        selectedOption?.id
+          || RequestedAuthnContextValue.Minimum
+      }
       onChange={changeValue}
     />
   );
