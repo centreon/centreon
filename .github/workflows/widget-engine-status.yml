@@ -63,7 +63,7 @@ jobs:
   promote:
     needs: [get-version]
     if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
-    runs-on: [self-hosted, common]
+    runs-on: centreon-common
     strategy:
       matrix:
         distrib: [el7, el8, bullseye]

@@ -33,7 +33,7 @@ if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
     exit;
 }
 
-$smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
+$smartyDir = __DIR__ . '/../../../../vendor/' . SmartyCentreon::PACKAGE_CENTREON_SMARTY_NAME . '/';
 require_once $smartyDir . 'libs/Smarty.class.php';
 
 $path = $centreon_path . "www/widgets/open-tickets/src/";

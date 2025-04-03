@@ -93,13 +93,13 @@ jobs:
       - name: Restore standard slim image in cache
         uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
-          path: /tmp/cache/docker-image
+          path: ./docker-image
           key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
           fail-on-cache-miss: true
 
       - name: Load standard slim image
         run: |
-          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker load --input ./docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
@@ -116,6 +116,15 @@ jobs:
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
+      - name: Replace / with - in the feature path
+        id: feature-path
+        if: always()
+        run: |
+          feature_name="${{ matrix.feature }}"
+          feature_name_with_dash="${feature_name//\//-}"
+          echo "Modified Feature Name: $feature_name_with_dash"
+          echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
+
       - name: Clean empty reports
         if: ${{ !cancelled() }}
         run: find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | xargs -r rm
@@ -129,7 +138,7 @@ jobs:
         if: failure()
         name: Upload acceptance test logs
         with:
-          name: ${{ inputs.name }}-test-logs
+          name: ${{ inputs.name }}-alma8-test-logs-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: acceptance-logs
           retention-days: 1
 
@@ -137,7 +146,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: ${{ inputs.name }}-test-reports
+          name: ${{ inputs.name }}-alma8-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: xunit-reports
           retention-days: 1
 
@@ -152,8 +161,9 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
-          name: ${{ inputs.name }}-test-reports
+          pattern: ${{ inputs.name }}-alma8-test-reports-*
           path: ${{ inputs.name }}-xunit-reports
+          merge-multiple: true
 
       - uses: ./.github/actions/publish-report
         with:
