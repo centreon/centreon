@@ -10,7 +10,7 @@ export const useFormStyles = makeStyles()((theme) => ({
 export const useIconStyles = makeStyles()((theme) => ({
   icon: {
     display: 'flex',
-    gap: theme.spacing(0.75),
+    gap: theme.spacing(1),
     alignItems: 'center'
   }
 }));

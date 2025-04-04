@@ -26,6 +26,7 @@ namespace Core\HostGroup\Application\UseCase\GetHostGroup;
 use Core\Application\Common\UseCase\StandardResponseInterface;
 use Core\Common\Domain\SimpleEntity;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\Media\Domain\Model\Media;
 use Core\ResourceAccess\Domain\Model\TinyRule;
 
 final class GetHostGroupResponse implements StandardResponseInterface
@@ -34,11 +35,13 @@ final class GetHostGroupResponse implements StandardResponseInterface
      * @param HostGroup $hostgroup
      * @param SimpleEntity[] $hosts
      * @param TinyRule[] $rules
+     * @param ?Media $icon
      */
     public function __construct(
         readonly public HostGroup $hostgroup,
         readonly public array $hosts = [],
         readonly public array $rules = [],
+        readonly public ?Media $icon = null,
     )
     {
     }

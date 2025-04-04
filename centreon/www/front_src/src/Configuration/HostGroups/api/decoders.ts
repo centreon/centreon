@@ -53,7 +53,9 @@ export const hostGroupDecoder = JsonDecoder.object<HostGroupItem>(
         'Access Rules'
       )
     ),
-    icon: JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
+    icon: JsonDecoder.optional(
+      JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
+    )
   },
   'Host group',
   {

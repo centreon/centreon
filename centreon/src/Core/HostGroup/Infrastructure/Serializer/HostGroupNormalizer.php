@@ -89,6 +89,13 @@ final class HostGroupNormalizer implements NormalizerInterface
         }
         if (in_array('HostGroup:Get', $context['groups'] ?? [], true)) {
             /** @var GetHostGroupResponse $object */
+            $data['icon'] = $object->icon !== null
+            ? [
+                'id' => $object->icon->getId(),
+                'name' => $object->icon->getFilename(),
+                'url' => $this->generateNormalizedIconUrl($object->icon->getDirectory() . '/' . $object->icon->getFilename()),
+            ]
+            : null;
             $data['hosts'] = array_map(
                 fn (SimpleEntity $host) => $this->normalizer->normalize($host, $format),
                 $object->hosts

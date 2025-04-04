@@ -1,6 +1,20 @@
 {
-  "acknowledged": false,
-  "acknowledgement": null,
+  "acknowledged": true,
+  "acknowledgement": {
+    "author_id": 1,
+    "author_name": "Admin",
+    "comment": "Acknowledged by Admin",
+    "deletion_time": "2020-03-19T18:57:59Z",
+    "entry_time": "2020-03-18T18:57:59Z",
+    "host_id": 1,
+    "id": 1,
+    "is_notify_contacts": false,
+    "is_persistent_comment": true,
+    "is_sticky": true,
+    "poller_id": 2,
+    "service_id": 1,
+    "state": 1
+  },
   "active_checks": false,
   "alias": "Central-Centreon",
   "categories": [
@@ -11,7 +25,7 @@
     }
   ],
   "checked": true,
-  "command_line": "base_host_alive",
+  "command_line": "base_host_alive --test 2 -n 1 -w 3000,80 -c 5000,100 -t host --test2=\"ok\"",
   "downtimes": [
     {
       "author_name": "admin",
@@ -34,8 +48,8 @@
   "fqdn": "central.centreon.com",
   "groups": [
     {
-      "configuration_endpoint": null,
-      "id": 53,
+      "configuration_endpoint": "/centreon/api/latest/configuration/hosts/groups/53",
+      "id": 0,
       "name": "Linux-servers"
     }
   ],
@@ -70,32 +84,7 @@
   "name": "Central",
   "next_check": "2020-06-18T17:15:00Z",
   "notification_number": 3,
-  "parent": {
-    "id": 1,
-    "links": {
-      "endpoints": {
-        "performance_graph": "performance_graph",
-        "timeline": "timeline"
-      },
-      "externals": {
-        "action_url": null,
-        "notes": null
-      },
-      "uris": {
-        "configuration": null,
-        "logs": null,
-        "reporting": null
-      }
-    },
-    "name": "Centreon",
-    "short_type": "h",
-    "status": {
-      "name": "S1",
-      "severity_code": 1
-    },
-    "type": "host",
-    "uuid": "h1"
-  },
+  "parent": null,
   "passive_checks": false,
   "percent_state_change": 3.5,
   "performance_data": "rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100",
@@ -105,6 +94,6 @@
   },
   "timezone": "Europe/Paris",
   "tries": "3/3 (Hard)",
-  "type": "service",
-  "uuid": "h1-s1"
+  "type": "host",
+  "uuid": "h1"
 }

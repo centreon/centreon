@@ -35,7 +35,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 class BulkHostGroupsStatusResponseNormalizer implements NormalizerInterface
 {
     use LoggerTrait;
-    private const HOSTGROUP_ROUTE_NAME = 'FindHostGroup';
+    private const HOSTGROUP_ROUTE_NAME = 'GetHostGroup';
 
     /**
      * @param Router $router

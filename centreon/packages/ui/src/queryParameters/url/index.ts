@@ -1,4 +1,4 @@
-import { fromPairs, startsWith } from 'ramda';
+import { equals, fromPairs, startsWith } from 'ramda';
 
 import { QueryParameter } from '../models';
 
@@ -25,7 +25,12 @@ const getUrlQueryParameters = <
 
   const entries = [...urlParams.entries()].map<[string, string]>(
     ([key, value]) => {
-      if (startsWith('/', value)) {
+      if (
+        startsWith('/', value) ||
+        (!equals('false', value) &&
+          !equals('true', value) &&
+          !equals(value.match(/^[a-zA-Z]/), null))
+      ) {
         return [key, value];
       }
 

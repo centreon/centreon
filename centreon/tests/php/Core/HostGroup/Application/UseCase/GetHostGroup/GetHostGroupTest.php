@@ -36,6 +36,7 @@ use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\UseCase\GetHostGroup\GetHostGroup;
 use Core\HostGroup\Application\UseCase\GetHostGroup\GetHostGroupResponse;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\TinyRule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -46,6 +47,7 @@ beforeEach(function (): void {
         $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readResourceAccessRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
+        $this->readMediaRepository = $this->createMock(ReadMediaRepositoryInterface::class),
         $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
          false,
         $this->user = $this->createMock(ContactInterface::class),
@@ -56,6 +58,7 @@ beforeEach(function (): void {
         $this->readHostRepository,
         $this->readAccessGroupRepository,
         $this->readResourceAccessRepository,
+        $this->readMediaRepository,
         $this->readContactGroupRepository,
         true,
         $this->user,
