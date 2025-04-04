@@ -61,18 +61,18 @@ final readonly class CountResources
 
         try {
             if ($request->isAdmin) {
-                $countFilteredResources = $this->readResourceRepository->countResources($request->resourceFilter);
-                $countTotalResources = $this->readResourceRepository->countResources();
+                $countFilteredResources = $this->readResourceRepository->countResourcesByFilter($request->resourceFilter);
+                $countTotalResources = $this->readResourceRepository->countAllResources();
             } else {
                 $accessGroups = $this->accessGroupRepository->findByContactId($request->contactId);
                 $accessGroupIds = $accessGroups->getIds();
 
-                $countFilteredResources = $this->readResourceRepository->countResourcesByAccessGroupIds(
-                    $accessGroupIds,
-                    $request->resourceFilter
+                $countFilteredResources = $this->readResourceRepository->countResourcesByFilterAndAccessGroupIds(
+                    $request->resourceFilter,
+                    $accessGroupIds
                 );
 
-                $countTotalResources = $this->readResourceRepository->countResourcesByAccessGroupIds($accessGroupIds);
+                $countTotalResources = $this->readResourceRepository->countAllResourcesByAccessGroupIds($accessGroupIds);
             }
 
             $response->setTotalFilteredResources($countFilteredResources);

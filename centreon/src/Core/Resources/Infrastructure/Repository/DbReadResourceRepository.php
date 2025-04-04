@@ -392,12 +392,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
-     * @param ResourceFilter|null $filter
+     * @param ResourceFilter $filter
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResources(?ResourceFilter $filter = null): int
+    public function countResourcesByFilter(ResourceFilter $filter): int
     {
         try {
             // For a count, there isn't pagination we limit the number of results
@@ -405,21 +405,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
             $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
 
-            // If no filter is provided, we create an empty one to avoid errors and to have total resources
-            // The same is done with the search values of sqlRequestTranslator and search of request parameters
-            if ($filter === null) {
-                $this->sqlRequestTranslator->setSearchValues([]);
-                $this->sqlRequestTranslator->getRequestParameters()->setSearch('');
-            }
-
             $queryParametersFromRequestParameter = new QueryParameters();
             $query = $this->generateFindResourcesRequest(
-                filter: $filter ?? new ResourceFilter(),
+                filter: $filter,
                 queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
                 onlyCount: true
             );
 
-            return $this->count($query, $queryParametersFromRequestParameter, ! is_null($filter));
+            return $this->count($query, $queryParametersFromRequestParameter);
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by max results',
@@ -432,12 +425,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     /**
      * @param array<int> $accessGroupIds
      *
-     * @param ResourceFilter|null $filter
+     * @param ResourceFilter $filter
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByAccessGroupIds(array $accessGroupIds, ?ResourceFilter $filter = null): int
+    public function countResourcesByFilterAndAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): int
     {
         try {
             // For a count, there isn't pagination we limit the number of results
@@ -445,28 +438,72 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
             $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
 
-            // If no filter is provided, we create an empty one to avoid errors and to have total resources
-            // The same is done with the search values of sqlRequestTranslator and search of request parameters
-            if ($filter === null) {
-                $this->sqlRequestTranslator->setSearchValues([]);
-                $this->sqlRequestTranslator->getRequestParameters()->setSearch('');
-            }
-
             $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
 
             $queryParametersFromRequestParameter = new QueryParameters();
             $query = $this->generateFindResourcesRequest(
-                filter: $filter ?? new ResourceFilter(),
+                filter: $filter,
                 queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
                 accessGroupRequest: $accessGroupRequest,
                 onlyCount: true
             );
 
-            return $this->count($query, $queryParametersFromRequestParameter, ! is_null($filter));
+            return $this->count($query, $queryParametersFromRequestParameter);
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by access group ids and max results',
                 context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds],
+                previous: $exception
+            );
+        }
+    }
+
+    /**
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countAllResources(): int
+    {
+        try {
+            $query = $this->queryBuilder->
+                select('COUNT(DISTINCT resources.resource_id) AS REALTIME')
+                ->from('`:dbstg`.`resources`')
+                ->getQuery();
+            return $this->connection->fetchOne($this->translateDbName($query));
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'An error occurred while counting all resources',
+                previous: $exception
+            );
+        }
+    }
+
+    /**
+     * @param array<int> $accessGroupIds
+     *
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countAllResourcesByAccessGroupIds(array $accessGroupIds): int
+    {
+        try {
+            try {
+                $query = $this->queryBuilder->
+                select('COUNT(DISTINCT resources.resource_id) AS REALTIME')
+                    ->from('`:dbstg`.`resources`')
+                    ->getQuery();
+                $query .= $this->addResourceAclSubRequest($accessGroupIds);
+                return $this->connection->fetchOne($this->translateDbName($query));
+            } catch (\Throwable $exception) {
+                throw new RepositoryException(
+                    message: 'An error occurred while counting all resources by access group ids',
+                    previous: $exception
+                );
+            }
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'An error occurred while counting resources by access group ids and max results',
+                context: ['accessGroupIds' => $accessGroupIds],
                 previous: $exception
             );
         }

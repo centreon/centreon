@@ -85,22 +85,36 @@ interface ReadResourceRepositoryInterface
     ): \Traversable;
 
     /**
-     * @param ResourceFilter|null $filter
+     * @param ResourceFilter $filter
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResources(?ResourceFilter $filter = null): int;
+    public function countResourcesByFilter(ResourceFilter $filter): int;
 
     /**
      * @param array<int> $accessGroupIds
-     * @param ResourceFilter|null $filter
+     * @param ResourceFilter $filter
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByAccessGroupIds(
-        array $accessGroupIds,
-        ?ResourceFilter $filter = null
+    public function countResourcesByFilterAndAccessGroupIds(
+        ResourceFilter $filter,
+        array $accessGroupIds
     ): int;
+
+    /**
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countAllResources(): int;
+
+    /**
+     * @param array<int> $accessGroupIds
+     *
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countAllResourcesByAccessGroupIds(array $accessGroupIds): int;
 }
