@@ -44,6 +44,7 @@ require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonLog.class.php';
 require_once $centreon_path . 'www/widgets/servicegroup-monitoring/src/class/ServicegroupMonitoring.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
 CentreonSession::start(1);
 
@@ -57,7 +58,9 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
 
 // Smarty template initialization
 $path = $centreon_path . "www/widgets/servicegroup-monitoring/src/";
-$template = SmartyBC::createSmartyTemplate($path, './');
+
+$template = new Smarty();
+$template = initSmartyTplForPopup($path, $template, "./", $centreon_path);
 
 $centreon = $_SESSION['centreon'];
 
@@ -116,7 +119,7 @@ if (isset($preferences['sg_name_search']) && trim($preferences['sg_name_search']
 
 if (!$centreon->user->admin) {
     [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getServiceGroups(), ':servicegroup_name_', PDO::PARAM_STR);
-    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ($bindQuery)");
+    $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN (" . ($bindQuery ?: "''") . ")");
     $bindParams = array_merge($bindParams, $bindValues);
 }
 
