@@ -68,7 +68,7 @@ final class PartialUpdateToken
         int $userId
     ): void {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW)) {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)) {
                 $this->error(
                     'User is not allowed to partially update token',
                     ['token_name' => $tokenName, 'user_id' => $userId, 'requester_id' => $this->user->getId()]
