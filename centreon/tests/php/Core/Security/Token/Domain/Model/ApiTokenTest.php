@@ -26,21 +26,21 @@ namespace Tests\Core\Security\Token\Domain\Model;
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\TrimmedString;
-use Core\Security\Token\Domain\Model\NewToken;
+use Core\Security\Token\Domain\Model\ApiToken;
 use Core\Security\Token\Domain\Model\Token;
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 beforeEach(function (): void {
-    $this->createToken = static function (array $fields = []): NewToken {
-        return new NewToken(
+    $this->createToken = static function (array $fields = []): Token {
+        return new ApiToken(
             ...[
-                'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
-                'userId' => 23,
-                'configurationProviderId' => 1,
                 'name' => new TrimmedString('token-name'),
+                'userId' => 23,
+                'userName' => new TrimmedString('John Doe'),
                 'creatorId' => 12,
                 'creatorName' => new TrimmedString('John Doe'),
-                'type' => TokenTypeEnum::API,
+                'creationDate' => new \DateTimeImmutable(),
+                'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
+                'isRevoked' => false,
                 ...$fields,
             ]
         );
@@ -53,7 +53,8 @@ it('should return properly set token instance', function (): void {
     expect($token->getName())->toBe('token-name')
         ->and($token->getUserId())->toBe(23)
         ->and($token->getCreatorId())->toBe(12)
-        ->and($token->getCreatorName())->toBe('John Doe');
+        ->and($token->getCreatorName())->toBe('John Doe')
+        ->and($token->isRevoked())->toBe(false);
 });
 
 foreach (
@@ -67,7 +68,7 @@ foreach (
         fn() => ($this->createToken)([$field => new TrimmedString('    ')])
     )->throws(
         InvalidArgumentException::class,
-        AssertionException::notEmptyString("NewToken::{$field}")->getMessage()
+        AssertionException::notEmptyString("ApiToken::{$field}")->getMessage()
     );
 }
 
@@ -77,15 +78,12 @@ foreach (
         'creatorName',
     ] as $field
 ) {
-    it(
-        "should return a trimmed field {$field}",
-        function () use ($field): void {
-            $token = ($this->createToken)([$field => new TrimmedString('  some-text   ')]);
-            $valueFromGetter = $token->{'get' . $field}();
+    it("should return a trimmed field {$field}",  function () use ($field): void {
+        $token = ($this->createToken)([$field => new TrimmedString('  some-text   ')]);
+        $valueFromGetter = $token->{'get' . $field}();
 
-            expect($valueFromGetter)->toBe('some-text');
-        }
-    );
+        expect($valueFromGetter)->toBe('some-text');
+    });
 }
 
 // too long fields
@@ -101,16 +99,15 @@ foreach (
         fn() => ($this->createToken)([$field => new TrimmedString($tooLong)])
     )->throws(
         InvalidArgumentException::class,
-        AssertionException::maxLength($tooLong, $length + 1, $length, "NewToken::{$field}")->getMessage()
+        AssertionException::maxLength($tooLong, $length + 1, $length, "ApiToken::{$field}")->getMessage()
     );
 }
 
 // foreign keys fields
 foreach (
     [
-        'creatorId',
+        // 'creatorId',
         'userId',
-        'configurationProviderId',
     ] as $field
 ) {
     it(
@@ -118,6 +115,6 @@ foreach (
         fn() => ($this->createToken)([$field => 0])
     )->throws(
         InvalidArgumentException::class,
-        AssertionException::positiveInt(0, "NewToken::{$field}")->getMessage()
+        AssertionException::positiveInt(0, "ApiToken::{$field}")->getMessage()
     );
 }

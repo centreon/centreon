@@ -53,9 +53,9 @@ final class ApiToken extends Token
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 
-        Assertion::positiveInt($userId, 'Token::userId');
-        Assertion::notEmptyString((string) $userName, 'Token::userName');
-        Assertion::maxLength((string) $userName, self::MAX_USER_NAME_LENGTH, 'Token::userName');
+        Assertion::positiveInt($userId, "{$this->shortName}::userId");
+        Assertion::notEmptyString((string) $userName, "{$this->shortName}::userName");
+        Assertion::maxLength((string) $userName, self::MAX_USER_NAME_LENGTH, "{$this->shortName}::userName");
 
         parent::__construct(
             $name,

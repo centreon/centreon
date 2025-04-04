@@ -39,6 +39,8 @@ use Core\Security\Token\Application\UseCase\AddToken\AddToken;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenRequest;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenResponse;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenValidation;
+use Core\Security\Token\Domain\Model\ApiToken;
+use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
@@ -60,23 +62,38 @@ beforeEach(function (): void {
     $this->linkedUser = ['id' => 23, 'name' => 'Jane Doe'];
     $this->creator = ['id' => 12, 'name' => 'John Doe'];
 
-    $this->request = new AddTokenRequest(
-        name: '  token name  ',
+    $this->requestApi = new AddTokenRequest(
+        name: '  token name API  ',
+        type: TokenTypeEnum::API,
+        userId: $this->linkedUser['id'],
+        expirationDate: $this->expirationDate
+    );
+
+    $this->requestJwt = new AddTokenRequest(
+        name: '  token name CMA  ',
         type: TokenTypeEnum::CMA,
         userId: $this->linkedUser['id'],
         expirationDate: $this->expirationDate
     );
 
-    $this->token = new Token(
-        name: new TrimmedString($this->request->name),
+    $this->tokenJwt = new JwtToken(
+        name: new TrimmedString($this->requestJwt->name),
+        creatorId: $this->creator['id'],
+        creatorName: new TrimmedString($this->creator['name']),
+        creationDate: $this->creationDate,
+        expirationDate: $this->expirationDate,
+        isRevoked: false
+    );
+
+    $this->tokenApi = new ApiToken(
+        name: new TrimmedString($this->requestApi->name),
         userId: $this->linkedUser['id'],
         userName: new TrimmedString($this->linkedUser['name']),
         creatorId: $this->creator['id'],
         creatorName: new TrimmedString($this->creator['name']),
         creationDate: $this->creationDate,
         expirationDate: $this->expirationDate,
-        isRevoked: false,
-        type: TokenTypeEnum::CMA
+        isRevoked: false
     );
 });
 
@@ -86,7 +103,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->method('create')
         ->willThrowException(new \Exception());
 
-    $response = ($this->useCase)($this->request);
+    $response = ($this->useCase)($this->requestApi);
 
     expect($response)
         ->toBeInstanceOf(ErrorResponse::class)
@@ -99,16 +116,16 @@ it('should present a ConflictResponse when name is already used', function (): v
         ->expects($this->once())
         ->method('assertIsValidName')
         ->willThrowException(
-            TokenException::nameAlreadyExists(trim($this->request->name))
+            TokenException::nameAlreadyExists(trim($this->requestJwt->name))
         );
 
-    $response = ($this->useCase)($this->request);
+    $response = ($this->useCase)($this->requestJwt);
 
     expect($response)
         ->toBeInstanceOf(ConflictResponse::class)
         ->and($response->getMessage())
         ->toBe(
-            TokenException::nameAlreadyExists(trim($this->request->name))->getMessage()
+            TokenException::nameAlreadyExists(trim($this->requestJwt->name))->getMessage()
         );
 });
 
@@ -117,15 +134,15 @@ it('should present a ConflictResponse when user ID is not valid', function (): v
         ->expects($this->once())
         ->method('assertIsValidUser')
         ->willThrowException(
-            TokenException::invalidUserId($this->request->userId)
+            TokenException::invalidUserId($this->requestApi->userId)
         );
 
-    $response = ($this->useCase)($this->request);
+    $response = ($this->useCase)($this->requestApi);
 
     expect($response)
         ->toBeInstanceOf(ConflictResponse::class)
         ->and($response->getMessage())
-        ->toBe(TokenException::invalidUserId($this->request->userId)->getMessage());
+        ->toBe(TokenException::invalidUserId($this->requestApi->userId)->getMessage());
 });
 
 it('should present a ConflictResponse when a creator cannot manage user\'s tokens', function (): void {
@@ -133,30 +150,18 @@ it('should present a ConflictResponse when a creator cannot manage user\'s token
         ->expects($this->once())
         ->method('assertIsValidUser')
         ->willThrowException(
-            TokenException::notAllowedToCreateTokenForUser($this->request->userId)
+            TokenException::notAllowedToCreateTokenForUser($this->requestApi->userId)
         );
 
-    $response = ($this->useCase)($this->request);
+    $response = ($this->useCase)($this->requestApi);
 
     expect($response)
         ->toBeInstanceOf(ConflictResponse::class)
         ->and($response->getMessage())
-        ->toBe(TokenException::notAllowedToCreateTokenForUser($this->request->userId)->getMessage());
+        ->toBe(TokenException::notAllowedToCreateTokenForUser($this->requestApi->userId)->getMessage());
 });
 
 it('should present an InvalidArgumentResponse when a field assert failed', function (): void {
-    $this->providerFactory
-        ->expects($this->once())
-        ->method('create')
-        ->willReturn($this->localProvider);
-    $this->localProvider
-        ->expects($this->once())
-        ->method('getConfiguration')
-        ->willReturn($this->configurationProvider);
-    $this->configurationProvider
-        ->expects($this->once())
-        ->method('getId')
-        ->willReturn(1);
     $this->user
         ->expects($this->once())
         ->method('getId')
@@ -166,27 +171,27 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->method('getName')
         ->willReturn('');
 
-    $response = ($this->useCase)($this->request);
+    $response = ($this->useCase)($this->requestJwt);
 
     expect($response)
         ->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($response->getMessage())
-        ->toBe(AssertionException::notEmptyString('NewToken::creatorName')->getMessage());
+        ->toBe(AssertionException::notEmptyString('NewJwtToken::creatorName')->getMessage());
 });
 
 it('should present an ErrorResponse if the newly created token cannot be retrieved', function (): void {
-    $this->providerFactory
-        ->expects($this->once())
-        ->method('create')
-        ->willReturn($this->localProvider);
-    $this->localProvider
-        ->expects($this->once())
-        ->method('getConfiguration')
-        ->willReturn($this->configurationProvider);
-    $this->configurationProvider
-        ->expects($this->once())
-        ->method('getId')
-        ->willReturn(1);
+    // $this->providerFactory
+    //     ->expects($this->once())
+    //     ->method('create')
+    //     ->willReturn($this->localProvider);
+    // $this->localProvider
+    //     ->expects($this->once())
+    //     ->method('getConfiguration')
+    //     ->willReturn($this->configurationProvider);
+    // $this->configurationProvider
+    //     ->expects($this->once())
+    //     ->method('getId')
+    //     ->willReturn(1);
     $this->user
         ->expects($this->once())
         ->method('getId')
@@ -205,7 +210,7 @@ it('should present an ErrorResponse if the newly created token cannot be retriev
         ->method('find')
         ->willReturn(null);
 
-    $response = ($this->useCase)($this->request);
+    $response = ($this->useCase)($this->requestJwt);
 
     expect($response)
         ->toBeInstanceOf(ErrorResponse::class)
@@ -213,7 +218,7 @@ it('should present an ErrorResponse if the newly created token cannot be retriev
         ->toBe(TokenException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should return created object on success', function (): void {
+it('should return created object on success (API)', function (): void {
     $this->validation->expects($this->once())->method('assertIsValidName');
     $this->validation->expects($this->once())->method('assertIsValidUser');
 
@@ -245,27 +250,68 @@ it('should return created object on success', function (): void {
     $this->readTokenRepository
         ->expects($this->once())
         ->method('find')
-        ->willReturn($this->token);
+        ->willReturn($this->tokenApi);
 
-    $response = ($this->useCase)($this->request);
+    $response = ($this->useCase)($this->requestApi);
 
     expect($response)->toBeInstanceOf(AddTokenResponse::class)
-        ->and($response->apiToken->getName())
-        ->toBe($this->token->getName())
-        ->and($response->apiToken->getUserName())
+        ->and($response->token->getName())
+        ->toBe($this->tokenApi->getName())
+        ->and($response->token->getUserName())
         ->toBe($this->linkedUser['name'])
-        ->and($response->apiToken->getUserId())
+        ->and($response->token->getUserId())
         ->toBe($this->linkedUser['id'])
-        ->and($response->apiToken->getCreatorName())
+        ->and($response->token->getCreatorName())
         ->toBe($this->creator['name'])
-        ->and($response->apiToken->getCreatorId())
+        ->and($response->token->getCreatorId())
         ->toBe($this->creator['id'])
-        ->and($response->apiToken->getCreationDate())
+        ->and($response->token->getCreationDate())
         ->toBe($this->creationDate)
-        ->and($response->apiToken->getExpirationDate())
+        ->and($response->token->getExpirationDate())
         ->toBe($this->expirationDate)
-        ->and($response->apiToken->isRevoked())
-        ->toBe($this->token->isRevoked())
-        ->and($response->apiToken->getType())
-        ->toBe($this->token->getType());
+        ->and($response->token->isRevoked())
+        ->toBe($this->tokenApi->isRevoked())
+        ->and($response->token->getType())
+        ->toBe($this->tokenApi->getType());
+});
+
+it('should return created object on success (CMA)', function (): void {
+    $this->validation->expects($this->once())->method('assertIsValidName');
+    $this->validation->expects($this->once())->method('assertIsValidUser');
+
+    $this->user
+        ->expects($this->once())
+        ->method('getId')
+        ->willReturn($this->creator['id']);
+    $this->user
+        ->expects($this->once())
+        ->method('getName')
+        ->willReturn($this->creator['name']);
+
+    $this->writeTokenRepository
+        ->expects($this->once())
+        ->method('add');
+
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('find')
+        ->willReturn($this->tokenJwt);
+
+    $response = ($this->useCase)($this->requestJwt);
+
+    expect($response)->toBeInstanceOf(AddTokenResponse::class)
+        ->and($response->token->getName())
+        ->toBe($this->tokenJwt->getName())
+        ->and($response->token->getCreatorName())
+        ->toBe($this->creator['name'])
+        ->and($response->token->getCreatorId())
+        ->toBe($this->creator['id'])
+        ->and($response->token->getCreationDate())
+        ->toBe($this->creationDate)
+        ->and($response->token->getExpirationDate())
+        ->toBe($this->expirationDate)
+        ->and($response->token->isRevoked())
+        ->toBe($this->tokenJwt->isRevoked())
+        ->and($response->token->getType())
+        ->toBe($this->tokenJwt->getType());
 });

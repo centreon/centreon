@@ -74,7 +74,7 @@ final class PartialUpdateToken
                     ['token_name' => $tokenName, 'user_id' => $userId, 'requester_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(TokenException::deleteNotAllowed())
+                    new ForbiddenResponse(TokenException::notAllowedToPartiallyUpdateToken())
                 );
 
                 return;
@@ -106,7 +106,7 @@ final class PartialUpdateToken
 
             $this->updateToken($requestDto, $token);
 
-            $presenter->present(new NoContentResponse());
+            $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(
