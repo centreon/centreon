@@ -32,14 +32,30 @@ class KnowledgeBaseContext extends CentreonContext
         $this->iAmLoggedIn();
 
         $page = new KBParametersPage($this);
-        $page->setProperties(
-            array(
-                'kb_wiki_url' => 'http://' . $this->container->getContainerIpAddress('mediawiki'),
-                'kb_wiki_account' => 'WikiSysop',
-                'kb_wiki_password' => 'centreon'
-            )
-        );
-        $page->save();
+
+        // Use spin to attempt setting the properties while handling stale element errors.
+        $this->spin(function($context) use ($page) {
+            try {
+                $page->setProperties([
+                    'kb_wiki_url' => 'http://' . $this->container->getContainerIpAddress('mediawiki'),
+                    'kb_wiki_account' => 'WikiSysop',
+                    'kb_wiki_password' => 'centreon'
+                ]);
+                return true;
+            } catch (\Facebook\WebDriver\Exception\StaleElementReferenceException $e) {
+                return false;
+            }
+        }, "Failed to set KB parameters due to stale element", 10);
+
+        // If the save() method might also trigger a stale element error, wrap it as well:
+        $this->spin(function($context) use ($page) {
+            try {
+                $page->save();
+                return true;
+            } catch (\Facebook\WebDriver\Exception\StaleElementReferenceException $e) {
+                return false;
+            }
+        }, "Failed to save KB parameters due to stale element", 10);
     }
 
     /**
