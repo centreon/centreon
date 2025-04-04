@@ -34,16 +34,10 @@ enum AllowedFormatEnum: string
     case CSV = 'csv';
 
     /**
-     * @return string
+     * @return array
      */
-    public static function getAllowedFormatsAsString(): string
+    public static function values(): array
     {
-        return implode(
-            ', ',
-            array_map(
-                fn($allowedFormatEnum) => $allowedFormatEnum->value,
-                AllowedFormatEnum::cases()
-            )
-        );
+        return array_map(fn(self $case) => $case->value, self::cases());
     }
 }

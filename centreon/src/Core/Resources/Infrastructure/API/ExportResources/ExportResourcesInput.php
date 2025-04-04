@@ -25,7 +25,6 @@ namespace Core\Resources\Infrastructure\API\ExportResources;
 
 use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 final readonly class ExportResourcesInput
 {
@@ -51,13 +50,14 @@ final readonly class ExportResourcesInput
     ];
 
     public function __construct(
-        #[Assert\NotBlank(
-            message: 'format parameter is required'
+        #[Assert\NotBlank(message: 'format parameter is required')]
+        #[Assert\Choice(
+            callback: [AllowedFormatEnum::class, 'values'],
+            message: 'format must be one of the following: {{ choices }}'
         )]
         public mixed $format,
-        #[Assert\NotBlank(
-            message: 'all_pages parameter is required'
-        )]
+        #[Assert\NotBlank(message: 'all_pages parameter is required')]
+        #[Assert\Type('bool', message: 'all_pages parameter must be a boolean')]
         public mixed $allPages,
         #[Assert\Type('array', message: 'columns must be an array')]
         #[Assert\All([
@@ -69,127 +69,44 @@ final readonly class ExportResourcesInput
             ),
         ])]
         public mixed $columns,
+        #[Assert\When(
+            expression: 'this.allPages === true',
+            constraints: [
+                new Assert\NotBlank(message: 'max_lines parameter is required when all_pages is true'),
+                new Assert\Type('int', message: 'max_lines must be an integer'),
+                new Assert\Range(
+                    notInRangeMessage: 'max_lines must be between {{ min }} and {{ max }}',
+                    min: 1,
+                    max: self::EXPORT_MAX_LINES
+                ),
+            ]
+        )]
         public mixed $maxLines,
+        #[Assert\When(
+            expression: 'this.allPages === false',
+            constraints: [
+                new Assert\NotBlank(message: 'page parameter is required when all_pages is false'),
+                new Assert\Type('int', message: 'page must be an integer'),
+                new Assert\Range(
+                    notInRangeMessage: 'page must be greater than {{ min }}',
+                    min: 1
+                ),
+            ]
+        )]
         public mixed $page,
+        #[Assert\When(
+            expression: 'this.allPages === false',
+            constraints: [
+                new Assert\NotBlank(message: 'limit parameter is required when all_pages is false'),
+                new Assert\Type('int', message: 'limit must be an integer'),
+            ]
+        )]
         public mixed $limit,
-        #[Assert\NotBlank(
-            message: 'sort_by parameter is required'
-        )]
-        #[Assert\Json(
-            message: 'sort_by parameter must be a valid JSON'
-        )]
+        #[Assert\NotBlank(message: 'sort_by parameter is required')]
+        #[Assert\Json(message: 'sort_by parameter must be a valid JSON')]
         public mixed $sort_by,
-        #[Assert\NotBlank(
-            message: 'search parameter is required'
-        )]
-        #[Assert\Json(
-            message: 'search parameter must be a valid JSON'
-        )]
+        #[Assert\NotBlank(message: 'search parameter is required')]
+        #[Assert\Json(message: 'search parameter must be a valid JSON')]
         public mixed $search
     ) {}
-
-    #[Assert\Callback]
-    public function validateFormat(ExecutionContextInterface $context): void
-    {
-        if (
-            ! is_null($this->format)
-            && (! is_string($this->format) || is_null(AllowedFormatEnum::tryFrom($this->format)))
-        ) {
-            $listAllowedFormat = AllowedFormatEnum::getAllowedFormatsAsString();
-            $context->buildViolation("format parameter must be one of the following: {$listAllowedFormat}")
-                ->atPath('format')
-                ->addViolation();
-        }
-    }
-
-    #[Assert\Callback]
-    public function validateAllPages(ExecutionContextInterface $context): void
-    {
-        if (
-            ! is_null($this->allPages)
-            && (
-                in_array($this->allPages, ['1', '0', 'true', 'false'], true) === false
-            )
-        ) {
-            $context->buildViolation('all_pages parameter must be a boolean')
-                ->atPath('all_pages')
-                ->addViolation();
-        } else {
-            $allPages = filter_var($this->allPages, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            if (is_null($allPages)) {
-                $context->buildViolation('all_pages parameter must be a boolean')
-                    ->atPath('all_pages')
-                    ->addViolation();
-            } else {
-                $this->validatePaginationByAllPages($context, $allPages);
-                if ($allPages === true) {
-                    $this->validateMaxLines($context);
-                }
-            }
-        }
-    }
-
-    // ------------------------------------- PRIVATE METHODS -------------------------------------
-
-    /**
-     * @param ExecutionContextInterface $context
-     * @param bool $allPages
-     *
-     * @return void
-     */
-    private function validatePaginationByAllPages(ExecutionContextInterface $context, bool $allPages): void
-    {
-        if (! is_null($this->page) && filter_var($this->page, FILTER_VALIDATE_INT) === false) {
-            $context->buildViolation('page must be an integer')
-                ->atPath('page')
-                ->addViolation();
-        }
-
-        if (! is_null($this->limit) && filter_var($this->limit, FILTER_VALIDATE_INT) === false) {
-            $context->buildViolation('limit must be an integer')
-                ->atPath('limit')
-                ->addViolation();
-        }
-
-        if (! $allPages) {
-            if (is_null($this->page)) {
-                $context->buildViolation('page is required when all_pages is false')
-                    ->atPath('page')
-                    ->addViolation();
-            }
-
-            if (is_null($this->limit)) {
-                $context->buildViolation('limit is required when all_pages is false')
-                    ->atPath('limit')
-                    ->addViolation();
-            }
-        }
-    }
-
-    /**
-     * @param ExecutionContextInterface $context
-     *
-     * @return void
-     */
-    private function validateMaxLines(ExecutionContextInterface $context): void
-    {
-        if (is_null($this->maxLines)) {
-            $context->buildViolation('max_lines is required when all_pages is true')
-                ->atPath('max_lines')
-                ->addViolation();
-        }
-
-        if (! is_null($this->maxLines) && filter_var($this->maxLines, FILTER_VALIDATE_INT) === false) {
-            $context->buildViolation('max_lines must be an integer')
-                ->atPath('max_lines')
-                ->addViolation();
-        }
-
-        if (! is_null($this->maxLines) && $this->maxLines > self::EXPORT_MAX_LINES) {
-            $context->buildViolation('max_lines must be less than or equal to {{ limit }}')
-                ->setParameter('{{ limit }}', (string) self::EXPORT_MAX_LINES)
-                ->atPath('max_lines')
-                ->addViolation();
-        }
-    }
 }

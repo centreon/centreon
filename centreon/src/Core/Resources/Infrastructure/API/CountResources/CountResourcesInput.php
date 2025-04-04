@@ -33,12 +33,8 @@ final readonly class CountResourcesInput
      * @param string|null $search
      */
     public function __construct(
-        #[Assert\NotBlank(
-            message: 'search parameter is required'
-        )]
-        #[Assert\Json(
-            message: 'search parameter must be a valid JSON'
-        )]
+        #[Assert\NotBlank(message: 'search parameter is required')]
+        #[Assert\Json(message: 'search parameter must be a valid JSON')]
         public mixed $search,
     ) {}
 }
