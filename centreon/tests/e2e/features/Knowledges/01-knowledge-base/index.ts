@@ -143,7 +143,7 @@ When('the user adds a procedure concerning this service in MediaWiki', () => {
   cy.wait('@getTimeZone');
   // Wait until the 'Host' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchHost"]');
-  cy.getIframeBody().find('a[name="Create wiki page"]').eq(10).then($elt => {
+  cy.getIframeBody().find('a[name="Create wiki page"]').eq(8).then($elt => {
   // Get the href of the mediawiki link of the service
   const linkUrl = $elt.prop('href');
   // Check that the href is as expected
