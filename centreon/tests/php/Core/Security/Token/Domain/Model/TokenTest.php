@@ -27,6 +27,7 @@ use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\TrimmedString;
 use Core\Security\Token\Domain\Model\Token;
+use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 beforeEach(function (): void {
     $this->createToken = static function (array $fields = []): Token {
@@ -40,6 +41,7 @@ beforeEach(function (): void {
                 'creationDate' => new \DateTimeImmutable(),
                 'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
                 'isRevoked' => false,
+                'type' => TokenTypeEnum::CMA,
                 ...$fields,
             ]
         );

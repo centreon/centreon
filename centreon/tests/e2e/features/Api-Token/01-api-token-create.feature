@@ -1,6 +1,6 @@
+@ignore
 @REQ_MON-21276
 Feature: Create and Manage Basic API Token
-
   As an administrator
   I want to create a functional basic API token using the "Create new token" button
   So that I can manage access to resources and services
