@@ -12,6 +12,8 @@ import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
 import tasks from './tasks';
 
+import fs from "fs";
+
 interface ConfigurationOptions {
   cypressFolder?: string;
   env?: Record<string, unknown>;
@@ -60,6 +62,11 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
+        cypressOn("task", {
+          fileExists(filePath: string) {
+            return fs.existsSync(filePath); // Checks if the file exists
+          },
+});
         return plugins(on, config);
       },
       specPattern,
