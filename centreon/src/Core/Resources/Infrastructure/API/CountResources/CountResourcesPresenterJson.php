@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\CountResources;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -38,15 +39,18 @@ use Core\Resources\Application\UseCase\CountResources\CountResourcesResponse;
  * @class CountResourcesPresenterJson
  * @package Core\Resources\Infrastructure\API\CountResources
  */
-class CountResourcesPresenterJson extends AbstractPresenter implements CountResourcesPresenterInterface {
+class CountResourcesPresenterJson extends AbstractPresenter implements CountResourcesPresenterInterface
+{
     /**
      * CountResourcesPresenterJson constructor
      *
      * @param PresenterFormatterInterface $presenterFormatter
+     * @param RequestParametersInterface $requestParameters
      * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
+        protected RequestParametersInterface $requestParameters,
         private readonly ExceptionHandler $exceptionHandler
     ) {
         parent::__construct($presenterFormatter);
@@ -59,7 +63,6 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
      */
     public function presentResponse(CountResourcesResponse|ResponseStatusInterface $response): void
     {
-
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
                 $this->exceptionHandler->log($response->getException());
@@ -69,43 +72,16 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
             return;
         }
 
-        try {
-            $search = $this->formatSearchParameter($input->search ?? '');
+        $search = $this->requestParameters->toArray()[RequestParameters::NAME_FOR_SEARCH] ?? [];
 
-            $this->present(
-                [
-                    'count' => $response->getTotalFilteredResources(),
-                    'meta' => [
-                        'search' => $search,
-                        'total' => $response->getTotalResources(),
-                    ],
-                ]
-            );
-        } catch (InternalErrorException $exception) {
-            $this->exceptionHandler->log($exception);
-            $this->setResponseStatus(new ErrorResponse($exception->getMessage()));
-        }
-    }
-
-    /**
-     * @param string $search
-     *
-     * @throws InternalErrorException
-     * @return array<string,mixed>
-     */
-    private function formatSearchParameter(string $search): array
-    {
-        try {
-            $requestParameters = new RequestParameters();
-            $requestParameters->setSearch($search);
-
-            return (array) $requestParameters->toArray()['search'];
-        } catch (\Throwable $exception) {
-            throw new InternalErrorException(
-                'Error while formatting search parameter',
-                ['search' => $search],
-                $exception
-            );
-        }
+        $this->present(
+            [
+                'count' => $response->getTotalFilteredResources(),
+                'meta' => [
+                    'search' => $search,
+                    'total' => $response->getTotalResources(),
+                ],
+            ]
+        );
     }
 }
