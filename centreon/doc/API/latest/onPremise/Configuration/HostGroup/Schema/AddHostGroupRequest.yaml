@@ -27,18 +27,9 @@ properties:
     nullable: true
     maxLength: 65535
     description: "Comments on this host group"
-  is_activated:
-    type: boolean
-    description: "Indicates whether the host group is activated or not"
   hosts:
     type: array
     description: "Hosts linked to this host group"
     items:
       type: integer
       description: "Host ID"
-  resource_access_rules:
-    type: array
-    description: "Resource access rules associated with this host group"
-    items:
-      type: integer
-      description: "Resource access rule ID"

@@ -3,7 +3,7 @@ get:
     - Host group
   summary: "Get a host group"
   description: |
-    Find an existing host group.
+    Get an existing host group.
   parameters:
     - $ref: 'QueryParameter/HostGroupId.yaml'
   responses:
