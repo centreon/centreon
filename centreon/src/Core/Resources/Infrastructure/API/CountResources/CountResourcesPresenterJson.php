@@ -27,7 +27,6 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Domain\Exception\InternalErrorException;
 use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesPresenterInterface;
