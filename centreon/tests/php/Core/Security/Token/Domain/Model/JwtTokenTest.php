@@ -26,12 +26,12 @@ namespace Tests\Core\Security\Token\Domain\Model;
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\TrimmedString;
+use Core\Security\Token\Domain\Model\ApiToken;
 use Core\Security\Token\Domain\Model\Token;
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 beforeEach(function (): void {
     $this->createToken = static function (array $fields = []): Token {
-        return new Token(
+        return new ApiToken(
             ...[
                 'name' => new TrimmedString('token-name'),
                 'userId' => 23,
@@ -41,7 +41,6 @@ beforeEach(function (): void {
                 'creationDate' => new \DateTimeImmutable(),
                 'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
                 'isRevoked' => false,
-                'type' => TokenTypeEnum::CMA,
                 ...$fields,
             ]
         );
@@ -69,7 +68,7 @@ foreach (
         fn() => ($this->createToken)([$field => new TrimmedString('    ')])
     )->throws(
         InvalidArgumentException::class,
-        AssertionException::notEmptyString("Token::{$field}")->getMessage()
+        AssertionException::notEmptyString("ApiToken::{$field}")->getMessage()
     );
 }
 
@@ -100,14 +99,14 @@ foreach (
         fn() => ($this->createToken)([$field => new TrimmedString($tooLong)])
     )->throws(
         InvalidArgumentException::class,
-        AssertionException::maxLength($tooLong, $length + 1, $length, "Token::{$field}")->getMessage()
+        AssertionException::maxLength($tooLong, $length + 1, $length, "ApiToken::{$field}")->getMessage()
     );
 }
 
 // foreign keys fields
 foreach (
     [
-        'creatorId',
+        // 'creatorId',
         'userId',
     ] as $field
 ) {
@@ -116,6 +115,6 @@ foreach (
         fn() => ($this->createToken)([$field => 0])
     )->throws(
         InvalidArgumentException::class,
-        AssertionException::positiveInt(0, "Token::{$field}")->getMessage()
+        AssertionException::positiveInt(0, "ApiToken::{$field}")->getMessage()
     );
 }

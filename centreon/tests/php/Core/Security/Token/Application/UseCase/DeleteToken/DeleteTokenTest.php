@@ -35,6 +35,7 @@ use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Application\UseCase\DeleteToken\DeleteToken;
+use Core\Security\Token\Domain\Model\ApiToken;
 use Core\Security\Token\Domain\Model\Token;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
@@ -55,7 +56,7 @@ beforeEach(function (): void {
     $this->creationDate = new \DateTimeImmutable();
     $this->expirationDate = $this->creationDate->add(new \DateInterval('P1Y'));
 
-    $this->token = new Token(
+    $this->token = new ApiToken(
         name: new TrimmedString('my-token-name'),
         userId: $this->linkedUser['id'],
         userName: new TrimmedString($this->linkedUser['name']),
@@ -63,8 +64,7 @@ beforeEach(function (): void {
         creatorName: new TrimmedString($this->creator['name']),
         creationDate: $this->creationDate,
         expirationDate: $this->expirationDate,
-        isRevoked: false,
-        type: TokenTypeEnum::API
+        isRevoked: false
     );
 });
 
