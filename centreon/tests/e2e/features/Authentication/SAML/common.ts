@@ -53,7 +53,7 @@ const configureSAML = (): Cypress.Chainable => {
     .should('be.visible')
     .type(samlConfigValues.loginAttribute);
 
-  cy.getByLabel({ label: 'Requested Authentication Context' })
+  cy.getByLabel({ label: 'Requested authentication context' })
     .should('be.visible');
 
   cy.getByLabel({
