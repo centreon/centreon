@@ -31,13 +31,12 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Application\Common\UseCase\StandardResponseInterface;
-use Core\Common\Domain\TrimmedString;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
-use Core\Security\Token\Domain\Model\NewToken;
+use Core\Security\Token\Domain\Model\TokenFactory;
 
 final class AddToken
 {
@@ -73,9 +72,9 @@ final class AddToken
                 default => new ErrorResponse($ex),
             };
         } catch (\Throwable $ex) {
-                $this->error((string) $ex);
+            $this->error((string) $ex);
 
-                return new ErrorResponse(TokenException::addToken());
+            return new ErrorResponse(TokenException::addToken());
         }
     }
 
@@ -93,16 +92,16 @@ final class AddToken
         $this->validation->assertIsValidUser($request->userId);
         $this->validation->assertIsValidName($request->name, $request->userId);
 
-        $newToken = new NewToken(
-            expirationDate: $request->expirationDate !== null
-                ? \DateTimeImmutable::createFromInterface($request->expirationDate)
-                : null,
-            userId: $request->userId,
-            configurationProviderId: $this->providerFactory->create(Provider::LOCAL)->getConfiguration()->getId(),
-            name: new TrimmedString($request->name),
-            creatorId: $this->user->getId(),
-            creatorName: new TrimmedString($this->user->getName()),
-            type: $request->type,
+        $newToken = TokenFactory::createNew(
+            $request->type,
+            [
+                'name' => $request->name,
+                'user_id' => $request->userId,
+                'creator_id' => $this->user->getId(),
+                'creator_name' => $this->user->getName(),
+                'expiration_date' => $request->expirationDate,
+                'configuration_provider_id' => $this->providerFactory->create(Provider::LOCAL)->getConfiguration()->getId(),
+            ],
         );
 
         $this->writeTokenRepository->add($newToken);
@@ -121,10 +120,10 @@ final class AddToken
      */
     private function createResponse(string $tokenString): AddTokenResponse
     {
-        if (! ($apiToken = $this->readTokenRepository->find($tokenString))) {
+        if (! ($token = $this->readTokenRepository->find($tokenString))) {
             throw TokenException::errorWhileRetrievingObject();
         }
 
-        return new AddTokenResponse($apiToken, $tokenString);
+        return new AddTokenResponse($token, $tokenString);
     }
 }

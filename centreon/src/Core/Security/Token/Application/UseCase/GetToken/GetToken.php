@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 final class GetToken
@@ -49,21 +50,17 @@ final class GetToken
                 $tokenName,
                 $userId ?? $this->user->getId()
             );
-            $tokenString = $this->readTokenRepository->findTokenString(
-                $tokenName,
-                $userId ?? $this->user->getId()
-            );
 
             if (
                 $token === null
-                || $tokenString === null
                 || $token->getType() !== TokenTypeEnum::CMA
             ) {
 
                 return new NotFoundResponse('Token');
             }
 
-            return new GetTokenResponse($token, $tokenString);
+            /** @var JwtToken $token */
+            return new GetTokenResponse($token, $token->getToken());
         } catch (\Throwable $ex) {
             $this->error(
                 "Error while retrieving a token: {$ex->getMessage()}",

@@ -33,17 +33,16 @@ use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\UseCase\FindTokens\FindTokens;
 use Core\Security\Token\Application\UseCase\FindTokens\FindTokensResponse;
 use Core\Security\Token\Application\UseCase\FindTokens\TokenDto;
+use Core\Security\Token\Domain\Model\ApiToken;
+use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 use Core\Security\Token\Infrastructure\Repository\DbReadTokenRepository;
 
 beforeEach(closure: function (): void {
-    $this->repository = $this->createMock(DbReadTokenRepository::class);
-    $this->user = $this->createMock(ContactInterface::class);
     $this->useCase = new FindTokens(
-        $this->createMock(RequestParametersInterface::class),
-        $this->repository,
-        $this->user
+        $this->repository = $this->createMock(DbReadTokenRepository::class),
+        $this->user = $this->createMock(ContactInterface::class),
     );
 });
 
@@ -76,9 +75,9 @@ it('should present a FindTokensResponse when a non-admin user has read rights', 
     $expirationDate = $creationDate->add(\DateInterval::createFromDateString('1 day'));
     $this->repository
         ->expects($this->once())
-        ->method('findByIdAndRequestParameters')
+        ->method('findByUserIdAndRequestParameters')
         ->willReturn([
-            new Token(
+            new ApiToken(
                 name: new TrimmedString('fake'),
                 userId: 1,
                 userName: new TrimmedString('non-admin'),
@@ -86,8 +85,7 @@ it('should present a FindTokensResponse when a non-admin user has read rights', 
                 creatorName: new TrimmedString('non-admin'),
                 creationDate: $creationDate,
                 expirationDate: $expirationDate,
-                isRevoked: false,
-                type: TokenTypeEnum::CMA
+                isRevoked: false
             ),
         ]);
 
@@ -100,7 +98,7 @@ it('should present a FindTokensResponse when a non-admin user has read rights', 
         ->and(serialize($response->tokens[0]))
         ->toBe(
             serialize(
-                new Token(
+                new ApiToken(
                     name: new TrimmedString('fake'),
                     userId: 1,
                     userName: new TrimmedString('non-admin'),
@@ -108,8 +106,7 @@ it('should present a FindTokensResponse when a non-admin user has read rights', 
                     creatorName: new TrimmedString('non-admin'),
                     creationDate: $creationDate,
                     expirationDate: $expirationDate,
-                    isRevoked: false,
-                    type: TokenTypeEnum::CMA
+                    isRevoked: false
                 ),
             )
         );
@@ -132,16 +129,13 @@ it('should present a FindTokensResponse when user is an admin', function (): voi
         ->expects($this->once())
         ->method('findByRequestParameters')
         ->willReturn([
-            new Token(
+            new JwtToken(
                 name: new TrimmedString('fake'),
-                userId: 1,
-                userName: new TrimmedString('non-admin'),
                 creatorId: 1,
                 creatorName: new TrimmedString('non-admin'),
                 creationDate: $creationDate,
                 expirationDate: $expirationDate,
-                isRevoked: false,
-                type: TokenTypeEnum::CMA
+                isRevoked: false
             ),
         ]);
 
@@ -154,16 +148,13 @@ it('should present a FindTokensResponse when user is an admin', function (): voi
         ->and(serialize($response->tokens[0]))
         ->toBe(
             serialize(
-                new Token(
+                new JwtToken(
                     name: new TrimmedString('fake'),
-                    userId: 1,
-                    userName: new TrimmedString('non-admin'),
                     creatorId: 1,
                     creatorName: new TrimmedString('non-admin'),
                     creationDate: $creationDate,
                     expirationDate: $expirationDate,
                     isRevoked: false,
-                    type: TokenTypeEnum::CMA
                 ),
             )
         );

@@ -25,11 +25,14 @@ namespace Tests\Core\Security\Token\Application\UseCase\GetToken;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\TrimmedString;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\UseCase\GetToken\GetToken;
 use Core\Security\Token\Application\UseCase\GetToken\GetTokenResponse;
+use Core\Security\Token\Domain\Model\ApiToken;
+use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
@@ -44,7 +47,7 @@ beforeEach(function (): void {
 
     $this->tokenString = 'TokenString';
 
-    $this->token = new Token(
+    $this->token = new ApiToken(
         name: new TrimmedString($this->tokenName = 'TokenTestName'),
         userId: $this->linkedUser['id'],
         userName: new TrimmedString($this->linkedUser['name']),
@@ -52,8 +55,18 @@ beforeEach(function (): void {
         creatorName: new TrimmedString($this->creator['name']),
         creationDate: $this->creationDate = new \DateTimeImmutable(),
         expirationDate: $this->expirationDate = $this->creationDate->add(new \DateInterval('P1Y')),
+        isRevoked: false
+    );
+
+    $this->tokenCma = new JwtToken(
+        name: new TrimmedString($this->tokenName = 'TokenTestName'),
+        creatorId: $this->creator['id'],
+        creatorName: new TrimmedString($this->creator['name']),
+        creationDate: $this->creationDate = new \DateTimeImmutable(),
+        expirationDate: $this->expirationDate = $this->creationDate->add(new \DateInterval('P1Y')),
         isRevoked: false,
-        type: TokenTypeEnum::CMA
+        encodingKey: 'encodingKey',
+        tokenString: $this->tokenString,
     );
 });
 
@@ -71,22 +84,31 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->toBe(TokenException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should return created object on success when user ID is provided', function (): void {
+it('should return a NotFoundResponse when token is not of type CMA', function (): void {
     $this->readTokenRepository
         ->expects($this->once())
         ->method('findByNameAndUserId')
         ->willReturn($this->token);
 
+    $response = ($this->useCase)($this->tokenName, $this->linkedUser['id']);
+
+    expect($response)->toBeInstanceOf(NotFoundResponse::class)
+        ->and($response->getMessage())
+        ->toBe((new NotFoundResponse('Token'))->getMessage());
+});
+
+
+it('should return created object on success', function (): void {
     $this->readTokenRepository
         ->expects($this->once())
-        ->method('findTokenString')
-        ->willReturn($this->tokenString);
+        ->method('findByNameAndUserId')
+        ->willReturn($this->tokenCma);
 
     $response = ($this->useCase)($this->tokenName, $this->linkedUser['id']);
 
     expect($response)->toBeInstanceOf(GetTokenResponse::class)
-        ->and($response->apiToken)
-        ->toBe($this->token)
         ->and($response->token)
+        ->toBe($this->tokenCma)
+        ->and($response->tokenString)
         ->toBe($this->tokenString);
 });
