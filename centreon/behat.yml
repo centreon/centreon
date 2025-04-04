@@ -23,6 +23,10 @@ default:
       paths: [ "%paths.base%/features/Partitioning.feature" ]
       contexts: [ PartitioningContext ]
 
+    disable_fields_on_blocked_objects:
+      paths: [ "%paths.base%/features/DisableFieldsOnBlockedObjects.feature" ]
+      contexts: [ DisableFieldsOnBlockedObjectsContext ]
+
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
