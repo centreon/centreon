@@ -119,7 +119,7 @@ final readonly class ExportResources
 
         if (is_null(AllowedFormatEnum::tryFrom($request->exportedFormat))) {
             return new InvalidArgumentResponse(
-                'Invalid request, format must be one of the following: ' . AllowedFormatEnum::getAllowedFormatsAsString()
+                'Invalid request, format must be one of the following: ' . implode(',', AllowedFormatEnum::values())
             );
         }
 
