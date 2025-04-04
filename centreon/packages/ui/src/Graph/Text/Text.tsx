@@ -67,7 +67,7 @@ export const Text = ({
   return (
     <div className={classes.graphText}>
       <FluidTypography
-        max="40px"
+        max="60px"
         pref={16}
         sx={{ color, fontWeight: 'bold', textAlign: 'center' }}
         text={
@@ -82,14 +82,14 @@ export const Text = ({
       {thresholds.enabled && (
         <div className={classes.thresholds}>
           <FluidTypography
-            containerClassName={cx(classes.threshold, classes.warning)}
+            containerClassName={cx(classes.thresholdLeft, classes.warning)}
             max="30px"
             pref={prefThresholds}
             text={`${labels.warning}: ${warningThresholdLabels.join(' - ')}`}
             variant="h5"
           />
           <FluidTypography
-            containerClassName={cx(classes.threshold, classes.critical)}
+            containerClassName={cx(classes.thresholdRight, classes.critical)}
             max="30px"
             pref={prefThresholds}
             text={`${labels.critical}: ${criticalThresholdLabels.join(' - ')}`}
