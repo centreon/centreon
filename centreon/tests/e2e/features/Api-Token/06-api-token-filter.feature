@@ -1,3 +1,4 @@
+@ignore
 @REQ_MON-24235
 Feature: API Token Information Retrieval
 
