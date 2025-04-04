@@ -25,7 +25,7 @@ namespace Core\Common\Infrastructure\Repository;
 
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\HttpClient\AmpHttpClient;
 use Utility\Interfaces\UUIDGeneratorInterface;
 
 class WriteVaultRepository extends AbstractVaultRepository implements WriteVaultRepositoryInterface
@@ -33,7 +33,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
     public function __construct(
         private readonly UUIDGeneratorInterface $uuidGenerator,
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
-        protected HttpClientInterface $httpClient
+        protected AmpHttpClient $httpClient
     ) {
         parent::__construct($configurationRepository, $httpClient);
     }
