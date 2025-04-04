@@ -46,6 +46,7 @@ post:
                   type: string
                   nullable: true
                   description: "Error message for non 204 status"
+                  example: null
     '404':
       description: "Host Group not found"
       content:
@@ -67,6 +68,7 @@ post:
                   type: string
                   nullable: true
                   description: "Host Group not found"
+                  example: "Host Group not found"
     '401':
       $ref: '../../Common/Response/Unauthorized.yaml'
     '403':

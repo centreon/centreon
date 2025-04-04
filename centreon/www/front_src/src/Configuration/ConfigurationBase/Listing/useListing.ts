@@ -2,10 +2,17 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
-import { useNavigate } from 'react-router';
-import { configurationAtom, selectedColumnIdsAtom } from '../../atoms';
-import { labelSelectAtLeastOneColumn } from '../translatedLabels';
+
+import { useSearchParams } from 'react-router';
+
+import {
+  configurationAtom,
+  modalStateAtom,
+  selectedColumnIdsAtom
+} from '../atoms';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
+
+import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
@@ -13,7 +20,7 @@ interface UseListing {
   page?: number;
   resetColumns: () => void;
   selectColumns: (updatedColumnIds: Array<string>) => void;
-  selectedColumnIds: Array<string>;
+  selectedColumnIds?: Array<string>;
   setLimit;
   sortf: string;
   sorto: 'asc' | 'desc';
@@ -24,7 +31,8 @@ interface UseListing {
 const useListing = (): UseListing => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
-  const navigate = useNavigate();
+
+  const [, setSearchParams] = useSearchParams();
 
   const configuration = useAtomValue(configurationAtom);
   const defaultSelectedColumnIds = configuration?.defaultSelectedColumnIds;
@@ -33,6 +41,7 @@ const useListing = (): UseListing => {
     selectedColumnIdsAtom
   );
 
+  const setModalState = useSetAtom(modalStateAtom);
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
@@ -62,7 +71,13 @@ const useListing = (): UseListing => {
   };
 
   const openEditModal = (row) => {
-    navigate(`/main.php?p=60102&o=c&hg_id=${row.id}`);
+    setSearchParams({ mode: 'edit', id: row.id });
+
+    setModalState({
+      isOpen: true,
+      mode: 'edit',
+      id: row.id
+    });
   };
 
   const disableRowCondition = ({ isActivated }): boolean => !isActivated;

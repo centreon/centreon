@@ -61,9 +61,10 @@ $updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage)
     $pearDB->executeQuery(
         <<<'SQL'
             UPDATE `topology`
-            SET `topology_name` = 'Host Groups (deprecated)',
-                `topology_show` =  '0'
-            WHERE `topology_page` = 60102
+            SET `is_react` = '1',
+                `topology_url` = '/configuration/hosts/groups',
+            WHERE `topology_name` = 'Host Groups'
+                AND `topology_page` = 60102
         SQL
     );
 };

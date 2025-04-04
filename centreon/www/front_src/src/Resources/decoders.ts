@@ -201,7 +201,7 @@ const downtimeDecoder = JsonDecoder.object<Downtime>(
 
 const groupDecoder = JsonDecoder.object<Group>(
   {
-    configuration_uri: JsonDecoder.nullable(JsonDecoder.string),
+    configuration_endpoint: JsonDecoder.nullable(JsonDecoder.string),
     ...namedEntityDecoder
   },
   'group'

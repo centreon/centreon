@@ -34,7 +34,7 @@ export default (resourceType: ResourceType) => {
         });
       });
 
-      cy.matchImageSnapshot(
+      cy.makeSnapshot(
         `${resourceType}: sends a listing request with name filter when the search bar is filled and enter key is triggered`
       );
     });
@@ -72,7 +72,7 @@ export default (resourceType: ResourceType) => {
         });
       });
 
-      cy.matchImageSnapshot(
+      cy.makeSnapshot(
         `${resourceType}: sends a listing request when fields are filled and the search button is clicked`
       );
     });
@@ -105,7 +105,7 @@ export default (resourceType: ResourceType) => {
         ).to.deep.equal({ $and: [] });
       });
 
-      cy.matchImageSnapshot(
+      cy.makeSnapshot(
         `${resourceType}: clears all applied filters and sends a listing request with empty search parameters when the clear button is clicked`
       );
     });
@@ -125,7 +125,7 @@ export default (resourceType: ResourceType) => {
 
       cy.get(`[data-testid="${labelFilters}"]`).should('not.exist');
 
-      cy.matchImageSnapshot(
+      cy.makeSnapshot(
         `${resourceType}: hides the advanced filters icon when only the name field is filterable'`
       );
     });

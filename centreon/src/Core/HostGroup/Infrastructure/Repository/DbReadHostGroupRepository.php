@@ -306,9 +306,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
-
         if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
-
             return $this->findOne($hostGroupId);
         }
         $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);

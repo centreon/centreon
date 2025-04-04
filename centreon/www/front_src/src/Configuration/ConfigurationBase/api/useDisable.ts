@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
-import { configurationAtom } from '../../atoms';
+import { configurationAtom } from '../atoms';
 
 interface UseDisableProps {
   disableMutation: ({ ids }) => Promise<object | ResponseError>;
@@ -12,7 +12,7 @@ interface UseDisableProps {
 const useDisable = (): UseDisableProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.api?.endpoints?.disable;
+  const endpoint = configuration?.api?.endpoints?.disable as string;
 
   const queryClient = useQueryClient();
 
@@ -20,7 +20,7 @@ const useDisable = (): UseDisableProps => {
     getEndpoint: () => endpoint,
     method: Method.POST,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['listResources'] });
     }
   });
 

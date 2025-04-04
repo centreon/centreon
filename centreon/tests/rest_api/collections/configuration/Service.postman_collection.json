@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "f7584db6-3e8e-40af-ac78-807ad18b9070",
+		"_postman_id": "f528c0ba-8504-4ff3-b6a9-4f6658820db9",
 		"name": "Service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-f7584db6-3e8e-40af-ac78-807ad18b9070?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-f528c0ba-8504-4ff3-b6a9-4f6658820db9?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -2641,27 +2641,20 @@
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"HostGroup1Id\", response.id);\r",
 									"\r",
-									"    pm.expect(response).to.include({\r",
+									"    pm.expect(response).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
-									"        \"notes\": \"I am Groot\",\r",
-									"        \"notes_url\": \"www.google.fr\",\r",
-									"        \"action_url\": \"www.google.com\",\r",
 									"        \"icon_id\": null,\r",
-									"        \"icon_map_id\": null,\r",
-									"        \"rrd\": 3,\r",
-									"        \"geo_coords\": null,\r",
+									"        \"geo_coords\": \"\",\r",
 									"        \"comment\": \"Hello world ! 1\",\r",
-									"        \"is_activated\": false\r",
+									"        \"hosts\": []\r",
 									"    });\r",
 									"});\r",
-									"\r",
-									"pm.test(\"The Location parameter is in the header.\", function () {\r",
-									"    pm.response.to.have.header(\"Location\");\r",
-									"});"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2672,7 +2665,8 @@
 									"pm.collectionVariables.set(\"HostGroup1Alias\", \"I should be successful !\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2686,7 +2680,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"hosts\":[],\n    \"is_activated\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",

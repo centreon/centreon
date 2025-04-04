@@ -1,5 +1,5 @@
 import { ComponentColumnProps } from '@centreon/ui';
-import TooltipContent from './Tooltip/TooltipContent';
+import TooltipContent from './TooltipContent';
 
 import { Tooltip } from '@mui/material';
 import { useHostsStyles } from './HostsCount.styles';

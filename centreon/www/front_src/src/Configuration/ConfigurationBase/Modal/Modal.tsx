@@ -1,53 +1,51 @@
 import { Modal } from '@centreon/ui/components';
-import { useAtom } from 'jotai';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { labelAddResource, labelUpdateResource } from '../translatedLabels';
-import { useStyles } from './Modal.styles';
-import { dialogStateAtom } from './atoms';
 
-import { useAtomValue } from 'jotai';
-import { configurationAtom } from '../../atoms';
+import { Typography } from '@mui/material';
+
+import Form from './Form/Form';
+
+import { Form as FormType } from '../../models';
+import { useStyles } from './Modal.styles';
+import useModal from './useModal';
 
 interface Props {
-  Form: JSX.Element;
+  form: FormType;
+  hasWriteAccess: boolean;
 }
 
-const FormModal = ({ Form }: Props): JSX.Element => {
-  const { t } = useTranslation();
+const FormModal = ({ form, hasWriteAccess }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const navigate = useNavigate();
-
-  const [dialogState, setDialogState] = useAtom(dialogStateAtom);
-  const configuration = useAtomValue(configurationAtom);
-  const resourceType = configuration?.resourceType;
-
-  const close = () => {
-    navigate('');
-
-    setDialogState({ ...dialogState, isOpen: false, id: null });
-  };
-
-  const labelHeader = equals(dialogState.variant, 'create')
-    ? labelAddResource
-    : labelUpdateResource;
+  const {
+    labelHeader,
+    submit,
+    close,
+    isOpen,
+    mode,
+    id,
+    initialValues,
+    isLoading
+  } = useModal({ defaultValues: form.defaultValues, hasWriteAccess });
 
   return (
-    <Modal
-      data-testid="Modal"
-      open={dialogState.isOpen}
-      size="xlarge"
-      onClose={close}
-    >
-      <div className={classes.modal}>
-        <Modal.Header data-testid="Modal-header">
-          {t(labelHeader(resourceType))}
-        </Modal.Header>
-
-        <Modal.Body>{Form}</Modal.Body>
-      </div>
+    <Modal data-testid="Modal" open={isOpen} size="xlarge" onClose={close}>
+      <Modal.Header data-testid="Modal-header">
+        <Typography className={classes.modalHeader}>{labelHeader}</Typography>
+      </Modal.Header>
+      <Modal.Body>
+        <Form
+          onSubmit={submit}
+          onCancel={close}
+          mode={mode}
+          id={id}
+          inputs={form?.inputs}
+          groups={form?.groups}
+          validationSchema={form?.validationSchema}
+          initialValues={initialValues}
+          isLoading={isLoading}
+          hasWriteAccess={hasWriteAccess}
+        />
+      </Modal.Body>
     </Modal>
   );
 };
