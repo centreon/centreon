@@ -17674,3 +17674,18 @@ msgstr "Erweiterter Modus"
 
 # msgid "Failed to disable the host group"
 # msgstr ""
+
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""
