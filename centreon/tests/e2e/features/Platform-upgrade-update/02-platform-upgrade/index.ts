@@ -121,10 +121,14 @@ Given(
             cy.task("fileExists", versionFilePath).then((exists) => {
               if (exists) {
                 cy.log("The file exists");
+                cy.wrap(previousVersion).as("majorVersionFrom");
                 major_version_from = previousVersion;
                 cy.log(`${major_version_from} cloud file exist`);
               } else {
                 cy.log("The file does not exist");
+                const newVersion =
+                  getCentreonPreviousMajorVersion(previousVersion);
+                cy.wrap(newVersion).as("majorVersionFrom");
                 major_version_from =
                   getCentreonPreviousMajorVersion(previousVersion);
                 cy.log(`${major_version_from} cloud file don't exist`);
@@ -144,6 +148,7 @@ Given(
           throw new Error(`${major_version_from_expression} not managed.`);
       }
 
+  cy.get("@majorVersionFrom").then((major_version_from) => {
       cy.startContainer({
         command: "tail -f /dev/null",
         image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
@@ -156,7 +161,7 @@ Given(
             source: 80,
           },
         ],
-      }).then(() => {
+      })}).then(() => {
         Cypress.config("baseUrl", "http://127.0.0.1:4000");
 
         return cy
