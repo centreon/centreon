@@ -25,7 +25,7 @@
         <td>
             {if isset($finish)}
                 <p class="link-group">
-                    <a href="https://documentation.centreon.com" target="_blank">Documentation</a> |
+                    <a href="https://docs.centreon.com" target="_blank">Documentation</a> |
                     <a href="https://github.com/centreon/centreon" target="_blank">Github </a> |
                     <a href="http://centreon.github.io/" target="_blank">Community Slack</a> |
                     <a href="http://support.centreon.com" target="_blank">Support</a>
