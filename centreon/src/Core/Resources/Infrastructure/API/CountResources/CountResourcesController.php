@@ -70,26 +70,10 @@ final class CountResourcesController extends AbstractController
         #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] CountResourcesInput $input,
     ): Response {
         $useCaseRequest = $this->createCountRequest($request);
+
         $useCase($useCaseRequest, $presenter);
 
-        try {
-            $presenter->present(
-                [
-                    'count' => $presenter->getViewModel()->getTotalFilteredResources(),
-                    'meta' => [
-                        'search' => $this->formatSearchParameter($input->search ?? ''),
-                        'total' => $presenter->getViewModel()->getTotalResources(),
-                    ],
-                ]
-            );
-
-            return $presenter->show();
-        } catch (InternalErrorException $exception) {
-            $this->exceptionHandler->log($exception, ['request' => $request->query->all()]);
-            $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
-
-            return $presenter->show();
-        }
+        return $presenter->show();
     }
 
     // -------------------------------- PRIVATE METHODS --------------------------------
