@@ -7,4 +7,5 @@ export interface SingleBarProps {
   showLabels?: boolean;
   size?: 'medium' | 'small';
   thresholds: Thresholds;
+  max?: number;
 }
