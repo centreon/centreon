@@ -82,7 +82,7 @@ final class TokenVoters extends Voter
      */
     private function checkUserRights(ContactInterface $user): bool
     {
-        return $user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW);
+        return $user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW);
     }
 
     /**

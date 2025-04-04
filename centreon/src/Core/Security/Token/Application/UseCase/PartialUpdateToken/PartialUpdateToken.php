@@ -95,7 +95,7 @@ final class PartialUpdateToken
      */
     private function contactCanExecuteUseCase(): bool
     {
-        return $this->contact->hasTopologyRole(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW);
+        return $this->contact->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW);
     }
 
     /**

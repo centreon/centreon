@@ -118,7 +118,7 @@ it('should present a FindTokensResponse when a non-admin user has read rights', 
 it('should present a FindTokensResponse when user is an admin', function (): void {
     $this->user
         ->method('hasTopologyRole')
-        ->with(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW)
+        ->with(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)
         ->willReturn(true);
 
     $this->user
