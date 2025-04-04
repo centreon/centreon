@@ -51,18 +51,12 @@ final readonly class ExportResourcesInput
     ];
 
     public function __construct(
-        #[Assert\NotNull(
+        #[Assert\NotBlank(
             message: 'format parameter is required'
         )]
-        #[Assert\NotBlank(
-            message: 'format parameter must not be empty'
-        )]
         public mixed $format,
-        #[Assert\NotNull(
-            message: 'all_pages parameter is required'
-        )]
         #[Assert\NotBlank(
-            message: 'all_pages parameter must not be empty'
+            message: 'all_pages parameter is required'
         )]
         public mixed $allPages,
         #[Assert\Type('array', message: 'columns must be an array')]
@@ -78,21 +72,15 @@ final readonly class ExportResourcesInput
         public mixed $maxLines,
         public mixed $page,
         public mixed $limit,
-        #[Assert\NotNull(
-            message: 'sort_by parameter is required'
-        )]
         #[Assert\NotBlank(
-            message: 'sort_by parameter must not be empty'
+            message: 'sort_by parameter is required'
         )]
         #[Assert\Json(
             message: 'sort_by parameter must be a valid JSON'
         )]
         public mixed $sort_by,
-        #[Assert\NotNull(
-            message: 'search parameter is required'
-        )]
         #[Assert\NotBlank(
-            message: 'search parameter must not be empty'
+            message: 'search parameter is required'
         )]
         #[Assert\Json(
             message: 'search parameter must be a valid JSON'
