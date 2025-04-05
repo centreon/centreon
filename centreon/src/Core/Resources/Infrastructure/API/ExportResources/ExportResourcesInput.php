@@ -53,44 +53,48 @@ final readonly class ExportResourcesInput
         #[Assert\NotBlank(message: 'format parameter is required')]
         #[Assert\Choice(
             callback: [AllowedFormatEnum::class, 'values'],
-            message: 'format must be one of the following: {{ choices }}'
+            message: 'format parameter must be one of the following: {{ choices }}'
         )]
         public mixed $format,
-        #[Assert\NotBlank(message: 'all_pages parameter is required')]
+        #[Assert\NotNull(message: 'all_pages parameter is required')]
         #[Assert\Type('bool', message: 'all_pages parameter must be a boolean')]
         public mixed $allPages,
-        #[Assert\Type('array', message: 'columns must be an array')]
+        #[Assert\Type('array', message: 'columns parameter must be an array')]
         #[Assert\All([
-            new Assert\Type('string', message: 'columns must be an array of strings'),
-            new Assert\NotBlank(message: 'columns value must not be empty'),
+            new Assert\Type('string', message: 'columns parameter must be an array of strings'),
+            new Assert\NotBlank(message: 'columns parameter value must not be empty'),
             new Assert\Choice(
                 choices: self::EXPORT_ALLOWED_COLUMNS,
-                message: 'columns must be one of the following: {{ choices }}'
+                message: 'columns parameter must be one of the following: {{ choices }}'
             ),
         ])]
         public mixed $columns,
         #[Assert\When(
             expression: 'this.allPages === true',
             constraints: [
-                new Assert\NotBlank(message: 'max_lines parameter is required when all_pages is true'),
-                new Assert\Type('int', message: 'max_lines must be an integer'),
-                new Assert\Range(
-                    notInRangeMessage: 'max_lines must be between {{ min }} and {{ max }}',
-                    min: 1,
-                    max: self::EXPORT_MAX_LINES
-                ),
+                new Assert\Sequentially([
+                    new Assert\NotBlank(message: 'max_lines parameter is required when all_pages is true'),
+                    new Assert\Type(type: 'int', message: 'max_lines parameter must be an integer'),
+                    new Assert\Range(
+                        notInRangeMessage: 'max_lines parameter must be between {{ min }} and {{ max }}',
+                        min: 1,
+                        max: self::EXPORT_MAX_LINES
+                    ),
+                ])
             ]
         )]
         public mixed $maxLines,
         #[Assert\When(
             expression: 'this.allPages === false',
             constraints: [
-                new Assert\NotBlank(message: 'page parameter is required when all_pages is false'),
-                new Assert\Type('int', message: 'page must be an integer'),
-                new Assert\Range(
-                    notInRangeMessage: 'page must be greater than {{ min }}',
-                    min: 1
-                ),
+                new Assert\Sequentially([
+                    new Assert\NotBlank(message: 'page parameter is required when all_pages is false'),
+                    new Assert\Type('int', message: 'page parameter must be an integer'),
+                    new Assert\Range(
+                        minMessage: 'page parameter must be greater than 1',
+                        min: 1
+                    ),
+                ])
             ]
         )]
         public mixed $page,
@@ -98,7 +102,7 @@ final readonly class ExportResourcesInput
             expression: 'this.allPages === false',
             constraints: [
                 new Assert\NotBlank(message: 'limit parameter is required when all_pages is false'),
-                new Assert\Type('int', message: 'limit must be an integer'),
+                new Assert\Type('int', message: 'limit parameter must be an integer'),
             ]
         )]
         public mixed $limit,

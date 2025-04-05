@@ -44,7 +44,7 @@ beforeEach(function () {
 
 it('count resources with an error from repository should throw an ErrorResponse', function () {
     $this->resourcesRepository
-        ->shouldReceive('countResources')
+        ->shouldReceive('countResourcesByFilter')
         ->andThrow(Mockery::mock(RepositoryException::class));
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
@@ -58,11 +58,11 @@ it('count resources with an error from repository should throw an ErrorResponse'
 
 it('count resources with admin mode should throw a response with all resources', function () {
     $this->resourcesRepository
-        ->shouldReceive('countResources')
+        ->shouldReceive('countResourcesByFilter')
         ->with($this->filters)
         ->andReturn(2);
     $this->resourcesRepository
-        ->shouldReceive('countResources')
+        ->shouldReceive('countAllResources')
         ->withNoArgs()
         ->andReturn(10);
     $request = new CountResourcesRequest(
@@ -82,11 +82,11 @@ it('count resources with acl should throw a response with allowed resources', fu
         ->shouldReceive('findByContactId')
         ->andReturn(AccessGroupCollection::create([new AccessGroup(1, 'test', 'test')]));
     $this->resourcesRepository
-        ->shouldReceive('countResourcesByAccessGroupIds')
-        ->with([1], $this->filters)
+        ->shouldReceive('countResourcesByFilterAndAccessGroupIds')
+        ->with($this->filters, [1])
         ->andReturn(2);
     $this->resourcesRepository
-        ->shouldReceive('countResourcesByAccessGroupIds')
+        ->shouldReceive('countAllResourcesByAccessGroupIds')
         ->with([1])
         ->andReturn(10);
     $request = new CountResourcesRequest(

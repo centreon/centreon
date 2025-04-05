@@ -36,16 +36,15 @@ beforeEach(function () {
 it('test count resources input validation with no search', function () {
     $input = new CountResourcesInput(null);
     $errors = $this->validator->validate($input);
-    expect($errors)->toHaveCount(2)
-        ->and($errors[0]->getMessage())->toBe('search parameter is required')
-        ->and($errors[1]->getMessage())->toBe('search parameter must not be empty');
+    expect($errors)->toHaveCount(1)
+        ->and($errors[0]->getMessage())->toBe('search parameter is required');
 });
 
 it('test count resources input validation with an empty search', function () {
     $input = new CountResourcesInput('',);
     $errors = $this->validator->validate($input);
     expect($errors)->toHaveCount(1)
-        ->and($errors[0]->getMessage())->toBe('search parameter must not be empty');
+        ->and($errors[0]->getMessage())->toBe('search parameter is required');
 });
 
 it('test count resources input validation with search with an invalid value', function () {
