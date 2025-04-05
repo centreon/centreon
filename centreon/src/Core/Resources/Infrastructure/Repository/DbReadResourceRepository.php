@@ -51,7 +51,6 @@ use Core\Severity\RealTime\Domain\Model\Severity;
 class DbReadResourceRepository extends DatabaseRepository implements ReadResourceRepositoryInterface
 {
     use LoggerTrait;
-
     private const RESOURCE_TYPE_HOST = 1;
 
     /** @var ResourceEntity[] */

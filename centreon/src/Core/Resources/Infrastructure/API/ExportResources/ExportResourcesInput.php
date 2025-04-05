@@ -80,7 +80,7 @@ final readonly class ExportResourcesInput
                         min: 1,
                         max: self::EXPORT_MAX_LINES
                     ),
-                ])
+                ]),
             ]
         )]
         public mixed $maxLines,
@@ -94,7 +94,7 @@ final readonly class ExportResourcesInput
                         minMessage: 'page parameter must be greater than 1',
                         min: 1
                     ),
-                ])
+                ]),
             ]
         )]
         public mixed $page,

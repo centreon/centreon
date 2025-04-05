@@ -55,7 +55,7 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
     ): ExportResourcesInput {
         if (isset($data['all_pages'])) {
             $data['all_pages']
-                = filter_var($data['all_pages'], FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE)
+                = filter_var($data['all_pages'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
                 ?? $data['all_pages'];
         }
 
@@ -67,13 +67,13 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
 
         if (isset($data['limit'])) {
             $data['limit']
-                = filter_var($data['limit'], FILTER_VALIDATE_INT,FILTER_NULL_ON_FAILURE)
+                = filter_var($data['limit'], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
                 ?? $data['limit'];
         }
 
         if (isset($data['max_lines'])) {
             $data['max_lines']
-                = filter_var($data['max_lines'], FILTER_VALIDATE_INT,FILTER_NULL_ON_FAILURE)
+                = filter_var($data['max_lines'], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
                 ?? $data['max_lines'];
         }
 
@@ -88,11 +88,16 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
      *
      * @return bool
      */
-    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
-    {
+    public function supportsDenormalization(
+        mixed $data,
+        string $type,
+        ?string $format = null,
+        array $context = []
+    ): bool {
         if ($context['already_call'] ?? false) {
             return false;
         }
+
         return $type === ExportResourcesInput::class && is_array($data);
     }
 }
