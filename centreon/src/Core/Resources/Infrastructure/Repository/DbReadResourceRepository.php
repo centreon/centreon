@@ -51,6 +51,7 @@ use Core\Severity\RealTime\Domain\Model\Severity;
 class DbReadResourceRepository extends DatabaseRepository implements ReadResourceRepositoryInterface
 {
     use LoggerTrait;
+
     private const RESOURCE_TYPE_HOST = 1;
 
     /** @var ResourceEntity[] */
@@ -465,10 +466,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function countAllResources(): int
     {
         try {
-            $query = $this->queryBuilder->
-                select('COUNT(DISTINCT resources.resource_id) AS REALTIME')
+            $query = $this->queryBuilder
+                ->select('COUNT(DISTINCT resources.resource_id) AS REALTIME')
                 ->from('`:dbstg`.`resources`')
                 ->getQuery();
+
             return $this->connection->fetchOne($this->translateDbName($query));
         } catch (\Throwable $exception) {
             throw new RepositoryException(
@@ -487,19 +489,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function countAllResourcesByAccessGroupIds(array $accessGroupIds): int
     {
         try {
-            try {
-                $query = $this->queryBuilder->
-                select('COUNT(DISTINCT resources.resource_id) AS REALTIME')
-                    ->from('`:dbstg`.`resources`')
-                    ->getQuery();
-                $query .= $this->addResourceAclSubRequest($accessGroupIds);
-                return $this->connection->fetchOne($this->translateDbName($query));
-            } catch (\Throwable $exception) {
-                throw new RepositoryException(
-                    message: 'An error occurred while counting all resources by access group ids',
-                    previous: $exception
-                );
-            }
+            $query = $this->queryBuilder
+                ->select('COUNT(DISTINCT resources.resource_id) AS REALTIME')
+                ->from('`:dbstg`.`resources`')
+                ->getQuery();
+            $query .= $this->addResourceAclSubRequest($accessGroupIds);
+
+            return $this->connection->fetchOne($this->translateDbName($query));
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by access group ids and max results',

@@ -54,26 +54,26 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
         array $context = []
     ): ExportResourcesInput {
         if (isset($data['all_pages'])) {
-            $data['all_pages'] =
-                filter_var($data['all_pages'], FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE)
+            $data['all_pages']
+                = filter_var($data['all_pages'], FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE)
                 ?? $data['all_pages'];
         }
 
         if (isset($data['page'])) {
-            $data['page'] =
-                filter_var($data['page'], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
+            $data['page']
+                = filter_var($data['page'], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
                 ?? $data['page'];
         }
 
         if (isset($data['limit'])) {
-            $data['limit'] =
-                filter_var($data['limit'], FILTER_VALIDATE_INT,FILTER_NULL_ON_FAILURE)
+            $data['limit']
+                = filter_var($data['limit'], FILTER_VALIDATE_INT,FILTER_NULL_ON_FAILURE)
                 ?? $data['limit'];
         }
 
         if (isset($data['max_lines'])) {
-            $data['max_lines'] =
-                filter_var($data['max_lines'], FILTER_VALIDATE_INT,FILTER_NULL_ON_FAILURE)
+            $data['max_lines']
+                = filter_var($data['max_lines'], FILTER_VALIDATE_INT,FILTER_NULL_ON_FAILURE)
                 ?? $data['max_lines'];
         }
 
