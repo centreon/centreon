@@ -46,12 +46,10 @@ final class CountResourcesController extends AbstractController
      *
      * @param ContactInterface $contact
      * @param RequestValidator $validator
-     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly RequestValidator $validator,
-        private readonly ExceptionHandler $exceptionHandler
+        private readonly RequestValidator $validator
     ) {}
 
     /**
