@@ -64,7 +64,7 @@
       "secondaryLabel": "Legend",
       "defaultValue": true
     },
-    "legentPosition": {
+    "legendPosition": {
       "type": "button-group",
       "label": "Position",
       "defaultValue": "right",

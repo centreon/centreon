@@ -15,7 +15,7 @@ interface PanelOptions {
   reportingPeriod: number;
   showThresholds: boolean;
   showLegend: boolean;
-  legentPosition: 'left' | 'bottom' | 'right';
+  legendPosition: 'left' | 'bottom' | 'right';
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
 }
