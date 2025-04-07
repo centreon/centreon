@@ -42,7 +42,7 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
      * @param mixed $data
      * @param string $type
      * @param string|null $format
-     * @param array $context
+     * @param array<string,mixed> $context
      *
      * @throws ExceptionInterface
      * @return ExportResourcesInput
@@ -84,7 +84,7 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
      * @param mixed $data
      * @param string $type
      * @param string|null $format
-     * @param array $context
+     * @param array<string,mixed> $context
      *
      * @return bool
      */

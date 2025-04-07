@@ -34,7 +34,7 @@ enum AllowedFormatEnum: string
     case CSV = 'csv';
 
     /**
-     * @return array
+     * @return array<string>
      */
     public static function values(): array
     {
