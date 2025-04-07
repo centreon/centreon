@@ -19822,9 +19822,6 @@ msgstr "Terminé"
 msgid "Disable token"
 msgstr "Désactiver le jeton"
 
-msgid "You are about to disable the token <strong>{{tokenName}}</strong>. If you disable it, all requests made with this token will be rejected. Do you want to disable it ?"
-msgstr "Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</strong>. Si vous le désactivez, toutes les requêtes faites avec ce jeton seront rejetées. Souhaitez-vous le désactiver ?"
-
 msgid "Token disabled"
 msgstr "Jeton désactivé"
 
