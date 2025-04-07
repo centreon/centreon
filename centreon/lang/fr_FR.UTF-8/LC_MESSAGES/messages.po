@@ -19797,16 +19797,9 @@ msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
 msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
-
-
-
-
-
 msgid "Authentication tokens"
 msgstr "Jetons d'authentification"
 
-msgid "You are about to delete the token <strong>{{tokenName}}</strong>. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?"
-msgstr "Vous êtes sur le point de supprimer le jeton <strong>{{tokenName}}</strong>. Cette action est irréversible. Si vous continuez, toutes les requêtes utilisant ce jeton seront rejetées. Souhaitez-vous supprimer le jeton ?"
 
 msgid "Creators"
 msgstr "Créateurs"

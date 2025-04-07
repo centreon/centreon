@@ -17178,12 +17178,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Delete token"
 # msgstr ""
 
-# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
-# msgstr ""
-
-# msgid "Delete token"
-# msgstr ""
-
 # msgid "Failed to copy link"
 # msgstr ""
 
@@ -18470,12 +18464,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Display average as"
 # msgstr ""
 
-
-
 # msgid "Authentication tokens"
 # msgstr ""
 
-# msgid "You are about to delete the token <strong>{{tokenName}}</strong>. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?"
+# msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?"
 # msgstr ""
 
 # msgid "Creators"
@@ -18499,8 +18491,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Disable token"
 # msgstr ""
 
-# msgid "You are about to disable the token <strong>{{tokenName}}</strong>. If you disable it, all requests made with this token will be rejected. Do you want to disable it ?"
-# msgstr ""
 
 # msgid "Token disabled"
 # msgstr ""
