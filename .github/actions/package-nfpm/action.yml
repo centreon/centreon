@@ -40,6 +40,9 @@ inputs:
   stability:
     description: "branch stability (stable, testing, unstable, canary)"
     required: true
+  is_nightly:
+    description: "nightly status"
+    required: false
 
 runs:
   using: composite
@@ -111,16 +114,18 @@ runs:
       shell: bash
 
     - name: Cache packages
-      uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+      uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
 
     # Update if condition to true to get packages as artifacts
-    - if: ${{ false }}
+    - if: |
+        contains(github.event.pull_request.labels.*.name, 'upload-artifacts') ||
+        inputs.is_nightly == true
       name: Upload package artifacts
       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
       with:
-        name: packages-${{ inputs.distrib }}
-        path: ./*.${{ inputs.package_extension}}
+        name: ${{ inputs.arch != '' && format('packages-{0}-{1}', inputs.distrib, inputs.arch) || format('packages-{0}', inputs.distrib) }}
+        path: ./*.${{ inputs.package_extension }}
         retention-days: 1
