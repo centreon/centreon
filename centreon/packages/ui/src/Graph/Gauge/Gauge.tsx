@@ -1,9 +1,11 @@
+import { Box } from '@mui/material';
 import { ParentSize } from '../..';
 import { LineChartData, Thresholds } from '../common/models';
 import { getMetricWithLatestData } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
 
 import ResponsiveGauge from './ResponsiveGauge';
+import { useResizeObserver } from './useResizeObserver';
 
 export interface Props {
   baseColor?: string;
@@ -20,6 +22,8 @@ export const Gauge = ({
   baseColor,
   max
 }: Props): JSX.Element | null => {
+  const { width, height, ref } = useResizeObserver();
+
   if (!data) {
     return null;
   }
@@ -27,18 +31,16 @@ export const Gauge = ({
   const metric = getMetricWithLatestData(data) as Metric;
 
   return (
-    <ParentSize>
-      {({ width, height }) => (
-        <ResponsiveGauge
-          baseColor={baseColor}
-          displayAsRaw={displayAsRaw}
-          height={height}
-          metric={metric}
-          thresholds={thresholds}
-          width={width}
-          max={max}
-        />
-      )}
-    </ParentSize>
+    <Box sx={{ width: '100%', height: '100%' }} ref={ref}>
+      <ResponsiveGauge
+        baseColor={baseColor}
+        displayAsRaw={displayAsRaw}
+        height={height}
+        metric={metric}
+        thresholds={thresholds}
+        width={width}
+        max={max}
+      />
+    </Box>
   );
 };
