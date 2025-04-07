@@ -100,14 +100,6 @@ Given(
     }
 
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
-      // const versionFilePath = `./../../../www/install/php/Update-25.04*.php`;
-      const previousVersion = '24.04';
-      const versionFilePath = `./././../../www/install/php/Update-${previousVersion}.0.php`;
-          cy.task("fileExists", versionFilePath).then((exists) => {
-            if (exists) {  cy.log(`YES`);}else{
-              cy.log('NO')
-            }});
-
 
     return cy.getWebVersion().then(({ major_version, minor_version }) => {
       let major_version_from = "0";
@@ -123,20 +115,22 @@ Given(
                 cy.log("The file exists");
                 cy.wrap(previousVersion).as("majorVersionFrom");
                 major_version_from = previousVersion;
-                cy.log(`${major_version_from} cloud file exist`);
               } else {
                 cy.log("The file does not exist");
-                const newVersion =
-                  getCentreonPreviousMajorVersion(previousVersion);
-                major_version_from =
-                  getCentreonPreviousMajorVersion(major_version);
-                cy.wrap(major_version_from).as("majorVersionFrom");
-                cy.log(`${major_version_from} cloud file don't exist`);
+                 cy.getClosestVersionFile(previousVersion).then(
+                   (versionFilePath) => {
+                     cy.log(
+                       `The closest version file is at: ${versionFilePath}`,
+                     );
+                     const newVersion = versionFilePath;
+                     major_version_from = versionFilePath;
+                     cy.wrap(newVersion).as("majorVersionFrom");
+                   },
+                 );
               }
             });
           } else {
             major_version_from = previousVersion;
-            cy.log(`${major_version_from} not cloud`);
           }
           break;
         case "n - 2":
