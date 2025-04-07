@@ -47,6 +47,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     public const MAX_LENGTH = 255;
     public const DEFAULT_CHECK_INTERVAL = 60;
     public const DEFAULT_EXPORT_PERIOD = 60;
+    public const CERTIFICATE_BASE_PATH = '/etc/pki/';
 
     /** @var _CmaParameters */
     private array $parameters;
@@ -59,6 +60,8 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     public function __construct(
         array $parameters
     ){
+        $parameters = $this->normalizeCertificatePaths($parameters);
+
         /** @var _CmaParameters $parameters */
         Assertion::notEmptyString($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
         Assertion::maxLength($parameters['otel_public_certificate'], self::MAX_LENGTH, 'configuration.otel_public_certificate');
@@ -102,5 +105,55 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     public function getBrokerDirective(): ?string
     {
         return self::BROKER_MODULE_DIRECTIVE;
+    }
+
+    /**
+     * Normalizes the certificate paths in the given parameters array.
+     *
+     * @param array<string,mixed> $parameters
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeCertificatePaths(array $parameters): array
+    {
+        foreach ($parameters as $key => $value) {
+            if (
+                (
+                    str_ends_with($key, '_certificate')
+                    || str_ends_with($key, '_key')
+                )
+                && (is_string($value) || is_null($value))
+            ) {
+                $parameters[$key] = $this->prependPrefix($value);
+            }
+
+            if ($key === 'hosts' && is_array($value)) {
+                foreach ($value as $hostIndex => $host) {
+                    if (isset($host['poller_ca_certificate']) && is_string($host['poller_ca_certificate'])) {
+                        $parameters[$key][$hostIndex]['poller_ca_certificate'] = $this->prependPrefix($host['poller_ca_certificate']);
+                    }
+                }
+            }
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * Prepends a prefix to a certificate path.
+     *
+     * @param ?string $path
+     *
+     * @return ?string
+     */
+    private function prependPrefix(?string $path): ?string
+    {
+        if ($path === null || $path === '') {
+            return $path;
+        }
+
+        return str_starts_with($path, self::CERTIFICATE_BASE_PATH)
+            ? $path
+            : self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
     }
 }
