@@ -35,6 +35,7 @@ use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
@@ -48,8 +49,6 @@ use Core\Contact\Domain\Model\ContactTemplate;
  */
 class DbReadContactTemplateRepository extends DatabaseRepository implements ReadContactTemplateRepositoryInterface
 {
-    use LoggerTrait;
-
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
@@ -59,11 +58,13 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
      * @param ConnectionInterface $connection
      * @param QueryBuilderInterface $queryBuilder
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
+     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         ConnectionInterface $connection,
         QueryBuilderInterface $queryBuilder,
-        SqlRequestParametersTranslator $sqlRequestTranslator
+        SqlRequestParametersTranslator $sqlRequestTranslator,
+        private readonly ExceptionHandler $exceptionHandler
     ) {
         parent::__construct($connection, $queryBuilder);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
@@ -122,7 +123,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
 
             return $contactTemplates;
         } catch (TransformerException|ConnectionException $exception) {
-            $this->error('finding all contact template failed', ['exception' => $exception->getContext()]);
+            $this->exceptionHandler->log($exception);
 
             throw new RepositoryException(
                 message: 'finding all contact template failed',
@@ -161,10 +162,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
 
             return null;
         } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
-            $this->error(
-                'finding contact template by id failed',
-                ['id' => $id, 'exception' => $exception->getContext()]
-            );
+            $this->exceptionHandler->log($exception, ['id' => $id]);
 
             throw new RepositoryException(
                 'finding contact template by id failed',
