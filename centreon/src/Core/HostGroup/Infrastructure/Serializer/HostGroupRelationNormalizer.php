@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Infrastructure\Serializer;
 
+use Core\Common\Domain\SimpleEntity;
 use Core\HostGroup\Domain\Model\HostGroupRelation;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -47,31 +48,38 @@ class HostGroupRelationNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): array {
-        $hostGroup = $this->normalizer->normalize(
+        /**
+         * @var array<string, bool|float|int|string> $data
+         * @var array{groups?: string[],is_cloud_platform: bool} $context
+         */
+        $data = $this->normalizer->normalize(
             object: $object->getHostGroup(),
             context: $context
         );
-        /** @var array<string, mixed> $hostGroup */
-        if (array_key_exists('geo_coords', $hostGroup)) {
-            $hostGroup['geo_coords'] = (string) $object->getHostGroup()->getGeoCoords();
+
+        if (isset($data['alias']) && $data['alias'] === '') {
+            $data['alias'] = null;
+        }
+        if (isset($data['comment']) && $data['comment'] === '') {
+            $data['comment'] = null;
         }
 
-        $hostGroup['hosts'] = [];
-        foreach ($object->getHosts() as $host) {
-            $hostGroup['hosts'][] = $this->normalizer->normalize($host);
-        }
+        $data['hosts'] = array_map(
+            fn (SimpleEntity $host) => $this->normalizer->normalize($host, $format),
+            $object->getHosts()
+        );
 
         if ($context['is_cloud_platform'] === true) {
-            $hostGroup['resource_access_rules'] = [];
+            $data['resource_access_rules'] = [];
             foreach ($object->getResourceAccessRules() as $resourceAccessRule) {
-                $hostGroup['resource_access_rules'][] = $this->normalizer->normalize(
+                $data['resource_access_rules'][] = $this->normalizer->normalize(
                     object: $resourceAccessRule,
                     context: $context
                 );
             }
         }
 
-        return $hostGroup;
+        return $data;
     }
 
     /**
