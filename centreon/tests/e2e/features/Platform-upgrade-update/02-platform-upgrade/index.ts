@@ -8,23 +8,23 @@ import {
   localPackageDirectory
 } from '../common';
 
-// before(() => {
-//   if (
-//     Cypress.env('IS_CLOUD') &&
-//     (!Cypress.env('INTERNAL_REPO_USERNAME') ||
-//       !Cypress.env('INTERNAL_REPO_PASSWORD'))
-//   ) {
-//     throw new Error(
-//       `Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.`
-//     );
-//   }
+before(() => {
+  if (
+    Cypress.env('IS_CLOUD') &&
+    (!Cypress.env('INTERNAL_REPO_USERNAME') ||
+      !Cypress.env('INTERNAL_REPO_PASSWORD'))
+  ) {
+    throw new Error(
+      `Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.`
+    );
+  }
 
-//   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-//     cy.exec(`ls ${localPackageDirectory}/centreon-web-*.rpm`);
-//   } else {
-//     cy.exec(`ls ${localPackageDirectory}/centreon-web_*.deb`);
-//   }
-// });
+  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+    cy.exec(`ls ${localPackageDirectory}/centreon-web-*.rpm`);
+  } else {
+    cy.exec(`ls ${localPackageDirectory}/centreon-web_*.deb`);
+  }
+});
 
 beforeEach(() => {
   // clear network cache to avoid chunk loading issues
