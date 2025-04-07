@@ -26,8 +26,6 @@ namespace Core\Resources\Infrastructure\API\CountResources;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\RequestParameters\RequestParameters;
-use Core\Common\Domain\Exception\InternalErrorException;
 use Core\Resources\Application\UseCase\CountResources\CountResources;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
@@ -115,27 +113,5 @@ final class CountResourcesController extends AbstractController
             ->setOnlyWithPerformanceData($filter[RequestValidator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY])
             ->setOnlyWithTicketsOpened($filter[RequestValidator::PARAM_RESOURCES_WITH_OPENED_TICKETS])
             ->setRuleId($filter[RequestValidator::PARAM_OPEN_TICKET_RULE_ID]);
-    }
-
-    /**
-     * @param string $search
-     *
-     * @throws InternalErrorException
-     * @return array<string,mixed>
-     */
-    private function formatSearchParameter(string $search): array
-    {
-        try {
-            $requestParameters = new RequestParameters();
-            $requestParameters->setSearch($search);
-
-            return (array) $requestParameters->toArray()['search'];
-        } catch (\Throwable $exception) {
-            throw new InternalErrorException(
-                'Error while formatting search parameter',
-                ['search' => $search],
-                $exception
-            );
-        }
     }
 }
