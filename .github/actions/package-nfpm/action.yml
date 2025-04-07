@@ -121,7 +121,7 @@ runs:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
 
-    # Update if condition to true to get packages as artifacts
+    # Add 'upload-artifacts' label to pull request to get packages as artifacts
     - if: |
         contains(github.event.pull_request.labels.*.name, 'upload-artifacts') ||
         inputs.is_nightly == true
