@@ -4,7 +4,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import { Box, CircularProgress } from '@mui/material';
 import { useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
-import { isEmpty, isNil } from 'ramda';
+import { isEmpty, isNil, isNotEmpty } from 'ramda';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -30,14 +30,13 @@ const Buttons = (): JSX.Element => {
   const isSubmitDisabled = useMemo(
     () =>
       !dirty ||
-      (!isEmpty(errors) &&
-      (isNil(values.configuration?.hosts) ||
-        isEmpty(values.configuration?.hosts))
+      (isNotEmpty(errors) &&
+        (isNil(errors.configuration?.hosts) ||
+          isEmpty(errors.configuration?.hosts)))
         ? true
         : errors.configuration?.hosts?.some?.(
             (host) => !isNil(host) && !isEmpty(host)
-          )) ||
-      isSubmitting,
+          ) || isSubmitting,
     [dirty, isSubmitting, errors, values]
   );
 
