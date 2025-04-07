@@ -1,13 +1,21 @@
 import type React from 'react';
 import { useFormikContext } from 'formik';
 import { equals, find } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { SelectEntry, SelectField } from '@centreon/ui';
 
-import { labelRequestedAuthnContext } from '../translatedLabels';
+import {
+  labelBetter,
+  labelExact,
+  labelMaximum,
+  labelMinimum,
+  labelRequestedAuthnContext
+} from '../translatedLabels';
 import { RequestedAuthnContextValue, SAMLConfiguration } from '../models';
 
 const RequestedAuthnContextField = (): React.JSX.Element => {
+  const { t } = useTranslation();
   const { values, setFieldValue, errors, touched } =
     useFormikContext<SAMLConfiguration>();
 
@@ -16,10 +24,10 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
   };
 
   const options: Array<SelectEntry> = [
-    { id: RequestedAuthnContextValue.Minimum, name: 'Minimum' },
-    { id: RequestedAuthnContextValue.Exact, name: 'Exact' },
-    { id: RequestedAuthnContextValue.Better, name: 'Better' },
-    { id: RequestedAuthnContextValue.Maximum, name: 'Maximum' },
+    { id: RequestedAuthnContextValue.Minimum, name: t(labelMinimum) },
+    { id: RequestedAuthnContextValue.Exact, name: t(labelExact) },
+    { id: RequestedAuthnContextValue.Better, name: t(labelBetter) },
+    { id: RequestedAuthnContextValue.Maximum, name: t(labelMaximum) },
   ];
 
   const selectedOption = find(
