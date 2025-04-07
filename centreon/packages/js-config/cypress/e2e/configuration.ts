@@ -52,13 +52,11 @@ export default ({
       },
       setupNodeEvents: async (cypressOn, config) => {
         const on = require('cypress-on-fix')(cypressOn)
-        installLogsPrinter(
-          on,
-          {
-            commandTrimLength: 5000,
-            defaultTrimLength: 5000,
-          }
-      );
+        installLogsPrinter(on, {
+          printLogsToConsole: "always",
+          commandTrimLength: 5000,
+          defaultTrimLength: 5000,
+        });
         await esbuildPreprocessor(on, config);
         tasks(on);
 
