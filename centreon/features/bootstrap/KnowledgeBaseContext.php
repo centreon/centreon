@@ -32,14 +32,30 @@ class KnowledgeBaseContext extends CentreonContext
         $this->iAmLoggedIn();
 
         $page = new KBParametersPage($this);
-        $page->setProperties(
-            array(
-                'kb_wiki_url' => 'http://' . $this->container->getContainerIpAddress('mediawiki'),
-                'kb_wiki_account' => 'WikiSysop',
-                'kb_wiki_password' => 'centreon'
-            )
-        );
-        $page->save();
+
+        // Use spin to attempt setting the properties while handling stale element errors.
+        $this->spin(function($context) use ($page) {
+            try {
+                $page->setProperties([
+                    'kb_wiki_url' => 'http://' . $this->container->getContainerIpAddress('mediawiki'),
+                    'kb_wiki_account' => 'WikiSysop',
+                    'kb_wiki_password' => 'centreon'
+                ]);
+                return true;
+            } catch (\Facebook\WebDriver\Exception\StaleElementReferenceException $e) {
+                return false;
+            }
+        }, "Failed to set KB parameters due to stale element", 10);
+
+        // If the save() method might also trigger a stale element error, wrap it as well:
+        $this->spin(function($context) use ($page) {
+            try {
+                $page->save();
+                return true;
+            } catch (\Facebook\WebDriver\Exception\StaleElementReferenceException $e) {
+                return false;
+            }
+        }, "Failed to save KB parameters due to stale element", 10);
     }
 
     /**
@@ -101,6 +117,18 @@ class KnowledgeBaseContext extends CentreonContext
     {
         /* Go to the page to options page */
         $this->visit('/main.php?p=61001');
+
+        // Wait until the wiki procedure option element appears.
+        $this->spin(
+            function ($context) {
+                return $context->getSession()->getPage()->find(
+                    'css',
+                    '.list_two td:nth-child(5) a:nth-child(1)'
+                ) !== null;
+            },
+            'Wiki procedure option is not available',
+            10
+        );
 
         $this->assertFind('css', '.list_two td:nth-child(5) a:nth-child(1)')->click();
 
