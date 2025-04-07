@@ -2587,7 +2587,7 @@
 									"            \"is_shell\": { \"type\": \"boolean\" },\r",
 									"            \"is_activated\": { \"type\": \"boolean\" },\r",
 									"            \"is_locked\": { \"type\": \"boolean\" },\r",
-									"            \"argument_example\": { \"type\": \"string\" },\r",
+									"            \"argument_example\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"            \"arguments\": {\r",
 									"                \"type\": \"array\",\r",
 									"                \"items\": {\r",
@@ -2612,15 +2612,14 @@
 									"                }\r",
 									"            },\r",
 									"            \"connector\": {\r",
-									"                \"type\": \"object\",\r",
+									"                \"type\": [\"object\", \"null\"],\r",
 									"                \"properties\": {\r",
 									"                    \"id\": { \"type\": \"integer\" },\r",
 									"                    \"name\": { \"type\": \"string\" }\r",
-									"                },\r",
-									"                \"required\": [\"id\", \"name\"]\r",
+									"                }\r",
 									"            },\r",
 									"            \"grap_template\": {\r",
-									"                \"type\": \"object\",\r",
+									"                \"type\": [\"object\", \"null\"],\r",
 									"                \"properties\": {\r",
 									"                    \"id\": { \"type\": \"integer\" },\r",
 									"                    \"name\": { \"type\": \"string\" }\r",
@@ -3541,16 +3540,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "Command1Name",
-			"value": ""
-		},
-		{
-			"key": "Command1Id",
-			"value": ""
 		}
 	]
 }
