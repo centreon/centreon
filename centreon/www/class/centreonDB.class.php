@@ -2025,4 +2025,29 @@ class CentreonDB extends PDO implements ConnectionInterface
         return 0;
     }
 
+    /**
+     * Helper function to normalize a value for binding
+     *
+     * @param mixed $value
+     * @param int $targetParamType
+     * @param bool $sanitize
+     * @return array<mixed, int>
+     */
+    public static function normalizeForBinding($value, $targetParamType, $sanitize = true) {
+        if ($value === null || $value === '') {
+            return [null, \PDO::PARAM_NULL];
+        }
+
+        if ($sanitize) {
+            $value = match ($targetParamType) {
+                \PDO::PARAM_BOOL => filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
+                \PDO::PARAM_INT  => filter_var($value, FILTER_VALIDATE_INT) !== false ? (int) $value : 0,
+                default => HtmlSanitizer::createFromString((string)$value)
+                            ->sanitize()
+                            ->getString()
+            };
+        }
+
+        return [$value, $targetParamType];
+    }
 }
