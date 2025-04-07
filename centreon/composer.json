@@ -175,8 +175,8 @@
       "@symfony:check:yaml:ci",
       "@symfony:check:container:ci"
     ],
-    "symfony:check:yaml": "sudo -u apache bin/console lint:yaml config src --parse-tags",
-    "symfony:check:container": "sudo -u apache bin/console lint:container",
+    "symfony:check:yaml": "sudo -u apache /usr/share/centreon/bin/console lint:yaml config src --parse-tags",
+    "symfony:check:container": "sudo -u apache /usr/share/centreon/bin/console lint:container",
     "symfony:check": [
       "@symfony:check:yaml",
       "@symfony:check:container"
