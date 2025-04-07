@@ -128,9 +128,9 @@ Given(
                 cy.log("The file does not exist");
                 const newVersion =
                   getCentreonPreviousMajorVersion(previousVersion);
-                cy.wrap(newVersion).as("majorVersionFrom");
                 major_version_from =
-                  getCentreonPreviousMajorVersion(previousVersion);
+                  getCentreonPreviousMajorVersion(major_version);
+                cy.wrap(major_version_from).as("majorVersionFrom");
                 cy.log(`${major_version_from} cloud file don't exist`);
               }
             });
