@@ -32,16 +32,32 @@ const adaptTelegrafConfigurationToAPI = (
   const configuration =
     agentConfiguration.configuration as TelegrafConfiguration;
 
+  const isCertificateNeeded = equals(
+    agentConfiguration?.connectionMode?.id,
+    'secure'
+  );
+
   return {
-    ...omit(['pollers'], agentConfiguration),
+    ...omit(['pollers', 'connectionMode'], agentConfiguration),
+    connection_mode: agentConfiguration?.connectionMode?.id,
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
-      otel_private_key: configuration.otelPrivateKey,
-      otel_ca_certificate: configuration.otelCaCertificate || null,
-      otel_public_certificate: configuration.otelPublicCertificate,
-      conf_certificate: configuration.confCertificate,
-      conf_private_key: configuration.confPrivateKey,
+      otel_private_key: isCertificateNeeded
+        ? configuration.otelPrivateKey
+        : null,
+      otel_ca_certificate: isCertificateNeeded
+        ? configuration.otelCaCertificate
+        : null,
+      otel_public_certificate: isCertificateNeeded
+        ? configuration.otelPublicCertificate
+        : null,
+      conf_certificate: isCertificateNeeded
+        ? configuration.confCertificate
+        : null,
+      conf_private_key: isCertificateNeeded
+        ? configuration.confPrivateKey
+        : null,
       conf_server_port: configuration.confServerPort
     }
   };
@@ -52,20 +68,34 @@ const adaptCMAConfigurationToAPI = (
 ): AgentConfigurationAPI => {
   const configuration = agentConfiguration.configuration as CMAConfiguration;
 
+  const isCertificateNeeded = equals(
+    agentConfiguration?.connectionMode?.id,
+    'secure'
+  );
+
   return {
-    ...omit(['pollers'], agentConfiguration),
+    ...omit(['pollers', 'connectionMode'], agentConfiguration),
+    connection_mode: agentConfiguration?.connectionMode?.id,
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       is_reverse: configuration.isReverse,
-      otel_ca_certificate: configuration.otelCaCertificate || null,
-      otel_public_certificate: configuration.otelPublicCertificate,
-      otel_private_key: configuration.otelPrivateKey,
+      otel_ca_certificate: isCertificateNeeded
+        ? configuration.otelCaCertificate
+        : null,
+      otel_public_certificate: isCertificateNeeded
+        ? configuration.otelPublicCertificate
+        : null,
+      otel_private_key: isCertificateNeeded
+        ? configuration.otelPrivateKey
+        : null,
       hosts: configuration.hosts.map((host) => ({
         address: host.address,
         port: host.port,
-        poller_ca_name: host.pollerCaName || null,
-        poller_ca_certificate: host.pollerCaCertificate || null
+        poller_ca_name: isCertificateNeeded ? host.pollerCaName : null,
+        poller_ca_certificate: isCertificateNeeded
+          ? host.pollerCaCertificate
+          : null
       }))
     }
   };
