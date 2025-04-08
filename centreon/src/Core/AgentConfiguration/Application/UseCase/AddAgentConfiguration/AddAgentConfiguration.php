@@ -27,7 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Factory\AgentConfigurationFactory;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
@@ -39,6 +38,7 @@ use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Domain\Repository\RepositoryManagerInterface;
 
 final class AddAgentConfiguration
 {
@@ -48,7 +48,7 @@ final class AddAgentConfiguration
         private readonly ReadAgentConfigurationRepositoryInterface $readAcRepository,
         private readonly WriteAgentConfigurationRepositoryInterface $writeAcRepository,
         private readonly Validator $validator,
-        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
     ) {
     }
@@ -126,7 +126,7 @@ final class AddAgentConfiguration
     private function save(NewAgentConfiguration $agentConfiguration, array $pollers, ?string $module, array $needBrokerDirectives): int
     {
         try {
-            $this->dataStorageEngine->startTransaction();
+            $this->repositoryManager->startTransaction();
 
             $newAcId = $this->writeAcRepository->add($agentConfiguration);
             $this->writeAcRepository->linkToPollers($newAcId, $pollers);
@@ -134,10 +134,10 @@ final class AddAgentConfiguration
                 $this->writeAcRepository->addBrokerDirective($module, $needBrokerDirectives);
             }
 
-            $this->dataStorageEngine->commitTransaction();
+            $this->repositoryManager->commitTransaction();
         } catch (\Throwable $ex) {
             $this->error("Rollback of 'AddAgentConfiguration' transaction.");
-            $this->dataStorageEngine->rollbackTransaction();
+            $this->repositoryManager->rollbackTransaction();
 
             throw $ex;
         }

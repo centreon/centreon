@@ -48,7 +48,7 @@ beforeEach(function (): void {
         readAcRepository: $this->readAgentConfigurationRepository = $this->createMock(ReadAgentConfigurationRepositoryInterface::class),
         writeAcRepository: $this->writeAgentConfigurationRepository = $this->createMock(WriteAgentConfigurationRepositoryInterface::class),
         validator: $this->validator = $this->createMock(Validator::class),
-        dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
+        repositoryManager: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
     );
 

@@ -55,7 +55,7 @@ beforeEach(function (): void {
         readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         readMonitoringServerRepository: $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         validator: $this->validator = $this->createMock(Validator::class),
-        dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
+        repositoryManager: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
     );
 
