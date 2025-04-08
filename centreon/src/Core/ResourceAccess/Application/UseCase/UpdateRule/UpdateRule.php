@@ -270,13 +270,11 @@ final class UpdateRule
 
     /**
      * @param UpdateRuleRequest $updateRequest
-     *
-     * @throws RuleException
      */
     private function updateResourceLinks(UpdateRuleRequest $updateRequest): void
     {
         // validate the updated datasets sent before doing anything
-        $this->debug('Validating updated datasets', ['datasetFilters' => $updateRequest->datasetFilters]);
+        $this->debug('Validating updated datasets', $updateRequest->datasetFilters);
         $datasetFilters = $this->validateAndCreateDatasetFiltersFromRequest($updateRequest);
 
         /*
