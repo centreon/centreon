@@ -56,7 +56,7 @@ final class HostGroupNormalizer implements NormalizerInterface
      *
      * @return array<string, mixed>
      */
-    public function normalize(mixed $object, ?string $format = null, array $context = [])
+    public function normalize(mixed $object, ?string $format = null, array $context = []): array
     {
         /**
          * @var array<string, bool|float|int|string> $data
