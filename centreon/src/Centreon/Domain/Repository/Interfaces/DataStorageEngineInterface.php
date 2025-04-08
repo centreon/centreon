@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Repository\Interfaces;
 
-use Core\Common\Domain\Repository\RepositoryManagerInterface;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
 
 /**
  * This interface is designed to perform specific operations on the data storage engine.

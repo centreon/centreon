@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain\Repository;
+namespace Core\Common\Application\Repository;
 
 use Core\Common\Domain\Exception\RepositoryException;
 
@@ -29,7 +29,7 @@ use Core\Common\Domain\Exception\RepositoryException;
  * Interface
  *
  * @class RepositoryManagerInterface
- * @package Core\Common\Domain\Repository
+ * @package Core\Common\Application\Repository
  */
 interface RepositoryManagerInterface
 {

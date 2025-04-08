@@ -25,23 +25,23 @@ namespace Core\Common\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
 use Core\Common\Domain\Exception\RepositoryException;
-use Core\Common\Domain\Repository\RepositoryManagerInterface;
 
 /**
  * Class
  *
  * @class DatabaseRepositoryManager
- * @package Core\Common\Infrastructure\Repository
+ * @package Core\Common\Application\Repository
  */
-class DatabaseRepositoryManager implements RepositoryManagerInterface
+final readonly class DatabaseRepositoryManager implements RepositoryManagerInterface
 {
     /**
      * DatabaseRepositoryManager constructor
      *
      * @param ConnectionInterface $connection
      */
-    public function __construct(private readonly ConnectionInterface $connection) {}
+    public function __construct(private ConnectionInterface $connection) {}
 
     /**
      * @inheritDoc

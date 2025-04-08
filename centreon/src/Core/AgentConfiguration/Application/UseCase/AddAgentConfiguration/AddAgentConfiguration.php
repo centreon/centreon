@@ -38,7 +38,7 @@ use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Common\Domain\Repository\RepositoryManagerInterface;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
 
 final class AddAgentConfiguration
 {

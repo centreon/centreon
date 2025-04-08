@@ -79,6 +79,7 @@ parameters:
                 - src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardShareRepository.php
                 - src/Core/Common/Infrastructure/RequestParameters/Transformer
                 - src/Core/AgentConfiguration/Infrastructure/Repository
+                - src/Core/Common/Application/Repository
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false
