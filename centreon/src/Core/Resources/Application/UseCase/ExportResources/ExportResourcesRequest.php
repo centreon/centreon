@@ -79,7 +79,7 @@ final readonly class ExportResourcesRequest {
 
         if ($this->allPages && $this->maxResults === 0) {
             throw new \InvalidArgumentException(
-                "Max number of resources is required when exporting all pages"
+                'Max number of resources is required when exporting all pages'
             );
         }
 
