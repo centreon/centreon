@@ -23,8 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Api\FindContactTemplates;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Contact\Application\UseCase\FindContactTemplates\{
     FindContactTemplatesPresenterInterface,
     FindContactTemplatesResponse
@@ -33,23 +39,44 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class FindContactTemplatesPresenter extends AbstractPresenter implements FindContactTemplatesPresenterInterface
 {
+    use LoggerTrait;
+
     /**
      * @param RequestParametersInterface $requestParameters
      * @param PresenterFormatterInterface $presenterFormatter
+     * @param ContactInterface $user
+     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         private RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
+        private readonly ContactInterface $user,
+        private readonly ExceptionHandler $exceptionHandler,
+
     ) {
+        parent::__construct($presenterFormatter);
     }
 
     /**
-     * @param FindContactTemplatesResponse $presentedData
+     * @param FindContactTemplatesResponse|ResponseStatusInterface $response
      */
-    public function present(mixed $presentedData): void
+    public function presentResponse(ResponseStatusInterface|FindContactTemplatesResponse $response): void
     {
-        parent::present([
-            'result' => $presentedData->contactTemplates,
+        if ($response instanceof ResponseStatusInterface) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                $this->exceptionHandler->log($response->getException());
+            } elseif ($response instanceof ForbiddenResponse) {
+                $this->error('User doesn\'t have sufficient rights to list contact templates', [
+                    'user_id' => $this->user->getId(),
+                ]);;
+            }
+            $this->setResponseStatus($response);
+
+            return;
+        }
+
+        $this->present([
+            'result' => $response->contactTemplates,
             'meta' => $this->requestParameters->toArray(),
         ]);
     }
