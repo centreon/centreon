@@ -13,7 +13,6 @@ import {
   labelResourcesStatus
 } from '../translatedLabels';
 import {
-  getFormattedResources,
   getResourcesUrlForMetricsWidgets,
   getUrlForResourcesOnlyWidgets
 } from '../utils';
@@ -41,10 +40,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     const resources = data[resourcesInputKey];
 
     // TO FIX when Resources Status will handle BA/BV properly
-    const resourceTypes = pluck(
-      'resourceType',
-      getFormattedResources({ array: resources })
-    );
+    const resourceTypes = pluck('resourceType', resources);
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
 
     if (hasOnlyBA) {
@@ -54,12 +50,8 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     if (data?.resources && isNil(data?.metrics)) {
       const { statuses } = options;
 
-      const formattedResources = getFormattedResources({
-        array: data.resources
-      });
-
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
-        resources: formattedResources,
+        resources: resources,
         states: options?.states || [],
         statuses,
         type:
