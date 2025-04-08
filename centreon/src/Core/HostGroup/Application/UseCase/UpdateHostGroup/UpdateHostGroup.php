@@ -172,6 +172,7 @@ final class UpdateHostGroup
                 null, '' => null,
                 default => GeoCoords::fromString($request->geoCoords),
             },
+            isActivated: $existingHostGroup->isActivated(),
         );
         $this->writeHostGroupRepository->update($updatedHostGroup);
     }
