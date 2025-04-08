@@ -28,7 +28,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
 use Core\Resources\Application\UseCase\ExportResources\ExportResources;
@@ -170,10 +169,20 @@ final class ExportResourcesController extends AbstractController
                         CsvEncoder::DELIMITER_KEY => ';',
                     ]);
                 }
-            } catch (\Throwable $throwable) {
+            } catch (\Throwable $exception) {
                 $this->error(
                     'Error while creating export with csv encoder',
-                    ['exception' => ExceptionFormatter::format($throwable)]
+                    [
+                        'exception' => [
+                            'type' => $exception::class,
+                            'message' => $exception->getMessage(),
+                            'file' => $exception->getFile(),
+                            'line' => $exception->getLine(),
+                            'class' => $exception->getTrace()[0]['class'] ?? null,
+                            'method' => $exception->getTrace()[0]['function'] ?? null,
+                            'previous_message' => $exception->getPrevious()?->getMessage() ?? null,
+                        ]
+                    ]
                 );
                 echo $csvEncoder->encode("Oops ! An error occurred: {$throwable->getMessage()}", CsvEncoder::FORMAT);
             }
@@ -191,7 +200,8 @@ final class ExportResourcesController extends AbstractController
      *
      * @return string
      */
-    private function getCsvFileName(ExportViewEnum $exportView = ExportViewEnum::ALL): string {
+    private function getCsvFileName(ExportViewEnum $exportView = ExportViewEnum::ALL): string
+    {
         $dateNormalized = str_replace([' ', ':', ',', '/'], '-', $this->getDateFormatted());
 
         return "ResourceStatusExport_{$exportView->value}_{$dateNormalized}.csv";

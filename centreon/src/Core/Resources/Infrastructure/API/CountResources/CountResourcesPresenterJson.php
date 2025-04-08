@@ -28,7 +28,6 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesPresenterInterface;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesResponse;
@@ -65,9 +64,20 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
     {
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                $exception = $response->getException();
                 $this->error(
-                    $response->getException()->getMessage(),
-                    ['exception' => ExceptionFormatter::format($response->getException())]
+                    $exception->getMessage(),
+                    [
+                        'exception' => [
+                            'type' => $exception::class,
+                            'message' => $exception->getMessage(),
+                            'file' => $exception->getFile(),
+                            'line' => $exception->getLine(),
+                            'class' => $exception->getTrace()[0]['class'] ?? null,
+                            'method' => $exception->getTrace()[0]['function'] ?? null,
+                            'previous_message' => $exception->getPrevious()?->getMessage() ?? null,
+                        ]
+                    ]
                 );
             }
             $this->setResponseStatus($response);

@@ -31,7 +31,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\Collection\StringCollection;
 use Core\Common\Domain\Exception\CollectionException;
-use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\CsvFormatter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -76,9 +75,19 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
 
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                $exception = $response->getException();
                 $this->error(
-                    $response->getException()->getMessage(),
-                    ['exception' => ExceptionFormatter::format($response->getException())]
+                    $exception->getMessage(),
+                    [
+                        'exception' => [
+                            'type' => $exception::class,
+                            'message' => $exception->getMessage(),
+                            'file' => $exception->getFile(),
+                            'line' => $exception->getLine(),
+                            'class' => $exception->getTrace()[0]['class'] ?? null,
+                            'method' => $exception->getTrace()[0]['function'] ?? null,
+                            'previous_message' => $exception->getPrevious()?->getMessage() ?? null,                        ]
+                    ]
                 );
             }
             $this->setResponseStatus($response);
@@ -93,7 +102,17 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         } catch (CollectionException $exception) {
             $this->error(
                 'An error occurred while filtering columns',
-                ['exception' => ExceptionFormatter::format($exception)]
+                [
+                    'exception' => [
+                        'type' => $exception::class,
+                        'message' => $exception->getMessage(),
+                        'file' => $exception->getFile(),
+                        'line' => $exception->getLine(),
+                        'class' => $exception->getTrace()[0]['class'] ?? null,
+                        'method' => $exception->getTrace()[0]['function'] ?? null,
+                        'previous_message' => $exception->getPrevious()?->getMessage() ?? null,
+                    ]
+                ]
             );
             $this->setResponseStatus(new ErrorResponse('An error occurred while filtering columns'));
 

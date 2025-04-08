@@ -33,7 +33,6 @@ use Centreon\Domain\RequestParameters\{
     Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
 };
 use Centreon\Domain\VersionHelper;
-use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Common\Domain\Exception\RepositoryException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -432,9 +431,9 @@ class CentreonEventSubscriber implements EventSubscriberInterface
     private function logException(\Throwable $exception): void
     {
         if (! $exception instanceof HttpExceptionInterface || $exception->getCode() >= 500) {
-            $this->logger->critical($exception->getMessage(), ['exception' => ExceptionFormatter::format($exception)]);
+            $this->logger->critical($exception->getMessage(), ['context' => $exception]);
         } else {
-            $this->logger->error($exception->getMessage(), ['exception' => ExceptionFormatter::format($exception)]);
+            $this->logger->error($exception->getMessage(), ['context' => $exception]);
         }
     }
 
