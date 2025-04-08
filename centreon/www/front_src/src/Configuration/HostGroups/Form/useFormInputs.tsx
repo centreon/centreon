@@ -12,7 +12,7 @@ import {
 import {
   labelAlias,
   labelApplyResourceAccessRule,
-  labelComment,
+  labelComments,
   labelExtendedInformation,
   labelGeneralInformation,
   labelGeographicCoordinates,
@@ -141,7 +141,7 @@ const useFormInputs = ({
     {
       fieldName: 'comment',
       group: t(labelExtendedInformation),
-      label: t(labelComment),
+      label: t(labelComments),
       getDisabled: () => !hasWriteAccess,
       text: {
         multilineRows: 3
