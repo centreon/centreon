@@ -29,7 +29,6 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 beforeEach(function (): void {
     $this->parameters = [
-        'connection_mode' => ConnectionModeEnum::SECURE,
         'is_reverse' => true,
         'otel_public_certificate' => 'otel_certif_filename',
         'otel_ca_certificate' => 'ca_certif_filename',
@@ -54,7 +53,7 @@ foreach (
         "should throw an exception when the hosts[].{$field} is not valid",
         function () use ($field) : void {
             $this->parameters['hosts'][0][$field] = 9999999999;
-            new CmaConfigurationParameters($this->parameters);
+            new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
         }
     )->throws(
         AssertionException::range(
@@ -78,7 +77,7 @@ foreach (
         function () use ($field) : void {
             $this->parameters[$field] = '';
 
-            new CmaConfigurationParameters($this->parameters);
+            new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
         }
     )->throws(
         AssertionException::notEmptyString("configuration.{$field}")->getMessage()
@@ -98,7 +97,7 @@ foreach (
         function () use ($field, $tooLong) : void {
             $this->parameters[$field] = $tooLong;
 
-            new CmaConfigurationParameters($this->parameters);
+            new CmaConfigurationParameters($this->parameters, ConnectionModeEnum::SECURE);
         }
     )->throws(
         AssertionException::maxLength(

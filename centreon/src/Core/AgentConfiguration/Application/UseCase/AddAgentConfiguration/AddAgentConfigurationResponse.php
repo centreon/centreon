@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
 
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 
@@ -38,6 +39,7 @@ final class AddAgentConfigurationResponse
     public function __construct(
         public int $id = 0,
         public Type $type = Type::TELEGRAF,
+        public ConnectionModeEnum $connectionMode = ConnectionModeEnum::SECURE,
         public string $name = '',
         public array $configuration = [],
         public array $pollers = [],

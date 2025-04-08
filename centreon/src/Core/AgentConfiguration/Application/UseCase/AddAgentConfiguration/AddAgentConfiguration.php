@@ -184,6 +184,7 @@ final class AddAgentConfiguration
         return new AddAgentConfigurationResponse(
             id: $agentConfiguration->getId(),
             type: $agentConfiguration->getType(),
+            connectionMode: $agentConfiguration->getConnectionMode(),
             name: $agentConfiguration->getName(),
             configuration: $agentConfiguration->getConfiguration()->getData(),
             pollers: $pollers

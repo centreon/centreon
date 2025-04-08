@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\ConnectionInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 
@@ -33,9 +34,9 @@ use Centreon\Infrastructure\DatabaseConnection;
 class DataStorageEngineRdb implements DataStorageEngineInterface
 {
     /**
-     * @param DatabaseConnection $db
+     * @param ConnectionInterface $db
      */
-    public function __construct(readonly private DatabaseConnection $db)
+    public function __construct(private readonly ConnectionInterface $db)
     {
     }
 
@@ -44,7 +45,9 @@ class DataStorageEngineRdb implements DataStorageEngineInterface
      */
     public function startTransaction(): bool
     {
-        return $this->db->beginTransaction();
+        $this->db->startTransaction();
+        return $this->isAlreadyinTransaction();
+
     }
 
     /**
@@ -52,7 +55,7 @@ class DataStorageEngineRdb implements DataStorageEngineInterface
      */
     public function commitTransaction(): bool
     {
-        return $this->db->commit();
+        return $this->db->commitTransaction();
     }
 
     /**
@@ -60,7 +63,7 @@ class DataStorageEngineRdb implements DataStorageEngineInterface
      */
     public function rollbackTransaction(): bool
     {
-        return $this->db->rollBack();
+        return $this->db->rollBackTransaction();
     }
 
     /**
@@ -68,6 +71,6 @@ class DataStorageEngineRdb implements DataStorageEngineInterface
      */
     public function isAlreadyinTransaction(): bool
     {
-        return $this->db->inTransaction();
+        return $this->db->isTransactionActive();
     }
 }

@@ -34,6 +34,7 @@ use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateA
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\Validator;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -71,6 +72,7 @@ beforeEach(function (): void {
         'conf_certificate' => 'conf-certif',
         'conf_private_key' => 'conf-key',
     ];
+    $this->request->connectionMode = ConnectionModeEnum::SECURE;
 
     $this->poller = new Poller(1, 'poller-name');
 
@@ -78,6 +80,7 @@ beforeEach(function (): void {
         id: $this->agentConfigurationId = 1,
         name: $this->agentConfigurationName = 'ac-name',
         type: $this->agentConfigurationType = Type::TELEGRAF,
+        connectionMode: $this->agentConfigurationConnectionMode = ConnectionModeEnum::SECURE,
         configuration: $this->createMock(ConfigurationParametersInterface::class),
     );
 });

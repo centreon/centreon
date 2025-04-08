@@ -35,6 +35,7 @@ use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentCo
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\Validator;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
@@ -72,6 +73,7 @@ beforeEach(function (): void {
     $this->testedNewAc = new NewAgentConfiguration(
         name: $this->testedAcName = 'ac-name',
         type: Type::TELEGRAF,
+        connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->createMock(ConfigurationParametersInterface::class),
     );
 
@@ -79,6 +81,7 @@ beforeEach(function (): void {
         id: $this->testedAcId = 1,
         name: $this->testedAcName = 'ac-name',
         type: Type::TELEGRAF,
+        connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->createMock(ConfigurationParametersInterface::class),
     );
 });

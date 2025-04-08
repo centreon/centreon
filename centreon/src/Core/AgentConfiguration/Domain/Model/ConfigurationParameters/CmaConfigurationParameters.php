@@ -45,7 +45,8 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  */
 class CmaConfigurationParameters implements ConfigurationParametersInterface
 {
-    public const BROKER_MODULE_DIRECTIVE = '/usr/lib64/centreon-engine/libopentelemetry.so /etc/centreon-engine/otl_server.json';
+    public const BROKER_MODULE_DIRECTIVE = '/usr/lib64/centreon-engine/libopentelemetry.so '.
+        '/etc/centreon-engine/otl_server.json';
     public const MAX_LENGTH = 255;
     public const DEFAULT_CHECK_INTERVAL = 60;
     public const DEFAULT_EXPORT_PERIOD = 60;
@@ -55,20 +56,12 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
 
     /**
      * @param array<string,mixed> $parameters
+     * @param ConnectionModeEnum $connectionMode
      *
      * @throws AssertionFailedException
      */
-    public function __construct(array $parameters)
+    public function __construct(array $parameters, ConnectionModeEnum $connectionMode)
     {
-        /** @var _CmaParameters $parameters */
-        if (isset($parameters['connection_mode'])) {
-            $connectionMode = $parameters['connection_mode'];
-        } else {
-            $connectionMode = (empty($parameters['otel_public_certificate']) || empty($parameters['otel_private_key']))
-                ? ConnectionModeEnum::NO_TLS
-                : ConnectionModeEnum::SECURE;
-        }
-
         if ($connectionMode === ConnectionModeEnum::SECURE) {
             $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
             $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
@@ -76,7 +69,10 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
                 $this->validateCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
             }
         } else {
-            $this->validateOptionalCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
+            $this->validateOptionalCertificate(
+                $parameters['otel_public_certificate'],
+                'configuration.otel_public_certificate'
+            );
             $this->validateOptionalCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
             $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
         }
@@ -88,7 +84,11 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         foreach ($parameters['hosts'] as $host) {
             Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
             Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
-            $this->validateHostCertificate($host['poller_ca_certificate'], $connectionMode, 'configuration.hosts[].poller_ca_certificate');
+            $this->validateHostCertificate(
+                $host['poller_ca_certificate'],
+                $connectionMode,
+                'configuration.hosts[].poller_ca_certificate'
+            );
             $this->validateOptionalCertificate($host['poller_ca_name'], 'configuration.hosts[].poller_ca_name');
         }
 
@@ -154,8 +154,11 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      *
      * @throws AssertionFailedException
      */
-    private function validateHostCertificate(?string $certificate, ConnectionModeEnum $connectionMode, string $field): void
-    {
+    private function validateHostCertificate(
+        ?string $certificate,
+        ConnectionModeEnum $connectionMode,
+        string $field
+    ): void {
         if ($certificate !== null && is_string($certificate)) {
             if ($connectionMode === ConnectionModeEnum::SECURE) {
                 Assertion::notEmptyString($certificate, $field);

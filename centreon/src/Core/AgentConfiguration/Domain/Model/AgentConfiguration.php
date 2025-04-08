@@ -49,6 +49,7 @@ class AgentConfiguration
         private readonly int $id,
         string $name,
         private readonly Type $type,
+        private readonly ConnectionModeEnum $connectionMode,
         private readonly ConfigurationParametersInterface $configuration,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
@@ -70,6 +71,11 @@ class AgentConfiguration
     public function getType(): Type
     {
         return $this->type;
+    }
+
+    public function getConnectionMode(): ConnectionModeEnum
+    {
+        return $this->connectionMode;
     }
 
     /**

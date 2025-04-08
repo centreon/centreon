@@ -23,11 +23,18 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 
 class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB implements WriteAgentConfigurationRepositoryInterface
@@ -42,25 +49,51 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
         $this->db = $db;
     }
 
+    // public function __construct(
+    //     protected ConnectionInterface $connection,
+    //     protected QueryBuilderInterface $queryBuilder
+    // ) {
+    //     parent::__construct($connection, $queryBuilder);
+    // }
+
     /**
      * @inheritDoc
      */
     public function add(NewAgentConfiguration $agentConfiguration): int
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                INSERT INTO `:db`.`agent_configuration`
-                    (type, name, configuration)
-                VALUES (:type, :name, :configuration)
-                SQL
-        ));
+        $queryBuilder = $this->db->createQueryBuilder();
 
-        $statement->bindValue(':type', $agentConfiguration->getType()->value, \PDO::PARAM_STR);
-        $statement->bindValue(':name', $agentConfiguration->getName(), \PDO::PARAM_STR);
-        $statement->bindValue(':configuration', json_encode($agentConfiguration->getConfiguration()->getData()));
-        $statement->execute();
+        $query = $this->translateDbName(
+            $queryBuilder
+                ->insert('agent_configuration')
+                ->values(
+                    [
+                        'name' => ':name',
+                        'type' => ':type',
+                        'connection_mode' => ':connection_mode',
+                        'configuration' => ':configuration',
+                    ]
+                )
+                ->getQuery()
+        );
 
-        return (int) $this->db->lastInsertId();
+        $queryParameters = QueryParameters::create([
+            QueryParameter::string(':name', $agentConfiguration->getName()),
+            QueryParameter::string(':type', $agentConfiguration->getType()->value),
+            QueryParameter::string(
+                ':connection_mode',
+                match ($agentConfiguration->getConnectionMode()) {
+                    ConnectionModeEnum::NO_TLS => 'no_tls',
+                    ConnectionModeEnum::SECURE => 'secure',
+                    default => throw new \InvalidArgumentException('Invalid connection mode')
+                }
+            ),
+            QueryParameter::string(':configuration', json_encode($agentConfiguration->getConfiguration()->getData())),
+        ]);
+
+        $this->db->executeStatement($query, $queryParameters);
+
+        return (int) $this->db->getLastInsertId();
     }
 
     /**
@@ -107,21 +140,19 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function linkToPollers(int $agentConfigurationId, array $pollerIds): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                INSERT INTO `:db`.`ac_poller_relation`
-                    (ac_id, poller_id)
-                VALUES (:ac_id, :poller_id)
-                SQL
-        ));
-
-        $pollerId = null;
-        $statement->bindValue(':ac_id', $agentConfigurationId, \PDO::PARAM_INT);
-        $statement->bindParam(':poller_id', $pollerId, \PDO::PARAM_INT);
-        foreach ($pollerIds as $poller) {
-            $pollerId = $poller;
-            $statement->execute();
+        $batchQueryParameters = [];
+        foreach ($pollerIds as $pollerId) {
+            $batchQueryParameters[] = QueryParameters::create([
+                QueryParameter::int('ac_id', $agentConfigurationId),
+                QueryParameter::int('poller_id', $pollerId),
+            ]);
         }
+
+        $this->db->batchInsert(
+            'ac_poller_relation',
+            ['ac_id', 'poller_id'],
+            BatchInsertParameters::create($batchQueryParameters)
+        );
     }
 
     /**
@@ -129,15 +160,18 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function removePollers(int $agentConfigurationId): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                DELETE FROM `:db`.`ac_poller_relation`
-                WHERE ac_id = :ac_id
-                SQL
-        ));
+        $queryBuilder = $this->db->createQueryBuilder();
+        $query = $this->translateDbName(
+            $queryBuilder
+                ->delete('ac_poller_relation')
+                ->where('ac_id = :ac_id')
+                ->getQuery()
+        );
 
-        $statement->bindValue(':ac_id', $agentConfigurationId, \PDO::PARAM_INT);
-        $statement->execute();
+        $queryParameters = QueryParameters::create([
+            QueryParameter::int('ac_id', $agentConfigurationId),
+        ]);
+        $this->db->executeStatement($query, $queryParameters);
     }
 
     /**
@@ -145,17 +179,24 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function removePoller(int $agentConfigurationId, int $pollerId): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                DELETE FROM `:db`.`ac_poller_relation`
-                WHERE ac_id = :ac_id
-                    AND poller_id = :poller_id
-                SQL
-        ));
+        $queryBuilder = $this->db->createQueryBuilder();
+        $expressionBuilder = $this->db->createExpressionBuilder();
+        $eq1 = $expressionBuilder->equal('ac_id', ':ac_id');
+        $eq2 = $expressionBuilder->equal('poller_id', ':poller_id');
+        $and = $expressionBuilder->and($eq1, $eq2);
+        $query = $this->translateDbName(
+            $queryBuilder
+                ->delete('ac_poller_relation')
+                ->where($and)
+                ->getQuery()
+        );
 
-        $statement->bindValue(':ac_id', $agentConfigurationId, \PDO::PARAM_INT);
-        $statement->bindValue(':poller_id', $pollerId, \PDO::PARAM_INT);
-        $statement->execute();
+        $queryParameters = QueryParameters::create([
+            QueryParameter::int(':ac_id', $agentConfigurationId),
+            QueryParameter::int(':poller_id', $pollerId),
+        ]);
+
+        $this->db->executeStatement($query, $queryParameters);
     }
 
     /**
@@ -163,20 +204,19 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function addBrokerDirective(string $module, array $pollerIds): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                INSERT INTO `:db`.`cfg_nagios_broker_module`
-                (bk_mod_id,cfg_nagios_id, broker_module)
-                VALUES (null, :pollerId, :module)
-                SQL
-        ));
-
-        $pollerId = null;
-        $statement->bindValue(':module', $module, \PDO::PARAM_STR);
-        $statement->bindParam(':pollerId', $pollerId, \PDO::PARAM_INT);
-        foreach ($pollerIds as $poller) {
-            $pollerId = $poller;
-            $statement->execute();
+        $batchQueryParameters = [];
+        foreach ($pollerIds as $pollerId) {
+            $batchQueryParameters[] = QueryParameters::create([
+                QueryParameter::null('bk_mod_id'),
+                QueryParameter::int('cfg_nagios_id', $pollerId),
+                QueryParameter::string('broker_module', $module),
+            ]);
         }
+
+        $this->db->batchInsert(
+            'cfg_nagios_broker_module',
+            ['bk_mod_id', 'cfg_nagios_id', 'broker_module'],
+            BatchInsertParameters::create($batchQueryParameters)
+        );
     }
 }

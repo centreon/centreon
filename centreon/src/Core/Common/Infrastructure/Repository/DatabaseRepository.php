@@ -43,7 +43,8 @@ abstract class DatabaseRepository
     public function __construct(
         protected ConnectionInterface $connection,
         protected QueryBuilderInterface $queryBuilder
-    ) {}
+    ) {
+    }
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.
