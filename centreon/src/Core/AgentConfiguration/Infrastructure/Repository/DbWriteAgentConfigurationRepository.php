@@ -59,7 +59,7 @@ class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements
             QueryParameters::create([
                 QueryParameter::string('type', $agentConfiguration->getType()->value),
                 QueryParameter::string('name', $agentConfiguration->getName()),
-                QueryParameter::string('configuration', json_encode($agentConfiguration->getConfiguration()->getData()))
+                QueryParameter::string('configuration', json_encode($agentConfiguration->getConfiguration()->getData())),
             ])
         );
 
@@ -90,7 +90,7 @@ class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements
                 QueryParameters::create([
                     QueryParameter::int('id', $agentConfiguration->getId()),
                     QueryParameter::string('name', $agentConfiguration->getName()),
-                    QueryParameter::string('configuration', json_encode($agentConfiguration->getConfiguration()->getData()))
+                    QueryParameter::string('configuration', json_encode($agentConfiguration->getConfiguration()->getData())),
                 ])
             );
         } catch (\Throwable $exception) {
@@ -114,9 +114,7 @@ class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements
 
             $this->connection->delete(
                 $this->translateDbName($query),
-                QueryParameters::create([
-                    QueryParameter::int('id', $id),
-                ])
+                QueryParameters::create([QueryParameter::int('id', $id),])
             );
         } catch (\Throwable $exception) {
             throw new RepositoryException(
@@ -197,7 +195,7 @@ class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements
                 $this->translateDbName($query),
                 QueryParameters::create([
                     QueryParameter::int('ac_id', $agentConfigurationId),
-                    QueryParameter::int('poller_id', $pollerId)
+                    QueryParameter::int('poller_id', $pollerId),
                 ])
             );
         } catch (\Throwable $exception) {
@@ -228,14 +226,14 @@ class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements
                     QueryParameters::create([
                         QueryParameter::null('bk_mod_id'),
                         QueryParameter::int('cfg_nagios_id', $pollerId),
-                        QueryParameter::string('broker_module', $module)
+                        QueryParameter::string('broker_module', $module),
                     ])
                 );
             }
         } catch (\Exception $exception) {
             throw new RepositoryException(
                 message: 'Error while adding broker directive in agent configuration',
-                context: ['poller_id' => $pollerId, 'broker_module' => $module],
+                context: ['pollerIds' => $pollerIds, 'broker_module' => $module],
                 previous: $exception
             );
         }
