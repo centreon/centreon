@@ -156,7 +156,7 @@ abstract class BusinessLogicException extends \Exception
     /**
      * @param \Throwable $throwable
      *
-     * @return array
+     * @return array<string, mixed>
      */
     private function getExceptionInfos(\Throwable $throwable): array
     {
