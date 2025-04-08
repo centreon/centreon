@@ -24,11 +24,8 @@ declare(strict_types=1);
 namespace Core\Resources\Application\UseCase\ExportResources;
 
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
-use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
