@@ -164,54 +164,55 @@ const useGraphQuery = ({
     data.current = graphData;
   }
 
-  const getCurrentMetrics = ()=>{
-    if(!data.current){
-      return undefined
+  const getCurrentMetrics = () => {
+    if (!data.current) {
+      return undefined;
     }
     return bypassMetricsExclusion
-          ? data.current.metrics
-          : data.current.metrics.filter(({ metric_id }) => {
-              return pipe(
-                pluck('excludedMetrics'),
-                flatten,
-                includes(metric_id),
-                not
-              )(metrics);
-            })
-  }
+      ? data.current.metrics
+      : data.current.metrics.filter(({ metric_id }) => {
+          return pipe(
+            pluck('excludedMetrics'),
+            flatten,
+            includes(metric_id),
+            not
+          )(metrics);
+        });
+  };
 
-  const getFormattedMetrics = ()=>{
-    const metrics = getCurrentMetrics()
+  const getFormattedMetrics = () => {
+    const metrics = getCurrentMetrics();
 
-   const newMetrics =  metrics?.map((line)=>{
-    const currentMetricLine = line.metric.replaceAll(' ','')
-      const [hostName, metricName] = currentMetricLine.split(':')
+    const newMetrics = metrics?.map((line) => {
+      const currentMetricLine = line.metric.replaceAll(' ', '');
+      const [hostName, metricName] = currentMetricLine.split(':');
 
-      return {...line, hostName,serviceName:'test', metricName}
-    })
+      return { ...line, hostName, serviceName: 'test', metricName };
+    });
 
-    return newMetrics?.map((line)=>{
+    return newMetrics?.map((line) => {
+      const areHostNameRedundant = newMetrics.every(
+        ({ hostName }) => hostName === line.hostName
+      );
+      const areServiceNameRedundant = newMetrics.every(
+        ({ serviceName }) => serviceName === line.serviceName
+      );
 
-     const areHostNameRedundant =  newMetrics.every(({hostName})=>hostName===line.hostName);
-     const areServiceNameRedundant = newMetrics.every(({serviceName})=>serviceName===line.serviceName);
+      if (areHostNameRedundant && areServiceNameRedundant) {
+        const formattedLegend = line.metricName;
+        return { ...line, legend: formattedLegend };
+      }
 
-     if(areHostNameRedundant && areServiceNameRedundant){
-      let formattedLegend = line.metricName
-      return {...line, legend:formattedLegend }
-     }
-     
-     if(areHostNameRedundant){
-       let formattedLegend= `${line.serviceName}:${line.metricName}`
-       return {...line, legend: formattedLegend}
-     }
-     
-      let formattedLegend = `${line.hostName}:${line.metricName}`
+      if (areHostNameRedundant) {
+        const formattedLegend = `${line.serviceName}:${line.metricName}`;
+        return { ...line, legend: formattedLegend };
+      }
 
-      return {...line, legend:formattedLegend}
-    })
+      const formattedLegend = `${line.hostName}:${line.metricName}`;
 
-  }
-
+      return { ...line, legend: formattedLegend };
+    });
+  };
 
   const formattedGraphData = data.current
     ? {
