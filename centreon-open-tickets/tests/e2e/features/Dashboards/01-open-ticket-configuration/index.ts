@@ -62,6 +62,9 @@ before(() => {
     useSlim: false,
     profiles:['glpi']
   });
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-notification-permissions.json'
+  );
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
@@ -146,6 +149,7 @@ before(() => {
       service: 'Ping'
     }
   ]);
+  cy.applyAcl();
   cy.logoutViaAPI();
 });
 
@@ -179,7 +183,7 @@ beforeEach(() => {
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('addingDashboard');
   cy.loginByTypeOfUser({
-    jsonName: 'admin',
+    jsonName: 'user-dashboard-administrator',
     loginViaApi: false
   });
 });
@@ -292,21 +296,6 @@ When(
 Then(
   'the ticket should be deleted and the resource should no longer be associated with the ticket',
   () => {
-    cy.waitUntil(
-      () => {
-        return cy
-          .getByLabel({ label: 'Unknown status services', tag: 'a' })
-          .invoke('text')
-          .then((text) => {
-            if (text !== '3') {
-              cy.exportConfig();
-            }
-
-            return text === '3';
-          });
-      },
-      { interval: 20000, timeout: 600000 }
-    );
     cy.waitForElementToBeVisible('[class*="root-emptyDataCell"]');
     cy.contains('div', 'No result found').should('be.visible');
   }
