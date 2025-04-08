@@ -62,7 +62,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements
                     QueryParameter::string('name', $agentConfiguration->getName()),
                     QueryParameter::string(
                         'configuration',
-                        json_encode($agentConfiguration->getConfiguration()->getData())
+                        json_encode($agentConfiguration->getConfiguration()->getData(), JSON_THROW_ON_ERROR)
                     ),
                 ])
             );
@@ -96,7 +96,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements
                     QueryParameter::string('name', $agentConfiguration->getName()),
                     QueryParameter::string(
                         'configuration',
-                        json_encode($agentConfiguration->getConfiguration()->getData())
+                        json_encode($agentConfiguration->getConfiguration()->getData(), JSON_THROW_ON_ERROR)
                     ),
                 ])
             );
