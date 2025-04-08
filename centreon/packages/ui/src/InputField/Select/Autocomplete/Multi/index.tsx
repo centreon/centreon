@@ -33,7 +33,7 @@ const useStyles = makeStyles()((theme) => ({
   lisSubHeader: {
     width: '100%',
     background: theme.palette.background.default,
-    padding: theme.spacing(1, 1, 1, 1.5),
+    padding: theme.spacing(0.5, 1, 0.5, 1.5),
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -56,6 +56,7 @@ export interface Props
     > {
   chipProps?: ChipProps;
   disableSortedOptions?: boolean;
+  disableSelectAll?: boolean;
   getOptionTooltipLabel?: (option) => string;
   getTagLabel?: (option) => string;
   optionProperty?: string;
@@ -94,6 +95,7 @@ const MultiAutocompleteField = ({
   value,
   options,
   disableSortedOptions = false,
+  disableSelectAll = true,
   optionProperty = 'name',
   getOptionLabel = (option): string => option.name,
   getTagLabel = (option): string => option[optionProperty],
@@ -156,9 +158,11 @@ const MultiAutocompleteField = ({
 
     if (allSelected) {
       onChange?.(syntheticEvent, [], 'selectOption');
-    } else {
-      onChange?.(syntheticEvent, options, 'selectOption');
+
+      return;
     }
+
+    onChange?.(syntheticEvent, options, 'selectOption');
   };
 
   return (
@@ -183,14 +187,20 @@ const MultiAutocompleteField = ({
           ? customRenderTags(renderTags(renderedValue, getTagProps))
           : renderTags(renderedValue, getTagProps)
       }
-      ListboxComponent={(listboxProps) => (
-        <CustomListbox
-          {...listboxProps}
-          label={t(allSelected ? labelUnSelectAll : labelSelectAll)}
-          handleSelectAllToggle={handleSelectAllToggle}
-          labelTotal={t(labelElementsFound, { total: total || options.length })}
-        />
-      )}
+      ListboxComponent={
+        disableSelectAll
+          ? undefined
+          : (listboxProps) => (
+              <CustomListbox
+                {...listboxProps}
+                label={t(allSelected ? labelUnSelectAll : labelSelectAll)}
+                handleSelectAllToggle={handleSelectAllToggle}
+                labelTotal={t(labelElementsFound, {
+                  total: total || options.length
+                })}
+              />
+            )
+      }
       getOptionLabel={getOptionLabel}
       onChange={onChange}
       {...props}

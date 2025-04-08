@@ -98,7 +98,8 @@ const useFormInputs = ({
         chipColor: 'primary',
         additionalConditionParameters: [],
         endpoint: hostListEndpoint,
-        filterKey: 'name'
+        filterKey: 'name',
+        disableSelectAll: false
       },
       fieldName: 'hosts',
       group: t(labelGroupMembers),
@@ -111,7 +112,8 @@ const useFormInputs = ({
         chipColor: 'primary',
         additionalConditionParameters: [],
         endpoint: resourceAccessRulesEndpoint,
-        filterKey: 'name'
+        filterKey: 'name',
+        disableSelectAll: false
       },
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),

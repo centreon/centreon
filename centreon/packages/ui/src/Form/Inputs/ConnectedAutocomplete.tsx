@@ -143,6 +143,7 @@ const ConnectedAutocomplete = ({
         value={value ?? null}
         onBlur={blur}
         onChange={changeAutocomplete}
+        disableSelectAll={connectedAutocomplete?.disableSelectAll}
       />
     ),
     memoProps: [

@@ -20,7 +20,6 @@ export const openWithThreeOptions = (): JSX.Element => {
       options={options}
       placeholder=""
       value={[options[1]]}
-      total={3}
     />
   );
 };
@@ -33,7 +32,6 @@ export const closeWithEndAdornment = (): JSX.Element => {
       options={options}
       placeholder="Type here..."
       value={[options[1]]}
-      total={3}
     />
   );
 };
@@ -45,7 +43,6 @@ export const popover = (): JSX.Element => {
       options={options}
       placeholder="Type here..."
       value={[options[1]]}
-      total={3}
     />
   );
 };
@@ -58,7 +55,6 @@ export const popoverWithoutInput = (): JSX.Element => {
       options={options}
       placeholder="Type here..."
       value={[options[1]]}
-      total={3}
     />
   );
 };
@@ -78,7 +74,6 @@ export const customRenderedTags = (): JSX.Element => {
       placeholder="Type here..."
       value={[options[0], options[1]]}
       customRenderTags={customRender}
-      total={3}
     />
   );
 };

@@ -24,6 +24,7 @@ const Component = () => {
           placeholder={placeholder}
           value={values}
           onChange={(_, item) => setValues(item)}
+          disableSelectAll={false}
         />
       </div>
     </TestQueryProvider>
