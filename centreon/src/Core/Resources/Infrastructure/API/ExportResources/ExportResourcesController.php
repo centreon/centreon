@@ -181,10 +181,10 @@ final class ExportResourcesController extends AbstractController
                             'class' => $exception->getTrace()[0]['class'] ?? null,
                             'method' => $exception->getTrace()[0]['function'] ?? null,
                             'previous_message' => $exception->getPrevious()?->getMessage() ?? null,
-                        ]
+                        ],
                     ]
                 );
-                echo $csvEncoder->encode("Oops ! An error occurred: {$throwable->getMessage()}", CsvEncoder::FORMAT);
+                echo $csvEncoder->encode("Oops ! An error occurred: {$exception->getMessage()}", CsvEncoder::FORMAT);
             }
         });
 

@@ -87,7 +87,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                             'class' => $exception->getTrace()[0]['class'] ?? null,
                             'method' => $exception->getTrace()[0]['function'] ?? null,
                             'previous_message' => $exception->getPrevious()?->getMessage() ?? null,                        ]
-                    ]
+                    ],
                 );
             }
             $this->setResponseStatus($response);
@@ -111,7 +111,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                         'class' => $exception->getTrace()[0]['class'] ?? null,
                         'method' => $exception->getTrace()[0]['function'] ?? null,
                         'previous_message' => $exception->getPrevious()?->getMessage() ?? null,
-                    ]
+                    ],
                 ]
             );
             $this->setResponseStatus(new ErrorResponse('An error occurred while filtering columns'));

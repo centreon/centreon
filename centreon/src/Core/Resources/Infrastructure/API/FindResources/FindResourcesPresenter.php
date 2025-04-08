@@ -85,7 +85,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                             'class' => $exception->getTrace()[0]['class'] ?? null,
                             'method' => $exception->getTrace()[0]['function'] ?? null,
                             'previous_message' => $exception->getPrevious()?->getMessage() ?? null,
-                        ]
+                        ],
                     ]
                 );
             }
