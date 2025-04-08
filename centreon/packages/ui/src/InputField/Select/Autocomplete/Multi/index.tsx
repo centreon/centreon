@@ -181,7 +181,6 @@ const MultiAutocompleteField = ({
         </li>
       )}
       value={values}
-      isOptionEqualToValue={(option, value) => option.id === value.id}
       renderTags={(renderedValue, getTagProps): React.ReactNode =>
         customRenderTags
           ? customRenderTags(renderTags(renderedValue, getTagProps))
@@ -201,7 +200,6 @@ const MultiAutocompleteField = ({
               />
             )
       }
-      getOptionLabel={getOptionLabel}
       onChange={onChange}
       {...props}
     />
