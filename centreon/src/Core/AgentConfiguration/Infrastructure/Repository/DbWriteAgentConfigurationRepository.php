@@ -38,8 +38,7 @@ use Core\Common\Infrastructure\Repository\RepositoryTrait;
  * @class DbWriteAgentConfigurationRepository
  * @package Core\AgentConfiguration\Infrastructure\Repository
  */
-class DbWriteAgentConfigurationRepository extends DatabaseRepository implements
-    WriteAgentConfigurationRepositoryInterface
+class DbWriteAgentConfigurationRepository extends DatabaseRepository implements WriteAgentConfigurationRepositoryInterface
 {
     use RepositoryTrait;
 
@@ -174,7 +173,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements
 
             $this->connection->delete(
                 $this->translateDbName($query),
-                QueryParameters::create([QueryParameter::int('ac_id', $agentConfigurationId),])
+                QueryParameters::create([QueryParameter::int('ac_id', $agentConfigurationId)])
             );
         } catch (\Throwable $exception) {
             throw new RepositoryException(
