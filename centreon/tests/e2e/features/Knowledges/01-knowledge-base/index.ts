@@ -142,7 +142,11 @@ When('the user adds a procedure concerning this service in MediaWiki', () => {
   cy.wait('@getTimeZone');
   // Wait until the 'Host' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchHost"]');
+<<<<<<< HEAD
   cy.getIframeBody().find('a[name="Create wiki page"]').eq(10).then($elt => {
+=======
+  cy.getIframeBody().find('a[name="Create wiki page"]').eq(8).then($elt => {
+>>>>>>> master
   // Get the href of the mediawiki link of the service
   const linkUrl = $elt.prop('href');
   // Check that the href is as expected
@@ -160,6 +164,10 @@ When('the user adds a procedure concerning this service in MediaWiki', () => {
       name: 'web'
     });
     cy.visit('/');
+<<<<<<< HEAD
+=======
+    cy.exportConfig();
+>>>>>>> master
   });
   });
 });
@@ -208,4 +216,8 @@ Then('the page is deleted and the option disappear', () => {
   cy.exportConfig();
   cy.getIframeBody().contains('a', 'Delete wiki page').should('not.exist');
   cy.getIframeBody().contains('font', ' No wiki page defined ').should('exist');
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> master
