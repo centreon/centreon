@@ -134,30 +134,40 @@ When('the user changes some properties of the configured host group', () => {
     subMenu: 'Hosts'
   });
   cy.wait('@getGroups');
-  cy.contains('p', hostGroups.default.name)
-    .eq(0)
-    .click();
-  cy.wait('@getGroupDetails')
+  cy.contains('p', hostGroups.default.name).eq(0).click();
+  cy.wait('@getGroupDetails');
   cy.contains('p', 'Modify a host group').should('be.visible');
-  // Update Name field 
-  cy.getByTestId({ testId: 'Name' }).eq(1).clear().type(hostGroups.forTest.name);
+  // Update Name field
+  cy.getByTestId({ testId: 'Name' })
+    .eq(1)
+    .clear()
+    .type(hostGroups.forTest.name);
   // Update Alias field
-  cy.getByTestId({ testId: 'Alias' }).eq(1).clear().type(hostGroups.forTest.alias);
+  cy.getByTestId({ testId: 'Alias' })
+    .eq(1)
+    .clear()
+    .type(hostGroups.forTest.alias);
   // Update Group members hosts field
   cy.get('#Selecthosts').click();
   cy.wait('@getHosts');
   cy.contains('Centreon-Server').click();
   // Update geo coordinates for MAP
-  cy.getByTestId({ testId: 'Geographic coordinates for MAP'}).eq(1).clear().type(hostGroups.forTest.geo_coords);
+  cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
+    .eq(1)
+    .clear()
+    .type(hostGroups.forTest.geo_coords);
   // Update icon
-  cy.getByTestId({ testId: 'ArrowDropDownIcon'}).eq(2).click();
+  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).eq(2).click();
   cy.wait('@getIcons');
   cy.contains('p', 'centreon').click();
   // Update Comment field
-  cy.getByTestId({testId: 'Comment'}).eq(1).clear().type(hostGroups.forTest.comment);
+  cy.getByTestId({ testId: 'Comments' })
+    .eq(1)
+    .clear()
+    .type(hostGroups.forTest.comment);
   // Save the form
   cy.getByTestId({ testId: 'submit' }).click();
-  cy.wait('@getGroups')
+  cy.wait('@getGroups');
   cy.exportConfig();
 });
 
@@ -174,12 +184,12 @@ Then('these properties are updated', () => {
   // check values of hosts members
   cy.contains('span', 'host2').should('be.visible');
   cy.contains('span', 'Centreon-Server').should('be.visible');
-  cy.getByTestId({ testId: 'Geographic coordinates for MAP'})
+  cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
     .should('have.value', hostGroups.forTest.geo_coords);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
-  cy.getByTestId({testId: 'Comment'})
+  cy.getByTestId({ testId: 'Comments' })
     .eq(1)
     .should('have.value', hostGroups.forTest.comment);
 });
@@ -193,8 +203,7 @@ When('the user duplicates the configured host group', () => {
   });
   cy.wait('@getGroups');
   cy.getByTestId({ testId: 'ContentCopyOutlinedIcon' }).eq(1).click();
-  cy.get('[type="submit"][aria-label="Duplicate"]')
-    .click();
+  cy.get('[type="submit"][aria-label="Duplicate"]').click();
   cy.wait('@getGroups');
 });
 
@@ -209,12 +218,12 @@ Then('a new host group is created with identical properties', () => {
     .should('have.value', hostGroups.forDuplicate.alias);
   // check values of hosts members
   cy.contains('span', 'host2').should('be.visible');
-  cy.getByTestId({ testId: 'Geographic coordinates for MAP'})
+  cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
     .should('have.value', hostGroups.forDuplicate.geo_coords);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
-  cy.getByTestId({testId: 'Comment'})
+  cy.getByTestId({ testId: 'Comments' })
     .eq(1)
     .should('have.value', hostGroups.forTest.comment);
 });
@@ -226,9 +235,8 @@ When('the user deletes the configured host group', () => {
     subMenu: 'Hosts'
   });
   cy.wait('@getGroups');
-  cy.getByTestId({testId: 'DeleteOutlineIcon'}).eq(1).click();
-  cy.get('[type="submit"][aria-label="Delete"]')
-    .click();
+  cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(1).click();
+  cy.get('[type="submit"][aria-label="Delete"]').click();
   cy.wait('@getGroups');
   cy.exportConfig();
 });
