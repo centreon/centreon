@@ -107,26 +107,29 @@ Given(
         case "n - 1":
           const previousVersion =
             getCentreonPreviousMajorVersion(major_version);
-            cy.log(previousVersion);
+          cy.log(`Getting Centreon previous major version: ${previousVersion}`);
+          // Cloud versioning is different from on-prem
           if (Cypress.env("IS_CLOUD")) {
+            // Check if a file with the major version exists
             const versionFilePath = `./././../../www/install/php/Update-${previousVersion}.${minor_version}.php`;
             cy.task("fileExists", versionFilePath).then((exists) => {
               if (exists) {
-                cy.log("The file exists");
+                cy.log(`The file with version: ${previousVersion} exist`);
                 cy.wrap(previousVersion).as("majorVersionFrom");
                 major_version_from = previousVersion;
               } else {
-                cy.log("The file does not exist");
-                 cy.getClosestVersionFile(previousVersion).then(
-                   (versionFilePath) => {
-                     cy.log(
-                       `The closest version file is at: ${versionFilePath}`,
-                     );
-                     const newVersion = versionFilePath;
-                     major_version_from = versionFilePath;
-                     cy.wrap(newVersion).as("majorVersionFrom");
-                   },
-                 );
+                cy.log(
+                  `The file with version: ${previousVersion} does not exist`,
+                );
+                // If the version isn't found, use the closest available one
+                cy.getClosestVersionFile(previousVersion).then(
+                  (versionFilePath) => {
+                    cy.log(`The last cloud version is: ${versionFilePath}`);
+                    const newVersion = versionFilePath;
+                    major_version_from = versionFilePath;
+                    cy.wrap(newVersion).as("majorVersionFrom");
+                  },
+                );
               }
             });
           } else {
