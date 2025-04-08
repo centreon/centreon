@@ -38,7 +38,8 @@ use Core\Common\Infrastructure\Repository\RepositoryTrait;
  * @class DbWriteAgentConfigurationRepository
  * @package Core\AgentConfiguration\Infrastructure\Repository
  */
-class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements WriteAgentConfigurationRepositoryInterface
+class DbWriteAgentConfigurationRepository extends DatabaseRepository implements
+    WriteAgentConfigurationRepositoryInterface
 {
     use RepositoryTrait;
 
@@ -48,22 +49,25 @@ class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements
     public function add(NewAgentConfiguration $agentConfiguration): int
     {
         try {
-        $query = $this->queryBuilder->insert('`:db`.`agent_configuration`')
-            ->set('type', ':type')
-            ->set('name', ':name')
-            ->set('configuration', ':configuration')
-            ->getQuery();
+            $query = $this->queryBuilder->insert('`:db`.`agent_configuration`')
+                ->set('type', ':type')
+                ->set('name', ':name')
+                ->set('configuration', ':configuration')
+                ->getQuery();
 
-        $this->connection->insert(
-            $this->translateDbName($query),
-            QueryParameters::create([
-                QueryParameter::string('type', $agentConfiguration->getType()->value),
-                QueryParameter::string('name', $agentConfiguration->getName()),
-                QueryParameter::string('configuration', json_encode($agentConfiguration->getConfiguration()->getData())),
-            ])
-        );
+            $this->connection->insert(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::string('type', $agentConfiguration->getType()->value),
+                    QueryParameter::string('name', $agentConfiguration->getName()),
+                    QueryParameter::string(
+                        'configuration',
+                        json_encode($agentConfiguration->getConfiguration()->getData())
+                    ),
+                ])
+            );
 
-        return (int) $this->connection->getLastInsertId();
+            return (int) $this->connection->getLastInsertId();
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'Error while inserting agent configuration',
@@ -90,7 +94,10 @@ class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements
                 QueryParameters::create([
                     QueryParameter::int('id', $agentConfiguration->getId()),
                     QueryParameter::string('name', $agentConfiguration->getName()),
-                    QueryParameter::string('configuration', json_encode($agentConfiguration->getConfiguration()->getData())),
+                    QueryParameter::string(
+                        'configuration',
+                        json_encode($agentConfiguration->getConfiguration()->getData())
+                    ),
                 ])
             );
         } catch (\Throwable $exception) {
@@ -114,7 +121,7 @@ class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements
 
             $this->connection->delete(
                 $this->translateDbName($query),
-                QueryParameters::create([QueryParameter::int('id', $id),])
+                QueryParameters::create([QueryParameter::int('id', $id)])
             );
         } catch (\Throwable $exception) {
             throw new RepositoryException(
@@ -167,9 +174,7 @@ class DbWriteAgentConfigurationRepository  extends DatabaseRepository implements
 
             $this->connection->delete(
                 $this->translateDbName($query),
-                QueryParameters::create([
-                    QueryParameter::int('ac_id', $agentConfigurationId),
-                ])
+                QueryParameters::create([QueryParameter::int('ac_id', $agentConfigurationId),])
             );
         } catch (\Throwable $exception) {
             throw new RepositoryException(
