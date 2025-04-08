@@ -21,7 +21,7 @@ Cypress.Commands.add("getClosestVersionFile", (currentVersion) => {
       })
       .filter(Boolean); // Clean out nulls
 
-    cy.log(`Looking for version: ${currentVersion}`);
+    cy.log(`Looking for a version close to: ${currentVersion}`);
 
     // If the version exists, return it
     if (versions.includes(currentVersion)) {
