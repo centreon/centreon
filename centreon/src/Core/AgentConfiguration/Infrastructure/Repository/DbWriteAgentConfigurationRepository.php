@@ -49,10 +49,13 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
     {
         try {
             $query = $this->queryBuilder->insert('`:db`.`agent_configuration`')
-                ->set('type', ':type')
-                ->set('name', ':name')
-                ->set('configuration', ':configuration')
-                ->getQuery();
+                ->values(
+                    [
+                        'type' => ':type',
+                        'name' => ':name',
+                        'configuration' => ':configuration',
+                    ]
+                )->getQuery();
 
             $this->connection->insert(
                 $this->translateDbName($query),
@@ -69,7 +72,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
             return (int) $this->connection->getLastInsertId();
         } catch (\Throwable $exception) {
             throw new RepositoryException(
-                message: 'Error while inserting agent configuration',
+                message: 'Error while adding agent configuration',
                 context: ['type' => $agentConfiguration->getType()->value, 'name' => $agentConfiguration->getName()],
                 previous: $exception
             );
@@ -138,9 +141,12 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
     {
         try {
             $query = $this->queryBuilder->insert('`:db`.`ac_poller_relation`')
-                ->set('ac_id', ':ac_id')
-                ->set('poller_id', ':poller_id')
-                ->getQuery();
+                ->values(
+                    [
+                        'ac_id' => ':ac_id',
+                        'poller_id' => ':poller_id',
+                    ]
+                )->getQuery();
 
             foreach ($pollerIds as $poller) {
                 $pollerId = $poller;
@@ -192,7 +198,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
         try {
             $query = $this->queryBuilder->delete('`:db`.`ac_poller_relation`')
                 ->where('ac_id', ':ac_id')
-                ->where('poller_id', ':poller_id')
+                ->andWhere('poller_id', ':poller_id')
                 ->getQuery();
 
             $this->connection->delete(
@@ -218,10 +224,13 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
     {
         try {
             $query = $this->queryBuilder->insert('`:db`.`cfg_nagios_broker_module`')
-                ->set('bk_mod_id', ':bk_mod_id')
-                ->set('cfg_nagios_id', ':cfg_nagios_id')
-                ->set('broker_module', ':broker_module')
-                ->getQuery();
+                ->values(
+                    [
+                        'bk_mod_id' => ':bk_mod_id',
+                        'cfg_nagios_id' => ':cfg_nagios_id',
+                        'broker_module' => ':broker_module',
+                    ]
+                )->getQuery();
 
             foreach ($pollerIds as $poller) {
                 $pollerId = $poller;
