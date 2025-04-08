@@ -19821,3 +19821,6 @@ msgstr "Coordonnées géographiques pour MAP"
 
 msgid "Invalid geo-coordinate format"
 msgstr "Format de coordonnées géographiques invalide"
+
+msgid "'{{total}} element(s) found"
+msgstr "'{{total}} élément(s) trouvé(s)"

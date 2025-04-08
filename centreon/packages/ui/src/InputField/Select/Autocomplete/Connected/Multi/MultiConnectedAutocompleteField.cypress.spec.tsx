@@ -4,12 +4,39 @@ import {
   TestQueryProvider
 } from '@centreon/ui';
 
+import i18next from 'i18next';
+import { useState } from 'react';
+import { initReactI18next } from 'react-i18next';
+import { labelSelectAll, labelUnSelectAll } from '../../../../translatedLabels';
 import { baseEndpoint, getEndpoint, label, placeholder } from './utils';
 
 const optionOne = 'My Option 1';
 
+const Component = () => {
+  const [values, setValues] = useState([]);
+  return (
+    <TestQueryProvider>
+      <div style={{ paddingTop: 20 }}>
+        <MultiConnectedAutocompleteField
+          field="host.name"
+          getEndpoint={getEndpoint}
+          label={label}
+          placeholder={placeholder}
+          value={values}
+          onChange={(_, item) => setValues(item)}
+        />
+      </div>
+    </TestQueryProvider>
+  );
+};
+
 describe('Multi connected autocomplete', () => {
   beforeEach(() => {
+    i18next.use(initReactI18next).init({
+      lng: 'en',
+      resources: {}
+    });
+
     cy.fixture('inputField/listOptions').then((optionsData) => {
       cy.interceptAPIRequest({
         alias: 'getListOptions',
@@ -35,18 +62,7 @@ describe('Multi connected autocomplete', () => {
     });
 
     cy.mount({
-      Component: (
-        <TestQueryProvider>
-          <div style={{ paddingTop: 20 }}>
-            <MultiConnectedAutocompleteField
-              field="host.name"
-              getEndpoint={getEndpoint}
-              label={label}
-              placeholder={placeholder}
-            />
-          </div>
-        </TestQueryProvider>
-      )
+      Component: <Component />
     });
   });
 
@@ -98,7 +114,7 @@ describe('Multi connected autocomplete', () => {
     cy.waitForRequest('@getSearchedOption');
 
     cy.fixture('inputField/searchedOption').then(() => {
-      cy.get('@listOptions').find('li').should('have.length', 5);
+      cy.get('@listOptions').find('li').should('have.length', 6);
     });
 
     cy.get('[type="checkbox"]').eq(0).check();
@@ -115,7 +131,7 @@ describe('Multi connected autocomplete', () => {
     cy.fixture('inputField/listOptions').then((optionsData) => {
       cy.get('@listOptions')
         .find('li')
-        .should('have.length', optionsData.result.length);
+        .should('have.length', optionsData.result.length + 1);
 
       cy.get('@listOptions').within(() => {
         optionsData.result.forEach((option) => {
@@ -123,5 +139,42 @@ describe('Multi connected autocomplete', () => {
         });
       });
     });
+  });
+
+  it('checks all options when Select all button is clicked', () => {
+    cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
+
+    cy.get('@input').click();
+
+    cy.contains('5 element(s) found');
+
+    cy.waitForRequest('@getListOptions');
+
+    cy.contains(labelSelectAll).click();
+
+    cy.contains(labelUnSelectAll).should('be.visible');
+
+    cy.get('[data-testid="CancelIcon"]').should('have.length', 5);
+
+    cy.makeSnapshot('checks all options when Select all button is clicked');
+  });
+
+  it('unchecks all options when unSelect all button is clicked', () => {
+    cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
+
+    cy.get('@input').click();
+
+    cy.contains('5 element(s) found');
+
+    cy.waitForRequest('@getListOptions');
+
+    cy.contains(labelSelectAll).click();
+    cy.contains(labelUnSelectAll).click();
+
+    cy.contains(labelSelectAll).should('be.visible');
+
+    cy.get('[data-testid="CancelIcon"]').should('have.length', 0);
+
+    cy.makeSnapshot('unchecks all options when unSelect all button is clicked');
   });
 });
