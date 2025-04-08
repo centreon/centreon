@@ -86,8 +86,9 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                             'line' => $exception->getLine(),
                             'class' => $exception->getTrace()[0]['class'] ?? null,
                             'method' => $exception->getTrace()[0]['function'] ?? null,
-                            'previous_message' => $exception->getPrevious()?->getMessage() ?? null,                        ]
-                    ],
+                            'previous_message' => $exception->getPrevious()?->getMessage() ?? null,
+                        ],
+                    ]
                 );
             }
             $this->setResponseStatus($response);
@@ -169,7 +170,9 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                 _('Parent alias') => $resource->getParent()?->getAlias() ?? '',
                 _('FQDN / Address') => $resource->getFqdn() ?? '',
                 _('Monitoring Server') => $resource->getMonitoringServerName(),
-                _('Notif') => $resource->isNotificationEnabled() ? _('Notifications enabled') : _('Notifications disabled'),
+                _('Notif') => $resource->isNotificationEnabled() ? _('Notifications enabled') : _(
+                    'Notifications disabled'
+                ),
                 _('Check') => _($this->getResourceCheck($resource)),
             ];
         }
