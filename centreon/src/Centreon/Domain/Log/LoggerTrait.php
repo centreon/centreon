@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,7 @@ declare(strict_types=1);
 namespace Centreon\Domain\Log;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
-use Symfony\Contracts\Service\Attribute\Required;
 
 /**
  * This class is design to provide all the methods for recording events.
@@ -43,7 +40,7 @@ trait LoggerTrait
     /**
      * @param ContactInterface $loggerContact
      */
-    #[Required]
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setLoggerContact(ContactInterface $loggerContact): void
     {
         $this->loggerContact = $loggerContact;
@@ -52,7 +49,7 @@ trait LoggerTrait
     /**
      * @param ContactForDebug $loggerContactForDebug
      */
-    #[Required]
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setLoggerContactForDebug(ContactForDebug $loggerContactForDebug): void
     {
         $this->loggerContactForDebug = $loggerContactForDebug;
@@ -61,7 +58,7 @@ trait LoggerTrait
     /**
      * @param LoggerInterface $centreonLogger
      */
-    #[Required]
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setLogger(LoggerInterface $centreonLogger): void
     {
         $this->logger = $centreonLogger;
@@ -69,113 +66,173 @@ trait LoggerTrait
 
     /**
      * @param string $message
-     * @param array<string,mixed> $context
+     * @param mixed[] $context
      * @param callable|null $callable
      *
-     * @see LoggerInterface::emergency
+     * @see \Psr\Log\LoggerInterface::emergency()
      */
     private function emergency(string $message, array $context = [], ?callable $callable = null): void
     {
-        $this->executeLog(LogLevel::EMERGENCY, $message, $context, $callable);
+        if ($this->canBeLogged()) {
+            if ($callable !== null) {
+                $context = array_merge($context, $callable());
+            }
+            $this->logger->emergency($this->prefixMessage($message), $context);
+        }
     }
 
     /**
      * @param string $message
-     * @param array<string,mixed> $context
+     * @param mixed[] $context
      * @param callable|null $callable
      *
-     * @see LoggerInterface::alert
+     * @see \Psr\Log\LoggerInterface::alert()
      */
     private function alert(string $message, array $context = [], ?callable $callable = null): void
     {
-        $this->executeLog(LogLevel::ALERT, $message, $context, $callable);
+        if ($this->canBeLogged()) {
+            if ($callable !== null) {
+                $context = array_merge($context, $callable());
+            }
+            $this->logger->alert($this->prefixMessage($message), $context);
+        }
     }
 
     /**
      * @param string $message
-     * @param array<string,mixed> $context
+     * @param mixed[] $context
      * @param callable|null $callable
      *
-     * @see LoggerInterface::critical
+     * @see \Psr\Log\LoggerInterface::critical()
      */
     private function critical(string $message, array $context = [], ?callable $callable = null): void
     {
-        $this->executeLog(LogLevel::CRITICAL, $message, $context, $callable);
+        if ($this->canBeLogged()) {
+            if ($callable !== null) {
+                $context = array_merge($context, $callable());
+            }
+            $this->logger->critical($this->prefixMessage($message), $context);
+        }
     }
 
     /**
      * @param string $message
-     * @param array<string,mixed> $context
+     * @param mixed[] $context
      * @param callable|null $callable
      *
-     * @see LoggerInterface::error
+     * @see \Psr\Log\LoggerInterface::error()
      */
     private function error(string $message, array $context = [], ?callable $callable = null): void
     {
-        $this->executeLog(LogLevel::ERROR, $message, $context, $callable);
+        if ($this->canBeLogged()) {
+            if ($callable !== null) {
+                $context = array_merge($context, $callable());
+            }
+            $this->logger->error($this->prefixMessage($message), $context);
+        }
     }
 
     /**
      * @param string $message
-     * @param array<string,mixed> $context
+     * @param mixed[] $context
      * @param callable|null $callable
      *
-     * @see LoggerInterface::warning
+     * @see \Psr\Log\LoggerInterface::warning()
      */
     private function warning(string $message, array $context = [], ?callable $callable = null): void
     {
-        $this->executeLog(LogLevel::WARNING, $message, $context, $callable);
+        if ($this->canBeLogged()) {
+            if ($callable !== null) {
+                $context = array_merge($context, $callable());
+            }
+            $this->logger->warning($this->prefixMessage($message), $context);
+        }
     }
 
     /**
      * @param string $message
-     * @param array<string,mixed> $context
+     * @param mixed[] $context
      * @param callable|null $callable
      *
-     * @see LoggerInterface::notice
+     * @see \Psr\Log\LoggerInterface::notice()
      */
     private function notice(string $message, array $context = [], ?callable $callable = null): void
     {
-        $this->executeLog(LogLevel::NOTICE, $message, $context, $callable);
+        if ($this->canBeLogged()) {
+            if ($callable !== null) {
+                $context = array_merge($context, $callable());
+            }
+            $this->logger->notice($this->prefixMessage($message), $context);
+        }
     }
 
     /**
      * @param string $message
-     * @param array<string,mixed> $context
+     * @param mixed[] $context
      * @param callable|null $callable
      *
-     * @see LoggerInterface::info
+     * @see \Psr\Log\LoggerInterface::info()
      */
     private function info(string $message, array $context = [], ?callable $callable = null): void
     {
-        $this->executeLog(LogLevel::INFO, $message, $context, $callable);
+        if ($this->canBeLogged()) {
+            if ($callable !== null) {
+                $context = array_merge($context, $callable());
+            }
+            $this->logger->info($this->prefixMessage($message), $context);
+        }
     }
 
     /**
      * @param string $message
-     * @param array<string,mixed> $context
+     * @param mixed[] $context
      * @param callable|null $callable
      *
-     * @see LoggerInterface::debug
+     * @see \Psr\Log\LoggerInterface::debug()
      */
     private function debug(string $message, array $context = [], ?callable $callable = null): void
     {
-        $this->executeLog(LogLevel::DEBUG, $message, $context, $callable);
+        if ($this->canBeLogged()) {
+            if ($callable !== null) {
+                $context = array_merge($context, $callable());
+            }
+            $this->logger->debug($this->prefixMessage($message), $context);
+        }
     }
 
     /**
      * @param mixed $level
      * @param string $message
-     * @param array<string,mixed> $context
+     * @param mixed[] $context
      * @param callable|null $callable
      *
-     * @throws InvalidArgumentException
+     * @throws \Psr\Log\InvalidArgumentException
      *
-     * @see LoggerInterface::log
+     * @see \Psr\Log\LoggerInterface::log()
      */
     private function log($level, string $message, array $context = [], ?callable $callable = null): void
     {
-        $this->executeLog($level, $message, $context, $callable);
+        if ($this->canBeLogged()) {
+            if ($callable !== null) {
+                $context = array_merge($context, $callable());
+            }
+            $this->logger->log($level, $this->prefixMessage($message), $context);
+        }
+    }
+
+    /**
+     * @param string $message
+     *
+     * @return string
+     */
+    private function prefixMessage(string $message): string
+    {
+        $debugTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $callingClass = (count($debugTrace) === 2 && isset($debugTrace[1]['class'], $debugTrace[1]['line']))
+            ? $debugTrace[1]['class'] . ':' . $debugTrace[1]['line']
+            : static::class;
+
+        return sprintf('[%s]: %s', $callingClass, $message);
     }
 
     /**
@@ -188,60 +245,4 @@ trait LoggerTrait
             && $this->loggerContact !== null
             && $this->loggerContactForDebug->isValidForContact($this->loggerContact);
     }
-
-    /**
-     * @param string $level
-     * @param string $message
-     * @param array<string,mixed> $context
-     * @param callable|null $callable
-     *
-     * @return void
-     */
-    private function executeLog(
-        string $level,
-        string $message,
-        array $context = [],
-        ?callable $callable = null
-    ): void {
-        if ($this->canBeLogged()) {
-            if ($callable !== null) {
-                $context = array_merge($context, $callable());
-            }
-            $normalizedContext = $this->normalizeContext($context);
-            $this->logger->log($level, $message, $normalizedContext);
-        }
-    }
-
-    /**
-     * @param array<string,mixed> $customContext
-     *
-     * @return array<string,mixed>
-     */
-    private function normalizeContext(array $customContext): array
-    {
-        // Add default context with request infos
-        $defaultContext = [
-            'request_infos' => [
-                'url' => $_SERVER['REQUEST_URI'] ?? null,
-                'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
-                'server' => $_SERVER['SERVER_NAME'] ?? null,
-                'referrer' => $_SERVER['HTTP_REFERER'] ?? null,
-            ],
-        ];
-
-        $exceptionContext = [];
-        if(isset($customContext['exception'])) {
-            $exceptionContext = $customContext['exception'];
-            unset($customContext['exception']);
-        }
-
-        return [
-            'context' => [
-                'custom' => $customContext !== [] ? $customContext : null,
-                'exception' => $exceptionContext !== [] ? $exceptionContext : null,
-                'default' => $defaultContext,
-            ]
-        ];
-    }
-
 }
