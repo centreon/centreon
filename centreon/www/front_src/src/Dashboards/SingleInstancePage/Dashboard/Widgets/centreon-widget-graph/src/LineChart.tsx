@@ -77,6 +77,14 @@ const WidgetLineChart = ({
 
   const areResourcesOk = areResourcesFullfilled(panelData.resources);
 
+  console.log('endpoint', getWidgetEndpoint({
+    dashboardId,
+    defaultEndpoint: graphEndpoint,
+    isOnPublicPage,
+    playlistHash,
+    widgetId: id
+  }))
+
   const { graphData, start, end, isGraphLoading, isMetricsEmpty } =
     useGraphQuery({
       baseEndpoint: getWidgetEndpoint({

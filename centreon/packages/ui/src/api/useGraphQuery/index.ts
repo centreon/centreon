@@ -164,13 +164,11 @@ const useGraphQuery = ({
     data.current = graphData;
   }
 
-  const formattedGraphData = data.current
-    ? {
-        global: {
-          base: data.current.base,
-          title: ''
-        },
-        metrics: bypassMetricsExclusion
+  const getCurrentMetrics = ()=>{
+    if(!data.current){
+      return undefined
+    }
+    return bypassMetricsExclusion
           ? data.current.metrics
           : data.current.metrics.filter(({ metric_id }) => {
               return pipe(
@@ -179,7 +177,49 @@ const useGraphQuery = ({
                 includes(metric_id),
                 not
               )(metrics);
-            }),
+            })
+  }
+
+  const getFormattedMetrics = ()=>{
+    const metrics = getCurrentMetrics()
+
+   const newMetrics =  metrics?.map((line)=>{
+    const currentMetricLine = line.metric.replaceAll(' ','')
+      const [hostName, metricName] = currentMetricLine.split(':')
+
+      return {...line, hostName,serviceName:'test', metricName}
+    })
+
+    return newMetrics?.map((line)=>{
+
+     const areHostNameRedundant =  newMetrics.every(({hostName})=>hostName===line.hostName);
+     const areServiceNameRedundant = newMetrics.every(({serviceName})=>serviceName===line.serviceName);
+
+     if(areHostNameRedundant && areServiceNameRedundant){
+      let formattedLegend = line.metricName
+      return {...line, legend:formattedLegend }
+     }
+     
+     if(areHostNameRedundant){
+       let formattedLegend= `${line.serviceName}:${line.metricName}`
+       return {...line, legend: formattedLegend}
+     }
+     
+      let formattedLegend = `${line.hostName}:${line.metricName}`
+
+      return {...line, legend:formattedLegend}
+    })
+
+  }
+
+
+  const formattedGraphData = data.current
+    ? {
+        global: {
+          base: data.current.base,
+          title: ''
+        },
+        metrics: getFormattedMetrics(),
         times: data.current.times
       }
     : undefined;
