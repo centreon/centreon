@@ -79,10 +79,10 @@ class AgentConfiguration extends AbstractObjectJSON
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
             'port' => ModelAgentConfiguration::DEFAULT_PORT,
             'encryption' => true,
-            'public_cert' => '/etc/pki/' . $data['otel_public_certificate'] . '.crt',
-            'private_key' => '/etc/pki/' . $data['otel_private_key'] . '.key',
+            'public_cert' => $data['otel_public_certificate'],
+            'private_key' => $data['otel_private_key'],
             'ca_certificate' => $data['otel_ca_certificate'] !== null
-                ? '/etc/pki/' . $data['otel_ca_certificate'] . '.crt'
+                ? $data['otel_ca_certificate']
                 : '',
         ];
     }
@@ -110,7 +110,7 @@ class AgentConfiguration extends AbstractObjectJSON
                     'port' => $host['port'],
                     'encryption' => true,
                     'ca_certificate' => $host['poller_ca_certificate'] !== null
-                        ? '/etc/pki/' . $host['poller_ca_certificate'] . '.crt'
+                        ? $host['poller_ca_certificate']
                         : '',
                     'ca_name' => $host['poller_ca_name'],
                 ],
@@ -138,8 +138,8 @@ class AgentConfiguration extends AbstractObjectJSON
                 'http_server' => [
                     'port' => $data['conf_server_port'],
                     'encryption' => true,
-                    'public_cert' => '/etc/pki/' . $data['conf_certificate'] .'.crt',
-                    'private_key' => '/etc/pki/' . $data['conf_private_key'] .'.key',
+                    'public_cert' => $data['conf_certificate'],
+                    'private_key' => $data['conf_private_key'],
                 ]
             ]
         ];
