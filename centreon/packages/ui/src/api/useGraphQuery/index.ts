@@ -183,11 +183,11 @@ const useGraphQuery = ({
   const getFormattedMetrics = () => {
     const metrics = getCurrentMetrics();
 
-    const newMetrics = metrics?.map((line) => {
+    const newMetrics = metrics?.map((line, ind) => {
       const currentMetricLine = line.metric.replaceAll(' ', '');
       const [hostName, metricName] = currentMetricLine.split(':');
 
-      return { ...line, hostName, serviceName: 'test', metricName };
+      return { ...line, hostName, serviceName: `Ping${ind}`, metricName };
     });
 
     return newMetrics?.map((line) => {
@@ -200,15 +200,23 @@ const useGraphQuery = ({
 
       if (areHostNameRedundant && areServiceNameRedundant) {
         const formattedLegend = line.metricName;
+        
         return { ...line, legend: formattedLegend };
       }
 
       if (areHostNameRedundant) {
         const formattedLegend = `${line.serviceName}:${line.metricName}`;
+        
         return { ...line, legend: formattedLegend };
       }
+      if(areServiceNameRedundant){
+        const formattedLegend = `${line.hostName}:${line.metricName}`;
+        
+        return { ...line, legend: formattedLegend };
 
-      const formattedLegend = `${line.hostName}:${line.metricName}`;
+      }
+
+      const formattedLegend = `${line.hostName} ${line.serviceName}: ${line.metricName}`;
 
       return { ...line, legend: formattedLegend };
     });
