@@ -52,7 +52,6 @@ class FindContactTemplatesPresenter extends AbstractPresenter implements FindCon
         protected PresenterFormatterInterface $presenterFormatter,
         private readonly ContactInterface $user,
         private readonly ExceptionHandler $exceptionHandler,
-
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -68,7 +67,7 @@ class FindContactTemplatesPresenter extends AbstractPresenter implements FindCon
             } elseif ($response instanceof ForbiddenResponse) {
                 $this->error('User doesn\'t have sufficient rights to list contact templates', [
                     'user_id' => $this->user->getId(),
-                ]);;
+                ]);
             }
             $this->setResponseStatus($response);
 

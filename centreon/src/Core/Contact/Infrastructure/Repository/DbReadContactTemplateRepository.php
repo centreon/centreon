@@ -28,14 +28,12 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
-use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
@@ -58,13 +56,11 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
      * @param ConnectionInterface $connection
      * @param QueryBuilderInterface $queryBuilder
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
-     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         ConnectionInterface $connection,
         QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
-        private readonly ExceptionHandler $exceptionHandler
     ) {
         parent::__construct($connection, $queryBuilder);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
