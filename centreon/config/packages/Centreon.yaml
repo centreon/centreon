@@ -62,10 +62,6 @@ services:
     Logger:
         class: Centreon\Domain\Log\Logger
 
-    Core\Common\Infrastructure\ExceptionHandler:
-      arguments:
-        $logger: '@Logger'
-
     Core\Common\Infrastructure\FeatureFlags:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
         public: true
