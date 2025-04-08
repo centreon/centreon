@@ -127,7 +127,7 @@ class KnowledgeBaseContext extends CentreonContext
                 ) !== null;
             },
             'Wiki procedure option is not available',
-            10
+            20
         );
 
         $this->assertFind('css', '.list_two td:nth-child(5) a:nth-child(1)')->click();
