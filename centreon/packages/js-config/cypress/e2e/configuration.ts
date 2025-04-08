@@ -59,11 +59,6 @@ export default ({
         await esbuildPreprocessor(on, config);
         tasks(on);
 
-        cypressOn("task", {
-          fileExists(filePath: string) {
-            return fs.existsSync(filePath); // Checks if the file exists
-          },
-});
         return plugins(on, config);
       },
       specPattern,

@@ -59,18 +59,5 @@ export default (
     fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
   });
 
-  on("task", {
-    listFilesInDirectory(directoryPath) {
-      return new Promise((resolve, reject) => {
-        fs.readdir(directoryPath, (err, files) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(files); // Retourne la liste des fichiers
-          }
-        });
-      });
-    },
-  });
   return config;
 };
