@@ -29,13 +29,13 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
+use Core\Common\Domain\Exception\ExceptionFormatter;
 use Centreon\Domain\RequestParameters\{
     Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
 };
 use Centreon\Domain\VersionHelper;
 use Core\Common\Domain\Exception\RepositoryException;
-use Core\Common\Infrastructure\ExceptionHandler;
-use Psr\Log\LogLevel;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -74,7 +74,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      * @param Security $security
      * @param ApiPlatform $apiPlatform
      * @param ContactInterface $contact
-     * @param ExceptionHandler $exceptionHandler
+     * @param LoggerInterface $logger
      * @param string $apiVersionLatest
      * @param string $apiHeaderName
      * @param string $translationPath
@@ -84,7 +84,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         readonly private Security $security,
         readonly private ApiPlatform $apiPlatform,
         readonly private ContactInterface $contact,
-        readonly private ExceptionHandler $exceptionHandler,
+        readonly private LoggerInterface $logger,
         readonly private string $apiVersionLatest,
         readonly private string $apiHeaderName,
         readonly private string $translationPath,
@@ -341,6 +341,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                         ?: Response::HTTP_INTERNAL_SERVER_ERROR;
                 }
             }
+            $this->logException($event->getThrowable());
             // Manage exception outside controllers
             $event->setResponse(
                 new Response(
@@ -398,11 +399,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     'message' => $event->getThrowable()->getMessage(),
                 ]);
             }
+            $this->logException($event->getThrowable());
             $event->setResponse(
                 new Response($errorMessage, (int) $httpCode)
             );
         }
-        $this->logException($event->getThrowable());
     }
 
     /**
@@ -431,15 +432,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
     private function logException(\Throwable $exception): void
     {
         if (! $exception instanceof HttpExceptionInterface || $exception->getCode() >= 500) {
-            $level = LogLevel::CRITICAL;
+            $this->logger->critical($exception->getMessage(), ['exception' => ExceptionFormatter::format($exception)]);
         } else {
-            $level = LogLevel::ERROR;
+            $this->logger->error($exception->getMessage(), ['exception' => ExceptionFormatter::format($exception)]);
         }
-        $this->exceptionHandler->log(
-            throwable: $exception,
-            context: ['internal_error' => $exception],
-            level: $level
-        );
     }
 
     /**

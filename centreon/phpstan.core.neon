@@ -78,9 +78,8 @@ parameters:
                 - src/Core/UserProfile/Infrastructure/Repository/DbWriteUserProfileRepository.php
                 - src/Core/Dashboard/Infrastructure/Repository/DbReadDashboardShareRepository.php
                 - src/Core/Common/Infrastructure/RequestParameters/Transformer
-                - src/Core/Resources/Infrastructure/Repository
+                - src/Core/Resources/Infrastructure
                 - src/Core/Security/AccessGroup/Infrastructure/Repository
-                - src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesRequestTransformer.php
 
         - # [CENTREON-RULE]: The class is extended or mocked. MUST be used only as a baseline.
             reportUnmatched: false

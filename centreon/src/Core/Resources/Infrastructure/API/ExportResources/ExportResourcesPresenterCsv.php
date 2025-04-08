@@ -24,13 +24,14 @@ declare(strict_types=1);
 namespace Core\Resources\Infrastructure\API\ExportResources;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\Collection\StringCollection;
 use Core\Common\Domain\Exception\CollectionException;
-use Core\Common\Infrastructure\ExceptionHandler;
+use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\CsvFormatter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -46,6 +47,7 @@ use Core\Resources\Application\UseCase\ExportResources\ExportResourcesResponse;
 final class ExportResourcesPresenterCsv extends AbstractPresenter implements ExportResourcesPresenterInterface
 {
     use HttpUrlTrait;
+    use LoggerTrait;
 
     /** @var ExportResourcesViewModel */
     private ExportResourcesViewModel $viewModel;
@@ -55,12 +57,10 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      *
      * @param CsvFormatter $presenterFormatter
      * @param ContactInterface $contact
-     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
-        private readonly ContactInterface $contact,
-        private readonly ExceptionHandler $exceptionHandler,
+        private readonly ContactInterface $contact
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -76,7 +76,10 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
 
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
-                $this->exceptionHandler->log($response->getException());
+                $this->error(
+                    $response->getException()->getMessage(),
+                    ['exception' => ExceptionFormatter::format($response->getException())]
+                );
             }
             $this->setResponseStatus($response);
 
@@ -87,8 +90,11 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
 
         try {
             $csvHeader = $this->getHeaderByFilteredColumns($response->getFilteredColumns());
-        } catch (CollectionException $e) {
-            $this->exceptionHandler->log($e);
+        } catch (CollectionException $exception) {
+            $this->error(
+                'An error occurred while filtering columns',
+                ['exception' => ExceptionFormatter::format($exception)]
+            );
             $this->setResponseStatus(new ErrorResponse('An error occurred while filtering columns'));
 
             return;

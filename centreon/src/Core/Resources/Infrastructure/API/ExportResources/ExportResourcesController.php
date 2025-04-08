@@ -18,16 +18,18 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\ExportResources;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Common\Domain\Exception\TransformerException;
-use Core\Common\Infrastructure\ExceptionHandler;
 use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
 use Core\Resources\Application\UseCase\ExportResources\ExportResources;
 use Core\Resources\Application\UseCase\ExportResources\ExportResourcesRequest;
@@ -44,17 +46,17 @@ use Symfony\Component\Serializer\Encoder\CsvEncoder;
  */
 final class ExportResourcesController extends AbstractController
 {
+    use LoggerTrait;
+
     /**
      * ExportResourcesController constructor
      *
      * @param ContactInterface $contact
      * @param RequestValidator $validator
-     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly RequestValidator $validator,
-        private readonly ExceptionHandler $exceptionHandler,
+        private readonly RequestValidator $validator
     ) {}
 
     /**
@@ -73,8 +75,8 @@ final class ExportResourcesController extends AbstractController
     ): Response {
         try {
             $useCaseRequest = $this->createExportRequest($request, $input);
-        } catch (TransformerException $e) {
-            $this->exceptionHandler->log($e);
+        } catch (TransformerException $exception) {
+            $this->error('Error while creating export request', ['exception' => $exception->getContext()]);
             $presenter->setResponseStatus(new ErrorResponse('Error while creating export request'));
 
             return $presenter->show();
@@ -169,7 +171,10 @@ final class ExportResourcesController extends AbstractController
                     ]);
                 }
             } catch (\Throwable $throwable) {
-                $this->exceptionHandler->log($throwable);
+                $this->error(
+                    'Error while creating export with csv encoder',
+                    ['exception' => ExceptionFormatter::format($throwable)]
+                );
                 echo $csvEncoder->encode("Oops ! An error occurred: {$throwable->getMessage()}", CsvEncoder::FORMAT);
             }
         });

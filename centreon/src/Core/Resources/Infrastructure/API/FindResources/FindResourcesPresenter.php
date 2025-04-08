@@ -23,11 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\FindResources;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Infrastructure\ExceptionHandler;
+use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
@@ -45,7 +46,7 @@ use Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInt
  */
 class FindResourcesPresenter extends AbstractPresenter implements FindResourcesPresenterInterface
 {
-    use HttpUrlTrait, PresenterTrait;
+    use HttpUrlTrait, PresenterTrait, LoggerTrait;
     private const IMAGE_DIRECTORY = '/img/media/';
     private const SERVICE_RESOURCE_TYPE = 'service';
 
@@ -54,14 +55,12 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
      * @param RequestParametersInterface $requestParameters
      * @param PresenterFormatterInterface $presenterFormatter
      * @param \Traversable<ExtraDataNormalizerInterface> $extraDataNormalizers
-     * @param ExceptionHandler $exceptionHandler
      */
     public function __construct(
         private readonly HypermediaCreator $hypermediaCreator,
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
         private readonly \Traversable $extraDataNormalizers,
-        private readonly ExceptionHandler $exceptionHandler,
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -75,7 +74,10 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
     {
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
-                $this->exceptionHandler->log($response->getException());
+                $this->error(
+                    $response->getException()->getMessage(),
+                    ['exception' => ExceptionFormatter::format($response->getException())]
+                );
             }
             $this->setResponseStatus($response);
 
