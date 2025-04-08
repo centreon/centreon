@@ -152,7 +152,6 @@ jobs:
       [
         gherkin-lint,
         get-version,
-        translation-build,
         backend-dependencies,
         frontend-build,
       ]
