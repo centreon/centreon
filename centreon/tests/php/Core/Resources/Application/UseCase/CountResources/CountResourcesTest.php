@@ -42,6 +42,14 @@ beforeEach(function () {
     $this->presenter = new CountResourcesPresenterStub();
 });
 
+it('count resources with an invalid contact_id should throw an InvalidArgumentException', function () {
+    $request = new CountResourcesRequest(
+        resourceFilter: $this->filters,
+        contactId: 0,
+        isAdmin: true
+    );
+})->throws(\InvalidArgumentException::class);
+
 it('count resources with an error from repository should throw an ErrorResponse', function () {
     $this->resourcesRepository
         ->shouldReceive('countResourcesByFilter')

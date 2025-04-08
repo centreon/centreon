@@ -43,5 +43,17 @@ final readonly class CountResourcesRequest {
         public ResourceFilter $resourceFilter,
         public int $contactId,
         public bool $isAdmin
-    ) {}
+    ) {
+        $this->validateRequest();
+    }
+
+    /**
+     * @return void
+     */
+    private function validateRequest(): void
+    {
+        if (! $this->contactId > 0) {
+            throw new \InvalidArgumentException("Contact ID must be greater than 0, {$this->contactId} given");
+        }
+    }
 }

@@ -25,6 +25,7 @@ namespace Core\Resources\Application\UseCase\ExportResources;
 
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Common\Domain\Collection\StringCollection;
+use Core\Resources\Application\UseCase\ExportResources\Enum\AllowedFormatEnum;
 
 /**
  * Class
@@ -53,5 +54,39 @@ final readonly class ExportResourcesRequest {
         public int $contactId,
         public bool $isAdmin
     )
-    {}
+    {
+        $this->validateRequest();
+    }
+
+    /**
+     * @return void
+     */
+    private function validateRequest(): void
+    {
+        if (! $this->contactId > 0) {
+            throw new \InvalidArgumentException("Contact ID must be greater than 0, {$this->contactId} given");
+        }
+
+        if (is_null(AllowedFormatEnum::tryFrom($this->exportedFormat))) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Format must be one of the following: %s, %s given',
+                    implode(', ', AllowedFormatEnum::values()),
+                    $this->exportedFormat
+                )
+            );
+        }
+
+        if ($this->allPages && $this->maxResults === 0) {
+            throw new \InvalidArgumentException(
+                "Max number of resources is required when exporting all pages"
+            );
+        }
+
+        if ($this->allPages && $this->maxResults > 10000) {
+            throw new \InvalidArgumentException(
+                "Max number of resources to export must be equal or less than 10000, {$this->maxResults} given"
+            );
+        }
+    }
 }

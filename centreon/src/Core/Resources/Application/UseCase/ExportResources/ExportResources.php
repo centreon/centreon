@@ -62,12 +62,6 @@ final readonly class ExportResources
     ): void {
         $response = new ExportResourcesResponse();
 
-        if (($errorResponse = $this->validateRequest($request)) !== true) {
-            $presenter->presentResponse($errorResponse);
-
-            return;
-        }
-
         try {
             if ($request->isAdmin) {
                 $resources = $this->readResourceRepository->iterateResources(
@@ -104,37 +98,5 @@ final readonly class ExportResources
                 )
             );
         }
-    }
-
-    /**
-     * @param ExportResourcesRequest $request
-     *
-     * @return ResponseStatusInterface|true
-     */
-    private function validateRequest(ExportResourcesRequest $request): ResponseStatusInterface|true
-    {
-        if (! $request->contactId > 0) {
-            return new InvalidArgumentResponse('Invalid request, contact ID must be greater than 0');
-        }
-
-        if (is_null(AllowedFormatEnum::tryFrom($request->exportedFormat))) {
-            return new InvalidArgumentResponse(
-                'Invalid request, format must be one of the following: ' . implode(',', AllowedFormatEnum::values())
-            );
-        }
-
-        if ($request->allPages && $request->maxResults === 0) {
-            return new InvalidArgumentResponse(
-                'Invalid request, max number of resources is required when exporting all pages'
-            );
-        }
-
-        if ($request->allPages && $request->maxResults > 10000) {
-            return new InvalidArgumentResponse(
-                'Invalid request, max number of resources to export must be equal or less than 10000'
-            );
-        }
-
-        return true;
     }
 }

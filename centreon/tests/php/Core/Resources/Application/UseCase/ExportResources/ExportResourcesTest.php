@@ -25,7 +25,6 @@ namespace Tests\Core\Resources\Application\UseCase\ExportResources;
 use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Domain\Collection\StringCollection;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
@@ -44,7 +43,19 @@ beforeEach(function () {
     $this->presenter = new ExportResourcesPresenterStub();
 });
 
-it('test export resources with an invalid format should throw an InvalidArgumentResponse', function () {
+it('test export resources with an invalid contact_id should throw an InvalidArgumentException', function () {
+    $request = new ExportResourcesRequest(
+        exportedFormat: 'csv',
+        resourceFilter: $this->filters,
+        allPages: false,
+        maxResults: 0,
+        columns: new StringCollection(),
+        contactId: 0,
+        isAdmin: true
+    );
+})->throws(\InvalidArgumentException::class);
+
+it('test export resources with an invalid format should throw an InvalidArgumentException', function () {
     $request = new ExportResourcesRequest(
         exportedFormat: 'invalid',
         resourceFilter: $this->filters,
@@ -54,12 +65,9 @@ it('test export resources with an invalid format should throw an InvalidArgument
         contactId: 1,
         isAdmin: true
     );
-    $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
-    $useCase($request, $this->presenter);
-    expect($this->presenter->response)->toBeInstanceOf(InvalidArgumentResponse::class);
-});
+})->throws(\InvalidArgumentException::class);
 
-it('export all resources without max results should throw an InvalidArgumentResponse', function () {
+it('export all resources without max results should throw an InvalidArgumentException', function () {
     $request = new ExportResourcesRequest(
         exportedFormat: 'csv',
         resourceFilter: $this->filters,
@@ -69,12 +77,9 @@ it('export all resources without max results should throw an InvalidArgumentResp
         contactId: 1,
         isAdmin: true
     );
-    $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
-    $useCase($request, $this->presenter);
-    expect($this->presenter->response)->toBeInstanceOf(InvalidArgumentResponse::class);
-});
+})->throws(\InvalidArgumentException::class);
 
-it('export all resources with max results greater than 10000 should throw an InvalidArgumentResponse', function () {
+it('export all resources with max results greater than 10000 should throw an InvalidArgumentException', function () {
     $request = new ExportResourcesRequest(
         exportedFormat: 'csv',
         resourceFilter: $this->filters,
@@ -84,10 +89,7 @@ it('export all resources with max results greater than 10000 should throw an Inv
         contactId: 1,
         isAdmin: true
     );
-    $useCase = new ExportResources($this->resourcesRepository, $this->contactRepository);
-    $useCase($request, $this->presenter);
-    expect($this->presenter->response)->toBeInstanceOf(InvalidArgumentResponse::class);
-});
+})->throws(\InvalidArgumentException::class);
 
 it('export resources with an error from repository should throw an ErrorResponse', function () {
     $this->resourcesRepository
