@@ -178,7 +178,11 @@ const MultiAutocompleteField = ({
       )}
       value={values}
       isOptionEqualToValue={(option, value) => option.id === value.id}
-      renderTags={customRenderTags ? customRenderTags : renderTags}
+      renderTags={(renderedValue, getTagProps): React.ReactNode =>
+        customRenderTags
+          ? customRenderTags(renderTags(renderedValue, getTagProps))
+          : renderTags(renderedValue, getTagProps)
+      }
       ListboxComponent={(listboxProps) => (
         <CustomListbox
           {...listboxProps}
