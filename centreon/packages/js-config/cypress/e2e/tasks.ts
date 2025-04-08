@@ -265,7 +265,7 @@ export default (on: Cypress.PluginEvents): void => {
         });
       });
     },
-    filePath: async ({ filePath }) => {
+    fileExists: async ({ filePath }) => {
       return fs.existsSync(filePath);
     },
   });
