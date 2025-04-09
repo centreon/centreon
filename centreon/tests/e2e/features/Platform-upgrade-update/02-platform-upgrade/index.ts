@@ -110,8 +110,9 @@ Given(
           cy.log(`Getting Centreon previous major version: ${previousVersion}`);
           // Cloud versioning is different from on-prem
           if (Cypress.env("IS_CLOUD")) {
+            const versionDir = "./././../../www/install/php";
             // Check if a file with the major version exists
-            const versionFilePath = `./././../../www/install/php/Update-${previousVersion}.${minor_version}.php`;
+            const versionFilePath = `${versionDir}/Update-${previousVersion}.${minor_version}.php`;
             cy.task("fileExists", versionFilePath).then((exists) => {
               if (exists) {
                 cy.log(`The file with version: ${previousVersion} exist`);
@@ -122,7 +123,7 @@ Given(
                   `The file with version: ${previousVersion} does not exist`,
                 );
                 // If the version isn't found, use the closest available one
-                cy.getClosestVersionFile(previousVersion).then(
+                cy.getClosestVersionFile(previousVersion, versionDir).then(
                   (versionFilePath) => {
                     cy.log(`The last cloud version is: ${versionFilePath}`);
                     const newVersion = versionFilePath;

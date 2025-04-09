@@ -1,7 +1,6 @@
-Cypress.Commands.add("getClosestVersionFile", (currentVersion) => {
+Cypress.Commands.add("getClosestVersionFile", (currentVersion, versionDir) => {
   const path = require("path");
 
-  const versionDir = "./././../../www/install/php"; // The folder where the files are stored
   const pattern = /^Update-(\d+\.\d+(\.\d+)?(?:-\S+)?)\.php$/; // Updated regex to handle versions with suffixes like .beta, .rc, etc.
 
   // Use cy.task() to read the files in the directory
@@ -71,7 +70,10 @@ Cypress.Commands.add("getClosestVersionFile", (currentVersion) => {
 declare global {
   namespace Cypress {
     interface Chainable {
-      getClosestVersionFile(currentVersion: string): Cypress.Chainable<string>;
+      getClosestVersionFile(
+        currentVersion: string,
+        versionDir: string,
+      ): Cypress.Chainable<string>;
     }
   }
 }
