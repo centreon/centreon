@@ -65,7 +65,7 @@ final class AddAgentConfiguration
                         'user_id' => $this->user->getId(),
                         'ac_type' => $request->type,
                         'ac_name' => $request->name,
-                    ]
+                    ],
                 );
 
                 $presenter->presentResponse(
@@ -116,7 +116,7 @@ final class AddAgentConfiguration
                     'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
                     'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
                     'trace' => $ex->getTraceAsString(),
-                ]
+                ],
             ]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
@@ -130,7 +130,7 @@ final class AddAgentConfiguration
                     'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
                     'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
                     'trace' => $ex->getTraceAsString(),
-                ]
+                ],
             ]);
             $presenter->presentResponse(new ErrorResponse(
                 $ex instanceof AgentConfigurationException

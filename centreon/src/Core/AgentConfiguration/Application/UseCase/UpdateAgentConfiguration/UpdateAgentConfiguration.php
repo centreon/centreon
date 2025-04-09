@@ -70,7 +70,7 @@ final class UpdateAgentConfiguration
                         'ac_id' => $request->id,
                         'ac_name' => $request->name,
                         'ac_type' => $request->type,
-                    ]
+                    ],
                 );
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
@@ -113,7 +113,7 @@ final class UpdateAgentConfiguration
                     'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
                     'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
                     'trace' => $ex->getTraceAsString(),
-                ]
+                ],
             ]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
@@ -128,7 +128,7 @@ final class UpdateAgentConfiguration
                     'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
                     'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
                     'trace' => $ex->getTraceAsString(),
-                ]
+                ],
             ]);
             $presenter->setResponseStatus(
                 new ErrorResponse(

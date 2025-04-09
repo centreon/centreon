@@ -77,7 +77,7 @@ final class FindAgentConfiguration
                     'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
                     'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
                     'trace' => $ex->getTraceAsString(),
-                ]
+                ],
             ]);
 
             return new ErrorResponse(AgentConfigurationException::errorWhileRetrievingObject());

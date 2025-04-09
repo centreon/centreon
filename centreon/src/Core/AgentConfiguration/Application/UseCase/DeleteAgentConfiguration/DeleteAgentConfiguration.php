@@ -62,7 +62,7 @@ final class DeleteAgentConfiguration
                     [
                         'user_id' => $this->user->getId(),
                         'ac_id' => $id,
-                    ]
+                    ],
                 );
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
@@ -110,7 +110,7 @@ final class DeleteAgentConfiguration
                     'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
                     'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
                     'trace' => $ex->getTraceAsString(),
-                ]
+                ],
             ]);
             $presenter->setResponseStatus(new ErrorResponse(
                 $ex instanceof AgentConfigurationException
