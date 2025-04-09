@@ -12,8 +12,6 @@ import esbuildPreprocessor from './esbuild-preprocessor';
 import plugins from './plugins';
 import tasks from './tasks';
 
-import fs from "fs";
-
 interface ConfigurationOptions {
   cypressFolder?: string;
   env?: Record<string, unknown>;
