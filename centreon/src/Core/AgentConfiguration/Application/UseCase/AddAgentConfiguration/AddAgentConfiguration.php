@@ -61,8 +61,13 @@ final class AddAgentConfiguration
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
                 $this->error(
                     "User doesn't have sufficient rights to access poller/agent configurations",
-                    ['user_id' => $this->user->getId()]
+                    [
+                        'user_id' => $this->user->getId(),
+                        'ac_type' => $request->type,
+                        'ac_name' => $request->name,
+                    ]
                 );
+
                 $presenter->presentResponse(
                     new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
                 );
@@ -101,14 +106,35 @@ final class AddAgentConfiguration
 
             $presenter->presentResponse($this->createResponse($agentConfiguration, $pollers));
         } catch (AssertionFailedException|\InvalidArgumentException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'ac_type' => $request->type,
+                'ac_name' => $request->name,
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ]
+            ]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'ac_type' => $request->type,
+                'ac_name' => $request->name,
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ]
+            ]);
             $presenter->presentResponse(new ErrorResponse(
                 $ex instanceof AgentConfigurationException
-                    ? $ex
-                    : AgentConfigurationException::addAc()
+                    ? $ex : AgentConfigurationException::addAc()
             ));
         }
     }

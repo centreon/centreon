@@ -55,8 +55,7 @@ final class UpdateAgentConfiguration
         private readonly Validator $validator,
         private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
-    ) {
-    }
+    ) {}
 
     public function __invoke(
         UpdateAgentConfigurationRequest $request,
@@ -66,7 +65,12 @@ final class UpdateAgentConfiguration
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
                 $this->error(
                     "User doesn't have sufficient rights to access poller/agent configurations",
-                    ['user_id' => $this->user->getId()]
+                    [
+                        'user_id' => $this->user->getId(),
+                        'ac_id' => $request->id,
+                        'ac_name' => $request->name,
+                        'ac_type' => $request->type,
+                    ]
                 );
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
@@ -96,17 +100,42 @@ final class UpdateAgentConfiguration
 
             $this->save($updatedAgentConfiguration, $request->pollerIds);
 
-            $presenter->setResponseStatus(New NoContentResponse());
+            $presenter->setResponseStatus(new NoContentResponse());
         } catch (AssertionFailedException|\InvalidArgumentException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'ac_id' => $request->id,
+                'ac_name' => $request->name,
+                'ac_type' => $request->type,
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ]
+            ]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse(
-                $ex instanceof AgentConfigurationException
-                    ? $ex
-                    : AgentConfigurationException::updateAc()
-            ));
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'ac_id' => $request->id,
+                'ac_name' => $request->name,
+                'ac_type' => $request->type,
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ]
+            ]);
+            $presenter->setResponseStatus(
+                new ErrorResponse(
+                    $ex instanceof AgentConfigurationException
+                        ? $ex : AgentConfigurationException::updateAc()
+                )
+            );
         }
     }
 
@@ -122,7 +151,6 @@ final class UpdateAgentConfiguration
     private function getAgentConfiguration(int $id): null|AgentConfiguration
     {
         if (null === $agentConfiguration = $this->readAcRepository->find($id)) {
-
             return null;
         }
 
@@ -135,7 +163,6 @@ final class UpdateAgentConfiguration
             $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups($pollerIds, $accessGroups);
 
             if ([] !== array_diff($pollerIds, $validPollerIds)) {
-
                 return null;
             }
         }
