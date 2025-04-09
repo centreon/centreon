@@ -159,7 +159,6 @@ jobs:
         if: |
           needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
           failure() &&
-          startsWith(github.ref_name, 'dev') &&
           github.repository == 'centreon/centreon'
         uses: ./.github/actions/create-jira-ticket
         with:
