@@ -6,7 +6,7 @@ import { getGroups, getPayload } from './utils';
 import {
   labelAlias,
   labelApplyResourceAccessRule,
-  labelComment,
+  labelComments,
   labelGeographicCoordinates,
   labelIcon,
   labelInvalidCoordinateFormat,
@@ -32,7 +32,7 @@ export default () => {
 
         cy.contains('View a host group').should('be.visible');
 
-        cy.findAllByTestId(labelComment).eq(1).scrollIntoView();
+        cy.findAllByTestId(labelComments).eq(1).scrollIntoView();
 
         cy.makeSnapshot(
           `${platform} - displays the modal in view mode when the user does not have write access`
@@ -73,7 +73,7 @@ export default () => {
           cy.findAllByTestId(labelGeographicCoordinates)
             .eq(1)
             .should('have.value', '');
-          cy.findAllByTestId(labelComment).eq(1).should('have.value', '');
+          cy.findAllByTestId(labelComments).eq(1).should('have.value', '');
 
           cy.makeSnapshot(
             `${platform}: shows form fields organized into groups, with each field initialized with default values`
@@ -116,7 +116,7 @@ export default () => {
           cy.findAllByTestId(labelGeographicCoordinates)
             .eq(1)
             .should('have.value', getPayload({}).geo_coords);
-          cy.findAllByTestId(labelComment)
+          cy.findAllByTestId(labelComments)
             .eq(1)
             .should('have.value', getPayload({}).comment);
 
@@ -137,7 +137,7 @@ export default () => {
             .eq(1)
             .clear()
             .type(getPayload({}).alias);
-          cy.findAllByTestId(labelComment)
+          cy.findAllByTestId(labelComments)
             .eq(1)
             .clear()
             .type(getPayload({ isCloudPlatform }).comment);

@@ -12,7 +12,7 @@ import {
 import {
   labelAlias,
   labelApplyResourceAccessRule,
-  labelComment,
+  labelComments,
   labelExtendedInformation,
   labelGeneralInformation,
   labelGeographicCoordinates,
@@ -98,7 +98,9 @@ const useFormInputs = ({
         chipColor: 'primary',
         additionalConditionParameters: [],
         endpoint: hostListEndpoint,
-        filterKey: 'name'
+        filterKey: 'name',
+        disableSelectAll: false,
+        limitTags: 15
       },
       fieldName: 'hosts',
       group: t(labelGroupMembers),
@@ -111,7 +113,9 @@ const useFormInputs = ({
         chipColor: 'primary',
         additionalConditionParameters: [],
         endpoint: resourceAccessRulesEndpoint,
-        filterKey: 'name'
+        filterKey: 'name',
+        disableSelectAll: false,
+        limitTags: 15
       },
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),
@@ -141,7 +145,7 @@ const useFormInputs = ({
     {
       fieldName: 'comment',
       group: t(labelExtendedInformation),
-      label: t(labelComment),
+      label: t(labelComments),
       getDisabled: () => !hasWriteAccess,
       text: {
         multilineRows: 3

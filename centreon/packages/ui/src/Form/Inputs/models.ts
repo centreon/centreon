@@ -59,6 +59,8 @@ export interface InputProps {
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+    disableSelectAll?: boolean;
+    limitTags?: number;
   };
   file?: {
     multiple?: boolean;

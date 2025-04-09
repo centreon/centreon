@@ -88,7 +88,7 @@ const ConnectedAutocompleteField = (
 
     const theme = useTheme();
 
-    const { fetchQuery, isFetching, prefetchNextPage } = useFetchQuery<
+    const { fetchQuery, isFetching, prefetchNextPage, data } = useFetchQuery<
       ListingModel<TData>
     >({
       baseEndpoint,
@@ -322,6 +322,7 @@ const ConnectedAutocompleteField = (
 
     return (
       <AutocompleteField
+        total={data?.meta.total}
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
         options={
