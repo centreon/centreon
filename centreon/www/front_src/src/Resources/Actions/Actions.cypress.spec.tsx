@@ -193,8 +193,9 @@ const initialize = (
     cy.interceptAPIRequest({
       alias: 'countResources',
       method: Method.GET,
-      path: '**/count?*',
-      response: data
+      path: '**/count**',
+      response: data,
+      statusCode: 200
     });
   });
 
@@ -525,9 +526,10 @@ describe('CSV export', () => {
 
   it('export resources with default checks when clicking the CSV export button', () => {
     initialize();
-    cy.waitForRequest('@countResources');
 
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
+    cy.waitForRequest('@countResources');
+
     cy.findByRole('dialog').as('modal').should('be.visible');
     cy.get('@modal').contains(labelExportToCSV);
     cy.get('@modal').contains(labelFilteredResources);
@@ -549,6 +551,11 @@ describe('CSV export', () => {
       .findByTestId(labelAllPages)
       .find('input')
       .should('be.checked');
+
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).find('input').click();
+    cy.waitForRequest('@countResources');
+    cy.get('@modal').findByTestId(labelAllPages).find('input').click();
+    cy.waitForRequest('@countResources');
 
     cy.get('@modal').contains(labelWarningExportToCsv);
     cy.get('@modal')
@@ -575,9 +582,10 @@ describe('CSV export', () => {
   it('export resources with custom checks when clicking the CSV export button', () => {
     const store = initialize();
     store.set(selectedColumnIdsAtom, visibleColumns);
-    cy.waitForRequest('@countResources');
 
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
+
+    cy.waitForRequest('@countResources');
     cy.findByRole('dialog').as('modal').should('be.visible');
     cy.get('@modal').contains(labelExportToCSV);
     cy.get('@modal').contains(labelSelectColumns);
@@ -620,9 +628,16 @@ describe('CSV export', () => {
 
   it('display the warning message and disable the export button when the number of resources exceeds 10,000', () => {
     initialize('resources/listing/count/massiveCount.json');
-    cy.waitForRequest('@countResources');
+
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
+    cy.waitForRequest('@countResources');
     cy.findByRole('dialog').as('modal').should('be.visible');
+
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).find('input').click();
+    cy.waitForRequest('@countResources');
+    cy.get('@modal').findByTestId(labelAllPages).find('input').click();
+    cy.waitForRequest('@countResources');
+
     cy.get('@modal').contains(labelExportToCSV);
     cy.get('@modal').contains(labelWarningExportToCsv);
     cy.get('@modal').contains(labelFilterRessources);

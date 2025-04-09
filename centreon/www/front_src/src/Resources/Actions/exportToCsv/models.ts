@@ -16,3 +16,11 @@ export interface CheckedLabel {
 export type CheckedValue = {
   defaultLabel: string;
 } & CheckedLabel;
+
+export interface Count {
+  count: number;
+  meta: {
+    total: number;
+    search: object;
+  };
+}

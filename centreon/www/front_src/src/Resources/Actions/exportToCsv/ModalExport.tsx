@@ -30,10 +30,12 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
   const [isAllPagesChecked, setIsAllPagesChecked] = useState(true);
   const [isAllColumnsChecked, setIsAllColumnsChecked] = useState(true);
 
-  const { exportCsv, disableExport, numberExportedLines } = useExportCSV({
-    isAllColumnsChecked,
-    isAllPagesChecked
-  });
+  const { exportCsv, disableExport, numberExportedLines, isLoading } =
+    useExportCSV({
+      isAllColumnsChecked,
+      isAllPagesChecked,
+      isOpen: open
+    });
 
   const getSelectedColumnsData = (label: string) => {
     setIsAllColumnsChecked(equals(labelAllColumns, label));
@@ -79,6 +81,7 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
             <InformationsLine
               numberExportedLines={numberExportedLines}
               disableExport={disableExport}
+              isLoading={isLoading}
             />
           </div>
           <div className={classes.spacing} />

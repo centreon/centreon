@@ -6,13 +6,19 @@ import {
   labelNumerOfLines
 } from '../../translatedLabels';
 import useExportCsvStyles from './exportCsv.styles';
+import { LoadingSkeleton } from '@centreon/ui';
 
 interface Props {
   disableExport: boolean;
   numberExportedLines: string;
+  isLoading: boolean;
 }
 
-const InformationsLine = ({ numberExportedLines, disableExport }: Props) => {
+const InformationsLine = ({
+  numberExportedLines,
+  disableExport,
+  isLoading
+}: Props) => {
   const { classes, cx } = useExportCsvStyles();
 
   const description = `${labelNumerOfLines}: ${numberExportedLines}`;
@@ -20,14 +26,18 @@ const InformationsLine = ({ numberExportedLines, disableExport }: Props) => {
   return (
     <div className={classes.information}>
       <Typography variant="body2">{labelFilteredResources}</Typography>
-      <Typography
-        variant="body2"
-        className={cx(classes.lines, { [classes.error]: disableExport })}
-      >
-        {description}
-      </Typography>
+      {!isLoading ? (
+        <Typography
+          variant="body2"
+          className={cx(classes.lines, { [classes.error]: disableExport })}
+        >
+          {description}
+        </Typography>
+      ) : (
+        <LoadingSkeleton variant="text" />
+      )}
       <Typography variant="body2">
-        {disableExport && labelFilterRessources}
+        {disableExport && !isLoading && labelFilterRessources}
       </Typography>
     </div>
   );
