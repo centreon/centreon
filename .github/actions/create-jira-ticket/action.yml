@@ -313,7 +313,7 @@ runs:
         for transition_id in 11 21; do
           response=$(curl \
             --request POST \
-            --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/$ticket_key/transitions \
+            --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/$ticket_key/transitions" \
             --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
             --header 'Accept: application/json' \
             --header 'Content-Type: application/json' \
