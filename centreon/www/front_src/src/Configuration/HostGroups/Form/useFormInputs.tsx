@@ -99,7 +99,8 @@ const useFormInputs = ({
         additionalConditionParameters: [],
         endpoint: hostListEndpoint,
         filterKey: 'name',
-        disableSelectAll: false
+        disableSelectAll: false,
+        limitTags: 15
       },
       fieldName: 'hosts',
       group: t(labelGroupMembers),
@@ -113,7 +114,8 @@ const useFormInputs = ({
         additionalConditionParameters: [],
         endpoint: resourceAccessRulesEndpoint,
         filterKey: 'name',
-        disableSelectAll: false
+        disableSelectAll: false,
+        limitTags: 15
       },
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),

@@ -144,6 +144,7 @@ const ConnectedAutocomplete = ({
         onBlur={blur}
         onChange={changeAutocomplete}
         disableSelectAll={connectedAutocomplete?.disableSelectAll}
+        limitTags={connectedAutocomplete?.limitTags}
       />
     ),
     memoProps: [
