@@ -254,7 +254,7 @@ export default (on: Cypress.PluginEvents): void => {
 
       return null;
     },
-    listFilesInDirectory: async ({ directoryPath }) => {
+    listFilesInDirectory: async ( directoryPath ) => {
       return new Promise((resolve, reject) => {
         fs.readdir(directoryPath, (err, files) => {
           if (err) {
@@ -265,7 +265,7 @@ export default (on: Cypress.PluginEvents): void => {
         });
       });
     },
-    fileExists: async ({ filePath }) => {
+    fileExists: async ( filePath ) => {
       return fs.existsSync(filePath);
     },
   });
