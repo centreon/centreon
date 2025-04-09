@@ -317,7 +317,7 @@ runs:
             --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
             --header 'Accept: application/json' \
             --header 'Content-Type: application/json' \
-            --data '{ "transition": { "id": $transition_id } }'
+            --data '{ "transition": { "id": "$transition_id" } }'
           )
 
           echo $response
