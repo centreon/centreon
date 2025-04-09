@@ -22,7 +22,7 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$versionOfTheUpgrade = 'UPGRADE - 24.10.6: ';
+$versionOfTheUpgrade = 'UPGRADE - 24.10.7: ';
 $errorMessage = '';
 
 // -------------------------------------------- Connectors configurations -------------------------------------------- //
