@@ -91,7 +91,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
                 ->where('id', ':id')
                 ->getQuery();
 
-            $this->connection->insert(
+            $this->connection->update(
                 $this->translateDbName($query),
                 QueryParameters::create([
                     QueryParameter::int('id', $agentConfiguration->getId()),
