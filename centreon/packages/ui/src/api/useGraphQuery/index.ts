@@ -166,8 +166,10 @@ const useGraphQuery = ({
 
   const getCurrentMetrics = ()=>{
     if(!data.current){
+
       return undefined
     }
+    
     return bypassMetricsExclusion
           ? data.current.metrics
           : data.current.metrics.filter(({ metric_id }) => {
@@ -191,25 +193,32 @@ const useGraphQuery = ({
     })
 
     return newMetrics?.map((line)=>{
-
      const areHostNameRedundant =  newMetrics.every(({hostName})=>hostName===line.hostName);
      const areServiceNameRedundant = newMetrics.every(({serviceName})=>serviceName===line.serviceName);
 
      if(areHostNameRedundant && areServiceNameRedundant){
       const formattedLegend = line.metricName
 
-      return {...line, legend:formattedLegend }
+      return {...line, legend: formattedLegend }
      }
      
      if(areHostNameRedundant){
-       const formattedLegend= `${line.serviceName}:${line.metricName}`
+       const formattedLegend = `${line.serviceName}: ${line.metricName}`
 
        return {...line, legend: formattedLegend}
      }
-     
-      const formattedLegend = `${line.hostName}:${line.metricName}`
 
-      return {...line, legend:formattedLegend}
+     if(areServiceNameRedundant){
+       const formattedLegend = `${line.hostName}: ${line.metricName}`
+  
+       return {...line, legend: formattedLegend}
+
+     }
+
+     const formattedLegend = `${line.hostName} ${line.serviceName}: ${line.metricName}`
+
+     return {...line, legend:formattedLegend }
+     
     })
 
   }
