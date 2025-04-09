@@ -485,7 +485,7 @@ describe('Graph Widget', () => {
   });
 
   legendData.forEach(({ resourcesType, graphDataPath }) => {
-    it.only(`do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`, () => {
+    it(`do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`, () => {
       initializeComponent({
         showLegend: true,
         graphDataPath
