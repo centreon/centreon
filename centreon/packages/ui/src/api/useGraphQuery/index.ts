@@ -169,7 +169,7 @@ const useGraphQuery = ({
 
       return undefined
     }
-    
+
     return bypassMetricsExclusion
           ? data.current.metrics
           : data.current.metrics.filter(({ metric_id }) => {
@@ -189,12 +189,12 @@ const useGraphQuery = ({
     const currentMetricLine = line.metric.replaceAll(' ','')
       const [hostName, metricName] = currentMetricLine.split(':')
 
-      return {...line, hostName,serviceName:'test', metricName}
+      return {...line, hostName, metricName}
     })
 
     return newMetrics?.map((line)=>{
      const areHostNameRedundant =  newMetrics.every(({hostName})=>hostName===line.hostName);
-     const areServiceNameRedundant = newMetrics.every(({serviceName})=>serviceName===line.serviceName);
+     const areServiceNameRedundant = newMetrics.every(({service_name})=>service_name===line.service_name);
 
      if(areHostNameRedundant && areServiceNameRedundant){
       const formattedLegend = line.metricName
@@ -203,7 +203,7 @@ const useGraphQuery = ({
      }
      
      if(areHostNameRedundant){
-       const formattedLegend = `${line.serviceName}: ${line.metricName}`
+       const formattedLegend = `${line.service_name}: ${line.metricName}`
 
        return {...line, legend: formattedLegend}
      }
@@ -215,7 +215,7 @@ const useGraphQuery = ({
 
      }
 
-     const formattedLegend = `${line.hostName} ${line.serviceName}: ${line.metricName}`
+     const formattedLegend = `${line.hostName} ${line.service_name}: ${line.metricName}`
 
      return {...line, legend:formattedLegend }
      

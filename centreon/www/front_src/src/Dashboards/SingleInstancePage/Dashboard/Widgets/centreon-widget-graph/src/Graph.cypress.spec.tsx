@@ -6,6 +6,7 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
 
+import { equals } from 'ramda';
 import WidgetLineChart from './LineChart';
 import { graphEndpoint } from './api/endpoints';
 import type {
@@ -114,6 +115,22 @@ const legendPositions = ['left', 'bottom', 'right'] as const;
 const legendProperties = [
   { mode: 'list' as const, positions: legendPositions },
   { mode: 'grid' as const, positions: legendPositions }
+];
+
+const legendData = [
+  {
+    resourcesType: 'host',
+    graphDataPath: 'Widgets/Graph/legend/lineChartWithRedundantHostName.json'
+  },
+  {
+    resourcesType: 'service',
+    graphDataPath: 'Widgets/Graph/legend/lineChartWithRedundantServiceName.json'
+  },
+  {
+    resourcesType: 'host and service',
+    graphDataPath:
+      'Widgets/Graph/legend/lineChartWithRedundantHostAndServiceName.json'
+  }
 ];
 
 interface InitializeComponentProps
@@ -462,6 +479,57 @@ describe('Graph Widget', () => {
         cy.findByText('Legend 99 Centreon-Server').should('exist');
         cy.makeSnapshot(
           `legend with a scrollbar for placement: ${position} and mode: ${mode}.`
+        );
+      });
+    });
+  });
+
+  legendData.forEach(({ resourcesType, graphDataPath }) => {
+    it.only(`do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`, () => {
+      initializeComponent({
+        showLegend: true,
+        graphDataPath
+      });
+      cy.waitForRequest('@getLineChart');
+
+      cy.get('[class$="legend"]').as('legendContainer');
+
+      cy.get('path[data-metric=1]').realHover();
+      cy.findByRole('tooltip').as('tooltip');
+
+      cy.fixture(graphDataPath).then((data) => {
+        data.metrics.forEach((line) => {
+          const currentMetric = line.metric.replaceAll(' ', '');
+          const [hostName, metricName] = currentMetric.split(':');
+
+          if (equals(resourcesType, 'host')) {
+            cy.get('@legendContainer').should('not.contain', hostName);
+            cy.get('@legendContainer').should('contain', metricName);
+            cy.get('@tooltip').should('not.contain', hostName);
+            cy.get('@tooltip').should('contain', metricName);
+
+            return;
+          }
+          if (equals(resourcesType, 'service')) {
+            cy.get('@legendContainer').should('not.contain', line.service_name);
+            cy.get('@legendContainer').should('contain', metricName);
+
+            cy.get('@tooltip').should('not.contain', line.service_name);
+            cy.get('@tooltip').should('contain', metricName);
+
+            return;
+          }
+          cy.get('@legendContainer').should('not.contain', hostName);
+          cy.get('@legendContainer').should('not.contain', line.service_name);
+          cy.get('@legendContainer').should('contain', metricName);
+
+          cy.get('@tooltip').should('not.contain', hostName);
+          cy.get('@tooltip').should('not.contain', line.service_name);
+          cy.get('@tooltip').should('contain', metricName);
+        });
+
+        cy.makeSnapshot(
+          `do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`
         );
       });
     });
