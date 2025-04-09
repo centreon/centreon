@@ -305,9 +305,21 @@ runs:
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
           --data '{ "fields": { "priority": { "id": "1" } } }'
-          )
+        )
 
-          echo $response
+        echo $response
+
+        # Update ticket status so that squad members can see it in their respective sprints
+        for transition_id in 11 21; do
+          response=$(curl \
+            --request POST \
+            --url "${{ inputs.jira_base_url }}/rest/api/latest/issue/$ticket_key/transitions \
+            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{ "transition": { "id": $transition_id } }'
+          )
+        done
 
       shell: bash
       env:
