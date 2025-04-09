@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "5b8a25cd-1044-4a2e-90d4-89308d45096d",
+		"_postman_id": "7e1f2561-46c2-42a2-8335-9f0391661a65",
 		"name": "Notifications",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "5258648"
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-7e1f2561-46c2-42a2-8335-9f0391661a65?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -1818,38 +1819,38 @@
 									"pm.collectionVariables.set(\"HostGroup1Alias\", \"I should be successful !\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup1Alias\") + \"'.\", function () {\r",
+									"pm.test(\"The host group has been successfully created\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host group\r",
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"HostGroup1Id\", response.id);\r",
 									"\r",
+									"    pm.expect(response).to.have.property(\"id\");\r",
+									"    pm.expect(response).to.have.property(\"name\");\r",
+									"\r",
 									"    pm.expect(response).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
-									"        \"notes\": null,\r",
-									"        \"notes_url\": null,\r",
-									"        \"action_url\": null,\r",
 									"        \"icon_id\": null,\r",
-									"        \"icon_map_id\": null,\r",
-									"        \"rrd\": null,\r",
 									"        \"geo_coords\": null,\r",
-									"        \"comment\": \"Hello world ! 1\",\r",
-									"        \"is_activated\": true\r",
+									"        \"comment\": null,\r",
+									"        \"hosts\": []\r",
 									"    });\r",
-									"    \r",
-									"});"
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1858,7 +1859,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostGroup1Name}}\",\r\n    \"alias\": \"{{HostGroup1Alias}}\",\r\n    \"comment\": \"Hello world ! 1\"\r\n}"
+							"raw": "{\r\n    \"name\": \"{{HostGroup1Name}}\",\r\n    \"alias\": \"{{HostGroup1Alias}}\",\r\n    \"hosts\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -1878,11 +1884,29 @@
 					"name": "Add a second host group",
 					"event": [
 						{
-							"listen": "prerequest",
+							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"HostGroup2Name\", \"Test_H_Group_2\");\r",
-									"pm.collectionVariables.set(\"HostGroup2Alias\", \"I should be successful !\");\r",
+									"pm.test(\"The host group has been successfully created\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostGroup2Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.have.property(\"id\");\r",
+									"    pm.expect(response).to.have.property(\"name\");\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup2Alias\"),\r",
+									"        \"icon_id\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"hosts\": []\r",
+									"    });\r",
+									"});\r",
 									""
 								],
 								"type": "text/javascript",
@@ -1890,32 +1914,12 @@
 							}
 						},
 						{
-							"listen": "test",
+							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup2Alias\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
-									"\r",
-									"    // Creation of a variable with the ID of the new host group\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"HostGroup2Id\", response.id);\r",
-									"\r",
-									"    pm.expect(response).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"HostGroup2Alias\"),\r",
-									"        \"notes\": null,\r",
-									"        \"notes_url\": null,\r",
-									"        \"action_url\": null,\r",
-									"        \"icon_id\": null,\r",
-									"        \"icon_map_id\": null,\r",
-									"        \"rrd\": null,\r",
-									"        \"geo_coords\": null,\r",
-									"        \"comment\": \"Hello world ! 1\",\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"    \r",
-									"});"
+									"pm.collectionVariables.set(\"HostGroup2Name\", \"Test_H_Group_2\");\r",
+									"pm.collectionVariables.set(\"HostGroup2Alias\", \"I should be successful !\");\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1927,7 +1931,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostGroup2Name}}\",\r\n    \"alias\": \"{{HostGroup2Alias}}\",\r\n    \"comment\": \"Hello world ! 1\"\r\n}"
+							"raw": "{\r\n    \"name\": \"{{HostGroup2Name}}\",\r\n    \"alias\": \"{{HostGroup2Alias}}\",\r\n    \"hosts\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",

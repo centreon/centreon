@@ -34,14 +34,11 @@ use Core\HostGroup\Application\UseCase\FindHostGroups\FindHostGroupsResponse;
 use Core\HostGroup\Application\UseCase\FindHostGroups\HostGroupResponse;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupRelationCount;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
-    $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new FindHostGroups(
         $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
@@ -50,21 +47,13 @@ beforeEach(function (): void {
         $this->contact = $this->createMock(ContactInterface::class),
     );
 
-     $this->hostCounts = new HostGroupRelationCount(1, 2);
+    $this->hostCounts = new HostGroupRelationCount(1, 2);
 
     $this->hostGroup = new HostGroup(
         id: 1,
         name: 'hg-name',
         alias: 'hg-alias',
-        notes: '',
-        notesUrl: '',
-        actionUrl: '',
-        iconId: null,
-        iconMapId: null,
-        rrdRetention: null,
         geoCoords: $this->geoCoords = GeoCoords::fromString('-2,100'),
-        comment: '',
-        isActivated: true,
     );
 
     $this->hostGroupResponse = new HostGroupResponse(

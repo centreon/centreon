@@ -20,6 +20,9 @@ info:
     + Added new endpoint to bulk delete services
     + Added new endpoint to bulk delete hostgroups
     + Added new endpoint to bulk enable/disable hostgroups
+    + Updated endpoint to add an hostgroup
+    + Updated endpoint to update an hostgroup
+    + Added new endpoint to bulk duplicate hostgroups
     + Update FindHostGroups response
     +
     # Information
@@ -688,7 +691,7 @@ paths:
   /configuration/hosts/groups:
     $ref: './latest/onPremise/Configuration/HostGroup/AddAndFindHostGroups.yaml'
   /configuration/hosts/groups/{hostgroup_id}:
-    $ref: './latest/onPremise/Configuration/HostGroup/FindAndDeleteAndUpdateHostGroup.yaml'
+    $ref: './latest/onPremise/Configuration/HostGroup/GetAndDeleteAndUpdateHostGroup.yaml'
   /configuration/hosts/groups/_delete:
     $ref: "./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml"
   /configuration/hosts/groups/{action}:
