@@ -319,6 +319,8 @@ runs:
             --header 'Content-Type: application/json' \
             --data '{ "transition": { "id": $transition_id } }'
           )
+
+          echo $response
         done
 
       shell: bash
