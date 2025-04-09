@@ -67,7 +67,37 @@ it('return the keys of the collection as an array', function () {
     expect($this->collection->keys())->toEqual([1, 2]);
 });
 
-it('test merge', function () {
+it('test filter on values', function () {
+    $this->collection->add(1, 'foo');
+    $this->collection->add(2, 'bar');
+
+    $filtered = $this->collection->filterOnValue(fn($value) => $value === 'foo');
+    expect($filtered->length())->toBe(1)
+        ->and($filtered->keys())->toEqual([1])
+        ->and($filtered->get(1))->toBe('foo');
+});
+
+it('test filter on keys', function () {
+    $this->collection->add(1, 'foo');
+    $this->collection->add(2, 'bar');
+
+    $filtered = $this->collection->filterOnKey(fn($key) => $key === 1);
+    expect($filtered->length())->toBe(1)
+        ->and($filtered->keys())->toEqual([1])
+        ->and($filtered->get(1))->toBe('foo');
+});
+
+it('test filter on values and keys', function () {
+    $this->collection->add(1, 'foo');
+    $this->collection->add(2, 'bar');
+
+    $filtered = $this->collection->filterOnValueKey(fn($value, $key) => $value === 'foo' && $key === 1);
+    expect($filtered->length())->toBe(1)
+        ->and($filtered->keys())->toEqual([1])
+        ->and($filtered->get(1))->toBe('foo');
+});
+
+it('test merge string collections', function () {
     $collection1 = new StringCollection();
     $collection1->add(3, 'foo');
     $collection1->add(4, 'bar');
@@ -84,7 +114,7 @@ it('test merge', function () {
 it('return the array of items', function () {
     $this->collection->add(1, 'foo');
     $this->collection->add(2, 'bar');
-    expect($this->collection->all())->toBeArray()->toHaveCount(2);
+    expect($this->collection->toArray())->toBeArray()->toHaveCount(2);
 });
 
 it('add an item at the collection (add)', function () {
@@ -143,7 +173,7 @@ it('must not to remove an item and return false', function () {
 it('return an iterator', function () {
     $this->collection->add(1, 'foo');
     $items = iterator_to_array($this->collection->getIterator());
-    expect($items)->toEqual($this->collection->all());
+    expect($items)->toEqual($this->collection->toArray());
 });
 
 it('json serialize', function () {

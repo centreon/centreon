@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\AccessGroup\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
 class AccessGroup
@@ -37,6 +38,8 @@ class AccessGroup
      * @param int $id
      * @param string $name
      * @param string $alias
+     *
+     * @throws AssertionFailedException
      */
     public function __construct(private int $id, private string $name, private string $alias)
     {

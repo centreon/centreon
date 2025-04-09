@@ -145,14 +145,54 @@ abstract class Collection implements CollectionInterface
     }
 
     /**
+     * Filter the collection by a callable using the item as parameter
+     *
      * @param callable $callable
      *
      * @throws CollectionException
      * @return static
+     *
+     * @example $collection = new Collection([1, 2, 3, 4, 5]);
+     *          $filteredCollection = $collection->filterValues(fn($item) => $item > 2);
+     *          // $filteredCollection = [3, 4, 5]
      */
-    public function filter(callable $callable): static
+    public function filterOnValue(callable $callable): static
     {
         return new static(array_filter($this->items, $callable));
+    }
+
+    /**
+     * Filter the collection by a callable using the key as parameter
+     *
+     * @param callable $callable
+     *
+     * @throws CollectionException
+     * @return static
+     *
+     * @example $collection = new Collection(['key1' => 'foo', 'key2' => 'bar']);
+     *         $filteredCollection = $collection->filterKeys(fn($key) => $key === 'key1');
+     *        // $filteredCollection = ['key1' => 'foo']
+     */
+    public function filterOnKey(callable $callable): static
+    {
+        return new static(array_filter($this->items, $callable, ARRAY_FILTER_USE_KEY));
+    }
+
+    /**
+     * Filter the collection by a callable using the item and key as parameters
+     *
+     * @param callable $callable
+     *
+     * @throws CollectionException
+     * @return static
+     *
+     * @example $collection = new Collection(['key1' => 'foo', 'key2' => 'bar']);
+     *        $filteredCollection = $collection->filterValueKey(fn($item, $key) => $key === 'key1' && $item === 'foo');
+     *       // $filteredCollection = ['key1' => 'foo']
+     */
+    public function filterOnValueKey(callable $callable): static
+    {
+        return new static(array_filter($this->items, $callable, ARRAY_FILTER_USE_BOTH));
     }
 
     /**
@@ -168,7 +208,7 @@ abstract class Collection implements CollectionInterface
         $itemsBackup = $this->items;
         foreach ($collections as $collection) {
             if ($collection::class === static::class) {
-                foreach ($collection->all() as $key => $item) {
+                foreach ($collection->toArray() as $key => $item) {
                     $this->put($key, $item);
                 }
             } else {
@@ -187,7 +227,7 @@ abstract class Collection implements CollectionInterface
     /**
      * @return TItem[]
      */
-    public function all(): array
+    public function toArray(): array
     {
         return $this->items;
     }
