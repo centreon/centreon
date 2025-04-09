@@ -1,5 +1,4 @@
 import { Box } from '@mui/material';
-import { ParentSize } from '../..';
 import { LineChartData, Thresholds } from '../common/models';
 import { getMetricWithLatestData } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
