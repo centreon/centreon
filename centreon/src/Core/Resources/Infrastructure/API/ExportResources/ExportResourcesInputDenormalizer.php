@@ -53,7 +53,7 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
         ?string $format = null,
         array $context = []
     ): ExportResourcesInput {
-        if (isset($data['all_pages'])) {
+        if (isset($data['all_pages']) && $data['all_pages'] !== '') {
             $data['all_pages']
                 = filter_var($data['all_pages'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
                 ?? $data['all_pages'];
