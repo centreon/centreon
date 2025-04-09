@@ -19843,7 +19843,5 @@ msgstr "Connexion initiée par le collecteur"
 msgid "OTLP Receiver"
 msgstr "Récepteur OTLP"
 
-
-
 msgid "'{{total}} element(s) found"
 msgstr "'{{total}} élément(s) trouvé(s)"
