@@ -88,7 +88,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
             $query = $this->queryBuilder->update('`:db`.`agent_configuration`')
                 ->set('name', ':name')
                 ->set('configuration', ':configuration')
-                ->where('id', ':id')
+                ->where($this->queryBuilder->expr()->equal('id', ':id'))
                 ->getQuery();
 
             $this->connection->update(
@@ -118,7 +118,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
     {
         try {
             $query = $this->queryBuilder->delete('`:db`.`agent_configuration`')
-                ->where('id', ':id')
+                ->where($this->queryBuilder->expr()->equal('id', ':id'))
                 ->getQuery();
 
             $this->connection->delete(
@@ -174,7 +174,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
     {
         try {
             $query = $this->queryBuilder->delete('`:db`.`ac_poller_relation`')
-                ->where('ac_id', ':ac_id')
+                ->where($this->queryBuilder->expr()->equal('ac_id', ':ac_id'))
                 ->getQuery();
 
             $this->connection->delete(
@@ -197,8 +197,8 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
     {
         try {
             $query = $this->queryBuilder->delete('`:db`.`ac_poller_relation`')
-                ->where('ac_id', ':ac_id')
-                ->andWhere('poller_id', ':poller_id')
+                ->where($this->queryBuilder->expr()->equal('ac_id', ':ac_id'))
+                ->andWhere($this->queryBuilder->expr()->equal('poller_id', ':poller_id'))
                 ->getQuery();
 
             $this->connection->delete(
