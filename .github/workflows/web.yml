@@ -153,15 +153,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - uses: ./.github/actions/frontend-build
-        with:
-          base_directory: ${{ env.base_directory }}
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          index_file: ${{ env.base_directory }}/www/index.html
-          static_directory: ${{ env.base_directory }}/www/static
-          index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
-          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-          build_command: pnpm centreon:build
+      - run: exit 1
 
       - name: Create Jira ticket on nightly build failure
         if: |
