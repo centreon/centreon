@@ -94,12 +94,7 @@ const ResponsiveGauge = ({
         open={thresholds.enabled && tooltipOpen}
         placement="top"
       >
-        <svg
-          height={height}
-          ref={svgRef}
-          width={width}
-          style={{ color: pieColor }}
-        >
+        <svg height={height} ref={svgRef} width={width}>
           <Group
             left={centerX + margins.left}
             top={centerY + margins.top + baseSize / 8}
