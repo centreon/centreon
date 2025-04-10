@@ -536,25 +536,17 @@ describe('CSV export', () => {
     cy.get('@modal').contains(labelSelectColumns);
     cy.get('@modal')
       .findByTestId(labelVisibleColumnsOnly)
-      .find('input')
       .should('not.be.checked');
-    cy.get('@modal')
-      .findByTestId(labelAllColumns)
-      .find('input')
-      .should('be.checked');
+    cy.get('@modal').findByTestId(labelAllColumns).should('be.checked');
     cy.get('@modal').contains(labelSelecetPages);
     cy.get('@modal')
       .findByTestId(labelCurrentPageOnly)
-      .find('input')
       .should('not.be.checked');
-    cy.get('@modal')
-      .findByTestId(labelAllPages)
-      .find('input')
-      .should('be.checked');
+    cy.get('@modal').findByTestId(labelAllPages).should('be.checked');
 
-    cy.get('@modal').findByTestId(labelCurrentPageOnly).find('input').click();
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
     cy.waitForRequest('@countResources');
-    cy.get('@modal').findByTestId(labelAllPages).find('input').click();
+    cy.get('@modal').findByTestId(labelAllPages).click();
     cy.waitForRequest('@countResources');
 
     cy.get('@modal').contains(labelWarningExportToCsv);
@@ -590,22 +582,13 @@ describe('CSV export', () => {
     cy.get('@modal').contains(labelExportToCSV);
     cy.get('@modal').contains(labelSelectColumns);
 
-    cy.get('@modal')
-      .findByTestId(labelVisibleColumnsOnly)
-      .find('input')
-      .click();
-    cy.get('@modal')
-      .findByTestId(labelAllColumns)
-      .find('input')
-      .should('not.be.checked');
+    cy.get('@modal').findByTestId(labelVisibleColumnsOnly).click();
+    cy.get('@modal').findByTestId(labelAllColumns).should('not.be.checked');
 
     cy.get('@modal').contains(labelSelecetPages);
 
-    cy.get('@modal').findByTestId(labelCurrentPageOnly).find('input').click();
-    cy.get('@modal')
-      .findByTestId(labelAllPages)
-      .find('input')
-      .should('not.be.checked');
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
+    cy.get('@modal').findByTestId(labelAllPages).should('not.be.checked');
 
     cy.get('@modal').contains(labelWarningExportToCsv);
     cy.get('@modal')
@@ -633,9 +616,9 @@ describe('CSV export', () => {
     cy.waitForRequest('@countResources');
     cy.findByRole('dialog').as('modal').should('be.visible');
 
-    cy.get('@modal').findByTestId(labelCurrentPageOnly).find('input').click();
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
     cy.waitForRequest('@countResources');
-    cy.get('@modal').findByTestId(labelAllPages).find('input').click();
+    cy.get('@modal').findByTestId(labelAllPages).click();
     cy.waitForRequest('@countResources');
 
     cy.get('@modal').contains(labelExportToCSV);

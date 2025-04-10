@@ -48,7 +48,12 @@ const RadioButtons = ({ defaultChecked, options, title, getData }: Props) => {
         <FormControlLabel
           key={id}
           value={id}
-          control={<Radio checked={getCheckedValue(id)} />}
+          control={
+            <Radio
+              checked={getCheckedValue(id)}
+              slotProps={{ input: { 'data-testid': name } }}
+            />
+          }
           labelPlacement="end"
           onChange={change}
           label={name}
