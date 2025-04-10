@@ -40,6 +40,8 @@ get:
     * s.description
   parameters:
     - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
     - $ref: 'QueryParameter/FilterType.yaml'
     - $ref: 'QueryParameter/FilterState.yaml'
     - $ref: 'QueryParameter/FilterStatus.yaml'
