@@ -83,13 +83,13 @@ runs:
           "Product Backlog")
             # Every two weeks, these tickets get assigned to either Metropolis or Gotham
             if [[ $(( $(date -d '+1 week' '+%-V') % 4 )) -ge 2 ]]; then
-              ticket_squad_id=10882
-              ticket_board_id=225
-              squad_name="GOTHAM"
-            else
               ticket_squad_id=10625
               ticket_board_id=213
               squad_name="METROPOLIS"
+            else
+              ticket_squad_id=10882
+              ticket_board_id=225
+              squad_name="GOTHAM"
             fi
             ;;
           *)
