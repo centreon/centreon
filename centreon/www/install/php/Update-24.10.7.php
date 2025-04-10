@@ -59,64 +59,6 @@ $createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage
     }
 };
 
-// -------------------------------------------- Additional Configurations -------------------------------------------- //
-
-/**
- * @param centreonDB $pearDB
- *
- * @throws CentreonDbException
- *
- */
-$addConnectorToTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve data from topology table';
-    $statement = $pearDB->executeQuery(
-        <<<'SQL'
-            SELECT 1 FROM `topology`
-            WHERE `topology_name` = 'Connectors'
-                AND `topology_parent` = 6
-                AND `topology_page` = 620
-        SQL
-    );
-    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
-
-    $errorMessage = 'Unable to insert into topology';
-    if (! $topologyAlreadyExists) {
-        $pearDB->executeQuery(
-            <<<'SQL'
-                INSERT INTO `topology` (
-                    `topology_name`,
-                    `topology_parent`,
-                    `topology_page`,
-                    `topology_order`,
-                    `topology_group`,
-                    `topology_show`
-                )
-                VALUES ('Connectors', 6, 620, 92, 1, '1')
-            SQL
-        );
-    }
-};
-
-/**
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- *
- * @return void
- */
-$changeAccNameInTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to update table topology';
-    $pearDB->executeQuery(
-        <<<'SQL'
-            UPDATE `topology`
-            SET `topology_name` = 'Additional Configurations',
-                `topology_parent` = 620,
-                `topology_page` = 62002
-            WHERE `topology_url` = '/configuration/additional-connector-configurations'
-        SQL
-    );
-};
-
 
 
 try {
