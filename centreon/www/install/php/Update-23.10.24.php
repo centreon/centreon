@@ -23,23 +23,8 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $versionOfTheUpgrade = 'UPGRADE - 23.10.24: ';
 $errorMessage = '';
 
-// -------------------------------------------- Downtimes -------------------------------------------- //
-/**
- * Create index for resources table.
- *
- * @param CentreonDB $realtimeDb
- *
- * @throws CentreonDbException
- */
-$createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
-    if (! $realtimeDb->isIndexExists('downtimes', 'downtimes_end_time_index')) {
-        $errorMessage = 'Unable to create index for downtimes table';
-        $realtimeDb->executeQuery('CREATE INDEX `downtimes_end_time_index` ON downtimes (`end_time`)');
-    }
-};
 
 try {
-    $createIndexForDowntimes($pearDBO);
 
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
