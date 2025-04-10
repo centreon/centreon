@@ -185,9 +185,6 @@ try {
         $pearDB->beginTransaction();
     }
 
-    $insertAccConnectors($pearDB);
-    $addConnectorToTopology($pearDB);
-    $changeAccNameInTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
