@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Infrastructure\API\ExportResources;
+namespace Core\Resources\Infrastructure\API\CountResources;
 
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
@@ -31,10 +31,10 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 /**
  * Class
  *
- * @class ExportResourcesInputDenormalizer
- * @package Core\Resources\Infrastructure\API\ExportResources
+ * @class CountResourcesInputDenormalizer
+ * @package Core\Resources\Infrastructure\API\CountResources
  */
-class ExportResourcesInputDenormalizer implements DenormalizerInterface, DenormalizerAwareInterface
+class CountResourcesInputDenormalizer implements DenormalizerInterface, DenormalizerAwareInterface
 {
     use DenormalizerAwareTrait;
 
@@ -47,21 +47,15 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
      * @param array<string,mixed> $context
      *
      * @throws ExceptionInterface
-     * @return ExportResourcesInput
+     * @return CountResourcesInput
      */
     public function denormalize(
         mixed $data,
         string $type,
         ?string $format = null,
         array $context = []
-    ): ExportResourcesInput {
+    ): CountResourcesInput {
         $context[self::ALREADY_CALL] = true;
-        if (isset($data['all_pages']) && $data['all_pages'] !== '') {
-            $data['all_pages']
-                = filter_var($data['all_pages'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
-                ?? $data['all_pages'];
-        }
-
         if (isset($data['page'])) {
             $data['page']
                 = filter_var($data['page'], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
@@ -72,12 +66,6 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
             $data['limit']
                 = filter_var($data['limit'], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
                 ?? $data['limit'];
-        }
-
-        if (isset($data['max_lines'])) {
-            $data['max_lines']
-                = filter_var($data['max_lines'], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
-                ?? $data['max_lines'];
         }
 
         return $this->denormalizer->denormalize($data, $type, $format, $context);
@@ -101,6 +89,6 @@ class ExportResourcesInputDenormalizer implements DenormalizerInterface, Denorma
             return false;
         }
 
-        return $type === ExportResourcesInput::class && is_array($data);
+        return $type === CountResourcesInput::class && is_array($data);
     }
 }
