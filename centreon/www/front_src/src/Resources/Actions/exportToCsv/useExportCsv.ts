@@ -175,13 +175,13 @@ const useExportCsv = ({
     getEndpoint: () =>
       getEndpoint({
         baseEndpoint: countResourcesEndpoint,
-        includePagination: isAllPagesChecked
+        includePagination: !isAllPagesChecked
       }),
     getQueryKey: () => [
       'exportedLines',
       getEndpoint({
         baseEndpoint: countResourcesEndpoint,
-        includePagination: isAllPagesChecked
+        includePagination: !isAllPagesChecked
       }),
       isAllPagesChecked
     ],
