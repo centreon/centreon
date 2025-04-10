@@ -22,48 +22,6 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $versionOfTheUpgrade = 'UPGRADE - 24.04.13: ';
 $errorMessage = '';
 
-// -------------------------------------------- Downtimes -------------------------------------------- //
-/**
- * Create index for resources table.
- *
- * @param CentreonDB $realtimeDb
- *
- * @throws CentreonDbException
- */
-$createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
-    if (! $realtimeDb->isIndexExists('downtimes', 'downtimes_end_time_index')) {
-        $errorMessage = 'Unable to create index for downtimes table';
-        $realtimeDb->executeQuery('CREATE INDEX `downtimes_end_time_index` ON downtimes (`end_time`)');
-    }
-};
-
-// -------------------------------------------- Resource Status -------------------------------------------- //
-$createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
-    if (! $realtimeDb->isIndexExists('resources', 'resources_poller_id_index')) {
-        $errorMessage = 'Unable to create index resources_poller_id_index';
-        $realtimeDb->exec('CREATE INDEX `resources_poller_id_index` ON resources (`poller_id`)');
-    }
-
-    if (! $realtimeDb->isIndexExists('resources', 'resources_id_index')) {
-        $errorMessage = 'Unable to create index resources_id_index';
-        $realtimeDb->exec('CREATE INDEX `resources_id_index` ON resources (`id`)');
-    }
-
-    if (! $realtimeDb->isIndexExists('resources', 'resources_parent_id_index')) {
-        $errorMessage = 'Unable to create index resources_parent_id_index';
-        $realtimeDb->exec('CREATE INDEX `resources_parent_id_index` ON resources (`parent_id`)');
-    }
-
-    if (! $realtimeDb->isIndexExists('resources', 'resources_enabled_type_index')) {
-        $errorMessage = 'Unable to create index resources_enabled_type_index';
-        $realtimeDb->exec('CREATE INDEX `resources_enabled_type_index` ON resources (`enabled`, `type`)');
-    }
-
-    if (! $realtimeDb->isIndexExists('tags', 'tags_type_name_index')) {
-        $errorMessage = 'Unable to create index tags_type_name_index';
-        $realtimeDb->exec('CREATE INDEX `tags_type_name_index` ON tags (`type`, `name`(10))');
-    }
-};
 
 try {
     $createIndexForDowntimes($pearDBO);
