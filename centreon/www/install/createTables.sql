@@ -2682,7 +2682,7 @@ CREATE TABLE IF NOT EXISTS `agent_configuration` (
   `type` enum('telegraf', 'centreon-agent') NOT NULL,
   `name` varchar(255) NOT NULL,
   `configuration` JSON NOT NULL,
-  `connection_mode` enum('no_tls','tls','insecure','secure') NOT NULL DEFAULT 'secure',
+  `connection_mode` enum('no_tls','tls','insecure','secure') DEFAULT 'secure' NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_unique` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

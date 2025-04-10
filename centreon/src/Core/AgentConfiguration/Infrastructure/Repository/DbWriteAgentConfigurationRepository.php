@@ -25,16 +25,13 @@ namespace Core\AgentConfiguration\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 
 class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB implements WriteAgentConfigurationRepositoryInterface
@@ -48,13 +45,6 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
     {
         $this->db = $db;
     }
-
-    // public function __construct(
-    //     protected ConnectionInterface $connection,
-    //     protected QueryBuilderInterface $queryBuilder
-    // ) {
-    //     parent::__construct($connection, $queryBuilder);
-    // }
 
     /**
      * @inheritDoc
