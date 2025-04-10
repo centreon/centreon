@@ -13,16 +13,36 @@ import {
   labelSelectColumns,
   labelVisibleColumnsOnly
 } from '../../translatedLabels';
-import CheckBoxScope from './CheckBoxScope';
 import InformationsLine from './InformationsLine';
 import Warning from './Warning';
 import useExportCsvStyles from './exportCsv.styles';
 import useExportCSV from './useExportCsv';
+import RadioButtons from './RadioButtons';
 
 interface Props {
   onCancel: () => void;
   open: boolean;
 }
+
+enum ColumnId {
+  visibleColumns = 'visibleColumns',
+  allColumns = 'allColumns'
+}
+
+enum PageId {
+  currentPage = 'currentPage',
+  allPages = 'allPages'
+}
+
+const columnOptions = [
+  { id: ColumnId.visibleColumns, name: labelVisibleColumnsOnly },
+  { id: ColumnId.allColumns, name: labelAllColumns }
+];
+
+const pageOptions = [
+  { id: PageId.currentPage, name: labelCurrentPageOnly },
+  { id: PageId.allPages, name: labelAllPages }
+];
 
 const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
   const { t } = useTranslation();
@@ -37,12 +57,12 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
       isOpen: open
     });
 
-  const getSelectedColumnsData = (label: string) => {
-    setIsAllColumnsChecked(equals(labelAllColumns, label));
+  const getSelectedColumnsData = (id: string) => {
+    setIsAllColumnsChecked(equals(ColumnId.allColumns, id));
   };
 
-  const getSelectedPagesData = (label: string) => {
-    setIsAllPagesChecked(equals(labelAllPages, label));
+  const getSelectedPagesData = (id: string) => {
+    setIsAllPagesChecked(equals(PageId.allPages, id));
   };
 
   return (
@@ -52,28 +72,16 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
         <div className={classes.container}>
           <div className={classes.subContainer}>
             <div className={classes.checkBoxContainer}>
-              <CheckBoxScope
-                defaultCheckedLabel={{
-                  label: t(labelAllColumns),
-                  isChecked: true
-                }}
-                labels={{
-                  firstLabel: t(labelVisibleColumnsOnly),
-                  secondLabel: t(labelAllColumns)
-                }}
+              <RadioButtons
+                defaultChecked={ColumnId.allColumns}
+                options={columnOptions}
                 title={t(labelSelectColumns)}
                 getData={getSelectedColumnsData}
               />
               <div className={classes.spacing} />
-              <CheckBoxScope
-                defaultCheckedLabel={{
-                  label: t(labelAllPages),
-                  isChecked: true
-                }}
-                labels={{
-                  firstLabel: t(labelCurrentPageOnly),
-                  secondLabel: t(labelAllPages)
-                }}
+              <RadioButtons
+                defaultChecked={PageId.allPages}
+                options={pageOptions}
                 title={t(labelSelecetPages)}
                 getData={getSelectedPagesData}
               />
