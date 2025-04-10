@@ -101,7 +101,7 @@ runs:
         current_sprint=$(curl --request GET \
           --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-          --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name)) | .id')
+          --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name; "i")) | .id')
 
         echo "[DEBUG] current_sprint: $current_sprint"
 
