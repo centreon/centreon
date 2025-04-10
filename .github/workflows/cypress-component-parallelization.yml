@@ -294,7 +294,6 @@ jobs:
     if: |
       inputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled()) &&
-      startsWith(github.ref_name, 'dev') &&
       github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
