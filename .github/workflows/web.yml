@@ -566,6 +566,7 @@ jobs:
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           stability: ${{ needs.get-environment.outputs.stability }}
+          is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
       - name: Create Jira ticket on nightly build failure
         if: |
