@@ -32,6 +32,7 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
 
 const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
   {
+    connectionMode: JsonDecoder.optional(JsonDecoder.string),
     otelPrivateKey: JsonDecoder.string,
     otelPublicCertificate: JsonDecoder.string,
     otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
@@ -46,12 +47,14 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
     otelPublicCertificate: 'otel_public_certificate',
     confCertificate: 'conf_certificate',
     confPrivateKey: 'conf_private_key',
-    confServerPort: 'conf_server_port'
+    confServerPort: 'conf_server_port',
+    connectionMode: 'connection_mode'
   }
 );
 
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
+    connectionMode: JsonDecoder.optional(JsonDecoder.string),
     isReverse: JsonDecoder.boolean,
     otelPublicCertificate: JsonDecoder.string,
     otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
@@ -78,7 +81,8 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
     isReverse: 'is_reverse',
     otelPrivateKey: 'otel_private_key',
     otelPublicCertificate: 'otel_public_certificate',
-    otelCaCertificate: 'otel_ca_certificate'
+    otelCaCertificate: 'otel_ca_certificate',
+    connectionMode: 'connection_mode'
   }
 );
 

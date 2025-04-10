@@ -19,6 +19,7 @@ export interface TelegrafConfiguration {
   confServerPort: string | number;
   confCertificate: string;
   confPrivateKey: string;
+  connectionMode: string;
 }
 
 export interface HostConfiguration {
@@ -34,6 +35,7 @@ export interface CMAConfiguration {
   otelCaCertificate: string | null;
   otelPrivateKey: string;
   hosts: Array<HostConfiguration>;
+  connectionMode: string;
 }
 
 export interface TelegrafConfigurationAPI {
@@ -43,6 +45,7 @@ export interface TelegrafConfigurationAPI {
   conf_server_port: string | number;
   conf_certificate: string | null;
   conf_private_key: string | null;
+  connection_mode: string;
 }
 
 export interface HostConfigurationToAPI {
@@ -58,6 +61,7 @@ export interface CMAConfigurationAPI {
   otel_ca_certificate: string | null;
   otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
+  connection_mode: string;
 }
 
 export interface AgentConfiguration
