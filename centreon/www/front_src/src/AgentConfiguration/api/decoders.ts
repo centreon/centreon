@@ -85,6 +85,7 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
 export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
   {
     name: JsonDecoder.string,
+    connectionMode: JsonDecoder.optional(JsonDecoder.string), //for now
     type: JsonDecoder.enumeration<AgentType>(AgentType, 'Agent type'),
     pollers: JsonDecoder.array(
       JsonDecoder.object(
@@ -101,5 +102,8 @@ export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
       'Agent configuration configuration'
     )
   },
-  'Agent configuration'
+  'Agent configuration',
+  {
+    connectionMode: 'connection_mode'
+  }
 );
