@@ -1,5 +1,4 @@
 import { orange } from '@mui/material/colors';
-import { width } from 'packages/ui/src/Graph/Chart/InteractiveComponents/Tooltip/models';
 import { makeStyles } from 'tss-react/mui';
 
 const useExportCsvStyles = makeStyles()((theme) => ({
@@ -22,7 +21,7 @@ const useExportCsvStyles = makeStyles()((theme) => ({
     gap: theme.spacing(2)
   },
   information: {
-    background: '#EDEDED',
+    backgroundColor: theme.palette.background.default,
     flex: 0.6,
     borderRadius: theme.shape.borderRadius,
     display: 'flex',
@@ -32,7 +31,7 @@ const useExportCsvStyles = makeStyles()((theme) => ({
   },
   warning: {
     width: '100%',
-    backgroundColor: orange[100],
+    backgroundColor: theme.palette.warning.main,
     padding: theme.spacing(1),
     borderRadius: theme.shape.borderRadius
   },
