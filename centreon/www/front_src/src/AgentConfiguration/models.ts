@@ -1,5 +1,10 @@
 import { SelectEntry } from '@centreon/ui';
 
+export enum ConnectionMode {
+  secure = 'secure',
+  noTLS = 'no-tls'
+}
+
 export enum AgentType {
   Telegraf = 'telegraf',
   CMA = 'centreon-agent'
@@ -19,7 +24,6 @@ export interface TelegrafConfiguration {
   confServerPort: string | number;
   confCertificate: string;
   confPrivateKey: string;
-  connectionMode: string;
 }
 
 export interface HostConfiguration {
@@ -35,7 +39,6 @@ export interface CMAConfiguration {
   otelCaCertificate: string | null;
   otelPrivateKey: string;
   hosts: Array<HostConfiguration>;
-  connectionMode: string;
 }
 
 export interface TelegrafConfigurationAPI {
@@ -68,7 +71,7 @@ export interface AgentConfiguration
   extends Omit<AgentConfigurationListing, 'id' | 'type'> {
   configuration: TelegrafConfiguration | CMAConfiguration;
   type: AgentType;
-  connectionMode: { id: string; name: string };
+  connectionMode: string;
 }
 
 export interface AgentConfigurationForm

@@ -1,6 +1,5 @@
 import { UnsavedChangesDialog } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
-import SaveIcon from '@mui/icons-material/Save';
 import { Box, CircularProgress } from '@mui/material';
 import { useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
@@ -77,14 +76,14 @@ const Buttons = (): JSX.Element => {
     <>
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
         {isSubmitting && <CircularProgress size={24} />}
-        <Button variant="ghost" onClick={close}>
+        <Button onClick={close} size="medium" variant="secondary">
           {t(labelCancel)}
         </Button>
         <Button
           disabled={isSubmitDisabled}
-          iconVariant="start"
-          icon={<SaveIcon />}
           onClick={submitForm}
+          size="medium"
+          type="submit"
         >
           {t(labelSave)}
         </Button>

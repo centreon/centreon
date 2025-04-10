@@ -5,7 +5,7 @@ import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { pollersEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
-import { AgentType } from '../models';
+import { AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
   labelAgentType,
@@ -16,13 +16,15 @@ import {
   labelEncryptionLevel,
   labelHostConfigurations,
   labelName,
+  labelNoTLS,
   labelOTLPReceiver,
   labelOTelServer,
   labelParameters,
   labelPollers,
   labelPort,
   labelPrivateKey,
-  labelPublicCertificate
+  labelPublicCertificate,
+  labelTLS
 } from '../translatedLabels';
 import HostConfigurations from './HostConfigurations/HostConfigurations';
 
@@ -40,8 +42,8 @@ export const agentTypes: Array<SelectEntry> = [
 ];
 
 export const encryptionLevels: Array<SelectEntry> = [
-  { id: 'secure', name: 'TLS' },
-  { id: 'no-tls', name: 'No TLS' }
+  { id: ConnectionMode.secure, name: labelTLS },
+  { id: ConnectionMode.noTLS, name: labelNoTLS }
 ];
 
 export const useInputs = (): {
@@ -145,7 +147,7 @@ export const useInputs = (): {
         hideInput: (values) =>
           isNil(values.type) ||
           isNil(values?.connectionMode) ||
-          equals(values?.connectionMode?.id, 'secure'),
+          equals(values?.connectionMode?.id, ConnectionMode.secure),
         custom: {
           Component: EncryptionLevelWarning
         }
@@ -223,7 +225,7 @@ export const useInputs = (): {
                       isCMA ? labelOTLPReceiver : labelOTelServer
                     ),
                     hideInput: (values) =>
-                      equals(values?.connectionMode?.id, 'no-tls'),
+                      equals(values?.connectionMode?.id, ConnectionMode.noTLS),
                     grid: {
                       columns: [
                         {
@@ -269,7 +271,10 @@ export const useInputs = (): {
                         },
                         {
                           hideInput: (values) =>
-                            equals(values?.connectionMode?.id, 'no-tls'),
+                            equals(
+                              values?.connectionMode?.id,
+                              ConnectionMode.noTLS
+                            ),
                           type: InputType.Text,
                           fieldName: 'configuration.confCertificate',
                           required: true,
@@ -277,7 +282,10 @@ export const useInputs = (): {
                         },
                         {
                           hideInput: (values) =>
-                            equals(values?.connectionMode?.id, 'no-tls'),
+                            equals(
+                              values?.connectionMode?.id,
+                              ConnectionMode.noTLS
+                            ),
                           type: InputType.Text,
                           fieldName: 'configuration.confPrivateKey',
                           required: true,
