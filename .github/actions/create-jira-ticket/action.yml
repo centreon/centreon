@@ -98,6 +98,8 @@ runs:
             ;;
         esac
 
+        echo "Ticket will be assigned to the $squad_name team."
+
         current_sprint=$(curl --request GET \
           --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
