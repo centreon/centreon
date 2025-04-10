@@ -6,7 +6,7 @@ import { AgentConfigurationForm, AgentType } from '../models';
 import {
   labelAddressInvalid,
   labelInvalidExtension,
-  labelInvalidPath, 
+  labelInvalidPath,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
   labelRelativePathAreNotAllowed,
@@ -50,12 +50,14 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const certificateValidation = string().when('$connectionMode.id', {
     is: 'secure',
+    // biome-ignore lint/suspicious/noThenProperty: <explanation>
     then: () => certificateFileValidation.required(t(labelRequired)),
     otherwise: () => string().nullable()
   });
 
   const certificateNullableValidation = string().when('$connectionMode.id', {
     is: 'secure',
+    // biome-ignore lint/suspicious/noThenProperty: <explanation>
     then: () => certificateFileValidation.nullable(),
     otherwise: () => string().nullable()
   });
@@ -98,6 +100,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       )
       .when('isReverse', {
         is: true,
+        // biome-ignore lint/suspicious/noThenProperty: <explanation>
         then: (schema) => schema.min(1),
         otherwise: (schema) => schema.min(0)
       })
@@ -120,6 +123,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
     }).nullable(),
     configuration: object().when('type', {
       is: (type) => equals(type?.id, AgentType.Telegraf),
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
       then: (schema) => schema.shape(telegrafConfigurationSchema),
       otherwise: (schema) => schema.shape(CMAConfigurationSchema)
     })
