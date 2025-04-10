@@ -14,7 +14,7 @@ import { csvExportEndpoint } from '../api/endpoint';
 import { Count, ListSearch } from './models';
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
-const maxResources = 10000;
+export const maxResources = 10000;
 const unauthorizedColumn = 'graph';
 
 interface UseExportCsvProps {
@@ -25,9 +25,9 @@ interface UseExportCsvProps {
 
 interface UseExportCsv {
   exportCsv: () => void;
-  disableExport: boolean;
-  numberExportedLines: string;
   isLoading: boolean;
+  hasReachedMaximumLinesToExport: boolean;
+  numberExportedLines: number;
 }
 
 const useExportCsv = ({
@@ -196,7 +196,7 @@ const useExportCsv = ({
 
   const numberExportedLines = data?.count || 0;
 
-  const disableExport = isLoading || numberExportedLines > maxResources;
+  const hasReachedMaximumLinesToExport = numberExportedLines > maxResources;
 
   const exportCsv = () => {
     showSuccessMessage(t(labelExportProcessingInProgress));
@@ -209,7 +209,7 @@ const useExportCsv = ({
       customQueryParameters: [
         ...customQueryParameters,
         { name: 'all_pages', value: isAllPagesChecked },
-        { name: 'max_lines', value: 10000 }
+        { name: 'max_lines', value: maxResources }
       ]
     });
 
@@ -222,8 +222,8 @@ const useExportCsv = ({
 
   return {
     exportCsv,
-    disableExport,
-    numberExportedLines: `${numberExportedLines} / ${maxResources}`,
+    hasReachedMaximumLinesToExport,
+    numberExportedLines,
     isLoading
   };
 };

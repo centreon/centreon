@@ -8,6 +8,7 @@ import {
 import { SelectEntry } from '@centreon/ui';
 import { equals } from 'ramda';
 import { SyntheticEvent, useCallback, useState } from 'react';
+import useExportCsvStyles from './exportCsv.styles';
 
 interface Props {
   defaultChecked: string;
@@ -17,6 +18,8 @@ interface Props {
 }
 
 const RadioButtons = ({ defaultChecked, options, title, getData }: Props) => {
+  const { classes } = useExportCsvStyles();
+
   const [checked, setChecked] = useState(defaultChecked);
 
   const change = useCallback(
@@ -51,7 +54,9 @@ const RadioButtons = ({ defaultChecked, options, title, getData }: Props) => {
           control={
             <Radio
               checked={getCheckedValue(id)}
+              size="small"
               slotProps={{ input: { 'data-testid': name } }}
+              className={classes.radioInput}
             />
           }
           labelPlacement="end"

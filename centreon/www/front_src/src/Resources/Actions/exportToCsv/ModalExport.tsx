@@ -50,12 +50,16 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
   const [isAllPagesChecked, setIsAllPagesChecked] = useState(true);
   const [isAllColumnsChecked, setIsAllColumnsChecked] = useState(true);
 
-  const { exportCsv, disableExport, numberExportedLines, isLoading } =
-    useExportCSV({
-      isAllColumnsChecked,
-      isAllPagesChecked,
-      isOpen: open
-    });
+  const {
+    exportCsv,
+    hasReachedMaximumLinesToExport,
+    numberExportedLines,
+    isLoading
+  } = useExportCSV({
+    isAllColumnsChecked,
+    isAllPagesChecked,
+    isOpen: open
+  });
 
   const getSelectedColumnsData = (id: string) => {
     setIsAllColumnsChecked(equals(ColumnId.allColumns, id));
@@ -71,14 +75,13 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
       <Modal.Body>
         <div className={classes.container}>
           <div className={classes.subContainer}>
-            <div className={classes.checkBoxContainer}>
+            <div className={classes.radioButtonsContainer}>
               <RadioButtons
                 defaultChecked={ColumnId.allColumns}
                 options={columnOptions}
                 title={t(labelSelectColumns)}
                 getData={getSelectedColumnsData}
               />
-              <div className={classes.spacing} />
               <RadioButtons
                 defaultChecked={PageId.allPages}
                 options={pageOptions}
@@ -88,11 +91,10 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
             </div>
             <InformationsLine
               numberExportedLines={numberExportedLines}
-              disableExport={disableExport}
+              hasReachedMaximumLinesToExport={hasReachedMaximumLinesToExport}
               isLoading={isLoading}
             />
           </div>
-          <div className={classes.spacing} />
           <Warning />
         </div>
       </Modal.Body>
@@ -100,7 +102,7 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
         labels={{ cancel: t(labelCancel), confirm: t(labelExport) }}
         onConfirm={exportCsv}
         onCancel={onCancel}
-        disabled={disableExport}
+        disabled={isLoading}
       />
     </Modal>
   );
