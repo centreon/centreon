@@ -2,6 +2,7 @@ import initialize from './initialize';
 
 import { capitalize } from '@mui/material';
 import { equals } from 'ramda';
+
 import {
   labelDisabledHosts,
   labelEnabledHosts,
