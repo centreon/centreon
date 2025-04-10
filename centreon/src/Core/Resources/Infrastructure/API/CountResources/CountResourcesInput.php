@@ -36,5 +36,13 @@ final readonly class CountResourcesInput
         #[Assert\NotBlank(message: 'search parameter is required')]
         #[Assert\Json(message: 'search parameter must be a valid JSON')]
         public mixed $search,
+        #[Assert\Type('integer', message: 'page parameter must be an integer')]
+        #[Assert\Range(
+            minMessage: 'page parameter must be greater than 1',
+            min: 1
+        )]
+        public mixed $page,
+        #[Assert\Type('integer', message: 'limit parameter must be an integer')]
+        public mixed $limit,
     ) {}
 }
