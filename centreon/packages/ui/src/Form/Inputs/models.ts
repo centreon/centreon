@@ -133,4 +133,5 @@ export interface Group {
   name: string;
   order: number;
   titleAttributes?: TypographyProps;
+  isDividerHidden?: boolean;
 }

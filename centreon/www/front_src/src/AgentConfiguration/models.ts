@@ -37,12 +37,12 @@ export interface CMAConfiguration {
 }
 
 export interface TelegrafConfigurationAPI {
-  otel_public_certificate: string;
+  otel_public_certificate: string | null;
   otel_ca_certificate: string | null;
-  otel_private_key: string;
+  otel_private_key: string | null;
   conf_server_port: string | number;
-  conf_certificate: string;
-  conf_private_key: string;
+  conf_certificate: string | null;
+  conf_private_key: string | null;
 }
 
 export interface HostConfigurationToAPI {
@@ -54,9 +54,9 @@ export interface HostConfigurationToAPI {
 
 export interface CMAConfigurationAPI {
   is_reverse: boolean;
-  otel_public_certificate: string;
+  otel_public_certificate: string | null;
   otel_ca_certificate: string | null;
-  otel_private_key: string;
+  otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
 }
 
@@ -64,6 +64,7 @@ export interface AgentConfiguration
   extends Omit<AgentConfigurationListing, 'id' | 'type'> {
   configuration: TelegrafConfiguration | CMAConfiguration;
   type: AgentType;
+  connectionMode: { id: string; name: string };
 }
 
 export interface AgentConfigurationForm
