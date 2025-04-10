@@ -11,6 +11,6 @@ export const useFormStyles = makeStyles()((theme) => ({
     height: theme.spacing(4.5),
     justifyContent: 'space-between',
     paddingInline: theme.spacing(1.25),
-    margin: theme.spacing(3, 0, 1)
+    margin: theme.spacing(2, 0)
   }
 }));
