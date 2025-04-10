@@ -1,4 +1,3 @@
-import { orange } from '@mui/material/colors';
 import { makeStyles } from 'tss-react/mui';
 
 const useExportCsvStyles = makeStyles()((theme) => ({

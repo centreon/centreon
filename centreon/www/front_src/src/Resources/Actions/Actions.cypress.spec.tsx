@@ -609,7 +609,7 @@ describe('CSV export', () => {
     cy.makeSnapshot();
   });
 
-  it('display the warning message and disable the export button when the number of resources exceeds 10,000', () => {
+  it('display the warning message when the number of resources exceeds 10,000', () => {
     initialize('resources/listing/count/massiveCount.json');
 
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
@@ -629,7 +629,7 @@ describe('CSV export', () => {
       .should('be.enabled');
     cy.get('@modal')
       .findByRole('button', { name: labelExport })
-      .should('be.disabled');
+      .should('be.enabled');
 
     cy.makeSnapshot();
   });
