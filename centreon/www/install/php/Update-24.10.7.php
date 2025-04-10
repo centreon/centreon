@@ -176,9 +176,6 @@ $createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$error
 
 
 try {
-    $createIndexForDowntimes($pearDBO);
-    $addColumnToResourcesTable($pearDBO);
-    $createIndexesForResourceStatus($pearDBO);
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
