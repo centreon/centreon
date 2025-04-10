@@ -24,8 +24,6 @@ $errorMessage = '';
 
 
 try {
-    $createIndexForDowntimes($pearDBO);
-    $createIndexesForResourceStatus($pearDBO);
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
