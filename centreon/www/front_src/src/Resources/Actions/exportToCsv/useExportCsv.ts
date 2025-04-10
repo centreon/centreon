@@ -11,32 +11,37 @@ import { countResourcesEndpoint } from '../../api/endpoint';
 import { labelExportProcessingInProgress } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { csvExportEndpoint } from '../api/endpoint';
-import { ListSearch } from './models';
+import { Count, ListSearch } from './models';
+import { refreshIntervalAtom } from '@centreon/ui-context';
 
-const maxResources = 10000;
+export const maxResources = 10000;
 const unauthorizedColumn = 'graph';
 
-interface Parameters {
+interface UseExportCsvProps {
   isAllPagesChecked: boolean;
   isAllColumnsChecked: boolean;
+  isOpen: boolean;
 }
 
 interface UseExportCsv {
   exportCsv: () => void;
-  disableExport: boolean;
-  numberExportedLines: string;
+  isLoading: boolean;
+  hasReachedMaximumLinesToExport: boolean;
+  numberExportedLines: number;
 }
 
 const useExportCsv = ({
   isAllColumnsChecked,
-  isAllPagesChecked
-}: Parameters): UseExportCsv => {
+  isAllPagesChecked,
+  isOpen
+}: UseExportCsvProps): UseExportCsv => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
   const { getCriteriaNames, getCriteriaValue, getCriteriaIds } =
     useGetCriteriaName();
   const visualization = useAtomValue(selectedVisualizationAtom);
   const selectedColumnIds = useAtomValue(selectedColumnIdsAtom);
+  const refreshInterval = useAtomValue(refreshIntervalAtom);
 
   const listing = useAtomValue(listingAtom);
 
@@ -119,7 +124,7 @@ const useExportCsv = ({
     return filteredColumns.map((column) => `columns[]=${column}`).join('&');
   };
 
-  const getParameters = (includePagination = true) => {
+  const getParameters = (includePagination = false) => {
     const { filtersParameters, queryParameters } = getCurrentFilterParameters();
     const sort = getCriteriaValue('sort');
 
@@ -155,7 +160,7 @@ const useExportCsv = ({
     };
   };
 
-  const getEndpoint = ({ baseEndpoint, includePagination = true }): string => {
+  const getEndpoint = ({ baseEndpoint, includePagination = false }): string => {
     const { parameters, customQueryParameters } =
       getParameters(includePagination);
 
@@ -166,39 +171,37 @@ const useExportCsv = ({
     });
   };
 
-  const { data } = useFetchQuery({
+  const { data, isLoading } = useFetchQuery<Count>({
     getEndpoint: () =>
       getEndpoint({
         baseEndpoint: countResourcesEndpoint,
-        includePagination: false
+        includePagination: !isAllPagesChecked
       }),
     getQueryKey: () => [
       'exportedLines',
       getEndpoint({
         baseEndpoint: countResourcesEndpoint,
-        includePagination: false
-      })
+        includePagination: !isAllPagesChecked
+      }),
+      isAllPagesChecked
     ],
     queryOptions: {
-      suspense: false
+      enabled: isOpen,
+      suspense: false,
+      refetchInterval: refreshInterval * 1000,
+      gcTime: 0,
+      staleTime: 0
     }
   });
 
-  const filteredCurrentLines = `${data?.count} / ${maxResources}`;
-  const currentLines = `${data?.meta?.total} / ${maxResources}`;
+  const numberExportedLines = data?.count || 0;
 
-  const numberExportedLines = isAllPagesChecked
-    ? currentLines
-    : filteredCurrentLines;
-
-  const disableExport = isAllPagesChecked
-    ? data?.meta?.total > maxResources
-    : data?.result?.length > maxResources;
+  const hasReachedMaximumLinesToExport = numberExportedLines > maxResources;
 
   const exportCsv = () => {
     showSuccessMessage(t(labelExportProcessingInProgress));
 
-    const { parameters, customQueryParameters } = getParameters();
+    const { parameters, customQueryParameters } = getParameters(true);
 
     const endpoint = buildListingEndpoint({
       parameters,
@@ -206,7 +209,7 @@ const useExportCsv = ({
       customQueryParameters: [
         ...customQueryParameters,
         { name: 'all_pages', value: isAllPagesChecked },
-        { name: 'max_lines', value: 10000 }
+        { name: 'max_lines', value: maxResources }
       ]
     });
 
@@ -217,7 +220,12 @@ const useExportCsv = ({
     );
   };
 
-  return { exportCsv, disableExport, numberExportedLines };
+  return {
+    exportCsv,
+    hasReachedMaximumLinesToExport,
+    numberExportedLines,
+    isLoading
+  };
 };
 
 export default useExportCsv;

@@ -193,8 +193,9 @@ const initialize = (
     cy.interceptAPIRequest({
       alias: 'countResources',
       method: Method.GET,
-      path: '**/count?*',
-      response: data
+      path: '**/count**',
+      response: data,
+      statusCode: 200
     });
   });
 
@@ -525,30 +526,28 @@ describe('CSV export', () => {
 
   it('export resources with default checks when clicking the CSV export button', () => {
     initialize();
-    cy.waitForRequest('@countResources');
 
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
+    cy.waitForRequest('@countResources');
+
     cy.findByRole('dialog').as('modal').should('be.visible');
     cy.get('@modal').contains(labelExportToCSV);
     cy.get('@modal').contains(labelFilteredResources);
     cy.get('@modal').contains(labelSelectColumns);
     cy.get('@modal')
       .findByTestId(labelVisibleColumnsOnly)
-      .find('input')
       .should('not.be.checked');
-    cy.get('@modal')
-      .findByTestId(labelAllColumns)
-      .find('input')
-      .should('be.checked');
+    cy.get('@modal').findByTestId(labelAllColumns).should('be.checked');
     cy.get('@modal').contains(labelSelecetPages);
     cy.get('@modal')
       .findByTestId(labelCurrentPageOnly)
-      .find('input')
       .should('not.be.checked');
-    cy.get('@modal')
-      .findByTestId(labelAllPages)
-      .find('input')
-      .should('be.checked');
+    cy.get('@modal').findByTestId(labelAllPages).should('be.checked');
+
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
+    cy.waitForRequest('@countResources');
+    cy.get('@modal').findByTestId(labelAllPages).click();
+    cy.waitForRequest('@countResources');
 
     cy.get('@modal').contains(labelWarningExportToCsv);
     cy.get('@modal')
@@ -575,29 +574,21 @@ describe('CSV export', () => {
   it('export resources with custom checks when clicking the CSV export button', () => {
     const store = initialize();
     store.set(selectedColumnIdsAtom, visibleColumns);
-    cy.waitForRequest('@countResources');
 
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
+
+    cy.waitForRequest('@countResources');
     cy.findByRole('dialog').as('modal').should('be.visible');
     cy.get('@modal').contains(labelExportToCSV);
     cy.get('@modal').contains(labelSelectColumns);
 
-    cy.get('@modal')
-      .findByTestId(labelVisibleColumnsOnly)
-      .find('input')
-      .click();
-    cy.get('@modal')
-      .findByTestId(labelAllColumns)
-      .find('input')
-      .should('not.be.checked');
+    cy.get('@modal').findByTestId(labelVisibleColumnsOnly).click();
+    cy.get('@modal').findByTestId(labelAllColumns).should('not.be.checked');
 
     cy.get('@modal').contains(labelSelecetPages);
 
-    cy.get('@modal').findByTestId(labelCurrentPageOnly).find('input').click();
-    cy.get('@modal')
-      .findByTestId(labelAllPages)
-      .find('input')
-      .should('not.be.checked');
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
+    cy.get('@modal').findByTestId(labelAllPages).should('not.be.checked');
 
     cy.get('@modal').contains(labelWarningExportToCsv);
     cy.get('@modal')
@@ -618,11 +609,18 @@ describe('CSV export', () => {
     cy.makeSnapshot();
   });
 
-  it('display the warning message and disable the export button when the number of resources exceeds 10,000', () => {
+  it('display the warning message when the number of resources exceeds 10,000', () => {
     initialize('resources/listing/count/massiveCount.json');
-    cy.waitForRequest('@countResources');
+
     cy.findByRole('button', { name: 'exportCsvButton' }).click();
+    cy.waitForRequest('@countResources');
     cy.findByRole('dialog').as('modal').should('be.visible');
+
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
+    cy.waitForRequest('@countResources');
+    cy.get('@modal').findByTestId(labelAllPages).click();
+    cy.waitForRequest('@countResources');
+
     cy.get('@modal').contains(labelExportToCSV);
     cy.get('@modal').contains(labelWarningExportToCsv);
     cy.get('@modal').contains(labelFilterRessources);
@@ -631,7 +629,7 @@ describe('CSV export', () => {
       .should('be.enabled');
     cy.get('@modal')
       .findByRole('button', { name: labelExport })
-      .should('be.disabled');
+      .should('be.enabled');
 
     cy.makeSnapshot();
   });
