@@ -151,7 +151,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 parent_resource.alias AS `parent_alias`,
                 parent_resource.status_ordered AS `parent_status_ordered`,
                 parent_resource.address AS `parent_fqdn`,
-                severities.id AS `severity_id`,
                 severities.level AS `severity_level`,
                 severities.name AS `severity_name`,
                 severities.type AS `severity_type`,
@@ -400,11 +399,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function countResourcesByFilter(ResourceFilter $filter): int
     {
         try {
-            // For a count, there isn't pagination we limit the number of results
-            // page is always 1 and limit is the maxResults in case of an export
-            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-            $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
-
             $queryParametersFromRequestParameter = new QueryParameters();
             $query = $this->generateFindResourcesRequest(
                 filter: $filter,
@@ -433,11 +427,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function countResourcesByFilterAndAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): int
     {
         try {
-            // For a count, there isn't pagination we limit the number of results
-            // page is always 1 and limit is the maxResults in case of an export
-            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-            $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
-
             $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
 
             $queryParametersFromRequestParameter = new QueryParameters();
@@ -533,62 +522,51 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             ? ''
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
-        if ($onlyCount) {
-            $query .= <<<'SQL'
-                SELECT COUNT(DISTINCT resources.resource_id), 1 AS REALTIME
-                SQL;
-        } else {
-            $query .= <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                    1 AS REALTIME,
-                    resources.resource_id,
-                    resources.name,
-                    resources.alias,
-                    resources.address,
-                    resources.id,
-                    resources.internal_id,
-                    resources.parent_id,
-                    resources.parent_name,
-                    parent_resource.resource_id AS `parent_resource_id`,
-                    parent_resource.status AS `parent_status`,
-                    parent_resource.alias AS `parent_alias`,
-                    parent_resource.status_ordered AS `parent_status_ordered`,
-                    parent_resource.address AS `parent_fqdn`,
-                    severities.id AS `severity_id`,
-                    severities.level AS `severity_level`,
-                    severities.name AS `severity_name`,
-                    severities.type AS `severity_type`,
-                    severities.icon_id AS `severity_icon_id`,
-                    resources.type,
-                    resources.status,
-                    resources.status_ordered,
-                    resources.status_confirmed,
-                    resources.in_downtime,
-                    resources.acknowledged,
-                    resources.passive_checks_enabled,
-                    resources.active_checks_enabled,
-                    resources.notifications_enabled,
-                    resources.last_check,
-                    resources.last_status_change,
-                    resources.check_attempts,
-                    resources.max_check_attempts,
-                    resources.notes,
-                    resources.notes_url,
-                    resources.action_url,
-                    resources.output,
-                    resources.poller_id,
-                    resources.has_graph,
-                    instances.name AS `monitoring_server_name`,
-                    resources.enabled,
-                    resources.icon_id,
-                    resources.severity_id,
-                    resources.flapping,
-                    resources.percent_state_change
-                SQL;
-        }
-
-        $query .= ' ';
         $query .= <<<SQL
+            SELECT :sql_query_find DISTINCT
+                1 AS REALTIME,
+                resources.resource_id,
+                resources.name,
+                resources.alias,
+                resources.address,
+                resources.id,
+                resources.internal_id,
+                resources.parent_id,
+                resources.parent_name,
+                parent_resource.resource_id AS `parent_resource_id`,
+                parent_resource.status AS `parent_status`,
+                parent_resource.alias AS `parent_alias`,
+                parent_resource.status_ordered AS `parent_status_ordered`,
+                parent_resource.address AS `parent_fqdn`,
+                severities.level AS `severity_level`,
+                severities.name AS `severity_name`,
+                severities.type AS `severity_type`,
+                severities.icon_id AS `severity_icon_id`,
+                resources.type,
+                resources.status,
+                resources.status_ordered,
+                resources.status_confirmed,
+                resources.in_downtime,
+                resources.acknowledged,
+                resources.passive_checks_enabled,
+                resources.active_checks_enabled,
+                resources.notifications_enabled,
+                resources.last_check,
+                resources.last_status_change,
+                resources.check_attempts,
+                resources.max_check_attempts,
+                resources.notes,
+                resources.notes_url,
+                resources.action_url,
+                resources.output,
+                resources.poller_id,
+                resources.has_graph,
+                instances.name AS `monitoring_server_name`,
+                resources.enabled,
+                resources.icon_id,
+                resources.severity_id,
+                resources.flapping,
+                resources.percent_state_change
             FROM `:dbstg`.`resources`
             INNER JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
@@ -678,11 +656,18 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
              */
             $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
                 ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+        }
 
-            /**
-             * Handle pagination.
-             */
-            $query .= $this->sqlRequestTranslator->translatePaginationToSql();
+        /**
+         * Handle pagination.
+         */
+        $query .= $this->sqlRequestTranslator->translatePaginationToSql();
+
+        if ($onlyCount) {
+            $query = str_replace(':sql_query_find', '', $query);
+            $query = "SELECT COUNT(*) FROM ({$query}) AS temp";
+        } else {
+            $query = str_replace(':sql_query_find', 'SQL_CALC_FOUND_ROWS', $query);
         }
 
         return $query;
