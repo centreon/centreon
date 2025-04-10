@@ -392,12 +392,20 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /**
      * @param ResourceFilter $filter
+     * @param bool $allPages
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByFilter(ResourceFilter $filter): int
+    public function countResourcesByFilter(ResourceFilter $filter, bool $allPages): int
     {
+        if ($allPages) {
+            // For a count, there isn't pagination we limit the number of results
+            // page is always 1 and limit is the maxResults in case of an export
+            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+            $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
+        }
+
         try {
             $queryParametersFromRequestParameter = new QueryParameters();
             $query = $this->generateFindResourcesRequest(
@@ -417,15 +425,25 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
-     * @param array<int> $accessGroupIds
-     *
      * @param ResourceFilter $filter
+     * @param bool $allPages
+     * @param array<int> $accessGroupIds
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByFilterAndAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): int
+    public function countResourcesByFilterAndAccessGroupIds(
+        ResourceFilter $filter,
+        bool $allPages,
+        array $accessGroupIds
+    ): int
     {
+        // if $allPages is set to true, we don't use pagination and limit because count all resources
+        if ($allPages) {
+            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+            $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
+        }
+
         try {
             $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
 
@@ -661,7 +679,9 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         /**
          * Handle pagination.
          */
-        $query .= $this->sqlRequestTranslator->translatePaginationToSql();
+        if ($this->sqlRequestTranslator->getRequestParameters()->getLimit() !== 0) {
+            $query .= $this->sqlRequestTranslator->translatePaginationToSql();
+        }
 
         if ($onlyCount) {
             $query = str_replace(':sql_query_find', '', $query);

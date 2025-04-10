@@ -61,7 +61,10 @@ final readonly class CountResources
 
         try {
             if ($request->isAdmin) {
-                $countFilteredResources = $this->readResourceRepository->countResourcesByFilter($request->resourceFilter);
+                $countFilteredResources = $this->readResourceRepository->countResourcesByFilter(
+                    $request->resourceFilter,
+                    $request->allPages
+                );
                 $countTotalResources = $this->readResourceRepository->countAllResources();
             } else {
                 $accessGroups = $this->accessGroupRepository->findByContactId($request->contactId);
@@ -69,6 +72,7 @@ final readonly class CountResources
 
                 $countFilteredResources = $this->readResourceRepository->countResourcesByFilterAndAccessGroupIds(
                     $request->resourceFilter,
+                    $request->allPages,
                     $accessGroupIds
                 );
 

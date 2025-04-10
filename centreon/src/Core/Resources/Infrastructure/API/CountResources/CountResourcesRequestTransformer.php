@@ -35,17 +35,20 @@ use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
  */
 final readonly class CountResourcesRequestTransformer {
     /**
+     * @param CountResourcesInput $input
      * @param ResourceFilter $resourceFilter
      * @param ContactInterface $contact
      *
      * @return CountResourcesRequest
      */
     public static function transform(
+        CountResourcesInput $input,
         ResourceFilter $resourceFilter,
         ContactInterface $contact
     ): CountResourcesRequest {
         return new CountResourcesRequest(
             resourceFilter: $resourceFilter,
+            allPages: $input->allPages,
             contactId: $contact->getId(),
             isAdmin: $contact->isAdmin()
         );

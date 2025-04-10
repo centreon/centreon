@@ -36,13 +36,30 @@ final readonly class CountResourcesInput
         #[Assert\NotBlank(message: 'search parameter is required')]
         #[Assert\Json(message: 'search parameter must be a valid JSON')]
         public mixed $search,
-        #[Assert\Type('integer', message: 'page parameter must be an integer')]
-        #[Assert\Range(
-            minMessage: 'page parameter must be greater than 1',
-            min: 1
+        #[Assert\NotNull(message: 'all_pages parameter is required')]
+        #[Assert\Type('bool', message: 'all_pages parameter must be a boolean')]
+        public mixed $allPages,
+        #[Assert\When(
+            expression: 'this.allPages === false',
+            constraints: [
+                new Assert\Sequentially([
+                    new Assert\NotBlank(message: 'page parameter is required when all_pages is false'),
+                    new Assert\Type('int', message: 'page parameter must be an integer'),
+                    new Assert\Range(
+                        minMessage: 'page parameter must be greater than 1',
+                        min: 1
+                    ),
+                ]),
+            ]
         )]
         public mixed $page,
-        #[Assert\Type('integer', message: 'limit parameter must be an integer')]
+        #[Assert\When(
+            expression: 'this.allPages === false',
+            constraints: [
+                new Assert\NotBlank(message: 'limit parameter is required when all_pages is false'),
+                new Assert\Type('int', message: 'limit parameter must be an integer'),
+            ]
+        )]
         public mixed $limit,
     ) {}
 }

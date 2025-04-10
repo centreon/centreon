@@ -61,9 +61,10 @@ final class CountResourcesController extends AbstractController
         CountResources $useCase,
         CountResourcesPresenterJson $presenter,
         Request $request,
-        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] CountResourcesInput $input,
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)]
+        CountResourcesInput $input,
     ): Response {
-        $useCaseRequest = $this->createCountRequest($request);
+        $useCaseRequest = $this->createCountRequest($request, $input);
 
         $useCase($useCaseRequest, $presenter);
 
@@ -74,18 +75,20 @@ final class CountResourcesController extends AbstractController
 
     /**
      * @param Request $request
+     * @param CountResourcesInput $input
      *
      * @return CountResourcesRequest
      */
-    private function createCountRequest(Request $request): CountResourcesRequest
+    private function createCountRequest(Request $request, CountResourcesInput $input): CountResourcesRequest
     {
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all(), true);
 
         $resourceFilter = $this->createResourceFilter($filter);
 
         return CountResourcesRequestTransformer::transform(
+            input: $input,
             resourceFilter: $resourceFilter,
-            contact: $this->contact,
+            contact: $this->contact
         );
     }
 

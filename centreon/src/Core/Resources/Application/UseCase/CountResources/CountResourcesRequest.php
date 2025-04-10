@@ -36,11 +36,13 @@ final readonly class CountResourcesRequest {
      * CountResourcesRequest constructor
      *
      * @param ResourceFilter $resourceFilter
+     * @param bool $allPages
      * @param int $contactId
      * @param bool $isAdmin
      */
     public function __construct(
         public ResourceFilter $resourceFilter,
+        public bool $allPages,
         public int $contactId,
         public bool $isAdmin
     ) {

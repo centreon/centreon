@@ -86,21 +86,24 @@ interface ReadResourceRepositoryInterface
 
     /**
      * @param ResourceFilter $filter
+     * @param bool $allPages
      *
      * @throws RepositoryException
      * @return int
      */
-    public function countResourcesByFilter(ResourceFilter $filter): int;
+    public function countResourcesByFilter(ResourceFilter $filter, bool $allPages): int;
 
     /**
-     * @param array<int> $accessGroupIds
      * @param ResourceFilter $filter
+     * @param bool $allPages
+     * @param array<int> $accessGroupIds
      *
      * @throws RepositoryException
      * @return int
      */
     public function countResourcesByFilterAndAccessGroupIds(
         ResourceFilter $filter,
+        bool $allPages,
         array $accessGroupIds
     ): int;
 

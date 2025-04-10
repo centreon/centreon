@@ -56,6 +56,13 @@ class CountResourcesInputDenormalizer implements DenormalizerInterface, Denormal
         array $context = []
     ): CountResourcesInput {
         $context[self::ALREADY_CALL] = true;
+
+        if (isset($data['all_pages']) && $data['all_pages'] !== '') {
+            $data['all_pages']
+                = filter_var($data['all_pages'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+                ?? $data['all_pages'];
+        }
+
         if (isset($data['page'])) {
             $data['page']
                 = filter_var($data['page'], FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
