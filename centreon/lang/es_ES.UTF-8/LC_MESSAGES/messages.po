@@ -17938,15 +17938,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "No hosts in this group are currently disabled."
 # msgstr ""
 
-# msgid "Delete host group"
-# msgstr ""
-
-# msgid "Delete host groups"
-# msgstr ""
-
-# msgid "Host group deleted"
-# msgstr ""
-
 # msgid "Duplicate host group"
 # msgstr ""
 
@@ -17957,18 +17948,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgstr ""
 
 # msgid "Duplications"
-# msgstr ""
-
-# msgid "Host group disabled"
-# msgstr ""
-
-# msgid "Host group enabled"
-# msgstr ""
-
-# msgid "Host groups disabled"
-# msgstr ""
-
-# msgid "Host groups enabled"
 # msgstr ""
 
 # msgid "You are about to delete the <strong>{{ name }}</strong> host group. This action cannot be undone. Do you want to delete it?"
@@ -18025,7 +18004,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Failed to disable the host group"
 # msgstr ""
 
-
 # msgid "Workhours"
 # msgstr ""
 
@@ -18036,12 +18014,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgstr ""
 
 # msgid "Display average as"
-# msgstr ""
-
-# msgid "Enable/Disable"
-# msgstr ""
-
-# msgid "Enabled hosts"
 # msgstr ""
 
 # msgid "No hosts in this group are currently enabled."
@@ -18059,15 +18031,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Host group deleted"
 # msgstr ""
 
-# msgid "Duplicate host group"
-# msgstr ""
-
-# msgid "Duplicate host groups"
-# msgstr ""
-
-# msgid "Host group duplicated"
-# msgstr ""
-
 # msgid "Duplications"
 # msgstr ""
 
@@ -18081,18 +18044,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgstr ""
 
 # msgid "Host groups enabled"
-# msgstr ""
-
-# msgid "You are about to delete the <strong>{{ name }}</strong> host group. This action cannot be undone. Do you want to delete it?"
-# msgstr ""
-
-# msgid "You are about to delete <strong>{{ count }} host groups.</strong> This action cannot be undone. Do you want to delete them?"
-# msgstr ""
-
-# msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. How many duplications would you like to make?"
-# msgstr ""
-
-# msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> How many duplications would you like to make?"
 # msgstr ""
 
 # msgid "Add a host group"
@@ -18111,18 +18062,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgstr ""
 
 # msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone."
-# msgstr ""
-
-# msgid "Failed to delete"
-# msgstr ""
-
-# msgid "Failed to duplicate"
-# msgstr ""
-
-# msgid "Failed to enable"
-# msgstr ""
-
-# msgid "Failed to disable"
 # msgstr ""
 
 # msgid "Failed to delete the host group"
