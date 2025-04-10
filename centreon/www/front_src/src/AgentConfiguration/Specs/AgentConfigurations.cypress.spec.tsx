@@ -673,7 +673,6 @@ describe('Agent configurations modal', () => {
     initialize({});
 
     cy.contains(labelAdd).click();
-    cy.waitForRequest('@getAgentConfiguration');
 
     cy.findByLabelText(labelEncryptionLevel).should('have.value', labelTLS);
 
