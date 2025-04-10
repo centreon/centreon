@@ -72,12 +72,12 @@ it('should present a FindConfigurationResponse when everything is ok', function 
     $configuration = new TelegrafConfigurationParameters([
         'otel_server_address' => '10.10.10.10',
         'otel_server_port' => 453,
-        'otel_public_certificate' => 'public_certif',
-        'otel_ca_certificate' => 'ca_certif',
-        'otel_private_key' => 'otel-key',
+        'otel_public_certificate' => 'public_certif.crt',
+        'otel_ca_certificate' => 'ca_certif.cer',
+        'otel_private_key' => '/etc/pki/otel-key.key',
         'conf_server_port' => 454,
-        'conf_certificate' => 'conf-certif',
-        'conf_private_key' => 'conf-key'
+        'conf_certificate' => 'conf-certif.crt',
+        'conf_private_key' => 'conf-key.key'
     ]);
 
     $pollers = [
@@ -105,12 +105,12 @@ it('should present a FindConfigurationResponse when everything is ok', function 
         ->and($response->agentConfiguration->getConfiguration()->getData())->toBe([
             'otel_server_address' => '10.10.10.10',
             'otel_server_port' => 453,
-            'otel_public_certificate' => 'public_certif',
-            'otel_ca_certificate' => 'ca_certif',
-            'otel_private_key' => 'otel-key',
+            'otel_public_certificate' => '/etc/pki/public_certif.crt',
+            'otel_ca_certificate' => '/etc/pki/ca_certif.cer',
+            'otel_private_key' => '/etc/pki/otel-key.key',
             'conf_server_port' => 454,
-            'conf_certificate' => 'conf-certif',
-            'conf_private_key' => 'conf-key'
+            'conf_certificate' => '/etc/pki/conf-certif.crt',
+            'conf_private_key' => '/etc/pki/conf-key.key'
         ])
         ->and($response->pollers[0]->getId())->toBe(1)
         ->and($response->pollers[0]->getName())->toBe('pollerOne')
