@@ -68,38 +68,41 @@ runs:
           "DevSecOps")
             ticket_squad_id=10524
             ticket_board_id=184
-            assign_to_current_sprint=true
+            squad_name="DEVSECOPS"
             ;;
           "Collect")
             ticket_squad_id=10255
             ticket_board_id=118
-            assign_to_current_sprint=true
+            squad_name="COLLECT"
             ;;
           "MAP")
             ticket_squad_id=10258
             ticket_board_id=149
-            assign_to_current_sprint=true
+            squad_name="MAP"
             ;;
           "Product Backlog")
-            ticket_squad_id=10623
-            ticket_board_id=211
-            assign_to_current_sprint=false
+            # Every two weeks, these tickets get assigned to either Metropolis or Gotham
+            if [[ $(( $(date -d '+1 week' '+%-V') % 4 )) -ge 2 ]]; then
+              ticket_squad_id=10625
+              ticket_board_id=213
+              squad_name="METROPOLIS"
+            else
+              ticket_squad_id=10882
+              ticket_board_id=225
+              squad_name="GOTHAM"
+            fi
             ;;
           *)
             echo "::error::Cannot find a valid squad for value ${{ inputs.ticket_squad }}."
             exit 1
             ;;
         esac
-        echo "Ticket will be assigned to the ${{ inputs.ticket_squad }} team."
 
-        if [[ $assign_to_current_sprint == true ]]; then
-          current_sprint=$(curl --request GET \
-            --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
-            --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
-            --header "Accept: application/json" | jq .values[0].id)
-        else
-          current_sprint="null"
-        fi
+        current_sprint=$(curl --request GET \
+          --url ${{ inputs.jira_base_url }}/rest/agile/1.0/board/$ticket_board_id/sprint?state=active \
+          --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
+          --header "Accept: application/json" | jq --arg squad_name "$squad_name" '.values[] | select(.name | test($squad_name)) | .id')
+
         echo "[DEBUG] current_sprint: $current_sprint"
 
         # General updates on all template files
