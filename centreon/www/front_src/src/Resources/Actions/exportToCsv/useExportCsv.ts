@@ -167,7 +167,10 @@ const useExportCsv = ({
     return buildListingEndpoint({
       parameters,
       baseEndpoint,
-      customQueryParameters
+      customQueryParameters: [
+        ...customQueryParameters,
+        { name: 'all_pages', value: isAllPagesChecked }
+      ]
     });
   };
 
