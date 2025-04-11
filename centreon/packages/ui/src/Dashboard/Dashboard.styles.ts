@@ -17,7 +17,7 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
         boxShadow: theme.shadows[3]
       },
       '& .react-grid-item.react-grid-placeholder': {
-        backgroundColor: alpha(theme.palette.primary.main, 0.4)
+        background: `${alpha(theme.palette.primary.main, 0.4)} !important`
       },
       '& .react-grid-item.resizing': {
         boxShadow: theme.shadows[3]

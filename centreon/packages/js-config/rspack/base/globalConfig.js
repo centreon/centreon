@@ -1,6 +1,6 @@
-const { rspack } = require('@rspack/core');
+const { rspack } = require("@rspack/core");
 
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = process.env.NODE_ENV !== "production";
 
 const excludeNodeModulesExceptCentreonUi =
   /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon|file\+packages\+ui-context))/;
@@ -14,78 +14,78 @@ module.exports = {
         exclude: [excludeNodeModulesExceptCentreonUi],
         test: /\.[jt]sx?$/,
         use: {
-          loader: 'swc-loader',
+          loader: "swc-loader",
           options: {
             jsc: {
               experimental: {
                 plugins: [
-                  enableCoverage && ['swc-plugin-coverage-instrument', {}]
-                ].filter(Boolean)
+                  enableCoverage && ["swc-plugin-coverage-instrument", {}],
+                ].filter(Boolean),
               },
               parser: {
-                syntax: 'typescript',
-                tsx: true
+                syntax: "typescript",
+                tsx: true,
               },
               transform: {
                 react: {
                   development: isDev,
-                  refresh: isDev
-                }
-              }
-            }
-          }
-        }
+                  refresh: isDev,
+                },
+              },
+            },
+          },
+        },
       },
       {
         test: /\.icon.svg$/,
-        use: ['@svgr/webpack']
+        use: ["@svgr/webpack"],
       },
       {
         exclude: excludeNodeModulesExceptCentreonUi,
         test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
-        type: 'asset/inline'
+        type: "asset/inline",
       },
       {
         generator: {
-          filename: '[name][ext]'
+          filename: "[name][ext]",
         },
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
-        type: 'asset/resource'
+        type: "asset/resource",
       },
       {
         test: /\.css$/,
-        type: 'css',
+        type: "css",
         use: [
           {
-            loader: 'postcss-loader',
+            loader: "postcss-loader",
             options: {
               postcssOptions: {
                 plugins: {
-                  '@tailwindcss/postcss': {
-                    base: './www/front_src/src/'
-                  }
-                }
-              }
-            }
-          }
-        ]
-      }
-    ]
+                  "@tailwindcss/postcss": {
+                    base: "./www/front_src/src/",
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    ],
   }),
   optimization: {
     splitChunks: {
-      chunks: 'all',
-      maxSize: 400 * 1024
-    }
+      chunks: "all",
+      maxSize: 400 * 1024,
+    },
   },
   output: {
     chunkFilename: isDev
-      ? '[name].[chunkhash:8].chunk.js'
-      : '[name].[contenthash].[chunkhash].[hash].js',
+      ? "[name].[chunkhash:8].chunk.js"
+      : "[name].[contenthash].[chunkhash].[hash].js",
     filename: isDev
-      ? '[name].[chunkhash:8].js'
-      : '[name].[contenthash].[hash].js',
-    libraryTarget: 'umd',
-    umdNamedDefine: true
-  }
+      ? "[name].[chunkhash:8].js"
+      : "[name].[contenthash].[hash].js",
+    libraryTarget: "umd",
+    umdNamedDefine: true,
+  },
 };
