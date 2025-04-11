@@ -52,10 +52,9 @@ final class FindUserPermissions
     {
         $permissions = [];
         foreach ($this->permissions as $permissionName => $role) {
-            if ($user->isAdmin() || $user->hasRole($role)) {
+            if ($user->isAdmin() || $user->hasRole($role) || $user->hasTopologyRole($role)) {
                 $permissions[] = new Permission(new NotEmptyString($permissionName), true);
             }
-
         }
 
         return $permissions;
