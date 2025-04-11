@@ -59,7 +59,7 @@ it('test a log with debug level with a context without exception', function () {
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        'test_logger.DEBUG: debug_message {"context":{"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"url":null,"http_method":null,"server":null,"referrer":null}}}}'
+        'test_logger.DEBUG: debug_message {"context":{"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"url":null,"http_method":null,"server":null}}}}'
     );
 });
 
@@ -68,7 +68,7 @@ it('test a log with info level without context without exception', function () {
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        'test_logger.INFO: info_message {"context":{"custom":null,"exception":null,"default":{"request_infos":{"url":null,"http_method":null,"server":null,"referrer":null}}}}'
+        'test_logger.INFO: info_message {"context":{"custom":null,"exception":null,"default":{"request_infos":{"url":null,"http_method":null,"server":null}}}}'
     );
 });
 
@@ -77,7 +77,7 @@ it('test a log with info level with a context without exception', function () {
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        'test_logger.INFO: info_message {"context":{"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"url":null,"http_method":null,"server":null,"referrer":null}}}}'
+        'test_logger.INFO: info_message {"context":{"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"url":null,"http_method":null,"server":null}}}}'
     );
 });
 
