@@ -3,46 +3,25 @@ import { equals } from 'ramda';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  labelAllColumns,
-  labelAllPages,
   labelCancel,
-  labelCurrentPageOnly,
   labelExport,
   labelExportToCSV,
   labelSelecetPages,
-  labelSelectColumns,
-  labelVisibleColumnsOnly
+  labelSelectColumns
 } from '../../translatedLabels';
 import InformationsLine from './InformationsLine';
-import Warning from './Warning';
-import useExportCsvStyles from './exportCsv.styles';
-import useExportCSV from './useExportCsv';
 import RadioButtons from './RadioButtons';
+import Warning from './Warning';
+import { defaultCheckedColumnAtom, defaultCheckedPageAtom } from './atoms';
+import useExportCsvStyles from './exportCsv.styles';
+import { ColumnId, columnOptions, PageId, pageOptions } from './models';
+import useExportCSV from './useExportCsv';
 
 interface Props {
   onCancel: () => void;
   open: boolean;
 }
 
-enum ColumnId {
-  visibleColumns = 'visibleColumns',
-  allColumns = 'allColumns'
-}
-
-enum PageId {
-  currentPage = 'currentPage',
-  allPages = 'allPages'
-}
-
-const columnOptions = [
-  { id: ColumnId.visibleColumns, name: labelVisibleColumnsOnly },
-  { id: ColumnId.allColumns, name: labelAllColumns }
-];
-
-const pageOptions = [
-  { id: PageId.currentPage, name: labelCurrentPageOnly },
-  { id: PageId.allPages, name: labelAllPages }
-];
 
 const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
   const { t } = useTranslation();
@@ -69,6 +48,12 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
     setIsAllPagesChecked(equals(PageId.allPages, id));
   };
 
+  const confirm = ()=>{
+    exportCsv()
+    onCancel()
+  }
+
+
   return (
     <Modal open={open} hasCloseButton={false} size="medium">
       <Modal.Header>{t(labelExportToCSV)}</Modal.Header>
@@ -76,14 +61,14 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
         <div className={classes.container}>
           <div className={classes.subContainer}>
             <div className={classes.radioButtonsContainer}>
-              <RadioButtons
-                defaultChecked={ColumnId.allColumns}
+              <RadioButtons<ColumnId>
+                defaultChecked={defaultCheckedColumnAtom}
                 options={columnOptions}
                 title={t(labelSelectColumns)}
                 getData={getSelectedColumnsData}
               />
-              <RadioButtons
-                defaultChecked={PageId.allPages}
+              <RadioButtons<PageId>
+                defaultChecked={defaultCheckedPageAtom}
                 options={pageOptions}
                 title={t(labelSelecetPages)}
                 getData={getSelectedPagesData}
@@ -100,7 +85,7 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
       </Modal.Body>
       <Modal.Actions
         labels={{ cancel: t(labelCancel), confirm: t(labelExport) }}
-        onConfirm={exportCsv}
+        onConfirm={confirm}
         onCancel={onCancel}
         disabled={isLoading}
       />

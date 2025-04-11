@@ -1,3 +1,4 @@
+import { SelectEntry } from '@centreon/ui';
 import {
   FormControlLabel,
   FormLabel,
@@ -5,22 +6,22 @@ import {
   RadioGroup,
   Typography
 } from '@mui/material';
-import { SelectEntry } from '@centreon/ui';
+import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
-import { SyntheticEvent, useCallback, useState } from 'react';
+import { SyntheticEvent, useCallback } from 'react';
 import useExportCsvStyles from './exportCsv.styles';
 
-interface Props {
-  defaultChecked: string;
+interface Props<T> {
+  defaultChecked: PrimitiveAtom<T>;
   options: Array<SelectEntry>;
   title: string;
   getData: (label: string) => void;
 }
 
-const RadioButtons = ({ defaultChecked, options, title, getData }: Props) => {
+const RadioButtons = <T,>({ defaultChecked, options, title, getData }: Props<T>) => {
   const { classes } = useExportCsvStyles();
 
-  const [checked, setChecked] = useState(defaultChecked);
+  const [checked, setChecked] = useAtom(defaultChecked);
 
   const change = useCallback(
     (event: SyntheticEvent<Element, Event>) => {
@@ -36,7 +37,7 @@ const RadioButtons = ({ defaultChecked, options, title, getData }: Props) => {
   );
 
   const getCheckedValue = useCallback(
-    (id: string) => equals(checked, id),
+    (id: string) => equals(checked as string, id),
     [checked]
   );
 
