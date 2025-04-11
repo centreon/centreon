@@ -52,7 +52,7 @@ it('test log a native exception', function () {
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        '{"custom":null,"exception":{"exceptions":[{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 4) . ',"code":0,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","type":"->"}'
+        '{"custom":null,"exception":{"exceptions":[{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 4) . ',"code":0,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","type":"->"}'
     );
 });
 
@@ -61,7 +61,7 @@ it('test log an exception that extends BusinessLogicException without context an
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        '{"custom":{"from_exception":[]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 4) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","type":"->"}'
+        '{"custom":{"from_exception":[]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 4) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","type":"->"}'
     );
 });
 
@@ -70,7 +70,7 @@ it('test log an exception that extends BusinessLogicException with context witho
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        '{"custom":{"from_exception":[{"contact":1}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 4) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","type":"->"}'
+        '{"custom":{"from_exception":[{"contact":1}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 4) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","type":"->"}'
     );
 });
 
@@ -87,7 +87,7 @@ it(
         expect(file_exists($this->logPathFileName))->toBeTrue();
         $contentLog = file_get_contents($this->logPathFileName);
         expect($contentLog)->toContain(
-            '{"custom":{"from_exception":[{"contact":1}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 9) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"},{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":0,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","type":"->"}'
+            '{"custom":{"from_exception":[{"contact":1}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 9) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","method":"{closure}"},{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":0,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","type":"->"}'
         );
     }
 );
@@ -106,7 +106,7 @@ it(
         expect(file_exists($this->logPathFileName))->toBeTrue();
         $contentLog = file_get_contents($this->logPathFileName);
         expect($contentLog)->toContain(
-            '{"custom":{"from_exception":[{"contact":1}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 9) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","type":"->"}'
+            '{"custom":{"from_exception":[{"contact":1}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 9) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","method":"{closure}"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","type":"->"}'
         );
     }
 );
@@ -124,7 +124,7 @@ it(
         expect(file_exists($this->logPathFileName))->toBeTrue();
         $contentLog = file_get_contents($this->logPathFileName);
         expect($contentLog)->toContain(
-            '{"custom":{"from_exception":[{"contact":1},{"contact":2}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 9) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionHandlerTest","type":"->"}'
+            '{"custom":{"from_exception":[{"contact":1},{"contact":2}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 9) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","method":"{closure}"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","method":"{closure}"}],"traces":[{"function":"{closure}","class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLoggerTest","type":"->"}'
         );
     }
 );
