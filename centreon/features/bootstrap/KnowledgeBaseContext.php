@@ -11,12 +11,12 @@ use Centreon\Test\Behat\Administration\KBParametersPage;
  */
 class KnowledgeBaseContext extends CentreonContext
 {
-    public function __construct()
-    {
+    public function __construct(
+        private string $hostName = 'MediawikiHost',
+        private string $serviceHostName = 'Centreon-Server',
+        private string $serviceName = 'MediawikiService'
+    ) {
         parent::__construct();
-        $this->hostName = 'MediawikiHost';
-        $this->serviceHostName = 'Centreon-Server';
-        $this->serviceName = 'MediawikiService';
     }
 
     /**
@@ -127,7 +127,6 @@ class KnowledgeBaseContext extends CentreonContext
                 ) !== null;
             },
             'Wiki procedure option is not available',
-            10
         );
 
         $this->assertFind('css', '.list_two td:nth-child(5) a:nth-child(1)')->click();
@@ -138,7 +137,6 @@ class KnowledgeBaseContext extends CentreonContext
                 return count($windowNames) > 1;
             },
             'Wiki procedure window is not opened.',
-            10
         );
         $windowNames = $this->getSession()->getWindowNames();
         $this->getSession()->switchToWindow($windowNames[1]);
