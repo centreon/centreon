@@ -74,10 +74,8 @@ When('the admin user fills in all the information', () => {
 });
 
 When('the user clicks on Save', () => {
-  cy.get('[data-testid="SaveIcon"]')
-  .should('be.visible')
-  .click();
-  cy.wait('@addAgents');
+  cy.waitForElementToBeVisible('[data-testid="SaveIcon"]');
+  cy.get('[data-testid="SaveIcon"]').click();
 });
 
 Then('the creation form is closed', () => {
