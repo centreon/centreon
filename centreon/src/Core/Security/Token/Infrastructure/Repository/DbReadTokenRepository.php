@@ -25,17 +25,14 @@ namespace Core\Security\Token\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
-use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
-use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\BusinessLogicException;
 use Core\Common\Domain\Exception\RepositoryException;
-use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
@@ -170,19 +167,40 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             }
 
             return null;
-            // TODO DateTimeException|AssertionException -> getContext() do not exist
-        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+        } catch (BusinessLogicException $exception) {
             $this->error(
-                'finding token by token string failed',
+                'Finding token by token string failed',
                 ['exception' => $exception->getContext()]
             );
 
             throw new RepositoryException(
-                'finding token by token string failed',
+                'Finding token by token string failed',
                 ['exception' => $exception->getContext()],
                 $exception
             );
+        }  catch (\Throwable $exception) {
+            $this->error(
+                "Finding token by token string failed : {$exception->getMessage()}",
+                [
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ]
+            );
+
+            throw new RepositoryException(
+                "Finding token by token string failed : {$exception->getMessage()}",
+                [
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ],
+                $exception
+            );
         }
+
     }
 
     /**
@@ -246,16 +264,40 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                 $result
             );
 
-            // TODO DateTimeException|AssertionException -> getContext() do not exist
-        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+        } catch (BusinessLogicException $exception) {
             $this->error(
-                'finding token by name and user ID failed',
+                'Finding token by name and user ID failed',
                 ['token_name' => $tokenName, 'user_id' => $userId, 'exception' => $exception->getContext()]
             );
 
             throw new RepositoryException(
-                'finding token by name and user ID failed',
+                'Finding token by name and user ID failed',
                 ['token_name' => $tokenName, 'user_id' => $userId, 'exception' => $exception->getContext()],
+                $exception
+            );
+        } catch (\Throwable $exception) {
+            $this->error(
+                "Finding token by token string failed: {$exception->getMessage()}",
+                [
+                    'token' => $tokenName,
+                    'user_id' => $userId,
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ]
+            );
+
+            throw new RepositoryException(
+                "Finding token by token string failed: {$exception->getMessage()}",
+                [
+                    'token_name' => $tokenName,
+                    'user_id' => $userId,
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ],
                 $exception
             );
         }
@@ -288,15 +330,40 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             );
 
             return (bool) $result;
-        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+        } catch (BusinessLogicException $exception) {
             $this->error(
-                'finding token by name and user ID failed',
+                'Finding token by name and user ID failed',
                 ['token_name' => $tokenName, 'user_id' => $userId, 'exception' => $exception->getContext()]
             );
 
             throw new RepositoryException(
-                'finding token by name and user ID failed',
+                'Finding token by name and user ID failed',
                 ['token_name' => $tokenName, 'user_id' => $userId, 'exception' => $exception->getContext()],
+                $exception
+            );
+        } catch (\Throwable $exception) {
+            $this->error(
+                "Finding token by name and user ID failed: {$exception->getMessage()}",
+                [
+                    'token' => $tokenName,
+                    'user_id' => $userId,
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ]
+            );
+
+            throw new RepositoryException(
+                "Finding token by name and user ID failed: {$exception->getMessage()}",
+                [
+                    'token_name' => $tokenName,
+                    'user_id' => $userId,
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ],
                 $exception
             );
         }
@@ -322,14 +389,14 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             );
 
             return ! empty($result);
-        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+        } catch (BusinessLogicException $exception) {
             $this->error(
-                'check is token of type auto failed',
+                'Check is token of type auto failed',
                 ['exception' => $exception->getContext()]
             );
 
             throw new RepositoryException(
-                'check is token of type auto failed',
+                'Check is token of type auto failed',
                 ['exception' => $exception->getContext()],
                 $exception
             );
@@ -339,113 +406,148 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
     /**
      * @param int|null $userId
      *
-     * @throws AssertionFailedException
+     * @throws BusinessLogicException|\Throwable
      *
      * @return list<Token>
      */
     private function findAllByRequestParameters(?int $userId): array
     {
-        // Search
-        $search = $this->sqlRequestTranslator->translateSearchParameterToSql();
+        try {
+            // Search
+            $search = $this->sqlRequestTranslator->translateSearchParameterToSql();
+            // Sort
+            $sort = $this->sqlRequestTranslator->translateSortParameterToSql();
+            $sort .= ! is_null($sort)
+                ? $sort
+                : ' ORDER BY creation_date ASC';
+            // Pagination
+            $pagination = $this->sqlRequestTranslator->translatePaginationToSql();
 
-        // Sort
-        $sort = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $sort .= ! is_null($sort)
-            ? $sort
-            : ' ORDER BY creation_date ASC';
-        // Pagination
-        $pagination = $this->sqlRequestTranslator->translatePaginationToSql();
+            $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+                $this->sqlRequestTranslator->getSearchValues()
+            )
+                ->add('tokenApiType', QueryParameter::string('tokenApiType', self::TYPE_API_MANUAL));
 
-        $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
-            $this->sqlRequestTranslator->getSearchValues()
-        )
-            ->add('tokenApiType', QueryParameter::string('tokenApiType', self::TYPE_API_MANUAL));
+            $userIdFilter = $userId !== null ? ' AND user_id = :user_id ' : '';
+            $creatorIdFilter = $userId !== null ? ' WHERE creator_id = :user_id ' : '';
+            if ($userId !== null) {
+                $queryParameters->add('user_id', QueryParameter::int('user_id', $userId));
+            }
 
-        $userIdFilter = $userId !== null ? ' AND user_id = :user_id ' : '';
-        $creatorIdFilter = $userId !== null ? ' WHERE creator_id = :user_id ' : '';
-        if ($userId !== null) {
-            $queryParameters->add('user_id', QueryParameter::int('user_id', $userId));
-        }
-
-        $apiTokens = <<<SQL
-            SELECT
-                sat.token_name as name,
-                sat.user_id,
-                contact.contact_name as user_name,
-                sat.creator_id,
-                sat.creator_name,
-                provider_token.creation_date,
-                provider_token.expiration_date,
-                sat.is_revoked,
-                'API' as token_type,
-                null as token_string,
-                null as encoding_key
-            FROM security_authentication_tokens sat
-            INNER JOIN security_token provider_token
-                ON provider_token.id = sat.provider_token_id
-            INNER JOIN contact
-                ON contact.contact_id = sat.user_id
-            WHERE sat.token_type = :tokenApiType
-            {$userIdFilter}
-            SQL;
-        $jwtTokens = <<<SQL
-            SELECT
-                token_name as name,
-                null as user_id,
-                null as user_name,
-                creator_id,
-                creator_name,
-                creation_date,
-                expiration_date,
-                is_revoked,
-                'CMA' as token_type,
-                token_string,
-                encoding_key
-            FROM jwt_tokens
-            {$creatorIdFilter}
-            SQL;
-
-        $results = $this->connection->fetchAllAssociative(
-            <<<SQL
-                SELECT SQL_CALC_FOUND_ROWS
-                    name,
-                    user_id,
-                    user_name,
+            $apiTokens = <<<SQL
+                SELECT
+                    sat.token_name as name,
+                    sat.user_id,
+                    contact.contact_name as user_name,
+                    sat.creator_id,
+                    sat.creator_name,
+                    provider_token.creation_date,
+                    provider_token.expiration_date,
+                    sat.is_revoked,
+                    'API' as token_type,
+                    null as token_string,
+                    null as encoding_key
+                FROM security_authentication_tokens sat
+                INNER JOIN security_token provider_token
+                    ON provider_token.id = sat.provider_token_id
+                INNER JOIN contact
+                    ON contact.contact_id = sat.user_id
+                WHERE sat.token_type = :tokenApiType
+                {$userIdFilter}
+                SQL;
+            $jwtTokens = <<<SQL
+                SELECT
+                    token_name as name,
+                    null as user_id,
+                    null as user_name,
                     creator_id,
                     creator_name,
                     creation_date,
                     expiration_date,
                     is_revoked,
-                    token_type,
+                    'CMA' as token_type,
                     token_string,
                     encoding_key
-                FROM (
-                    {$apiTokens}
-                    UNION
-                    {$jwtTokens}
-                ) AS tokenUnion
-                {$search}
-                {$sort}
-                {$pagination}
-                SQL,
-            $queryParameters
-        );
+                FROM jwt_tokens
+                {$creatorIdFilter}
+                SQL;
 
-        $tokens = [];
-        foreach ($results as $result) {
-            /** @var _Token $result */
-            $tokens[] = TokenFactory::create(
-                $result['token_type'] === 'CMA' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
-                $result
+            $results = $this->connection->fetchAllAssociative(
+                <<<SQL
+                    SELECT SQL_CALC_FOUND_ROWS
+                        name,
+                        user_id,
+                        user_name,
+                        creator_id,
+                        creator_name,
+                        creation_date,
+                        expiration_date,
+                        is_revoked,
+                        token_type,
+                        token_string,
+                        encoding_key
+                    FROM (
+                        {$apiTokens}
+                        UNION
+                        {$jwtTokens}
+                    ) AS tokenUnion
+                    {$search}
+                    {$sort}
+                    {$pagination}
+                    SQL,
+                $queryParameters
+            );
+
+            $tokens = [];
+            foreach ($results as $result) {
+                /** @var _Token $result */
+                $tokens[] = TokenFactory::create(
+                    $result['token_type'] === 'CMA' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+                    $result
+                );
+            }
+
+            // get total for pagination
+            if (($total = $this->connection->fetchOne('SELECT FOUND_ROWS() from contact')) !== false) {
+                /** @var int $total */
+                $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+            }
+
+            return $tokens;
+        } catch (BusinessLogicException $exception) {
+            $this->error(
+                'Find tokens failed',
+                ['user_id' => $userId, 'exception' => $exception->getContext()]
+            );
+
+            throw new RepositoryException(
+                'Find tokens failed',
+                ['user_id' => $userId, 'exception' => $exception->getContext()],
+                $exception
+            );
+        } catch (\Throwable $exception) {
+            $this->error(
+                "Find tokens failed: {$exception->getMessage()}",
+                [
+                    'user_id' => $userId,
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ]
+            );
+
+            throw new RepositoryException(
+                "Find tokens failed: {$exception->getMessage()}",
+                [
+                    'user_id' => $userId,
+                    'exception' => [
+                        'message' => $exception->getMessage(),
+                        'trace' => $exception->getTraceAsString(),
+                    ],
+                ],
+                $exception
             );
         }
-
-        // get total for pagination
-        if (($total = $this->connection->fetchOne('SELECT FOUND_ROWS() from contact')) !== false) {
-            /** @var int $total */
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-        }
-
-        return $tokens;
     }
 }

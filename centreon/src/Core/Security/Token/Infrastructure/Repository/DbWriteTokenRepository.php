@@ -24,11 +24,10 @@ declare(strict_types=1);
 namespace Core\Security\Token\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Domain\Exception\BusinessLogicException;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
@@ -45,14 +44,6 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
 {
     use LoggerTrait;
     private const TYPE_API_MANUAL = 'manual';
-
-    public function __construct(
-        ConnectionInterface $connection,
-        QueryBuilderInterface $queryBuilder,
-    )
-    {
-         parent::__construct($connection, $queryBuilder);
-    }
 
     /**
      * @inheritDoc
@@ -83,7 +74,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
                     QueryParameter::string('tokenName', $tokenName),
                 ])
             );
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        } catch (BusinessLogicException $exception) {
             $this->error(
                 "Delete token failed : {$exception->getMessage()}",
                 [
