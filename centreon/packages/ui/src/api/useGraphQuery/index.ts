@@ -185,37 +185,31 @@ const useGraphQuery = ({
   const getFormattedMetrics = ()=>{
     const metrics = getCurrentMetrics()
 
-   const newMetrics =  metrics?.map((line)=>{
-    const currentMetricLine = line.metric.replaceAll(' ','')
-      const [hostName, metricName] = currentMetricLine.split(':')
-
-      return {...line, hostName, metricName}
-    })
-
-    return newMetrics?.map((line)=>{
-     const areHostNameRedundant =  newMetrics.every(({hostName})=>hostName===line.hostName);
-     const areServiceNameRedundant = newMetrics.every(({service_name})=>service_name===line.service_name);
+    return metrics?.map((line)=>{
+      
+     const areHostNameRedundant =  metrics.every(({host_name})=> equals(host_name , line.host_name));
+     const areServiceNameRedundant = metrics.every(({service_name})=> equals(service_name,line.service_name));
 
      if(areHostNameRedundant && areServiceNameRedundant){
-      const formattedLegend = line.metricName
+      const formattedLegend = line.metric
 
       return {...line, legend: formattedLegend }
      }
      
      if(areHostNameRedundant){
-       const formattedLegend = `${line.service_name}: ${line.metricName}`
+       const formattedLegend = `${line.service_name}: ${line.metric}`
 
        return {...line, legend: formattedLegend}
      }
 
      if(areServiceNameRedundant){
-       const formattedLegend = `${line.hostName}: ${line.metricName}`
+       const formattedLegend = `${line.host_name}: ${line.metric}`
   
        return {...line, legend: formattedLegend}
 
      }
 
-     const formattedLegend = `${line.hostName} ${line.service_name}: ${line.metricName}`
+     const formattedLegend = `${line.host_name} ${line.service_name}: ${line.metric}`
 
      return {...line, legend:formattedLegend }
      

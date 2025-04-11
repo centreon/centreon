@@ -3,7 +3,8 @@
   "metrics": [
       {
           "metric_id": 1,
-          "metric": "Centreon-Server: count",
+          "metric": "count",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server: count",
           "unit": "",
           "min": 0,
@@ -49,7 +50,8 @@
       },
       {
           "metric_id": 2,
-          "metric": "Centreon-Server2: used_/dev",
+          "metric": "used_/dev",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server2: used_/dev",
           "unit": "B",
           "min": 0,
@@ -95,7 +97,8 @@
       },
       {
           "metric_id": 3,
-          "metric": "Centreon-Server3: used_/sys/fs/cgroup",
+          "metric": "used_/sys/fs/cgroup",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server3: used_/sys/fs/cgroup",
           "unit": "B",
           "min": 0,

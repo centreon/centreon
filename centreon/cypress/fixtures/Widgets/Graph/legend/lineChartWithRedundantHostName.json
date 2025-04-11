@@ -3,7 +3,8 @@
   "metrics": [
       {
           "metric_id": 1,
-          "metric": "Centreon-Server: count",
+          "metric": "count",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server: count",
           "unit": "",
           "min": 0,
@@ -49,7 +50,8 @@
       },
       {
           "metric_id": 2,
-          "metric": "Centreon-Server: used_/dev",
+          "metric": "used_/dev",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server: used_/dev",
           "unit": "B",
           "min": 0,
@@ -95,7 +97,8 @@
       },
       {
           "metric_id": 3,
-          "metric": "Centreon-Server: used_/sys/fs/cgroup",
+          "metric": "used_/sys/fs/cgroup",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server: used_/sys/fs/cgroup",
           "unit": "B",
           "min": 0,
@@ -141,7 +144,8 @@
       },
       {
           "metric_id": 26,
-          "metric": "Centreon-Server: load15",
+          "metric": "load15",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server: load15",
           "unit": "",
           "min": 0,
@@ -187,7 +191,8 @@
       },
       {
           "metric_id": 27,
-          "metric": "Centreon-Server: used",
+          "metric": "used",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server: used",
           "unit": "B",
           "min": 0,
@@ -233,7 +238,8 @@
       },
       {
           "metric_id": 49,
-          "metric": "Centreon-Server: con_closed",
+          "metric": "con_closed",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server: con_closed",
           "unit": "",
           "min": 0,
@@ -279,7 +285,8 @@
       },
       {
           "metric_id": 44,
-          "metric": "Centreon-Server: con_synSent",
+          "metric": "con_synSent",
+          "host_name":"Centreon-Server",
           "metric_legend": "Centreon-Server: con_synSent",
           "unit": "",
           "min": 0,
