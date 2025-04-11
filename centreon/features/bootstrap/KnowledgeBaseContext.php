@@ -11,12 +11,12 @@ use Centreon\Test\Behat\Administration\KBParametersPage;
  */
 class KnowledgeBaseContext extends CentreonContext
 {
-    public function __construct()
-    {
+    public function __construct(
+        private string $hostName = 'MediawikiHost',
+        private string $serviceHostName = 'Centreon-Server',
+        private string $serviceName = 'MediawikiService'
+    ) {
         parent::__construct();
-        $this->hostName = 'MediawikiHost';
-        $this->serviceHostName = 'Centreon-Server';
-        $this->serviceName = 'MediawikiService';
     }
 
     /**
