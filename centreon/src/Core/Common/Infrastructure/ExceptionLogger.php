@@ -127,6 +127,11 @@ final readonly class ExceptionLogger
         return $customContext;
     }
 
+    /**
+     * @param array<string,mixed> $context
+     *
+     * @return array<int,array<string,mixed>>
+     */
     private function getPreviousCollection(array $context): array
     {
         $previousList = [];
@@ -141,7 +146,7 @@ final readonly class ExceptionLogger
     /**
      * @param array<int,array<string,mixed>> $previousList
      *
-     * @return array
+     * @return array<int,array<string,mixed>>
      */
     private function cleanPreviousCollection(array $previousList): array
     {
