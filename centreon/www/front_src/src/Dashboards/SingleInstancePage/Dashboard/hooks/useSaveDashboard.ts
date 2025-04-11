@@ -15,7 +15,6 @@ import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
 
 import { isEmpty, isNil } from 'ramda';
 import { routerParams } from './useDashboardDetails';
-import { WidgetResourceType } from '../AddEditWidget/models';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
   layout.map(

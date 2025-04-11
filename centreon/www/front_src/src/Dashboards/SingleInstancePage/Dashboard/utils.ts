@@ -11,7 +11,6 @@ import {
 } from 'ramda';
 
 import { centreonBaseURL } from '@centreon/ui';
-import { Resource } from '../../../../../widgets/src/models';
 
 import { getIsMetaServiceSelected } from './AddEditWidget/WidgetProperties/Inputs/utils';
 import { WidgetResourceType } from './AddEditWidget/models';
@@ -77,8 +76,8 @@ export const getResourcesUrlForMetricsWidgets = ({
     }
 
     const field = equals(resourceType, 'hostgroup')
-    ? resourcesCriteriasMapping[WidgetResourceType.hostGroup]
-    : resourcesCriteriasMapping[resourceType];
+      ? resourcesCriteriasMapping[WidgetResourceType.hostGroup]
+      : resourcesCriteriasMapping[resourceType];
 
     return {
       name: field,

@@ -18,7 +18,12 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 
-import { Metric, ServiceMetric, WidgetDataResource, WidgetResourceType } from '../../../models';
+import {
+  Metric,
+  ServiceMetric,
+  WidgetDataResource,
+  WidgetResourceType
+} from '../../../models';
 
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
@@ -53,8 +58,8 @@ export const useListMetrics = ({
           search: {
             lists: resources.map((resource) => ({
               field: equals(resource.resourceType, 'hostgroup')
-              ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
-              : resourceTypeQueryParameter[resource.resourceType],
+                ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                : resourceTypeQueryParameter[resource.resourceType],
               values: equals(resource.resourceType, 'service')
                 ? pluck('name', resource.resources)
                 : pluck('id', resource.resources)
