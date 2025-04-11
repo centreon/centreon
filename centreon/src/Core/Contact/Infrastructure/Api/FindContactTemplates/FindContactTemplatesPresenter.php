@@ -30,7 +30,7 @@ use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Infrastructure\ExceptionHandler;
+use Core\Common\Infrastructure\ExceptionLogger;
 use Core\Contact\Application\UseCase\FindContactTemplates\{
     FindContactTemplatesPresenterInterface,
     FindContactTemplatesResponse
@@ -45,13 +45,13 @@ class FindContactTemplatesPresenter extends AbstractPresenter implements FindCon
      * @param RequestParametersInterface $requestParameters
      * @param PresenterFormatterInterface $presenterFormatter
      * @param ContactInterface $user
-     * @param ExceptionHandler $exceptionHandler
+     * @param ExceptionLogger $exceptionHandler
      */
     public function __construct(
         private RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
         private readonly ContactInterface $user,
-        private readonly ExceptionHandler $exceptionHandler,
+        private readonly ExceptionLogger $exceptionHandler,
     ) {
         parent::__construct($presenterFormatter);
     }

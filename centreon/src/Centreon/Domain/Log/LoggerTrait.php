@@ -225,7 +225,6 @@ trait LoggerTrait
                 'url' => $_SERVER['REQUEST_URI'] ?? null,
                 'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
                 'server' => $_SERVER['SERVER_NAME'] ?? null,
-                'referrer' => $_SERVER['HTTP_REFERER'] ?? null,
             ],
         ];
 

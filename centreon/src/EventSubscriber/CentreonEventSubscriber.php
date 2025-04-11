@@ -34,7 +34,7 @@ use Centreon\Domain\RequestParameters\{
 };
 use Centreon\Domain\VersionHelper;
 use Core\Common\Domain\Exception\RepositoryException;
-use Core\Common\Infrastructure\ExceptionHandler;
+use Core\Common\Infrastructure\ExceptionLogger;
 use Psr\Log\LogLevel;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
@@ -74,7 +74,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      * @param Security $security
      * @param ApiPlatform $apiPlatform
      * @param ContactInterface $contact
-     * @param ExceptionHandler $exceptionHandler
+     * @param ExceptionLogger $exceptionHandler
      * @param string $apiVersionLatest
      * @param string $apiHeaderName
      * @param string $translationPath
@@ -84,7 +84,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         readonly private Security $security,
         readonly private ApiPlatform $apiPlatform,
         readonly private ContactInterface $contact,
-        readonly private ExceptionHandler $exceptionHandler,
+        readonly private ExceptionLogger $exceptionHandler,
         readonly private string $apiVersionLatest,
         readonly private string $apiHeaderName,
         readonly private string $translationPath,
