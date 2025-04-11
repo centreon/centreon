@@ -41,6 +41,8 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *     metric_legend: string,
  *     unit: string,
  *     hidden: int,
+ *     host_name: ?string,
+ *     service_name: ?string,
  *     legend: string,
  *     virtual: int,
  *     stack: int,
@@ -129,7 +131,10 @@ class PerformanceMetricsDataFactory
         $times = [];
         foreach ($metricsData as $index => $metricData) {
             $metricBases[] = $metricData['global']['base'];
-            $metrics['index:' . $index . ';host_name:' . $metricData['global']['host_name']] = $metricData['metrics'];
+            $metrics[
+                'index:' . $index . ';host_name:' . $metricData['global']['host_name'] . ';service_name:'
+                    . $metricData['global']['service_description']
+            ] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
 
@@ -175,19 +180,17 @@ class PerformanceMetricsDataFactory
     {
         $metrics = [];
         foreach ($metricsData as $hostName => $metricData) {
-            \preg_match('/^index:\d+;host_name:([[:ascii:]]+)$/', $hostName, $matches);
+            \preg_match('/^index:\d+;host_name:([[:ascii:]]+);service_name:([[:ascii:]]+)$/', $hostName, $matches);
 
             // Regarding this, currently if hostname is empty it means that we are dealing with a metaservice
             $hostName = '';
+            $serviceName = '';
             if ($matches !== []) {
                 $hostName = $matches[1];
+                $serviceName = $matches[2];
             }
             foreach ($metricData as $metric) {
                 if (in_array($metric['metric'], $metricNames, true)) {
-                    $metric['metric'] = ! empty($hostName)
-                        ? $hostName . ': ' . $metric['metric']
-                        : $metric['metric'];
-
                     $metric['metric_legend'] = ! empty($hostName)
                         ? $hostName . ': ' . $metric['metric_legend']
                         : $metric['metric_legend'];
@@ -195,6 +198,9 @@ class PerformanceMetricsDataFactory
                     $metric['legend'] = ! empty($hostName)
                         ? $hostName . ': ' . $metric['legend']
                         : $metric['legend'];
+
+                    $metric['host_name'] = empty($hostName) ? null : $hostName;
+                    $metric['service_name'] = empty($serviceName) ? null : $serviceName;
 
                     $metrics[] = $metric;
                 }
@@ -239,6 +245,8 @@ class PerformanceMetricsDataFactory
                     $metric['metric_legend'],
                     $metric['unit'],
                     (bool) $metric['hidden'],
+                    $metric['host_name'],
+                    $metric['service_name'],
                     $metric['legend'],
                     (bool) $metric['virtual'],
                     (bool) $metric['stack'],
