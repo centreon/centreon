@@ -447,7 +447,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-jammy
             distrib: jammy
-
+          - package_extension: deb
+            image: packaging-nfpm-noble
+            distrib: noble
     runs-on: ubuntu-24.04
 
     container:
@@ -613,6 +615,9 @@ jobs:
             PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
             DISTRIB=jammy
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.operating_system }}" = "noble" ]; then
+            DISTRIB=noble
             PACKAGE_EXTENSION=deb
           else
             echo "::error::${{ matrix.operating_system }} is not managed"
@@ -1086,7 +1091,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm]
+        distrib: [bookworm, noble]
 
     steps:
       - name: Checkout sources
@@ -1131,7 +1136,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm]
+        distrib: [el8, el9, bookworm, noble]
 
     steps:
       - name: Checkout sources

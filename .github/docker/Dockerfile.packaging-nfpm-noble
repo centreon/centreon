@@ -1,0 +1,23 @@
+FROM ubuntu:noble
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN bash -e <<EOF
+
+apt-get update
+
+apt-get install -y ca-certificates
+
+echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
+
+apt-get update
+
+apt-get install -y zstd nfpm=2.41.1
+
+apt-get remove -y ca-certificates
+
+rm -f /etc/apt/sources.list.d/goreleaser.list
+
+apt-get clean all
+
+EOF
