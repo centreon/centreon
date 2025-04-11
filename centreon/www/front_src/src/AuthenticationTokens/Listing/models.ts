@@ -21,7 +21,7 @@ export interface Token {
   expirationDate: string | null;
   isRevoked: boolean;
   name: string;
-  user: NamedEntity;
+  user?: NamedEntity;
   type: TokenType;
 }
 export interface Row {

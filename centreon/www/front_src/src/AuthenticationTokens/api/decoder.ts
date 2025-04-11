@@ -2,8 +2,10 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
+import { equals } from 'ramda';
 import { NamedEntity, Token } from '../Listing/models';
 import { CreatedToken } from '../Modal/models';
+import { TokenType } from '../models';
 
 const getNamedEntityDecoder = (decoderName): JsonDecoder.Decoder<NamedEntity> =>
   JsonDecoder.object<NamedEntity>(
@@ -21,7 +23,7 @@ const tokenDecoder = JsonDecoder.object<Token>(
     creator: getNamedEntityDecoder('creator'),
     expirationDate: JsonDecoder.nullable(JsonDecoder.string),
     isRevoked: JsonDecoder.boolean,
-    user: getNamedEntityDecoder('user'),
+    user: JsonDecoder.optional(getNamedEntityDecoder('user')),
     type: JsonDecoder.string
   },
   'ListedToken',
@@ -33,7 +35,9 @@ const tokenDecoder = JsonDecoder.object<Token>(
 ).map((token) => {
   return {
     ...token,
-    id: `${token.name}_${token.user.id}`
+    id: equals(token.type, TokenType.CMA)
+      ? `${token.name}_${token.creator.id}`
+      : `${token.name}_${token?.user?.id}`
   };
 });
 
