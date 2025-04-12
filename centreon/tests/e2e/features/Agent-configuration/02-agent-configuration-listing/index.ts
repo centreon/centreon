@@ -100,7 +100,7 @@ Given('an already existing agent configuration', () => {
   cy.getByLabel({ label: 'Private key', tag: 'input' })
     .eq(1)
     .type(agentsConfiguration.telegraf1.privateKFileName);
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
   cy.get('*[role="rowgroup"]').should('contain', 'telegraf-001');
   cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
@@ -163,7 +163,7 @@ Given('some poller agent configurations are created', () => {
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
   cy.get('*[role="listbox"]').contains('Centreon Monitoring Agent').click();
   cy.FillCMAMandatoryFields(agentsConfiguration.CMA1);
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });
 

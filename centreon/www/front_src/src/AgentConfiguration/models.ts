@@ -1,13 +1,13 @@
 import { SelectEntry } from '@centreon/ui';
 
-export enum ConnectionMode {
-  secure = 'secure',
-  noTLS = 'no-tls'
-}
-
 export enum AgentType {
   Telegraf = 'telegraf',
   CMA = 'centreon-agent'
+}
+
+export enum ConnectionMode {
+  secure = 'secure',
+  noTLS = 'no-tls'
 }
 
 export interface AgentConfigurationListing {
