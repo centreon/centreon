@@ -84,7 +84,7 @@ const Buttons = (): JSX.Element => {
           onClick={submitForm}
           size="medium"
           type="submit"
-          data-testid="SaveIcon"
+          data-testid="submit"
         >
           {t(labelSave)}
         </Button>
