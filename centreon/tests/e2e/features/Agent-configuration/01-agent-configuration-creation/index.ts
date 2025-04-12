@@ -178,7 +178,7 @@ When("the user doesn't fill in all the mandatory information", () => {
 });
 
 Then('the user cannot click on Create', () => {
-  cy.getByTestId({ testId: 'submit' }).parents('button').should('be.disabled');
+  cy.getByTestId({ testId: 'submit' }).should('be.disabled');
 });
 
 When("the user doesn't fill in correct type of information", () => {
