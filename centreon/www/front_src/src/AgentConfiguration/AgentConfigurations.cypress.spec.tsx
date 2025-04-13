@@ -503,7 +503,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(request.body).to.deep.equal({
+      expect(JSON.parse(request.body)).to.deep.equal({
         name: 'agent',
         type: 'telegraf',
         configuration: {
@@ -535,7 +535,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
-      expect(request.body).to.deep.equal({
+      expect(JSON.parse(request.body)).to.deep.equal({
         name: 'agent updated',
         type: 'telegraf',
         configuration: {
@@ -565,7 +565,7 @@ describe('Agent configurations modal', () => {
     cy.findByTestId('confirm').click();
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
-      expect(request.body).to.deep.equal({
+      expect(JSON.parse(request.body)).to.deep.equal({
         name: 'agent updated',
         type: 'telegraf',
         configuration: {
