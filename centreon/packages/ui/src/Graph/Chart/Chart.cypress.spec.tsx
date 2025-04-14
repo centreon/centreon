@@ -78,7 +78,7 @@ const initialize = ({
     alias: 'admin',
     locale: 'en',
     name: 'admin',
-    timezone: 'Europe/Paris'
+    timezone: 'Etc/UTC'
   });
 
   cy.mount({
