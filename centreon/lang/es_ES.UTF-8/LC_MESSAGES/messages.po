@@ -17104,3 +17104,18 @@ msgstr "Modo avanzado"
 
 # msgid "The minimum allowed value is 10"
 # msgstr ""
+
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""

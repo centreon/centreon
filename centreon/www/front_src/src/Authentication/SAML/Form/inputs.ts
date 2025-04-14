@@ -16,6 +16,7 @@ import {
   labelLogoutFrom,
   labelLogoutUrl,
   labelRemoteLoginUrl,
+  labelRequestedAuthnContext,
   labelSAMLOnly,
   labelUserIdAttribute
 } from '../translatedLabels';
@@ -52,6 +53,8 @@ import {
   contactGroupsEndpoint,
   contactTemplatesEndpoint
 } from '../../api/endpoints';
+
+import RequestedAuthnContextField from './RequestedAuthnContextField';
 
 const isAutoImportDisabled = (values: FormikValues): boolean =>
   not(prop('autoImport', values));
@@ -263,6 +266,17 @@ export const inputs: Array<InputProps> = [
     label: labelUserIdAttribute,
     required: true,
     type: InputType.Text
+  },
+  {
+    custom: {
+      Component: RequestedAuthnContextField,
+    },
+    dataTestId: 'saml_requestedAuthnContext',
+    fieldName: 'requestedAuthnContext',
+    group: labelIdentityProvider,
+    label: labelRequestedAuthnContext,
+    required: true,
+    type: InputType.Custom,
   },
   {
     dataTestId: 'saml_logoutFrom',
