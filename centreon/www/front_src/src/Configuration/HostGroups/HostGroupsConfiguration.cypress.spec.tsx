@@ -97,10 +97,13 @@ describe('Host groups configuration: ', () => {
   });
 
   ['name', 'alias'].forEach((column) => {
-    it(`sorts the ${column} column when clicked`, () => {
+    it.only(`sorts the ${column} column when clicked`, () => {
       initialize({});
 
       cy.waitForRequest('@getAllHostGroups');
+
+      cy.contains('host group 1');
+      cy.contains('host group 2');
 
       cy.contains(capitalize(column)).click();
 
