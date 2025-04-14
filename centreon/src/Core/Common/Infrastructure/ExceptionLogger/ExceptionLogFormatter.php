@@ -44,7 +44,7 @@ abstract class ExceptionLogFormatter
     {
         $customContext = self::formatCustomContext($throwable, $customContext);
         $exceptionContext = self::formatExceptionContext($throwable);
-        $context['custom'] = ! empty($customContext) ? $customContext : null;
+        $context = ! empty($customContext) ? $customContext : null;
         $context['exception'] = ! empty($exceptionContext) ? $exceptionContext : null;
 
         return $context;

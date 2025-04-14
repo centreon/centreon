@@ -222,24 +222,22 @@ trait LoggerTrait
         // Add default context with request infos
         $defaultContext = [
             'request_infos' => [
-                'url' => $_SERVER['REQUEST_URI'] ?? null,
+                'uri' => $_SERVER['REQUEST_URI'] ?? null,
                 'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
                 'server' => $_SERVER['SERVER_NAME'] ?? null,
             ],
         ];
 
         $exceptionContext = [];
-        if(isset($customContext['exception'])) {
+        if (isset($customContext['exception'])) {
             $exceptionContext = $customContext['exception'];
             unset($customContext['exception']);
         }
 
         return [
-            'context' => [
-                'custom' => $customContext !== [] ? $customContext : null,
-                'exception' => $exceptionContext !== [] ? $exceptionContext : null,
-                'default' => $defaultContext,
-            ]
+            'custom' => $customContext !== [] ? $customContext : null,
+            'exception' => $exceptionContext !== [] ? $exceptionContext : null,
+            'default' => $defaultContext,
         ];
     }
 

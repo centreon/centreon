@@ -24,7 +24,7 @@
  * [2024-08-08T12:20:05+02:00] ERROR : Error while getting widget preferences for the host monitoring custom view |
  * {"custom":{"widget_id":1},"exception":{"exception_type":"Exception","file":"/usr/share/centreon/
  * www/widgets/host-monitoring/src/index.php","line":97,"code":0,"message":"test message","previous":null},"default":
- * {"request_infos":{"url":"/centreon/widgets/host-monitoring/src/index.php?widgetId=1&page=0","http_method":"GET","server":"localhost"}}
+ * {"request_infos":{"uri":"/centreon/widgets/host-monitoring/src/index.php?widgetId=1&page=0","http_method":"GET","server":"localhost"}}
  */
 
 beforeEach(function (): void {
@@ -256,7 +256,7 @@ it('test writing logs with a custom context', function (): void {
     expect($contentLog)->toBeString()->toContain(
         "[{$this->centreonLogTest->date}",
         '] NOTICE : login_message | {"custom":{"custom_value1":"foo","custom_value2":"bar"},"exception":null,"default":' .
-        '{"request_infos":{"url":null,"http_method":null,"server":null}}}'
+        '{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
     );
     $successDeleteFile = unlink($logfile);
     expect($successDeleteFile)->toBeTrue();
@@ -287,7 +287,7 @@ it('test writing logs with a custom context and an exception', function (): void
                 "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
                 "->"
             ),
-            '"default":{"request_infos":{"url":null,"http_method":null,"server":null}}}'
+            '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
         );
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
@@ -328,7 +328,7 @@ it('test writing logs with a custom context and a native exception with a previo
                 "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
                 "->"
             ),
-            '"default":{"request_infos":{"url":null,"http_method":null,"server":null}}',
+            '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
@@ -369,7 +369,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
                 "->"
             ),
-            '"default":{"request_infos":{"url":null,"http_method":null,"server":null}}',
+            '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
@@ -420,7 +420,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 "P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest",
                 "->"
             ),
-            '"default":{"request_infos":{"url":null,"http_method":null,"server":null}}',
+            '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
@@ -448,7 +448,7 @@ function testContentLogWithoutContext(
     expect($contentLog)->toBeString()->toContain(
         "[{$date}",
         '] ' . strtoupper($level) . ' : ' . $message . ' | {"custom":null,"exception":null,"default":' .
-        '{"request_infos":{"url":null,"http_method":null,"server":null}}}'
+        '{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
     );
     $successDeleteFile = unlink($logfile);
     expect($successDeleteFile)->toBeTrue();

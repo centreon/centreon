@@ -391,7 +391,7 @@ class CentreonLog
             // Add default context with back trace and request infos
             $defaultContext = [
                 'request_infos' => [
-                    'url' => $_SERVER['REQUEST_URI'] ?? null,
+                    'uri' => $_SERVER['REQUEST_URI'] ?? null,
                     'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
                     'server' => $_SERVER['SERVER_NAME'] ?? null,
                 ]
@@ -400,8 +400,11 @@ class CentreonLog
             // Add exception context with previous exception if exists
             if (! is_null($exception)) {
                 $exceptionLogContext = ExceptionLogFormatter::format($customContext, $exception);
-                $customContext = $exceptionLogContext['custom'] ?? null;
                 $exceptionContext = $exceptionLogContext['exception'] ?? null;
+                if (array_key_exists('exception', $exceptionLogContext)) {
+                    unset($exceptionLogContext['exception']);
+                }
+                $customContext = $exceptionLogContext;
             }
 
             $context = [
