@@ -97,7 +97,7 @@ describe('Host groups configuration: ', () => {
   });
 
   ['name', 'alias'].forEach((column) => {
-    it.only(`sorts the ${column} column when clicked`, () => {
+    it(`sorts the ${column} column when clicked`, () => {
       initialize({});
 
       cy.waitForRequest('@getAllHostGroups');
