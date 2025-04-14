@@ -30,12 +30,10 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Centreon\Domain\Log\Logger;
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\Exception\UnexpectedValueException;
 use Core\Common\Infrastructure\ExceptionLogger;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
-use PHPMailer\PHPMailer\Exception;
 use Psr\Log\LogLevel;
 
 /**
