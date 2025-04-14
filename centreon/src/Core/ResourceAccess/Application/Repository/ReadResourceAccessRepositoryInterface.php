@@ -32,11 +32,23 @@ use Core\ResourceAccess\Domain\Model\TinyRule;
 interface ReadResourceAccessRepositoryInterface
 {
     /**
+     * List all rules.
+     *
      * @param RequestParametersInterface $requestParameters
      *
      * @return TinyRule[]
      */
     public function findAllByRequestParameters(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * List all rules the user is linked to.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param int $userId
+     *
+     * @return TinyRule[]
+     */
+    public function findAllByRequestParametersAndUserId(RequestParametersInterface $requestParameters, int $userId): array;
 
     /**
      * Checks if the rule name provided as been already used for a rule.
