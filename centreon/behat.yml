@@ -19,7 +19,7 @@ default:
       paths: [ "%paths.base%/features/AcknowledgementTimeout.feature" ]
       contexts: [ AcknowledgementTimeoutContext ]
 
-    meta_services_api:
+    meta_service_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
 
