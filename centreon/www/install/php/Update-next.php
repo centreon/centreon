@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
 $version = 'xx.xx.x';
@@ -122,6 +125,41 @@ $updateAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
     );
 };
 
+$updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve SAML provider configuration';
+    $samlConfiguration = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM `provider_configuration`
+            WHERE `type` = 'saml'
+            SQL
+    );
+
+    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
+        throw new \Exception('SAML configuration is missing');
+    }
+
+    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+
+    if (!isset($customConfiguration['requested_authn_context'])) {
+        $customConfiguration['requested_authn_context'] = 'minimum';
+        $query = <<<'SQL'
+                UPDATE `provider_configuration`
+                SET `custom_configuration` = :custom_configuration
+                WHERE `type` = 'saml'
+            SQL;
+        $queryParameters = QueryParameters::create(
+            [
+                QueryParameter::string(
+                    'custom_configuration',
+                    json_encode($customConfiguration, JSON_THROW_ON_ERROR)
+                )
+            ]
+        );
+
+        $pearDB->update($query, $queryParameters);
+    }
+};
+
 try {
     // DDL statements for configuration database
     $addConnectionModeColumnToAgentConfiguration();
@@ -132,6 +170,7 @@ try {
     }
 
     $updateAgentConfiguration();
+    $updateSamlProviderConfiguration($pearDB);
 
     $pearDB->commit();
 
