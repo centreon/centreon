@@ -29,10 +29,14 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
+use Centreon\Domain\Log\Logger;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\Exception\UnexpectedValueException;
+use Core\Common\Infrastructure\ExceptionLogger;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
+use PHPMailer\PHPMailer\Exception;
+use Psr\Log\LogLevel;
 
 /**
  * Class
@@ -43,7 +47,6 @@ use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
  */
 final class DbalConnectionAdapter implements ConnectionInterface
 {
-    use LoggerTrait;
     use ConnectionTrait;
 
     /**
@@ -863,37 +866,23 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param string $query
      * @param \Throwable|null $previous
      */
-    private function writeDbLog(
+    protected function writeDbLog(
         string $message,
         array $customContext = [],
         string $query = '',
         ?\Throwable $previous = null
     ): void {
         // prepare context of the database exception
-        if ($previous instanceof ConnectionException) {
-            $dbExceptionContext = $previous->getContext();
+        $context = [
+            'database_name' => $this->connectionConfig->getDatabaseNameConfiguration(),
+            'database_connector' => self::class,
+            'query' => $query,
+        ];
+
+        if (! is_null($previous)) {
+            ExceptionLogger::create()->log($previous, $context, LogLevel::CRITICAL);
         } else {
-            $dbExceptionContext = [];
+            Logger::create()->critical($message, $context);
         }
-        if (isset($dbExceptionContext['query'])) {
-            unset($dbExceptionContext['query']);
-        }
-
-        // prepare default context
-        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseNameConfiguration()];
-        if (! empty($query)) {
-            $defaultContext['query'] = $query;
-        }
-
-        $context = array_merge(
-            ['default' => $defaultContext],
-            ['custom' => $customContext],
-            ['exception' => $dbExceptionContext]
-        );
-
-        $this->critical(
-            "[DbalConnectionAdapter] {$message}",
-            $context
-        );
     }
 }

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure;
 
+use Centreon\Domain\Log\Logger;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogFormatter;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -43,6 +44,16 @@ final readonly class ExceptionLogger
     public function __construct(
         private LoggerInterface $logger
     ) {}
+
+    /**
+     * Factory
+     *
+     * @return ExceptionLogger
+     */
+    public static function create(): self
+    {
+        return new self(new Logger());
+    }
 
     /**
      * @param \Throwable $throwable
