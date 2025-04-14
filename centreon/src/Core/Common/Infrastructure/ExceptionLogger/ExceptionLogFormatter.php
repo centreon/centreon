@@ -30,7 +30,7 @@ use Core\Common\Domain\Exception\ExceptionFormatter;
  * Class
  *
  * @class ExceptionLogFormatter
- * @package Core\Common\Infrastructure\ExceptionLogger
+ * @package Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger
  */
 abstract class ExceptionLogFormatter
 {

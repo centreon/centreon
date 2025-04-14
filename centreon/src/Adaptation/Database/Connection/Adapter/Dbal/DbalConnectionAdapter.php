@@ -31,7 +31,7 @@ use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Domain\Exception\UnexpectedValueException;
-use Core\Common\Infrastructure\ExceptionLogger;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
 use Psr\Log\LogLevel;

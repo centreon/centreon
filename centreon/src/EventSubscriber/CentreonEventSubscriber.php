@@ -29,28 +29,24 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\RequestParameters\{
-    Interfaces\RequestParametersInterface, RequestParameters, RequestParametersException
-};
+use Centreon\Domain\RequestParameters\{Interfaces\RequestParametersInterface,
+    RequestParameters,
+    RequestParametersException};
 use Centreon\Domain\VersionHelper;
 use Core\Common\Domain\Exception\RepositoryException;
-use Core\Common\Infrastructure\ExceptionLogger;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Psr\Log\LogLevel;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\{
-    ExceptionEvent, RequestEvent, ResponseEvent
-};
+use Symfony\Component\HttpKernel\Event\{ExceptionEvent, RequestEvent, ResponseEvent};
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\{
-    Exception\AccessDeniedException
-};
+use Symfony\Component\Security\Core\{Exception\AccessDeniedException};
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
@@ -74,7 +70,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      * @param Security $security
      * @param ApiPlatform $apiPlatform
      * @param ContactInterface $contact
-     * @param ExceptionLogger $exceptionHandler
+     * @param ExceptionLogger $exceptionLogger
      * @param string $apiVersionLatest
      * @param string $apiHeaderName
      * @param string $translationPath
@@ -84,7 +80,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         readonly private Security $security,
         readonly private ApiPlatform $apiPlatform,
         readonly private ContactInterface $contact,
-        readonly private ExceptionLogger $exceptionHandler,
+        readonly private ExceptionLogger $exceptionLogger,
         readonly private string $apiVersionLatest,
         readonly private string $apiHeaderName,
         readonly private string $translationPath,
@@ -428,7 +424,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         } else {
             $level = LogLevel::ERROR;
         }
-        $this->exceptionHandler->log(
+        $this->exceptionLogger->log(
             throwable: $exception,
             context: ['internal_error' => $exception],
             level: $level

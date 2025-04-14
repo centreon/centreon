@@ -30,11 +30,9 @@ use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Infrastructure\ExceptionLogger;
-use Core\Contact\Application\UseCase\FindContactTemplates\{
-    FindContactTemplatesPresenterInterface,
-    FindContactTemplatesResponse
-};
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Core\Contact\Application\UseCase\FindContactTemplates\{FindContactTemplatesPresenterInterface,
+    FindContactTemplatesResponse};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class FindContactTemplatesPresenter extends AbstractPresenter implements FindContactTemplatesPresenterInterface
@@ -45,13 +43,13 @@ class FindContactTemplatesPresenter extends AbstractPresenter implements FindCon
      * @param RequestParametersInterface $requestParameters
      * @param PresenterFormatterInterface $presenterFormatter
      * @param ContactInterface $user
-     * @param ExceptionLogger $exceptionHandler
+     * @param ExceptionLogger $exceptionLogger
      */
     public function __construct(
         private RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
         private readonly ContactInterface $user,
-        private readonly ExceptionLogger $exceptionHandler,
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -63,7 +61,7 @@ class FindContactTemplatesPresenter extends AbstractPresenter implements FindCon
     {
         if ($response instanceof ResponseStatusInterface) {
             if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
-                $this->exceptionHandler->log($response->getException());
+                $this->exceptionLogger->log($response->getException());
             } elseif ($response instanceof ForbiddenResponse) {
                 $this->error('User doesn\'t have sufficient rights to list contact templates', [
                     'user_id' => $this->user->getId(),

@@ -30,7 +30,7 @@ use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\Logger;
-use Core\Common\Infrastructure\ExceptionLogger;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Psr\Log\LogLevel;
 
 /**

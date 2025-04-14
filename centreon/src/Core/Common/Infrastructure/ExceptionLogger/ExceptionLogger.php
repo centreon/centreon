@@ -21,10 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Infrastructure;
+namespace Core\Common\Infrastructure\ExceptionLogger;
 
 use Centreon\Domain\Log\Logger;
-use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogFormatter;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
@@ -32,7 +31,7 @@ use Psr\Log\LogLevel;
  * Class
  *
  * @class ExceptionLogger
- * @package Core\Common\Infrastructure
+ * @package Core\Common\Infrastructure\ExceptionLogger
  */
 final readonly class ExceptionLogger
 {
