@@ -33,4 +33,3 @@ final class DeleteServicesStatusResponse
 
     public ?string $message = null;
 }
-
