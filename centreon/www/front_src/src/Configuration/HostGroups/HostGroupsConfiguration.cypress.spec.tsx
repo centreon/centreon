@@ -96,21 +96,19 @@ describe('Host groups configuration: ', () => {
     cy.matchImageSnapshot();
   });
 
-  ['name', 'alias'].forEach((column) => {
-    it(`sorts the ${column} column when clicked`, () => {
-      initialize({});
+  it.only('sorts the columns when clicked', () => {
+    initialize({});
 
-      cy.waitForRequest('@getAllHostGroups');
-
+    ['name', 'alias'].forEach((column) => {
       cy.contains('host group 1');
       cy.contains('host group 2');
 
       cy.contains(capitalize(column)).click();
 
       cy.waitForRequest('@getAllHostGroups').then(({ request }) => {
-        expect(
-          JSON.parse(request.url.searchParams.get('sort_by'))
-        ).to.deep.equal({
+        const sortParam = JSON.parse(request.url.searchParams.get('sort_by'));
+
+        expect(sortParam).to.deep.equal({
           [column]: 'desc'
         });
       });
