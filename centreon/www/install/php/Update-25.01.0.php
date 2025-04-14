@@ -151,8 +151,8 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
     if (false === $topologyAlreadyExists) {
         $constraintStatement = $pearDB->prepareQuery(
             <<<'SQL'
-                INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)
-                VALUES (92,'Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', :show, '1');
+                INSERT INTO `topology` (`topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)
+                VALUES ('Agent configurations',609,60905,50,1,'/configuration/pollers/agent-configurations', :show, '1');
                 SQL
         );
         $pearDB->executePreparedQuery($constraintStatement, [':show' => $isCentral === 'yes' ? '1' : '0']);
