@@ -17,21 +17,3 @@
  * For more information : contact@centreon.com
  *
  */
-<<<<<<<< HEAD:centreon/src/Core/Service/Application/UseCase/DeleteServices/DeleteServicesStatusResponse.php
-
-declare(strict_types=1);
-
-namespace Core\Service\Application\UseCase\DeleteServices;
-
-use Core\Common\Domain\ResponseCodeEnum;
-
-final class DeleteServicesStatusResponse
-{
-    public int $id = 0;
-
-    public ResponseCodeEnum $status = ResponseCodeEnum::OK;
-
-    public ?string $message = null;
-}
-========
->>>>>>>> master:centreon/www/install/php/Update-25.01.2.php

@@ -19,17 +19,6 @@ default:
       paths: [ "%paths.base%/features/AcknowledgementTimeout.feature" ]
       contexts: [ AcknowledgementTimeoutContext ]
 
-<<<<<<< HEAD
-=======
-    partitioning:
-      paths: [ "%paths.base%/features/Partitioning.feature" ]
-      contexts: [ PartitioningContext ]
-
-    disable_fields_on_blocked_objects:
-      paths: [ "%paths.base%/features/DisableFieldsOnBlockedObjects.feature" ]
-      contexts: [ DisableFieldsOnBlockedObjectsContext ]
-
->>>>>>> master
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
