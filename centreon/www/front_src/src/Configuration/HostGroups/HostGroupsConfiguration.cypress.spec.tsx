@@ -96,7 +96,7 @@ describe('Host groups configuration: ', () => {
     cy.matchImageSnapshot();
   });
 
-  it.only('sorts the columns when clicked', () => {
+  it('sorts the columns when clicked', () => {
     initialize({});
 
     ['name', 'alias'].forEach((column) => {
