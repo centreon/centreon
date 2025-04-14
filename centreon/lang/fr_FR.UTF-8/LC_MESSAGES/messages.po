@@ -19652,3 +19652,21 @@ msgstr "Chemin invalide"
 
 msgid "Invalid extension"  
 msgstr "Extension invalide"  
+
+msgid "Display average as"
+msgstr "Afficher la moyenne sous forme de"
+
+msgid "Requested authentication context"
+msgstr "Contexte d'authentification requis"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Exact"
+msgstr "Exact"
+
+msgid "Better"
+msgstr "Renforcé"
+
+msgid "Maximum"
+msgstr "Maximum"
