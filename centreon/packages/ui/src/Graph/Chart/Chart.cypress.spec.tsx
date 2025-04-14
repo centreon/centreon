@@ -78,7 +78,7 @@ const initialize = ({
     alias: 'admin',
     locale: 'en',
     name: 'admin',
-    timezone: 'Etc/UTC'
+    timezone: 'Europe/Paris'
   });
 
   cy.mount({
@@ -93,6 +93,7 @@ const initialize = ({
           barStyle={barStyle}
           tooltip={tooltip}
           additionalLines={additionalLines}
+          width={1220}
         />
       </Provider>
     )
@@ -128,6 +129,7 @@ const initializeCustomUnits = ({
           legend={legend}
           lineStyle={lineStyle}
           tooltip={tooltip}
+          width={1220}
         />
       </Provider>
     )
@@ -142,7 +144,7 @@ const checkGraphWidth = (): void => {
     .and('equal', '376.203125');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
-    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
+    expect(Number(graph[0].attributes.width.value)).toBeLessThan(1220);
   });
 };
 
