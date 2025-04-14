@@ -29,7 +29,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\TinyRule;
