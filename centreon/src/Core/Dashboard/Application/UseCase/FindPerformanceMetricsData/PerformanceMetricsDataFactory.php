@@ -86,7 +86,8 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
  *     global: array{
  *         base: int|null,
  *         title: string,
- *         host_name: string
+ *         host_name: string,
+ *         service_description: string
  *     },
  *     metrics: array<_Metrics>,
  *     times: string[]
