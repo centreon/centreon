@@ -181,7 +181,7 @@ try {
         . ' - Error : ' . $e->getMessage()
         . ' - Trace : ' . $e->getTraceAsString(),
         customContext: [
-            'exception' => $e->getOptions(),
+            'exception' => $e->getContext(),
             'trace' => $e->getTraceAsString(),
         ],
         exception: $e
