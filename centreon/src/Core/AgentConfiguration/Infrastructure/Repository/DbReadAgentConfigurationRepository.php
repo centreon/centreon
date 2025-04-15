@@ -30,6 +30,7 @@ use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationReposit
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
@@ -199,6 +200,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                 ac.id,
                 ac.name,
                 ac.type,
+                ac.connection_mode,
                 ac.configuration
             FROM `:db`.`agent_configuration` ac
             INNER JOIN `:db`.`ac_poller_relation` rel
@@ -282,6 +284,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                     ac.id,
                     ac.name,
                     ac.type,
+                    ac.connection_mode,
                     ac.configuration
                 FROM `:db`.`agent_configuration` ac
                 INNER JOIN `:db`.`ac_poller_relation` rel
@@ -358,6 +361,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
                     ac.id,
                     ac.name,
                     ac.type,
+                    ac.connection_mode,
                     ac.configuration
                 FROM `:db`.`agent_configuration` ac
                 JOIN `:db`.`ac_poller_relation` rel
@@ -393,14 +397,20 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             depth: JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR
         );
         $type = Type::from($row['type']);
+        $connectionMode = match($row['connection_mode']) {
+            'secure' => ConnectionModeEnum::SECURE,
+            'no_tls' => ConnectionModeEnum::NO_TLS,
+            default => throw new \InvalidArgumentException('Invalid connection mode'),
+        };
 
         return new AgentConfiguration(
             id: $row['id'],
             name: $row['name'],
             type: $type,
+            connectionMode: $connectionMode,
             configuration: match ($type->value) {
-                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration),
-                Type::CMA->value => new CmaConfigurationParameters($configuration)
+                Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration, $connectionMode),
+                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode)
             }
         );
     }

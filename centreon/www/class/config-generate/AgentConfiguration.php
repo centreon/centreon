@@ -25,6 +25,7 @@ use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationReposit
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration as ModelAgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
 
 /**
@@ -52,10 +53,12 @@ class AgentConfiguration extends AbstractObjectJSON
         if ($agentConfiguration !== null) {
             match ($agentConfiguration->getType()) {
                 Type::TELEGRAF => $configuration = $this->formatTelegraphConfiguration(
-                    $agentConfiguration->getConfiguration()->getData()
+                    $agentConfiguration->getConfiguration()->getData(),
+                    $agentConfiguration->getConnectionMode()
                 ),
                 Type::CMA => $configuration = $this->formatCmaConfiguration(
-                    $agentConfiguration->getConfiguration()->getData()
+                    $agentConfiguration->getConfiguration()->getData(),
+                    $agentConfiguration->getConnectionMode()
                 ),
                 default => throw new \Exception('The type of the agent configuration not exists')
             };
@@ -74,12 +77,12 @@ class AgentConfiguration extends AbstractObjectJSON
      * @param _TelegrafParameters|_CmaParameters $data The data from the AgentConfiguration table.
      * @return array<string, array<string, string>> The configuration for the OpenTelemetry HTTP server.
      */
-    private function formatOtelConfiguration(array $data): array
+    private function formatOtelConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
             'port' => ModelAgentConfiguration::DEFAULT_PORT,
-            'encryption' => ! empty($data['otel_public_certificate']) && ! empty($data['otel_private_key']),
+            'encryption' => ConnectionModeEnum::NO_TLS !== $connectionMode,
             'public_cert' => ! empty($data['otel_public_certificate'])
                 ? $data['otel_public_certificate']
                 : '',
@@ -99,10 +102,10 @@ class AgentConfiguration extends AbstractObjectJSON
      *
      * @return array
      */
-    private function formatCmaConfiguration(array $data): array
+    private function formatCmaConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
         $configuration = [
-            'otel_server' => $this->formatOtelConfiguration($data),
+            'otel_server' => $this->formatOtelConfiguration($data, $connectionMode),
             'centreon_agent' => [
                 'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
                 'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
@@ -136,9 +139,9 @@ class AgentConfiguration extends AbstractObjectJSON
      * @param _TelegrafParameters $data The data from the AgentConfiguration table.
      * @return array<string, array<string, mixed>> The configuration for the Telegraf HTTP server.
      */
-    private function formatTelegraphConfiguration(array $data): array
+    private function formatTelegraphConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
-        $otelConfiguration = $this->formatOtelConfiguration($data);
+        $otelConfiguration = $this->formatOtelConfiguration($data, $connectionMode);
 
         return [
             'otel_server' => $otelConfiguration,

@@ -27,6 +27,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
@@ -53,6 +54,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
                     [
                         'type' => ':type',
                         'name' => ':name',
+                        'connection_mode' => ':connection_mode',
                         'configuration' => ':configuration',
                     ]
                 )->getQuery();
@@ -62,6 +64,14 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
                 QueryParameters::create([
                     QueryParameter::string('type', $agentConfiguration->getType()->value),
                     QueryParameter::string('name', $agentConfiguration->getName()),
+                    QueryParameter::string(
+                        ':connection_mode',
+                        match ($agentConfiguration->getConnectionMode()) {
+                            ConnectionModeEnum::NO_TLS => 'no_tls',
+                            ConnectionModeEnum::SECURE => 'secure',
+                            default => throw new \InvalidArgumentException('Invalid connection mode')
+                        }
+                    ),
                     QueryParameter::string(
                         'configuration',
                         json_encode($agentConfiguration->getConfiguration()->getData(), JSON_THROW_ON_ERROR)
@@ -88,6 +98,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
             $query = $this->queryBuilder->update('`:db`.`agent_configuration`')
                 ->set('name', ':name')
                 ->set('configuration', ':configuration')
+                ->set('connection_mode', ':connection_mode')
                 ->where($this->queryBuilder->expr()->equal('id', ':id'))
                 ->getQuery();
 
@@ -96,6 +107,14 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
                 QueryParameters::create([
                     QueryParameter::int('id', $agentConfiguration->getId()),
                     QueryParameter::string('name', $agentConfiguration->getName()),
+                    QueryParameter::string(
+                        'connection_mode',
+                        match ($agentConfiguration->getConnectionMode()) {
+                            ConnectionModeEnum::NO_TLS => 'no_tls',
+                            ConnectionModeEnum::SECURE => 'secure',
+                            default => throw new \InvalidArgumentException('Invalid connection mode')
+                        }
+                    ),
                     QueryParameter::string(
                         'configuration',
                         json_encode($agentConfiguration->getConfiguration()->getData(), JSON_THROW_ON_ERROR)

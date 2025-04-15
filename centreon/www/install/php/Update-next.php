@@ -148,10 +148,29 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
     }
 };
 
+/**
+  * Add Column connection_mode to agent_configuration table.
+  * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
+  *
+  * @param CentreonDB $pearDB
+  *
+  * @throws CentreonDbException
+  */
+  $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `agent_configuration`
+            ADD COLUMN `connection_mode` ENUM('tls', 'no_tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
+        SQL
+    );
+};
+
 try {
     // TODO add your function calls to update the real time database structure here
 
     // TODO add your function calls to update the configuration database structure here
+    $addConnectionModeColumnToAgentConfiguration();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {

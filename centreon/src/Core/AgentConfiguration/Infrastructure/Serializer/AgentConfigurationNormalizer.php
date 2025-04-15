@@ -23,19 +23,20 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Infrastructure\Serializer;
 
-use Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration\FindAgentConfigurationResponse;
-use Core\AgentConfiguration\Domain\Model\Poller;
-use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
+use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, NormalizerAwareInterface
+class AgentConfigurationNormalizer implements NormalizerInterface
 {
-    use NormalizerAwareTrait;
+    public function __construct(
+        private readonly ObjectNormalizer $normalizer,
+    ) {
+    }
 
     /**
-     * @param FindAgentConfigurationResponse $object
+     * @param AgentConfiguration $object
      * @param string|null $format
      * @param array<string, mixed> $context
      *
@@ -49,21 +50,18 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, N
         array $context = []
     ): float|int|bool|array|string|null {
         /** @var array<string, bool|float|int|string> $data */
-        $data = $this->normalizer->normalize($object->agentConfiguration, $format, $context);
-
-        /** @var array{groups: string[]} $context */
-        if (in_array('AgentConfiguration:Read', $context['groups'], true)) {
-            $data['pollers'] = array_map(
-                fn (Poller $poller) => $this->normalizer->normalize($poller, $format, $context),
-                $object->pollers
-            );
-        }
+        $data = $this->normalizer->normalize($object, $format, $context);
+        $data['connection_mode'] = match ($object->getConnectionMode()) {
+            ConnectionModeEnum::SECURE => 'secure',
+            ConnectionModeEnum::NO_TLS => 'no_tls',
+            default => throw new \InvalidArgumentException('Invalid connection mode'),
+        };
 
         return $data;
     }
 
     public function supportsNormalization(mixed $data, ?string $format = null): bool
     {
-        return $data instanceof FindAgentConfigurationResponse;
+        return $data instanceof AgentConfiguration;
     }
 }
