@@ -18479,6 +18479,21 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Display average as"
 # msgstr ""
 
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""
+
 # ---- EXPORT CSV ----
 
 # msgid "Notifications enabled"
@@ -18521,18 +18536,3 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # ---- END EXPORT CSV ----
-
-# msgid "Requested authentication context"
-# msgstr ""
-
-# msgid "Minimum"
-# msgstr ""
-
-# msgid "Exact"
-# msgstr ""
-
-# msgid "Better"
-# msgstr ""
-
-# msgid "Maximum"
-# msgstr ""
