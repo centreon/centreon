@@ -344,6 +344,99 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
+    public function findAllByRequestParametersAndUserId(RequestParametersInterface $requestParameters, int $userId): array
+    {
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'acl_groups.acl_group_name',
+            'description' => 'acl_groups.cloud_description',
+        ]);
+
+        $request = <<<'SQL_WRAP'
+                SELECT SQL_CALC_FOUND_ROWS
+                    acl_group_id AS `id`,
+                    acl_group_name AS `name`,
+                    cloud_description AS `description`,
+                    acl_group_activate AS `is_enabled`
+                FROM `:db`.acl_groups
+            SQL_WRAP;
+
+        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        $request .= $search !== null
+            ? ' AND cloud_specific = 1'
+            : ' WHERE cloud_specific = 1';
+        $request .= ' AND (
+                acl_groups.all_contacts = 1
+                OR (
+                    acl_groups.all_contact_groups = 1
+                    AND (
+                        SELECT 1
+                        FROM `:db`.contactgroup_contact_relation
+                        WHERE contact_contact_id = :userId
+                    )
+                )
+                OR acl_groups.acl_group_id IN
+                (
+                    SELECT acl_group_id
+                    FROM `:db`.acl_group_contacts_relations
+                    WHERE contact_contact_id = :userId
+                    UNION
+                    SELECT acl_group_id
+                    FROM `:db`.acl_group_contactgroups_relations
+                    JOIN `:db`.contactgroup_contact_relation
+                        ON cg_cg_id = contactgroup_cg_id
+                    WHERE contact_contact_id = :userId
+                )
+            )';
+
+        // handle sort parameter
+        $sort = $sqlTranslator->translateSortParameterToSql();
+        $request .= ! is_null($sort)
+            ? $sort
+            : ' ORDER BY acl_group_name ASC';
+
+        // handle pagination parameter
+        $request .= $sqlTranslator->translatePaginationToSql();
+
+        $request = $this->translateDbName($request);
+
+        $statement = $this->db->prepare($request);
+
+        $rules = [];
+
+        if ($statement === false) {
+            return $rules;
+        }
+
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            if ($type !== null) {
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+        }
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Set total ACL groups found
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        foreach ($statement as $data) {
+            /** @var _TinyRule $data */
+            $rules[] = $this->createTinyRuleFromArray($data);
+        }
+
+        return $rules;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findDatasetResourceIdsByHostGroupId(int $hostGroupId): array
     {
         $statement = $this->db->prepare($this->translateDbName(
