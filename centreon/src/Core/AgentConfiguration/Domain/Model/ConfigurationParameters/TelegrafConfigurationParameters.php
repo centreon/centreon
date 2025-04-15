@@ -41,7 +41,8 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  */
 class TelegrafConfigurationParameters implements ConfigurationParametersInterface
 {
-    public const BROKER_DIRECTIVE = '/usr/lib64/centreon-engine/libopentelemetry.so /etc/centreon-engine/otl_server.json';
+    public const BROKER_DIRECTIVE = '/usr/lib64/centreon-engine/libopentelemetry.so '
+        . '/etc/centreon-engine/otl_server.json';
     public const MAX_LENGTH = 255;
     public const CERTIFICATE_BASE_PATH = '/etc/pki/';
 
@@ -50,25 +51,12 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
 
     /**
      * @param array<string,mixed> $parameters
+     * @param ConnectionModeEnum $connectionMode
      *
      * @throws AssertionFailedException
      */
-    public function __construct(
-        array $parameters
-    ){
+    public function __construct(array $parameters, ConnectionModeEnum $connectionMode){
         $parameters = $this->normalizeCertificatePaths($parameters);
-
-        /** @var _TelegrafParameters $parameters */
-        if (isset($parameters['connection_mode'])) {
-            $connectionMode = $parameters['connection_mode'];
-        } else {
-            $connectionMode = (empty($parameters['otel_public_certificate'])
-                || empty($parameters['otel_private_key'])
-                || empty($parameters['conf_certificate'])
-                || empty($parameters['conf_private_key']))
-                    ? ConnectionModeEnum::NO_TLS
-                    : ConnectionModeEnum::SECURE;
-        }
 
         Assertion::range($parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
 
@@ -81,15 +69,17 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
                 $this->validateCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
             }
         } else {
-            $this->validateOptionalCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
+            $this->validateOptionalCertificate(
+                $parameters['otel_public_certificate'],
+                'configuration.otel_public_certificate'
+            );
             $this->validateOptionalCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
             $this->validateOptionalCertificate($parameters['conf_certificate'], 'configuration.conf_certificate');
             $this->validateOptionalCertificate($parameters['conf_private_key'], 'configuration.conf_private_key');
             $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
         }
 
-        unset($parameters['connection_mode']);
-
+        /** @var _TelegrafParameters $parameters */
         $this->parameters = $parameters;
     }
 

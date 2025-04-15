@@ -149,6 +149,9 @@ When('the user fills in the centreon agent parameters', () => {
   cy.getByLabel({ label: 'CA', tag: 'input' })
     .eq(1)
     .type('my-certificate-name-003.crt');
+  cy.getByLabel({ label: 'CA', tag: 'input' })
+    .eq(2)
+    .type('my-certificate-name-003.crt');
 });
 
 Then('the third agent is displayed in the Agents Configuration page', () => {
