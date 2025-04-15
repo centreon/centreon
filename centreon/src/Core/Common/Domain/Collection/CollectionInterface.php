@@ -62,7 +62,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      * @throws CollectionException
      * @return TItem
      */
-    public function get(int|string $key);
+    public function get(int|string $key): mixed;
 
     /**
      * @param int|string $key
@@ -89,6 +89,28 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      * @return int
      */
     public function length(): int;
+
+    /**
+     * @param TItem $item
+     *
+     * @throws CollectionException
+     * @return int|string
+     */
+    public function indexOf(mixed $item): int|string;
+
+    /**
+     * @param callable $callable
+     *
+     * @return true
+     */
+    public function sortByValues(callable $callable): true;
+
+    /**
+     * @param callable $callable
+     *
+     * @return true
+     */
+    public function sortByKeys(callable $callable): true;
 
     /**
      * Filter the collection by a callable using the item as parameter

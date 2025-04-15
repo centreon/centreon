@@ -120,6 +120,8 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             return;
         }
 
+        $csvHeader = $this->sortHeaderByFilteredColumns($csvHeader, $response->getFilteredColumns());
+
         $this->viewModel->setHeaders($csvHeader);
 
         if (! $response->getFilteredColumns()->isEmpty()) {
@@ -225,6 +227,37 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
 
             return $filteredColumns->contains($key);
         });
+    }
+
+    /**
+     * @param StringCollection $header
+     * @param StringCollection $filteredColumns
+     *
+     * @return StringCollection
+     */
+    private function sortHeaderByFilteredColumns(StringCollection $header, StringCollection $filteredColumns): StringCollection
+    {
+        $header->sortByKeys(function($a, $b) use ($filteredColumns) {
+            // if the key is a resource or parent_resource, we keep all columns starting with this key
+            if (str_starts_with($a, 'resource_')) {
+                $a = 'resource';
+            } else {
+                if (str_starts_with($a, 'parent_resource_')) {
+                    $a = 'parent_resource';
+                }
+            }
+            if (str_starts_with($b, 'resource_')) {
+                $b = 'resource';
+            } else {
+                if (str_starts_with($b, 'parent_resource_')) {
+                    $b = 'parent_resource';
+                }
+            }
+
+            return $filteredColumns->indexOf($a) <=> $filteredColumns->indexOf($b);
+        });
+
+        return $header;
     }
 
     /**

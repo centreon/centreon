@@ -101,7 +101,7 @@ abstract class Collection implements CollectionInterface
      * @throws CollectionException
      * @return TItem
      */
-    public function get(int|string $key)
+    public function get(int|string $key): mixed
     {
         if (isset($this->items[$key])) {
             return $this->items[$key];
@@ -142,6 +142,43 @@ abstract class Collection implements CollectionInterface
     public function length(): int
     {
         return count($this->items);
+    }
+
+    /**
+     * @param TItem $item
+     *
+     * @throws CollectionException
+     * @return int|string
+     */
+    public function indexOf(mixed $item): int|string
+    {
+        $items = array_values($this->items);
+        $position = array_search($item, $items, true);
+        if ($position === false) {
+            throw new CollectionException("Item not found in the collection");
+        }
+
+        return $position;
+    }
+
+    /**
+     * @param callable $callable
+     *
+     * @return true
+     */
+    public function sortByValues(callable $callable): true
+    {
+        return usort($this->items, $callable);
+    }
+
+    /**
+     * @param callable $callable
+     *
+     * @return true
+     */
+    public function sortByKeys(callable $callable): true
+    {
+        return uksort($this->items, $callable);
     }
 
     /**

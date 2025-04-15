@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Core\Common\Domain\Collection;
 
 use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\ValueObject\LiteralString;
 
 beforeEach(function () {
     $this->collection = new ObjectCollectionStub();
@@ -64,6 +65,50 @@ it('return the keys of the collection as an array', function () {
     $this->collection->add(1, new \stdClass());
     $this->collection->add(2, new \stdClass());
     expect($this->collection->keys())->toEqual([1, 2]);
+});
+
+it('return position of an item of a collection', function () {
+    $item = new \stdClass();
+    $this->collection->add('foo', $item);
+    expect($this->collection->indexOf($item))->toBe(0);
+});
+
+it('sort a collection by values', function () {
+    $class1 = new \stdClass();
+    $class1->value = 'foo';
+    $class2 = new \stdClass();
+    $class2->value = 'bar';
+
+    $orderedArray = [$class2, $class1];
+
+    $this->collection->add(1, $class1);
+    $this->collection->add(2,  $class2);
+
+    $this->collection->sortByValues(function($a, $b) use ($orderedArray){
+        return array_search($a, $orderedArray) <=> array_search($b, $orderedArray);
+    });
+    expect($this->collection->get(0))->toBe($class2)
+        ->and($this->collection->get(1))->toBe($class1);
+});
+
+it('sort a collection by keys', function () {
+    $class1 = new \stdClass();
+    $class1->value = 'foo';
+    $class2 = new \stdClass();
+    $class2->value = 'bar';
+
+    $orderedArray = ['b' => 1, 'a' => 2];
+
+    $this->collection->add('a', $class1);
+    $this->collection->add('b',  $class2);
+
+    $this->collection->sortByKeys(function($a, $b) use ($orderedArray){
+        $indexA = $orderedArray[$a];
+        $indexB = $orderedArray[$b];
+        return $indexA <=> $indexB;
+    });
+    expect($this->collection->indexOf($class1))->toBe(1)
+        ->and($this->collection->indexOf($class2))->toBe(0);
 });
 
 it('test filter on values', function () {

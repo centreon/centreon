@@ -67,6 +67,46 @@ it('return the keys of the collection as an array', function () {
     expect($this->collection->keys())->toEqual([1, 2]);
 });
 
+it('return position of an item of a collection', function () {
+    $item = 'foo';
+    $this->collection->add('bar', $item);
+    expect($this->collection->indexOf($item))->toBe(0);
+});
+
+it('sort a collection by values', function () {
+    $item = 'foo';
+    $item2 = 'bar';
+
+    $orderedArray = [$item2, $item];
+
+    $this->collection->add(1, $item);
+    $this->collection->add(2,  $item2);
+
+    $this->collection->sortByValues(function($a, $b) use ($orderedArray){
+        return array_search($a, $orderedArray) <=> array_search($b, $orderedArray);
+    });
+    expect($this->collection->get(0))->toBe($item2)
+        ->and($this->collection->get(1))->toBe($item);
+});
+
+it('sort a collection by keys', function () {
+    $item = 'foo';
+    $item2 = 'bar';
+
+    $orderedArray = ['b' => 1, 'a' => 2];
+
+    $this->collection->add('a', $item);
+    $this->collection->add('b',  $item2);
+
+    $this->collection->sortByKeys(function($a, $b) use ($orderedArray){
+        $indexA = $orderedArray[$a];
+        $indexB = $orderedArray[$b];
+        return $indexA <=> $indexB;
+    });
+    expect($this->collection->indexOf($item))->toBe(1)
+        ->and($this->collection->indexOf($item2))->toBe(0);
+});
+
 it('test filter on values', function () {
     $this->collection->add(1, 'foo');
     $this->collection->add(2, 'bar');
