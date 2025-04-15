@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "280facfc-daec-4320-b3ff-6b52d81ca35d",
+		"_postman_id": "787c53c2-6385-4249-a2fd-935307986069",
 		"name": "Resources_Monitoring",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-280facfc-daec-4320-b3ff-6b52d81ca35d?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-787c53c2-6385-4249-a2fd-935307986069?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -617,7 +617,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -634,7 +635,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length === 0) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length !== 2) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -663,7 +664,8 @@
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -709,7 +711,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -745,7 +748,8 @@
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -760,7 +764,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources?types=[\"host\"]",
+							"raw": "{{baseUrl}}/monitoring/resources?types=[\"service\"]",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -771,7 +775,7 @@
 							"query": [
 								{
 									"key": "types",
-									"value": "[\"host\"]"
+									"value": "[\"service\"]"
 								}
 							]
 						}
@@ -3224,88 +3228,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "Command1Name",
-			"value": ""
-		},
-		{
-			"key": "CommandId",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Name",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostGroup1Id",
-			"value": ""
-		},
-		{
-			"key": "Host1Name",
-			"value": ""
-		},
-		{
-			"key": "Host1Alias",
-			"value": ""
-		},
-		{
-			"key": "Host1Id",
-			"value": ""
-		},
-		{
-			"key": "Service1Name",
-			"value": ""
-		},
-		{
-			"key": "Service1Id",
-			"value": ""
-		},
-		{
-			"key": "expectedHttpStatus",
-			"value": ""
-		},
-		{
-			"key": "maxNumberOfTries",
-			"value": ""
-		},
-		{
-			"key": "sleepBetweenTries",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_non_admin",
-			"value": ""
 		}
 	]
 }
