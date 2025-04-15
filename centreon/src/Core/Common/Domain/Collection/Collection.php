@@ -155,7 +155,7 @@ abstract class Collection implements CollectionInterface
         $items = array_values($this->items);
         $position = array_search($item, $items, true);
         if ($position === false) {
-            throw new CollectionException("Item not found in the collection");
+            throw new CollectionException('Item not found in the collection');
         }
 
         return $position;

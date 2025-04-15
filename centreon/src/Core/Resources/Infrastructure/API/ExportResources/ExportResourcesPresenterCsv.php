@@ -235,9 +235,11 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      *
      * @return StringCollection
      */
-    private function sortHeaderByFilteredColumns(StringCollection $header, StringCollection $filteredColumns): StringCollection
-    {
-        $header->sortByKeys(function($a, $b) use ($filteredColumns) {
+    private function sortHeaderByFilteredColumns(
+        StringCollection $header,
+        StringCollection $filteredColumns
+    ): StringCollection {
+        $header->sortByKeys(function ($a, $b) use ($filteredColumns) {
             // if the key is a resource or parent_resource, we keep all columns starting with this key
             if (str_starts_with($a, 'resource_')) {
                 $a = 'resource';
