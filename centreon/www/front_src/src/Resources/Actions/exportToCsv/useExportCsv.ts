@@ -1,4 +1,5 @@
 import { buildListingEndpoint, useFetchQuery, useSnackbar } from '@centreon/ui';
+import { refreshIntervalAtom } from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useMemo } from 'react';
@@ -12,7 +13,6 @@ import { labelExportProcessingInProgress } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { csvExportEndpoint } from '../api/endpoint';
 import { Count, ListSearch } from './models';
-import { refreshIntervalAtom } from '@centreon/ui-context';
 
 export const maxResources = 10000;
 const unauthorizedColumn = 'graph';
@@ -55,12 +55,20 @@ const useExportCsv = ({
   };
 
   const columns = useMemo(() => {
-    return getAllColumns({
+    const allColumns = getAllColumns({
       actions: {},
       t,
       visualization
     });
-  }, []);
+    const orderedColumns = new Set([
+      ...selectedColumnIds.filter((item) => !equals(item, unauthorizedColumn)),
+      ...allColumns
+        .map(({ id }) => id)
+        .filter((item) => !equals(item, unauthorizedColumn))
+    ]);
+
+    return [...orderedColumns];
+  }, [selectedColumnIds]);
 
   const getCurrentFilterParameters = () => {
     const names = getCriteriaNames('names');
@@ -108,13 +116,7 @@ const useExportCsv = ({
 
   const getColumns = () => {
     if (isAllColumnsChecked) {
-      const authorizedColumns = columns?.filter(
-        ({ id }) => !equals(id, unauthorizedColumn)
-      );
-      return authorizedColumns
-        ?.map(({ id }) => id)
-        .map((column) => `columns[]=${column}`)
-        .join('&');
+      return columns.map((column) => `columns[]=${column}`).join('&');
     }
 
     const filteredColumns = selectedColumnIds?.filter(
