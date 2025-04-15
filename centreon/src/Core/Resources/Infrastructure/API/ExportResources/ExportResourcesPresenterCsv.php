@@ -239,24 +239,24 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         StringCollection $header,
         StringCollection $filteredColumns
     ): StringCollection {
-        $header->sortByKeys(function ($a, $b) use ($filteredColumns) {
+        $header->sortByKeys(function ($keyA, $keyB) use ($filteredColumns) {
             // if the key is a resource or parent_resource, we keep all columns starting with this key
-            if (str_starts_with($a, 'resource_')) {
-                $a = 'resource';
+            if (str_starts_with($keyA, 'resource_')) {
+                $keyA = 'resource';
             } else {
-                if (str_starts_with($a, 'parent_resource_')) {
-                    $a = 'parent_resource';
+                if (str_starts_with($keyA, 'parent_resource_')) {
+                    $keyA = 'parent_resource';
                 }
             }
-            if (str_starts_with($b, 'resource_')) {
-                $b = 'resource';
+            if (str_starts_with($keyB, 'resource_')) {
+                $keyB = 'resource';
             } else {
-                if (str_starts_with($b, 'parent_resource_')) {
-                    $b = 'parent_resource';
+                if (str_starts_with($keyB, 'parent_resource_')) {
+                    $keyB = 'parent_resource';
                 }
             }
 
-            return $filteredColumns->indexOf($a) <=> $filteredColumns->indexOf($b);
+            return $filteredColumns->indexOf($keyA) <=> $filteredColumns->indexOf($keyB);
         });
 
         return $header;
