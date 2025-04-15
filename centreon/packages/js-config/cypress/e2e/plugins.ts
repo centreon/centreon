@@ -50,12 +50,16 @@ export default async (on, config): Promise<void> => {
   on('file:preprocessor', webpackPreprocessor(options));
 
   on('before:browser:launch', (browser = {}, launchOptions) => {
+    const width = 1920;
+    const height = 1080;
+
     if ((browser as { name }).name === 'chrome') {
       launchOptions.args.push('--disable-gpu');
       launchOptions.args = launchOptions.args.filter(
         (element) => element !== '--disable-dev-shm-usage'
       );
     }
+    launchOptions.args.push(`--window-size=${width},${height}`);
 
     return launchOptions;
   });
