@@ -43,7 +43,7 @@ jobs:
         shell: bash
 
       - name: Ensure SHA pinned actions
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@4830be28ce81da52ec70d65c552a7403821d98d4 # v3.0.23
+        uses: centreon/github-actions-ensure-sha-pinned-actions@4df5170c802a64acabf0a805d8608d713eb474b4 # v3.0.23.1
 
   yaml-lint:
     runs-on: ubuntu-24.04
