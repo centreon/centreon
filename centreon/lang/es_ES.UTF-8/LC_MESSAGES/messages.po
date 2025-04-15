@@ -18094,4 +18094,7 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Export format not supported"
 # msgstr ""
 
+# msgid "Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows."
+# msgstr ""
+
 # ---- END EXPORT CSV ----
