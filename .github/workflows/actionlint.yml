@@ -43,7 +43,7 @@ jobs:
         shell: bash
 
       - name: Ensure SHA pinned actions
-        uses: centreon/github-actions-ensure-sha-pinned-actions@4df5170c802a64acabf0a805d8608d713eb474b4 # v3.0.23.1
+        uses: centreon/github-actions-ensure-sha-pinned-actions@2ab095b60adec22041f1baea0a3b37b476594d59 # v3.0.23.1
 
   yaml-lint:
     runs-on: ubuntu-24.04
