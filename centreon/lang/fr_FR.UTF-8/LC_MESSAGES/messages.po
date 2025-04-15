@@ -19803,7 +19803,20 @@ msgstr "Extension invalide"
 msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
+msgid "Requested authentication context"
+msgstr "Contexte d'authentification requis"
 
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Exact"
+msgstr "Exact"
+
+msgid "Better"
+msgstr "Renforcé"
+
+msgid "Maximum"
+msgstr "Maximum"
 
 msgid "Add host"
 msgstr "Ajouter un hôte"
@@ -19828,3 +19841,4 @@ msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement."
 
 msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
 msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement. Ce paramètre est destiné uniquement aux tests et n’est pas autorisé en production. La supervision par l’agent s’arrêtera après 1 heure."
+
