@@ -45,6 +45,7 @@ beforeEach(function () {
 it('count resources with an invalid contact_id should throw an InvalidArgumentException', function () {
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
+        allPages: true,
         contactId: 0,
         isAdmin: true
     );
@@ -56,6 +57,7 @@ it('count resources with an error from repository should throw an ErrorResponse'
         ->andThrow(Mockery::mock(RepositoryException::class));
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
+        allPages: true,
         contactId: 1,
         isAdmin: true
     );
@@ -67,7 +69,7 @@ it('count resources with an error from repository should throw an ErrorResponse'
 it('count resources with admin mode should throw a response with all resources', function () {
     $this->resourcesRepository
         ->shouldReceive('countResourcesByFilter')
-        ->with($this->filters)
+        ->with($this->filters, true)
         ->andReturn(2);
     $this->resourcesRepository
         ->shouldReceive('countAllResources')
@@ -75,6 +77,7 @@ it('count resources with admin mode should throw a response with all resources',
         ->andReturn(10);
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
+        allPages: true,
         contactId: 1,
         isAdmin: true
     );
@@ -91,7 +94,7 @@ it('count resources with acl should throw a response with allowed resources', fu
         ->andReturn(AccessGroupCollection::create([new AccessGroup(1, 'test', 'test')]));
     $this->resourcesRepository
         ->shouldReceive('countResourcesByFilterAndAccessGroupIds')
-        ->with($this->filters, [1])
+        ->with($this->filters, true, [1])
         ->andReturn(2);
     $this->resourcesRepository
         ->shouldReceive('countAllResourcesByAccessGroupIds')
@@ -99,6 +102,7 @@ it('count resources with acl should throw a response with allowed resources', fu
         ->andReturn(10);
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
+        allPages: true,
         contactId: 1,
         isAdmin: false
     );

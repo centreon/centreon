@@ -25,6 +25,7 @@ namespace Tests\Core\Resources\Infrastructure\API\CountResources;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Resources\Infrastructure\API\CountResources\CountResourcesInput;
 use Core\Resources\Infrastructure\API\CountResources\CountResourcesRequestTransformer;
 use Mockery;
 
@@ -32,12 +33,44 @@ beforeEach(function () {
     $this->filter = Mockery::mock(ResourceFilter::class);
     $this->contact = new Contact();
     $this->contact->setId(1);
-    $this->contact->setAdmin(true);
 });
 
-it('test transform inputs to request to count resources', function () {
-    $request = CountResourcesRequestTransformer::transform($this->filter, $this->contact);
+it('test transform inputs to request to count resources as admin with pagination', function () {
+    $this->contact->setAdmin(true);
+    $input = new CountResourcesInput('{"$and":[]}',false, 1, 10);
+    $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
     expect($request->contactId)->toBe(1)
         ->and($request->isAdmin)->toBeTrue()
+        ->and($request->allPages)->toBeFalse()
+        ->and($request->resourceFilter)->toBe($this->filter);
+});
+
+it('test transform inputs to request to count resources as admin without pagination', function () {
+    $this->contact->setAdmin(true);
+    $input = new CountResourcesInput('{"$and":[]}',true, null, null);
+    $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
+    expect($request->contactId)->toBe(1)
+        ->and($request->isAdmin)->toBeTrue()
+        ->and($request->allPages)->toBeTrue()
+        ->and($request->resourceFilter)->toBe($this->filter);
+});
+
+it('test transform inputs to request to count resources as no admin with pagination', function () {
+    $this->contact->setAdmin(false);
+    $input = new CountResourcesInput('{"$and":[]}',false, 1, 10);
+    $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
+    expect($request->contactId)->toBe(1)
+        ->and($request->isAdmin)->toBeFalse()
+        ->and($request->allPages)->toBeFalse()
+        ->and($request->resourceFilter)->toBe($this->filter);
+});
+
+it('test transform inputs to request to count resources as no admin without pagination', function () {
+    $this->contact->setAdmin(false);
+    $input = new CountResourcesInput('{"$and":[]}',true, null, null);
+    $request = CountResourcesRequestTransformer::transform($input, $this->filter, $this->contact);
+    expect($request->contactId)->toBe(1)
+        ->and($request->isAdmin)->toBeFalse()
+        ->and($request->allPages)->toBeTrue()
         ->and($request->resourceFilter)->toBe($this->filter);
 });
