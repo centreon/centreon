@@ -130,10 +130,4 @@ parameters:
             message: '#Unsafe usage of new static#'
             paths:
                 - src/Core/Common/Domain/ValueObject
-        - # Problem : usage exception handler instead of logger, so it's ok.
-          # [CENTREON-RULE]: Catch block must contain a Logger trait method call.
-            reportUnmatched: false
-            message: '#Catch block must contain a Logger trait method call.#'
-            paths:
-                - src/Core/Resources/Infrastructure/API/CountResources/CountResourcesController.php
 
