@@ -28,7 +28,6 @@ use Core\AgentConfiguration\Domain\Model\Poller;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {

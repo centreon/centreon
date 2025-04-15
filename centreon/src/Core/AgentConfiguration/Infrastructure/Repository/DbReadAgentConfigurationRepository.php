@@ -397,7 +397,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             depth: JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR
         );
         $type = Type::from($row['type']);
-        $connectionMode = match($row['connection_mode']) {
+        $connectionMode = match ($row['connection_mode']) {
             'secure' => ConnectionModeEnum::SECURE,
             'no-tls' => ConnectionModeEnum::NO_TLS,
             default => throw new \InvalidArgumentException('Invalid connection mode'),

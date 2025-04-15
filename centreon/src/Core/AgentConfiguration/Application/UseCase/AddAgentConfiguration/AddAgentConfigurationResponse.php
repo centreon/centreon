@@ -35,6 +35,7 @@ final class AddAgentConfigurationResponse
      * @param string $name
      * @param array<string,mixed> $configuration
      * @param Poller[] $pollers
+     * @param ConnectionModeEnum $connectionMode
      */
     public function __construct(
         public int $id = 0,
