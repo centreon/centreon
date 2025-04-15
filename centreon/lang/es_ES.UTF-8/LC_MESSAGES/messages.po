@@ -18016,66 +18016,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Display average as"
 # msgstr ""
 
-# msgid "No hosts in this group are currently enabled."
-# msgstr ""
-
-# msgid "No hosts in this group are currently disabled."
-# msgstr ""
-
-# msgid "Delete host group"
-# msgstr ""
-
-# msgid "Delete host groups"
-# msgstr ""
-
-# msgid "Host group deleted"
-# msgstr ""
-
-# msgid "Duplications"
-# msgstr ""
-
-# msgid "Host group disabled"
-# msgstr ""
-
-# msgid "Host group enabled"
-# msgstr ""
-
-# msgid "Host groups disabled"
-# msgstr ""
-
-# msgid "Host groups enabled"
-# msgstr ""
-
-# msgid "Add a host group"
-# msgstr ""
-
-# msgid "Modify a host group"
-# msgstr ""
-
-# msgid "Host groups duplicated"
-# msgstr ""
-
-# msgid "Host groups deleted"
-# msgstr ""
-
-# msgid "You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone."
-# msgstr ""
-
-# msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone."
-# msgstr ""
-
-# msgid "Failed to delete the host group"
-# msgstr ""
-
-# msgid "Failed to duplicate the host group"
-# msgstr ""
-
-# msgid "Failed to enable the host group"
-# msgstr ""
-
-# msgid "Failed to disable the host group"
-# msgstr ""
-
 # msgid "Host group created"
 # msgstr ""
 
@@ -18097,3 +18037,17 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Invalid geo-coordinate format"
 # msgstr ""
 
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""

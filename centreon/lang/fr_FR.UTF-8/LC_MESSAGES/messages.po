@@ -19743,7 +19743,7 @@ msgstr "Ajouter un groupe d'hôtes"
 msgid "Modify a host group"
 msgstr "Modifier un groupe d'hôtes"
 
-msgid "View a host group"  
+msgid "View a host group"
 msgstr "Voir un groupe d'hôtes"
 
 msgid "Host groups duplicated"
@@ -19794,18 +19794,20 @@ msgstr "Prévision basée sur les X derniers jours"
 msgid "Error while enabling/disabling host groups"
 msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
 
-msgid "Relative paths are not allowed"  
-msgstr "Les chemins relatifs ne sont pas autorisés"  
+msgid "Relative paths are not allowed"
+msgstr "Les chemins relatifs ne sont pas autorisés"
 
-msgid "Invalid path"  
-msgstr "Chemin invalide"  
+msgid "Invalid path"
+msgstr "Chemin invalide"
 
-msgid "Invalid extension"  
-msgstr "Extension invalide"  
+msgid "Invalid extension"
+msgstr "Extension invalide"
 
 msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
+msgid "Requested authentication context"
+msgstr "Contexte d'authentification requis"
 
 msgid "Host group created"
 msgstr "Groupe d'hôtes créé"
@@ -19827,6 +19829,18 @@ msgstr "Coordonnées géographiques pour MAP"
 
 msgid "Invalid geo-coordinate format"
 msgstr "Format de coordonnées géographiques invalide"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Exact"
+msgstr "Exact"
+
+msgid "Better"
+msgstr "Renforcé"
+
+msgid "Maximum"
+msgstr "Maximum"
 
 msgid "Add host"
 msgstr "Ajouter un hôte"

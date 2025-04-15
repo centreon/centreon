@@ -18499,30 +18499,6 @@ msgstr ""
 # msgid "Display average as"
 # msgstr ""
 
-# msgid "Failed to delete"
-# msgstr ""
-
-# msgid "Failed to duplicate"
-# msgstr ""
-
-# msgid "Failed to enable"
-# msgstr ""
-
-# msgid "Failed to disable"
-# msgstr ""
-
-# msgid "Failed to delete the host group"
-# msgstr ""
-
-# msgid "Failed to duplicate the host group"
-# msgstr ""
-
-# msgid "Failed to enable the host group"
-# msgstr ""
-
-# msgid "Failed to disable the host group"
-# msgstr ""
-
 # msgid "Host group created"
 # msgstr ""
 
@@ -18544,3 +18520,17 @@ msgstr ""
 # msgid "Invalid geo-coordinate format"
 # msgstr ""
 
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""
