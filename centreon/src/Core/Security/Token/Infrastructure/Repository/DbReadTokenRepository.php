@@ -68,7 +68,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
         $this->sqlRequestTranslator->setConcordanceArray([
             'user.id' => 'user_id',
             'user.name' => 'user_name',
-            'token_name' => 'token_name',
+            'token_name' => 'name',
             'creator.id' => 'creator_id',
             'creator.name' => 'creator_name',
             'creation_date' => 'creation_date',
@@ -417,7 +417,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             $search = $this->sqlRequestTranslator->translateSearchParameterToSql();
             // Sort
             $sort = $this->sqlRequestTranslator->translateSortParameterToSql();
-            $sort .= ! is_null($sort)
+            $sort = ! is_null($sort)
                 ? $sort
                 : ' ORDER BY creation_date ASC';
             // Pagination

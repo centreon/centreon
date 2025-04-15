@@ -2730,7 +2730,7 @@ CREATE TABLE IF NOT EXISTS `jwt_tokens` (
     `expiration_date` bigint UNSIGNED DEFAULT NULL COMMENT 'Expiration date of the token',
     PRIMARY KEY (`token_name`),
     CONSTRAINT `jwt_tokens_user_id_fk` FOREIGN KEY (`creator_id`)
-    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for JWT tokens';
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

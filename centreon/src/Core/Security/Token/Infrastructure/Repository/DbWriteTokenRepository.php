@@ -54,11 +54,11 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
             $this->connection->delete
             (
                 <<<'SQL'
-                        DELETE FROM security_tokens tokens
-                        JOIN security_authentication_tokens sat
-                            ON sat.provider_token_id = tokens.id
-                        WHERE sat.token_name = :tokenName
-                            AND sat.user_id = :userId
+                    DELETE tokens FROM security_token tokens
+                    JOIN security_authentication_tokens sat
+                        ON sat.provider_token_id = tokens.id
+                    WHERE sat.token_name = :tokenName
+                        AND sat.user_id = :userId
                     SQL,
                 QueryParameters::create([
                     QueryParameter::string('tokenName', $tokenName),
@@ -69,9 +69,11 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
             $this->connection->delete(
                 $this->queryBuilder->delete('jwt_tokens')
                     ->where('token_name = :tokenName')
+                    ->where('creator_id = :userId')
                     ->getQuery(),
                 QueryParameters::create([
                     QueryParameter::string('tokenName', $tokenName),
+                    QueryParameter::int('userId', $userId),
                 ])
             );
         } catch (BusinessLogicException $exception) {
