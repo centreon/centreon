@@ -69,7 +69,6 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
                         match ($agentConfiguration->getConnectionMode()) {
                             ConnectionModeEnum::NO_TLS => 'no-tls',
                             ConnectionModeEnum::SECURE => 'secure',
-                            default => throw new \InvalidArgumentException('Invalid connection mode')
                         }
                     ),
                     QueryParameter::string(
@@ -112,7 +111,6 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
                         match ($agentConfiguration->getConnectionMode()) {
                             ConnectionModeEnum::NO_TLS => 'no-tls',
                             ConnectionModeEnum::SECURE => 'secure',
-                            default => throw new \InvalidArgumentException('Invalid connection mode')
                         }
                     ),
                     QueryParameter::string(

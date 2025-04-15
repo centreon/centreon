@@ -44,6 +44,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  *  id:int,
  *  type:string,
  *  name:string,
+ *  connection_mode:string,
  *  configuration:string,
  * }
  */
