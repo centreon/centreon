@@ -37,7 +37,6 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 class CountResourcesInputDenormalizer implements DenormalizerInterface, DenormalizerAwareInterface
 {
     use DenormalizerAwareTrait;
-
     private const ALREADY_CALL = self::class . 'already_called';
 
     /**

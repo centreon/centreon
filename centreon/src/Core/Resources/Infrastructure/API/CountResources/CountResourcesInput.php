@@ -27,11 +27,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CountResourcesInput
 {
-    /**
-     * CountResourcesInput constructor
-     *
-     * @param string|null $search
-     */
     public function __construct(
         #[Assert\NotBlank(message: 'search parameter is required')]
         #[Assert\Json(message: 'search parameter must be a valid JSON')]
