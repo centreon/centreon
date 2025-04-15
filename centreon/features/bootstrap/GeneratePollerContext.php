@@ -19,6 +19,14 @@ class GeneratePollerContext extends CentreonContext
         $this->setConfirmBox(true);
         $this->pollers_page->selectEntry('Central');
         $this->pollers_page->duplicateAction();
+        // Wait until the element for 'Central_1' is available
+        $this->spin(function($context) {
+            return $context->getSession()->getPage()->find(
+                'xpath', 
+                "//a[text()='Central_1']/../../td/a/img[@alt='Enabled']/.."
+            ) !== null;
+        }, "Element for 'Central_1' not found after waiting", 10);
+
         $this->pollers_page->enableEntry('Central_1');
     }
 

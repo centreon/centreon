@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89cf2db74b7bebfe57158a9a254caaf0",
+    "content-hash": "9d36ec31fe5871d59c372e7f81aaa0ec",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -72,6 +72,69 @@
                 "source": "https://github.com/beberlei/assert/tree/v3.3.2"
             },
             "time": "2021-12-16T21:41:27+00:00"
+        },
+        {
+            "name": "centreon/smarty",
+            "version": "v3.1.48+1-centreon",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/centreon/smarty.git",
+                "reference": "1781aa73b610291fe18a0abdf062052c51092d3a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/centreon/smarty/zipball/1781aa73b610291fe18a0abdf062052c51092d3a",
+                "reference": "1781aa73b610291fe18a0abdf062052c51092d3a",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.2 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7.5 || ^6.5 || ^5.7 || ^4.8",
+                "smarty/smarty-lexer": "^3.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "libs/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Monte Ohrt",
+                    "email": "monte@ohrt.com"
+                },
+                {
+                    "name": "Uwe Tews",
+                    "email": "uwe.tews@googlemail.com"
+                },
+                {
+                    "name": "Rodney Rehm",
+                    "email": "rodney.rehm@medialize.de"
+                }
+            ],
+            "description": "Centreon Smarty - the compiling PHP template engine fork by Centreon",
+            "homepage": "http://www.smarty.net",
+            "keywords": [
+                "templating"
+            ],
+            "support": {
+                "forum": "http://www.smarty.net/forums/",
+                "irc": "irc://irc.freenode.org/smarty",
+                "issues": "https://github.com/smarty-php/smarty/issues",
+                "source": "https://github.com/centreon/smarty/tree/v3.1.48+1-centreon"
+            },
+            "time": "2025-01-17T09:07:47+00:00"
         },
         {
             "name": "curl/curl",
@@ -1989,69 +2052,6 @@
                 "source": "https://github.com/smarty-gettext/smarty-gettext/tree/1.6.2"
             },
             "time": "2021-02-23T22:00:29+00:00"
-        },
-        {
-            "name": "smarty/smarty",
-            "version": "v3.1.46",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/smarty-php/smarty.git",
-                "reference": "b3ade90dece67812410954528e0039fb5b73bcf7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/b3ade90dece67812410954528e0039fb5b73bcf7",
-                "reference": "b3ade90dece67812410954528e0039fb5b73bcf7",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^7.5 || ^6.5 || ^5.7 || ^4.8",
-                "smarty/smarty-lexer": "^3.1"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.1.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "libs/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Monte Ohrt",
-                    "email": "monte@ohrt.com"
-                },
-                {
-                    "name": "Uwe Tews",
-                    "email": "uwe.tews@googlemail.com"
-                },
-                {
-                    "name": "Rodney Rehm",
-                    "email": "rodney.rehm@medialize.de"
-                }
-            ],
-            "description": "Smarty - the compiling PHP template engine",
-            "homepage": "http://www.smarty.net",
-            "keywords": [
-                "templating"
-            ],
-            "support": {
-                "forum": "http://www.smarty.net/forums/",
-                "irc": "irc://irc.freenode.org/smarty",
-                "issues": "https://github.com/smarty-php/smarty/issues",
-                "source": "https://github.com/smarty-php/smarty/tree/v3.1.46"
-            },
-            "time": "2022-08-01T21:58:13+00:00"
         },
         {
             "name": "symfony/cache",
@@ -6565,12 +6565,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "1ed402fa5bf72b511fd9d520f6ff3aade97ac80f"
+                "reference": "a688fb07bc646389d57cb3d0cf67fbf27ad84077"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/1ed402fa5bf72b511fd9d520f6ff3aade97ac80f",
-                "reference": "1ed402fa5bf72b511fd9d520f6ff3aade97ac80f",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/a688fb07bc646389d57cb3d0cf67fbf27ad84077",
+                "reference": "a688fb07bc646389d57cb3d0cf67fbf27ad84077",
                 "shasum": ""
             },
             "require": {
@@ -6619,7 +6619,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/22.10.x"
             },
-            "time": "2025-01-28T10:49:04+00:00"
+            "time": "2025-03-25T14:52:06+00:00"
         },
         {
             "name": "composer/pcre",
@@ -11703,7 +11703,7 @@
         "ext-openssl": "*",
         "ext-phar": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.1"
     },
