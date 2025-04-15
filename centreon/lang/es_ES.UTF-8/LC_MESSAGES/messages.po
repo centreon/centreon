@@ -18038,6 +18038,21 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Display average as"
 # msgstr ""
 
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""
+
 # ---- EXPORT CSV ----
 
 # msgid "Notifications enabled"
@@ -18078,3 +18093,5 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "Export format not supported"
 # msgstr ""
+
+# ---- END EXPORT CSV ----

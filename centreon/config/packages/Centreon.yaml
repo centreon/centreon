@@ -96,6 +96,9 @@ services:
       arguments:
         $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
 
+    Core\Common\Domain\Repository\RepositoryManagerInterface:
+      class: Core\Common\Infrastructure\Repository\DatabaseRepositoryManager
+
     jms_serializer.object_constructor:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
         public: false

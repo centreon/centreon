@@ -17683,6 +17683,21 @@ msgstr "Erweiterter Modus"
 # msgid "Failed to disable the host group"
 # msgstr ""
 
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""
+
 # ---- EXPORT CSV ----
 
 # msgid "Notifications enabled"
@@ -17723,3 +17738,5 @@ msgstr "Erweiterter Modus"
 
 # msgid "Export format not supported"
 # msgstr ""
+
+# ---- END EXPORT CSV ----

@@ -25,7 +25,6 @@ namespace Tests\Core\AgentConfiguration\Application\UseCase\UpdateAgentConfigura
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
@@ -40,6 +39,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
@@ -55,7 +55,7 @@ beforeEach(function (): void {
         readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         readMonitoringServerRepository: $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         validator: $this->validator = $this->createMock(Validator::class),
-        dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
+        repositoryManager: $this->dataStorageEngine = $this->createMock(RepositoryManagerInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
     );
 

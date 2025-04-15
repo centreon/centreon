@@ -19809,6 +19809,36 @@ msgstr "Extension invalide"
 msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
+msgid "Requested authentication context"
+msgstr "Contexte d'authentification requis"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Exact"
+msgstr "Exact"
+
+msgid "Better"
+msgstr "Renforcé"
+
+msgid "Maximum"
+msgstr "Maximum"
+
+msgid "Add host"
+msgstr "Ajouter un hôte"
+
+msgid "Add a host"
+msgstr "Ajouter un hôte"
+
+msgid "Host configurations"
+msgstr "Configurations d'hôte"
+
+msgid "Connection initiated by poller"
+msgstr "Connexion initiée par le collecteur"
+
+msgid "OTLP Receiver"
+msgstr "Récepteur OTLP"
+
 # ---- EXPORT CSV ----
 
 msgid "Resource Type"
@@ -19832,21 +19862,7 @@ msgstr "Erreur lors de la création de la demande d'exportation"
 msgid "Export format not supported"
 msgstr "Format d'export non supporté"
 
-msgid "Add host"
-msgstr "Ajouter un hôte"
-
-msgid "Add a host"
-msgstr "Ajouter un hôte"
-
-msgid "Host configurations"
-msgstr "Configurations d'hôte"
-
-msgid "Connection initiated by poller"
-msgstr "Connexion initiée par le collecteur"
-
-msgid "OTLP Receiver"
-msgstr "Récepteur OTLP"
-
 msgid "Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows."
 msgstr "L'export sera traité mais ne contiendra pas toutes les lignes. Vous pouvez cependant filtrer vos ressources pour réduire le nombre de lignes."
 
+# ---- END EXPORT CSV ----
