@@ -107,7 +107,7 @@ MYSQL_OPTIONS_TEST="$MYSQL_OPTIONS_LOCAL --user=$OCF_RESKEY_test_user --password
 MYSQL_TOO_MANY_CONN_ERR=1040
 
 CRM_MASTER="${HA_SBIN_DIR}/crm_master -l reboot "
-NODENAME=$(ocf_local_nodename)
+NODENAME=$(ocf_local_nodename) # will perform the crm_node -n command for pacemaker version > 1.1.8
 CRM_ATTR="${HA_SBIN_DIR}/crm_attribute -N $NODENAME "
 INSTANCE_ATTR_NAME=`echo ${OCF_RESOURCE_INSTANCE}| awk -F : '{print $1}'`
 CRM_ATTR_REPL_INFO="${HA_SBIN_DIR}/crm_attribute --type crm_config --name ${INSTANCE_ATTR_NAME}_REPL_INFO -s mysql_replication"
