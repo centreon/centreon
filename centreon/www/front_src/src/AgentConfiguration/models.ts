@@ -18,12 +18,12 @@ export interface AgentConfigurationListing {
 }
 
 export interface TelegrafConfiguration {
-  otelPublicCertificate: string;
+  otelPublicCertificate: string | null;
   otelCaCertificate: string | null;
-  otelPrivateKey: string;
+  otelPrivateKey: string | null;
   confServerPort: string | number;
-  confCertificate: string;
-  confPrivateKey: string;
+  confCertificate: string | null;
+  confPrivateKey: string | null;
 }
 
 export interface HostConfiguration {
@@ -35,9 +35,9 @@ export interface HostConfiguration {
 
 export interface CMAConfiguration {
   isReverse: boolean;
-  otelPublicCertificate: string;
+  otelPublicCertificate: string | null;
   otelCaCertificate: string | null;
-  otelPrivateKey: string;
+  otelPrivateKey: string | null;
   hosts: Array<HostConfiguration>;
 }
 

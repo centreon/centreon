@@ -32,12 +32,12 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
 
 const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
   {
-    otelPrivateKey: JsonDecoder.string,
-    otelPublicCertificate: JsonDecoder.string,
+    otelPrivateKey: JsonDecoder.nullable(JsonDecoder.string),
+    otelPublicCertificate: JsonDecoder.nullable(JsonDecoder.string),
     otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
-    confPrivateKey: JsonDecoder.string,
+    confPrivateKey: JsonDecoder.nullable(JsonDecoder.string),
     confServerPort: JsonDecoder.number,
-    confCertificate: JsonDecoder.string
+    confCertificate: JsonDecoder.nullable(JsonDecoder.string)
   },
   'Telegraf configuration',
   {
@@ -53,9 +53,9 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
     isReverse: JsonDecoder.boolean,
-    otelPublicCertificate: JsonDecoder.string,
+    otelPublicCertificate: JsonDecoder.nullable(JsonDecoder.string),
     otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
-    otelPrivateKey: JsonDecoder.string,
+    otelPrivateKey: JsonDecoder.nullable(JsonDecoder.string),
     hosts: JsonDecoder.array(
       JsonDecoder.object(
         {
@@ -85,7 +85,7 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
 export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
   {
     name: JsonDecoder.string,
-    connectionMode: JsonDecoder.optional(JsonDecoder.string), //for now
+    connectionMode: JsonDecoder.string,
     type: JsonDecoder.enumeration<AgentType>(AgentType, 'Agent type'),
     pollers: JsonDecoder.array(
       JsonDecoder.object(
