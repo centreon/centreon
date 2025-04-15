@@ -128,6 +128,10 @@ services:
         class: Core\Common\Infrastructure\Repository\ReadVaultRepository
         public: true
 
+    Symfony\Component\HttpClient\AmpHttpClient:
+        class: Symfony\Component\HttpClient\AmpHttpClient
+        public: true
+
     # JSON Validator
     Centreon\Domain\Service\JsonValidator\Interfaces\JsonValidatorInterface:
         class: Centreon\Domain\Service\JsonValidator\Validator
