@@ -60,7 +60,7 @@ runs:
         fi
 
         # Handle either standard debian or ubuntu repository path
-        if [[ "${{ inputs.distrib }}" == "jammy" ]]; then
+        if [[ "${{ inputs.distrib }}" == "jammy" ]] || [[ "${{ inputs.distrib }}" == "noble" ]]; then
           ROOT_REPO_PATH="ubuntu-standard-${{ inputs.version }}-${{ inputs.stability }}"
         else
           ROOT_REPO_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}"
