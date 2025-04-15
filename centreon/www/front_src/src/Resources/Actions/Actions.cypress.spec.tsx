@@ -561,7 +561,7 @@ describe('CSV export', () => {
     cy.get('@modal').should('not.be.visible')
     cy.contains(labelExportProcessingInProgress);
 
-    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=${encodeURIComponent(JSON.stringify({ status_severity_code: 'desc', last_status_change: 'desc' }))}&search=${encodeURIComponent(JSON.stringify(search))}&all_pages=true&max_lines=10000&columns[]=status&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=tries&columns[]=last_check&columns[]=information&columns[]=severity&columns[]=notes_url&columns[]=action_url&columns[]=state&columns[]=alias&columns[]=parent_alias&columns[]=fqdn&columns[]=monitoring_server_name&columns[]=notification&columns[]=checks&format=csv`;
+    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=${encodeURIComponent(JSON.stringify({ status_severity_code: 'desc', last_status_change: 'desc' }))}&search=${encodeURIComponent(JSON.stringify(search))}&all_pages=true&max_lines=10000&columns[]=status&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&columns[]=severity&columns[]=notes_url&columns[]=action_url&columns[]=state&columns[]=alias&columns[]=parent_alias&columns[]=fqdn&columns[]=monitoring_server_name&columns[]=notification&columns[]=checks&format=csv`;
     cy.get('@windowOpen').should(
       'be.calledWith',
       expectedUrl,
