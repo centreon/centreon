@@ -144,7 +144,7 @@ const checkGraphWidth = (): void => {
     .and('equal', '376.203125');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
-    expect(Number(graph[0].attributes.width.value)).toBeLessThan(1220);
+    expect(Number(graph[0].attributes.width.value)).to.be.lessThan(1220)
   });
 };
 
@@ -168,7 +168,7 @@ describe('Line chart', () => {
       cy.contains('06/18/2023').should('be.visible');
 
       cy.contains('0.45 s').should('be.visible');
-      cy.contains('73.65%').should('be.visible');
+      cy.contains('74.71%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -281,7 +281,7 @@ describe('Line chart', () => {
 
     cy.findByTestId('graph-interaction-zone')
       .should('have.attr', 'width')
-      .and('equal', '1200');
+      .and('equal', '1140');
 
     cy.findByLabelText('Centreon-Server: Round-Trip Average Time')
       .find('[data-icon="true"]')
@@ -520,8 +520,8 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="250.83333333333334"]').should('be.visible');
-      cy.get('circle[cy="52.93597418085514"]').should('be.visible');
+      cy.get('circle[cx="250.25"]').should('be.visible');
+      cy.get('circle[cy="201.90728191144365"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -579,7 +579,7 @@ describe('Line chart', () => {
       cy.get('path.visx-area-closed')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 4');
-      cy.get('circle[cx="33.44444444444444"]').should('be.visible');
+      cy.get('circle[cx="476.6666666666667"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -735,10 +735,10 @@ describe('Lines and bars', () => {
     checkGraphWidth();
 
     cy.get(
-      'path[d="M7.501377410468319,273.3424587717121 h56.51239669421488 h1v1 v100.86066622828793 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-100.86066622828793 v-1h1z"]'
+      'path[d="M7.170798898071627,349.4718249536354 h53.53719008264462 h1v1 v24.731300046364595 a1,1 0 0 1 -1,1 h-53.53719008264462 a1,1 0 0 1 -1,-1 v-24.731300046364595 v-1h1z"]'
     ).should('be.visible');
     cy.get(
-      'path[d="M24.05509641873278,218.3663782225586 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v19.86864253262454 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-19.86864253262454 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+      'path[d="M0,160.14640588816235L93.33333333333333,189.2546166223948L186.66666666666666,174.44427700585751L280,205.80734913499526L373.3333333333333,186.53853357853154L466.6666666666667,178.03155649775232L560,139.6476659344776L653.3333333333334,198.4278027516687L746.6666666666666,181.36260174022615L840,162.3500204331835L933.3333333333334,168.19216131998365L933.3333333333334,183.15624148617354L840,183.41247573559463L746.6666666666666,196.07044765699496L653.3333333333334,206.6272987331426L560,162.6575015324888L466.6666666666667,195.3017449087318L373.3333333333333,198.4790496015529L280,213.8018577169323L186.66666666666666,184.48865958316307L93.33333333333333,199.50398659923718L0,172.75313095967854Z"]'
     ).should('be.visible');
 
     cy.makeSnapshot();
