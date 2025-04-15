@@ -764,7 +764,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources?types=[\"service\"]",
+							"raw": "{{baseUrl}}/monitoring/resources?types=[\"host\"]",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -775,7 +775,7 @@
 							"query": [
 								{
 									"key": "types",
-									"value": "[\"service\"]"
+									"value": "[\"host\"]"
 								}
 							]
 						}
