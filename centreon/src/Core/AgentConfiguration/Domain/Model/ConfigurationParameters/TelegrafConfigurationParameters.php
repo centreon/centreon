@@ -79,6 +79,7 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
             $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
         }
 
+        /** @var _TelegrafParameters $parameters */
         $this->parameters = $parameters;
     }
 

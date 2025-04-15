@@ -94,6 +94,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
             $this->validateOptionalCertificate($host['poller_ca_name'], 'configuration.hosts[].poller_ca_name');
         }
 
+        /** @var _CmaParameters $parameters */
         $this->parameters = $parameters;
     }
 
