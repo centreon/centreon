@@ -161,7 +161,7 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
     $pearDB->executeStatement(
         <<<'SQL'
             ALTER TABLE `agent_configuration`
-            ADD COLUMN `connection_mode` ENUM('tls', 'no_tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
+            ADD COLUMN `connection_mode` ENUM('no-tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
         SQL
     );
 };

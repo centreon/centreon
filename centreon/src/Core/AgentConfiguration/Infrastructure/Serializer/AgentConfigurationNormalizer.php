@@ -53,7 +53,7 @@ class AgentConfigurationNormalizer implements NormalizerInterface
         $data = $this->normalizer->normalize($object, $format, $context);
         $data['connection_mode'] = match ($object->getConnectionMode()) {
             ConnectionModeEnum::SECURE => 'secure',
-            ConnectionModeEnum::NO_TLS => 'no_tls',
+            ConnectionModeEnum::NO_TLS => 'no-tls',
             default => throw new \InvalidArgumentException('Invalid connection mode'),
         };
 
