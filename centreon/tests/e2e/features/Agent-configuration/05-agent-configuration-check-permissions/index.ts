@@ -71,12 +71,11 @@ Then('a pop-up menu with the form is displayed', () => {
 
 When('the admin user fills in all the information', () => {
   cy.addTelegrafAgent(agentsConfiguration.telegraf1);
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
-  cy.wait('@addAgents');
 });
 
 When('the user clicks on Save', () => {
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.waitForElementToBeVisible('[data-testid="SaveIcon"]');
+  cy.get('[data-testid="SaveIcon"]').click();
 });
 
 Then('the creation form is closed', () => {

@@ -5,9 +5,6 @@ useDefault = true
 
 [allowlist]
 paths = [
-  '''test(|s)\/''',
-  '''Test(|s)\/''',
-  '''feature(|s)\/''',
   '''node_modules\/''',
   '''vendor\/''',
   '''(.*?)\.rptlibrary''',
@@ -23,6 +20,5 @@ paths = [
 
 regexTarget = "match"
 regexes = [
-  '''ABCDEFG1234567890''',
-  '''s.aBCD123DEF456GHI789JKL012'''
+  '''ABCDEFG1234567890'''
 ]
