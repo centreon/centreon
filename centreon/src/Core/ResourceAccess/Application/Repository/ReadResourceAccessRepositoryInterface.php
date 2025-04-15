@@ -145,7 +145,7 @@ interface ReadResourceAccessRepositoryInterface
     public function existByTypeAndResourceId(string $type, int $resourceId): array;
 
     /**
-     * Retrieve rules by host group ID.
+     * Retrieve rules by host group ID and type (include 'all' type).
      *
      * @param string $type dataset filter type
      * @param int $resourceId
@@ -158,7 +158,6 @@ interface ReadResourceAccessRepositoryInterface
 
     /**
      * Retrieve rules by resource ID and user ID for a specified type.
-     * Exclude rules that have dataset with type "All resources" and with "all [type]" checked.
      *
      * @param string $type dataset filter type
      * @param int $resourceId
@@ -172,7 +171,6 @@ interface ReadResourceAccessRepositoryInterface
 
     /**
      * Retrieve rules by resource ID and contact groups for a specified type.
-     * Exclude rules that have dataset with type "All resources" and with "all [type]" checked.
      *
      * @param string $type dataset filter type
      * @param ContactGroup[] $contactGroups

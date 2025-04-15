@@ -605,8 +605,14 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
                     FROM `:db`.acl_groups
                     INNER JOIN `:db`.dataset_filters
                         ON dataset_filters.acl_group_id = acl_groups.acl_group_id
-                        AND type = :type
-                        AND dataset_filters.resource_ids REGEXP('(^|,)({$resourceId})(,|$)')
+                        AND (
+                            type = :type
+                            OR type = 'all'
+                        )
+                        AND (
+                            dataset_filters.resource_ids = ''
+                            OR dataset_filters.resource_ids REGEXP('(^|,)({$resourceId})(,|$)')
+                        )
                     WHERE acl_groups.cloud_specific = 1
                         AND (
                             all_contacts = 1
@@ -660,8 +666,14 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
                     FROM `:db`.acl_groups
                     INNER JOIN `:db`.dataset_filters
                         ON dataset_filters.acl_group_id = acl_groups.acl_group_id
-                        AND type = :type
-                        AND dataset_filters.resource_ids REGEXP('(^|,)({$resourceId})(,|$)')
+                        AND (
+                            type = :type
+                            OR type = 'all'
+                        )
+                        AND (
+                            dataset_filters.resource_ids = ''
+                            OR dataset_filters.resource_ids REGEXP('(^|,)({$resourceId})(,|$)')
+                        )
                     WHERE acl_groups.cloud_specific = 1
                         AND (
                             all_contact_groups = 1
