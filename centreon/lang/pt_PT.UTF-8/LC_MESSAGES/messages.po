@@ -18226,16 +18226,16 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Extension not allowed"
 # msgstr ""
 
-# msgid "Public certificate file name"
+# msgid "Public certificate"
 # msgstr ""
 
-# msgid "CA file name"
+# msgid "CA"
 # msgstr ""
 
-# msgid "Certificate file name"
+# msgid "CA Common Name (CN)"
 # msgstr ""
 
-# msgid "Private key file name"
+# msgid "Private key"
 # msgstr ""
 
 # msgid "Configuration server"
@@ -18329,4 +18329,13 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "The minimum allowed value is 10"
+# msgstr ""
+
+# msgid "Relative paths are not allowed"
+# msgstr ""
+
+# msgid "Invalid path"
+# msgstr ""
+
+# msgid "Invalid extension"
 # msgstr ""
