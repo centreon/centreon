@@ -31,7 +31,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     hostTouched,
     changePort,
     changeStringInput,
-    areCertificateFieldsvisble
+    areCertificateFieldsVisible
   } = useHostConfiguration({
     index
   });
@@ -90,7 +90,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
           }
         }}
       />
-      {areCertificateFieldsvisble && (
+      {areCertificateFieldsVisible && (
         <TextField
           value={host?.pollerCaCertificate || ''}
           onChange={changeStringInput('pollerCaCertificate')}
@@ -112,7 +112,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
         />
       )}
 
-      {areCertificateFieldsvisble && (
+      {areCertificateFieldsVisible && (
         <TextField
           value={host?.pollerCaName || ''}
           onChange={changeStringInput('pollerCaName')}

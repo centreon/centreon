@@ -18,7 +18,7 @@ interface UseHostConfigurationState {
   ) => (event: ChangeEvent<HTMLInputElement>) => void;
   hostErrors: Partial<HostConfiguration> | undefined;
   hostTouched: Partial<HostConfiguration> | undefined;
-  areCertificateFieldsvisble: boolean;
+  areCertificateFieldsVisible: boolean;
 }
 
 export const useHostConfiguration = ({
@@ -96,7 +96,7 @@ export const useHostConfiguration = ({
     [touched, index]
   );
 
-  const areCertificateFieldsvisble = equals(
+  const areCertificateFieldsVisible = equals(
     values?.connectionMode?.id,
     'secure'
   );
@@ -108,6 +108,6 @@ export const useHostConfiguration = ({
     selectHost,
     hostErrors,
     hostTouched,
-    areCertificateFieldsvisble
+    areCertificateFieldsVisible
   };
 };
