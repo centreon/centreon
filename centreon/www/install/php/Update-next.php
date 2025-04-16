@@ -22,18 +22,14 @@
 require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$versionOfTheUpgrade = 'UPGRADE - 24.10.7: ';
+$version = 'xx.xx.x';
 $errorMessage = '';
 
-
-
 try {
-
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
-
 
     $pearDB->commit();
 } catch (\Exception $e) {
@@ -44,7 +40,7 @@ try {
     } catch (PDOException $e) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation",
             customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
             exception: $e
         );
@@ -52,10 +48,10 @@ try {
 
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: $versionOfTheUpgrade . $errorMessage,
+        message: "UPGRADE - {$version}: " . $errorMessage,
         customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
         exception: $e
     );
 
-    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $e->getCode(), $e);
 }
