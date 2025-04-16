@@ -18046,3 +18046,18 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "Displays availability and alerts of a Business Activity for a given period."
 # msgstr ""
+
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""

@@ -19812,6 +19812,21 @@ msgstr "Disponibilité d'une Activité Métier"
 msgid "Displays availability and alerts of a Business Activity for a given period."
 msgstr "Affiche la disponibilité et les alertes d'une activité métier pour une période donnée."
 
+msgid "Requested authentication context"
+msgstr "Contexte d'authentification requis"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Exact"
+msgstr "Exact"
+
+msgid "Better"
+msgstr "Renforcé"
+
+msgid "Maximum"
+msgstr "Maximum"
+
 msgid "Add host"
 msgstr "Ajouter un hôte"
 
