@@ -30,8 +30,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     hostErrors,
     hostTouched,
     changePort,
-    changeStringInput,
-    areCertificateFieldsVisible
+    areCertificateFieldsVisible,
+    changeStringInput
   } = useHostConfiguration({
     index
   });
