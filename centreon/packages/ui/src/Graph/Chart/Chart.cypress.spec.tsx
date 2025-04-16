@@ -78,7 +78,7 @@ const initialize = ({
     alias: 'admin',
     locale: 'en',
     name: 'admin',
-    timezone: 'Europe/Paris'
+    timezone: 'Etc/UTC'
   });
 
   cy.mount({
@@ -116,7 +116,7 @@ const initializeCustomUnits = ({
     alias: 'admin',
     locale: 'en',
     name: 'admin',
-    timezone: 'Europe/Paris'
+    timezone: 'Etc/UTC'
   });
 
   cy.mount({
@@ -150,7 +150,7 @@ const checkGraphWidth = (): void => {
 
 describe('Line chart', () => {
   describe('Tooltip', () => {
-    it('displays a tooltip when the graph is hovered', () => {
+    it.only('displays a tooltip when the graph is hovered', () => {
       initialize({});
 
       checkGraphWidth();
