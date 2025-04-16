@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "aaea2561-bcd3-4d88-a1d6-a27354f0934a",
+		"_postman_id": "3f79b9ad-aa7e-471e-82e0-fc61c4aacf91",
 		"name": "Service_Severity",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-aaea2561-bcd3-4d88-a1d6-a27354f0934a?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -2240,15 +2239,13 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"\r",
 									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity1Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceSeverity1Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
@@ -2256,9 +2253,27 @@
 									"        \"icon_id\": 1,\r",
 									"        \"is_activated\": false\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2269,7 +2284,8 @@
 									"pm.collectionVariables.set(\"ServiceSeverity1Alias\", \"I'm a service severity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2331,9 +2347,46 @@
 									"        \"is_activated\": false\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2379,14 +2432,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity2Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity2Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceSeverity2Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity2Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity2Alias\"),\r",
@@ -2395,9 +2448,27 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2408,7 +2479,8 @@
 									"pm.collectionVariables.set(\"ServiceSeverity2Alias\", \"Oh I'm your second severity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2439,7 +2511,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available service severities (6)",
+					"name": "Show available service severities (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -2478,9 +2550,46 @@
 									"        \"icon_id\": 2,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2531,9 +2640,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n[level] The property level is required\\n[icon_id] The property icon_id is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2542,7 +2666,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2584,9 +2709,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[NewServiceSeverity::name] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2595,7 +2735,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2637,9 +2778,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[alias] The property alias is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2648,7 +2804,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2690,9 +2847,24 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[alias] NULL value found, but a string is required\\n[level] String value found, but an integer is required\\n[icon_id] NULL value found, but an integer is required\\n[is_activated] String value found, but a boolean is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2701,7 +2873,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2738,14 +2911,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity3Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity3Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceSeverity3Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity3Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity3Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity3Alias\"),\r",
@@ -2754,9 +2927,27 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2767,7 +2958,8 @@
 									"pm.collectionVariables.set(\"ServiceSeverity3Alias\", \"Finally, a third successful severity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2847,9 +3039,46 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3036,9 +3265,46 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3216,15 +3482,13 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
 									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity4Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity4Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceSeverity4Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity4Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity4Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity4Alias\"),\r",
@@ -3233,9 +3497,27 @@
 									"        \"is_activated\": false\r",
 									"    });\r",
 									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3246,7 +3528,8 @@
 									"pm.collectionVariables.set(\"ServiceSeverity4Alias\", \"I'm the fourth successful severity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3326,9 +3609,46 @@
 									"        \"is_activated\": false\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3515,9 +3835,46 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3946,14 +4303,14 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity5Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new service severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity5Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"ServiceSeverity5Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.eql({\r",
+									"    pm.expect(responseJson).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity5Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity5Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity5Alias\"),\r",
@@ -3961,9 +4318,27 @@
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            id: { type: \"integer\" },\r",
+									"            name: { type: \"string\" },\r",
+									"            alias: { type: \"string\" },\r",
+									"            level: { type: \"integer\" },\r",
+									"            icon_id: { type: \"integer\" },\r",
+									"            is_activated: { type: \"boolean\" }\r",
+									"        },\r",
+									"        required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -3974,7 +4349,8 @@
 									"pm.collectionVariables.set(\"ServiceSeverity5Alias\", \"I'm the fifth successful severity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4036,9 +4412,46 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4088,9 +4501,24 @@
 									"pm.test(\"Service severity not found\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"    pm.expect(responseJson.message).to.eql(\"Service severity not found\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4099,7 +4527,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4141,9 +4570,24 @@
 									"pm.test(\"Service severity not found\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"    pm.expect(responseJson.message).to.eql(\"Service severity not found\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4152,7 +4596,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4326,9 +4771,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4337,7 +4797,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4379,9 +4840,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4390,7 +4866,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4432,9 +4909,24 @@
 									"pm.test(\"The user does not have the correct rights to delete service severity\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4443,7 +4935,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4492,7 +4985,7 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severities retrieved are listed with: name, alias, level, icon_id and is_activated\", function() {\r",
+									"pm.test(\"The service severities retrieved are listed with: name, alias, level, icon_id and is_activated\", function () {\r",
 									"    // Check the number of service severities (3)\r",
 									"    pm.expect(responseJson.result.length).to.eql(3);\r",
 									"\r",
@@ -4524,9 +5017,46 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4957,9 +5487,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -4968,7 +5513,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5030,9 +5576,46 @@
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            result: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    properties: {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        alias: { type: \"string\" },\r",
+									"                        level: { type: \"integer\" },\r",
+									"                        icon_id: { type: \"integer\" },\r",
+									"                        is_activated: { type: \"boolean\" }\r",
+									"                    },\r",
+									"                    required: [\"id\", \"name\", \"alias\", \"level\", \"icon_id\", \"is_activated\"]\r",
+									"                }\r",
+									"            },\r",
+									"            meta: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    page: { type: \"integer\" },\r",
+									"                    limit: { type: \"integer\" },\r",
+									"                    search: { type: \"object\" },\r",
+									"                    sort_by: { type: \"object\" },\r",
+									"                    total: { type: \"integer\" }\r",
+									"                }\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5083,9 +5666,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5094,7 +5692,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5136,9 +5735,24 @@
 									"pm.test(\"The user does not have the correct rights to delete service severities\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5147,7 +5761,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5323,9 +5938,24 @@
 									"pm.test(\"Service severity not found\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5376,9 +6006,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5387,7 +6032,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5429,9 +6075,24 @@
 									"    pm.response.to.have.status(403);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity update response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5440,7 +6101,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5482,9 +6144,24 @@
 									"pm.test(\"The user does not have the correct rights to delete service severities\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service severities\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the service severity deletion response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -5493,7 +6170,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -5526,275 +6204,6 @@
 				},
 				{
 					"name": "Logout from user with no access",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-									"    pm.environment.unset(\"token\");\r",
-									"    pm.environment.unset(\"currentUserName\");\r",
-									"    pm.environment.unset(\"currentUserID\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-AUTH-TOKEN",
-									"type": "string"
-								},
-								{
-									"key": "in",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
-							"variable": [
-								{
-									"key": "protocol",
-									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
-								},
-								{
-									"key": "server",
-									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server"
-								},
-								{
-									"key": "port",
-									"value": "{{port}}",
-									"description": "Port used by HTTP server"
-								},
-								{
-									"key": "version",
-									"value": "{{version}}",
-									"description": "Version of the API"
-								}
-							]
-						},
-						"description": "Entry point to delete an existing authentication token."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Reset",
-			"item": [
-				{
-					"name": "Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all service severities",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service severity\" + pm.collectionVariables.get(\"ServiceSeverity1Name\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity1Name\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity1Alias\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity1Id\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity1Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity1Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all service severities",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service severity\" + pm.collectionVariables.get(\"ServiceSeverity4Name\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity4Name\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity4Alias\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity4Id\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all service severities",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service severity\" + pm.collectionVariables.get(\"ServiceSeverity5Name\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity5Name\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity5Alias\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverit53Id\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity5Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity5Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "RAZ Logout from admin user",
 					"event": [
 						{
 							"listen": "test",
