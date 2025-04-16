@@ -194,7 +194,7 @@ try {
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();>>>>>>> develop
+        $pearDB->beginTransaction();
     }
 
     $updateTopologyForHostGroup($pearDB);
