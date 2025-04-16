@@ -137,6 +137,7 @@ const initializeCustomUnits = ({
 };
 
 const checkGraphWidth = (): void => {
+  cy.wait(300)
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
     .and('equal', '376.203125');
@@ -206,7 +207,7 @@ describe('Line chart', () => {
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1198, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(2000, 100);
 
       cy.get('[data-metric="querytime"]').should('not.exist');
 
