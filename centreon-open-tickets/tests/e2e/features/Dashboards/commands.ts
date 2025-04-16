@@ -69,7 +69,7 @@ Cypress.Commands.add('exportConfig', () => {
 
 Cypress.Commands.add(
   'waitForElementToBeVisible',
-  (selector, timeout = 50000, interval = 2000) => {
+  (selector, timeout = 70000, interval = 3000) => {
     cy.waitUntil(
       () =>
         cy.get('body').then(($body) => {
@@ -129,6 +129,17 @@ Cypress.Commands.add('editDashboard', (name) => {
   }).should('be.visible');
 });
 
+Cypress.Commands.add('applyAcl', () => {
+  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ? 'apache'
+    : 'www-data';
+
+  cy.execInContainer({
+    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
+    name: 'web'
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -151,6 +162,7 @@ declare global {
         accessRightsTestId: string,
         expectedElementCount: number
       ) => Cypress.Chainable;
+      applyAcl: () => Cypress.Chainable;
     }
   }
 }

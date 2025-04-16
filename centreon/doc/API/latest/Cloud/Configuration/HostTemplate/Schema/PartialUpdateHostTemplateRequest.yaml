@@ -107,6 +107,19 @@ properties:
 
       Once the host has been retried max_check_attempts times without a change in its status,
       it will revert to being scheduled at its "normal" check interval rate.
+  event_handler_enabled:
+    type: integer
+    description: |
+      Indicates whether the event handler is enabled or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+  event_handler_command_id:
+    type: integer
+    description: "Event handler command ID"
+    example: 1
+    nullable: true
   note_url:
     type: string
     nullable: true

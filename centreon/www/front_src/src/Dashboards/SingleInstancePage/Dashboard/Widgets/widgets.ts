@@ -33,6 +33,13 @@ const internalWidgets: Array<
     panelMinHeight: 2
   },
   {
+    name: 'metriccapacityplanning',
+    panelMinHeight: 4,
+    panelMinWidth: 8,
+    panelDefaultHeight: 5,
+    panelDefaultWidth: 12
+  },
+  {
     name: 'clock',
     panelDefaultHeight: 3,
     panelDefaultWidth: 6
