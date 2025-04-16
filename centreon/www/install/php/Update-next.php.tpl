@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,20 +20,25 @@
  */
 
 require_once __DIR__ . '/../../../bootstrap.php';
-require_once __DIR__ . '/../../class/centreonLog.class.php';
 
-$versionOfTheUpgrade = 'UPGRADE - 24.10.7: ';
+$version = 'xx.xx.x';
 $errorMessage = '';
 
-
+// TODO add your functions here
 
 try {
+    // DDL statements for real time database
+    // TODO add your function calls to update the real time database structure here
+
+    // DDL statements for configuration database
+    // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
 
+    // TODO add your function calls to update the configuration database data here
 
     $pearDB->commit();
 } catch (\Exception $e) {
@@ -44,7 +49,7 @@ try {
     } catch (PDOException $e) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "{$versionOfTheUpgrade} error while rolling back the upgrade operation",
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation",
             customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
             exception: $e
         );
@@ -52,10 +57,10 @@ try {
 
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: $versionOfTheUpgrade . $errorMessage,
+        message: "UPGRADE - {$version}: " . $errorMessage,
         customContext: ['error_message' => $e->getMessage(), 'trace' => $e->getTraceAsString()],
         exception: $e
     );
 
-    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $e->getCode(), $e);
 }
