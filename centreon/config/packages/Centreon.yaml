@@ -96,6 +96,9 @@ services:
       arguments:
         $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
 
+    Core\Common\Domain\Repository\RepositoryManagerInterface:
+      class: Core\Common\Infrastructure\Repository\DatabaseRepositoryManager
+
     jms_serializer.object_constructor:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
         public: false
@@ -123,6 +126,10 @@ services:
 
     Core\Common\Application\Repository\ReadVaultRepositoryInterface:
         class: Core\Common\Infrastructure\Repository\ReadVaultRepository
+        public: true
+
+    Symfony\Component\HttpClient\AmpHttpClient:
+        class: Symfony\Component\HttpClient\AmpHttpClient
         public: true
 
     # JSON Validator
