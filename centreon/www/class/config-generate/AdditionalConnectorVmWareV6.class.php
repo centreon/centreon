@@ -23,6 +23,8 @@ use Assert\AssertionFailedException;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, VSphereServer};
+use Core\Common\Application\UseCase\VaultTrait;
+use Pimple\Container;
 
 /**
  * Class
@@ -31,6 +33,8 @@ use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, V
  */
 class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
 {
+    use VaultTrait;
+
     public const CENTREON_SYSTEM_USER = 'centreon';
 
     /**
@@ -40,9 +44,14 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
      * @param ReadAccRepositoryInterface $readAdditionalConnectorRepository
      */
     public function __construct(
+        Container $dependencyInjector,
         private readonly Backend $backend,
         private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
     ) {
+        parent::__construct($dependencyInjector);
+        if (! $this->isVaultEnabled) {
+            $this->getVaultConfigurationStatus();
+        }
     }
 
     /**
@@ -62,7 +71,21 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
         if ($additionalConnectorsVMWareV6 !== null) {
             $ACCParameters = $additionalConnectorsVMWareV6->getParameters()->getDecryptedData();
 
-            $VSphereServers = array_map(function (array $parameters): VSphereServer {
+            $VSphereServers = array_map(function (array $parameters) use (&$vaultData): VSphereServer {
+                if (
+                    $this->isVaultEnabled
+                    && $this->readVaultRepository !== null
+                    && $this->isAVaultPath($parameters['password'])
+                ) {
+                    $vaultData ??= $this->readVaultRepository->findFromPath($parameters['password']);
+                    $parameters['name'] . '_' . 'password';
+                    if (array_key_exists($parameters['name'] . '_' . 'password', $vaultData)) {
+                        $parameters['password'] = $vaultData[$parameters['name'] . '_' . 'password'];
+                    }
+                    if (array_key_exists($parameters['name'] . '_' . 'username', $vaultData)) {
+                        $parameters['username'] = $vaultData[$parameters['name'] . '_' . 'username'];
+                    }
+                }
                 return new VSphereServer(
                     name: $parameters['name'],
                     url: $parameters['url'],

@@ -36,7 +36,9 @@
 
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
@@ -62,6 +64,8 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
  */
 class CentreonConfigCentreonBroker
 {
+    use VaultTrait;
+
     /** @var int */
     public $nbSubGroup = 1;
     /** @var array */
@@ -1658,9 +1662,12 @@ class CentreonConfigCentreonBroker
 
         $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
             $writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
+            $this->retrievePasswordsFromVault($values, $readVaultRepository);
             deleteBrokerConfigsFromVault($writeVaultRepository, [$configId]);
         }
 
@@ -1850,6 +1857,20 @@ class CentreonConfigCentreonBroker
 
         return [$groups_infos, $groups_infos_multiple];
     }
+
+    private function retrievePasswordsFromVault(array &$values, ReadVaultRepositoryInterface $readVaultRepository): void
+    {
+        foreach ($values['output'] as &$output) {
+            foreach ($output as &$value) {
+                if (is_string($value) && $this->isAVaultPath($value)) {
+                    $vaultValue = $readVaultRepository->findFromPath($value);
+                    $parameterKey = end(explode("::", $value));
+                    $value = $vaultValue[$parameterKey] ?? $value;
+                }
+            }
+        }
+    }
+
 
     /**
      * Generate fieldtype array.
