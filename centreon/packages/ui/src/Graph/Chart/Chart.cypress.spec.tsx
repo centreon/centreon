@@ -144,7 +144,7 @@ const checkGraphWidth = (): void => {
     .and('equal', '376.203125');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
-    expect(Number(graph[0].attributes.width.value)).to.be.lessThan(1220)
+    expect(Number(graph[0].attributes.width.value)).to.be.lessThan(1220);
   });
 };
 
@@ -221,8 +221,7 @@ describe('Line chart', () => {
       checkGraphWidth();
 
       cy.contains('Min: 70.31').should('be.visible');
-
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1170, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(500, 100);
 
       cy.get('[data-metric="querytime"]').should('be.visible');
       cy.get('[data-metric="hitratio"]').should('be.visible');
