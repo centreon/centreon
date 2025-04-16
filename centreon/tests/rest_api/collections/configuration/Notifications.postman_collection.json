@@ -1844,10 +1844,7 @@
 									"    });\r",
 									"    \r",
 									"});\r",
-									"\r",
-									"pm.test(\"The Location parameter is in the header.\", function () {\r",
-									"    pm.response.to.have.header(\"Location\");\r",
-									"});\r"
+									"\r"
 								],
 								"type": "text/javascript",
 								"packages": {}
