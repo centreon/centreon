@@ -18479,8 +18479,34 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Display average as"
 # msgstr ""
 
+<<<<<<< HEAD
 # msgid "Requested authentication context"
 # msgstr ""
+=======
+# msgid "Host group created"
+# msgstr ""
+
+# msgid "Host group updated"
+# msgstr ""
+
+# msgid "Group members"
+# msgstr ""
+
+# msgid "Select hosts"
+# msgstr ""
+
+# msgid "Apply resource access rules to the host group"
+# msgstr ""
+
+# msgid "Geographic coordinates for MAP"
+# msgstr ""
+
+# msgid "Invalid geo-coordinate format"
+# msgstr ""
+
+# msgid "Requested authentication context"
+# msgstr ""
+>>>>>>> b2da5743f2637852a20144068445957dbf2d0bbf
 
 # msgid "Minimum"
 # msgstr ""
