@@ -62,7 +62,7 @@ function testExistence($name = null)
         ->getQuery();
     try {
         $meta = $pearDB->fetchAssociative($query, QueryParameters::create([
-            QueryParameter::string('meta_name', $name)
+            QueryParameter::string('meta_name', getParamValue($name, sanitize: true))
         ]));
     } catch (ConnectionException $exception) {
         CentreonLog::create()->error(
@@ -105,7 +105,7 @@ function enableMetaServiceInDB($metaId = null)
         ->getQuery();
     try {
         $pearDB->executeStatement($query, QueryParameters::create([
-            QueryParameter::int('meta_id', (int)$metaId)
+            QueryParameter::int('meta_id', (int) $metaId)
         ]));
     } catch (ConnectionException $exception) {
         CentreonLog::create()->error(
@@ -243,7 +243,7 @@ function deleteMetaServiceInDB($metas = [])
                     ->getQuery();
         try {
             $pearDB->executeStatement($query, QueryParameters::create([
-                QueryParameter::int('meta_id', (int)$metaId)
+                QueryParameter::int('meta_id', (int) $metaId)
             ]));
         } catch (ConnectionException $exception) {
             CentreonLog::create()->error(
@@ -767,27 +767,27 @@ function insertMetaService($ret = [])
         ->getQuery();
 
     $params = [
-        QueryParameter::string('meta_name', checkParamAndSanitize($ret, "meta_name")),
-        QueryParameter::string('meta_display', checkParamAndSanitize($ret, "meta_display")),
-        QueryParameter::string('check_period', checkParamAndSanitize($ret, "check_period")),
-        QueryParameter::int('max_check_attempts', checkParamAndSanitize($ret, "max_check_attempts")),
-        QueryParameter::string('normal_check_interval', checkParamAndSanitize($ret, "normal_check_interval")),
-        QueryParameter::string('retry_check_interval', checkParamAndSanitize($ret, "retry_check_interval")),
-        QueryParameter::string('notification_interval', checkParamAndSanitize($ret, "notification_interval")),
-        QueryParameter::string('notification_period', checkParamAndSanitize($ret, "notification_period")),
+        QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
+        QueryParameter::string('meta_display', getParamValue($ret, "meta_display", sanitize: true)),
+        QueryParameter::string('check_period', getParamValue($ret, "check_period")),
+        QueryParameter::int('max_check_attempts', getParamValue($ret, "max_check_attempts")),
+        QueryParameter::string('normal_check_interval', getParamValue($ret, "normal_check_interval")),
+        QueryParameter::string('retry_check_interval', getParamValue($ret, "retry_check_interval")),
+        QueryParameter::string('notification_interval', getParamValue($ret, "notification_interval")),
+        QueryParameter::string('notification_period', getParamValue($ret, "notification_period")),
         QueryParameter::string('notification_options', isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null),
-        QueryParameter::string('notifications_enabled', checkParamAndSanitize($ret, "notifications_enabled", "notifications_enabled", defaultVal: '2')),
+        QueryParameter::string('notifications_enabled', getParamValue($ret, "notifications_enabled", "notifications_enabled", default: '2')),
         QueryParameter::string('calcul_type', $ret["calcul_type"] ?? null),
-        QueryParameter::int('data_source_type', checkParamAndSanitize($ret, "data_source_type", defaultVal: 0)),
-        QueryParameter::string('meta_select_mode', checkParamAndSanitize($ret, "meta_select_mode", "meta_select_mode")),
-        QueryParameter::string('regexp_str', checkParamAndSanitize($ret, "regexp_str")),
-        QueryParameter::string('metric', checkParamAndSanitize($ret, "metric")),
-        QueryParameter::string('warning', checkParamAndSanitize($ret, "warning")),
-        QueryParameter::string('critical', checkParamAndSanitize($ret, "critical")),
-        QueryParameter::string('graph_id', checkParamAndSanitize($ret, "graph_id")),
-        QueryParameter::string('meta_comment', checkParamAndSanitize($ret, "meta_comment")),
-        QueryParameter::string('geo_coords', checkParamAndSanitize($ret, "geo_coords")),
-        QueryParameter::string('meta_activate', checkParamAndSanitize($ret, "meta_activate", "meta_activate")),
+        QueryParameter::int('data_source_type', getParamValue($ret, "data_source_type", default: 0)),
+        QueryParameter::string('meta_select_mode', getParamValue($ret, "meta_select_mode", "meta_select_mode")),
+        QueryParameter::string('regexp_str', getParamValue($ret, "regexp_str", sanitize: true)),
+        QueryParameter::string('metric', getParamValue($ret, "metric", sanitize: true)),
+        QueryParameter::string('warning', getParamValue($ret, "warning", sanitize: true)),
+        QueryParameter::string('critical', getParamValue($ret, "critical", sanitize: true)),
+        QueryParameter::string('graph_id', getParamValue($ret, "graph_id")),
+        QueryParameter::string('meta_comment', getParamValue($ret, "meta_comment", sanitize: true)),
+        QueryParameter::string('geo_coords', getParamValue($ret, "geo_coords", sanitize: true)),
+        QueryParameter::string('meta_activate', getParamValue($ret, "meta_activate", "meta_activate")),
     ];
     try {
         $pearDB->executeStatement($query, QueryParameters::create($params));
@@ -857,27 +857,27 @@ function updateMetaService($metaId = null)
        ->where("meta_id = :meta_id");
     $query = $qb->getQuery();
     $params = [
-        QueryParameter::string('meta_name', checkParamAndSanitize($ret, "meta_name")),
-        QueryParameter::string('meta_display', checkParamAndSanitize($ret, "meta_display")),
-        QueryParameter::string('check_period', checkParamAndSanitize($ret, "check_period")),
-        QueryParameter::int('max_check_attempts', checkParamAndSanitize($ret, "max_check_attempts")),
-        QueryParameter::string('normal_check_interval', checkParamAndSanitize($ret, "normal_check_interval")),
-        QueryParameter::string('retry_check_interval', checkParamAndSanitize($ret, "retry_check_interval")),
-        QueryParameter::string('notification_interval', checkParamAndSanitize($ret, "notification_interval")),
-        QueryParameter::string('notification_period', checkParamAndSanitize($ret, "notification_period")),
+        QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
+        QueryParameter::string('meta_display', getParamValue($ret, "meta_display", sanitize: true)),
+        QueryParameter::string('check_period', getParamValue($ret, "check_period")),
+        QueryParameter::int('max_check_attempts', getParamValue($ret, "max_check_attempts")),
+        QueryParameter::string('normal_check_interval', getParamValue($ret, "normal_check_interval")),
+        QueryParameter::string('retry_check_interval', getParamValue($ret, "retry_check_interval")),
+        QueryParameter::string('notification_interval', getParamValue($ret, "notification_interval")),
+        QueryParameter::string('notification_period', getParamValue($ret, "notification_period")),
         QueryParameter::string('notification_options', isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null),
-        QueryParameter::string('notifications_enabled', checkParamAndSanitize($ret, "notifications_enabled", "notifications_enabled", false, '2')),
+        QueryParameter::string('notifications_enabled', getParamValue($ret, "notifications_enabled", "notifications_enabled", false, '2')),
         QueryParameter::string('calcul_type', $ret["calcul_type"] ?? null),
-        QueryParameter::int('data_source_type', checkParamAndSanitize($ret, "data_source_type", null, false, 0)),
-        QueryParameter::string('meta_select_mode', checkParamAndSanitize($ret, "meta_select_mode", "meta_select_mode")),
-        QueryParameter::string('regexp_str', checkParamAndSanitize($ret, "regexp_str")),
-        QueryParameter::string('metric', checkParamAndSanitize($ret, "metric")),
-        QueryParameter::string('warning', checkParamAndSanitize($ret, "warning")),
-        QueryParameter::string('critical', checkParamAndSanitize($ret, "critical")),
-        QueryParameter::string('graph_id', checkParamAndSanitize($ret, "graph_id")),
-        QueryParameter::string('meta_comment', checkParamAndSanitize($ret, "meta_comment")),
-        QueryParameter::string('geo_coords', checkParamAndSanitize($ret, "geo_coords")),
-        QueryParameter::string('meta_activate', checkParamAndSanitize($ret, "meta_activate", "meta_activate")),
+        QueryParameter::int('data_source_type', getParamValue($ret, "data_source_type", null, false, 0)),
+        QueryParameter::string('meta_select_mode', getParamValue($ret, "meta_select_mode", "meta_select_mode")),
+        QueryParameter::string('regexp_str', getParamValue($ret, "regexp_str", sanitize: true)),
+        QueryParameter::string('metric', getParamValue($ret, "metric", sanitize: true)),
+        QueryParameter::string('warning', getParamValue($ret, "warning", sanitize: true)),
+        QueryParameter::string('critical', getParamValue($ret, "critical", sanitize: true)),
+        QueryParameter::string('graph_id', getParamValue($ret, "graph_id")),
+        QueryParameter::string('meta_comment', getParamValue($ret, "meta_comment", sanitize: true)),
+        QueryParameter::string('geo_coords', getParamValue($ret, "geo_coords", sanitize: true)),
+        QueryParameter::string('meta_activate', getParamValue($ret, "meta_activate", "meta_activate")),
         QueryParameter::int('meta_id', (int) $metaId),
     ];
     try {
@@ -1091,11 +1091,11 @@ function insertMetric($ret = [])
         ])
         ->getQuery();
     $params = [
-        QueryParameter::int('meta_id', checkParamAndSanitize($ret, "meta_id")),
-        QueryParameter::int('host_id', checkParamAndSanitize($ret, "host_id")),
-        QueryParameter::int('metric_id', checkParamAndSanitize($ret, "metric_sel", 1)),
-        QueryParameter::string('msr_comment', checkParamAndSanitize($ret, "msr_comment")),
-        QueryParameter::string('activate', checkParamAndSanitize($ret, "activate", "activate")),
+        QueryParameter::int('meta_id', getParamValue($ret, "meta_id")),
+        QueryParameter::int('host_id', getParamValue($ret, "host_id")),
+        QueryParameter::int('metric_id', getParamValue($ret, "metric_sel", 1)),
+        QueryParameter::string('msr_comment', getParamValue($ret, "msr_comment", sanitize: true)),
+        QueryParameter::string('activate', getParamValue($ret, "activate", "activate")),
     ];
     try {
         $pearDB->executeStatement($query, QueryParameters::create($params));
@@ -1140,11 +1140,11 @@ function updateMetric($msrId = null)
                 ->where("msr_id = :msr_id")
                 ->getQuery();
     $params = [
-        QueryParameter::int('meta_id', checkParamAndSanitize($ret, "meta_id")),
-        QueryParameter::int('host_id', checkParamAndSanitize($ret, "host_id")),
-        QueryParameter::int('metric_id', checkParamAndSanitize($ret,"metric_sel", 1)),
-        QueryParameter::string('msr_comment', checkParamAndSanitize($ret, "msr_comment")),
-        QueryParameter::string('activate', checkParamAndSanitize($ret, "activate", "activate")),
+        QueryParameter::int('meta_id', getParamValue($ret, "meta_id")),
+        QueryParameter::int('host_id', getParamValue($ret, "host_id")),
+        QueryParameter::int('metric_id', getParamValue($ret,"metric_sel", 1)),
+        QueryParameter::string('msr_comment', getParamValue($ret, "msr_comment", sanitize: true)),
+        QueryParameter::string('activate', getParamValue($ret, "activate", "activate")),
         QueryParameter::int('msr_id', (int) $msrId),
     ];
     try {
@@ -1167,31 +1167,51 @@ function updateMetric($msrId = null)
 }
 
 /**
- * Check if a parameter exists in an array and sanitize it
+ * Retrieve and optionally sanitize a parameter from a (possibly nested) array
  *
- * @param array<mixed> $paramArray
- * @param string $paramName
- * @param string|int|null $secondParam
- * @param bool $sanitize
- * @param mixed|null $defaultVal
- * @return mixed|null
+ * @param array<mixed>|mixed $params      Main input parameter or array of parameters
+ * @param string|null        $key         The first-level key
+ * @param string|int|null    $subKey      Optional subkey for nested access
+ * @param bool               $sanitize    Whether to sanitize the value using htmlspecialchars
+ * @param mixed|null         $default     Default value if key is not found
+ *
+ * @return mixed
  */
-function checkParamAndSanitize(
-    $paramArray,
-    $paramName,
-    $secondParam = null,
-    $sanitize = false,
-    $defaultVal = null
-)
-{
-    if ($secondParam) {
-        if (! empty($paramArray[$paramName][$secondParam]) || $paramArray[$paramName][$secondParam] === 0) {
-            return $sanitize ? htmlspecialchars($paramArray[$paramName][$secondParam], ENT_QUOTES, "UTF-8") : $paramArray[$paramName][$secondParam];
-        }
-    } else {
-        if (! empty($paramArray[$paramName]) || $paramArray[$paramName] === 0) {
-            return $sanitize ? htmlspecialchars($paramArray[$paramName], ENT_QUOTES, "UTF-8") : $paramArray[$paramName];
-        }
+function getParamValue(
+    $params,
+    string|null $key = null,
+    string|int|null $subKey = null,
+    bool $sanitize = false,
+    mixed $default = null
+): mixed {
+    // If not an array, return directly (optionally sanitize)
+    if (!is_array($params) || !$key) {
+        return $sanitize ? sanitize($params) : $params;
     }
-    return $defaultVal;
+
+    // Handle nested parameter (with subkey)
+    if ($subKey !== null && isset($params[$key][$subKey])) {
+        return $sanitize ? sanitize($params[$key][$subKey]) : $params[$key][$subKey];
+    }
+
+    // Handle first-level parameter
+    if (isset($params[$key])) {
+        return $sanitize ? sanitize($params[$key]) : $params[$key];
+    }
+
+    return $default;
+}
+
+/**
+ * Sanitize a value using htmlspecialchars
+ * PS: the htmlspecialchars function is used to keep the same behavior as the original code
+ *
+ * @param mixed $value
+ * @return mixed
+ */
+function sanitize(mixed $value): mixed
+{
+    return is_string($value)
+        ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
+        : $value;
 }
