@@ -11,6 +11,7 @@ import {
   find,
   flatten,
   gte,
+  head,
   includes,
   isEmpty,
   isNil,
@@ -234,7 +235,7 @@ const useResources = ({
     return (
       (Boolean(defaultResourceTypes) &&
         Boolean(forcedResourceType) &&
-        equals(resourceType, defaultResourceTypes?.[1]) &&
+        equals(resourceType, last(defaultResourceTypes || [])) &&
         value?.length > 1) ||
       (Boolean(defaultResourceTypes) &&
         Boolean(forcedResourceType) &&
@@ -257,7 +258,7 @@ const useResources = ({
         defaultResourceTypes &&
         widgetProperties?.singleResourceSelection &&
         includes(e.target.value, restrictedResourceTypes || []) &&
-        equals(e.target.value, defaultResourceTypes?.[0])
+        equals(e.target.value, head(defaultResourceTypes || []))
       ) {
         setFieldValue(
           `data.${propertyName}`,
@@ -679,7 +680,8 @@ const useResources = ({
     }
     const hasSelectedHost = value?.some(
       ({ resources, resourceType }) =>
-        equals(resourceType, defaultResourceTypes?.[0]) && !isEmpty(resources)
+        equals(resourceType, head(defaultResourceTypes || [])) &&
+        !isEmpty(resources)
     );
 
     return (
