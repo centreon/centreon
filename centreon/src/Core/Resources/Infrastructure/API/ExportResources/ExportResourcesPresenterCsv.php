@@ -140,6 +140,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
 
     /**
      * @param \Traversable<ResourceEntity> $resources
+     * @param StringCollection $csvHeader
      *
      * @return \Traversable<array<string,mixed>>
      */
@@ -174,10 +175,12 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                     ? _('Notifications enabled') : _('Notifications disabled'),
                 _('Check') => _($this->getResourceCheck($resource)),
             ];
+
             $line = array_map(
                 fn($key) => $resource[$key],
                 $csvHeader->values()
             );
+
             yield $line;
         }
     }
