@@ -68,7 +68,7 @@ export enum FederatedWidgetOptionType {
 
 interface WidgetHiddenCondition {
   matches: unknown;
-  method: 'equals' | 'includes';
+  method: 'equals' | 'includes' | 'includes-only';
   property?: string;
   target: 'options' | 'data' | 'modules' | 'featureFlags';
   when: string;
