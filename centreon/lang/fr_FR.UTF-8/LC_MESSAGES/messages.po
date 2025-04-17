@@ -19803,6 +19803,15 @@ msgstr "Extension invalide"
 msgid "Display average as"
 msgstr "Afficher la moyenne sous forme de"
 
+msgid "Reporting period"
+msgstr "Période du rapport"
+
+msgid "Business Activity availability"
+msgstr "Disponibilité d'une Activité Métier"
+
+msgid "Displays availability and alerts of a Business Activity for a given period."
+msgstr "Affiche la disponibilité et les alertes d'une activité métier pour une période donnée."
+
 msgid "Requested authentication context"
 msgstr "Contexte d'authentification requis"
 

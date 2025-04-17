@@ -17683,6 +17683,15 @@ msgstr "Erweiterter Modus"
 # msgid "Failed to disable the host group"
 # msgstr ""
 
+# msgid "Reporting period"
+# msgstr ""
+
+# msgid "Business Activity availability"
+# msgstr ""
+
+# msgid "Displays availability and alerts of a Business Activity for a given period."
+# msgstr ""
+
 # msgid "Requested authentication context"
 # msgstr ""
 
