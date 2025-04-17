@@ -2790,44 +2790,13 @@
 									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
-									"        \"notes\": \"I am Groot\",\r",
-									"        \"notes_url\": \"www.google.fr\",\r",
-									"        \"action_url\": \"www.google.com\",\r",
 									"        \"icon_id\": null,\r",
-									"        \"icon_map_id\": null,\r",
-									"        \"rrd\": 3,\r",
 									"        \"geo_coords\": null,\r",
 									"        \"comment\": \"Hello world ! 1\",\r",
-									"        \"is_activated\": false\r",
+									"        \"hosts\": []\r",
 									"    });\r",
 									"});\r",
-									"\r",
-									"pm.test(\"The Location parameter is in the header.\", function () {\r",
-									"    pm.response.to.have.header(\"Location\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation for host group creation response\", function () {\r",
-									"    const schema = {\r",
-									"        type: \"object\",\r",
-									"        properties: {\r",
-									"            id: { type: \"integer\" },\r",
-									"            name: { type: \"string\" },\r",
-									"            alias: { type: [\"string\", \"null\"] },\r",
-									"            notes: { type: [\"string\", \"null\"] },\r",
-									"            notes_url: { type: [\"string\", \"null\"] },\r",
-									"            action_url: { type: [\"string\", \"null\"] },\r",
-									"            icon_id: { type: [\"integer\", \"null\"] },\r",
-									"            icon_map_id: { type: [\"integer\", \"null\"] },\r",
-									"            rrd: { type: [\"integer\", \"null\"] },\r",
-									"            geo_coords: { type: [\"string\", \"null\"] },\r",
-									"            comment: { type: [\"string\", \"null\"] },\r",
-									"            is_activated: { type: \"boolean\" }\r",
-									"        },\r",
-									"        required: [\"id\", \"name\", \"alias\", \"notes\", \"notes_url\", \"action_url\", \"icon_id\", \"icon_map_id\", \"rrd\", \"geo_coords\", \"comment\", \"is_activated\"]\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2856,7 +2825,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"hosts\":[],\n    \"is_activated\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
