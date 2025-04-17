@@ -62,7 +62,6 @@ foreach (
 foreach (
     [
         'otel_public_certificate',
-        'otel_ca_certificate',
         'otel_private_key',
         'conf_certificate',
         'conf_private_key',

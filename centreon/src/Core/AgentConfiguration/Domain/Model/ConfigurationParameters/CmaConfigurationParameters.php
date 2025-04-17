@@ -67,9 +67,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         if ($connectionMode === ConnectionModeEnum::SECURE) {
             $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
             $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
-            if ($parameters['otel_ca_certificate'] !== null) {
-                $this->validateCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
-            }
+            $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
         } else {
             $this->validateOptionalCertificate(
                 $parameters['otel_public_certificate'],
@@ -86,12 +84,14 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         foreach ($parameters['hosts'] as $host) {
             Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
             Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
-            $this->validateHostCertificate(
+            $this->validateOptionalCertificate(
                 $host['poller_ca_certificate'],
-                $connectionMode,
                 'configuration.hosts[].poller_ca_certificate'
             );
-            $this->validateOptionalCertificate($host['poller_ca_name'], 'configuration.hosts[].poller_ca_name');
+            $this->validateOptionalCertificate(
+                $host['poller_ca_name'],
+                'configuration.hosts[].poller_ca_name'
+            );
         }
 
         /** @var _CmaParameters $parameters */
@@ -178,7 +178,6 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      */
     private function validateCertificate(?string $certificate, string $field): void
     {
-        Assertion::notNull($certificate, $field);
         Assertion::notEmptyString($certificate, $field);
         Assertion::maxLength((string) $certificate, self::MAX_LENGTH, $field);
     }
@@ -194,28 +193,6 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     private function validateOptionalCertificate(?string $certificate, string $field): void
     {
         if ($certificate !== null && $certificate !== '') {
-            Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
-        }
-    }
-
-    /**
-     * Validates the host certificate.
-     *
-     * @param string|null $certificate
-     * @param ConnectionModeEnum $connectionMode
-     * @param string $field Used for error reporting
-     *
-     * @throws AssertionFailedException
-     */
-    private function validateHostCertificate(
-        ?string $certificate,
-        ConnectionModeEnum $connectionMode,
-        string $field
-    ): void {
-        if ($certificate !== null && is_string($certificate)) {
-            if ($connectionMode === ConnectionModeEnum::SECURE) {
-                Assertion::notEmptyString($certificate, $field);
-            }
             Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
         }
     }

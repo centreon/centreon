@@ -68,7 +68,6 @@ foreach (
 foreach (
     [
         'otel_public_certificate',
-        'otel_ca_certificate',
         'otel_private_key'
     ] as $field
 ) {
