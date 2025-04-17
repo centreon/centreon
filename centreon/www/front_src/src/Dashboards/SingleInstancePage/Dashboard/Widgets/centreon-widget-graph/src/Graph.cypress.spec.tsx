@@ -133,6 +133,14 @@ const legendData = [
   }
 ];
 
+const checkLegendHeader = () => {
+  cy.findByLabelText('cpu').contains('cpu').should('be.visible');
+  cy.findByLabelText('cpu').contains('%').should('be.visible');
+
+  cy.findByLabelText('cpu: avg').contains('cpu: avg').should('be.visible');
+  cy.findByLabelText('cpu: avg').contains('%').should('be.visible');
+};
+
 interface InitializeComponentProps
   extends Partial<
     Pick<
@@ -257,8 +265,8 @@ describe('Graph Widget', () => {
       );
     });
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
+
     cy.findByTestId('warning-line-65').should('be.visible');
     cy.findByTestId('warning-line-70').should('be.visible');
     cy.findByTestId('critical-line-85').should('be.visible');
@@ -280,8 +288,7 @@ describe('Graph Widget', () => {
   it('displays the line chart without thresholds when thresholds are disabled', () => {
     initializeComponent({ threshold: disabledThreshold });
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
     cy.findByTestId('warning-line-65').should('not.exist');
     cy.findByTestId('warning-line-70').should('not.exist');
     cy.findByTestId('critical-line-85').should('not.exist');
@@ -327,8 +334,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.makeSnapshot();
   });
@@ -338,8 +344,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.makeSnapshot();
   });
@@ -366,8 +371,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.makeSnapshot();
   });
@@ -379,8 +383,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
@@ -396,8 +399,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
@@ -411,8 +413,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
@@ -426,9 +427,7 @@ describe('Graph Widget', () => {
     });
 
     cy.waitForRequest('@getLineChart');
-
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 

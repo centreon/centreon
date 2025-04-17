@@ -46,6 +46,12 @@ interface UseMetricsQueryState {
   start: string;
 }
 
+interface FormatLegend {
+  host?: string | null;
+  service?: string | null;
+  metric: string;
+}
+
 const getStartEndFromTimePeriod = (
   timePeriod: number
 ): { end: string; start: string } => {
@@ -164,68 +170,100 @@ const useGraphQuery = ({
     data.current = graphData;
   }
 
-  const getCurrentMetrics = ()=>{
-    if(!data.current){
-
-      return undefined
+  const getCurrentMetrics = () => {
+    if (!data.current) {
+      return undefined;
     }
 
     return bypassMetricsExclusion
-          ? data.current.metrics
-          : data.current.metrics.filter(({ metric_id }) => {
-              return pipe(
-                pluck('excludedMetrics'),
-                flatten,
-                includes(metric_id),
-                not
-              )(metrics);
-            })
-  }
+      ? data.current.metrics
+      : data.current.metrics.filter(({ metric_id }) => {
+          return pipe(
+            pluck('excludedMetrics'),
+            flatten,
+            includes(metric_id),
+            not
+          )(metrics);
+        });
+  };
 
-  const getFormattedMetrics = ()=>{
-    const metrics = getCurrentMetrics()
 
-    if(equals(metrics?.length, 1)){
-      
-      return metrics?.map((line)=>{
-        const formattedLegend = `${line.host_name} ${line.service_name}: ${line.metric}`
-
-        return ({...line, legend:formattedLegend})
-      })
+  const formatLegend = ({
+    host = null,
+    service = null,
+    metric
+  }: FormatLegend) => {
+    if (!host && !service) {
+      return metric;
     }
 
-    return metrics?.map((line)=>{
-      
-     const areHostNameRedundant =  metrics.every(({host_name})=> equals(host_name , line.host_name));
-     const areServiceNameRedundant = metrics.every(({service_name})=> equals(service_name,line.service_name));
+    if (!host) {
+      return `${service}: ${metric}`;
+    }
 
-     if(areHostNameRedundant && areServiceNameRedundant){
-      const formattedLegend = line.metric
+    if (!service) {
+      return `${host}: ${metric}`;
+    }
 
-      return {...line, legend: formattedLegend }
-     }
-     
-     if(areHostNameRedundant){
-       const formattedLegend = `${line.service_name}: ${line.metric}`
+    return `${host} ${service}: ${metric}`;
+  };
 
-       return {...line, legend: formattedLegend}
-     }
+  const getFormattedMetrics = () => {
+    const metrics = getCurrentMetrics();
 
-     if(areServiceNameRedundant){
-       const formattedLegend = `${line.host_name}: ${line.metric}`
-  
-       return {...line, legend: formattedLegend}
+    if (equals(metrics?.length, 1)) {
+      return metrics?.map((line) => {
+        const formattedLegend = formatLegend({
+          host: line?.host_name,
+          service: line?.service_name,
+          metric: line?.metric
+        });
 
-     }
+        return { ...line, legend: formattedLegend };
+      });
+    }
 
-     const formattedLegend = `${line.host_name} ${line.service_name}: ${line.metric}`
+    return metrics?.map((line) => {
+      const areHostNameRedundant = metrics.every(({ host_name }) =>
+        equals(host_name, line.host_name)
+      );
+      const areServiceNameRedundant = metrics.every(({ service_name }) =>
+        equals(service_name, line.service_name)
+      );
 
-     return {...line, legend:formattedLegend }
-     
-    })
+      if (areHostNameRedundant && areServiceNameRedundant) {
+        const formattedLegend = formatLegend({ metric: line.metric });
 
-  }
+        return { ...line, legend: formattedLegend };
+      }
 
+      if (areHostNameRedundant) {
+        const formattedLegend = formatLegend({
+          service: line.service_name,
+          metric: line.metric
+        });
+
+        return { ...line, legend: formattedLegend };
+      }
+
+      if (areServiceNameRedundant) {
+        const formattedLegend = formatLegend({
+          host: line.host_name,
+          metric: line.metric
+        });
+
+        return { ...line, legend: formattedLegend };
+      }
+
+      const formattedLegend = formatLegend({
+        host: line.host_name,
+        service: line.service_name,
+        metric: line.metric
+      });
+
+      return { ...line, legend: formattedLegend };
+    });
+  };
 
   const formattedGraphData = data.current
     ? {

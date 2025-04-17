@@ -29,8 +29,8 @@ export interface Metric {
   unit: string;
   warning_high_threshold: number | null;
   warning_low_threshold: number | null;
-  service_name?: string;
-  host_name?: string;
+  service_name: string | null;
+  host_name: string | null;
 }
 
 type TimeSeries = { timeTick: string };
