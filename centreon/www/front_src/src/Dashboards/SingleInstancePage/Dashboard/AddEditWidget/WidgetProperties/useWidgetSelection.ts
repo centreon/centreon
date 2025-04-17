@@ -32,7 +32,6 @@ import type {
 import { isGenericText } from '../../utils';
 import {
   customBaseColorAtom,
-  singleMetricSelectionAtom,
   singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
@@ -91,7 +90,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
-  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
@@ -199,7 +197,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       equals(values.moduleName, 'centreon-widget-generictext') &&
       !isGenericText(selectedWidget.federatedComponentsConfiguration[0].path);
 
-    setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
     setSingleResourceSelection(
       selectedWidgetProperties.singleResourceSelection
     );

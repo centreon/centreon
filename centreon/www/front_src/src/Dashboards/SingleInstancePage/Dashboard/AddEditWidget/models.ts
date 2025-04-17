@@ -39,6 +39,8 @@ export interface WidgetPropertyProps {
   requireResourceType?: boolean;
   required?: boolean;
   restrictedResourceTypes?: Array<string>;
+  forcedResourceType?: string;
+  defaultResourceTypes?: Array<string>;
   secondaryLabel?: Array<string> | string;
   show?: ShowInput;
   singleResourceType?: boolean;

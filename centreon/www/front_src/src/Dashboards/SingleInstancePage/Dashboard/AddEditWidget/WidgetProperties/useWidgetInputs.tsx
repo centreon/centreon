@@ -30,7 +30,6 @@ import {
 } from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,
-  singleMetricSelectionAtom,
   singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
@@ -114,7 +113,6 @@ export const useWidgetInputs = (
   );
   const { modules } = useAtomValue(platformVersionsAtom);
   const featureFlags = useAtomValue(featureFlagsDerivedAtom);
-  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
@@ -212,7 +210,6 @@ export const useWidgetInputs = (
         return;
       }
 
-      setSingleMetricSection(selectedWidget.singleMetricSelection);
       setSingleResourceSelection(selectedWidget.singleResourceSelection);
       setCustomBaseColor(selectedWidget.customBaseColor);
     },

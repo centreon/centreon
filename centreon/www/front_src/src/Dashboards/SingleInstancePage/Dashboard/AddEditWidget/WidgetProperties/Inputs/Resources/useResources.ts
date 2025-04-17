@@ -200,7 +200,9 @@ const useResources = ({
   restrictedResourceTypes,
   required,
   useAdditionalResources,
-  excludedResourceTypes
+  excludedResourceTypes,
+  forcedResourceType,
+  defaultResourceTypes
 }: Pick<
   WidgetPropertyProps,
   | 'propertyName'
@@ -208,6 +210,8 @@ const useResources = ({
   | 'excludedResourceTypes'
   | 'required'
   | 'useAdditionalResources'
+  | 'forcedResourceType'
+  | 'defaultResourceTypes'
 >): UseResourcesState => {
   const [isValidatingResources, setIsValidatingResources] = useState(false);
 
@@ -237,10 +241,12 @@ const useResources = ({
     resourceType: WidgetResourceType
   ): boolean | undefined => {
     return (
-      (widgetProperties?.singleMetricSelection &&
-        widgetProperties?.singleResourceSelection &&
-        equals(resourceType, WidgetResourceType.service)) ||
-      (widgetProperties?.singleMetricSelection &&
+      (Boolean(defaultResourceTypes) &&
+        Boolean(forcedResourceType) &&
+        equals(resourceType, defaultResourceTypes?.[1]) &&
+        value?.length > 1) ||
+      (Boolean(defaultResourceTypes) &&
+        Boolean(forcedResourceType) &&
         widgetProperties?.singleResourceSelection &&
         equals(restrictedResourceTypes?.length, 1))
     );
@@ -248,7 +254,8 @@ const useResources = ({
 
   const hideResourceDeleteButton = (): boolean | undefined => {
     return (
-      widgetProperties?.singleMetricSelection &&
+      Boolean(defaultResourceTypes) &&
+      Boolean(forcedResourceType) &&
       widgetProperties?.singleResourceSelection
     );
   };
@@ -256,11 +263,18 @@ const useResources = ({
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
       if (
-        widgetProperties?.singleMetricSelection &&
+        defaultResourceTypes &&
         widgetProperties?.singleResourceSelection &&
-        equals(WidgetResourceType.host, e.target.value)
+        includes(e.target.value, restrictedResourceTypes || []) &&
+        includes(e.target.value, defaultResourceTypes)
       ) {
-        setFieldValue(`data.${propertyName}`, singleMetricBaseResources);
+        setFieldValue(
+          `data.${propertyName}`,
+          defaultResourceTypes.map((resourceType) => ({
+            resourceType,
+            resources: []
+          }))
+        );
 
         return;
       }
@@ -603,15 +617,15 @@ const useResources = ({
         );
       }, availableResourceTypes);
 
-      const forceAddServiceToOptions =
-        widgetProperties?.singleMetricSelection &&
-        widgetProperties?.singleResourceSelection &&
-        equals(resource.resourceType, WidgetResourceType.service);
-
-      return forceAddServiceToOptions
+      return forcedResourceType
         ? [
             ...filteredResourceTypeOptions,
-            { id: WidgetResourceType.service, name: labelService }
+            {
+              id: forcedResourceType,
+              name: allResources.find(({ id }) =>
+                equals(id, forcedResourceType)
+              ).name
+            }
           ]
         : filteredResourceTypeOptions;
     },
@@ -630,11 +644,14 @@ const useResources = ({
       return;
     }
 
-    if (
-      widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleResourceSelection
-    ) {
-      setFieldValue(`data.${propertyName}`, singleMetricBaseResources);
+    if (defaultResourceTypes && widgetProperties?.singleResourceSelection) {
+      setFieldValue(
+        `data.${propertyName}`,
+        defaultResourceTypes.map((resourceType) => ({
+          resourceType,
+          resources: []
+        }))
+      );
 
       return;
     }
@@ -663,13 +680,17 @@ const useResources = ({
   };
 
   const hasSelectedHostForSingleMetricwidget = useMemo(() => {
+    if (value?.length === 1) {
+      return true;
+    }
     const hasSelectedHost = value?.some(
       ({ resources, resourceType }) =>
-        equals(resourceType, WidgetResourceType.host) && !isEmpty(resources)
+        equals(resourceType, defaultResourceTypes?.[0]) && !isEmpty(resources)
     );
 
     return (
-      widgetProperties?.singleMetricSelection &&
+      defaultResourceTypes &&
+      forcedResourceType &&
       widgetProperties?.singleResourceSelection &&
       hasSelectedHost
     );
