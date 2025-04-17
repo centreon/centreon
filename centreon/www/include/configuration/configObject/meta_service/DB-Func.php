@@ -1185,17 +1185,17 @@ function getParamValue(
     mixed $default = null
 ): mixed {
     // If not an array, return directly (optionally sanitize)
-    if (!is_array($params) || !$key) {
+    if (!is_array($params) || $key === null) {
         return $sanitize ? sanitize($params) : $params;
     }
 
     // Handle nested parameter (with subkey)
-    if ($subKey !== null && isset($params[$key][$subKey])) {
+    if ($subKey !== null && !empty($params[$key][$subKey])) {
         return $sanitize ? sanitize($params[$key][$subKey]) : $params[$key][$subKey];
     }
 
     // Handle first-level parameter
-    if (isset($params[$key])) {
+    if (!empty($params[$key])) {
         return $sanitize ? sanitize($params[$key]) : $params[$key];
     }
 
