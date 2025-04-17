@@ -1,0 +1,59 @@
+name: Chromatic
+description: Publish stories to Chromatic
+inputs:
+  frontend_directory:
+    description: "The frontend source directory"
+    required: true
+  dependencies_lock_file:
+    description: "The frontend dependencies lock file path"
+    required: true
+  project_token:
+    description: "The Chromatic project token"
+    required: true
+  pat:
+    description: "The Github PAT"
+    required: true
+  autoAcceptChanges:
+    required: false
+    default: false
+
+runs:
+  using: "composite"
+
+  steps:
+    - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+      with:
+        version: 7
+        run_install: false
+
+    - uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      working-directory: ${{ inputs.frontend_directory }}
+      shell: bash
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+    - name: Publish to Chromatic
+      uses: chromaui/action@2bac6c4d6003cf368fd851b12dc679d511eee46b # v11.28.1
+      with:
+        projectToken: ${{ inputs.project_token }}
+        workingDir: ${{ inputs.frontend_directory }}
+        token: ${{ inputs.pat }}
+        buildScriptName: build:storybook
+        onlyChanged: true
+        untraced: |
+          - "centreon/packages/ui/package.json"
+          - "centreon/package.json"
+        autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
+        exitOnceUploaded: true
+        skip: '!(develop)'
+      env:
+        NODE_OPTIONS: "--max_old_space_size=4096"
