@@ -69,11 +69,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   const widgetProperties = useAtomValue(widgetPropertiesAtom);
   const resourcesInputKey = useAtomValue(resourcesInputKeyDerivedAtom);
 
-  const defaultResourceTypes =
-    widgetProperties?.data[resourcesInputKey || '']?.defaultResourceTypes;
-  const forcedResourceType =
-    widgetProperties?.data[resourcesInputKey || '']?.forcedResourceType;
-
   const resources = (
     resourcesInputKey ? values.data?.[resourcesInputKey] : []
   ) as Array<WidgetDataResource>;
@@ -261,7 +256,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       if (isMetaServiceOnly && (isNil(value) || isEmpty(value))) {
         setFieldValue(
           `data.${propertyName}`,
-          defaultResourceTypes && forcedResourceType && !isEmpty(metrics)
+          widgetProperties?.singleMetricSelection && !isEmpty(metrics)
             ? [metrics[0]]
             : metrics
         );

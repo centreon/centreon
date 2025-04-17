@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { equals, head } from 'ramda';
+/* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 
 import { CircularProgress, Typography } from '@mui/material';
