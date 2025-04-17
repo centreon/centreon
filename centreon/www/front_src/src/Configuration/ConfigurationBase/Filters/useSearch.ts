@@ -1,7 +1,7 @@
 import debounce from '@mui/utils/debounce';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, pluck } from 'ramda';
-import { configurationAtom, filtersAtom } from '../../atoms';
+import { configurationAtom, filtersAtom } from '../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
@@ -21,7 +21,7 @@ const useSearch = (): UseSearch => {
   const filtersConfiguration = configuration?.filtersConfiguration;
 
   const reload = (): void => {
-    queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+    queryClient.invalidateQueries({ queryKey: ['listResources'] });
   };
 
   const searchDebounced = useRef(
