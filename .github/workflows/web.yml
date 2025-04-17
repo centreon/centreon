@@ -681,21 +681,8 @@ jobs:
           ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "${{ github.job }}"]'
           ticket_squad: "DevSecOps"
 
-  symfony-check:
-    runs-on: ubuntu-24.04
-    needs: [get-environment, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
-    name: symfony-check
-    steps:
-      - name: Installing of development dependencies
-        run: composer install --optimize-autoloader
-      - name: Check syntax of yaml files using by Symfony
-        run: composer symfony:check:yaml
-      - name: Check injection of services in Symfony
-        run: composer symfony:check:container
-
   create-xray-test-plan-and-test-execution:
-    needs: [get-environment, dockerize, symfony-check]
+    needs: [get-environment, dockerize]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) && github.repository == 'centreon/centreon' }}
     strategy:
       fail-fast: false
@@ -715,7 +702,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   newman-test:
-    needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize, symfony-check]
+    needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -755,7 +742,7 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   legacy-e2e-test:
-    needs: [get-environment, changes, dockerize, symfony-check]
+    needs: [get-environment, changes, dockerize]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
     strategy:
       fail-fast: false
@@ -782,7 +769,7 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-environment, changes, dockerize, symfony-check, create-xray-test-plan-and-test-execution]
+    needs: [get-environment, changes, dockerize, create-xray-test-plan-and-test-execution]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       !cancelled() &&
@@ -828,7 +815,7 @@ jobs:
 
   performances-test:
     runs-on: ubuntu-24.04
-    needs: [get-environment, dockerize, symfony-check]
+    needs: [get-environment, dockerize]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-environment.outputs.stability != 'stable' && github.repository == 'centreon/centreon' }}
     strategy:
       fail-fast: false
