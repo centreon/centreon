@@ -251,6 +251,37 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByHostsIds(array $hostIds): array
+    {
+        if (empty($hostIds)) {
+            return [];
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($hostIds, ':host_id_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT DISTINCT(phr.nagios_server_id)
+                FROM `:db`.`ns_host_relation` phr
+                JOIN `:db`.`host` ON host.host_id = phr.host_host_id
+                WHERE host.host_activate = '1'
+                    AND phr.host_host_id IN ({$bindQuery})
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
      * @param MSResultSet $result
      *
      * @throws AssertionFailedException

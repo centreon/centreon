@@ -168,11 +168,8 @@ const Events = ({ timeline, infiniteScrollTriggerRef }: Props): JSX.Element => {
                     );
 
                     return (
-                      <>
-                        <TimelineItem
-                          className={classes.event}
-                          key={`${id}-${type}`}
-                        >
+                      <div key={`${id}-${type}`}>
+                        <TimelineItem className={classes.event}>
                           <TimelineSeparator>
                             <TimelineDot
                               className={classes.timelineDot}
@@ -199,7 +196,7 @@ const Events = ({ timeline, infiniteScrollTriggerRef }: Props): JSX.Element => {
                             />
                           </div>
                         )}
-                      </>
+                      </div>
                     );
                   })}
                 </Timeline>

@@ -239,7 +239,7 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(editedRuleFormData);
+      expect(request.body).to.deep.equal(editedRuleFormData);
     });
 
     cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
@@ -268,9 +268,7 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(
-        editedRuleFormDataiWithBusinessViews
-      );
+      expect(request.body).to.deep.equal(editedRuleFormDataiWithBusinessViews);
     });
 
     cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
@@ -293,7 +291,7 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(
+      expect(request.body).to.deep.equal(
         editedRuleFormDataiWithAllBusinessViews
       );
     });
@@ -322,7 +320,7 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
-      expect(JSON.parse(request.body)).to.deep.equal(
+      expect(request.body).to.deep.equal(
         editedRuleFormDataWithAllContactsAndContactGroups
       );
     });

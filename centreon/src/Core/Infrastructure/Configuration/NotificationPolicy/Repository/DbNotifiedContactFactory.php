@@ -34,9 +34,13 @@ class DbNotifiedContactFactory
      */
     public static function createFromRecord(array $contact): NotifiedContact
     {
-        $hostNotification = DbContactHostNotificationFactory::createFromRecord($contact);
+        $hostNotification = $contact['host_timeperiod_id'] !== null
+            ? DbContactHostNotificationFactory::createFromRecord($contact)
+            : null;
 
-        $serviceNotification = DbContactServiceNotificationFactory::createFromRecord($contact);
+        $serviceNotification = $contact['service_timeperiod_id'] !== null
+            ? DbContactServiceNotificationFactory::createFromRecord($contact)
+            : null;
 
         return new NotifiedContact(
             (int) $contact['contact_id'],

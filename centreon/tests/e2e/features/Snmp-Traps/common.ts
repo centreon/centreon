@@ -149,9 +149,48 @@ const CreateOrUpdateTrapGroup = (body: TrapGroup): Cypress.Chainable => {
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
 };
 
+const AddOrUpdateVendor = (body: Vendor): Cypress.Chainable => {
+  // wait for the name input to be charged on the DOM
+  cy.waitForElementInIframe("#main-content", 'input[name="name"]');
+  // type a value on the Vendor Name input
+  cy.getIframeBody().find('input[name="name"]').clear().type(body.name);
+  // type a value on the Vendor Alias input
+  cy.getIframeBody().find('input[name="alias"]').clear().type(body.alias);
+  // type a value on the Vendor Description textarea
+  cy.getIframeBody().find('textarea[name="description"]').clear().type(body.description);
+  // click on the first Save button
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  // export configuration
+  cy.exportConfig();
+  cy.wait('@getTimeZone');
+};
+
+const CheckVendorFieldsValues = (name: string, body: Vendor): Cypress.Chainable => {
+  // wait for the name input to be charged on the DOM
+  cy.waitForElementInIframe('#main-content', 'input[name="name"]');
+  // check that the Vendor Name input contains the right value
+  cy.getIframeBody()
+    .find('input[name="name"]')
+    .should('have.value', `${name}`);
+  // check that the Vendor Alias input contains the right value
+  cy.getIframeBody()
+    .find('input[name="alias"]')
+    .should('have.value', `${body.alias}`);
+  // check that the Vendor Description textarea contains the right value
+  cy.getIframeBody()
+    .find('textarea[name="description"]')
+    .should('have.value', `${body.description}`);
+};
+
 interface TrapGroup {
   name: string,
   traps: string[]
 }
 
-export { submitForm, TrapsSNMPConfiguration, UpdateTrapsSNMPConfiguration, CreateOrUpdateTrapGroup };
+interface Vendor {
+  name: string,
+  alias: string,
+  description: string
+}
+
+export { submitForm, TrapsSNMPConfiguration, UpdateTrapsSNMPConfiguration, CreateOrUpdateTrapGroup, AddOrUpdateVendor, CheckVendorFieldsValues };

@@ -27,7 +27,7 @@ const Grid = ({ width, height, columns }: Props): ReactElement => {
     [width]
   );
 
-  const numberOfRows = Math.floor(height / (rowHeight + 16));
+  const numberOfRows = Math.floor(height / (rowHeight + 8));
 
   const yScale = useMemo(
     () =>
@@ -58,8 +58,8 @@ const Grid = ({ width, height, columns }: Props): ReactElement => {
           yScale={yScale}
           xScale={xScale}
           stroke={theme.palette.divider}
-          top={-10}
           width={width}
+          left={-8}
         />
       </svg>
     ),

@@ -55,6 +55,7 @@ const DeleteConfirmationDialog = (): JSX.Element => {
       submitting={isLoading}
       onCancel={closeDialog}
       onConfirm={submit}
+      dialogContentTextProps={{ component: 'div' }}
     />
   );
 };

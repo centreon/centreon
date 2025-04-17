@@ -50,11 +50,8 @@ $rows = 10;
 include_once("./include/monitoring/status/Common/default_poller.php");
 include_once($path_hg."hostGroupJS.php");
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path_hg, $tpl, "/templates/");
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path_hg, "/templates/");
 
 $tpl->assign("p", $p);
 $tpl->assign('o', $o);

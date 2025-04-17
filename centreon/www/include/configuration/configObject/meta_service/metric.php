@@ -191,11 +191,9 @@ if (
 if ($valid) {
     require_once($path . "listMetric.php");
 } else {
-    /*
-     * Smarty template Init
-     */
-    $tpl = new Smarty();
-    $tpl = initSmartyTpl($path, $tpl);
+
+    // Smarty template initialization
+    $tpl = SmartyBC::createSmartyTemplate($path);
 
     /*
      * Apply a template definition

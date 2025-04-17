@@ -33,9 +33,14 @@ import useDashboardCardActions from './useDashboardCardActions';
 interface Props {
   dashboard: Dashboard;
   refetch?: () => void;
+  isFetchingListing: boolean;
 }
 
-const DashboardCardActions = ({ dashboard, refetch }: Props): JSX.Element => {
+const DashboardCardActions = ({
+  dashboard,
+  refetch,
+  isFetchingListing
+}: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const {
@@ -62,6 +67,7 @@ const DashboardCardActions = ({ dashboard, refetch }: Props): JSX.Element => {
         dashboardId={dashboard.id as number}
         isFavorite={dashboard?.isFavorite as boolean}
         refetch={refetch}
+        isFetching={isFetchingListing}
       />
       <IconButton
         ariaLabel={labels.labelShareWithContacts}

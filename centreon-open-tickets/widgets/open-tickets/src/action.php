@@ -48,9 +48,10 @@ function service_ack(bool $autoCloseActionPopup)
 {
     global $cmd, $centreon, $centreon_path;
 
+    // Smarty template initialization
     $path = $centreon_path . "www/widgets/open-tickets/src/";
-    $template = new Smarty();
-    $template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
+    $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
+
     $template->assign('stickyLabel', _("Sticky"));
     $template->assign('persistentLabel', _("Persistent"));
     $template->assign('authorLabel', _("Author"));
@@ -111,9 +112,10 @@ function schedule_check(bool $isService, bool $isForced, bool $autoCloseActionPo
 
     $selection = filter_var($_REQUEST['selection'], FILTER_SANITIZE_STRING);
 
+    // Smarty template initialization
     $path = $centreon_path . "www/widgets/open-tickets/src/";
-    $template = new Smarty();
-    $template = initSmartyTpl($path . 'templates/', $template, "./");
+    $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
+
     $template->assign('selection', $selection);
     $template->assign('titleLabel', _("Scheduling checks"));
     $template->assign('forced', $isForced);
@@ -145,9 +147,9 @@ function format_popup()
         $_REQUEST['selection']
     );
 
+    // Smarty template initialization
     $path = $centreon_path . "www/widgets/open-tickets/src/";
-    $template = new Smarty();
-    $template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
+    $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
 
     $provider_infos = $rule->getAliasAndProviderId($preferences['rule']);
 
@@ -186,8 +188,9 @@ function remove_tickets()
     $path = $centreon_path . "www/widgets/open-tickets/src/";
     $provider_infos = $rule->getAliasAndProviderId($preferences['rule']);
 
-    $template = new Smarty();
-    $template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
+    // Smarty template initialization
+    $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
+
     $template->assign('title', _('Close Tickets'));
     $template->assign('selection', $_REQUEST['selection']);
     $template->assign('provider_id', $provider_infos['provider_id']);

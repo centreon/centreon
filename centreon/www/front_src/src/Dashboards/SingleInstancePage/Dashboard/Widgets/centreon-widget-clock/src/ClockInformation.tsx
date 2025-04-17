@@ -60,7 +60,7 @@ const ClockInformation = ({
   return (
     <div
       className={classes.clockInformation}
-      data-isSmall={isSmall}
+      data-is-small={isSmall}
       data-timer={!isClock}
     >
       <Icon className={classes.icon} />

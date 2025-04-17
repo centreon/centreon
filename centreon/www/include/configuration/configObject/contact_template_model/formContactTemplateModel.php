@@ -157,9 +157,8 @@ $attrCommands = ['datasourceOrigin' => 'ajax', 'multiple' => true, 'linkedObject
 
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 // prepare event data
 $eventData = [

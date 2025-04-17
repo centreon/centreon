@@ -187,37 +187,46 @@ function tidySearchKey($search, $advanced_search)
 #
 
 /**
+ * NOT REMOVE THIS FUNCTION - Used in centreon-modules
+ *
  * Allows to load Smarty's configuration in relation to a path
  *
- * @param {string} [$path=null] Path to the default template directory
- * @param {object} [$tpl=null] A Smarty instance
- * @param {string} [$subDir=null] A subdirectory of path
+ * @param string|null $path   [$path=null] Path to the default template directory
+ * @param object|null $tpl    [$tpl=null] A Smarty instance
+ * @param string|null $subDir [$subDir=null] A subdirectory of path
  *
- * @return {empty|object} A Smarty instance with configuration parameters
+ * @return SmartyBC
+ *
+ * @throws SmartyException
+ *
+ * @deprecated Instead use {@see SmartyBC::createSmartyTemplate()}
+ * @see        SmartyBC::createSmartyTemplate()
  */
-function initSmartyTpl($path = null, &$tpl = null, $subDir = null)
+function initSmartyTpl(?string $path = null, ?object &$tpl = null, ?string $subDir = null): SmartyBC
 {
-    $tpl = new \SmartyBC();
-
-    $tpl->setTemplateDir($path . $subDir);
-    $tpl->setCompileDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/compile');
-    $tpl->setConfigDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/config');
-    $tpl->setCacheDir(__DIR__ . '/../../../GPL_LIB/SmartyCache/cache');
-    $tpl->addPluginsDir(__DIR__ . '/../../../GPL_LIB/smarty-plugins');
-    $tpl->loadPlugin('smarty_function_eval');
-    $tpl->setForceCompile(true);
-    $tpl->setAutoLiteral(false);
-    $tpl->allow_ambiguous_resources = true;
-
-    return $tpl;
+    return SmartyBC::createSmartyTemplate($path, $subDir);
 }
 
 /**
+ * NOT REMOVE THIS FUNCTION - Used in centreon-modules
+ *
  * This function is mainly used in widgets
+ *
+ * @param string|null $path
+ * @param object|null $tpl
+ * @param string|null $subDir
+ * @param string|null $centreonPath
+ *
+ * @return SmartyBC
+ *
+ * @throws SmartyException
+ *
+ * @deprecated Instead use {@see SmartyBC::createSmartyTemplate()}
+ * @see        SmartyBC::createSmartyTemplate()
  */
-function initSmartyTplForPopup($path = null, $tpl = null, $subDir = null, $centreonPath = null)
+function initSmartyTplForPopup(?string $path = null, ?object $tpl = null, ?string $subDir = null, ?string $centreonPath = null): SmartyBC
 {
-    return initSmartyTpl($path, $tpl, $subDir);
+    return SmartyBC::createSmartyTemplate($path, $subDir);
 }
 
 /*
@@ -2030,7 +2039,6 @@ function getCentreonVersion($pearDB)
     $row = $res->fetchRow();
     return $row['value'];
 }
-
 
 /**
  * Set relevent pollers as updated
