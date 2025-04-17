@@ -213,7 +213,7 @@ jobs:
 
       - name: Import results to xray
         id: import-reports
-        uses: mikepenz/xray-action@v3.0.2
+        uses: mikepenz/xray-action@9963065eabe6b0d1553616e79a6aef0f82b1bfbf # v3.2.0
         with:
           username: ${{ secrets.client_id }}
           password: ${{ secrets.client_secret }}
