@@ -152,7 +152,7 @@ const Resources = ({
                       isValidatingResources ||
                       (equals(
                         resource.resourceType,
-                        WidgetResourceType.service
+                        defaultResourceTypes?.[1]
                       ) &&
                         !hasSelectedHostForSingleMetricwidget) ||
                       !resource.resourceType

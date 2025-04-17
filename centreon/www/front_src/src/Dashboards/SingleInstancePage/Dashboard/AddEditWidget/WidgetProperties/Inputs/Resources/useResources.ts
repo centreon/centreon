@@ -21,7 +21,9 @@ import {
   pluck,
   project,
   propEq,
-  reject
+  reject,
+  uniq,
+  uniqBy
 } from 'ramda';
 
 import {
@@ -184,17 +186,6 @@ const getAdditionalQueryParameters = (
   }
 ];
 
-const singleMetricBaseResources = [
-  {
-    resourceType: WidgetResourceType.host,
-    resources: []
-  },
-  {
-    resourceType: WidgetResourceType.service,
-    resources: []
-  }
-];
-
 const useResources = ({
   propertyName,
   restrictedResourceTypes,
@@ -266,7 +257,7 @@ const useResources = ({
         defaultResourceTypes &&
         widgetProperties?.singleResourceSelection &&
         includes(e.target.value, restrictedResourceTypes || []) &&
-        includes(e.target.value, defaultResourceTypes)
+        equals(e.target.value, defaultResourceTypes?.[0])
       ) {
         setFieldValue(
           `data.${propertyName}`,
@@ -617,17 +608,20 @@ const useResources = ({
         );
       }, availableResourceTypes);
 
-      return forcedResourceType
-        ? [
-            ...filteredResourceTypeOptions,
-            {
-              id: forcedResourceType,
-              name: allResources.find(({ id }) =>
-                equals(id, forcedResourceType)
-              ).name
-            }
-          ]
-        : filteredResourceTypeOptions;
+      return uniqBy(
+        ({ id }) => id,
+        forcedResourceType
+          ? [
+              ...filteredResourceTypeOptions,
+              {
+                id: forcedResourceType,
+                name: allResources.find(({ id }) =>
+                  equals(id, forcedResourceType)
+                ).name
+              }
+            ]
+          : filteredResourceTypeOptions
+      );
     },
     [
       additionalResources,
