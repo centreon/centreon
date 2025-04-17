@@ -185,6 +185,15 @@ const useGraphQuery = ({
   const getFormattedMetrics = ()=>{
     const metrics = getCurrentMetrics()
 
+    if(equals(metrics?.length, 1)){
+      
+      return metrics?.map((line)=>{
+        const formattedLegend = `${line.host_name} ${line.service_name}: ${line.metric}`
+
+        return ({...line, legend:formattedLegend})
+      })
+    }
+
     return metrics?.map((line)=>{
       
      const areHostNameRedundant =  metrics.every(({host_name})=> equals(host_name , line.host_name));
