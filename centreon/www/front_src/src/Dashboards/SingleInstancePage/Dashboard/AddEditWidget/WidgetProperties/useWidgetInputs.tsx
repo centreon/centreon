@@ -165,6 +165,21 @@ export const useWidgetInputs = (
                 );
               }
 
+              if (equals(method, 'includes-only')) {
+                const formValue = path(when.split('.'), values);
+                const property = value.hiddenCondition?.property;
+                const items = property ? pluck(property, formValue) : formValue;
+
+                return (
+                  hasModule &&
+                  (isEmpty(reject(equals(''), items)) ||
+                    !equals(
+                      items.filter((v) => v),
+                      matches
+                    ))
+                );
+              }
+
               if (equals(method, 'isNil')) {
                 const formValue = path(when.split('.'), values);
 
