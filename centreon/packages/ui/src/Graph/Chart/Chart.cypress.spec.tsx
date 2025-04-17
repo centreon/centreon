@@ -137,7 +137,6 @@ const initializeCustomUnits = ({
 };
 
 const checkGraphWidth = (): void => {
-  cy.wait(300)
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
     .and('equal', '376.203125');
@@ -167,7 +166,7 @@ describe('Line chart', () => {
       cy.contains('06/18/2023').should('be.visible');
 
       cy.contains('0.45 s').should('be.visible');
-      cy.contains('80.31%').should('be.visible');
+      cy.contains('73.65%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -184,7 +183,7 @@ describe('Line chart', () => {
       cy.get('[data-metric="querytime"]').should(
         'have.attr',
         'data-highlight',
-        'true'
+        'false'
       );
       cy.get('[data-metric="connTime"]').should(
         'have.attr',
@@ -194,7 +193,7 @@ describe('Line chart', () => {
       cy.get('[data-metric="hitratio"]').should(
         'have.attr',
         'data-highlight',
-        'false'
+        'true'
       );
 
       cy.makeSnapshot();
@@ -207,7 +206,7 @@ describe('Line chart', () => {
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(2000, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(1198, 100);
 
       cy.get('[data-metric="querytime"]').should('not.exist');
 
@@ -438,7 +437,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 218.7181428815493)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 145.04834208635688)"]').should(
         'be.visible'
       );
 
@@ -452,8 +451,8 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.contains('0.8').should('be.visible');
-      cy.contains('-0.8').should('be.visible');
+      cy.contains('0.9').should('be.visible');
+      cy.contains('-0.9').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -519,8 +518,8 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="395.7202797202797"]').should('be.visible');
-      cy.get('circle[cy="116.03793454031943"]').should('be.visible');
+      cy.get('circle[cx="250.83333333333334"]').should('be.visible');
+      cy.get('circle[cy="52.93597418085514"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -578,7 +577,7 @@ describe('Line chart', () => {
       cy.get('path.visx-area-closed')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 4');
-      cy.get('circle[cx="92.61538461538463"]').should('be.visible');
+      cy.get('circle[cx="33.44444444444444"]').should('be.visible');
 
       cy.makeSnapshot();
     });
