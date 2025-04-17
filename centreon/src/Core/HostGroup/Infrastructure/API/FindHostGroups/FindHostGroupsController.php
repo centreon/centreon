@@ -42,8 +42,7 @@ final class FindHostGroupsController extends AbstractController
 {
     public function __invoke(
         FindHostGroups $useCase,
-        StandardPresenter $presenter,
-        bool $isCloudPlatform,
+        StandardPresenter $presenter
     ): Response {
         $response = $useCase();
 
@@ -51,10 +50,6 @@ final class FindHostGroupsController extends AbstractController
             return $this->createResponse($response);
         }
 
-        return JsonResponse::fromJsonString($presenter->present(
-            $response,
-            ['groups' => [$isCloudPlatform ? 'HostGroup:List:Saas' : 'HostGroup:List:OnPrem'],
-            ]
-        ));
+        return JsonResponse::fromJsonString($presenter->present($response, ['groups' => ['HostGroup:List']]));
     }
 }
