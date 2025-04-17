@@ -96,8 +96,6 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             return;
         }
 
-        $csvResources = $this->transformToCsv($response->getResources());
-
         try {
             $csvHeader = $this->getHeaderByFilteredColumns($response->getFilteredColumns());
         } catch (CollectionException $exception) {
@@ -122,11 +120,9 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
 
         $csvHeader = $this->sortHeaderByFilteredColumns($csvHeader, $response->getFilteredColumns());
 
-        $this->viewModel->setHeaders($csvHeader);
+        $csvResources = $this->transformToCsvByHeader($response->getResources(), $csvHeader);
 
-        if (! $response->getFilteredColumns()->isEmpty()) {
-            $csvResources = $this->filterColumns($csvResources, $csvHeader);
-        }
+        $this->viewModel->setHeaders($csvHeader);
 
         $this->viewModel->setResources($csvResources);
         $this->viewModel->setExportedFormat($response->getExportedFormat());
@@ -147,11 +143,11 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      *
      * @return \Traversable<array<string,mixed>>
      */
-    private function transformToCsv(\Traversable $resources): \Traversable
+    private function transformToCsvByHeader(\Traversable $resources, StringCollection $csvHeader): \Traversable
     {
         /** @var ResourceEntity $resource */
         foreach ($resources as $resource) {
-            yield [
+            $resource = [
                 _('Resource Type') => _($this->formatLabel($resource->getType() ?? '')),
                 _('Resource Name') => _($resource->getName() ?? ''),
                 _('Status') => _($this->formatLabel($resource->getStatus()?->getName() ?? '')),
@@ -166,17 +162,23 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                 _('Tries') => $resource->getTries() ?? '',
                 _('Severity') => $resource->getSeverity()?->getLevel() ?? '',
                 _('Notes') => $this->getResourceNotes($resource),
-                _('Action') => $this->formatUrl($resource->getLinks()->getExternals()->getActionUrl() ?? '', $resource),
+                _('Action') => $this->formatUrl(
+                    $resource->getLinks()->getExternals()->getActionUrl() ?? '', $resource
+                ),
                 _('State') => _($this->getResourceState($resource)),
                 _('Alias') => $resource->getAlias() ?? '',
                 _('Parent alias') => $resource->getParent()?->getAlias() ?? '',
                 _('FQDN / Address') => $resource->getFqdn() ?? '',
                 _('Monitoring server') => $resource->getMonitoringServerName(),
-                _('Notif') => $resource->isNotificationEnabled() ? _('Notifications enabled') : _(
-                    'Notifications disabled'
-                ),
+                _('Notif') => $resource->isNotificationEnabled()
+                    ? _('Notifications enabled') : _('Notifications disabled'),
                 _('Check') => _($this->getResourceCheck($resource)),
             ];
+            $line = array_map(
+                fn($key) => $resource[$key],
+                $csvHeader->values()
+            );
+            yield $line;
         }
     }
 
@@ -188,7 +190,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      */
     private function getHeaderByFilteredColumns(StringCollection $filteredColumns): StringCollection
     {
-        $header = StringCollection::create([
+        $csvHeader = StringCollection::create([
             'resource_type' => _('Resource Type'),
             'resource_name' => _('Resource Name'),
             'status' => _('Status'),
@@ -212,10 +214,10 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         ]);
 
         if ($filteredColumns->isEmpty()) {
-            return $header;
+            return $csvHeader;
         }
 
-        return $header->filterOnKey(function ($key) use ($filteredColumns) {
+        return $csvHeader->filterOnKey(function ($key) use ($filteredColumns) {
             // if the key is a resource or parent_resource, we keep all columns starting with this key
             if (str_starts_with($key, 'resource_')) {
                 $key = 'resource';
@@ -230,16 +232,16 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
     }
 
     /**
-     * @param StringCollection $header
+     * @param StringCollection $csvHeader
      * @param StringCollection $filteredColumns
      *
      * @return StringCollection
      */
     private function sortHeaderByFilteredColumns(
-        StringCollection $header,
+        StringCollection $csvHeader,
         StringCollection $filteredColumns
     ): StringCollection {
-        $header->sortByKeys(function ($keyA, $keyB) use ($filteredColumns) {
+        $csvHeader->sortByKeys(function ($keyA, $keyB) use ($filteredColumns) {
             // if the key is a resource or parent_resource, we keep all columns starting with this key
             if (str_starts_with($keyA, 'resource_')) {
                 $keyA = 'resource';
@@ -259,20 +261,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             return $filteredColumns->indexOf($keyA) <=> $filteredColumns->indexOf($keyB);
         });
 
-        return $header;
-    }
-
-    /**
-     * @param \Traversable<array<string,mixed>> $csvResources
-     * @param StringCollection $columns
-     *
-     * @return \Traversable<array<string,mixed>>
-     */
-    private function filterColumns(\Traversable $csvResources, StringCollection $columns): \Traversable
-    {
-        foreach ($csvResources as $resource) {
-            yield array_filter($resource, fn($key) => $columns->contains($key), ARRAY_FILTER_USE_KEY);
-        }
+        return $csvHeader;
     }
 
     /**
