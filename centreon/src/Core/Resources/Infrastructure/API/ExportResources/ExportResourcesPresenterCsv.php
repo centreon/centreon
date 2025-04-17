@@ -171,7 +171,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                 _('Alias') => $resource->getAlias() ?? '',
                 _('Parent alias') => $resource->getParent()?->getAlias() ?? '',
                 _('FQDN / Address') => $resource->getFqdn() ?? '',
-                _('Monitoring Server') => $resource->getMonitoringServerName(),
+                _('Monitoring server') => $resource->getMonitoringServerName(),
                 _('Notif') => $resource->isNotificationEnabled() ? _('Notifications enabled') : _(
                     'Notifications disabled'
                 ),
@@ -206,7 +206,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             'alias' => _('Alias'),
             'parent_alias' => _('Parent alias'),
             'fqdn' => _('FQDN / Address'),
-            'monitoring_server_name' => _('Monitoring Server'),
+            'monitoring_server_name' => _('Monitoring server'),
             'notification' => _('Notif'),
             'checks' => _('Check'),
         ]);
