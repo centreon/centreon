@@ -689,13 +689,13 @@ jobs:
     steps:
       - name: Installing of development dependencies
         run: composer install --optimize-autoloader
-        working-directory: centreon
+#        working-directory: centreon
       - name: Check syntax of yaml files using by Symfony
         run: composer symfony:check:yaml
-        working-directory: centreon
+#        working-directory: centreon
       - name: Check injection of services in Symfony
         run: composer symfony:check:container
-        working-directory: centreon
+#        working-directory: centreon
 
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, dockerize, symfony-check]
