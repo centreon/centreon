@@ -1,30 +1,19 @@
 Core\HostGroup\Domain\Model\HostGroup:
   attributes:
     id:
-      groups: ['HostGroup:List:Saas', 'HostGroup:List:OnPrem']
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
     name:
-      groups: ['HostGroup:List:Saas', 'HostGroup:List:OnPrem']
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
     alias:
-      groups: ['HostGroup:List:Saas', 'HostGroup:List:OnPrem']
-    notes:
-      groups: ['HostGroup:List:OnPrem']
-    notesUrl:
-      serialized_name: 'notes_url'
-      groups: ['HostGroup:List:OnPrem']
-    actionUrl:
-      serialized_name: 'action_url'
-      groups: ['HostGroup:List:OnPrem']
-    iconMapId:
-      serialized_name: 'icon_map_id'
-      groups: ['HostGroup:List:OnPrem']
-    rrdRetention:
-      serialized_name: 'rrd'
-      groups: ['HostGroup:List:OnPrem']
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
     geoCoords:
       serialized_name: 'geo_coords'
-      groups: ['HostGroup:List:Saas', 'HostGroup:List:OnPrem']
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
     comment:
-      groups: ['HostGroup:List:OnPrem']
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
+    iconId:
+      serialized_name: 'icon_id'
+      groups: ['HostGroup:Add']
     isActivated:
       serialized_name: 'is_activated'
-      groups: ['HostGroup:List:Saas', 'HostGroup:List:OnPrem']
+      groups: ['HostGroup:List', 'HostGroup:Get']

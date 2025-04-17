@@ -59,6 +59,8 @@ export interface InputProps {
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+    disableSelectAll?: boolean;
+    limitTags?: number;
   };
   file?: {
     multiple?: boolean;
@@ -133,4 +135,5 @@ export interface Group {
   name: string;
   order: number;
   titleAttributes?: TypographyProps;
+  isDividerHidden?: boolean;
 }
