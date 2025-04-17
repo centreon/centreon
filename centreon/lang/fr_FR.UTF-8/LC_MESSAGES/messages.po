@@ -19863,7 +19863,9 @@ msgstr "Connexion initiée par le collecteur"
 msgid "OTLP Receiver"
 msgstr "Récepteur OTLP"
 
-<<<<<<< HEAD
+msgid "'{{total}} element(s) found"
+msgstr "'{{total}} élément(s) trouvé(s)"
+
 # ---- EXPORT CSV ----
 
 msgid "Resource Type"
@@ -19891,7 +19893,3 @@ msgid "Export will be processed but will not include all rows. You can still fil
 msgstr "L'export sera traité mais ne contiendra pas toutes les lignes. Vous pouvez cependant filtrer vos ressources pour réduire le nombre de lignes."
 
 # ---- END EXPORT CSV ----
-=======
-msgid "'{{total}} element(s) found"
-msgstr "'{{total}} élément(s) trouvé(s)"
->>>>>>> b2da5743f2637852a20144068445957dbf2d0bbf
