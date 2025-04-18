@@ -62,7 +62,8 @@ dnf install -y \
   rsync \
   sed \
   sudo \
-  zeromq
+  zeromq \
+  which
 
 #############################
 # install perl dependencies #
@@ -122,6 +123,9 @@ echo 'agentaddress  127.0.0.1' >> /etc/snmp/snmpd.conf
 dnf clean all --enablerepo=*
 
 EOF
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
