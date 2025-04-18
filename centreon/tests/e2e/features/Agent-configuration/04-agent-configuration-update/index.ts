@@ -50,7 +50,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 Given('an already existing agent configuration', () => {
   cy.contains('button', 'Add poller/agent configuration').click();
   cy.addTelegrafAgent(agentsConfiguration.telegraf1);
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });
 
@@ -110,7 +110,7 @@ When('the user updates some information', () => {
 });
 
 When('the user clicks on Save', () => {
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@updateAgents');
 });
 
