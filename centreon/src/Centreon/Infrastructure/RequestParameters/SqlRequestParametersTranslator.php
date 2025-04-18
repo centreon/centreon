@@ -296,9 +296,18 @@ class SqlRequestParametersTranslator
                 if ($mixedValue === '') {
                     $mixedValue = '.*';
                 }
-                preg_match('/' . $mixedValue . '/', '');
-                if (preg_last_error() !== PREG_NO_ERROR) {
-                    throw new RequestParametersTranslatorException('Bad regex format \'' . $mixedValue . '\'', 0);
+                try {
+                    $mixedValue = str_replace('/', '\/', $mixedValue);
+                    preg_match('/' . $mixedValue . '/', '');
+                    if (preg_last_error() !== PREG_NO_ERROR) {
+                        throw new RequestParametersTranslatorException('Bad regex format \'' . $mixedValue . '\'', 0);
+                    }
+                } catch (\ErrorException $exception) {
+                    throw new RequestParametersTranslatorException(
+                        message: 'Error while preg_match() the value : \'' . $mixedValue . '\'',
+                        code: 0,
+                        previous: $exception
+                    );
                 }
             }
             $bindKey = ':value_' . (count($this->searchValues) + 1);
