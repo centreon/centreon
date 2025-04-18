@@ -81,7 +81,8 @@ export const useInputs = (): {
       {
         name: t(labelParameters),
         order: 2,
-        titleAttributes
+        titleAttributes,
+        isDividerHidden: true
       }
     ],
     inputs: [
