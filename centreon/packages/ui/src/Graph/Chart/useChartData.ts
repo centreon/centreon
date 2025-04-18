@@ -19,6 +19,7 @@ import { emphasizeCurveColor } from '../common/utils';
 
 import { adjustGraphData } from './helpers';
 import type { Data } from './models';
+import { clampValue } from '../common/timeSeries';
 
 interface GraphDataResult {
   adjustedData?: Data;
@@ -81,7 +82,15 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
     adjustedDataRef.current = {
       baseAxis,
       lines: sortedLines,
-      timeSeries,
+      timeSeries: timeSeries.map((timeSerie) => {
+        return Object.entries(timeSerie).reduce((acc, [key, value]) => {
+          if (key === 'timeTick') {
+            return { ...acc, [key]: value };
+          }
+
+          return { ...acc, [key]: clampValue({ value, min, max }) };
+        }, {});
+      }),
       title
     };
   }, [dataWithAdjustedMetricsColor, end, start]);

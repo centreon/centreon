@@ -33,7 +33,8 @@ import {
   reject,
   sortBy,
   split,
-  uniq
+  uniq,
+  clamp
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
@@ -82,6 +83,12 @@ const toTimeTickValue = (
 
   return { timeTick, ...getMetricsForIndex() };
 };
+
+interface GetTimeSeriesProps {
+  graphData: LineChartData;
+  min?: number;
+  max?: number;
+}
 
 const getTimeSeries = (graphData: LineChartData): Array<TimeValue> => {
   const isGreaterThanLowerLimit = (value): boolean => {
@@ -358,7 +365,7 @@ const getSanitizedValues = reject(
   (
     value:
       | number
-      | false
+      | boolean
       | typeof Number.POSITIVE_INFINITY
       | typeof Number.NEGATIVE_INFINITY
   ) =>
@@ -692,6 +699,28 @@ export const formatMetricName = ({
     : legendName;
 
   return metricName;
+};
+
+interface ClampValueProps {
+  value: number | null;
+  min?: number;
+  max?: number;
+}
+
+export const clampValue = ({
+  value,
+  min,
+  max
+}: ClampValueProps): number | null => {
+  if (isNil(value)) {
+    return value;
+  }
+
+  return clamp(
+    min || Number.NEGATIVE_INFINITY,
+    max || Number.POSITIVE_INFINITY,
+    value
+  );
 };
 
 export {
