@@ -51,7 +51,7 @@
       {
           "metric_id": 2,
           "metric": "used_/dev",
-          "host_name":"Centreon-Server",
+          "host_name":"Centreon-Server2",
           "metric_legend": "Centreon-Server2: used_/dev",
           "unit": "B",
           "min": 0,
@@ -98,7 +98,7 @@
       {
           "metric_id": 3,
           "metric": "used_/sys/fs/cgroup",
-          "host_name":"Centreon-Server",
+          "host_name":"Centreon-Server3",
           "metric_legend": "Centreon-Server3: used_/sys/fs/cgroup",
           "unit": "B",
           "min": 0,

@@ -287,7 +287,7 @@ describe('Graph Widget', () => {
 
   it('displays the line chart without thresholds when thresholds are disabled', () => {
     initializeComponent({ threshold: disabledThreshold });
-    cy.waitForRequest('@getLineChart')
+    cy.waitForRequest('@getLineChart');
 
     checkLegendHeader();
     cy.findByTestId('warning-line-65').should('not.exist');
@@ -300,8 +300,7 @@ describe('Graph Widget', () => {
 
   it('displays the line chart with customized warning threshold', () => {
     initializeComponent({ threshold: warningThreshold });
-    cy.waitForRequest('@getLineChart')
-
+    cy.waitForRequest('@getLineChart');
 
     cy.findByTestId('warning-line-20').should('be.visible');
 
@@ -313,8 +312,7 @@ describe('Graph Widget', () => {
 
   it('displays the line chart with customized critical threshold', () => {
     initializeComponent({ threshold: criticalThreshold });
-    cy.waitForRequest('@getLineChart')
-
+    cy.waitForRequest('@getLineChart');
 
     cy.findByTestId('warning-line-10').should('be.visible');
     cy.findByTestId('critical-line-20').should('be.visible');
@@ -502,8 +500,7 @@ describe('Graph Widget', () => {
       cy.findByRole('tooltip').as('tooltip');
 
       cy.fixture(graphDataPath).then((data) => {
-        data.metrics.forEach(({host_name, service_name, metric}) => {
-
+        data.metrics.forEach(({ host_name, service_name, metric }) => {
           if (equals(resourcesType, 'host')) {
             cy.get('@legendContainer').should('not.contain', host_name);
             cy.get('@legendContainer').should('contain', metric);
