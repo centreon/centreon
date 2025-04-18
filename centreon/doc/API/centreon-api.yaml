@@ -8,8 +8,13 @@ info:
     + Added new endpoint to bulk delete hostgroups
     + Added new endpoint to bulk enable/disable hostgroups
     + Added new endpoint to get a token
+    + Added new endpoint to bulk duplicate hostgroups
+    +
     # Updated features
+    + Updated endpoint to add an hostgroup
+    + Updated endpoint to update an hostgroup
     + Update FindHostGroups response
+    + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT)
     +
     # Information
     All dates are in **ISO 8601** format
@@ -677,7 +682,7 @@ paths:
   /configuration/hosts/groups:
     $ref: './latest/onPremise/Configuration/HostGroup/AddAndFindHostGroups.yaml'
   /configuration/hosts/groups/{hostgroup_id}:
-    $ref: './latest/onPremise/Configuration/HostGroup/FindAndDeleteAndUpdateHostGroup.yaml'
+    $ref: './latest/onPremise/Configuration/HostGroup/GetAndDeleteAndUpdateHostGroup.yaml'
   /configuration/hosts/groups/_delete:
     $ref: "./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml"
   /configuration/hosts/groups/{action}:
@@ -5155,6 +5160,7 @@ components:
         - contact_template
         - email_bind_attribute
         - fullname_bind_attribute
+        - requested_authn_context
         - logout_from
       properties:
         is_active:
@@ -5179,6 +5185,10 @@ components:
         user_id_attribute:
           type: string
           description: ""
+        requested_authn_context:
+          type: string
+          enum: ['minimum', 'exact', 'better', 'maximum']
+          description: "Requested authentication context"
         logout_from:
           type: boolean
           description: "Logout"

@@ -1,4 +1,7 @@
 <?php
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -61,11 +64,47 @@ $updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage)
     $pearDB->executeQuery(
         <<<'SQL'
             UPDATE `topology`
-            SET `topology_name` = 'Host Groups (deprecated)',
-                `topology_show` =  '0'
-            WHERE `topology_page` = 60102
+            SET `is_react` = '1',
+                `topology_url` = '/configuration/hosts/groups',
+            WHERE `topology_name` = 'Host Groups'
+                AND `topology_page` = 60102
         SQL
     );
+};
+
+$updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve SAML provider configuration';
+    $samlConfiguration = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM `provider_configuration`
+            WHERE `type` = 'saml'
+            SQL
+    );
+
+    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
+        throw new \Exception('SAML configuration is missing');
+    }
+
+    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+
+    if (!isset($customConfiguration['requested_authn_context'])) {
+        $customConfiguration['requested_authn_context'] = 'minimum';
+        $query = <<<'SQL'
+                UPDATE `provider_configuration`
+                SET `custom_configuration` = :custom_configuration
+                WHERE `type` = 'saml'
+            SQL;
+        $queryParameters = QueryParameters::create(
+            [
+                QueryParameter::string(
+                    'custom_configuration',
+                    json_encode($customConfiguration, JSON_THROW_ON_ERROR)
+                )
+            ]
+        );
+
+        $pearDB->update($query, $queryParameters);
+    }
 };
 
 // -------------------------------------------- Agent Configuration -------------------------------------------- //
@@ -148,6 +187,24 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
     }
 };
 
+/**
+  * Add Column connection_mode to agent_configuration table.
+  * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
+  *
+  * @param CentreonDB $pearDB
+  *
+  * @throws CentreonDbException
+  */
+  $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `agent_configuration`
+            ADD COLUMN `connection_mode` ENUM('no-tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
+            SQL
+    );
+};
+
 // -------------------------------------------- Token -------------------------------------------- //
 
 $createJwtTable = function () use ($pearDB, &$errorMessage) {
@@ -181,14 +238,13 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
                     `topology_name` = 'Authentication Tokens',
                     `topology_url` = '/administration/authentication-token'
             WHERE `topology_name` = 'API Tokens' AND `topology_url` = '/administration/api-token';
-        SQL
+            SQL
     );
 };
 
 try {
     $createJwtTable();
-
-    $updateTopologyForAuthenticationTokens();
+    $addConnectionModeColumnToAgentConfiguration();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
@@ -196,7 +252,9 @@ try {
     }
 
     $updateTopologyForHostGroup($pearDB);
+    $updateSamlProviderConfiguration($pearDB);
     $updateAgentConfiguration($pearDB);
+    $updateTopologyForAuthenticationTokens();
 
     $pearDB->commit();
 

@@ -4,15 +4,22 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { Button } from '@centreon/ui/components';
 
-import { useNavigate } from 'react-router';
+import { useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router';
+import { modalStateAtom } from '../../atoms';
 import { labelAdd } from '../../translatedLabels';
 
 const Add = (): JSX.Element => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+
+  const [, setSearchParams] = useSearchParams();
+
+  const setModalState = useSetAtom(modalStateAtom);
 
   const openCreatetModal = (): void => {
-    navigate('/main.php?p=60102&o=a');
+    setSearchParams({ mode: 'add' });
+
+    setModalState({ id: null, isOpen: true, mode: 'add' });
   };
 
   return (

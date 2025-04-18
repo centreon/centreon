@@ -42,7 +42,7 @@ INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topo
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (65,'Services',6,602,20,1,NULL,NULL,'0','0','1',NULL,NULL,NULL,'1');
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (66,'Users',6,603,30,1,NULL,NULL,'0','0','1',NULL,NULL,NULL,'1');
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (68,'Hosts',601,60101,10,1,'./include/configuration/configObject/host/host.php',NULL,'0','0','1',NULL,NULL,NULL,'0');
-INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (69,'Host Groups (deprecated)',601,60102,20,1,'./include/configuration/configObject/hostgroup/hostGroup.php',NULL,'0','0','0',NULL,NULL,NULL,'0');
+INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `readonly`, `is_react`) VALUES (69,'Host Groups',601,60102,20,1,'/configuration/hosts/groups','1','0','1' );
 
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (70,'Templates',601,60103,30,1,'./include/configuration/configObject/host_template_model/hostTemplateModel.php',NULL,'0','0','1',NULL,NULL,NULL,'0');
 INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_url_opt`, `topology_popup`, `topology_modules`, `topology_show`, `topology_style_class`, `topology_style_id`, `topology_OnClick`, `readonly`) VALUES (71,'Recurrent downtimes',210,21003,20,1,'./include/monitoring/recurrentDowntime/downtime.php',NULL,'0','0','1',NULL,NULL,NULL,'0');
@@ -202,9 +202,6 @@ INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`,
 
 -- add vault configuration page
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_feature_flag`) VALUES ( 'Vault', '/administration/parameters/vault', '1', '1', 501, 50112, 100, 1, 'vault');
-
--- add  react configuration page
-INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_show`) VALUES ('Host Groups', '/configuration/hosts/groups', '1', '1', 601, 60105,21,1,'1');
 
 /*!40000 ALTER TABLE `topology` ENABLE KEYS */;
 UNLOCK TABLES;

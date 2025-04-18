@@ -27,7 +27,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
 
-  const certificateValidation = useMemo(
+  const certificateFileValidation = useMemo(
     () =>
       string()
         .test({
@@ -48,26 +48,39 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
     []
   );
 
+  const certificateValidation = string().when('$connectionMode.id', {
+    is: 'secure',
+    // biome-ignore lint/suspicious/noThenProperty: <explanation>
+    then: () => certificateFileValidation.required(t(labelRequired)),
+    otherwise: () => string().nullable()
+  });
+
+  const certificateNullableValidation = string().when('$connectionMode.id', {
+    is: 'secure',
+    // biome-ignore lint/suspicious/noThenProperty: <explanation>
+    then: () => certificateFileValidation.nullable(),
+    otherwise: () => string().nullable()
+  });
+
   const portValidation = number()
     .min(1, t(labelPortMustStartFrom1))
     .max(65535, t(labelPortExpectedAtMost))
     .required(t(labelRequired));
-  const certificateNullableValidation = certificateValidation.nullable();
 
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
-    otelPublicCertificate: certificateValidation.required(t(labelRequired)),
+    otelPublicCertificate: certificateValidation,
     otelCaCertificate: certificateNullableValidation,
-    otelPrivateKey: certificateValidation.required(t(labelRequired)),
-    confCertificate: certificateValidation.required(t(labelRequired)),
-    confPrivateKey: certificateValidation.required(t(labelRequired))
+    otelPrivateKey: certificateValidation,
+    confCertificate: certificateValidation,
+    confPrivateKey: certificateValidation
   };
 
   const CMAConfigurationSchema = {
     isReverse: boolean(),
-    otelPublicCertificate: certificateValidation.required(t(labelRequired)),
-    otelCaCertificate: certificateValidation.nullable(),
-    otelPrivateKey: certificateValidation.required(t(labelRequired)),
+    otelPublicCertificate: certificateValidation,
+    otelCaCertificate: certificateNullableValidation,
+    otelPrivateKey: certificateValidation,
     hosts: array()
       .of(
         object({
@@ -87,7 +100,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       )
       .when('isReverse', {
         is: true,
-        // biome-ignore lint/suspicious/noThenProperty:
+        // biome-ignore lint/suspicious/noThenProperty: <explanation>
         then: (schema) => schema.min(1),
         otherwise: (schema) => schema.min(0)
       })
@@ -104,6 +117,10 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         })
       )
       .min(1, t(labelRequired)),
+    connectionMode: object({
+      id: string(),
+      name: string()
+    }).nullable(),
     configuration: object().when('type', {
       is: (type) => equals(type?.id, AgentType.Telegraf),
       // biome-ignore lint/suspicious/noThenProperty: <explanation>
