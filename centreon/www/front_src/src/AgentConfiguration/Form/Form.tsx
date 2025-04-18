@@ -4,7 +4,7 @@ import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfig
 import { AgentConfigurationForm as AgentConfigurationFormModel } from '../models';
 import Buttons from './Buttons';
 import { useFormStyles } from './Modal.styles';
-import { encryptionLevels, useInputs } from './useInputs';
+import { getConnectionModes, useInputs } from './useInputs';
 import { useValidationSchema } from './useValidationSchema';
 
 interface Props {
@@ -17,7 +17,7 @@ const defaultInitialValues = {
   type: null,
   pollers: [],
   configuration: {},
-  connectionMode: find(propEq('secure', 'id'), encryptionLevels)
+  connectionMode: find(propEq('secure', 'id'), getConnectionModes())
 };
 
 const AgentConfigurationForm = ({

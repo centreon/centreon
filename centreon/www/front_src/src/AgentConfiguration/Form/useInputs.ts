@@ -15,6 +15,7 @@ import {
   labelConnectionInitiatedByPoller,
   labelEncryptionLevel,
   labelHostConfigurations,
+  labelInsecure,
   labelName,
   labelNoTLS,
   labelOTLPReceiver,
@@ -41,9 +42,13 @@ export const agentTypes: Array<SelectEntry> = [
   { id: AgentType.CMA, name: labelCMA }
 ];
 
-export const encryptionLevels: Array<SelectEntry> = [
-  { id: ConnectionMode.secure, name: labelTLS },
-  { id: ConnectionMode.noTLS, name: labelNoTLS }
+export const getConnectionModes = (translate?): Array<SelectEntry> => [
+  { id: ConnectionMode.secure, name: translate?.(labelTLS) || labelTLS },
+  { id: ConnectionMode.noTLS, name: translate?.(labelNoTLS) || labelNoTLS },
+  {
+    id: ConnectionMode.insecure,
+    name: translate?.(labelInsecure) || labelInsecure
+  }
 ];
 
 export const useInputs = (): {
@@ -133,7 +138,7 @@ export const useInputs = (): {
               required: true,
               label: t(labelEncryptionLevel),
               autocomplete: {
-                options: encryptionLevels
+                options: getConnectionModes(t)
               }
             }
           ]
@@ -147,7 +152,7 @@ export const useInputs = (): {
         hideInput: (values) =>
           isNil(values.type) ||
           isNil(values?.connectionMode) ||
-          equals(values?.connectionMode?.id, ConnectionMode.secure),
+          !equals(values?.connectionMode?.id, ConnectionMode.noTLS),
         custom: {
           Component: EncryptionLevelWarning
         }
