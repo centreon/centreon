@@ -695,11 +695,6 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Installing of composer
-        uses: ramsey/composer-install@a2636af0004d1c0499ffca16ac0b4cc94df70565 # v3.1.0
-        with:
-          composer-options: "--optimize-autoloader"
-
       - name: Installing of development dependencies
         run: composer install --optimize-autoloader
 
