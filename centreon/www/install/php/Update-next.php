@@ -186,7 +186,7 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
 };
 
 try {
-    $createJwtTable($peadDB);
+    $createJwtTable();
 
     $updateTopologyForAuthenticationTokens();
 
