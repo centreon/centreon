@@ -1,7 +1,7 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
 import { capitalize } from '@mui/material';
 import { useAtom } from 'jotai';
-import { equals, isNil } from 'ramda';
+import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { pollersEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
@@ -42,12 +42,12 @@ export const agentTypes: Array<SelectEntry> = [
   { id: AgentType.CMA, name: labelCMA }
 ];
 
-export const getConnectionModes = (translate?): Array<SelectEntry> => [
-  { id: ConnectionMode.secure, name: translate?.(labelTLS) || labelTLS },
-  { id: ConnectionMode.noTLS, name: translate?.(labelNoTLS) || labelNoTLS },
+export const connectionModes: Array<SelectEntry> = [
+  { id: ConnectionMode.secure, name: labelTLS },
+  { id: ConnectionMode.noTLS, name: labelNoTLS },
   {
     id: ConnectionMode.insecure,
-    name: translate?.(labelInsecure) || labelInsecure
+    name: labelInsecure
   }
 ];
 
@@ -139,7 +139,10 @@ export const useInputs = (): {
               required: true,
               label: t(labelEncryptionLevel),
               autocomplete: {
-                options: getConnectionModes(t)
+                options: map(
+                  ({ id, name }) => ({ id, name: t(name) }),
+                  connectionModes
+                )
               }
             }
           ]
