@@ -113,7 +113,7 @@ export const getListingQueryParameters = ({
       return resourcesToApply.map((resource) => ({
         field: resourcesSearchMapping[resourceType],
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }
@@ -194,7 +194,7 @@ export const buildCondensedViewEndpoint = ({
       return resourcesToApply.map((resource) => ({
         field: resourceType,
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }
