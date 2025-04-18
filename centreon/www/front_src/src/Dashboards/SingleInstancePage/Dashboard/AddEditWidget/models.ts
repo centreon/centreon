@@ -64,6 +64,7 @@ export interface WidgetPropertyProps {
   type: string;
   useAdditionalResources?: boolean;
   isRequiredProperty?: boolean;
+  tooltipLabel?: string;
 }
 
 export interface WidgetDataResource {

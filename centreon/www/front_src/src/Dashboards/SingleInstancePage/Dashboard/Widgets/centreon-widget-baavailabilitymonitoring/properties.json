@@ -38,7 +38,8 @@
         "customWarning": null,
         "warningType": "default"
       },
-      "label": "threshold"
+      "label": "threshold",
+      "tooltipLabel": "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
     },
     "refreshInterval": {
       "type": "refresh-interval",
@@ -52,7 +53,21 @@
       "defaultValue": [],
       "required": true,
       "useAdditionalResources": true,
-      "restrictedResourceTypes": ["business-view", "business-activity"]
+      "restrictedResourceTypes": ["business-view", "business-activity"],
+      "subInputs": [
+        {
+          "name": "warningtext",
+          "displayValue": ["business-view"],
+          "customPropertyMatch": {
+            "method": "pluck",
+            "property": "resourceType"
+          },
+          "input": {
+            "type": "warning",
+            "label": "By default, the data of Business Views is aggregated monthly over the past 12 months (if available)."
+          }
+        }
+      ]
     }
   },
   "singleResourceSelection": true

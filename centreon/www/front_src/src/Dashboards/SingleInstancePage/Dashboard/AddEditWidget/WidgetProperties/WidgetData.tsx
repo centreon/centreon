@@ -6,11 +6,15 @@ import { labelDatasetSelection } from '../../translatedLabels';
 
 import { useWidgetInputs } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
+import { getDataProperty } from './Inputs/utils';
+import { FormikValues, useFormikContext } from 'formik';
+import SubInputs from './SubInputs';
 
 const WidgetData = (): JSX.Element => {
   const { t } = useTranslation();
 
   const { classes } = useWidgetPropertiesStyles();
+  const { values } = useFormikContext<FormikValues>();
 
   const widgetData = useWidgetInputs('data');
 
@@ -22,7 +26,15 @@ const WidgetData = (): JSX.Element => {
       <div className={classes.widgetDataContent}>
         {(widgetData || []).map(({ Component, key, props }) => (
           <div className={classes.widgetDataItem} key={key}>
-            <Component {...props} />
+            <SubInputs
+              subInputs={props.subInputs}
+              value={getDataProperty({
+                obj: values,
+                propertyName: props.propertyName
+              })}
+            >
+              <Component {...props} />
+            </SubInputs>
           </div>
         ))}
       </div>
