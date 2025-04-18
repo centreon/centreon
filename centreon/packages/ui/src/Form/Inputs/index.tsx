@@ -20,6 +20,8 @@ import {
   groupBy,
   isEmpty,
   isNil,
+  isNotEmpty,
+  isNotNil,
   keys,
   last,
   not,
@@ -204,7 +206,6 @@ const Inputs = ({
           : ({} as Group);
 
         const hasGroupDivider = !groups[index]?.isDividerHidden;
-
         const isFirstElement = areGroupsOpen || equals(index, 0);
 
         return (
@@ -219,22 +220,19 @@ const Inputs = ({
               >
                 <div className={classes.inputs}>
                   {groupedInputs.map((inputProps) => {
+                    const key =
+                      isNotNil(inputProps.label) || isNotEmpty(inputProps.label)
+                        ? inputProps.label
+                        : inputProps.additionalLabel;
+
                     if (isLoading) {
-                      return (
-                        <LoadingSkeleton
-                          input={inputProps}
-                          key={inputProps.label}
-                        />
-                      );
+                      return <LoadingSkeleton input={inputProps} key={key} />;
                     }
 
                     const Input = getInput(inputProps.type);
 
                     return (
-                      <div
-                        className={classes.inputWrapper}
-                        key={inputProps.label}
-                      >
+                      <div className={classes.inputWrapper} key={key}>
                         {inputProps.additionalLabel && (
                           <Typography
                             className={cx(

@@ -66,7 +66,7 @@ When('the user fills in all the information', () => {
 });
 
 When('the user clicks on Create', () => {
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
 });
 
 Then('the first agent is displayed in the Agents Configuration page', () => {
@@ -149,6 +149,9 @@ When('the user fills in the centreon agent parameters', () => {
   cy.getByLabel({ label: 'CA', tag: 'input' })
     .eq(1)
     .type('my-certificate-name-003.crt');
+  cy.getByLabel({ label: 'CA', tag: 'input' })
+    .eq(2)
+    .type('my-certificate-name-003.crt');
 });
 
 Then('the third agent is displayed in the Agents Configuration page', () => {
@@ -178,9 +181,7 @@ When("the user doesn't fill in all the mandatory information", () => {
 });
 
 Then('the user cannot click on Create', () => {
-  cy.getByTestId({ testId: 'SaveIcon' })
-    .parents('button')
-    .should('be.disabled');
+  cy.getByTestId({ testId: 'submit' }).should('be.disabled');
 });
 
 When("the user doesn't fill in correct type of information", () => {
@@ -208,13 +209,17 @@ When("the user doesn't fill in correct type of information", () => {
 });
 
 Then('the form displayed an error', () => {
-  cy.getByTestId({ testId: 'Public certificate' }).eq(0).contains('Invalid extension');
+  cy.getByTestId({ testId: 'Public certificate' })
+    .eq(0)
+    .contains('Invalid extension');
   cy.getByTestId({ testId: 'CA' }).eq(0).contains('Invalid extension');
   cy.getByTestId({ testId: 'Private key' }).eq(0).contains('Invalid extension');
   cy.getByTestId({ testId: 'Port' }).contains(
     'Port number must be at most 65535'
   );
-  cy.getByTestId({ testId: 'Public certificate' }).eq(2).contains('Invalid extension');
+  cy.getByTestId({ testId: 'Public certificate' })
+    .eq(2)
+    .contains('Invalid extension');
   cy.getByTestId({ testId: 'Private key' }).eq(2).contains('Invalid extension');
 });
 
