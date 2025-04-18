@@ -13,8 +13,7 @@ export const useStyles = makeStyles<StyleProps>()(
       color: theme.palette.primary.main,
       fontSize: theme.typography.subtitle1.fontSize,
       fontWeight: theme.typography.fontWeightMedium,
-      marginBottom: theme.spacing(0.5),
-      marginTop: theme.spacing(0.5)
+      marginBottom: theme.spacing(0.5)
     },
     channels: {
       paddingBottom: theme.spacing(1),

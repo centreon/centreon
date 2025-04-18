@@ -49,14 +49,14 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   );
 
   const certificateValidation = string().when('$connectionMode.id', {
-    is: 'secure',
+    is: (value: string) => equals(value, 'secure') || equals(value, 'insecure'),
     // biome-ignore lint/suspicious/noThenProperty: <explanation>
     then: () => certificateFileValidation.required(t(labelRequired)),
     otherwise: () => string().nullable()
   });
 
   const certificateNullableValidation = string().when('$connectionMode.id', {
-    is: 'secure',
+    is: (value: string) => equals(value, 'secure') || equals(value, 'insecure'),
     // biome-ignore lint/suspicious/noThenProperty: <explanation>
     then: () => certificateFileValidation.nullable(),
     otherwise: () => string().nullable()

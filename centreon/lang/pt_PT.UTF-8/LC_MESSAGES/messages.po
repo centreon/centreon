@@ -18522,3 +18522,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Maximum"
 # msgstr ""
+
+# msgid "TLS"
+# msgstr ""
+
+# msgid "No TLS"
+# msgstr ""
+
+# msgid "TLS insecure"
+# msgstr ""
