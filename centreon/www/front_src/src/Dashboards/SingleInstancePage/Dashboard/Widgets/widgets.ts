@@ -26,6 +26,13 @@ const internalWidgets: Array<
     panelDefaultHeight: 6
   },
   {
+    name: 'batimeline',
+    panelDefaultHeight: 3,
+    panelDefaultWidth: 12,
+    panelMinWidth: 3,
+    panelMinHeight: 2
+  },
+  {
     name: 'metriccapacityplanning',
     panelMinHeight: 4,
     panelMinWidth: 8,

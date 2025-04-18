@@ -19605,9 +19605,6 @@ msgstr "Erreur durant la récupération de multiples configurations collecteur/a
 msgid "Sticky for any non-OK status"
 msgstr "Sticky pour tout statut non-OK"
 
-msgid "Select a Business Activity to display the preview."
-msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
-
 msgid "year"
 msgstr "année"
 
@@ -19649,6 +19646,17 @@ msgstr "PNG (petite taille)"
 
 msgid "Export as"
 msgstr "Exporter en tant que"
+
+msgid "Select a Business Activity to display the preview."
+msgstr "Sélectionnez une activité métier pour afficher l'aperçu."
+
+msgid "Displays the distribution of current statuses on a BA, as a chronological timeline for a given time period."
+msgstr "Affiche la répartition des statuts actuels sur une BA, sous forme de frise chronologique pour une période donnée."
+
+msgid "Business Activity status timeline"
+msgstr "Chronologie de statut d'une activité métier"
+
+
 
 msgid "If you click on Discard, your changes will not be saved."
 msgstr "Si vous cliquez sur Annuler, vos changements ne seront pas sauvegardés."
