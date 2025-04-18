@@ -51,14 +51,14 @@ class TokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInt
          * @var array<string, mixed> $response
          * @var array{groups?:string[]} $context
          */
-        $response = $this->normalizer->normalize($object->getData()->apiToken, $format, $context);
+        $response = $this->normalizer->normalize($object->getData()->token, $format, $context);
 
         $matches = array_filter(
             $context['groups'] ?? [],
             fn(string $group): bool => in_array($group, ['Token:Add', 'Token:Get'], true)
         );
         if ($matches !== []) {
-            $response['token'] = $object->getData()->token;
+            $response['token'] = $object->getData()->tokenString;
         }
 
         return $response;

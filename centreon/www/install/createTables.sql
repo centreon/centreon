@@ -2396,7 +2396,7 @@ CREATE TABLE `security_authentication_tokens` (
   `provider_configuration_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `token_name` varchar(255) DEFAULT NULL,
-  `token_type` enum('auto', 'api', 'cma') NOT NULL DEFAULT 'auto',
+  `token_type` enum('auto', 'manual') NOT NULL DEFAULT 'auto',
   `creator_id` int(11) DEFAULT NULL,
   `creator_name` varchar(255) DEFAULT NULL,
   `is_revoked` BOOLEAN NOT NULL DEFAULT 0,
@@ -2718,6 +2718,20 @@ CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
     FOREIGN KEY (`dashboard_id`)
     REFERENCES `dashboard` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `jwt_tokens` (
+    `token_string` varchar(4096) DEFAULT NULL COMMENT 'Encoded JWT token',
+    `token_name` VARCHAR(255) NOT NULL COMMENT 'Token name',
+    `creator_id` INT(11) DEFAULT NULL COMMENT 'User ID of the token creator',
+    `creator_name` VARCHAR(255) DEFAULT NULL COMMENT 'User name of the token creator',
+    `encoding_key` VARCHAR(255) DEFAULT NULL COMMENT 'encoding key',
+    `is_revoked` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Define if token is revoked',
+    `creation_date` bigint UNSIGNED NOT NULL COMMENT 'Creation date of the token',
+    `expiration_date` bigint UNSIGNED DEFAULT NULL COMMENT 'Expiration date of the token',
+    PRIMARY KEY (`token_name`),
+    CONSTRAINT `jwt_tokens_user_id_fk` FOREIGN KEY (`creator_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for JWT tokens';
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

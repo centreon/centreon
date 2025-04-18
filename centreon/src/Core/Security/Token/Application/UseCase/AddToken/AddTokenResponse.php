@@ -28,7 +28,7 @@ use Core\Security\Token\Domain\Model\Token;
 
 final class AddTokenResponse implements StandardResponseInterface
 {
-    public function __construct(public Token $apiToken, public string $token)
+    public function __construct(public Token $token, public string $tokenString)
     {
     }
 

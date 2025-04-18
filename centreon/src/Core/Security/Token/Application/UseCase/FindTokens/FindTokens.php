@@ -26,7 +26,6 @@ namespace Core\Security\Token\Application\UseCase\FindTokens;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
@@ -39,12 +38,10 @@ final class FindTokens
     use LoggerTrait;
 
     /**
-     * @param RequestParametersInterface $requestParameters
      * @param ReadTokenRepositoryInterface $readTokenRepository
      * @param ContactInterface $user
      */
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
         private readonly ContactInterface $user,
     ) {
@@ -53,15 +50,9 @@ final class FindTokens
     public function __invoke(): ResponseStatusInterface|StandardResponseInterface
     {
         try {
-            $this->info('Find authentication tokens', ['parameters' => $this->requestParameters->getSearch()]);
-            if ($this->canDisplayAllTokens()) {
-                $tokens = $this->readTokenRepository->findByRequestParameters($this->requestParameters);
-            } else {
-                $tokens = $this->readTokenRepository->findByIdAndRequestParameters(
-                    $this->user->getId(),
-                    $this->requestParameters
-                );
-            }
+            $tokens = $this->canDisplayAllTokens()
+                ? $this->readTokenRepository->findByRequestParameters()
+                : $this->readTokenRepository->findByUserIdAndRequestParameters($this->user->getId());
 
             return new FindTokensResponse($tokens);
         } catch (RequestParametersTranslatorException $ex) {
