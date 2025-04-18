@@ -79,6 +79,10 @@ export interface SubInput {
   displayValue: unknown;
   input: Omit<FederatedWidgetOption, 'group' | 'hiddenCondition' | 'subInputs'>;
   name: string;
+  customPropertyMatch?: {
+    method: 'pluck';
+    property: string;
+  };
 }
 
 export interface FederatedWidgetOption {
