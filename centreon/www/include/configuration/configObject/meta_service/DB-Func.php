@@ -42,8 +42,10 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonMeta.class.php';
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
  * Check if a meta service exists for a given name
@@ -64,18 +66,14 @@ function testExistence($name = null)
         $meta = $pearDB->fetchAssociative($query, QueryParameters::create([
             QueryParameter::string('meta_name', getParamValue($name, sanitize: true))
         ]));
-    } catch (ConnectionException $exception) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error while executing testExistence',
             [
-                'query' => $query,
                 'metaName' => $name,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
         $meta = false;
     }
@@ -104,21 +102,17 @@ function enableMetaServiceInDB($metaId = null)
         ->where("meta_id = :meta_id")
         ->getQuery();
     try {
-        $pearDB->executeStatement($query, QueryParameters::create([
+        $pearDB->update($query, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId)
         ]));
-    } catch (ConnectionException $exception) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error while enabling meta_service',
             [
-                'query' => $query,
                 'metaId' => $metaId,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
     }
 }
@@ -141,21 +135,17 @@ function disableMetaServiceInDB($metaId = null)
         ->where("meta_id = :meta_id")
         ->getQuery();
     try {
-        $pearDB->executeStatement($query, QueryParameters::create([
+        $pearDB->update($query, QueryParameters::create([
             QueryParameter::int('meta_id', (int)$metaId)
         ]));
-    } catch (ConnectionException $exception) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error while disabling meta_service',
             [
-                'query'  => $query,
                 'metaId' => $metaId,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
     }
 }
@@ -185,18 +175,14 @@ function removeRelationLastMetaServiceDependency(int $serviceId): void
         $result = $pearDB->fetchAssociative($query, QueryParameters::create([
             QueryParameter::int('serviceId', $serviceId)
         ]));
-    } catch (ConnectionException $exception) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error in removeRelationLastMetaServiceDependency',
             [
-                'query' => $query,
                 'serviceId' => $serviceId,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
         return;
     }
@@ -206,21 +192,17 @@ function removeRelationLastMetaServiceDependency(int $serviceId): void
                   ->where("dep_id = :dep_id")
                   ->getQuery();
         try {
-            $pearDB->executeStatement($queryDel, QueryParameters::create([
+            $pearDB->delete($queryDel, QueryParameters::create([
                 QueryParameter::int('dep_id', (int)$result['id'])
             ]));
-        } catch (ConnectionException $exception) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error deleting dependency',
                 [
-                    'query' => $queryDel,
                     'depId' => $result['id'],
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace'   => $exception->getTrace(),
-                    ],
-                ]
+                ],
+                $exception
             );
         }
     }
@@ -242,21 +224,17 @@ function deleteMetaServiceInDB($metas = [])
                     ->where("meta_id = :meta_id")
                     ->getQuery();
         try {
-            $pearDB->executeStatement($query, QueryParameters::create([
+            $pearDB->delete($query, QueryParameters::create([
                 QueryParameter::int('meta_id', (int) $metaId)
             ]));
-        } catch (ConnectionException $exception) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error deleting meta_service',
                 [
-                    'query' => $query,
                     'meta_id' => $metaId,
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace'   => $exception->getTrace(),
-                    ],
-                ]
+                ],
+                $exception
             );
         }
         $qb2 = $pearDB->createQueryBuilder();
@@ -265,21 +243,17 @@ function deleteMetaServiceInDB($metas = [])
                      ->andWhere("service_register = '2'")
                      ->getQuery();
         try {
-            $pearDB->executeStatement($query2, QueryParameters::create([
+            $pearDB->delete($query2, QueryParameters::create([
                 QueryParameter::string('service_description', 'meta_' . $metaId)
             ]));
-        } catch (ConnectionException $exception) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error deleting service for meta_service',
                 [
-                    'query' => $query2,
                     'serviceDescription' => 'meta_' . $metaId,
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace'   => $exception->getTrace(),
-                    ],
-                ]
+                ],
+                $exception
             );
         }
     }
@@ -303,21 +277,17 @@ function enableMetricInDB($msrId = null)
                 ->where("msr_id = :msr_id")
                 ->getQuery();
     try {
-        $pearDB->executeStatement($query, QueryParameters::create([
+        $pearDB->update($query, QueryParameters::create([
             QueryParameter::int('msr_id', (int)$msrId)
         ]));
-    } catch (ConnectionException $exception) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error enabling metric',
             [
-                'query' => $query,
                 'msrId' => $msrId,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
     }
 }
@@ -340,21 +310,17 @@ function disableMetricInDB($msrId = null)
                 ->where("msr_id = :msr_id")
                 ->getQuery();
     try {
-        $pearDB->executeStatement($query, QueryParameters::create([
+        $pearDB->update($query, QueryParameters::create([
             QueryParameter::int('msr_id', (int)$msrId)
         ]));
-    } catch (ConnectionException $exception) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error disabling metric',
             [
-                'query' => $query,
                 'msrId' => $msrId,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
     }
 }
@@ -374,21 +340,17 @@ function deleteMetricInDB($metrics = [])
                     ->where("msr_id = :msr_id")
                     ->getQuery();
         try {
-            $pearDB->executeStatement($query, QueryParameters::create([
+            $pearDB->delete($query, QueryParameters::create([
                 QueryParameter::int('msr_id', (int)$msrId)
             ]));
-        } catch (ConnectionException $exception) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error deleting metric',
                 [
-                    'query' => $query,
                     'msrId' => $msrId,
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace'   => $exception->getTrace(),
-                    ],
-                ]
+                ],
+                $exception
             );
         }
     }
@@ -415,18 +377,14 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             $row = $pearDB->fetchAssociative($query, QueryParameters::create([
                 QueryParameter::int('meta_id', (int) $metaId)
             ]));
-        } catch (ConnectionException $exception) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error fetching meta_service for duplication',
                 [
-                    'query' => $query,
                     'metaId' => $metaId,
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace' => $exception->getTrace(),
-                    ],
-                ]
+                ],
+                $exception
             );
             continue;
         }
@@ -440,8 +398,8 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             $columns = array_keys($row);
             $qbInsert = $pearDB->createQueryBuilder();
             $insertQuery = $qbInsert->insert("meta_service")
-                ->values(array_combine($columns, array_map(fn($col) => ':' . $col, $columns)));
-            $query = $insertQuery->getQuery();
+                ->values(array_combine($columns, array_map(fn($col) => ':' . $col, $columns)))
+                ->getQuery();
 
             try {
                 if (! testExistence($metaName)) {
@@ -451,7 +409,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                 foreach ($row as $column => $value) {
                     $params[] = QueryParameter::string($column, $value);
                 }
-                $pearDB->executeStatement($query, QueryParameters::create($params));
+                $pearDB->insert($insertQuery, QueryParameters::create($params));
                 $newMetaId = $pearDB->getLastInsertId();
                 if ($newMetaId) {
                     $metaObj = new CentreonMeta($pearDB);
@@ -461,9 +419,9 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     $qbContacts = $pearDB->createQueryBuilder();
                     $queryContacts = $qbContacts->select("DISTINCT contact_id")
                         ->from("meta_contact")
-                        ->where("meta_id = :meta_id");
-                    $query = $queryContacts->getQuery();
-                    $contacts = $pearDB->fetchAllAssociative($query, QueryParameters::create([
+                        ->where("meta_id = :meta_id")
+                        ->getQuery();
+                    $contacts = $pearDB->fetchAllAssociative($queryContacts, QueryParameters::create([
                         QueryParameter::int('meta_id', (int) $metaId)
                     ]));
                     foreach ($contacts as $contact) {
@@ -472,9 +430,9 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                             ->values([
                                 'meta_id'    => ':meta_id',
                                 'contact_id' => ':contact_id'
-                            ]);
-                        $query = $queryInsertContact->getQuery();
-                        $pearDB->executeStatement($query, QueryParameters::create([
+                            ])
+                            ->getQuery();
+                        $pearDB->insert($queryInsertContact, QueryParameters::create([
                             QueryParameter::int('meta_id', (int) $newMetaId),
                             QueryParameter::int('contact_id', (int) $contact["contact_id"])
                         ]));
@@ -484,9 +442,9 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     $qbCG = $pearDB->createQueryBuilder();
                     $queryCG = $qbCG->select("DISTINCT cg_cg_id")
                         ->from("meta_contactgroup_relation")
-                        ->where("meta_id = :meta_id");
-                    $query = $queryCG->getQuery();
-                    $cgroups = $pearDB->fetchAllAssociative($query, QueryParameters::create([
+                        ->where("meta_id = :meta_id")
+                        ->getQuery();
+                    $cgroups = $pearDB->fetchAllAssociative($queryCG, QueryParameters::create([
                         QueryParameter::int('meta_id', (int) $metaId)
                     ]));
                     foreach ($cgroups as $cg) {
@@ -495,9 +453,9 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                             ->values([
                                 'meta_id'   => ':meta_id',
                                 'cg_cg_id'  => ':cg_cg_id'
-                            ]);
-                        $query = $queryInsertCG->getQuery();
-                        $pearDB->executeStatement($query, QueryParameters::create([
+                            ])
+                            ->getQuery();
+                        $pearDB->insert($queryInsertCG, QueryParameters::create([
                             QueryParameter::int('meta_id', (int) $newMetaId),
                             QueryParameter::int('cg_cg_id', (int) $cg["cg_cg_id"])
                         ]));
@@ -507,9 +465,9 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     $qbMetric = $pearDB->createQueryBuilder();
                     $queryMetric = $qbMetric->select("*")
                         ->from("meta_service_relation")
-                        ->where("meta_id = :meta_id");
-                    $query = $queryMetric->getQuery();
-                    $metricsRows = $pearDB->fetchAllAssociative($query, QueryParameters::create([
+                        ->where("meta_id = :meta_id")
+                        ->getQuery();
+                    $metricsRows = $pearDB->fetchAllAssociative($queryMetric, QueryParameters::create([
                         QueryParameter::int('meta_id', (int) $metaId)
                     ]));
                     foreach ($metricsRows as $metric) {
@@ -518,29 +476,25 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         $columns = array_keys($metric);
                         $qbInsertMetric = $pearDB->createQueryBuilder();
                         $insertMetricQuery = $qbInsertMetric->insert("meta_service_relation")
-                            ->values(array_combine($columns, array_map(fn($col) => ':' . $col, $columns)));
-                        $query = $insertMetricQuery->getQuery();
+                            ->values(array_combine($columns, array_map(fn($col) => ':' . $col, $columns)))
+                            ->getQuery();
                         // Build parameters for the metric row.
                         $paramsMetric = [];
                         foreach ($metric as $column => $value) {
                             $paramsMetric[] =  QueryParameter::string($column, $value);
                         }
-                        $pearDB->executeStatement($query, QueryParameters::create($paramsMetric));
+                        $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
                     }
                 }
-            } catch (ConnectionException $exception) {
+            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_SQL,
                     'Error duplicating meta_service',
                     [
                         'metaId' => $metaId,
                         'metaName' => $metaName,
-                        'query' => $query ?? '',
-                        'exception' => [
-                            'message' => $exception->getMessage(),
-                            'trace' => $exception->getTrace(),
-                        ],
-                    ]
+                    ],
+                    $exception
                 );
             }
         }
@@ -597,17 +551,14 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
             $row = $pearDB->fetchAssociative($query, QueryParameters::create([
                 QueryParameter::int('msr_id', (int) $msrId)
             ]));
-        } catch (ConnectionException $exception) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error fetching metric for duplication',
                 [
                     'msrId' => $msrId,
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace' => $exception->getTrace(),
-                    ],
-                ]
+                ],
+                $exception
             );
             continue;
         }
@@ -626,19 +577,16 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
                 foreach ($row as $column => $val) {
                     $params[] = QueryParameter::string($column, $val);
                 }
-                $pearDB->executeStatement($insertQuery, QueryParameters::create($params));
-            } catch (ConnectionException $exception) {
+                $pearDB->insert($insertQuery, QueryParameters::create($params));
+            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_SQL,
                     'Error inserting duplicated metric',
                     [
                         'originalMsrId' => $msrId,
                         'duplicationIndex' => $i,
-                        'exception' => [
-                            'message' => $exception->getMessage(),
-                            'trace' => $exception->getTrace(),
-                        ],
-                    ]
+                    ],
+                    $exception
                 );
             }
         }
@@ -666,12 +614,8 @@ function checkMetaHost()
             CentreonLog::TYPE_SQL,
             'Error fetching _Module_Meta host',
             [
-                'query' => $query,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace' => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
         $host = false;
     }
@@ -684,18 +628,14 @@ function checkMetaHost()
                                 ])
                                 ->getQuery();
         try {
-            $pearDB->executeStatement($queryInsert);
+            $pearDB->insert($queryInsert);
         } catch (ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error inserting _Module_Meta host',
                 [
-                    'query' => $queryInsert,
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace' => $exception->getTrace(),
-                    ],
-                ]
+                ],
+                $exception
             );
         }
 
@@ -709,18 +649,14 @@ function checkMetaHost()
                 ON DUPLICATE KEY UPDATE nagios_server_id = (SELECT id FROM nagios_server WHERE localhost = '1')
             SQL;
         try {
-            $pearDB->executeStatement($queryLink);
+            $pearDB->insert($queryLink);
         } catch (ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error linking _Module_Meta host to Nagios server',
                 [
-                    'query' => $queryLink,
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace' => $exception->getTrace(),
-                    ],
-                ]
+                ],
+                $exception
             );
         }
     }
@@ -766,44 +702,40 @@ function insertMetaService($ret = [])
         ])
         ->getQuery();
 
-    $params = [
-        QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
-        QueryParameter::string('meta_display', getParamValue($ret, "meta_display", sanitize: true)),
-        QueryParameter::string('check_period', getParamValue($ret, "check_period")),
-        QueryParameter::int('max_check_attempts', getParamValue($ret, "max_check_attempts")),
-        QueryParameter::string('normal_check_interval', getParamValue($ret, "normal_check_interval")),
-        QueryParameter::string('retry_check_interval', getParamValue($ret, "retry_check_interval")),
-        QueryParameter::string('notification_interval', getParamValue($ret, "notification_interval")),
-        QueryParameter::string('notification_period', getParamValue($ret, "notification_period")),
-        QueryParameter::string('notification_options', isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null),
-        QueryParameter::string('notifications_enabled', getParamValue($ret, "notifications_enabled", "notifications_enabled", default: '2')),
-        QueryParameter::string('calcul_type', $ret["calcul_type"] ?? null),
-        QueryParameter::int('data_source_type', getParamValue($ret, "data_source_type", default: 0)),
-        QueryParameter::string('meta_select_mode', getParamValue($ret, "meta_select_mode", "meta_select_mode")),
-        QueryParameter::string('regexp_str', getParamValue($ret, "regexp_str", sanitize: true)),
-        QueryParameter::string('metric', getParamValue($ret, "metric", sanitize: true)),
-        QueryParameter::string('warning', getParamValue($ret, "warning", sanitize: true)),
-        QueryParameter::string('critical', getParamValue($ret, "critical", sanitize: true)),
-        QueryParameter::string('graph_id', getParamValue($ret, "graph_id")),
-        QueryParameter::string('meta_comment', getParamValue($ret, "meta_comment", sanitize: true)),
-        QueryParameter::string('geo_coords', getParamValue($ret, "geo_coords", sanitize: true)),
-        QueryParameter::string('meta_activate', getParamValue($ret, "meta_activate", "meta_activate")),
-    ];
     try {
-        $pearDB->executeStatement($query, QueryParameters::create($params));
-    } catch (ConnectionException $exception) {
+        $params = [
+            QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
+            QueryParameter::string('meta_display', getParamValue($ret, "meta_display", sanitize: true)),
+            QueryParameter::string('check_period', getParamValue($ret, "check_period")),
+            QueryParameter::int('max_check_attempts', getParamValue($ret, "max_check_attempts")),
+            QueryParameter::string('normal_check_interval', getParamValue($ret, "normal_check_interval")),
+            QueryParameter::string('retry_check_interval', getParamValue($ret, "retry_check_interval")),
+            QueryParameter::string('notification_interval', getParamValue($ret, "notification_interval")),
+            QueryParameter::string('notification_period', getParamValue($ret, "notification_period")),
+            QueryParameter::string('notification_options', isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null),
+            QueryParameter::string('notifications_enabled', getParamValue($ret, "notifications_enabled", "notifications_enabled", default: '2')),
+            QueryParameter::string('calcul_type', $ret["calcul_type"] ?? null),
+            QueryParameter::int('data_source_type', getParamValue($ret, "data_source_type", default: 0)),
+            QueryParameter::string('meta_select_mode', getParamValue($ret, "meta_select_mode", "meta_select_mode")),
+            QueryParameter::string('regexp_str', getParamValue($ret, "regexp_str", sanitize: true)),
+            QueryParameter::string('metric', getParamValue($ret, "metric", sanitize: true)),
+            QueryParameter::string('warning', getParamValue($ret, "warning", sanitize: true)),
+            QueryParameter::string('critical', getParamValue($ret, "critical", sanitize: true)),
+            QueryParameter::string('graph_id', getParamValue($ret, "graph_id")),
+            QueryParameter::string('meta_comment', getParamValue($ret, "meta_comment", sanitize: true)),
+            QueryParameter::string('geo_coords', getParamValue($ret, "geo_coords", sanitize: true)),
+            QueryParameter::string('meta_activate', getParamValue($ret, "meta_activate", "meta_activate")),
+        ];
+        $pearDB->insert($query, QueryParameters::create($params));
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error inserting meta_service',
             [
                 'metaName' => $ret["meta_name"] ?? null,
-                'query'    => $query,
                 'params'   => $params,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
     }
     $metaId = $pearDB->getLastInsertId();
@@ -856,45 +788,41 @@ function updateMetaService($metaId = null)
        ->set("meta_activate", ":meta_activate")
        ->where("meta_id = :meta_id");
     $query = $qb->getQuery();
-    $params = [
-        QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
-        QueryParameter::string('meta_display', getParamValue($ret, "meta_display", sanitize: true)),
-        QueryParameter::string('check_period', getParamValue($ret, "check_period")),
-        QueryParameter::int('max_check_attempts', getParamValue($ret, "max_check_attempts")),
-        QueryParameter::string('normal_check_interval', getParamValue($ret, "normal_check_interval")),
-        QueryParameter::string('retry_check_interval', getParamValue($ret, "retry_check_interval")),
-        QueryParameter::string('notification_interval', getParamValue($ret, "notification_interval")),
-        QueryParameter::string('notification_period', getParamValue($ret, "notification_period")),
-        QueryParameter::string('notification_options', isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null),
-        QueryParameter::string('notifications_enabled', getParamValue($ret, "notifications_enabled", "notifications_enabled", false, '2')),
-        QueryParameter::string('calcul_type', $ret["calcul_type"] ?? null),
-        QueryParameter::int('data_source_type', getParamValue($ret, "data_source_type", null, false, 0)),
-        QueryParameter::string('meta_select_mode', getParamValue($ret, "meta_select_mode", "meta_select_mode")),
-        QueryParameter::string('regexp_str', getParamValue($ret, "regexp_str", sanitize: true)),
-        QueryParameter::string('metric', getParamValue($ret, "metric", sanitize: true)),
-        QueryParameter::string('warning', getParamValue($ret, "warning", sanitize: true)),
-        QueryParameter::string('critical', getParamValue($ret, "critical", sanitize: true)),
-        QueryParameter::string('graph_id', getParamValue($ret, "graph_id")),
-        QueryParameter::string('meta_comment', getParamValue($ret, "meta_comment", sanitize: true)),
-        QueryParameter::string('geo_coords', getParamValue($ret, "geo_coords", sanitize: true)),
-        QueryParameter::string('meta_activate', getParamValue($ret, "meta_activate", "meta_activate")),
-        QueryParameter::int('meta_id', (int) $metaId),
-    ];
     try {
-        $pearDB->executeStatement($query, QueryParameters::create($params));
-    } catch (ConnectionException $exception) {
+        $params = [
+            QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
+            QueryParameter::string('meta_display', getParamValue($ret, "meta_display", sanitize: true)),
+            QueryParameter::string('check_period', getParamValue($ret, "check_period")),
+            QueryParameter::int('max_check_attempts', getParamValue($ret, "max_check_attempts")),
+            QueryParameter::string('normal_check_interval', getParamValue($ret, "normal_check_interval")),
+            QueryParameter::string('retry_check_interval', getParamValue($ret, "retry_check_interval")),
+            QueryParameter::string('notification_interval', getParamValue($ret, "notification_interval")),
+            QueryParameter::string('notification_period', getParamValue($ret, "notification_period")),
+            QueryParameter::string('notification_options', isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null),
+            QueryParameter::string('notifications_enabled', getParamValue($ret, "notifications_enabled", "notifications_enabled", false, '2')),
+            QueryParameter::string('calcul_type', $ret["calcul_type"] ?? null),
+            QueryParameter::int('data_source_type', getParamValue($ret, "data_source_type", null, false, 0)),
+            QueryParameter::string('meta_select_mode', getParamValue($ret, "meta_select_mode", "meta_select_mode")),
+            QueryParameter::string('regexp_str', getParamValue($ret, "regexp_str", sanitize: true)),
+            QueryParameter::string('metric', getParamValue($ret, "metric", sanitize: true)),
+            QueryParameter::string('warning', getParamValue($ret, "warning", sanitize: true)),
+            QueryParameter::string('critical', getParamValue($ret, "critical", sanitize: true)),
+            QueryParameter::string('graph_id', getParamValue($ret, "graph_id")),
+            QueryParameter::string('meta_comment', getParamValue($ret, "meta_comment", sanitize: true)),
+            QueryParameter::string('geo_coords', getParamValue($ret, "geo_coords", sanitize: true)),
+            QueryParameter::string('meta_activate', getParamValue($ret, "meta_activate", "meta_activate")),
+            QueryParameter::int('meta_id', (int) $metaId),
+        ];
+        $pearDB->update($query, QueryParameters::create($params));
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error updating meta_service (updateMetaService)',
             [
                 'metaId' => $metaId,
-                'query'  => $query,
                 'params' => $params,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
     }
     $fields = CentreonLogAction::prepareChanges($ret);
@@ -920,21 +848,17 @@ function updateMetaServiceContact($metaId)
                            ->where("meta_id = :meta_id")
                            ->getQuery();
     try {
-        $pearDB->executeStatement($queryPurge, QueryParameters::create([
+        $pearDB->delete($queryPurge, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId)
         ]));
-    } catch (ConnectionException $exception) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error purging meta_contact',
             [
                 'metaId' => $metaId,
-                'query'  => $queryPurge,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
     }
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cs');
@@ -942,26 +866,22 @@ function updateMetaServiceContact($metaId)
         // Build a single INSERT query with multiple values
         $values = [];
         $params = [];
-        foreach ($ret as $key => $contactId) {
-            $values[] = "(:metaId_$key, :contactId_$key)";
-            $params["metaId_$key"] = QueryParameter::int("metaId_$key", (int) $metaId);
-            $params["contactId_$key"] = QueryParameter::int("contactId_$key", (int) $contactId);
-        }
-        $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES " . implode(", ", $values);
         try {
-            $pearDB->executeStatement($queryAddRelation, QueryParameters::create(array_values($params)));
-        } catch (ConnectionException $exception) {
+            foreach ($ret as $key => $contactId) {
+                $values[] = "(:metaId_$key, :contactId_$key)";
+                $params["metaId_$key"] = QueryParameter::int("metaId_$key", (int) $metaId);
+                $params["contactId_$key"] = QueryParameter::int("contactId_$key", (int) $contactId);
+            }
+            $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES " . implode(", ", $values);
+            $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error inserting meta_contact relations',
                 [
                     'metaId' => $metaId,
-                    'query' => $queryAddRelation,
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace' => $exception->getTrace(),
-                    ]
-                ]
+                ],
+                $exception
             );
         }
     }
@@ -984,21 +904,17 @@ function updateMetaServiceContactGroup($metaId = null)
                             ->where("meta_id = :meta_id")
                             ->getQuery();
     try {
-        $pearDB->executeStatement($queryDelete, QueryParameters::create([
+        $pearDB->delete($queryDelete, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId)
         ]));
-    } catch (ConnectionException $exception) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error deleting meta_contactgroup_relation',
             [
                 'metaId' => $metaId,
-                'query' => $queryDelete,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace' => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
         return;
     }
@@ -1021,23 +937,19 @@ function updateMetaServiceContactGroup($metaId = null)
                                 ])
                                 ->getQuery();
         try {
-            $pearDB->executeStatement($queryInsert, QueryParameters::create([
+            $pearDB->insert($queryInsert, QueryParameters::create([
                 QueryParameter::int('meta_id', (int) $metaId),
                 QueryParameter::int('cg_cg_id', (int) $group)
             ]));
-        } catch (ConnectionException $exception) {
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_SQL,
                 'Error inserting meta_contactgroup_relation',
                 [
                     'metaId' => $metaId,
                     'group_id' => $group,
-                    'query' => $queryInsert,
-                    'exception' => [
-                        'message' => $exception->getMessage(),
-                        'trace'   => $exception->getTrace(),
-                    ],
-                ]
+                ],
+                $exception
             );
         }
     }
@@ -1090,27 +1002,23 @@ function insertMetric($ret = [])
             'activate' => ':activate'
         ])
         ->getQuery();
-    $params = [
-        QueryParameter::int('meta_id', getParamValue($ret, "meta_id")),
-        QueryParameter::int('host_id', getParamValue($ret, "host_id")),
-        QueryParameter::int('metric_id', getParamValue($ret, "metric_sel", 1)),
-        QueryParameter::string('msr_comment', getParamValue($ret, "msr_comment", sanitize: true)),
-        QueryParameter::string('activate', getParamValue($ret, "activate", "activate")),
-    ];
     try {
-        $pearDB->executeStatement($query, QueryParameters::create($params));
-    } catch (ConnectionException $exception) {
+        $params = [
+            QueryParameter::int('meta_id', getParamValue($ret, "meta_id")),
+            QueryParameter::int('host_id', getParamValue($ret, "host_id")),
+            QueryParameter::int('metric_id', getParamValue($ret, "metric_sel", 1)),
+            QueryParameter::string('msr_comment', getParamValue($ret, "msr_comment", sanitize: true)),
+            QueryParameter::string('activate', getParamValue($ret, "activate", "activate")),
+        ];
+        $pearDB->insert($query, QueryParameters::create($params));
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error inserting metric',
             [
-                'query' => $query,
                 'params' => $params,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
     }
     $msrId = $pearDB->getLastInsertId();
@@ -1139,29 +1047,25 @@ function updateMetric($msrId = null)
                 ->set("activate", ":activate")
                 ->where("msr_id = :msr_id")
                 ->getQuery();
-    $params = [
-        QueryParameter::int('meta_id', getParamValue($ret, "meta_id")),
-        QueryParameter::int('host_id', getParamValue($ret, "host_id")),
-        QueryParameter::int('metric_id', getParamValue($ret,"metric_sel", 1)),
-        QueryParameter::string('msr_comment', getParamValue($ret, "msr_comment", sanitize: true)),
-        QueryParameter::string('activate', getParamValue($ret, "activate", "activate")),
-        QueryParameter::int('msr_id', (int) $msrId),
-    ];
     try {
-        $pearDB->executeStatement($query, QueryParameters::create($params));
-    } catch (ConnectionException $exception) {
+        $params = [
+            QueryParameter::int('meta_id', getParamValue($ret, "meta_id")),
+            QueryParameter::int('host_id', getParamValue($ret, "host_id")),
+            QueryParameter::int('metric_id', getParamValue($ret,"metric_sel", 1)),
+            QueryParameter::string('msr_comment', getParamValue($ret, "msr_comment", sanitize: true)),
+            QueryParameter::string('activate', getParamValue($ret, "activate", "activate")),
+            QueryParameter::int('msr_id', (int) $msrId),
+        ];
+        $pearDB->update($query, QueryParameters::create($params));
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error updating metric',
             [
                 'msrId' => $msrId,
-                'query' => $query,
                 'params' => $params,
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'trace'   => $exception->getTrace(),
-                ],
-            ]
+            ],
+            $exception
         );
     }
 }
