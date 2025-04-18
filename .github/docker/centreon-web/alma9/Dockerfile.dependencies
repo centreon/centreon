@@ -62,8 +62,7 @@ dnf install -y \
   rsync \
   sed \
   sudo \
-  zeromq \
-  which
+  zeromq
 
 #############################
 # install perl dependencies #
@@ -124,12 +123,12 @@ dnf clean all --enablerepo=*
 
 EOF
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
-
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 FROM web_dependencies AS web_dependencies_collect
 
