@@ -287,6 +287,7 @@ describe('Graph Widget', () => {
 
   it('displays the line chart without thresholds when thresholds are disabled', () => {
     initializeComponent({ threshold: disabledThreshold });
+    cy.waitForRequest('@getLineChart')
 
     checkLegendHeader();
     cy.findByTestId('warning-line-65').should('not.exist');
@@ -299,6 +300,8 @@ describe('Graph Widget', () => {
 
   it('displays the line chart with customized warning threshold', () => {
     initializeComponent({ threshold: warningThreshold });
+    cy.waitForRequest('@getLineChart')
+
 
     cy.findByTestId('warning-line-20').should('be.visible');
 
@@ -310,6 +313,8 @@ describe('Graph Widget', () => {
 
   it('displays the line chart with customized critical threshold', () => {
     initializeComponent({ threshold: criticalThreshold });
+    cy.waitForRequest('@getLineChart')
+
 
     cy.findByTestId('warning-line-10').should('be.visible');
     cy.findByTestId('critical-line-20').should('be.visible');
@@ -497,34 +502,32 @@ describe('Graph Widget', () => {
       cy.findByRole('tooltip').as('tooltip');
 
       cy.fixture(graphDataPath).then((data) => {
-        data.metrics.forEach((line) => {
-          const currentMetric = line.metric.replaceAll(' ', '');
-          const [hostName, metricName] = currentMetric.split(':');
+        data.metrics.forEach(({host_name, service_name, metric}) => {
 
           if (equals(resourcesType, 'host')) {
-            cy.get('@legendContainer').should('not.contain', hostName);
-            cy.get('@legendContainer').should('contain', metricName);
-            cy.get('@tooltip').should('not.contain', hostName);
-            cy.get('@tooltip').should('contain', metricName);
+            cy.get('@legendContainer').should('not.contain', host_name);
+            cy.get('@legendContainer').should('contain', metric);
+            cy.get('@tooltip').should('not.contain', host_name);
+            cy.get('@tooltip').should('contain', metric);
 
             return;
           }
           if (equals(resourcesType, 'service')) {
-            cy.get('@legendContainer').should('not.contain', line.service_name);
-            cy.get('@legendContainer').should('contain', metricName);
+            cy.get('@legendContainer').should('not.contain', service_name);
+            cy.get('@legendContainer').should('contain', metric);
 
-            cy.get('@tooltip').should('not.contain', line.service_name);
-            cy.get('@tooltip').should('contain', metricName);
+            cy.get('@tooltip').should('not.contain', service_name);
+            cy.get('@tooltip').should('contain', metric);
 
             return;
           }
-          cy.get('@legendContainer').should('not.contain', hostName);
-          cy.get('@legendContainer').should('not.contain', line.service_name);
-          cy.get('@legendContainer').should('contain', metricName);
+          cy.get('@legendContainer').should('not.contain', host_name);
+          cy.get('@legendContainer').should('not.contain', service_name);
+          cy.get('@legendContainer').should('contain', metric);
 
-          cy.get('@tooltip').should('not.contain', hostName);
-          cy.get('@tooltip').should('not.contain', line.service_name);
-          cy.get('@tooltip').should('contain', metricName);
+          cy.get('@tooltip').should('not.contain', host_name);
+          cy.get('@tooltip').should('not.contain', service_name);
+          cy.get('@tooltip').should('contain', metric);
         });
 
         cy.makeSnapshot(
