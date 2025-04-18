@@ -1,17 +1,6 @@
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { initReactI18next } from 'react-i18next';
-import { labelPortExpectedAtMost } from '../VaultConfiguration/translatedLabels';
-import AgentConfigurationPage from './Page';
-import {
-  agentConfigurationPollersEndpoint,
-  getAgentConfigurationEndpoint,
-  getAgentConfigurationsEndpoint,
-  getPollerAgentEndpoint,
-  hostsConfigurationEndpoint,
-  pollersEndpoint
-} from './api/endpoints';
+import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabels';
+import initialize from './initialize';
+
 import {
   labelAction,
   labelAdd,
@@ -33,10 +22,12 @@ import {
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
+  labelEncryptionLevel,
   labelHostConfigurations,
   labelInvalidExtension,
   labelInvalidPath,
   labelName,
+  labelNoTLS,
   labelOTLPReceiver,
   labelPoller,
   labelPollers,
@@ -46,132 +37,11 @@ import {
   labelRelativePathAreNotAllowed,
   labelRequired,
   labelSave,
+  labelTLS,
+  labelWarningEncryptionLevelCMA,
+  labelWarningEncryptionLevelTelegraf,
   labelWelcomeToTheAgentsConfigurationPage
-} from './translatedLabels';
-
-const initialize = ({ isListingEmpty = false }) => {
-  const store = createStore();
-
-  i18next.use(initReactI18next).init({
-    lng: 'en',
-    resources: {}
-  });
-
-  if (isListingEmpty) {
-    cy.interceptAPIRequest({
-      alias: 'getEmptyAgentConfigurations',
-      method: Method.GET,
-      path: `./api/latest${getAgentConfigurationsEndpoint}**`,
-      response: { result: [], meta: { limit: 10, page: 1, total: 0 } }
-    });
-  } else {
-    cy.fixture('AgentConfigurations/listing.json').then((listing): void => {
-      cy.interceptAPIRequest({
-        alias: 'getAgentConfigurations',
-        method: Method.GET,
-        path: `./api/latest${getAgentConfigurationsEndpoint}?page=1**`,
-        response: listing
-      });
-    });
-  }
-
-  cy.fixture('ACC/pollers-vmware.json').then((listing): void => {
-    cy.interceptAPIRequest({
-      alias: 'getFilterPollers',
-      method: Method.GET,
-      path: `./api/latest${pollersEndpoint}**`,
-      response: listing
-    });
-  });
-
-  cy.fixture('ACC/pollers-vmware.json').then((listing): void => {
-    cy.interceptAPIRequest({
-      alias: 'getPollers',
-      method: Method.GET,
-      path: `./api/latest${agentConfigurationPollersEndpoint}**`,
-      response: listing
-    });
-  });
-
-  cy.interceptAPIRequest({
-    alias: 'deleteAgent',
-    method: Method.DELETE,
-    path: `./api/latest${getPollerAgentEndpoint({ agentId: 0 })}`
-  });
-
-  cy.interceptAPIRequest({
-    alias: 'deletePoller',
-    method: Method.DELETE,
-    path: `./api/latest${getPollerAgentEndpoint({ agentId: 0, pollerId: 1 })}`
-  });
-
-  cy.interceptAPIRequest({
-    alias: 'postAgentConfiguration',
-    method: Method.POST,
-    path: `./api/latest${getAgentConfigurationsEndpoint}`
-  });
-
-  cy.interceptAPIRequest({
-    alias: 'patchAgentConfiguration',
-    method: Method.PUT,
-    path: `./api/latest${getAgentConfigurationEndpoint(1)}`
-  });
-
-  cy.interceptAPIRequest({
-    alias: 'getAgentConfiguration',
-    method: Method.GET,
-    path: `./api/latest${getAgentConfigurationEndpoint(1)}`,
-    response: {
-      id: 1,
-      name: 'agent',
-      type: 'telegraf',
-      pollers: [
-        {
-          id: 1,
-          name: 'poller 1'
-        },
-        {
-          id: 2,
-          name: 'poller 2'
-        }
-      ],
-      configuration: {
-        otel_server_address: '127.0.0.1',
-        otel_server_port: 8080,
-        otel_public_certificate: 'test.cer',
-        otel_ca_certificate: 'test.crt',
-        otel_private_key: 'test.key',
-        conf_server_port: 9090,
-        conf_certificate: '/sub/test.crt',
-        conf_private_key: 'test.crt'
-      }
-    }
-  });
-
-  cy.interceptAPIRequest({
-    alias: 'getHosts',
-    path: `./api/latest${hostsConfigurationEndpoint}**`,
-    method: Method.GET,
-    response: {
-      result: [{ id: 1, name: 'central', address: '127.0.0.2' }],
-      meta: { limit: 10, page: 1, total: 1 }
-    }
-  });
-
-  cy.mount({
-    Component: (
-      <TestQueryProvider>
-        <Provider store={store}>
-          <SnackbarProvider>
-            <div style={{ height: '100vh', display: 'grid' }}>
-              <AgentConfigurationPage />
-            </div>
-          </SnackbarProvider>
-        </Provider>
-      </TestQueryProvider>
-    )
-  });
-};
+} from '../translatedLabels';
 
 describe('Agent configurations', () => {
   it('displays a welcome label when the listing is empty', () => {
@@ -505,6 +375,7 @@ describe('Agent configurations modal', () => {
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
         name: 'agent',
+        connection_mode: 'secure',
         type: 'telegraf',
         configuration: {
           otel_private_key: '/sub/test.key',
@@ -538,6 +409,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).to.deep.equal({
         name: 'agent updated',
         type: 'telegraf',
+        connection_mode: 'secure',
         configuration: {
           otel_private_key: 'test.key',
           otel_ca_certificate: 'test.crt',
@@ -568,6 +440,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).to.deep.equal({
         name: 'agent updated',
         type: 'telegraf',
+        connection_mode: 'secure',
         configuration: {
           otel_private_key: 'test.key',
           otel_ca_certificate: 'test.crt',
@@ -636,9 +509,9 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelAgentType).click();
     cy.get('[data-option-index="1"]').click();
 
+    cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPollers).click();
     cy.contains('poller1').click();
-    cy.findByLabelText(labelName).type('My agent');
     cy.findByLabelText(labelPublicCertificate).type('test.crt');
     cy.findByLabelText(labelCaCertificate).type('test.crt');
     cy.findByLabelText(labelPrivateKey).type('test.key');
@@ -668,6 +541,7 @@ describe('Agent configurations modal', () => {
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
         name: 'My agent',
+        connection_mode: 'secure',
         type: 'centreon-agent',
         poller_ids: [1],
         configuration: {
@@ -771,6 +645,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).deep.equal({
         name: 'My agent',
         type: 'centreon-agent',
+        connection_mode: 'secure',
         poller_ids: [1],
         configuration: {
           is_reverse: true,
@@ -792,5 +667,136 @@ describe('Agent configurations modal', () => {
     cy.contains(labelAgentConfigurationCreated).should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('displays the encryption level field with TLS preselected as the default value', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelEncryptionLevel).should('have.value', labelTLS);
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a warning message when switching the encryption level to No TLS for Telegraf and CMA agents', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="0"]').click();
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelNoTLS).click();
+
+    cy.contains(labelWarningEncryptionLevelTelegraf);
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.contains(labelWarningEncryptionLevelCMA);
+
+    cy.makeSnapshot();
+  });
+
+  it('handle the form without certificate fields when setting encryption level to No TLS for Telegraf agent', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="0"]').click();
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelNoTLS).click();
+
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+
+    cy.findAllByLabelText(labelPort).eq(0).clear().type('1234');
+
+    cy.findAllByLabelText(labelPublicCertificate).should('not.exist');
+    cy.findByLabelText(labelCaCertificate).should('not.exist');
+    cy.findAllByLabelText(labelPrivateKey).should('not.exist');
+    cy.findAllByLabelText(labelPrivateKey).should('not.exist');
+    cy.findByLabelText(labelCaCertificate).should('not.exist');
+    cy.findByLabelText(labelCaCertificate).should('not.exist');
+
+    cy.makeSnapshot();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        name: 'My agent',
+        connection_mode: 'no-tls',
+        type: 'telegraf',
+        configuration: {
+          otel_private_key: null,
+          otel_ca_certificate: null,
+          otel_public_certificate: null,
+          conf_certificate: null,
+          conf_private_key: null,
+          conf_server_port: 1234
+        },
+        poller_ids: [1]
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+  });
+
+  it('handle the form without certificate fields when setting encryption level to No TLS for CMA agent', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelNoTLS).click();
+
+    cy.findByLabelText(labelConnectionInitiatedByPoller).click();
+
+    cy.findByLabelText(labelPublicCertificate).should('not.exist');
+    cy.findAllByLabelText(labelCaCertificate).should('not.exist');
+    cy.findAllByLabelText(labelCaCertificate).should('not.exist');
+    cy.findAllByLabelText(labelPrivateKey).should('not.exist');
+    cy.findByLabelText(labelAddHost).click();
+    cy.contains('central').click();
+    cy.findByLabelText(labelCACommonName).should('not.exist');
+
+    cy.makeSnapshot();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).deep.equal({
+        name: 'My agent',
+        type: 'centreon-agent',
+        connection_mode: 'no-tls',
+        poller_ids: [1],
+        configuration: {
+          is_reverse: true,
+          otel_ca_certificate: null,
+          otel_public_certificate: null,
+          otel_private_key: null,
+          hosts: [
+            {
+              address: '127.0.0.2',
+              port: 4317,
+              poller_ca_name: null,
+              poller_ca_certificate: null
+            }
+          ]
+        }
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
   });
 });
