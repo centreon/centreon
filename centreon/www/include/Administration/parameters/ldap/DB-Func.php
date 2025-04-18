@@ -53,10 +53,61 @@ function minimalValue(int $value): bool
 }
 
 /**
+ * BAsic check if the LDAP filter syntax is valid according to RFC4515
+ *
  * @param string $filterValue
  * @return bool
  */
 function checkLdapFilterSyntax(string $filterValue): bool
 {
-    return preg_match('/=%s\)/', $filterValue);
+    if ($filterValue === '') {
+        return false;
+    }
+
+    if (! preg_match('/=%s\)/', $filterValue)) {
+        return false;
+    }
+
+    // check for parentheses
+    if (substr_count($filterValue, '(') !== substr_count($filterValue, ')') ||
+        $filterValue[0] !== '(' ||
+        $filterValue[strlen($filterValue) - 1] !== ')') {
+        return false;
+    }
+
+    // reject multiple top-level filters
+    if (preg_match('/^\([^()]*\)(.+)$/', $filterValue)) {
+        return false;
+    }
+
+    $cleanFilter = preg_replace('/\\\\./', 'X', $filterValue);
+
+    // filter should have at least one valid comparison
+    if (! preg_match('/([a-zA-Z0-9][a-zA-Z0-9\.\-_]*|[0-9]+(?:\.[0-9]+)*)(?:=\*?[^=()]*\*?|>=|<=|~=|:(?:[^:=]*)?:=)[^=()]*/i', $cleanFilter)) {
+        return false;
+    }
+
+    // first char after opening parenthesis should be &, |, !, or a valid attribute name starter
+    if (! preg_match('/^\((&|\||!|[a-zA-Z0-9])/', $cleanFilter)) {
+        return false;
+    }
+
+    // logical operators should be followed by an opening parenthesis
+    if (preg_match('/\((&|\||!)[^(]/', $cleanFilter)) {
+        return false;
+    }
+
+    // ! operator should be followed by exactly one filter
+    if (preg_match('/^\(!\(/', $cleanFilter)) {
+        if (! preg_match('/^\(!\([^()]*(?:\([^()]*\)[^()]*)*\)\)$/', $cleanFilter)) {
+            return false;
+        }
+    }
+
+    // reject double colons
+    if (preg_match('/::/', $cleanFilter)) {
+        return false;
+    }
+
+    return true;
 }
