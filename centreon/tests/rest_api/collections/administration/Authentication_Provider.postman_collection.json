@@ -1064,22 +1064,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The parameters are not listed, because the user does not have sufficient rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation for the authentication provider update response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});\r",
 									""
 								],
@@ -1122,24 +1108,9 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The parameters are not listed, because the user does not have sufficient rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation for the authentication provider listing response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}

@@ -340,6 +340,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The vault configuration has been successfully created.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
@@ -478,6 +479,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The vault configuration has been successfully updated.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"});\r",
@@ -615,6 +617,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The vault configuration has been successfully deleted.\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
