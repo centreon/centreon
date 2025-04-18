@@ -50,7 +50,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
       const { statuses } = options;
 
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
-        resources: data.resources,
+        resources: resources,
         states: options?.states || [],
         statuses,
         type:

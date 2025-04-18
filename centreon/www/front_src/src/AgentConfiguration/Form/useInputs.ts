@@ -11,7 +11,6 @@ import {
   labelAgentType,
   labelCMA,
   labelCaCertificate,
-  labelCertificate,
   labelConfigurationServer,
   labelConnectionInitiatedByPoller,
   labelHostConfigurations,
@@ -234,7 +233,7 @@ export const useInputs = (): {
                     type: InputType.Text,
                     fieldName: 'configuration.confCertificate',
                     required: true,
-                    label: t(labelCertificate)
+                    label: t(labelPublicCertificate)
                   },
                   {
                     type: InputType.Text,

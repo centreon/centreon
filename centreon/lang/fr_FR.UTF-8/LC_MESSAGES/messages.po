@@ -19527,17 +19527,14 @@ msgstr "Le numéro du port doit être au minimum 1"
 msgid "Extension not allowed"
 msgstr "Extension non autorisée"
 
-msgid "Public certificate file name"
-msgstr "Nom de fichier du certificat public"
+msgid "CA"
+msgstr "CA"
 
-msgid "CA file name"
-msgstr "Nom de fichier du CA"
+msgid "CA Common Name (CN)"
+msgstr "Nom commun CA (CN)"
 
-msgid "Certificate file name"
-msgstr "Nom de fichier du certificat"
-
-msgid "Private key file name"
-msgstr "Nom de fichier de la clé privée"
+msgid "Private key"
+msgstr "Clé privée"
 
 msgid "Configuration provider"
 msgstr "Fournisseur de configuration"
@@ -19646,3 +19643,12 @@ msgstr "Rester"
 
 msgid "The minimum allowed value is 10"
 msgstr "La valeur minimale autorisée est 10"
+
+msgid "Relative paths are not allowed"  
+msgstr "Les chemins relatifs ne sont pas autorisés"  
+
+msgid "Invalid path"  
+msgstr "Chemin invalide"  
+
+msgid "Invalid extension"  
+msgstr "Extension invalide"  

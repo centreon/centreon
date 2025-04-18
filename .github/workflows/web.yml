@@ -447,7 +447,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-jammy
             distrib: jammy
-
+          - package_extension: deb
+            image: packaging-nfpm-noble
+            distrib: noble
     runs-on: ubuntu-24.04
 
     container:
@@ -564,6 +566,7 @@ jobs:
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           stability: ${{ needs.get-environment.outputs.stability }}
+          is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
       - name: Create Jira ticket on nightly build failure
         if: |
@@ -612,6 +615,9 @@ jobs:
             PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
             DISTRIB=jammy
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.operating_system }}" = "noble" ]; then
+            DISTRIB=noble
             PACKAGE_EXTENSION=deb
           else
             echo "::error::${{ matrix.operating_system }} is not managed"
@@ -1085,7 +1091,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm]
+        distrib: [bookworm, noble]
 
     steps:
       - name: Checkout sources
@@ -1130,7 +1136,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm]
+        distrib: [el8, el9, bookworm, noble]
 
     steps:
       - name: Checkout sources
