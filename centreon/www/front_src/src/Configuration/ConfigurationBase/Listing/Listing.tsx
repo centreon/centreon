@@ -1,7 +1,6 @@
 import { Column, MemoizedListing } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
-import {} from '../Dialogs';
 import ActionsBar from './ActionsBar';
 import useColumns from './Columns/useColumns';
 import { selectedRowsAtom } from './atoms';
@@ -10,9 +9,10 @@ import useLoadData from './useLoadData';
 
 interface Props {
   columns: Array<Column>;
+  hasWriteAccess: boolean;
 }
 
-const Listing = ({ columns }: Props): JSX.Element => {
+const Listing = ({ columns, hasWriteAccess }: Props): JSX.Element => {
   const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
 
   const { staticColumns } = useColumns();
@@ -35,14 +35,14 @@ const Listing = ({ columns }: Props): JSX.Element => {
 
   return (
     <MemoizedListing
-      checkable
-      actions={<ActionsBar />}
+      checkable={hasWriteAccess}
+      actions={<ActionsBar hasWriteAccess={hasWriteAccess} />}
       columnConfiguration={{
         selectedColumnIds,
         sortable: true
       }}
       disableRowCondition={disableRowCondition}
-      columns={[...columns, ...staticColumns]}
+      columns={hasWriteAccess ? [...columns, ...staticColumns] : columns}
       currentPage={(page || 1) - 1}
       limit={data?.meta.limit}
       loading={isLoading}
