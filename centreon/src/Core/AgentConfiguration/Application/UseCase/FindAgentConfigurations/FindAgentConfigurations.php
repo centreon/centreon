@@ -81,7 +81,16 @@ final class FindAgentConfigurations
 
             $presenter->presentResponse($this->createResponse($agentConfigurations));
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['user_id' => $this->user->getId()]);
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ],
+            ]);
             $presenter->presentResponse(new ErrorResponse(AgentConfigurationException::errorWhileRetrievingObjects()));
         }
     }
