@@ -45,6 +45,10 @@ beforeEach(() => {
     method: 'DELETE',
     url: '/centreon/api/latest/configuration/agent-configurations/*'
   }).as('deleteAgents');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/agent-configurations?page=*'
+  }).as('agentsList');
 });
 
 after(() => {
@@ -71,12 +75,11 @@ Then('a pop-up menu with the form is displayed', () => {
 
 When('the admin user fills in all the information', () => {
   cy.addTelegrafAgent(agentsConfiguration.telegraf1);
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
-  cy.wait('@addAgents');
 });
 
 When('the user clicks on Save', () => {
   cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.wait('@agentsList');
 });
 
 Then('the creation form is closed', () => {
