@@ -14,7 +14,7 @@ env:
 
 jobs:
   chromatic:
-    if: github.repository == 'centreon/centreon' && !startsWith('Merge branch', github.event.head_commit.message)
+    if: github.repository == 'centreon/centreon' && !startsWith(github.event.head_commit.message, 'Merge branch')
     runs-on: ubuntu-24.04
 
     steps:
