@@ -16121,6 +16121,12 @@ msgstr "Tous les contrôles sont désactivés"
 msgid "Only passive checks are enabled"
 msgstr "Seulement les contrôles passifs sont activés"
 
+msgid "Only active checks are enabled"
+msgstr "Seulement les contrôles actifs sont activés"
+
+msgid "All checks are enabled"
+msgstr "Tous les contrôles sont activés"
+
 msgid "Mandatory data to create the entity '%s' is missing"
 msgstr "Les données obligatoires pour créer l'entité '%s' sont manquantes"
 
@@ -19869,3 +19875,31 @@ msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement. Ce param�
 
 msgid "'{{total}} element(s) found"
 msgstr "'{{total}} élément(s) trouvé(s)"
+
+# ---- EXPORT CSV ----
+
+msgid "Resource Type"
+msgstr "Type de ressource"
+
+msgid "Parent Resource Type"
+msgstr "Type de ressource parent"
+
+msgid "Parent Resource Name"
+msgstr "Nom de la ressource parent"
+
+msgid "Parent Resource Status"
+msgstr "Statut de la ressource parent"
+
+msgid "An error occurred while filtering columns"
+msgstr "Une erreur est survenue lors du filtrage des colonnes"
+
+msgid "Error while creating export request"
+msgstr "Erreur lors de la création de la demande d'exportation"
+
+msgid "Export format not supported"
+msgstr "Format d'export non supporté"
+
+msgid "Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows."
+msgstr "L'export sera traité mais ne contiendra pas toutes les lignes. Vous pouvez cependant filtrer vos ressources pour réduire le nombre de lignes."
+
+# ---- END EXPORT CSV ----
