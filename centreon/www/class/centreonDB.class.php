@@ -26,6 +26,8 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Psr\Log\LogLevel;
 
 // file centreon.config.php may not exist in test environment
 $configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
@@ -1235,44 +1237,17 @@ class CentreonDB extends PDO implements ConnectionInterface
         ?\Throwable $previous = null
     ): void {
         // prepare context of the database exception
-        if ($previous instanceof CentreonDbException) {
-            $dbExceptionContext = $previous->getOptions();
-        } elseif ($previous instanceof ConnectionException) {
-            $dbExceptionContext = $previous->getContext();
-        } elseif ($previous instanceof \PDOException) {
-            $dbExceptionContext = [
-                'exception_type' => \PDOException::class,
-                'file' => $previous->getFile(),
-                'line' => $previous->getLine(),
-                'code' => $previous->getCode(),
-                'message' => $previous->getMessage(),
-                'pdo_error_info' => $previous->errorInfo,
-            ];
+        $context = [
+            'database_name' => $this->connectionConfig->getDatabaseNameConfiguration(),
+            'database_connector' => self::class,
+            'query' => $query,
+        ];
+
+        if (! is_null($previous)) {
+            ExceptionLogger::create()->log($previous, $context, LogLevel::CRITICAL);
         } else {
-            $dbExceptionContext = [];
+            $this->logger->critical(CentreonLog::TYPE_SQL, $message, $context);
         }
-        if (isset($dbExceptionContext['query'])) {
-            unset($dbExceptionContext['query']);
-        }
-
-        // prepare default context
-        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseNameConfiguration()];
-        if (! empty($query)) {
-            $defaultContext['query'] = $query;
-        }
-
-        $context = array_merge(
-            ['default' => $defaultContext],
-            ['custom' => $customContext],
-            ['exception' => $dbExceptionContext]
-        );
-
-        $this->logger->critical(
-            CentreonLog::TYPE_SQL,
-            "[CentreonDb] {$message}",
-            $context,
-            $previous
-        );
     }
 
     //******************************************** DEPRECATED METHODS ***********************************************//
@@ -1331,7 +1306,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
             throw new CentreonDbException(
                 message: "Error while preparing the query: {$e->getMessage()}",
-                options: ['query' => $query],
+                context: ['query' => $query],
                 previous: $e
             );
         } finally {
@@ -1397,7 +1372,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
             throw new CentreonDbException(
                 message: "Error while binding value for param {$paramName} : {$e->getMessage()}",
-                options: [
+                context: [
                     'query' => $pdoStatement->queryString,
                     'param_name' => $paramName,
                     'param_value' => $value,
@@ -1463,7 +1438,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
             throw new CentreonDbException(
                 message: "Error while binding param {$paramName} : {$e->getMessage()}",
-                options: [
+                context: [
                     'query' => $pdoStatement->queryString,
                     'param_name' => $paramName,
                     'param_var' => $var,
@@ -1502,7 +1477,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 );
                 throw new CentreonDbException(
                     message: "Error while closing the query : {$e->getMessage()}",
-                    options: ['query' => $pdoStatement->queryString],
+                    context: ['query' => $pdoStatement->queryString],
                     previous: $e
                 );
             }
@@ -1513,7 +1488,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
             throw new CentreonDbException(
                 message: "Error while fetching the row : {$e->getMessage()}",
-                options: ['query' => $pdoStatement->queryString],
+                context: ['query' => $pdoStatement->queryString],
                 previous: $e
             );
         }
@@ -1543,7 +1518,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
             throw new CentreonDbException(
                 message: "Error while fetching all the rows : {$e->getMessage()}",
-                options: ['query' => $pdoStatement->queryString],
+                context: ['query' => $pdoStatement->queryString],
                 previous: $e
             );
         } finally {
@@ -1557,7 +1532,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 );
                 throw new CentreonDbException(
                     message: "Error while closing the query : {$e->getMessage()}",
-                    options: ['query' => $pdoStatement->queryString],
+                    context: ['query' => $pdoStatement->queryString],
                     previous: $e
                 );
             }
@@ -1594,7 +1569,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
             throw new CentreonDbException(
                 message: "Error while executing the query : {$e->getMessage()}",
-                options: ['query' => $pdoStatement->queryString, 'bind_params' => $bindParams],
+                context: ['query' => $pdoStatement->queryString, 'bind_params' => $bindParams],
                 previous: $e
             );
         }
@@ -1674,7 +1649,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
             throw new CentreonDbException(
                 message: "Error while executing the query: {$e->getMessage()}",
-                options: [
+                context: [
                     'query' => $query,
                     'fetch_mode' => $fetchMode,
                     'fetch_mode_args' => $fetchModeArgs,
@@ -1762,7 +1737,7 @@ class CentreonDB extends PDO implements ConnectionInterface
             );
             throw new CentreonDbException(
                 message: $message,
-                options: [
+                context: [
                     'query' => $pdoStatement->queryString,
                     'bind_params' => $bindParams,
                     'with_param_type' => $withParamType

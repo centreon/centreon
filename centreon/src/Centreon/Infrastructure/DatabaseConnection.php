@@ -30,6 +30,8 @@ use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\Logger;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Psr\Log\LogLevel;
 
 /**
  * This class extend the PDO class and can be used to create a database
@@ -804,40 +806,17 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         ?\Throwable $previous = null
     ): void {
         // prepare context of the database exception
-        if ($previous instanceof ConnectionException) {
-            $dbExceptionContext = $previous->getContext();
-        } elseif ($previous instanceof \PDOException) {
-            $dbExceptionContext = [
-                'exception_type' => \PDOException::class,
-                'file' => $previous->getFile(),
-                'line' => $previous->getLine(),
-                'code' => $previous->getCode(),
-                'message' => $previous->getMessage(),
-                'pdo_error_info' => $previous->errorInfo,
-            ];
+        $context = [
+            'database_name' => $this->connectionConfig->getDatabaseNameConfiguration(),
+            'database_connector' => self::class,
+            'query' => $query,
+        ];
+
+        if (! is_null($previous)) {
+            ExceptionLogger::create()->log($previous, $context, LogLevel::CRITICAL);
         } else {
-            $dbExceptionContext = [];
+            Logger::create()->critical($message, $context);
         }
-        if (isset($dbExceptionContext['query'])) {
-            unset($dbExceptionContext['query']);
-        }
-
-        // prepare default context
-        $defaultContext = ['database_name' => $this->connectionConfig->getDatabaseNameConfiguration()];
-        if (! empty($query)) {
-            $defaultContext['query'] = $query;
-        }
-
-        $context = array_merge(
-            ['default' => $defaultContext],
-            ['custom' => $customContext],
-            ['exception' => $dbExceptionContext]
-        );
-
-        Logger::create()->critical(
-            "[DatabaseConnection] {$message}",
-            $context
-        );
     }
 
     // --------------------------------------- PRIVATE METHODS -----------------------------------------
