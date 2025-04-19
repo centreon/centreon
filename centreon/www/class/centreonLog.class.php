@@ -391,7 +391,7 @@ class CentreonLog
             // Add default context with back trace and request infos
             $defaultContext = [
                 'request_infos' => [
-                    'uri' => $_SERVER['REQUEST_URI'] ?? null,
+                    'uri' => isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : null,
                     'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
                     'server' => $_SERVER['SERVER_NAME'] ?? null,
                 ]
