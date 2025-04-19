@@ -20,7 +20,6 @@ import {
   includes,
   isEmpty,
   isNil,
-  isNotNil,
   keys,
   last,
   lt,
@@ -34,7 +33,8 @@ import {
   sortBy,
   split,
   uniq,
-  clamp
+  clamp,
+  isNotNil
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
@@ -709,18 +709,14 @@ interface ClampValueProps {
 
 export const clampValue = ({
   value,
-  min,
-  max
+  min = Number.NEGATIVE_INFINITY,
+  max = Number.POSITIVE_INFINITY
 }: ClampValueProps): number | null => {
-  if (isNil(value)) {
-    return value;
+  if (isNotNil(value) && (value < min || value > max)) {
+    return null;
   }
 
-  return clamp(
-    min || Number.NEGATIVE_INFINITY,
-    max || Number.POSITIVE_INFINITY,
-    value
-  );
+  return value;
 };
 
 export {

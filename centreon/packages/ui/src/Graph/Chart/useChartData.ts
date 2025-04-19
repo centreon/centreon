@@ -29,9 +29,31 @@ interface Props {
   data?: LineChartData;
   end?: string;
   start?: string;
+  min?: number;
+  max?: number;
 }
 
-const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
+const clampTimeSeries = ({ timeSeries, min, max }) =>
+  timeSeries.map((timeSerie) => {
+    return Object.entries(timeSerie).reduce((acc, [key, value]) => {
+      if (key === 'timeTick') {
+        return { ...acc, [key]: value };
+      }
+
+      return {
+        ...acc,
+        [key]: clampValue({ value: value as number | null, min, max })
+      };
+    }, {});
+  });
+
+const useGraphData = ({
+  data,
+  end,
+  start,
+  min,
+  max
+}: Props): GraphDataResult => {
   const adjustedDataRef = useRef<Data>();
 
   const dataWithAdjustedMetricsColor = useMemo(() => {
@@ -82,15 +104,7 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
     adjustedDataRef.current = {
       baseAxis,
       lines: sortedLines,
-      timeSeries: timeSeries.map((timeSerie) => {
-        return Object.entries(timeSerie).reduce((acc, [key, value]) => {
-          if (key === 'timeTick') {
-            return { ...acc, [key]: value };
-          }
-
-          return { ...acc, [key]: clampValue({ value, min, max }) };
-        }, {});
-      }),
+      timeSeries: clampTimeSeries({ timeSeries, min, max }),
       title
     };
   }, [dataWithAdjustedMetricsColor, end, start]);

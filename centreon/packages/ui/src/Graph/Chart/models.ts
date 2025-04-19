@@ -122,10 +122,8 @@ export interface LineChartProps {
   zoomPreview?: InteractedZone;
   skipIntersectionObserver?: boolean;
   additionalLines?: Array<AdditionalLineProps>;
-  boundaries?: {
-    min: number;
-    max: number;
-  };
+  min?: number;
+  max?: number;
 }
 
 export interface Area {
