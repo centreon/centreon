@@ -29,17 +29,26 @@ class KnowledgeBaseContext extends CentreonContext
             'http://' . $this->container->getHost() . ':' .
             $this->container->getPort(80, 'mediawiki') . '/index.php/Main_Page'
         );
+
         $this->iAmLoggedIn();
 
         $page = new KBParametersPage($this);
-        $page->setProperties(
-            array(
-                'kb_wiki_url' => 'http://' . $this->container->getContainerIpAddress('mediawiki'),
-                'kb_wiki_account' => 'WikiSysop',
-                'kb_wiki_password' => 'centreon'
-            )
+        $this->spin(
+            function ($context) use ($page) {
+                $page->setProperties(
+                    array(
+                        'kb_wiki_url' => 'http://' . $context->container->getContainerIpAddress('mediawiki'),
+                        'kb_wiki_account' => 'WikiSysop',
+                        'kb_wiki_password' => 'centreon'
+                    )
+                );
+                $page->save();
+
+                return true;
+            },
+            'Wiki page is not loaded.',
+            120
         );
-        $page->save();
     }
 
     /**
@@ -104,35 +113,61 @@ class KnowledgeBaseContext extends CentreonContext
 
         $this->spin(
             function ($context) {
+                return $context->getSession()->getPage()->has('css', '.list_two td:nth-child(5) a:nth-child(1)');
+            },
+            'Wiki procedure link is not found.',
+            120
+        );
+
+        $this->spin(
+            function ($context) {
                 $context->assertFind('css', '.list_two td:nth-child(5) a:nth-child(1)')->click();
+
+                return true;
+            },
+            'Wiki procedure link is not clickable.',
+            120
+        );
+
+        $this->spin(
+            function ($context) {
                 $windowNames = $context->getSession()->getWindowNames();
+
                 return count($windowNames) > 1;
             },
             'Wiki procedure window is not opened.',
-            10
+            120
         );
-        $windowNames = $this->getSession()->getWindowNames();
-        $this->getSession()->switchToWindow($windowNames[1]);
+
+        $windows = $this->getSession()->getWindowNames();
+        $this->getSession()->switchToWindow($windows[1]);
 
         /* Add wiki page */
         $this->spin(
             function ($context) {
-                $checkurl = 'Host_:_' . $context->hostName;
+                $checkurl = 'Host_:_' . $this->hostName;
                 $currenturl = urldecode($context->getSession()->getCurrentUrl());
                 if (!strstr($currenturl, $checkurl)) {
                     throw new Exception(
-                        'Redirected to wrong page: ' . $currenturl .
-                        ', should have contain ' . $checkurl . '.'
+                        "Redirected to wrong page: $currenturl, should have contain $checkurl."
                     );
                 }
-            }
+
+                return true;
+            },
+            'Redirected to wrong host wiki page.',
+            120
         );
 
         $this->spin(
             function ($context) {
                 $context->assertFind('css', '#wpTextbox1')->setValue('add wiki host page');
                 $context->assertFind('css', 'input[name="wpSave"]')->click();
-            }
+
+                return true;
+            },
+            'Wiki page is not loaded.',
+            120
         );
 
         /* cron */
@@ -147,9 +182,17 @@ class KnowledgeBaseContext extends CentreonContext
      */
     public function iAddAProcedureConcerningThisServiceInMediawiki()
     {
-        // Create wiki page.
         $page = new KBServiceListingPage($this);
-        $page->createWikiPage(array('host' => $this->serviceHostName, 'service' => $this->serviceName));
+        // Create wiki page.
+        $this->spin(
+            function () use ($page) {
+                $page->createWikiPage(['host' => $this->serviceHostName, 'service' => $this->serviceName]);
+
+                return true;
+            },
+            'Service listing page was not loaded properly.',
+            120
+        );
 
         $this->spin(
             function ($context) {
@@ -157,7 +200,7 @@ class KnowledgeBaseContext extends CentreonContext
                 return count($windowNames) > 1;
             },
             'Wiki procedure window is not opened.',
-            10
+            120
         );
         $windowNames = $this->getSession()->getWindowNames();
         $this->getSession()->switchToWindow($windowNames[1]);
@@ -165,15 +208,24 @@ class KnowledgeBaseContext extends CentreonContext
         // Check that wiki page is valid.
         $checkurl = 'Service_:_' . $this->serviceHostName . '_/_' . $this->serviceName;
         $this->spin(
-            fn($context) => strstr(urldecode($context->getSession()->getCurrentUrl()), $checkurl),
-            'Redirected to wrong service wiki page.'
+            function ($context) use ($checkurl) {
+                strstr(urldecode($context->getSession()->getCurrentUrl()), $checkurl);
+
+                return true;
+            },
+            'Redirected to wrong service wiki page.',
+            120
         );
 
         $this->spin(
             function ($context) {
                 $context->assertFind('css', '#wpTextbox1')->setValue('add wiki service page');
                 $context->assertFind('css', 'input[name="wpSave"]')->click();
-            }
+
+                return true;
+            },
+            'Wiki page is not loaded.',
+            120
         );
 
         /* cron */
@@ -192,8 +244,18 @@ class KnowledgeBaseContext extends CentreonContext
         $this->visit('/main.php?p=61001');
         $this->spin(
             function ($context) {
-                $context->assertFind('css', '.list_two td:nth-child(5) a:nth-child(1)')->click();
-            }
+                $links = $context->getSession()->getPage()->findAll('css', 'a');
+                foreach ($links as $link) {
+                    if (str_contains(trim($link->getText()), 'Delete wiki page')) {
+                        $link->click();
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+            'delete link is not available',
+            120
         );
     }
 
@@ -218,6 +280,8 @@ class KnowledgeBaseContext extends CentreonContext
                 ) {
                     throw new Exception('Bad url');
                 }
+
+                return true;
             }
         );
     }
@@ -244,6 +308,8 @@ class KnowledgeBaseContext extends CentreonContext
                 ) {
                     throw new Exception('Bad url');
                 }
+
+                return true;
             }
         );
     }
@@ -255,13 +321,14 @@ class KnowledgeBaseContext extends CentreonContext
     {
         $this->spin(
             function ($context) {
-                if (' No wiki page defined ' == $context->assertFind('css', '.list_two td:nth-child(4) font')->getHtml()) {
+                if (str_contains($context->assertFind('css', '.list_two td:nth-child(4) font')->getHtml(), 'No wiki page defined')) {
                     return true;
                 } else {
                     return false;
                 }
             },
-            'Delete option id display'
+            'Delete option id display',
+            120  
         );
     }
 }
