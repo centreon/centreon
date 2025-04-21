@@ -27,12 +27,20 @@ class DisableFieldsOnBlockedObjectsContext extends CentreonContext
 
         $hostTemplate = new HostTemplateConfigurationListingPage($this);
         $hostTemplate->setLockedElementsFilter(true);
-        $hostTemplate = $hostTemplate->getEntries();
-        $hostTemplate = $hostTemplate['myHostTemplate'];
 
-        if (!$hostTemplate['locked']) {
-            throw new \Exception('the host template myHostTemplate is not locked');
-        };
+        $this->spin(
+            function ($context) use ($hostTemplate) {
+                $entries = $hostTemplate->getEntries();
+                
+                if (!isset($entries['myHostTemplate']) && !$entries['myHostTemplate']['locked']) {
+                    throw new \Exception('the host template myHostTemplate is not locked');
+                };
+
+                return true; 
+            },
+            'timeout : the host template myHostTemplate is not locked',
+            120
+        );
     }
 
     /**
@@ -53,9 +61,18 @@ class DisableFieldsOnBlockedObjectsContext extends CentreonContext
     public function theFieldsAreFrozen()
     {
         $this->iOpenTheForm();
-        $macro = $this->getSession()->getPage()->find('css', '#macro li.clone_template span input[type="text"]');
-        if (!$macro->getAttribute('disabled')) {
-            throw new \Exception('the macros are not disabled');
-        }
+
+        $this->spin(
+            function ($context) {
+                $macro = $context->getSession()->getPage()->find('css', '#macro li.clone_template span input[type="text"]');
+                if (!$macro->getAttribute('disabled')) {
+                    throw new \Exception('the macros are not disabled');
+                }
+
+                return true;
+            },
+            'timeout : the macros are not disabled',
+            120
+        );
     }
 }
