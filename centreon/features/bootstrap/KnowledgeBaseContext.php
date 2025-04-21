@@ -102,10 +102,9 @@ class KnowledgeBaseContext extends CentreonContext
         /* Go to the page to options page */
         $this->visit('/main.php?p=61001');
 
-        $this->assertFind('css', '.list_two td:nth-child(5) a:nth-child(1)')->click();
-
         $this->spin(
             function ($context) {
+                $context->assertFind('css', '.list_two td:nth-child(5) a:nth-child(1)')->click();
                 $windowNames = $context->getSession()->getWindowNames();
                 return count($windowNames) > 1;
             },
@@ -116,17 +115,25 @@ class KnowledgeBaseContext extends CentreonContext
         $this->getSession()->switchToWindow($windowNames[1]);
 
         /* Add wiki page */
-        $checkurl = 'Host_:_' . $this->hostName;
-        $currenturl = urldecode($this->getSession()->getCurrentUrl());
-        if (!strstr($currenturl, $checkurl)) {
-            throw new Exception(
-                'Redirected to wrong page: ' . $currenturl .
-                ', should have contain ' . $checkurl . '.'
-            );
-        }
+        $this->spin(
+            function ($context) {
+                $checkurl = 'Host_:_' . $context->hostName;
+                $currenturl = urldecode($context->getSession()->getCurrentUrl());
+                if (!strstr($currenturl, $checkurl)) {
+                    throw new Exception(
+                        'Redirected to wrong page: ' . $currenturl .
+                        ', should have contain ' . $checkurl . '.'
+                    );
+                }
+            }
+        );
 
-        $this->assertFind('css', '#wpTextbox1')->setValue('add wiki host page');
-        $this->assertFind('css', 'input[name="wpSave"]')->click();
+        $this->spin(
+            function ($context) {
+                $context->assertFind('css', '#wpTextbox1')->setValue('add wiki host page');
+                $context->assertFind('css', 'input[name="wpSave"]')->click();
+            }
+        );
 
         /* cron */
         $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", $this->webService);
@@ -157,16 +164,17 @@ class KnowledgeBaseContext extends CentreonContext
 
         // Check that wiki page is valid.
         $checkurl = 'Service_:_' . $this->serviceHostName . '_/_' . $this->serviceName;
-        $currenturl = urldecode($this->getSession()->getCurrentUrl());
-        if (!strstr($currenturl, $checkurl)) {
-            throw new Exception(
-                'Redirected to wrong page: ' . $currenturl .
-                ', should have contain ' . $checkurl . '.'
-            );
-        }
+        $this->spin(
+            fn($context) => strstr(urldecode($context->getSession()->getCurrentUrl()), $checkurl),
+            'Redirected to wrong service wiki page.'
+        );
 
-        $this->assertFind('css', '#wpTextbox1')->setValue('add wiki service page');
-        $this->assertFind('css', 'input[name="wpSave"]')->click();
+        $this->spin(
+            function ($context) {
+                $context->assertFind('css', '#wpTextbox1')->setValue('add wiki service page');
+                $context->assertFind('css', 'input[name="wpSave"]')->click();
+            }
+        );
 
         /* cron */
         $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", $this->webService);
@@ -182,7 +190,11 @@ class KnowledgeBaseContext extends CentreonContext
     {
         /* Go to the page to options page */
         $this->visit('/main.php?p=61001');
-        $this->assertFind('css', '.list_two td:nth-child(5) a:nth-child(4)')->click();
+        $this->spin(
+            function ($context) {
+                $context->assertFind('css', '.list_two td:nth-child(5) a:nth-child(1)')->click();
+            }
+        );
     }
 
     /**
@@ -192,18 +204,22 @@ class KnowledgeBaseContext extends CentreonContext
     {
         /* check url config */
         $this->visit('/main.php?p=60101');
-        $this->assertFind('css', '.list_two td:nth-child(2) a:nth-child(1)')->click();
-        $this->assertFind('css', '#c5 a:nth-child(1)')->click();
-        $fieldValue = $this->assertFind('css', 'input[name="ehi_notes_url"]');
-        $originalValue = $fieldValue->getValue();
+        $this->spin(
+            function ($context) {
+                $context->assertFind('css', '.list_two td:nth-child(2) a:nth-child(1)')->click();
+                $context->assertFind('css', '#c5 a:nth-child(1)')->click();
+                $fieldValue = $context->assertFind('css', 'input[name="ehi_notes_url"]');
+                $originalValue = $fieldValue->getValue();
 
-        if (!strstr(
-            $originalValue,
-            './include/configuration/configKnowledge/proxy/proxy.php?host_name=$HOSTNAME$'
-        )
-        ) {
-            throw new Exception('Bad url');
-        }
+                if (!strstr(
+                    $originalValue,
+                    './include/configuration/configKnowledge/proxy/proxy.php?host_name=$HOSTNAME$'
+                )
+                ) {
+                    throw new Exception('Bad url');
+                }
+            }
+        );
     }
 
     /**
@@ -213,19 +229,23 @@ class KnowledgeBaseContext extends CentreonContext
     {
         /* check url config */
         $this->visit('/main.php?p=60201');
-        $this->assertFind('css', '.list_one:nth-child(8) td:nth-child(3) a')->click();
-        $this->assertFind('css', '#c5 a:nth-child(1)')->click();
-        $fieldValue = $this->assertFind('css', 'input[name="esi_notes_url"]');
-        $originalValue = $fieldValue->getValue();
+        $this->spin(
+            function ($context) {
+                $context->assertFind('css', '.list_one:nth-child(8) td:nth-child(3) a')->click();
+                $context->assertFind('css', '#c5 a:nth-child(1)')->click();
+                $fieldValue = $context->assertFind('css', 'input[name="esi_notes_url"]');
+                $originalValue = $fieldValue->getValue();
 
-        if (!strstr(
-            $originalValue,
-            './include/configuration/configKnowledge/proxy/proxy.php?' .
-            'host_name=$HOSTNAME$&service_description=$SERVICEDESC$'
-        )
-        ) {
-            throw new Exception('Bad url');
-        }
+                if (!strstr(
+                    $originalValue,
+                    './include/configuration/configKnowledge/proxy/proxy.php?' .
+                    'host_name=$HOSTNAME$&service_description=$SERVICEDESC$'
+                )
+                ) {
+                    throw new Exception('Bad url');
+                }
+            }
+        );
     }
 
     /**
@@ -235,7 +255,7 @@ class KnowledgeBaseContext extends CentreonContext
     {
         $this->spin(
             function ($context) {
-                if (' No wiki page defined ' == $this->assertFind('css', '.list_two td:nth-child(4) font')->getHtml()) {
+                if (' No wiki page defined ' == $context->assertFind('css', '.list_two td:nth-child(4) font')->getHtml()) {
                     return true;
                 } else {
                     return false;
