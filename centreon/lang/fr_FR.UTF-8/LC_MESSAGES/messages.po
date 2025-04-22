@@ -19869,3 +19869,9 @@ msgstr "Vous avez sélectionné Aucun TLS comme niveau de chiffrement. Ce param�
 
 msgid "'{{total}} element(s) found"
 msgstr "'{{total}} élément(s) trouvé(s)"
+
+msgid "No TLS"
+msgstr "Sans TLS"
+
+msgid "TLS insecure"
+msgstr "TLS non sécurisé"
