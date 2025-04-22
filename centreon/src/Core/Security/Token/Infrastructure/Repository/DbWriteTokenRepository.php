@@ -69,7 +69,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
             $this->connection->delete(
                 $this->queryBuilder->delete('jwt_tokens')
                     ->where('token_name = :tokenName')
-                    ->where('creator_id = :userId')
+                    ->andWhere('creator_id = :userId')
                     ->getQuery(),
                 QueryParameters::create([
                     QueryParameter::string('tokenName', $tokenName),
@@ -216,7 +216,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
             $this->queryBuilder->update('security_authentication_tokens')
                 ->set('is_revoked', ':isRevoked')
                 ->where('token_name = :tokenName')
-                ->where('user_id = :userId')
+                ->andWhere('user_id = :userId')
                 ->getQuery(),
             QueryParameters::create([
                 QueryParameter::int('isRevoked', (int) $token->isRevoked()),
