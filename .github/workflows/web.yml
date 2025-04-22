@@ -224,20 +224,21 @@ jobs:
           echo "ok1"
           php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
           echo "ok2"
-          sudo sed -i \
-            -e '/^#.* en_US.UTF-8 /s/^#//' \
-            -e '/^#.* fr_FR.UTF-8 /s/^#//' \
-            -e '/^#.* pt_PT.UTF-8 /s/^#//' \
-            -e '/^#.* pt_BR.UTF-8 /s/^#//' \
-            -e '/^#.* es_ES.UTF-8 /s/^#//' \
-            /etc/locale.gen > /dev/null 2>&1 || :
-          sudo locale-gen
+          # sudo sed -i \
+          #   -e '/^#.* en_US.UTF-8 /s/^#//' \
+          #   -e '/^#.* fr_FR.UTF-8 /s/^#//' \
+          #   -e '/^#.* pt_PT.UTF-8 /s/^#//' \
+          #   -e '/^#.* pt_BR.UTF-8 /s/^#//' \
+          #   -e '/^#.* es_ES.UTF-8 /s/^#//' \
+          #   /etc/locale.gen > /dev/null 2>&1 || :
+          # sudo locale-gen
           sudo apt-get update
           sudo apt-get install -y gettext
           for i in lang/*.UTF-8 ; do
             localefull=`basename $i`
             langName=`echo $localefull | cut -d . -f 1`
             langShortName=`echo $localefull | cut -d _ -f 1`
+            sudo locale-gen $localefull
             mkdir -p "www/locale/$localefull/LC_MESSAGES"
             echo "make_translation.sh centreon $langName"
             bash ../.github/scripts/translation/make_translation.sh centreon $langName
