@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web 10.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-22 14:22+0000\n"
+"POT-Creation-Date: 2025-04-22 14:24+0000\n"
 "PO-Revision-Date: 2018-10-24 11:53+0100\n"
 "Last-Translator: Luiz Costa <me@luizgustavo.pro.br>\n"
 "Language-Team: Centreon team\n"
@@ -2534,7 +2534,7 @@ msgid "All"
 msgstr "Todos"
 
 #: centreon/www/include/Administration/myAccount/DB-Func.php:242
-#: centreon/lib/Centreon/Object/Contact/Contact.php:196
+#: centreon/lib/Centreon/Object/Contact/Contact.php:195
 msgid "Your autologin key must be different than your current password"
 msgstr ""
 
