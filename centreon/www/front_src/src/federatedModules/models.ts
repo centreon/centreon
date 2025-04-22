@@ -66,7 +66,7 @@ export enum FederatedWidgetOptionType {
   warning = 'warning'
 }
 
-interface WidgetHiddenCondition {
+export interface WidgetHiddenCondition {
   matches: unknown;
   method: 'equals' | 'includes' | 'includes-only';
   property?: string;
@@ -96,7 +96,7 @@ export interface FederatedWidgetOption {
       };
   group?: string;
   hasModule?: string;
-  hiddenCondition: WidgetHiddenCondition;
+  hiddenCondition: WidgetHiddenCondition | Array<WidgetHiddenCondition>;
   label: string;
   options?:
     | Array<SelectEntry>

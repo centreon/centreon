@@ -2,20 +2,7 @@ import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
-import {
-  path,
-  difference,
-  equals,
-  find,
-  has,
-  includes,
-  isEmpty,
-  isNil,
-  pluck,
-  propEq,
-  reject,
-  type
-} from 'ramda';
+import { path, find, propEq } from 'ramda';
 
 import { useDeepCompare } from '@centreon/ui';
 import {
@@ -62,6 +49,7 @@ import {
   WidgetValueFormat,
   WidgetWarning
 } from './Inputs';
+import { handleHiddenConditions } from './handleHiddenConditions';
 
 export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
@@ -129,85 +117,29 @@ export const useWidgetInputs = (
   const inputs = useMemo(
     () =>
       selectedWidgetProperties
-        ? Object.entries(selectedWidgetProperties)
-            .filter(([, value]) => {
-              const hasModule = value.hasModule
-                ? has(value.hasModule, modules)
-                : true;
+        ? handleHiddenConditions({
+            modules,
+            featureFlags,
+            widgetProperties: selectedWidgetProperties,
+            values
+          }).map(([key, value]) => {
+            const Component =
+              propertiesInputType[value.type] || DefaultComponent;
 
-              if (!value.hiddenCondition) {
-                return true;
+            return {
+              Component,
+              group: value.group,
+              key,
+              props: {
+                ...(value as unknown as Omit<
+                  WidgetPropertyProps,
+                  'propertyName' | 'propertyType'
+                >),
+                propertyName: key,
+                propertyType: widgetKey
               }
-
-              const { target, method, when, matches } = value.hiddenCondition;
-
-              if (equals(target, 'featureFlags')) {
-                return (
-                  hasModule &&
-                  !equals(featureFlags?.[value.hiddenCondition.when], matches)
-                );
-              }
-
-              if (equals(method, 'includes')) {
-                const formValue = path(when.split('.'), values);
-                const property = value.hiddenCondition?.property;
-                const items = property ? pluck(property, formValue) : formValue;
-                const areItemsString = equals(type(items), 'String');
-
-                return (
-                  hasModule &&
-                  (isEmpty(reject(equals(''), items)) ||
-                    (areItemsString
-                      ? !includes(items, matches)
-                      : !isEmpty(
-                          difference(reject(equals(''), items), matches)
-                        )))
-                );
-              }
-
-              if (equals(method, 'includes-only')) {
-                const formValue = path(when.split('.'), values);
-                const property = value.hiddenCondition?.property;
-                const items = property ? pluck(property, formValue) : formValue;
-
-                return (
-                  hasModule &&
-                  (isEmpty(reject(equals(''), items)) ||
-                    !equals(
-                      items.filter((v) => v),
-                      matches
-                    ))
-                );
-              }
-
-              if (equals(method, 'isNil')) {
-                const formValue = path(when.split('.'), values);
-
-                return hasModule && !isEmpty(formValue) && !isNil(formValue);
-              }
-
-              return (
-                hasModule && !equals(path(when.split('.'), values), matches)
-              );
-            })
-            .map(([key, value]) => {
-              const Component =
-                propertiesInputType[value.type] || DefaultComponent;
-
-              return {
-                Component,
-                group: value.group,
-                key,
-                props: {
-                  ...(value as unknown as Omit<
-                    WidgetPropertyProps,
-                    'propertyName' | 'propertyType'
-                  >),
-                  propertyName: key,
-                  propertyType: widgetKey
-                }
-              };
-            })
+            };
+          })
         : null,
     [selectedWidgetProperties, values]
   );
