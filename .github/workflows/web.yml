@@ -231,7 +231,7 @@ jobs:
             -e '/^#.* pt_BR.UTF-8 /s/^#//' \
             -e '/^#.* es_ES.UTF-8 /s/^#//' \
             /etc/locale.gen > /dev/null 2>&1 || :
-          locale-gen
+          sudo locale-gen
           for i in lang/*.UTF-8 ; do
             localefull=`basename $i`
             langName=`echo $localefull | cut -d . -f 1`
