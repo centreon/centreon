@@ -65,7 +65,7 @@ $updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage)
         <<<'SQL'
             UPDATE `topology`
             SET `is_react` = '1',
-                `topology_url` = '/configuration/hosts/groups',
+                `topology_url` = '/configuration/hosts/groups'
             WHERE `topology_name` = 'Host Groups'
                 AND `topology_page` = 60102
         SQL
@@ -197,6 +197,11 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
   */
   $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
+
+    if ($pearDB->isColumnExist('agent_configuration', 'connection_mode')) {
+        return;
+    }
+
     $pearDB->executeStatement(
         <<<'SQL'
             ALTER TABLE `agent_configuration`
@@ -242,6 +247,20 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
     );
 };
 
+// -------------------------------------------- Broker modules directive -------------------------------------------- //
+
+  $removeBrokerModuleDirective = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to delete rows from cfg_nagios_broker_module table';
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            DELETE FROM `cfg_nagios_broker_module`
+            WHERE `broker_module` LIKE '%cbmod.so %.json'
+        SQL
+    );
+};
+
+
 try {
     $createJwtTable();
     $addConnectionModeColumnToAgentConfiguration();
@@ -255,6 +274,7 @@ try {
     $updateSamlProviderConfiguration($pearDB);
     $updateAgentConfiguration($pearDB);
     $updateTopologyForAuthenticationTokens();
+    $removeBrokerModuleDirective();
 
     $pearDB->commit();
 
