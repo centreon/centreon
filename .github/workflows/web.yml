@@ -236,6 +236,7 @@ jobs:
             php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
           done
 
+          git diff
           if [[ '${{ github.event_name }}' == 'pull_request' && `git status --porcelain` ]]; then
             git config user.name "technique-ci"
             git config user.email "technique+ci@centreon.com"
