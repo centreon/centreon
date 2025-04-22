@@ -288,7 +288,7 @@ export const adaptSAMLConfigurationToAPI = ({
   logout_from_url: logoutFromUrl,
   remote_login_url: remoteLoginUrl,
   requested_authn_context:
-    requestedAuthnContext || RequestedAuthnContextValue.Minimum,
+    requestedAuthnContext || RequestedAuthnContextValue.Minimum,
   roles_mapping: adaptSAMLRolesMapping(rolesMapping),
   user_id_attribute: userIdAttribute
 });
