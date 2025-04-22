@@ -78,8 +78,8 @@ class Information
             || $conf['url'] === null
             || $conf['author'] === null
         ) {
-            throw new \Exception('Configuration file of widget "' . $widgetDirectory .
-                '" is invalid: missing at least one required attribute (title/description/url/author)');
+            throw new \Exception('Configuration file of widget "' . $widgetDirectory
+                . '" is invalid: missing at least one required attribute (title/description/url/author)');
         }
 
         $conf['directory'] = $widgetDirectory;
