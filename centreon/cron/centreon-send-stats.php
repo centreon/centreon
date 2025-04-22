@@ -27,6 +27,16 @@ require_once __DIR__ . '/../www/class/centreonStatistics.class.php';
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
+if (!file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
+    # Are we in a terminal? If not then we are more likely run from cron
+    if (posix_isatty(STDIN)) {
+        fwrite(STDERR, "Configuration file \"" . _CENTREON_ETC_ . "/centreon.conf.php\" does not exist.\n");
+        exit(1);
+    } else {
+        exit(0);
+    }
+}
+
 $shortopts  = "d";
 $longopts  = [ "debug" ];
 $options = getopt($shortopts, $longopts);
