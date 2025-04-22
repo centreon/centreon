@@ -7034,7 +7034,11 @@ msgstr "Convertir gd2 -> png :"
 msgid "Close"
 msgstr "Fermer"
 
-#: centreon-web/www/include/options/session/connected_user.php:50
+#: centreon-web/www/include/options/session/connected_user.php:71
+msgid "You are not allowed to kick this user"
+msgstr "Vous n'êtes pas autorisé à déconnecter cet utilisateur."
+
+#: centreon-web/www/include/options/session/connected_user.php:77
 msgid "User kicked"
 msgstr "Utilisateur déconnecté"
 
