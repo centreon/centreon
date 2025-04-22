@@ -4219,7 +4219,14 @@ function findHostsOfService(int $serviceId): array
     return $hostIds;
 }
 
-function checkServiceTemplateHasCommand(array $fields)
+/**
+ * Will check is the service template inherited by the service has a command.
+ *
+ * @param array<string, mixed> $fields The fields of the service
+ *
+ * @return array<string, string>|bool
+ */
+function checkServiceTemplateHasCommand(array $fields): array|bool
 {
     global $pearDB;
     $errors = [];
