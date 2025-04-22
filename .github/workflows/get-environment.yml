@@ -83,7 +83,7 @@ jobs:
             let hasSkipLabel = false;
             let labels = [];
 
-            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               try {
                 const fetchedLabels = await github.rest.issues.listLabelsOnIssue({
                   owner: context.repo.owner,
@@ -221,7 +221,7 @@ jobs:
           echo "latest_major_version=$MAJOR" >> $GITHUB_OUTPUT
         shell: bash
 
-      - if: ${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }}
+      - if: ${{ contains(fromJSON('["pull_request"]') , github.event_name) }}
         name: Get nested pull request path
         id: pr_path
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -270,7 +270,7 @@ jobs:
             core.setOutput('stability', getStability('${{ github.head_ref || github.ref_name }}'));
 
             let isTargetingFeatureBranch = false;
-            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               let targetStability = 'canary';
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               prPath.shift(); // remove current branch
@@ -361,7 +361,7 @@ jobs:
               return true;
             }
 
-            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               if (['develop', 'master'].includes(finalTargetBranch)) {
@@ -493,7 +493,7 @@ jobs:
               .addHeading(`${context.workflow} environment outputs`)
               .addTable(outputTable);
 
-            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const mainBranchName = prPath.pop();
               let codeBlock = `
