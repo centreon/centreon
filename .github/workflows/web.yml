@@ -224,7 +224,7 @@ jobs:
           echo "ok1"
           php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
           echo "ok2"
-          sed -i \
+          sudo sed -i \
             -e '/^#.* en_US.UTF-8 /s/^#//' \
             -e '/^#.* fr_FR.UTF-8 /s/^#//' \
             -e '/^#.* pt_PT.UTF-8 /s/^#//' \
