@@ -38,6 +38,8 @@ if (!isset($centreon)) {
     exit();
 }
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 Use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
@@ -4215,6 +4217,26 @@ function findHostsOfService(int $serviceId): array
         $hostIds[] = $hostId;
     }
     return $hostIds;
+}
+
+function checkServiceTemplateHasCommand(array $fields)
+{
+    global $pearDB;
+    $errors = [];
+    if (isset($fields["service_template_model_stm_id"]) && empty($fields["command_command_id"])) {
+        $serviceTemplateId = $fields["service_template_model_stm_id"];
+        $serviceTemplateCommand = $pearDB->fetchOne(
+           "SELECT command_command_id FROM service WHERE service_id = :stm_id",
+            QueryParameters::create([QueryParameter::int('stm_id', $serviceTemplateId)])
+        );
+        if ($serviceTemplateCommand === null) {
+            $errors['command_command_id'] = _("The inherited service template has also no check command. "
+                . "Please select a command."
+            );
+        }
+    }
+
+    return $errors !== [] ? $errors : true;
 }
 
 // ------ API Configuration calls --------------------------------------------------------
