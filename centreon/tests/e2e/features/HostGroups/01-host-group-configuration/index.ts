@@ -152,7 +152,7 @@ When('the user changes some properties of the configured host group', () => {
   cy.wait('@getHosts');
   cy.contains('Centreon-Server').click();
   // Update geo coordinates for MAP
-  cy.contains('Modify a host group');
+  cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
     .clear()
@@ -185,7 +185,7 @@ Then('these properties are updated', () => {
   // check values of hosts members
   cy.contains('span', 'host2').should('be.visible');
   cy.contains('span', 'Centreon-Server').should('be.visible');
-  cy.contains('Modify a host group');
+  cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
     .should('have.value', hostGroups.forTest.geo_coords);
@@ -220,7 +220,7 @@ Then('a new host group is created with identical properties', () => {
     .should('have.value', hostGroups.forDuplicate.alias);
   // check values of hosts members
   cy.contains('span', 'host2').should('be.visible');
-  cy.contains('Modify a host group');
+  cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
     .should('have.value', hostGroups.forDuplicate.geo_coords);
