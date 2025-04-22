@@ -27,7 +27,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   const { copyToken, isLoading } = useCopyToken({
     tokenName: row.name,
-    userId: row?.user.id
+    userId: row.creator.id
   });
 
   const isCopyButtonVisible =

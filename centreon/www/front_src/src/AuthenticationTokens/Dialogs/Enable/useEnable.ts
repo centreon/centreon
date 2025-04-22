@@ -25,7 +25,7 @@ const useEnable = (): UseDeleteState => {
   const [tokensToEnable, setTokensToEnable] = useAtom(tokensToEnableAtom);
 
   const name = tokensToEnable[0]?.name;
-  const userId = tokensToEnable[0]?.user.id;
+  const userId = tokensToEnable[0]?.user?.id || tokensToEnable[0]?.creator?.id;
 
   const isOpened = useMemo(() => !isEmpty(tokensToEnable), [tokensToEnable]);
   const resetSelections = (): void => setTokensToEnable([]);

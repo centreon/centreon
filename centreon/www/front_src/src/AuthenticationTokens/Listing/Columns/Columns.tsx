@@ -73,7 +73,7 @@ export const useColumns = (): UseColumnsState => {
         type: ColumnType.string
       },
       {
-        getFormattedString: (row): string => row?.user.name,
+        getFormattedString: (row): string => row?.user?.name || '-',
         id: ColumnId.UserName,
         label: t(Column.User),
         sortField: 'user.name',

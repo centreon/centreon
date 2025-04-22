@@ -55,7 +55,9 @@ export const createdTokenDecoder = JsonDecoder.object<CreatedToken>(
     isRevoked: JsonDecoder.boolean,
     name: JsonDecoder.string,
     token: JsonDecoder.string,
-    user: JsonDecoder.nullable(getNamedEntityDecoder('user')),
+    user: JsonDecoder.optional(
+      JsonDecoder.nullable(getNamedEntityDecoder('user'))
+    ),
     type: JsonDecoder.string
   },
   'CreatedToken',
