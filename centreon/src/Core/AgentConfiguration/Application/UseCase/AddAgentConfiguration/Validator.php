@@ -29,6 +29,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Validation\TypeValidatorInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
@@ -70,7 +71,9 @@ class Validator
         $this->validateNameOrFail($request);
         $this->validatePollersOrFail($request);
         $this->validateTypeOrFail($request);
-        $this->validateParametersOrFail($request);
+        if ($request->connectionMode === ConnectionModeEnum::SECURE) {
+            $this->validateParametersOrFail($request);
+        }
     }
 
     /**
@@ -146,7 +149,7 @@ class Validator
      */
     public function validateTypeOrFail(AddAgentConfigurationRequest $request): void
     {
-        $type = Type::from($request->type);
+        Type::from($request->type);
     }
 
     /**
