@@ -232,6 +232,8 @@ jobs:
             -e '/^#.* es_ES.UTF-8 /s/^#//' \
             /etc/locale.gen > /dev/null 2>&1 || :
           sudo locale-gen
+          sudo apt-get update
+          sudo apt-get install -y gettext
           for i in lang/*.UTF-8 ; do
             localefull=`basename $i`
             langName=`echo $localefull | cut -d . -f 1`
