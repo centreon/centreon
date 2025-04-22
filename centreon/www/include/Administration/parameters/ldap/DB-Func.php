@@ -70,8 +70,8 @@ function checkLdapFilterSyntax(string $filterValue): bool
 
     // check for parentheses
     if (substr_count($filterValue, '(') !== substr_count($filterValue, ')') ||
-        $filterValue[0] !== '(' ||
-        $filterValue[strlen($filterValue) - 1] !== ')') {
+        ! str_starts_with($filterValue, '(') ||
+        ! str_ends_with($filterValue, ')')) {
         return false;
     }
 

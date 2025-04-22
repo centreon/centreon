@@ -318,6 +318,7 @@ class CentreonLDAP
 
     /**
      * Escape special characters in LDAP filter value for username and group
+     * @see https://datatracker.ietf.org/doc/html/rfc4515#section-3
      *
      * @param string $name The attribute to escape
      * @return string The escaped string
