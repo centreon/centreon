@@ -32,24 +32,6 @@ const resultsToSubmit = [
   }
 ];
 
-const checkFirstHostGroupFromListing = () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
-  cy.getIframeBody()
-    .find('select')
-    .eq(0)
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-};
-
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -60,6 +42,22 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/hosts/groups?page=1&limit=*'
+  }).as('getGroups');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/hosts?page=1*'
+  }).as('getHosts');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/hosts/groups/*'
+  }).as('getGroupDetails');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/icons?page=*'
+  }).as('getIcons');
 });
 
 afterEach(() => {
@@ -112,6 +110,21 @@ When('a host group is configured', () => {
     { name: services.serviceOk.name }
   ]);
   cy.submitResults(resultsToSubmit);
+  cy.waitUntil(
+    () => {
+      return cy
+        .getByLabel({ label: 'Up status hosts', tag: 'a' })
+        .invoke('text')
+        .then((text) => {
+          if (text != '2') {
+            cy.exportConfig();
+          }
+
+          return text === '2';
+        });
+    },
+    { interval: 10000, timeout: 600000 }
+  );
 });
 
 When('the user changes some properties of the configured host group', () => {
@@ -120,173 +133,117 @@ When('the user changes some properties of the configured host group', () => {
     rootItemNumber: 3,
     subMenu: 'Hosts'
   });
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().contains(hostGroups.default.name).click();
-
-  cy.waitUntil(
-    () => {
-      return cy
-        .getByLabel({ label: 'Up status hosts', tag: 'a' })
-        .invoke('text')
-        .then((text) => {
-          if (text !== '2') {
-            cy.exportConfig();
-          }
-
-          return text === '2';
-        });
-    },
-    { interval: 20000, timeout: 100000 }
-  );
-
-  cy.getIframeBody()
-    .find('input[name="hg_name"]')
+  cy.wait('@getGroups');
+  cy.contains('p', hostGroups.default.name).eq(0).click();
+  cy.wait('@getGroupDetails');
+  cy.contains('p', 'Modify a host group').should('be.visible');
+  // Update Name field
+  cy.getByTestId({ testId: 'Name' })
+    .eq(1)
     .clear()
     .type(hostGroups.forTest.name);
-  cy.getIframeBody()
-    .find('input[name="hg_alias"]')
+  // Update Alias field
+  cy.getByTestId({ testId: 'Alias' })
+    .eq(1)
     .clear()
     .type(hostGroups.forTest.alias);
-  cy.getIframeBody()
-    .find('input[name="hg_notes"]')
-    .clear()
-    .type(hostGroups.forTest.notes);
-  cy.getIframeBody()
-    .find('input[name="hg_notes_url"]')
-    .clear()
-    .type(hostGroups.forTest.notes_url);
-  cy.getIframeBody()
-    .find('input[name="hg_action_url"]')
-    .clear()
-    .type(hostGroups.forTest.action_url);
-  cy.getIframeBody().find('select[name="hg_icon_image"]').select('1');
-  cy.getIframeBody().find('select[name="hg_map_icon_image"]').select('1');
-  cy.getIframeBody()
-    .find('input[name="geo_coords"]')
+  // Update Group members hosts field
+  cy.get('#Selecthosts').click();
+  cy.wait('@getHosts');
+  cy.contains('Centreon-Server').click();
+  // Update geo coordinates for MAP
+  cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
+    .eq(1)
     .clear()
     .type(hostGroups.forTest.geo_coords);
-  cy.getIframeBody()
-    .find('input[name="hg_rrd_retention"]')
-    .clear()
-    .type(hostGroups.forTest.rrd);
-  cy.getIframeBody()
-    .find('textarea[name="hg_comment"]')
+  // Update icon
+  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).eq(2).click();
+  cy.wait('@getIcons');
+  cy.contains('p', 'centreon').click();
+  // Update Comment field
+  cy.getByTestId({ testId: 'Comments' })
+    .eq(1)
     .clear()
     .type(hostGroups.forTest.comment);
-  cy.getIframeBody().contains('label', 'Disabled').click();
-
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
-  cy.wait('@getTimeZone');
+  // Save the form
+  cy.getByTestId({ testId: 'submit' }).click();
+  cy.wait('@getGroups');
   cy.exportConfig();
 });
 
 Then('these properties are updated', () => {
-  cy.getIframeBody().contains(hostGroups.forTest.name).should('exist');
-  cy.getIframeBody().contains(hostGroups.forTest.name).click();
-
-  cy.waitForElementInIframe('#main-content', 'input[name="hg_name"]');
-  cy.getIframeBody()
-    .find('input[name="hg_name"]')
+  cy.contains('p', hostGroups.forTest.name).eq(0).should('exist');
+  cy.contains('p', hostGroups.forTest.name).eq(0).click();
+  cy.wait('@getGroupDetails');
+  cy.getByTestId({ testId: 'Name' })
+    .eq(1)
     .should('have.value', hostGroups.forTest.name);
-  cy.getIframeBody()
-    .find('input[name="hg_alias"]')
+  cy.getByTestId({ testId: 'Alias' })
+    .eq(1)
     .should('have.value', hostGroups.forTest.alias);
-  cy.getIframeBody()
-    .find('input[name="hg_notes"]')
-    .should('have.value', hostGroups.forTest.notes);
-  cy.getIframeBody()
-    .find('input[name="hg_notes_url"]')
-    .should('have.value', hostGroups.forTest.notes_url);
-  cy.getIframeBody()
-    .find('input[name="hg_action_url"]')
-    .should('have.value', hostGroups.forTest.action_url);
-  cy.getIframeBody()
-    .find('select[name="hg_icon_image"]')
-    .should('have.value', '1');
-  cy.getIframeBody()
-    .find('select[name="hg_map_icon_image"]')
-    .should('have.value', '1');
-  cy.getIframeBody()
-    .find('input[name="geo_coords"]')
+  // check values of hosts members
+  cy.contains('span', 'host2').should('be.visible');
+  cy.contains('span', 'Centreon-Server').should('be.visible');
+  cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
+    .eq(1)
     .should('have.value', hostGroups.forTest.geo_coords);
-  cy.getIframeBody()
-    .find('input[name="hg_rrd_retention"]')
-    .should('have.value', hostGroups.forTest.rrd);
-  cy.getIframeBody()
-    .find('textarea[name="hg_comment"]')
+  // Check value of the icon
+  cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
+  cy.getByTestId({ testId: 'Comments' })
+    .eq(1)
     .should('have.value', hostGroups.forTest.comment);
-  cy.checkLegacyRadioButton('Disabled');
 });
 
 When('the user duplicates the configured host group', () => {
-  cy.updateHostGroupViaApi(hostGroups.forTest, hostGroups.default.name);
-  checkFirstHostGroupFromListing();
-
-  cy.getIframeBody().find('select').eq(0).select('Duplicate');
-  cy.wait('@getTimeZone');
-  cy.exportConfig();
+  cy.updateHostGroupViaApi(hostGroups.forDuplicate, hostGroups.default.name);
+  cy.navigateTo({
+    page: 'Host Groups',
+    rootItemNumber: 3,
+    subMenu: 'Hosts'
+  });
+  cy.wait('@getGroups');
+  cy.getByTestId({ testId: 'ContentCopyOutlinedIcon' }).eq(1).click();
+  cy.get('[type="submit"][aria-label="Duplicate"]').click();
+  cy.wait('@getGroups');
 });
 
 Then('a new host group is created with identical properties', () => {
-  cy.getIframeBody().contains(hostGroups.forTest.name).should('exist');
-  cy.getIframeBody().contains(hostGroups.forTest.name).click();
-
-  cy.waitForElementInIframe('#main-content', 'input[name="hg_name"]');
-  cy.getIframeBody()
-    .find('input[name="hg_name"]')
-    .should('have.value', hostGroups.forTest.name);
-  cy.getIframeBody()
-    .find('input[name="hg_alias"]')
-    .should('have.value', hostGroups.forTest.alias);
-
-  cy.getIframeBody()
-    .find('select[name="hg_hosts[]"]')
-    .find('option')
-    .then((options) => {
-      expect(options.length).to.eq(2);
-      const host2Option = options.filter((index, option) => {
-        return Cypress.$(option).text() === services.serviceOk.host;
-      });
-      expect(host2Option.length).to.eq(1);
-    });
-
-  cy.getIframeBody()
-    .find('input[name="hg_notes"]')
-    .should('have.value', hostGroups.forTest.notes);
-  cy.getIframeBody()
-    .find('input[name="hg_notes_url"]')
-    .should('have.value', hostGroups.forTest.notes_url);
-  cy.getIframeBody()
-    .find('input[name="hg_action_url"]')
-    .should('have.value', hostGroups.forTest.action_url);
-  cy.getIframeBody()
-    .find('select[name="hg_icon_image"]')
-    .should('have.value', '1');
-  cy.getIframeBody()
-    .find('select[name="hg_map_icon_image"]')
-    .should('have.value', '1');
-  cy.getIframeBody()
-    .find('input[name="geo_coords"]')
-    .should('have.value', hostGroups.forTest.geo_coords);
-  cy.getIframeBody()
-    .find('input[name="hg_rrd_retention"]')
-    .should('have.value', hostGroups.forTest.rrd);
-  cy.getIframeBody()
-    .find('textarea[name="hg_comment"]')
+  cy.contains('p', `${hostGroups.forDuplicate.name}_1`).should('exist');
+  cy.contains('p', `${hostGroups.forDuplicate.name}_1`).click();
+  cy.getByTestId({ testId: 'Name' })
+    .eq(1)
+    .should('have.value', `${hostGroups.forDuplicate.name}_1`);
+  cy.getByTestId({ testId: 'Alias' })
+    .eq(1)
+    .should('have.value', hostGroups.forDuplicate.alias);
+  // check values of hosts members
+  cy.contains('span', 'host2').should('be.visible');
+  cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
+    .eq(1)
+    .should('have.value', hostGroups.forDuplicate.geo_coords);
+  // Check value of the icon
+  cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
+  cy.getByTestId({ testId: 'Comments' })
+    .eq(1)
     .should('have.value', hostGroups.forTest.comment);
-  cy.checkLegacyRadioButton('Enabled');
 });
 
 When('the user deletes the configured host group', () => {
-  checkFirstHostGroupFromListing();
-  cy.getIframeBody().find('select').eq(0).select('Delete');
-  cy.wait('@getTimeZone');
+  cy.navigateTo({
+    page: 'Host Groups',
+    rootItemNumber: 3,
+    subMenu: 'Hosts'
+  });
+  cy.wait('@getGroups');
+  cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(1).click();
+  cy.get('[type="submit"][aria-label="Delete"]').click();
+  cy.wait('@getGroups');
   cy.exportConfig();
 });
 
 Then(
   'the configured host group is not visible anymore on the host group page',
   () => {
-    cy.getIframeBody().contains(hostGroups.default.name).should('not.exist');
+    cy.contains('p', hostGroups.default.name).should('not.exist');
   }
 );

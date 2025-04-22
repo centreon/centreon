@@ -191,18 +191,25 @@ Cypress.Commands.add('updateHostGroupDependency', (body: HostGroupDependency) =>
       .find('input.btc.bt_success[name^="submit"]')
       .eq(0)
       .click();
-})
+});
+
+Cypress.Commands.add('lockHostTemplateWithSql', (name: string) => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `UPDATE host SET host_locked = 1 WHERE host_name = "${name}"`
+  })
+  .then(([rows]) => {
+    if (rows.length === 0) {
+      throw new Error(`Host template not found for template name ${name}`);
+    }
+  });
+});
 
 interface HostGroup {
   name: string,
   alias: string,
-  notes: string,
-  notes_url: string,
-  action_url: string,
   icon_id: number,
-  icon_map_id: number,
   geo_coords: string,
-  rrd: number,
   comment: string,
   is_activated: boolean
 }
@@ -261,6 +268,7 @@ declare global {
       updateHostDependency: (body: HostDependency) => Cypress.Chainable;
       addHostGroupDependency: (body: HostGroupDependency) => Cypress.Chainable;
       updateHostGroupDependency: (body: HostGroupDependency) => Cypress.Chainable;
+      lockHostTemplateWithSql: (name: string) => Cypress.Chainable;
     }
   }
 }

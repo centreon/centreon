@@ -541,5 +541,6 @@
     }
   },
   "moduleName": "centreon-widget-graph",
-  "canExpand": true
+  "canExpand": true,
+  "widgetType": "realtime"
 }

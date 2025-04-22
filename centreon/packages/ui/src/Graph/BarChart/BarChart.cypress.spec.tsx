@@ -61,14 +61,14 @@ const checkWidth = (orientation): void => {
     cy.get('g[class*="visx-rows"] > line')
       .eq(0)
       .should('have.attr', 'x2')
-      .and('equal', '1135');
+      .and('equal', '1145');
 
     return;
   }
   cy.get('g[class*="visx-rows"] > line')
     .eq(0)
     .should('have.attr', 'x2')
-    .and('equal', '1170');
+    .and('equal', '1180');
 };
 
 describe('Bar chart', () => {
@@ -83,7 +83,7 @@ describe('Bar chart', () => {
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
+      cy.findByTestId('stacked-bar-3-0-0.08084').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -96,7 +96,7 @@ describe('Bar chart', () => {
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
 
-      cy.findByTestId('stacked-bar-3-0-0.08644').should('be.visible');
+      cy.findByTestId('stacked-bar-3-0-0.08084').should('be.visible');
 
       cy.makeSnapshot();
     });

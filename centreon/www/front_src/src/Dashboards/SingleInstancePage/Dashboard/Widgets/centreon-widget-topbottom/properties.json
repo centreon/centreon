@@ -48,5 +48,6 @@
   "singleMetricSelection": true,
   "customBaseColor": false,
   "moduleName": "centreon-widget-topbottom",
-  "canExpand": true
+  "canExpand": true,
+  "widgetType": "realtime"
 }

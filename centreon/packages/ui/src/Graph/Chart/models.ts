@@ -8,7 +8,7 @@ import type {
   Axis as AxisYLeft,
   AxisYRight
 } from '../common/Axes/models';
-import type { LineChartData } from '../common/models';
+import type { AdditionalLineProps, LineChartData } from '../common/models';
 import type { Line, TimeValue } from '../common/timeSeries/models';
 
 import type { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
@@ -110,17 +110,18 @@ export interface LineStyle {
 export interface LineChartProps {
   annotationEvent?: AnnotationEvent;
   axis?: ChartAxis;
-  barStyle?: BarStyle;
+  barStyle?: BarStyle | Array<BarStyle & { metricId: number }>;
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;
   legend?: LegendModel;
-  lineStyle?: LineStyle;
+  lineStyle?: LineStyle | Array<LineStyle & { metricId: number }>;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;
   zoomPreview?: InteractedZone;
   skipIntersectionObserver?: boolean;
+  additionalLines?: Array<AdditionalLineProps>;
 }
 
 export interface Area {

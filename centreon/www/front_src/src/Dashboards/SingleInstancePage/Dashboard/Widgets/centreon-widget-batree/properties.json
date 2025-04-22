@@ -60,5 +60,6 @@
   },
   "singleResourceSelection": true,
   "moduleName": "centreon-widget-batree",
-  "canExpand": true
+  "canExpand": true,
+  "widgetType": "realtime"
 }

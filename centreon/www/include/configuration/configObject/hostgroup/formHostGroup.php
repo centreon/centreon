@@ -271,25 +271,31 @@ $tpl->assign('helptext', $helptext);
 $valid = false;
 if ($form->validate()) {
     $hgObj = $form->getElement('hg_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        $hgObj->setValue(
-            insertHostGroupInDB(isCloudPlatform: $isCloudPlatform)
-        );
+        if (false !== $hostGroupId = insertHostGroup($formData)) {
+            $hgObj->setValue($hostGroupId);
+            $o = null;
+            $hgObj = $form->getElement('hg_id');
+            $valid = true;
+        }
         $hgs = $acl->getHostGroupAclConf();
         $hostGroupIds = array_keys($hgs);
     } elseif ($form->getSubmitValue('submitC')) {
-        updateHostGroupInDB(
-            hostGroupId: $hgObj->getValue(),
-            isCloudPlatform: $isCloudPlatform
-        );
+        if (false !== updateHostGroup((int) $hgObj->getValue(), $formData)) {
+            $o = null;
+            $hgObj = $form->getElement('hg_id');
+            $valid = true;
+        }
     }
-    $o = null;
-    $hgObj = $form->getElement('hg_id');
-    $valid = true;
 }
 
 if ($valid) {
-    require_once $path . 'listHostGroup.php';
+    ?>
+        <script type="text/javascript">
+            window.parent.location.href = './configuration/hosts/groups';
+        </script>
+    <?php
 } else {
     // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);

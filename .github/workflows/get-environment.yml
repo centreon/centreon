@@ -173,7 +173,7 @@ jobs:
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get push changes
         id: get_push_changes
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46.0.3
         with:
           since_last_remote_commit: true
           json: true
@@ -378,6 +378,11 @@ jobs:
               return true;
             }
 
+            // If month number is not 04 or 10, it is a cloud version
+            if (! currentMajorVersion.match(/\.(04|10)$/)) {
+              return true;
+            }
+
             return false;
 
       - name: Detect linked dev and stable branches
@@ -404,7 +409,7 @@ jobs:
             const getNightlyInput = () => {
               const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
               console.log(nightly_manual_trigger);
-              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '') {
+              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '' || '${{ github.repository }}'.match(/^workflow-.*$/)) {
                 return 'false';
               } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
                 return 'true';
@@ -431,7 +436,7 @@ jobs:
             };
             const bookworm_mysql = {
               "operating_system": "bookworm",
-              "database": "mysql:8.3",
+              "database": "mysql:8.0",
               "test_tags": "not @ignore"
             };
 

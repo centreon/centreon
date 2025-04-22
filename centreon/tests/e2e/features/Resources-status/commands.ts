@@ -31,10 +31,28 @@ Cypress.Commands.add('deleteAllEventViewFilters', () => {
   });
 });
 
+Cypress.Commands.add('setPassiveResource', (url_string) => {
+  const payload = {
+    active_check_enabled: 0,
+    passive_check_enabled: 1
+  };
+  cy.request({
+    body: payload,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'PATCH',
+    url: url_string
+  }).then((response) => {
+    expect(response.status).to.eq(204);
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
       deleteAllEventViewFilters: () => Cypress.Chainable;
+      setPassiveResource: (url: string) => Cypress.Chainable;
     }
   }
 }

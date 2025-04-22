@@ -153,13 +153,17 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostGroupInDB($isCloudPlatform, $select ?? []);
+            deleteHostGroupInApi($isCloudPlatform, $select ?? []);
         } else {
             unvalidFormMessage();
         }
         require_once $path . 'listHostGroup.php';
         break; // Delete n Host group
     default:
-        require_once $path . 'listHostGroup.php';
+        ?>
+            <script type="text/javascript">
+                window.parent.location.href = './configuration/hosts/groups';
+            </script>
+        <?php
         break;
 }

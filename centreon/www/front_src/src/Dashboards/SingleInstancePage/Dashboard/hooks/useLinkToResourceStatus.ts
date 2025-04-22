@@ -38,6 +38,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     }
 
     const resources = data[resourcesInputKey];
+
     // TO FIX when Resources Status will handle BA/BV properly
     const resourceTypes = pluck('resourceType', resources);
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
@@ -50,7 +51,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
       const { statuses } = options;
 
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
-        resources: data.resources,
+        resources: resources,
         states: options?.states || [],
         statuses,
         type:

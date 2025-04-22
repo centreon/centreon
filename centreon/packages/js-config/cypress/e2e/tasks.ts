@@ -2,6 +2,7 @@
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
+import fs from "fs";
 
 import tar from 'tar-fs';
 import {
@@ -52,22 +53,20 @@ export default (on: Cypress.PluginEvents): void => {
     name: string;
   }
 
-  on('task', {
+  on("task", {
     copyFromContainer: async ({ destination, serviceName, source }) => {
       try {
-        if (dockerEnvironment !== null) {
-          const container = dockerEnvironment.getContainer(`${serviceName}-1`);
+        const container = getContainer(serviceName);
 
-          await container
-            .copyArchiveFromContainer(source)
-            .then((archiveStream) => {
-              return new Promise<void>((resolve) => {
-                const dest = tar.extract(destination);
-                archiveStream.pipe(dest);
-                dest.on('finish', resolve);
-              });
+        await container
+          .copyArchiveFromContainer(source)
+          .then((archiveStream) => {
+            return new Promise<void>((resolve) => {
+              const dest = tar.extract(destination);
+              archiveStream.pipe(dest);
+              dest.on("finish", resolve);
             });
-        }
+          });
       } catch (error) {
         console.error(error);
       }
@@ -77,19 +76,19 @@ export default (on: Cypress.PluginEvents): void => {
     copyToContainer: async ({ destination, serviceName, source, type }) => {
       const container = getContainer(serviceName);
 
-      if (type === 'directory') {
+      if (type === "directory") {
         await container.copyDirectoriesToContainer([
           {
             source,
-            target: destination
-          }
+            target: destination,
+          },
         ]);
-      } else if (type === 'file') {
+      } else if (type === "file") {
         await container.copyFilesToContainer([
           {
             source,
-            target: destination
-          }
+            target: destination,
+          },
         ]);
       }
 
@@ -104,9 +103,9 @@ export default (on: Cypress.PluginEvents): void => {
     },
     execInContainer: async ({ command, name }) => {
       const { exitCode, output } = await getContainer(name).exec([
-        'bash',
-        '-c',
-        `${command}${command.match(/[\n\r]/) ? '' : ' 2>&1'}`
+        "bash",
+        "-c",
+        `${command}${command.match(/[\n\r]/) ? "" : " 2>&1"}`,
       ]);
 
       return { exitCode, output };
@@ -126,15 +125,15 @@ export default (on: Cypress.PluginEvents): void => {
         const loggedContainers = await dockerode.listContainers();
 
         return loggedContainers.reduce((acc, container) => {
-          const containerName = container.Names[0].replace('/', '');
+          const containerName = container.Names[0].replace("/", "");
           acc[containerName] = execSync(`docker logs -t ${container.Id}`, {
-            stdio: 'pipe'
-          }).toString('utf8');
+            stdio: "pipe",
+          }).toString("utf8");
 
           return acc;
         }, {});
       } catch (error) {
-        console.warn('Cannot get containers logs');
+        console.warn("Cannot get containers logs");
         console.warn(error);
 
         return null;
@@ -144,17 +143,17 @@ export default (on: Cypress.PluginEvents): void => {
       let container: StartedTestContainer | null = null;
 
       if (dockerEnvironment !== null) {
-        container = dockerEnvironment.getContainer('db-1');
+        container = dockerEnvironment.getContainer("db-1");
       } else {
-        container = getContainer('web');
+        container = getContainer("web");
       }
 
       const client = await createConnection({
         database,
         host: container.getHost(),
-        password: 'centreon',
+        password: "centreon",
         port: container.getMappedPort(3306),
-        user: 'centreon'
+        user: "centreon",
       });
 
       const [rows, fields] = await client.query(query);
@@ -167,21 +166,21 @@ export default (on: Cypress.PluginEvents): void => {
       command,
       image,
       name,
-      portBindings = []
+      portBindings = [],
     }: StartContainerProps) => {
       let container = await new GenericContainer(image).withName(name);
 
       portBindings.forEach(({ source, destination }) => {
         container = container.withExposedPorts({
           container: source,
-          host: destination
+          host: destination,
         });
       });
 
       if (command) {
         container
-          .withCommand(['bash', '-c', command])
-          .withWaitStrategy(Wait.forSuccessfulCommand('ls'));
+          .withCommand(["bash", "-c", command])
+          .withWaitStrategy(Wait.forSuccessfulCommand("ls"));
       }
 
       containers[name] = await container.start();
@@ -194,7 +193,7 @@ export default (on: Cypress.PluginEvents): void => {
       openidImage,
       profiles,
       samlImage,
-      webImage
+      webImage,
     }) => {
       try {
         const composeFileDir = path.dirname(composeFile);
@@ -202,22 +201,22 @@ export default (on: Cypress.PluginEvents): void => {
 
         dockerEnvironment = await new DockerComposeEnvironment(
           composeFileDir,
-          composeFileName
+          composeFileName,
         )
           .withEnvironment({
             MYSQL_IMAGE: databaseImage,
             OPENID_IMAGE: openidImage,
             SAML_IMAGE: samlImage,
-            WEB_IMAGE: webImage
+            WEB_IMAGE: webImage,
           })
           .withProfiles(...profiles)
           .withStartupTimeout(120000)
           .withWaitStrategy(
-            'web-1',
+            "web-1",
             Wait.forAll([
               Wait.forHealthCheck(),
-              Wait.forLogMessage('Centreon is ready')
-            ])
+              Wait.forLogMessage("Centreon is ready"),
+            ]),
           )
           .up();
 
@@ -254,6 +253,20 @@ export default (on: Cypress.PluginEvents): void => {
       execSync(`npx wait-on ${url}`);
 
       return null;
-    }
+    },
+    listFilesInDirectory: async ( directoryPath ) => {
+      return new Promise((resolve, reject) => {
+        fs.readdir(directoryPath, (err, files) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(files);
+          }
+        });
+      });
+    },
+    fileExists: async ( filePath ) => {
+      return fs.existsSync(filePath);
+    },
   });
 };

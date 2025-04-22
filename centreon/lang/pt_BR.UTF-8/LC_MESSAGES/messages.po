@@ -17927,7 +17927,7 @@ msgstr ""
 # msgid "Critical KPIs"
 # msgstr ""
 
-# msgid "Additional connector configurations"
+# msgid "Additional Configurations"
 # msgstr ""
 
 # msgid "Types"
@@ -17945,25 +17945,25 @@ msgstr ""
 # msgid "Pollers"
 # msgstr ""
 
-# msgid "Delete additional connector configuration"
+# msgid "Delete additional configuration"
 # msgstr ""
 
-# msgid "The {{name}} additional connector configuration will be permanently deleted."
+# msgid "The {{name}} additional configuration will be permanently deleted."
 # msgstr ""
 
 # msgid "The corresponding connectors will not work anymore."
 # msgstr ""
 
-# msgid "Additional connector configuration deleted"
+# msgid "Additional configuration deleted"
 # msgstr ""
 
-# msgid "Additional connector configuration duplicated"
+# msgid "Additional configuration duplicated"
 # msgstr ""
 
-# msgid "Additional connector configuration created"
+# msgid "Additional configuration created"
 # msgstr ""
 
-# msgid "Additional connector configuration updated"
+# msgid "Additional configuration updated"
 # msgstr ""
 
 # msgid "Duplicate connector configuration"
@@ -17975,10 +17975,10 @@ msgstr ""
 # msgid "The name should be at least 3 characters long"
 # msgstr ""
 
-# msgid "Create additional connector configuration"
+# msgid "Create additional configuration"
 # msgstr ""
 
-# msgid "Update additional connector configuration"
+# msgid "Update additional configuration"
 # msgstr ""
 
 # msgid "Select poller(s)"
@@ -18027,13 +18027,13 @@ msgstr ""
 # msgstr ""
 
 
-# msgid "Error while adding an additional connector configuration"
+# msgid "Error while adding an additional configuration"
 # msgstr ""
 
-# msgid "You are not allowed to access additional connector configurations"
+# msgid "You are not allowed to access additional configurations"
 # msgstr ""
 
-# msgid "An additional connector configuration configuration of type '%s' is already associated with poller ID(s) '%s'"
+# msgid "An additional configuration of type '%s' is already associated with poller ID(s) '%s'"
 # msgstr ""
 
 # msgid "Duplicates not allowed for property '%s'"
@@ -18042,19 +18042,19 @@ msgstr ""
 # msgid "'%s' must contain at least one element"
 # msgstr ""
 
-# msgid "Error while retrieving an additional connector configuration"
+# msgid "Error while retrieving an additional configuration"
 # msgstr ""
 
-# msgid "The additional connector configuration name '%s' already exists"
+# msgid "The additional configuration name '%s' already exists"
 # msgstr ""
 
-# msgid "Error while deleting an additional connector configuration"
+# msgid "Error while deleting an additional configuration"
 # msgstr ""
 
 #  msgid "You don't have sufficient permissions for this action"
 #  msgstr ""
 
-#  msgid "Error while searching for additional connector configurations"
+#  msgid "Error while searching for additional configurations"
 #  msgstr ""
 
 #  msgid "Error while searching for available pollers for type '%s'"
@@ -18096,10 +18096,10 @@ msgstr ""
 # msgid "Show date"
 # msgstr ""
 
-#  msgid "Error while updating an additional connector configuration"
+#  msgid "Error while updating an additional configuration"
 #  msgstr ""
 
-#  msgid "Changing type of an existing additional connector configuration is not allowed"
+#  msgid "Changing the type of an existing additional configuration is not allowed"
 #  msgstr ""
 
 # msgid "Vault configuration"
@@ -18261,16 +18261,16 @@ msgstr ""
 # msgid "Extension not allowed"
 # msgstr ""
 
-# msgid "Public certificate file name"
+# msgid "Public certificate"
 # msgstr ""
 
-# msgid "CA file name"
+# msgid "CA"
 # msgstr ""
 
-# msgid "Certificate file name"
+# msgid "CA Common Name (CN)"
 # msgstr ""
 
-# msgid "Private key file name"
+# msgid "Private key"
 # msgstr ""
 
 # msgid "Configuration server"
@@ -18367,4 +18367,179 @@ msgstr ""
 # msgstr ""
 
 # msgid "Stay"
+# msgstr ""
+
+# msgid "Generic widgets"
+# msgstr ""
+
+# msgid "Real time widgets"
+# msgstr ""
+
+# msgid "MBI Reporting widgets"
+# msgstr ""
+
+# msgid "Relative paths are not allowed"
+# msgstr ""
+
+# msgid "Invalid path"
+# msgstr ""
+
+# msgid "Invalid extension"
+# msgstr ""
+
+# msgid "Enable/Disable"
+# msgstr ""
+
+# msgid "Enabled hosts"
+# msgstr ""
+
+# msgid "No hosts in this group are currently enabled."
+# msgstr ""
+
+# msgid "No hosts in this group are currently disabled."
+# msgstr ""
+
+# msgid "Delete host group"
+# msgstr ""
+
+# msgid "Delete host groups"
+# msgstr ""
+
+# msgid "Host group deleted"
+# msgstr ""
+
+# msgid "Duplicate host group"
+# msgstr ""
+
+# msgid "Duplicate host groups"
+# msgstr ""
+
+# msgid "Host group duplicated"
+# msgstr ""
+
+# msgid "Duplications"
+# msgstr ""
+
+# msgid "Host group disabled"
+# msgstr ""
+
+# msgid "Host group enabled"
+# msgstr ""
+
+# msgid "Host groups disabled"
+# msgstr ""
+
+# msgid "Host groups enabled"
+# msgstr ""
+
+# msgid "You are about to delete the <strong>{{ name }}</strong> host group. This action cannot be undone. Do you want to delete it?"
+# msgstr ""
+
+# msgid "You are about to delete <strong>{{ count }} host groups.</strong> This action cannot be undone. Do you want to delete them?"
+# msgstr ""
+
+# msgid "You are about to duplicate the <strong>{{ name }}</strong> host group. How many duplications would you like to make?"
+# msgstr ""
+
+# msgid "You are about to duplicate <strong>{{ count }} host groups.</strong> How many duplications would you like to make?"
+# msgstr ""
+
+# msgid "Add a host group"
+# msgstr ""
+
+# msgid "Modify a host group"
+# msgstr ""
+
+# msgid "Host groups duplicated"
+# msgstr ""
+
+# msgid "Host groups deleted"
+# msgstr ""
+
+# msgid "You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone."
+# msgstr ""
+
+# msgid "You are going to delete the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone."
+# msgstr ""
+
+# msgid "Failed to delete"
+# msgstr ""
+
+# msgid "Failed to duplicate"
+# msgstr ""
+
+# msgid "Failed to enable"
+# msgstr ""
+
+# msgid "Failed to disable"
+# msgstr ""
+
+# msgid "Failed to delete the host group"
+# msgstr ""
+
+# msgid "Failed to duplicate the host group"
+# msgstr ""
+
+# msgid "Failed to enable the host group"
+# msgstr ""
+
+# msgid "Failed to disable the host group"
+# msgstr ""
+
+
+# msgid "Workhours"
+# msgstr ""
+
+# msgid "Non-workhours"
+# msgstr ""
+
+# msgid "Forecast based on past X days"
+# msgstr ""
+
+# msgid "Display average as"
+# msgstr ""
+
+# msgid "Host group created"
+# msgstr ""
+
+# msgid "Host group updated"
+# msgstr ""
+
+# msgid "Group members"
+# msgstr ""
+
+# msgid "Select hosts"
+# msgstr ""
+
+# msgid "Apply resource access rules to the host group"
+# msgstr ""
+
+# msgid "Geographic coordinates for MAP"
+# msgstr ""
+
+# msgid "Invalid geo-coordinate format"
+# msgstr ""
+
+# msgid "Requested authentication context"
+# msgstr ""
+
+# msgid "Minimum"
+# msgstr ""
+
+# msgid "Exact"
+# msgstr ""
+
+# msgid "Better"
+# msgstr ""
+
+# msgid "Maximum"
+# msgstr ""
+
+# msgid "Encryption level"
+# msgstr ""
+
+# msgid "You have selected No TLS for the encryption level."
+# msgstr ""
+
+# msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
 # msgstr ""

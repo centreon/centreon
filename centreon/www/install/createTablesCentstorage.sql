@@ -335,6 +335,10 @@ CREATE TABLE `resources` (
   PRIMARY KEY (`resource_id`),
   UNIQUE KEY `resources_id_parent_id_type_uindex` (`id`,`parent_id`,`type`),
   KEY `resources_severities_severity_id_fk` (`severity_id`),
+  INDEX `resources_poller_id_index` (`poller_id`),
+  INDEX `resources_id_index` (`id`),
+  INDEX `resources_parent_id_index` (`parent_id`),
+  INDEX `resources_enabled_type_index` (`enabled`, `type`),
   CONSTRAINT `resources_severities_severity_id_fk` FOREIGN KEY (`severity_id`) REFERENCES `severities` (`severity_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -344,7 +348,8 @@ CREATE TABLE `tags` (
   `type` tinyint(3) unsigned NOT NULL COMMENT '0=servicegroup, 1=hostgroup, 2=servicecategory, 3=hostcategory',
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`tag_id`),
-  UNIQUE KEY `tags_id_type_uindex` (`id`,`type`)
+  UNIQUE KEY `tags_id_type_uindex` (`id`,`type`),
+  INDEX `tags_type_name_index` (`type`, `name`(10))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `resources_tags` (
@@ -355,6 +360,13 @@ CREATE TABLE `resources_tags` (
   KEY `resources_tags_tag_id_fk` (`tag_id`),
   CONSTRAINT `resources_tags_resources_resource_id_fk` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`resource_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `resources_tags_tag_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `agent_information` (
+  `poller_id` bigint(20) unsigned NOT NULL,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `infos` JSON NOT NULL,
+  PRIMARY KEY (`poller_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

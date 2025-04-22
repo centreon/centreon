@@ -1,9 +1,14 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
   cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/pollers/poller-1.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/config-ACL/ac-acl-user.json'
+  );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-1.json'
+  );
 });
 
 beforeEach(() => {
@@ -44,61 +49,69 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 
 Given('an already existing agent configuration', () => {
   cy.contains('button', 'Add poller/agent configuration').click();
-  cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
-  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="listbox"]').contains('Telegraf').click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
-  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001');
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001');
-  cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-conf-private-key-name-001');
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.addTelegrafAgent(agentsConfiguration.telegraf1);
+  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'telegraf-001');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'Telegraf');
 });
 
 When('the user clicks on the line of the agent configuration', () => {
-  cy.get('*[role="row"]').eq(1).click({force: true});
+  cy.get('*[role="row"]').eq(1).click({ force: true });
   cy.wait('@getAgentsDetails');
 });
 
 Then('a pop up is displayed with all of the agent information', () => {
   cy.get('*[role="dialog"]').should('be.visible');
   cy.contains('Update poller/agent configuration').should('be.visible');
-  cy.getByLabel({ label: 'Agent type', tag: 'input' }).should('have.value', 'Telegraf');
-  cy.getByLabel({ label: 'Name', tag: 'input' }).should('have.value', 'telegraf-001');
-  cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should('have.text', 'Central');
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).should('have.value', 'my-otel-certificate-name-001');
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).should('have.value', 'ca-file-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).should('have.value', 'my-otel-private-key-name-001');
+  cy.getByLabel({ label: 'Agent type', tag: 'input' }).should(
+    'have.value',
+    'Telegraf'
+  );
+  cy.getByLabel({ label: 'Name', tag: 'input' }).should(
+    'have.value',
+    agentsConfiguration.telegraf1.name
+  );
+  cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should(
+    'have.text',
+    'Central'
+  );
+  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+    .eq(0)
+    .should(
+      'have.value',
+      `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
+    );
+  cy.getByLabel({ label: 'CA', tag: 'input' }).should(
+    'have.value',
+    `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
+  );
+  cy.getByLabel({ label: 'Private key', tag: 'input' })
+    .eq(0)
+    .should(
+      'have.value',
+      `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`
+    );
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).should('have.value', 'my-certificate-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).should('have.value', 'my-conf-private-key-name-001');
+  cy.getByLabel({ label: 'Public certificate', tag: 'input' })
+    .eq(1)
+    .should(
+      'have.value',
+      `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
+    );
+  cy.getByLabel({ label: 'Private key', tag: 'input' })
+    .eq(1)
+    .should(
+      'have.value',
+      `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`
+    );
 });
 
 When('the user updates some information', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('telegraf-001-updated');
-  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Poller-1').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).clear().type('my-otel-certificate-name-666');
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).clear().type('ca-file-name-666');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).clear().type('my-otel-private-key-name-666');
-  cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).clear().type('my-certificate-name-666');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).clear().type('my-conf-private-key-name-666');  
+  cy.updateTelegrafAgent(agentsConfiguration.telegraf2);
 });
 
 When('the user clicks on Save', () => {
-    cy.getByTestId({ testId: 'SaveIcon' }).click();
-    cy.wait('@updateAgents');
+  cy.getByTestId({ testId: 'submit' }).click();
+  cy.wait('@updateAgents');
 });
 
 Then('the form is closed', () => {
@@ -107,10 +120,10 @@ Then('the form is closed', () => {
 });
 
 Then('the information are successfully saved', () => {
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'telegraf-001-updated');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', '2 pollers');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'Telegraf');
+  cy.get('*[role="rowgroup"]').should(
+    'contain',
+    agentsConfiguration.telegraf2.name
+  );
+  cy.get('*[role="rowgroup"]').should('contain', '2 pollers');
+  cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });

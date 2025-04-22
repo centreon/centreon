@@ -86,5 +86,6 @@
     }
   },
   "moduleName": "centreon-widget-statuschart",
-  "canExpand": true
+  "canExpand": true,
+  "widgetType": "realtime"
 }

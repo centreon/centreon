@@ -40,10 +40,12 @@ import {
 } from '../../testsUtils';
 import {
   labelAddAContact,
+  labelDashboardAddedToFavorites,
   labelDashboardUpdated,
   labelDelete,
   labelExpand,
   labelReduce,
+  labelRemoveFromFavorites,
   labelSharesSaved,
   labelUpdate
 } from '../../translatedLabels';
@@ -625,7 +627,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
     });
-    it('expandes-reduces the widget when the corresponding button is clicked', () => {
+    it('expands-reduces the widget when the corresponding button is clicked', () => {
       federatedWidgets.forEach((widget) => {
         const widgetName = widget.moduleName;
 
@@ -1127,6 +1129,38 @@ describe('Dashboard', () => {
         customDetailsPath: 'Dashboards/favorites/details.json'
       });
       cy.makeSnapshot();
+    });
+
+    it('disable favorite icon button on click', () => {
+      initializeAndMount({
+        customDetailsPath: 'Dashboards/Dashboard/details.json'
+      });
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      interceptDetailsDashboard({ path: 'Dashboards/favorites/details.json' });
+
+      cy.findByRole('button', { name: 'FavoriteIconButton' }).as(
+        'favoriteIcon'
+      );
+      cy.get('@favoriteIcon').dblclick();
+      cy.get('@favoriteIcon').should('be.disabled');
+
+      const labelSuccess = labelDashboardAddedToFavorites;
+
+      const updatedTitle = labelRemoveFromFavorites;
+
+      cy.waitForRequest('@addFavorite');
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.get('@favoriteIcon').should('be.enabled');
+
+      cy.findByText(labelSuccess).should('be.visible');
+
+      cy.get('@favoriteIcon').trigger('mouseover');
+
+      cy.findByText(updatedTitle).should('be.visible');
     });
   });
 });

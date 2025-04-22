@@ -56,6 +56,8 @@ export interface WidgetPropertyProps {
     size?: string;
     step?: string;
     type?: string;
+    unit?: string;
+    pluralize?: string;
   };
   type: string;
   useAdditionalResources?: boolean;
@@ -111,4 +113,10 @@ export enum RadioOptions {
   custom = 'custom',
   default = 'default',
   manual = 'manual'
+}
+
+export enum WidgetType {
+  Generic = 'generic',
+  RealTime = 'realtime',
+  MBI = 'MBI'
 }

@@ -707,7 +707,9 @@ const Listing = <
                       ) : (
                         <EmptyResult
                           label={
-                            labelNoResultFound || t(defaultLabelNoResultFound)
+                            labelNoResultFound
+                              ? t(labelNoResultFound)
+                              : t(defaultLabelNoResultFound)
                           }
                         />
                       ))}

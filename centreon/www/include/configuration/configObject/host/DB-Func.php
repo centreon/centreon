@@ -48,12 +48,12 @@ use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Infrastructure\Common\Api\Router;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Infrastructure\Repository\DbWriteHostActionLogRepository;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -344,106 +344,67 @@ function removeRelationLastHostDependency(int $hostId): void
 {
     global $pearDB;
 
-    $query = 'SELECT service_service_id FROM host_service_relation WHERE host_host_id =  ' . $hostId;
-    $res = $pearDB->query($query);
+    $findQuery = <<<'SQL'
+        SELECT service_service_id
+        FROM host_service_relation
+        WHERE host_host_id =  :hostId
+    SQL;
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+    $findStatement = $pearDB->prepare($findQuery);
+    $findStatement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+    $findStatement->execute();
+
+    $countQuery = <<<'SQL'
+        SELECT COUNT(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
         FROM dependency_serviceParent_relation
-        WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_serviceParent_relation
-        WHERE service_service_id =  :service_service_id) GROUP BY dependency_dep_id';
+        WHERE dependency_dep_id IN (SELECT dependency_dep_id FROM dependency_serviceParent_relation
+        WHERE service_service_id = :service_service_id) GROUP BY dependency_dep_id
+    SQL;
 
-    $countStatement = $pearDB->prepare($query);
-    $deleteStatement = $pearDB->prepare("DELETE FROM dependency WHERE dep_id = :dep_id");
-    while ($row = $res->fetch()) {
+    $countStatement = $pearDB->prepare($countQuery);
+
+    $deleteQuery = <<<'SQL'
+        DELETE FROM dependency WHERE dep_id = :dep_id
+    SQL;
+
+    $deleteStatement = $pearDB->prepare($deleteQuery);
+
+    while ($row = $findStatement->fetch()) {
         $countStatement->bindValue(':service_service_id', (int) $row['service_service_id'], \PDO::PARAM_INT);
         $countStatement->execute();
-        if (false !== ($result = $countStatement->fetch(\PDO::FETCH_ASSOC))) {;
+        if ($result = $countStatement->fetch(\PDO::FETCH_ASSOC)) {
             //is last service parent
-            if ($result['nb_dependency'] == 1) {
+            if ($result['nb_dependency'] === 1) {
                 $deleteStatement->bindValue(':dep_id', (int) $result['id'], \PDO::PARAM_INT);
                 $deleteStatement->execute();
             }
         }
     }
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
-              FROM dependency_hostParent_relation
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostParent_relation
-                                         WHERE host_host_id =  ' . $hostId . ') GROUP BY dependency_dep_id';
-    $dbResult = $pearDB->query($query);
+    $countQuery = <<<'SQL'
+        SELECT COUNT(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+        FROM dependency_hostParent_relation
+        WHERE dependency_dep_id IN (SELECT dependency_dep_id FROM dependency_hostParent_relation
+        WHERE host_host_id = :hostId)
+        GROUP BY dependency_dep_id
+    SQL;
 
-    if (false !== ($result = $dbResult->fetch())) {
+    $countStatement = $pearDB->prepare($countQuery);
+    $countStatement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+    $countStatement->execute();
+
+    $deleteQuery = <<<'SQL'
+        DELETE FROM dependency WHERE dep_id = :dep_id
+    SQL;
+    $deleteStatement = $pearDB->prepare($deleteQuery);
+
+    if ($result = $countStatement->fetch()) {
         //is last parent
-        if ($result['nb_dependency'] == 1) {
-            $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
+        if ($result['nb_dependency'] === 1) {
+            $deleteStatement->bindValue(':dep_id', (int) $result['id'], \PDO::PARAM_INT);
+            $deleteStatement->execute();
         }
     };
-}
-
-function deleteHostInDB($hosts = [])
-{
-    global $pearDB, $centreon;
-
-    $hostIds = array_keys($hosts);
-    $kernel = Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
-    if ($vaultConfiguration !== null) {
-        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
-        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
-        deleteResourceSecretsInVault($writeVaultRepository, $hostIds, []);
-    }
-    foreach ($hostIds as $hostId) {
-        $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
-
-        removeRelationLastHostDependency((int) $hostId);
-        $rq = "SELECT @nbr := (SELECT COUNT( * )
-                            FROM host_service_relation
-                            WHERE service_service_id = hsr.service_service_id
-                            GROUP BY service_service_id)
-                            AS nbr, hsr.service_service_id
-                            FROM host_service_relation hsr, host
-                            WHERE hsr.host_host_id = '" . (int) $hostId . "'
-                            AND host.host_id = hsr.host_host_id
-                            AND host.host_register = '1'";
-        $dbResult = $pearDB->query($rq);
-
-        $dbResult3 = $pearDB->query("SELECT host_name FROM `host` WHERE `host_id` = '" . (int) $hostId . "' LIMIT 1");
-        $hostname = $dbResult3->fetch();
-
-        while ($row = $dbResult->fetch()) {
-            if ($row["nbr"] == 1) {
-                $dbResult4 = $pearDB->query("SELECT service_description
-                                            FROM `service`
-                                            WHERE `service_id` = '" . $row["service_service_id"] . "' LIMIT 1");
-                $svcname = $dbResult4->fetch();
-
-                $dbResult2 = $pearDB->query("DELETE FROM service
-                                              WHERE service_id = '" . $row["service_service_id"] . "'");
-                $centreon->CentreonLogAction->insertLog(
-                    object_type: ActionLog::OBJECT_TYPE_SERVICE,
-                    object_id: $row["service_service_id"],
-                    object_name: $hostname['host_name'] . "/" . $svcname["service_description"],
-                    action_type: ActionLog::ACTION_TYPE_DELETE
-                );
-            }
-        }
-        $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "DELETE"]);
-        $dbResult = $pearDB->query("DELETE FROM host WHERE host_id = '" . (int) $hostId . "'");
-        $dbResult = $pearDB->query("DELETE FROM host_template_relation WHERE host_host_id = '" . (int) $hostId . "'");
-        $dbResult = $pearDB->query("DELETE FROM on_demand_macro_host WHERE host_host_id = '" . (int) $hostId . "'");
-        $dbResult = $pearDB->query("DELETE FROM contact_host_relation WHERE host_host_id = '" . (int) $hostId . "'");
-
-        signalConfigurationChange('host', (int) $hostId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOST,
-            object_id: $hostId,
-            object_name: $hostname['host_name'],
-            action_type: ActionLog::ACTION_TYPE_DELETE
-        );
-    }
 }
 
 /*
@@ -869,7 +830,7 @@ function resetHostContact(int $host_id): void
     $stmt->execute();
 }
 
-function updateHostInDB($hostId = null, $isMassiveChange = false, $configuration = null)
+function updateHostInDB_MC($hostId = null)
 {
     global $form, $centreon, $isCloudPlatform;
 
@@ -881,15 +842,7 @@ function updateHostInDB($hostId = null, $isMassiveChange = false, $configuration
 
     $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
 
-    /*
-     *  Global function to use
-     */
-
-    if ($isMassiveChange) {
-        updateHost_MC($hostId);
-    } else {
-        updateHost($hostId, $isMassiveChange, $ret);
-    }
+    updateHost_MC($hostId);
 
     if ($isCloudPlatform) {
         resetHostHostParent($hostId);
@@ -899,191 +852,107 @@ function updateHostInDB($hostId = null, $isMassiveChange = false, $configuration
     }
 
     if (! $isCloudPlatform) {
-        /*
-         *  Function for updating host parents
-         *  1 - MC with deletion of existing parents
-         *  2 - MC with addition of new parents
-         *  3 - Normal update
-         */
-        if (isset($ret['mc_mod_hpar']['mc_mod_hpar']) && $ret['mc_mod_hpar']['mc_mod_hpar']) {
-            updateHostHostParent($hostId);
-        } elseif (isset($ret['mc_mod_hpar']['mc_mod_hpar']) && !$ret['mc_mod_hpar']['mc_mod_hpar']) {
+        if (isset($ret['mc_mod_hpar']['mc_mod_hpar']) && !$ret['mc_mod_hpar']['mc_mod_hpar']) {
+            // INCREMENTAL MODE
             updateHostHostParent_MC($hostId);
         } else {
+            // REPLACEMENT MODE
             updateHostHostParent($hostId);
         }
 
-        /*
-         * Function for updating host childs
-         * 1 - MC with deletion of existing childs
-         * 2 - MC with addition of new childs
-         * 3 - Normal update
-         */
-        if (isset($ret['mc_mod_hch']['mc_mod_hch']) && $ret['mc_mod_hch']['mc_mod_hch']) {
-            updateHostHostChild($hostId);
-        } elseif (isset($ret['mc_mod_hch']['mc_mod_hch']) && !$ret['mc_mod_hch']['mc_mod_hch']) {
+        if (isset($ret['mc_mod_hch']['mc_mod_hch']) && !$ret['mc_mod_hch']['mc_mod_hch']) {
+            // INCREMENTAL MODE
             updateHostHostChild_MC($hostId);
         } else {
+            // REPLACEMENT MODE
             updateHostHostChild($hostId);
         }
 
-        /*
-         * Function for updating host cg
-         * 1 - MC with deletion of existing cg
-         * 2 - MC with addition of new cg
-         * 3 - Normal update
-         */
-        if (isset($ret['mc_mod_hcg']['mc_mod_hcg']) && $ret['mc_mod_hcg']['mc_mod_hcg']) {
-            updateHostContactGroup($hostId, $ret);
-            updateHostContact($hostId, $ret);
-        } elseif (isset($ret['mc_mod_hcg']['mc_mod_hcg']) && !$ret['mc_mod_hcg']['mc_mod_hcg']) {
+        if (isset($ret['mc_mod_hcg']['mc_mod_hcg']) && !$ret['mc_mod_hcg']['mc_mod_hcg']) {
+            // INCREMENTAL MODE
             updateHostContactGroup_MC($hostId, $ret);
             updateHostContact_MC($hostId, $ret);
         } else {
+            // REPLACEMENT MODE
             updateHostContactGroup($hostId, $ret);
             updateHostContact($hostId, $ret);
         }
 
-        /*
-         * Function for updating notification options
-         * 1 - MC with deletion of existing options (Replacement)
-         * 2 - MC with addition of new options (incremental)
-         * 3 - Normal update
-         */
-        if (isset($ret['mc_mod_notifopts']['mc_mod_notifopts']) && $ret['mc_mod_notifopts']['mc_mod_notifopts']) {
-            updateHostNotifs($hostId);
-        } elseif (isset($ret['mc_mod_notifopts']['mc_mod_notifopts']) && !$ret['mc_mod_notifopts']['mc_mod_notifopts']) {
+        if (isset($ret['mc_mod_notifopts']['mc_mod_notifopts']) && !$ret['mc_mod_notifopts']['mc_mod_notifopts']) {
+            // INCREMENTAL MODE
             updateHostNotifs_MC($hostId);
         } else {
+            // REPLACEMENT MODE
             updateHostNotifs($hostId);
         }
 
-        /*
-         * Function for updating notification interval options
-         * 1 - MC with deletion of existing options (Replacement)
-         * 2 - MC with addition of new options (incremental)
-         * 3 - Normal update
-         */
         if (
-            isset($ret['mc_mod_notifopt_notification_interval']['mc_mod_notifopt_notification_interval'])
-            && $ret['mc_mod_notifopt_notification_interval']['mc_mod_notifopt_notification_interval']
-        ) {
-            updateHostNotifOptionInterval($hostId);
-        } elseif (
             isset($ret['mc_mod_notifopt_notification_interval']['mc_mod_notifopt_notification_interval'])
             && !$ret['mc_mod_notifopt_notification_interval']['mc_mod_notifopt_notification_interval']
         ) {
+            // INCREMENTAL MODE
             updateHostNotifOptionInterval_MC($hostId);
         } else {
+            // REPLACEMENT MODE
             updateHostNotifOptionInterval($hostId);
         }
 
-        /*
-         * Function for updating first notification delay options
-         * 1 - MC with deletion of existing options (Replacement)
-         * 2 - MC with addition of new options (incremental)
-         * 3 - Normal update, default behavior
-         */
         if (
-            isset($ret['mc_mod_notifopt_first_notification_delay']['mc_mod_notifopt_first_notification_delay'])
-            && $ret['mc_mod_notifopt_first_notification_delay']['mc_mod_notifopt_first_notification_delay']
-        ) {
-            updateHostNotifOptionFirstNotificationDelay($hostId);
-        } elseif (
             isset($ret['mc_mod_notifopt_first_notification_delay']['mc_mod_notifopt_first_notification_delay'])
             && !$ret['mc_mod_notifopt_first_notification_delay']['mc_mod_notifopt_first_notification_delay']
         ) {
+            // INCREMENTAL MODE
             updateHostNotifOptionFirstNotificationDelay_MC($hostId);
         } else {
+            // REPLACEMENT MODE
             updateHostNotifOptionFirstNotificationDelay($hostId);
         }
-
 
         // Function for updating first notification delay options
         updateHostNotifOptionRecoveryNotificationDelay($hostId);
 
-        /*
-         * Function for updating notification timeperiod options
-         * 1 - MC with deletion of existing options (Replacement)
-         * 2 - MC with addition of new options (incremental)
-         * 3 - Normal update
-         */
         if (
-            isset($ret['mc_mod_notifopt_timeperiod']['mc_mod_notifopt_timeperiod'])
-            && $ret['mc_mod_notifopt_timeperiod']['mc_mod_notifopt_timeperiod']
-        ) {
-            updateHostNotifOptionTimeperiod($hostId);
-        } elseif (
             isset($ret['mc_mod_notifopt_timeperiod']['mc_mod_notifopt_timeperiod'])
             && !$ret['mc_mod_notifopt_timeperiod']['mc_mod_notifopt_timeperiod']
         ) {
+            // INCREMENTAL MODE
             updateHostNotifOptionTimeperiod_MC($hostId);
         } else {
+            // REPLACEMENT MODE
             updateHostNotifOptionTimeperiod($hostId);
         }
     }
-    /*
-     * Function for updating host hg
-     * 1 - MC with deletion of existing hg
-     * 2 - MC with addition of new hg
-     * 3 - Normal update
-     */
-    if (isset($ret['mc_mod_hhg']['mc_mod_hhg']) && $ret['mc_mod_hhg']['mc_mod_hhg']) {
-        updateHostHostGroup($hostId);
-    } elseif (isset($ret['mc_mod_hhg']['mc_mod_hhg']) && !$ret['mc_mod_hhg']['mc_mod_hhg']) {
+
+    if (isset($ret['mc_mod_hhg']['mc_mod_hhg']) && !$ret['mc_mod_hhg']['mc_mod_hhg']) {
+        // INCREMENTAL MODE
         updateHostHostGroup_MC($hostId);
     } else {
+        // REPLACEMENT MODE
         updateHostHostGroup($hostId);
     }
 
-    /*
-     * Function for updating host hc
-     * 1 - MC with deletion of existing hc
-     * 2 - MC with addition of new hc
-     * 3 - Normal update
-     */
-    if (isset($ret['mc_mod_hhc']['mc_mod_hhc']) && $ret['mc_mod_hhc']['mc_mod_hhc']) {
-        updateHostHostCategory($hostId);
-    } elseif (isset($ret['mc_mod_hhc']['mc_mod_hhc']) && !$ret['mc_mod_hhc']['mc_mod_hhc']) {
+    if (isset($ret['mc_mod_hhc']['mc_mod_hhc']) && !$ret['mc_mod_hhc']['mc_mod_hhc']) {
+        // INCREMENTAL MODE
         updateHostHostCategory_MC($hostId);
     } else {
-        updateHostHostCategory($hostId, $ret);
+        // REPLACEMENT MODE
+        updateHostHostCategory($hostId);
     }
-    /*
-     * Function for updating host template
-     * 1 - MC with deletion of existing template
-     * 2 - MC with addition of new template
-     * 3 - Normal update
-     */
-    if (isset($ret['mc_mod_htpl']['mc_mod_htpl']) && $ret['mc_mod_htpl']['mc_mod_htpl']) {
-        updateHostTemplateService($hostId);
-    } elseif (isset($ret['mc_mod_htpl']['mc_mod_htpl']) && !$ret['mc_mod_htpl']['mc_mod_htpl']) {
+
+    if (isset($ret['mc_mod_htpl']['mc_mod_htpl']) && !$ret['mc_mod_htpl']['mc_mod_htpl']) {
+        // INCREMENTAL MODE
         updateHostTemplateService_MC($hostId);
     } else {
+        // REPLACEMENT MODE
         updateHostTemplateService($hostId);
     }
 
     if (isset($ret['dupSvTplAssoc']['dupSvTplAssoc']) && $ret['dupSvTplAssoc']['dupSvTplAssoc']) {
-        if (isset($ret['host_template_model_htm_id'])) {
-            createHostTemplateService($hostId, $ret['host_template_model_htm_id']);
-        } elseif ($centreon->user->get_version()) {
-            createHostTemplateService($hostId);
-        }
+        createHostTemplateService($hostId);
     }
 
-    /*
-     * Host extended information
-     */
-    if ($isMassiveChange) {
-        updateHostExtInfos_MC($hostId);
-    } else {
-        updateHostExtInfos($hostId, $ret);
-    }
+    updateHostExtInfos_MC($hostId);
 
-    # Function for updating host hg
-    # 1 - MC with deletion of existing hg
-    # 2 - MC with addition of new hg
-    # 3 - Normal update
     updateNagiosServerRelation($hostId);
 
     signalConfigurationChange('host', $hostId, $previousPollerIds);
@@ -2824,29 +2693,95 @@ function sanitizeFormHostParameters(array $ret): array
     return $bindParams;
 }
 
-/**
- * Create a new host from formData.
- *
- * @param array<mixed> $ret
- *
- * @return int|null
- */
-function insertHostInAPI(array $ret = []): int|null
-{
-    global $centreon, $form, $isCloudPlatform, $basePath;
+// ------ API Configuration calls --------------------------------------------------------
 
-    /** @var array<string,int|string|null> $formData */
-    $formData = $ret === [] ? $form->getSubmitValues() : $ret;
+/**
+ * @param int[] $hosts
+ * @param bool $isTemplate
+ */
+function deleteHostInApi(array $hosts = [], bool $isTemplate = false): void
+{
+    global $basePath;
 
     try {
-        $hostId = insertHostByApi($formData, $isCloudPlatform, $basePath);
+        deleteHostByApi($basePath, $hosts, $isTemplate);
+    } catch (Throwable $throwable) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while deleting host by API : {$throwable->getMessage()}",
+            customContext: ['hosts' => $hosts, 'basePath' => $basePath],
+            exception: $throwable
+        );
+    }
+}
 
-        if ((int) $formData['host_register'] === 0) {
+/**
+ * @param string $basePath
+ * @param int[] $hosts
+ *
+ * @throws Throwable
+ */
+function deleteHostByApi(string $basePath, array $hosts, bool $isTemplate = false): void
+{
+    global $centreon;
+
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class);
+
+    foreach ($hosts as $hostId) {
+        $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
+
+        removeRelationLastHostDependency((int) $hostId);
+
+        $url = $router->generate(
+            $isTemplate ? 'DeleteHostTemplate' : 'DeleteHost',
+            $basePath
+                ? ['base_uri' => $basePath, $isTemplate ? 'hostTemplateId' : 'hostId' => $hostId]
+                : [],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        $response = callHostApi($url, 'DELETE', []);
+        if ($response['status_code'] !== 204) {
+            $message = $response['content']['message'] ?? 'Unknown error';
+
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Error while deleting host by API : {$message}",
+                customContext: ['host_id' => $hostId]
+            );
+        }
+
+        $centreon->user->access->updateACL(["type" => 'HOST', 'id' => $hostId, "action" => "DELETE"]);
+        signalConfigurationChange('host', (int) $hostId, $previousPollerIds);
+    }
+}
+
+/**
+ * Create a new host/hostTemplate from formData.
+ *
+ * @param array $formData
+ *
+ * @return int|false
+ */
+function insertHostInAPI(array $formData): int|false
+{
+    global $centreon, $isCloudPlatform, $basePath;
+
+    try {
+        $isTemplate = (int) $formData['host_register'] === 0;
+
+        if (null === ($hostId = insertByApi($formData, $isCloudPlatform, $basePath, $isTemplate))) {
+            throw new Exception('Return host ID invalid');
+        }
+
+        if ($isTemplate) {
             updateHostTemplateService($hostId);
         }
 
         if (! $isCloudPlatform) {
-            if ((int) $formData['host_register'] !== 0) {
+            if (! $isTemplate) {
                 updateHostHostParent($hostId, $formData);
                 updateHostHostChild($hostId);
             }
@@ -2871,169 +2806,295 @@ function insertHostInAPI(array $ret = []): int|null
             'access_grp_id' => ($formData['acl_groups'] ?? null),
         ]);
 
-        //Insert change logs
-        $fields = CentreonLogAction::prepareChanges($formData);
-        $filteredFields = array_diff_key($fields, array_flip(DbWriteHostActionLogRepository::HOST_PROPERTIES_MAP));
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOST,
-            object_id: $hostId,
-            object_name: $formData["host_name"],
-            action_type: ActionLog::ACTION_TYPE_ADD,
-            fields: $filteredFields
-        );
+        return $hostId;
+    } catch (JsonException $ex) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host/hostTemplate creation',
+        [
+            'hostId' => $hostId ?? null,
+            'isTemplate' => $isTemplate ?? null,
+            'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+        ]);
+        echo "<div class='msg' align='center'>" . _('Error during creation (json encoding). See logs for more detail') . '</div>';
 
-        return ($hostId);
-    } catch (\Throwable $th) {
-        echo "<div class='msg' align='center'>" . _($th->getMessage()) . "</div>";
+        return false;
+    } catch (Throwable $th) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host/hostTemplate creation',
+        [
+            'hostId' => $hostId ?? null,
+            'isTemplate' => $isTemplate ?? null,
+            'exception' => ['message' => $th->getMessage(), 'trace' => $th->getTraceAsString()],
+        ]);
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
 
-        return (null);
+        return false;
     }
 }
 
 /**
- * Make the API request to create a new host and return the new ID.
+ * Call creation API for host/hostTemplate, return newly created ID.
  *
  * @param array $formData
  * @param bool $isCloudPlatform
  * @param string $basePath
+ * @param bool $isTemplate
  *
- * @throws \LogicException
- * @throws \Exception
+ * @throws Exception
  *
- * @return int
+ * @return int|null
  */
-function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePath): int
+function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, bool $isTemplate): ?int
 {
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
-    $router = $kernel->getContainer()->get(Router::class)
-        ?? throw new LogicException('Router not found in container');
-    $client = new CurlHttpClient();
+    $router = $kernel->getContainer()->get(Router::class);
 
-    if ((int) $formData['host_register'] === 0) {
-        // is template
-        $payload = getPayloadForHostTemplate($isCloudPlatform, $formData);
+    $payload = $isTemplate
+        ? getPayloadForHostTemplate($isCloudPlatform, $formData)
+        : getPayloadForHost($isCloudPlatform, $formData);
 
-        $url = $router->generate(
-            'AddHostTemplate',
-            $basePath ? ['base_uri' => $basePath] : [],
-            UrlGeneratorInterface::ABSOLUTE_URL,
-        );
-    } else {
-        // is regular host
-        $payload = getPayloadForHost($isCloudPlatform, $formData);
+    $url = $router->generate(
+        $isTemplate ? 'AddHostTemplate' : 'AddHost',
+        $basePath ? ['base_uri' => $basePath] : [],
+        UrlGeneratorInterface::ABSOLUTE_URL,
+    );
 
-        $url = $router->generate(
-            'AddHost',
-            $basePath ? ['base_uri' => $basePath] : [],
-            UrlGeneratorInterface::ABSOLUTE_URL,
-        );
+    $response = callHostApi($url, 'POST', $payload);
+
+    return $response['content']['id'] ?? null;
+}
+
+/**
+ * @param int $hostId
+ * @param array $formData
+ *
+ * @return bool
+ */
+function updateHostInAPI(int $hostId, array $formData): bool
+{
+    global $centreon, $isCloudPlatform, $basePath;
+
+    try {
+        $isTemplate = (int) $formData['host_register'] === 0;
+        $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
+
+        updateByApi($formData, $isCloudPlatform, $basePath, $isTemplate);
+
+        if ($isTemplate) {
+            updateHostTemplateService($hostId);
+        }
+
+        if (! $isCloudPlatform) {
+            if (! $isTemplate) {
+                updateHostHostParent($hostId, $formData);
+                updateHostHostChild($hostId);
+            }
+            updateHostContactGroup($hostId, $formData);
+            updateHostContact($hostId, $formData);
+        }
+
+        if (
+            ! empty($formData['dupSvTplAssoc']['dupSvTplAssoc'])
+            || $isCloudPlatform === true
+        ) {
+            createHostTemplateService($hostId);
+        }
+
+        // Update conf change flag for poller
+        signalConfigurationChange('host', $hostId, $previousPollerIds);
+
+        // Update host ACLs
+        $centreon->user->access->updateACL([
+            'type' => 'HOST',
+            'id' => $hostId,
+            'action' => 'UPDATE',
+            'access_grp_id' => ($formData['acl_groups'] ?? null),
+        ]);
+
+        return true;
+    } catch (JsonException $ex) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host/hostTemplate update',
+        [
+            'hostId' => $hostId ,
+            'isTemplate' => $isTemplate ?? null,
+            'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+        ]);
+        echo "<div class='msg' align='center'>" . _('Error during update. See logs for more detail or contact your administrator.') . '</div>';
+
+        return false;
+    } catch (Throwable $th) {
+        CentreonLog::create()->error(CentreonLog::TYPE_BUSINESS_LOG, 'Error during host/hostTemplate update',
+        [
+            'hostId' => $hostId,
+            'isTemplate' => $isTemplate ?? null,
+            'exception' => ['message' => $th->getMessage(), 'trace' => $th->getTraceAsString()],
+        ]);
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
+
+        return false;
+    }
+}
+
+/**
+ * Call partial update API for host/hostTemplate.
+ *
+ * @param array $formData
+ * @param bool $isCloudPlatform
+ * @param string $basePath
+ * @param bool $isTemplate
+ *
+ * @throws JsonException
+ * @throws Exception
+ *
+ * @return void
+ */
+function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, bool $isTemplate): void
+{
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class);
+
+    $payload = $isTemplate
+        ? getPayloadForHostTemplate($isCloudPlatform, $formData)
+        : getPayloadForHost($isCloudPlatform, $formData);
+    $parameters = [];
+    if ($basePath) {
+        $parameters = $isTemplate
+            ? ['base_uri' => $basePath, 'hostTemplateId' => (int) $formData['host_id']]
+            : ['base_uri' => $basePath, 'hostId' => (int) $formData['host_id']];
     }
 
-    $headers = [
-        'Content-Type' => 'application/json',
-        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
-    ];
+    $url = $router->generate(
+        $isTemplate ? 'PartialUpdateHostTemplate' : 'PartialUpdateHost',
+        $parameters,
+        UrlGeneratorInterface::ABSOLUTE_URL,
+    );
+
+    callHostApi($url, 'PATCH', $payload);
+}
+
+/**
+ * Call api.
+ * Return ID when httpMethod = POST, null otherwize.
+ *
+ * @param string $url
+ * @param string $httpMethod
+ * @param array<string,mixed> $payload
+ *
+ * @throws JsonException
+ * @throws Exception
+ *
+ * @return array<string,mixed>
+ */
+function callHostApi(string $url, string $httpMethod, array $payload): array
+{
+    $client = new CurlHttpClient();
     $response = $client->request(
-        'POST',
+        $httpMethod,
         $url,
         [
-            'headers' => $headers,
-            'body' => json_encode($payload),
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+            ],
+            'body' => json_encode($payload, JSON_THROW_ON_ERROR),
         ],
     );
 
-    if ($response->getStatusCode() !== 201) {
-        $content = json_decode($response->getContent(false));
+    $status = $response->getStatusCode();
+    if (
+        ($httpMethod === 'POST' && $status !== 201)
+        || ($httpMethod === 'PATCH' && $status !== 204)
+    ) {
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
 
         throw new \Exception($content->message ?? 'Unexpected return status');
     }
 
-    $data = $response->toArray();
-
-    /** @var array{id:int} $data */
-    return $data['id'];
+    return ['status_code' => $status, 'content' => json_decode($response->getContent(false), true)];
 }
 
 /**
  * @param bool $isCloudPlatform
  * @param array<mixed> $formData
+ *
  * @return array<string,mixed>
  */
 function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): array
 {
-    if ($isCloudPlatform === true) {
-        return [
-            'name' => $formData['host_name'],
-            'alias' => $formData['host_alias'] ?: null,
-            'snmp_version' => $formData['host_snmp_version'] ?: null,
-            'snmp_community' => $formData['host_snmp_community'] ?: null,
-            'note_url' => $formData['ehi_notes_url'] ?: null,
-            'note' => $formData['ehi_notes'] ?: null,
-            'action_url' => $formData['ehi_action_url'] ?: null,
-            'icon_id' => '' !== $formData['ehi_icon_image']
-                ? (int) $formData['ehi_icon_image']
-                : null,
-            'timezone_id' => '' !== $formData['host_location']
-                ? (int) $formData['host_location']
-                : null,
-            'severity_id' => '' !== $formData['criticality_id']
-                ? (int) $formData['criticality_id']
-                : null,
-            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
-                ? (int) $formData['timeperiod_tp_id']
-                : null,
-            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
-                ? (int) $formData['host_max_check_attempts']
-                : null,
-            'normal_check_interval' => '' !== $formData['host_check_interval']
-                ? (int) $formData['host_check_interval']
-                : null,
-            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
-                ? (int) $formData['host_retry_check_interval']
-                : null,
-            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
-            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
-            'macros' => array_map(
-                static function (int $key, string $name, string $value) use ($formData): array {
-                    return [
-                        'name' => $name,
-                        'value' => $value,
-                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
-                        'description' => $formData["macroDescription_{$key}"],
-                    ];
-                },
-                array_keys($formData['macroInput'] ?? []),
-                $formData['macroInput'] ?? [],
-                $formData['macroValue'] ?? []
-            ),
-            'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
-                ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
-                : null,
-            'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
-                ? (int) $formData['command_command_id2']
-                : null,
-        ];
-    } else {
-        return [
-            'name' => $formData['host_name'],
-            'alias' => $formData['host_alias'] ?: null,
-            'snmp_version' => $formData['host_snmp_version'] ?: null,
-            'snmp_community' => $formData['host_snmp_community'] ?: null,
-            'note_url' => $formData['ehi_notes_url'] ?: null,
-            'note' => $formData['ehi_notes'] ?: null,
-            'action_url' => $formData['ehi_action_url'] ?: null,
-            'icon_id' => '' !== $formData['ehi_icon_image']
-                ? (int) $formData['ehi_icon_image']
-                : null,
+    global $pearDB;
+
+    $payload = [
+        'name' => $formData['host_name'],
+        'alias' => $formData['host_alias'] ?: null,
+        'snmp_version' => $formData['host_snmp_version'] ?: null,
+        'snmp_community' => $formData['host_snmp_community'] ?: null,
+        'note_url' => $formData['ehi_notes_url'] ?: null,
+        'note' => $formData['ehi_notes'] ?: null,
+        'action_url' => $formData['ehi_action_url'] ?: null,
+        'icon_id' => '' !== $formData['ehi_icon_image']
+            ? (int) $formData['ehi_icon_image']
+            : null,
+        'timezone_id' => '' !== $formData['host_location']
+            ? (int) $formData['host_location']
+            : null,
+        'severity_id' => '' !== $formData['criticality_id']
+            ? (int) $formData['criticality_id']
+            : null,
+        'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+            ? (int) $formData['timeperiod_tp_id']
+            : null,
+        'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+            ? (int) $formData['host_max_check_attempts']
+            : null,
+        'normal_check_interval' => '' !== $formData['host_check_interval']
+            ? (int) $formData['host_check_interval']
+            : null,
+        'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+            ? (int) $formData['host_retry_check_interval']
+            : null,
+        'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+        'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
+        'macros' => array_map(
+            static function (int $key, string $name, string $value) use ($formData): array {
+                return [
+                    'name' => $name,
+                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
+                    'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
+                    'description' => $formData["macroDescription_{$key}"],
+                ];
+            },
+            array_keys($formData['macroInput'] ?? []),
+            $formData['macroInput'] ?? [],
+            $formData['macroValue'] ?? []
+        ),
+        'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
+            ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
+            : null,
+        'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+            ? (int) $formData['command_command_id2']
+            : null,
+    ];
+
+    if ($payload['snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        $statement = $pearDB->prepareQuery(
+            <<<SQL
+            SELECT
+                `host_snmp_community`
+            FROM
+                `host`
+            WHERE
+                `host_id` = :host_id
+            SQL
+        );
+        $pearDB->executePreparedQuery($statement, ['host_id' => $formData['host_id']]);
+        $previousCommunity = $statement->fetchColumn();
+        $payload['snmp_community'] = $previousCommunity;
+    }
+
+    if ($isCloudPlatform === false) {
+        $payloadOnPrem = [
             'icon_alternative' => $formData['ehi_icon_image_alt'] ?: null,
             'comment' => $formData['host_comment'] ?: null,
-            'timezone_id' => '' !== $formData['host_location']
-                ? (int) $formData['host_location']
-                : null,
-            'severity_id' => '' !== $formData['criticality_id']
-                ? (int) $formData['criticality_id']
-                : null,
             'check_command_id' => '' !== $formData['command_command_id']
                 ? (int) $formData['command_command_id']
                 : null,
@@ -3041,18 +3102,6 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
                 explode('!', $formData['command_command_id_arg1']),
                 static fn(string $elem): bool => $elem !== ""
             )),
-            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
-                ? (int) $formData['timeperiod_tp_id']
-                : null,
-            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
-                ? (int) $formData['host_max_check_attempts']
-                : null,
-            'normal_check_interval' => '' !== $formData['host_check_interval']
-                ? (int) $formData['host_check_interval']
-                : null,
-            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
-                ? (int) $formData['host_retry_check_interval']
-                : null,
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
             'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
@@ -3069,10 +3118,6 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
                 ? (int) $formData['host_acknowledgement_timeout']
                 : null,
             'flap_detection_enabled' => (int) $formData['host_flap_detection_enabled']['host_flap_detection_enabled'],
-            'event_handler_enabled' => (int) $formData['host_event_handler_enabled']['host_event_handler_enabled'],
-            'event_handler_command_id' => '' !== $formData['command_command_id2']
-                ? (int) $formData['command_command_id2']
-                : null,
             'event_handler_command_args' => array_values(array_filter(
                 explode('!', $formData['command_command_id_arg2']),
                 static fn(string $elem): bool => $elem !== ""
@@ -3095,23 +3140,11 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
                 : null,
             'add_inherited_contact_group' => (bool) ($formData['cg_additive_inheritance'] ?? false),
             'add_inherited_contact' => (bool) ($formData['contact_additive_inheritance'] ?? false),
-            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
-            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
-            'macros' => array_map(
-                static function (int $key, string $name, string $value) use ($formData): array {
-                    return [
-                        'name' => $name,
-                        'value' => $value,
-                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
-                        'description' => $formData["macroDescription_{$key}"],
-                    ];
-                },
-                array_keys($formData['macroInput'] ?? []),
-                $formData['macroInput'] ?? [],
-                $formData['macroValue'] ?? []
-            ),
         ];
+        $payload = [...$payload, ...$payloadOnPrem];
     }
+
+    return $payload;
 }
 
 /**
@@ -3121,86 +3154,85 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
  */
 function getPayloadForHost(bool $isCloudPlatform, array $formData): array
 {
-    if ($isCloudPlatform === true) {
-        return [
-            'name' => $formData['host_name'],
-            'address' => $formData['host_address'],
-            'monitoring_server_id' => (int) $formData['nagios_server_id'] ?: null,
-            'alias' => $formData['host_alias'] ?: null,
-            'snmp_version' => $formData['host_snmp_version'] ?: null,
-            'snmp_community' => $formData['host_snmp_community'] ?: null,
-            'note_url' => $formData['ehi_notes_url'] ?: null,
-            'note' => $formData['ehi_notes'] ?: null,
-            'action_url' => $formData['ehi_action_url'] ?: null,
-            'icon_id' => '' !== $formData['ehi_icon_image']
-                ? (int) $formData['ehi_icon_image']
-                : null,
-            'geo_coords' => $formData['geo_coords'] ?: null,
-            'timezone_id' => '' !== $formData['host_location']
-                ? (int) $formData['host_location']
-                : null,
-            'severity_id' => '' !== $formData['criticality_id']
-                ? (int) $formData['criticality_id']
-                : null,
-            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
-                ? (int) $formData['timeperiod_tp_id']
-                : null,
-            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
-                ? (int) $formData['host_max_check_attempts']
-                : null,
-            'normal_check_interval' => '' !== $formData['host_check_interval']
-                ? (int) $formData['host_check_interval']
-                : null,
-            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
-                ? (int) $formData['host_retry_check_interval']
-                : null,
-            'is_activated' => (bool) ($formData['host_activate']['host_activate'] ?: false),
-            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
-            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
-            'groups' => array_map(static fn(string $id): int => (int) $id, $formData['host_hgs'] ?? []),
-            'macros' => array_map(
-                static function (int|string $key, string $name, string $value) use ($formData): array {
-                    return [
-                        'name' => $name,
-                        'value' => $value,
-                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
-                        'description' => $formData["macroDescription_{$key}"],
-                    ];
-                },
-                array_keys($formData['macroInput'] ?? []),
-                $formData['macroInput'] ?? [],
-                $formData['macroValue'] ?? []
-            ),
-            'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
-                ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
-                : null,
-            'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
-                ? (int) $formData['command_command_id2']
-                : null,
-        ];
-    } else {
-        return [
-            'name' => $formData['host_name'],
-            'address' => $formData['host_address'],
-            'monitoring_server_id' => (int) $formData['nagios_server_id'] ?: null,
-            'alias' => $formData['host_alias'] ?: null,
-            'snmp_version' => $formData['host_snmp_version'] ?: null,
-            'snmp_community' => $formData['host_snmp_community'] ?: null,
-            'note_url' => $formData['ehi_notes_url'] ?: null,
-            'note' => $formData['ehi_notes'] ?: null,
-            'action_url' => $formData['ehi_action_url'] ?: null,
-            'icon_id' => '' !== $formData['ehi_icon_image']
-                ? (int) $formData['ehi_icon_image']
-                : null,
+    global $pearDB;
+
+    $payload = [
+        'name' => $formData['host_name'],
+        'address' => $formData['host_address'],
+        'monitoring_server_id' => (int) $formData['nagios_server_id'] ?: null,
+        'alias' => $formData['host_alias'] ?: null,
+        'snmp_version' => $formData['host_snmp_version'] ?: null,
+        'snmp_community' => $formData['host_snmp_community'] ?: null,
+        'note_url' => $formData['ehi_notes_url'] ?: null,
+        'note' => $formData['ehi_notes'] ?: null,
+        'action_url' => $formData['ehi_action_url'] ?: null,
+        'icon_id' => '' !== $formData['ehi_icon_image']
+            ? (int) $formData['ehi_icon_image']
+            : null,
+        'geo_coords' => $formData['geo_coords'] ?: null,
+        'timezone_id' => '' !== $formData['host_location']
+            ? (int) $formData['host_location']
+            : null,
+        'severity_id' => '' !== $formData['criticality_id']
+            ? (int) $formData['criticality_id']
+            : null,
+        'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+            ? (int) $formData['timeperiod_tp_id']
+            : null,
+        'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+            ? (int) $formData['host_max_check_attempts']
+            : null,
+        'normal_check_interval' => '' !== $formData['host_check_interval']
+            ? (int) $formData['host_check_interval']
+            : null,
+        'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+            ? (int) $formData['host_retry_check_interval']
+            : null,
+        'is_activated' => (bool) ($formData['host_activate']['host_activate'] ?: false),
+        'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+        'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
+        'groups' => array_map(static fn(string $id): int => (int) $id, $formData['host_hgs'] ?? []),
+        'macros' => array_map(
+            static function (int|string $key, string $name, string $value) use ($formData): array {
+                return [
+                    'name' => $name,
+                    'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
+                    'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
+                    'description' => $formData["macroDescription_{$key}"],
+                ];
+            },
+            array_keys($formData['macroInput'] ?? []),
+            $formData['macroInput'] ?? [],
+            $formData['macroValue'] ?? []
+        ),
+        'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
+            ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
+            : null,
+        'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+            ? (int) $formData['command_command_id2']
+            : null,
+    ];
+
+    if ($payload['snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        $statement = $pearDB->prepareQuery(
+            <<<SQL
+            SELECT
+                `host_snmp_community`
+            FROM
+                `host`
+            WHERE
+                `host_id` = :host_id
+            SQL
+        );
+        $pearDB->executePreparedQuery($statement, ['host_id' => $formData['host_id']]);
+        $previousCommunity = $statement->fetchColumn();
+        $payload['snmp_community'] = $previousCommunity;
+    }
+
+    if ($isCloudPlatform === false) {
+        $payloadOnPrem = [
             'icon_alternative' => $formData['ehi_icon_image_alt'] ?: null,
             'comment' => $formData['host_comment'] ?: null,
-            'geo_coords' => $formData['geo_coords'] ?: null,
-            'timezone_id' => '' !== $formData['host_location']
-                ? (int) $formData['host_location']
-                : null,
-            'severity_id' => '' !== $formData['criticality_id']
-                ? (int) $formData['criticality_id']
-                : null,
             'check_command_id' => '' !== $formData['command_command_id']
                 ? (int) $formData['command_command_id']
                 : null,
@@ -3208,18 +3240,6 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
                 explode('!', $formData['command_command_id_arg1']),
                 static fn(string $elem): bool => $elem !== ""
             )),
-            'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
-                ? (int) $formData['timeperiod_tp_id']
-                : null,
-            'max_check_attempts' => '' !== $formData['host_max_check_attempts']
-                ? (int) $formData['host_max_check_attempts']
-                : null,
-            'normal_check_interval' => '' !== $formData['host_check_interval']
-                ? (int) $formData['host_check_interval']
-                : null,
-            'retry_check_interval' => '' !== $formData['host_retry_check_interval']
-                ? (int) $formData['host_retry_check_interval']
-                : null,
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
             'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
@@ -3236,10 +3256,6 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
                 ? (int) $formData['host_acknowledgement_timeout']
                 : null,
             'flap_detection_enabled' => (int) $formData['host_flap_detection_enabled']['host_flap_detection_enabled'],
-            'event_handler_enabled' => (int) $formData['host_event_handler_enabled']['host_event_handler_enabled'],
-            'event_handler_command_id' => '' !== $formData['command_command_id2']
-                ? (int) $formData['command_command_id2']
-                : null,
             'event_handler_command_args' => array_values(array_filter(
                 explode('!', $formData['command_command_id_arg2']),
                 static fn(string $elem): bool => $elem !== ""
@@ -3262,23 +3278,9 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
                 : null,
             'add_inherited_contact_group' => (bool) ($formData['cg_additive_inheritance'] ?? false),
             'add_inherited_contact' => (bool) ($formData['contact_additive_inheritance'] ?? false),
-            'is_activated' => (bool) ($formData['host_activate']['host_activate'] ?: false),
-            'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tpSelect'] ?? []),
-            'categories' => array_map(static fn(string $id): int => (int) $id, $formData['host_hcs'] ?? []),
-            'groups' => array_map(static fn(string $id): int => (int) $id, $formData['host_hgs'] ?? []),
-            'macros' => array_map(
-                static function (int|string $key, string $name, string $value) use ($formData): array {
-                    return [
-                        'name' => $name,
-                        'value' => $value,
-                        'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
-                        'description' => $formData["macroDescription_{$key}"],
-                    ];
-                },
-                array_keys($formData['macroInput'] ?? []),
-                $formData['macroInput'] ?? [],
-                $formData['macroValue'] ?? []
-            ),
         ];
+        $payload = [...$payload, ...$payloadOnPrem];
     }
+
+    return $payload;
 }

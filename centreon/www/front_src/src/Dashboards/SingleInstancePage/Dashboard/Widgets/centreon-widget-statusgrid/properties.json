@@ -114,5 +114,6 @@
     }
   },
   "moduleName": "centreon-widget-statusgrid",
-  "canExpand": true
+  "canExpand": true,
+  "widgetType": "realtime"
 }

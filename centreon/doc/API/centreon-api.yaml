@@ -17,6 +17,14 @@ info:
     + Added new 'thumbnail' key to dashboard listing endpoint, that contains thumbnail information
     + Added new 'thumbnail' key to dashboard update payload endpoint, that contains thumbnail information
     + Added new 'thumbnail_data' key to dashboard update payload endpoint, that contains thumbnail contents
+    + Added new endpoint to bulk delete services
+    + Added new endpoint to bulk delete hostgroups
+    + Added new endpoint to bulk enable/disable hostgroups
+    + Updated endpoint to add an hostgroup
+    + Updated endpoint to update an hostgroup
+    + Added new endpoint to bulk duplicate hostgroups
+    + Update FindHostGroups response
+    + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT)
     +
     # Information
     All dates are in **ISO 8601** format
@@ -682,167 +690,15 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/groups:
-    get:
-      tags:
-        - Host group
-      summary: "List all host groups"
-      description: |
-        Return all host group configurations.
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * name
-        * alias
-        * is_activated
-        * hostcategory.id
-        * hostcategory.name
-
-        Changes in 23.04 :
-
-        * `icon` was renamed `icon_id` and is no longer an object but the image ID
-        * `icon_map` was renamed `icon_map_id` and is no longer an object but the image ID
-
-        *This endpoint has a specific behaviour on Cloud environments.*
-        *Please check the dedicated Cloud API documentation.*
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.Host.Group'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    post:
-      tags:
-        - Host group
-      summary: "Add a host group"
-      description: |
-        Add a new host group configuration.
-
-        Mandatory body properties are:
-
-        * name
-
-        `Since Centreon web 23.04`
-
-        *This endpoint has a specific behaviour on Cloud environments.*
-        *Please check the dedicated Cloud API documentation.*
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Configuration.Host.Group.Add'
-      responses:
-        "201":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Configuration.Host.Group'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './latest/onPremise/Configuration/HostGroup/AddAndFindHostGroups.yaml'
   /configuration/hosts/groups/{hostgroup_id}:
-    get:
-      tags:
-        - Host group
-      summary: "Get a host group"
-      description: |
-        `internal`
-
-        `Since Centreon web 23.10`
-
-        Get host group.
-
-        *This endpoint has a specific behaviour on Cloud environments.*
-        *Please check the dedicated Cloud API documentation.*
-      parameters:
-        - $ref: '#/components/parameters/HostGroupId'
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Configuration.Host.Group'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    delete:
-      tags:
-        - Host group
-      summary: "Delete a host group"
-      description: |
-        `internal`
-
-        `Since Centreon web 23.04`
-
-        Delete host group.
-      parameters:
-        - $ref: '#/components/parameters/HostGroupId'
-      responses:
-        '204':
-          description: "OK"
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    put:
-      tags:
-        - Host group
-      summary: "Update a host group"
-      description: |
-        `internal`
-
-        `Since Centreon web 23.10`
-
-        Update host group.
-
-        *This endpoint has a specific behaviour on Cloud environments.*
-        *Please check the dedicated Cloud API documentation.*
-      parameters:
-        - $ref: '#/components/parameters/HostGroupId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Configuration.Host.Group.Add'
-      responses:
-        '204':
-          description: "OK"
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './latest/onPremise/Configuration/HostGroup/GetAndDeleteAndUpdateHostGroup.yaml'
+  /configuration/hosts/groups/_delete:
+    $ref: "./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml"
+  /configuration/hosts/groups/{action}:
+    $ref: "./latest/onPremise/Configuration/HostGroup/EnableDisableHostGroups.yaml"
+  /configuration/hosts/groups/_duplicate:
+    $ref: "./latest/onPremise/Configuration/HostGroup/DuplicateHostGroups.yaml"
   /configuration/services/groups:
     get:
       tags:
@@ -5314,6 +5170,7 @@ components:
         - contact_template
         - email_bind_attribute
         - fullname_bind_attribute
+        - requested_authn_context
         - logout_from
       properties:
         is_active:
@@ -5338,6 +5195,10 @@ components:
         user_id_attribute:
           type: string
           description: ""
+        requested_authn_context:
+          type: string
+          enum: ['minimum', 'exact', 'better', 'maximum']
+          description: "Requested authentication context"
         logout_from:
           type: boolean
           description: "Logout"
@@ -6103,77 +5964,6 @@ components:
         is_activated:
           type: boolean
           description: "Indicates whether the host template is activated or not"
-    Configuration.Host.Group:
-      allOf:
-        - $ref: '#/components/schemas/Configuration.Host.Group.Add'
-        - properties:
-            id:
-              type: integer
-              description: "Host group ID"
-              example: 1
-    Configuration.Host.Group.Add:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 200
-          description: "Host group name"
-          example: "MySQL-Servers"
-        alias:
-          type: string
-          nullable: true
-          maxLength: 200
-          description: "Host group alias"
-          example: "All MySQL Servers"
-        notes:
-          type: string
-          nullable: true
-          maxLength: 255
-          description: "Define an optional string of notes pertaining to the host group"
-          example: "my notes"
-        notes_url:
-          type: string
-          nullable: true
-          maxLength: 255
-          description: "Define an optional URL that can be used to provide more information about the host group"
-          example: "notes url"
-        action_url:
-          type: string
-          nullable: true
-          maxLength: 255
-          description: "Define an optional URL that can be used to provide more actions to be performed on the host group. You will see the link to the action URL in the host group details"
-          example: "action url"
-        icon_id:
-          type: integer
-          nullable: true
-          description: "Define the image ID that should be associated with this host group"
-          example: 1
-        icon_map_id:
-          type: integer
-          nullable: true
-          description: "Define an image ID that should be associated with this host group in the statusmap CGI in monitoring engine"
-          example: 1
-        geo_coords:
-          type: string
-          nullable: true
-          maxLength: 32
-          description: "Geographical coordinates use by Centreon Map module to position element on map"
-          example: "48.51,2.20"
-        rrd:
-          type: integer
-          nullable: true
-          minimum: 1
-          maximum: 2147483648
-          description: "RRD retention duration in days of all the services that are in this host group"
-          example: 2
-        comment:
-          type: string
-          nullable: true
-          maxLength: 65535
-          description: "Comments on this host group"
-        is_activated:
-          type: boolean
-          description: "Indicates whether the host group is activated or not"
     Configuration.Service.Group:
       allOf:
         - $ref: '#/components/schemas/Configuration.Service.Group.Add'
