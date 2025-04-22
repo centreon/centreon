@@ -130,8 +130,8 @@ if [ "$PROJECT" = "centreon" ]; then
     # remove absolute path from comments
     sed -i -r 's/#:.+\.\.\//#: /g' $BASE_DIR_PROJECT/lang/messages.pot
     # remove line number from comments
-    sed -i -r 's/:\d+$//g' $BASE_DIR_PROJECT/lang/messages.pot
-    if [ $(git diff $BASE_DIR_PROJECT/lang/messages.pot | grep -E "^\+[^+]" | wc -l) -eq 2 ]; then
+    sed -i -r 's/:[0-9]+$//g' $BASE_DIR_PROJECT/lang/messages.pot
+    if [ $(git diff $BASE_DIR_PROJECT/lang/messages.pot | grep -E "^\+[^+]" | wc -l) -eq 1 ]; then
         git checkout $BASE_DIR_PROJECT/lang/messages.pot
     fi
     echo -n " - 0K"
@@ -160,8 +160,8 @@ if [ "$PROJECT" = "centreon" ]; then
     # remove absolute path from comments
     sed -i -r 's/#:.+\.\.\//#: /g' $BASE_DIR_PROJECT/lang/help.pot
     # remove line number from comments
-    sed -i -r 's/:\d+$//g' $BASE_DIR_PROJECT/lang/help.pot
-    if [ $(git diff $BASE_DIR_PROJECT/lang/help.pot | grep -E "^\+[^+]" | wc -l) -eq 2 ]; then
+    sed -i -r 's/:[0-9]+$//g' $BASE_DIR_PROJECT/lang/help.pot
+    if [ $(git diff $BASE_DIR_PROJECT/lang/help.pot | grep -E "^\+[^+]" | wc -l) -eq 1 ]; then
         git checkout $BASE_DIR_PROJECT/lang/help.pot
     fi
     echo -n " - 0K"
