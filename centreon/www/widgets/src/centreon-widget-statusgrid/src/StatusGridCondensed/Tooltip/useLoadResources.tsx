@@ -65,7 +65,7 @@ export const useLoadResources = ({
       return resourcesToApply.map((resource) => ({
         field: type,
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }
