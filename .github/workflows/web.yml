@@ -221,13 +221,17 @@ jobs:
       - run: |
           cd centreon
           mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
+          echo "ok1"
           php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
+          echo "ok2"
           for i in lang/*.UTF-8 ; do
             localefull=`basename $i`
             langName=`echo $localefull | cut -d . -f 1`
             langShortName=`echo $localefull | cut -d _ -f 1`
+            echo "locale-gen $localefull"
             locale-gen $localefull
             mkdir -p "www/locale/$localefull/LC_MESSAGES"
+            echo "make_translation.sh centreon $langName"
             bash ../.github/scripts/translation/make_translation.sh centreon $langName
             msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
             msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
