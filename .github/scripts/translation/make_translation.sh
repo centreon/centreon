@@ -128,8 +128,7 @@ if [ "$PROJECT" = "centreon" ]; then
     echo -n "Generate messages.pot file including all strings to translate"
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/messages.pot > /dev/null 2>&1
     sed -i -r 's/#:.+\.\.\//#: /g' $BASE_DIR_PROJECT/lang/messages.pot
-    if [ $(git diff $BASE_DIR_PROJECT/lang/messages.pot | wc -l) -eq 2 ]; then
-        echo "git checkout $BASE_DIR_PROJECT/lang/messages.pot"
+    if [ $(git diff $BASE_DIR_PROJECT/lang/messages.pot | grep -E "^\+[^+]" | wc -l) -eq 2 ]; then
         git checkout $BASE_DIR_PROJECT/lang/messages.pot
     fi
     echo -n " - 0K"
@@ -155,8 +154,8 @@ if [ "$PROJECT" = "centreon" ]; then
     echo
     echo -n "Generate help.pot file including all strings to translate"
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/help.pot > /dev/null 2>&1
-    sed -i -r 's/#:.+\.\.\//#: /g' $BASE_DIR_PROJECT/lang/help.pot
-    if [ $(git diff $BASE_DIR_PROJECT/lang/help.pot | wc -l) -eq 2 ]; then
+    sed -i -r 's/#:.+\.\.\//#: /g' -r 's/:\d+$//g' $BASE_DIR_PROJECT/lang/help.pot
+    if [ $(git diff $BASE_DIR_PROJECT/lang/help.pot | grep -E "^\+[^+]" | wc -l) -eq 2 ]; then
         git checkout $BASE_DIR_PROJECT/lang/help.pot
     fi
     echo -n " - 0K"
