@@ -1,5 +1,7 @@
 <?php
+
 require_once './vendor/autoload.php';
+
 use Sepia\PoParser\SourceHandler\FileSystem;
 use Sepia\PoParser\Parser;
 use Sepia\PoParser\PoCompiler;

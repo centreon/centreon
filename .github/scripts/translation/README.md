@@ -6,12 +6,6 @@
 https://github.com/centreon/centreon.git
 ```
 
-## Move to i18n_toolkit directory
-
-```SHELL
-cd centreon/i18n_toolkit
-```
-
 ## Install dependencies
 
 ```SHELL
@@ -21,7 +15,7 @@ dnf install -y gettext php-cli
 ## Execute script
 
 ```SHELL
-bash make_translation.sh <PROJECt_NAME> <lang>
+bash .github/scripts/translation/make_translation.sh <PROJECT_NAME> <lang>
 ```
 
 List of projects:
@@ -43,16 +37,16 @@ Using POEdit of other tools to translate *.po files fix:
 Then create a pull request to ask Centreon to merge new translation
 
 > If you want to start another locale, you need to create a new lang directory like:
-    
+
     ```SHELL
     mkdir centreon/lang/en_EN.UTF-8/LC_MESSAGES/
     ```
-    
+
     Then copy messages.pot and help.pot from centreon/lang/
 
     ```SHELL
-    cp centreon/lang/messages.pot centeron/lang/en_EN.UTF-8/LC_MESSAGES/messages.po
-    cp centreon/lang/help.pot centeron/lang/en_EN.UTF-8/LC_MESSAGES/help.po
+    cp centreon/lang/messages.pot centreon/lang/en_EN.UTF-8/LC_MESSAGES/messages.po
+    cp centreon/lang/help.pot centreon/lang/en_EN.UTF-8/LC_MESSAGES/help.po
     ```
 
     And start translation of messages.po and help.po

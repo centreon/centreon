@@ -51,13 +51,6 @@ LANGS=(
 #
 # Define global vars
 #
-i18n_DIR="BASE_DIR/i18n_toolkit"
-MESSAGE_POT_FILE=messages.pot
-HELP_POT_FILE=help.pot
-SMARTY_TRANSLATE_SCRIPT=$BASE_DIR/tsmarty2centreon.php
-REACTJS_TRANSLATE_SCRIPT=$BASE_DIR/reachjs2centreon.php
-BROKER_TRANSLATE_SCRIPT=$BASE_DIR/pareInsertBaseConfForTranslation.php
-MENUS_TRANSLATE_SCRIPT=$BASE_DIR/pareInsertTopologyForTranslation.php
 PO_SRC=$BASE_DIR/po_src
 CAN_BE_TRANSLATE=false
 
@@ -89,6 +82,8 @@ if [ "$2" ]; then
         if [ "$2" = "$LANG" ]; then
             CAN_BE_TRANSLATE=true
             LANG=$2
+            LC_ALL=$LANG.UTF-8
+            export LC_ALL
             break
         fi
     done
@@ -101,7 +96,7 @@ else
     exit 1
 fi
 
-BASE_DIR_PROJECT="$BASE_DIR/../$PROJECT"
+BASE_DIR_PROJECT="$BASE_DIR/../../../$PROJECT"
 
 if [ "$PROJECT" = "centreon" ]; then
     echo -n "Removing previous POT files"
@@ -144,6 +139,12 @@ if [ "$PROJECT" = "centreon" ]; then
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/messages.pot > /dev/null 2>&1
     echo -n " - 0K"
     echo
+
+    rm -f $BASE_DIR_PROJECT/www/install/menu_translation.php
+    rm -f $BASE_DIR_PROJECT/www/install/centreon_broker_translation.php
+    rm -f $BASE_DIR_PROJECT/www/install/smarty_translate.php
+    rm -f $BASE_DIR_PROJECT/www/install/front_translate.php
+    rm -f $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
 
     # Merge existing translation file with new POT file
     $MSGMERGE $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po
@@ -216,7 +217,7 @@ if [ "$PROJECT" = "centreon-bam" ]; then
         missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
         echo -e "Missing $missing_translation strings to translate from $PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po"
     fi
- 
+
     echo -e ""
     echo -n "List all help.php files"
     find $BASE_DIR_PROJECT/www -name 'help.php' > $PO_SRC
@@ -242,3 +243,5 @@ if [ "$PROJECT" = "centreon-bam" ]; then
         echo
     fi
 fi
+
+rm -f $PO_SRC

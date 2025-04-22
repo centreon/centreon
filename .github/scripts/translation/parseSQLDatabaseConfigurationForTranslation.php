@@ -124,8 +124,4 @@ if (count($data) > 0) {
             echo '_(' . trim($key) .');' ."\n";
         }
     }
-    echo "?>\n";
 }
-
-?>
-

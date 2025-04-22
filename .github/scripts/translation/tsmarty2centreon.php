@@ -19,8 +19,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA *
  * ------------------------------------------------------------------------- *
  *
- * This command line script rips gettext strings from smarty file, 
- * and prints them to stdout in C format, that can later be used with the 
+ * This command line script rips gettext strings from smarty file,
+ * and prints them to stdout in C format, that can later be used with the
  * standard gettext tools.
  *
  * Usage:
@@ -28,7 +28,7 @@
  *
  * If a parameter is a directory, the template files within will be parsed.
  *
- * Script modified by <sho@merethis.com> 
+ * Script modified by <sho@merethis.com>
  *
  * @package	smarty-gettext
  * @version	$Id: tsmarty2c.php,v 1.3 2005/07/27 17:59:39 sagi Exp $
@@ -74,11 +74,11 @@ function do_file($file)
 			$content,
 			$matches
 	);
-	
+
 	for ($i=0; $i < count($matches[0]); $i++) {
 		// TODO: add line number
 		echo "/* $file */\n"; // credit: Mike van Lammeren 2005-02-14
-		
+
 		if (preg_match('/plural\s*=\s*["\']?\s*(.[^\"\']*)\s*["\']?/', $matches[2][$i], $match)) {
 			echo 'ngettext("'.fs($matches[3][$i]).'","'.fs($match[1]).'",x);'."\n";
 		} else {
@@ -105,7 +105,7 @@ function do_dir($dir)
 			do_dir($entry);
 		} else { // if file, parse only if extension is matched
 			$pi = pathinfo($entry);
-			
+
 			if (isset($pi['extension']) && in_array($pi['extension'], $GLOBALS['extensions'])) {
 				do_file($entry);
 			}
@@ -127,6 +127,3 @@ for ($ac=1; $ac < $_SERVER['argc']; $ac++) {
 if ($argc < 2) {
     echo "Usage: {$argv[0]} CENTREON_WWW/ > output.php\n";
 }
-echo "?>\n";
-?>
-
