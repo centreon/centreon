@@ -99,16 +99,6 @@ fi
 BASE_DIR_PROJECT="$BASE_DIR/../../../$PROJECT"
 
 if [ "$PROJECT" = "centreon" ]; then
-    echo -n "Removing previous POT files"
-    if [ -f "$BASE_DIR_PROJECT/lang/messages.pot" ]; then
-        rm $BASE_DIR_PROJECT/lang/messages.pot -f >> /dev/null 2>&1
-    fi
-    if [ -f "$BASE_DIR_PROJECT/lang/help.pot" ]; then
-        rm $BASE_DIR_PROJECT/lang/help.pot -f >> /dev/null 2>&1
-    fi
-    echo -n " - 0K"
-    echo
-
     echo -n "Extracting strings to translate the menus"
     $PHP $BASE_DIR/parseSQLDatabaseConfigurationForTranslation.php $BASE_DIR_PROJECT/www/install/insertTopology.sql > $BASE_DIR_PROJECT/www/install/menu_translation.php
     echo -n " - 0K"
@@ -137,6 +127,9 @@ if [ "$PROJECT" = "centreon" ]; then
     echo
     echo -n "Generate messages.pot file including all strings to translate"
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/messages.pot > /dev/null 2>&1
+    if [ $(git diff $BASE_DIR_PROJECT/lang/messages.pot | grep POT-Creation-Date | wc -l) -eq 2 ]; then
+        git checkout $BASE_DIR_PROJECT/lang/messages.pot
+    fi
     echo -n " - 0K"
     echo
 
@@ -151,7 +144,7 @@ if [ "$PROJECT" = "centreon" ]; then
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
-    echo -e "Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
+    echo -e "::warning::Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
 
     echo -e ""
     echo -n "List all help.php files"
@@ -160,6 +153,9 @@ if [ "$PROJECT" = "centreon" ]; then
     echo
     echo -n "Generate help.pot file including all strings to translate"
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/help.pot > /dev/null 2>&1
+    if [ $(git diff $BASE_DIR_PROJECT/lang/help.pot | grep POT-Creation-Date | wc -l) -eq 2 ]; then
+        git checkout $BASE_DIR_PROJECT/lang/help.pot
+    fi
     echo -n " - 0K"
     echo
 
@@ -168,19 +164,9 @@ if [ "$PROJECT" = "centreon" ]; then
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
-    echo -e "Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
+    echo -e "::warning::Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
 fi
 if [ "$PROJECT" = "centreon-bam" ]; then
-    if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/messages.pot" ]; then
-        echo -n "Removing previous POT files"
-        rm $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/messages.pot -f >> /dev/null 2>&1
-        if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/help.pot" ]; then
-            rm $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/help.pot -f >> /dev/null 2>&1
-        fi
-        echo -n " - 0K"
-        echo
-    fi
-
     echo -n "Extracting strings to translate the menus"
     $PHP $BASE_DIR/parseSQLDatabaseConfigurationForTranslation.php $BASE_DIR_PROJECT/www/modules/centreon-bam-server/sql/install.sql > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/menu_translation.php
     echo -n " - 0K"
