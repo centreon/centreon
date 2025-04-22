@@ -1,4 +1,3 @@
-#: centreon/www/install/centreon_broker_translation.php:74
 msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web\n"
