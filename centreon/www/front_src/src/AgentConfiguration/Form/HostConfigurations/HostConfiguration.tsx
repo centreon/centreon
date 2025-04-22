@@ -89,12 +89,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
           onChange={changeStringInput('pollerCaCertificate')}
           label={t(labelCaCertificate)}
           dataTestId={labelCaCertificate}
-          textFieldSlotsAndSlotProps={{
-            slotProps: {
-              htmlInput: {
-                'aria-label': labelCaCertificate
-              }
-            }
+          inputProps={{
+            'aria-label': labelCaCertificate
           }}
           fullWidth
           error={
@@ -110,12 +106,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
           value={host?.pollerCaName || ''}
           onChange={changeStringInput('pollerCaName')}
           label={t(labelCACommonName)}
-          textFieldSlotsAndSlotProps={{
-            slotProps: {
-              htmlInput: {
-                'aria-label': labelCACommonName
-              }
-            }
+          inputProps={{
+            'aria-label': labelCACommonName
           }}
           dataTestId={labelCACommonName}
           fullWidth

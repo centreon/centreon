@@ -726,7 +726,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(request.body).to.deep.equal({
+      expect(JSON.parse(request.body)).to.deep.equal({
         name: 'My agent',
         connection_mode: 'no-tls',
         type: 'telegraf',
@@ -775,7 +775,7 @@ describe('Agent configurations modal', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
-      expect(request.body).deep.equal({
+      expect(JSON.parse(request.body)).deep.equal({
         name: 'My agent',
         type: 'centreon-agent',
         connection_mode: 'no-tls',
