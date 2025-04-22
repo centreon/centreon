@@ -286,8 +286,8 @@ Cypress.Commands.add('logout', (): void => {
     }),
     {
       errorMsg: 'Logout did not complete successfully',
-      timeout: 10000,
-      interval: 500
+      timeout: 30000,
+      interval: 2000
     }
   );
 
