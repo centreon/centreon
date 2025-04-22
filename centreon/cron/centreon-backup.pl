@@ -52,8 +52,6 @@ use vars qw($BIN_GZIP $BIN_TAR);
 use vars qw($scp_enabled $scp_user $scp_host $scp_directory);
 use vars qw($centreon_config);
 
-sub print_help();
-sub print_usage();
 sub trim($);
 
 my $CENTREON_ETC = '@CENTREON_ETC@';
@@ -176,34 +174,6 @@ $scp_directory = $backupOptions->{'backup_export_scp_directory'}->{'value'};
 #############
 # Functions #
 #############
-
-sub print_usage() {
-    print "Usage: ";
-    print $PROGNAME . "\n";
-    print "\t-V | --version\t\tShow plugin version\n";
-    print "\t-h | --help\t\tUsage help\n";
-    print "\t-d | --debug\t\tPdisplay debug information\n";
-    print "\n";
-    print "Obligatory options:\n";
-    print "\t-T | --backup-type <value> Type of backup in (central, databases, poller).\n";
-    print "\t\tIf you use option \"poller\" please use option \"-P | --poller <value>\"\n";
-    print "\t\t\"<value>\" is the name of Monitoring Engine poller in Centreon configuration.\n";
-    print "\t\tIf \"<value>\" is \"all\", all Monitoring Engine poller will be saved.\n";
-    print "\n";
-    print "\t--preexec <value> Execute command before backup.\n";
-    print "\n";
-    print "\t--postexec <value> Execute command after backup.\n";
-}
-
-sub print_help() {
-    print "##############################################\n";
-    print "#    Copyright (c) 2005-2020 Centreon        #\n";
-    print "#    Bugs to http://forge.centreon.com       #\n";
-    print "##############################################\n";
-    print "\n";
-    print_usage();
-    print "\n";
-}
 
 sub trim($) {
     my $string = shift;
