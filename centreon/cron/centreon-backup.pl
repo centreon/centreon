@@ -62,6 +62,15 @@ if (-e $CENTREON_ETC . '/conf.pm') {
     require $CENTREON_ETC . '/conf.pm';
 } elsif (-e $CENTREON_ETC . '/centreon-config.pm') {
     require $CENTREON_ETC . '/centreon-config.pm';
+} else {
+    # Are we in a terminal?
+    if (-t STDIN) {
+        print STDERR "Configuration file \"$CENTREON_ETC/conf.pm\" does not exist.\n";
+        exit 1;
+    } else {
+        # Probably cron, let's not pollute logs
+        exit 0;
+    }
 }
 
 ## Convert new configuration to old
