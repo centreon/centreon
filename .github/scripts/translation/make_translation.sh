@@ -128,8 +128,9 @@ if [ "$PROJECT" = "centreon" ]; then
     echo -n "Generate messages.pot file including all strings to translate"
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/messages.pot > /dev/null 2>&1
     sed -i -r 's/#:.+\.\.\//#: /g' $BASE_DIR_PROJECT/lang/messages.pot
-    git diff $BASE_DIR_PROJECT/lang/messages.pot
+    git diff $BASE_DIR_PROJECT/lang/messages.pot | grep POT-Creation-Date | wc -l
     if [ $(git diff $BASE_DIR_PROJECT/lang/messages.pot | grep POT-Creation-Date | wc -l) -eq 2 ]; then
+        echo "git checkout $BASE_DIR_PROJECT/lang/messages.pot"
         git checkout $BASE_DIR_PROJECT/lang/messages.pot
     fi
     echo -n " - 0K"
