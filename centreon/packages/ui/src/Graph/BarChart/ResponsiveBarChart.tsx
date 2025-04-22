@@ -40,6 +40,8 @@ interface Props
   thresholds?: ThresholdsModel;
   width: number;
   skipIntersectionObserver?: boolean;
+  min?: number;
+  max?: number;
 }
 
 const ResponsiveBarChart = ({
@@ -56,7 +58,9 @@ const ResponsiveBarChart = ({
   orientation,
   tooltip,
   barStyle,
-  skipIntersectionObserver
+  skipIntersectionObserver,
+  min,
+  max
 }: Props): JSX.Element => {
   const { title, timeSeries, baseAxis, lines } = graphData || {};
 
@@ -131,7 +135,10 @@ const ResponsiveBarChart = ({
         thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight:
-          (isHorizontal ? graphHeight : graphWidth) - margin.bottom
+          (isHorizontal ? graphHeight : graphWidth) - margin.bottom,
+        min,
+        max,
+        isBarChart: true
       }),
     [
       displayedLines,

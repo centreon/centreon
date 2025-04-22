@@ -27,7 +27,10 @@ dayjs.extend(timezonePlugin);
 
 export interface BarChartProps
   extends Partial<
-    Pick<LineChartProps, 'tooltip' | 'legend' | 'height' | 'axis' | 'header'>
+    Pick<
+      LineChartProps,
+      'tooltip' | 'legend' | 'height' | 'axis' | 'header' | 'min' | 'max'
+    >
   > {
   barStyle?: BarStyle;
   data?: LineChartData;
@@ -59,9 +62,11 @@ const BarChart = ({
     opacity: 1,
     radius: 0.2
   },
-  skipIntersectionObserver
+  skipIntersectionObserver,
+  min,
+  max
 }: BarChartProps): JSX.Element => {
-  const { adjustedData } = useChartData({ data, end, start });
+  const { adjustedData } = useChartData({ data, end, start, min, max });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
 
   if (loading && !adjustedData) {
@@ -96,6 +101,8 @@ const BarChart = ({
               tooltip={tooltip}
               width={width}
               skipIntersectionObserver={skipIntersectionObserver}
+              min={min}
+              max={max}
             />
           )}
         </ParentSize>
