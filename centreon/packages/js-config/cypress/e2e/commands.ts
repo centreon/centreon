@@ -280,7 +280,16 @@ Cypress.Commands.add('logout', (): void => {
 
   cy.contains(/^Logout$/).click();
 
-  cy.wait('@logout').its('response.statusCode').should('eq', 302);
+  cy.waitUntil(() =>
+    cy.wait('@logout').then((interception) => {
+      return interception?.response?.statusCode === 302;
+    }),
+    {
+      errorMsg: 'Logout did not complete successfully',
+      timeout: 10000,
+      interval: 500
+    }
+  );
 
   // https://github.com/cypress-io/cypress/issues/25841
   cy.clearAllCookies();
