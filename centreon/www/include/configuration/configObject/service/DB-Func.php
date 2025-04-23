@@ -4220,7 +4220,7 @@ function findHostsOfService(int $serviceId): array
 }
 
 /**
- * Will check is the service template inherited by the service has a command.
+ * Will check if the service template inherited by the service has a command.
  *
  * @param array<string, mixed> $fields The fields of the service
  *
