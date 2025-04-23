@@ -4237,8 +4237,8 @@ function checkServiceTemplateHasCommand(array $fields): array|bool
             QueryParameters::create([QueryParameter::int('stm_id', $serviceTemplateId)])
         );
         if ($serviceTemplateCommand === null) {
-            $errors['command_command_id'] = _("The inherited service template has also no check command. "
-                . "Please select a command."
+            $errors['command_command_id'] = _("The selected inherited service template does not contain any "
+                . "check command. You must select one here."
             );
         }
     }
