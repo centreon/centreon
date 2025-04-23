@@ -505,6 +505,7 @@ jobs:
         uses: ./.github/actions/package-nfpm
         with:
           nfpm_file_pattern: "centreon/packaging/*.yaml"
+          module_name: centreon-web
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -703,7 +704,14 @@ jobs:
 
   newman-test:
     needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.trigger_api_testing == 'true' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_api_testing == 'true' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
       matrix:

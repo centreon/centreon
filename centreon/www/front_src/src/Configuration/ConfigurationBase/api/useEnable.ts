@@ -2,17 +2,19 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
-import { configurationAtom } from '../../atoms';
+import { configurationAtom } from '../atoms';
 
 interface UseEnableProps {
-  enableMutation: ({ ids }) => Promise<object | ResponseError>;
+  enableMutation: ({
+    ids
+  }: { ids: Array<number> }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
 
 const useEnable = (): UseEnableProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.api?.endpoints?.enable;
+  const endpoint = configuration?.api?.endpoints?.enable as string;
 
   const queryClient = useQueryClient();
 
@@ -20,7 +22,7 @@ const useEnable = (): UseEnableProps => {
     getEndpoint: () => endpoint,
     method: Method.POST,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['listResources'] });
     }
   });
 

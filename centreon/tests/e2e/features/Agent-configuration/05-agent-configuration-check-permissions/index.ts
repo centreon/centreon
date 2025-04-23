@@ -71,12 +71,11 @@ Then('a pop-up menu with the form is displayed', () => {
 
 When('the admin user fills in all the information', () => {
   cy.addTelegrafAgent(agentsConfiguration.telegraf1);
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
-  cy.wait('@addAgents');
 });
 
 When('the user clicks on Save', () => {
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.waitForElementToBeVisible('[data-testid="submit"]');
+  cy.get('[data-testid="submit"]').click();
 });
 
 Then('the creation form is closed', () => {
@@ -239,7 +238,7 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.getByLabel({ label: 'Private key', tag: 'input' })
     .eq(1)
     .type(agentsConfiguration.telegraf1.privateKFileName);
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });
 
@@ -367,7 +366,7 @@ When('the user can update the Agents Configuration', () => {
     .clear()
     .type(agentsConfiguration.telegraf2.name);
   cy.getByTestId({ testId: 'CancelIcon' }).eq(0).click();
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@updateAgents');
   cy.get('*[role="dialog"]').should('not.exist');
   cy.contains('Update poller/agent configuration').should('not.exist');

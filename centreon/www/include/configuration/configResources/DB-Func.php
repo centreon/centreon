@@ -198,20 +198,22 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
             $resourceConfiguration = $dbResult->fetch();
 
             for ($newIndex = 1; $newIndex <= $nbrDup[$resourceId]; $newIndex++) {
-                $name = $resourceConfiguration['resource_name'] . '_' . $newIndex;
+                $name = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])
+                    ? rtrim($resourceConfiguration['resource_name'], '$') . '_' . $newIndex . '$'
+                    : $resourceConfiguration['resource_name'] . '_' . $newIndex;
                 $value = $resourceConfiguration['resource_line'];
                 if (
                     (bool) $resourceConfiguration['is_password'] === true
                     && str_starts_with($resourceConfiguration['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)
                 ) {
-                    $resourcesFromVault =  getFromVault($resourceConfiguration['resource_line']);
-                    $value = $resourcesFromVault[
-                        str_replace('$', '', $resourceConfiguration['resource_name'])
-                    ];
+                    $resourcesFromVault = getFromVault($resourceConfiguration['resource_line']);
+                    $value = $resourcesFromVault[$resourceConfiguration['resource_name']];
                 }
 
                 if (testExistence($name) && ! is_null($value)) {
-                    $vaultPath = saveInVault($name, $value);
+                    if ((bool) $resourceConfiguration['is_password'] === true) {
+                        $vaultPath = saveInVault($name, $value);
+                    }
                     $value = $vaultPath ?? $value;
 
                     $statement = $pearDB->prepare(
@@ -241,12 +243,17 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
     }
 }
 
-function updateResourceInDB($resource_id = null): void
+/**
+ * @param int|null $resource_id
+ * @param array<string,mixed> $submitedValues
+ */
+function updateResourceInDB($resource_id = null, array $submitedValues): void
 {
     if (! $resource_id) {
         return;
     }
-    updateResource((int) $resource_id);
+
+    updateResource((int) $resource_id, $submitedValues);
     insertInstanceRelations((int) $resource_id);
 }
 
@@ -258,29 +265,47 @@ function updateResourceInDB($resource_id = null): void
  * @global Centreon $centreon
  *
  * @param int $resourceId
+ * @param array<string,mixed> $submitedValues
  */
-function updateResource($resourceId): void
+function updateResource(int $resourceId, array $submitedValues): void
 {
-    global $form, $pearDB, $centreon;
+    global $pearDB, $centreon;
 
     if (is_null($resourceId)) {
         return;
     }
 
-    $submitedValues = $form->getSubmitValues();
-
-    $isActivate = false;
-    if (
-        isset($submitedValues['resource_activate'], $submitedValues['resource_activate']['resource_activate'])
-
+    $isActivate = isset($submitedValues['resource_activate'], $submitedValues['resource_activate']['resource_activate'])
         && $submitedValues['resource_activate']['resource_activate'] === '1'
-    ) {
-        $isActivate = true;
-    }
+        ? true
+        : false;
 
-    if ($_REQUEST['is_password'] && ! str_starts_with($_REQUEST['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)) {
-        $vaultPath = saveInVault($_REQUEST['resource_name'], $_REQUEST['resource_line']);
-        $_REQUEST['resource_line'] = $vaultPath ?? $_REQUEST['resource_line'];
+    if ($submitedValues['is_password']) {
+        if (! str_starts_with($submitedValues['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)) {
+            $vaultPath = saveInVault($submitedValues['resource_name'], $submitedValues['resource_line']);
+            $submitedValues['resource_line'] = $vaultPath ?? $submitedValues['resource_line'];
+        } else {
+            $oldResourceStatement = $pearDB->prepareQuery(
+                <<<SQL
+                    SELECT resource_name, resource_line
+                    FROM cfg_resource
+                    WHERE resource_id = :resource_id
+                    SQL
+            );
+            $pearDB->executePreparedQuery($oldResourceStatement, ['resource_id' => $resourceId]);
+            $oldResource = $oldResourceStatement->fetch();
+            $vaultData = getFromVault($submitedValues['resource_line']);
+            if (array_key_exists($oldResource['resource_name'], $vaultData)) {
+                deleteFromVault([
+                    'resource_line' => $oldResource['resource_line'],
+                    'resource_name' => $oldResource['resource_name'],
+                ]);
+                if (str_starts_with($submitedValues['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)) {
+                    $submitedValues['resource_line'] = $vaultData[$oldResource['resource_name']];
+                }
+                $submitedValues['resource_line'] = saveInVault($submitedValues['resource_name'], $submitedValues['resource_line']);
+            }
+        }
     }
 
     $prepare = $pearDB->prepare(
@@ -301,7 +326,7 @@ function updateResource($resourceId): void
 
     $prepare->bindValue(
         ':resource_line',
-        $pearDB->escape($_REQUEST['resource_line']),
+        $pearDB->escape($submitedValues['resource_line']),
         PDO::PARAM_STR
     );
 
@@ -318,7 +343,7 @@ function updateResource($resourceId): void
     );
 
     $prepare->bindValue(':resource_id', $resourceId, PDO::PARAM_INT);
-    $prepare->bindValue(':is_password', (int) $_REQUEST['is_password'], PDO::PARAM_INT);
+    $prepare->bindValue(':is_password', (int) $submitedValues['is_password'], PDO::PARAM_INT);
     $prepare->execute();
 
     // Prepare value for changelog
@@ -464,10 +489,7 @@ function getFromVault(string $vaultPath): array
         /**@var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         try {
-            return readPollerMacroSecretsInVault(
-                readVaultRepository: $readVaultRepository,
-                vaultPath:  $vaultPath
-            );
+            return $readVaultRepository->findFromPath($vaultPath);
         } catch (Throwable $ex) {
             $logger->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             error_log((string) $ex);
