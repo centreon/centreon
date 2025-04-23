@@ -131,8 +131,8 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/#:.+\.\.\//#: /g' $BASE_DIR_PROJECT/lang/messages.pot
     # remove line number from comments
     sed -i -r 's/:[0-9]+$//g' $BASE_DIR_PROJECT/lang/messages.pot
-    COUNT_ADDED_LINES=$(git diff --numstat | grep $BASE_DIR_PROJECT/lang/messages.pot | awk '{print $1;}')
-    COUNT_REMOVED_LINES=$(git diff --numstat | grep $BASE_DIR_PROJECT/lang/messages.pot | awk '{print $2;}')
+    COUNT_ADDED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/messages.pot" | awk '{print $1;}')
+    COUNT_REMOVED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/messages.pot" | awk '{print $2;}')
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $BASE_DIR_PROJECT/lang/messages.pot
     fi
@@ -150,7 +150,7 @@ if [ "$PROJECT" = "centreon" ]; then
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
-    echo -e "::warning::Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
+    echo -e "Warning: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
 
     echo -e ""
     echo -n "List all help.php files"
@@ -163,8 +163,9 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/#:.+\.\.\//#: /g' $BASE_DIR_PROJECT/lang/help.pot
     # remove line number from comments
     sed -i -r 's/:[0-9]+$//g' $BASE_DIR_PROJECT/lang/help.pot
-    COUNT_ADDED_LINES=$(git diff --numstat | grep $BASE_DIR_PROJECT/lang/help.pot | awk '{print $1;}')
-    COUNT_REMOVED_LINES=$(git diff --numstat | grep $BASE_DIR_PROJECT/lang/help.pot | awk '{print $2;}')
+    COUNT_ADDED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/help.pot" | awk '{print $1;}')
+    COUNT_REMOVED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/help.pot" | awk '{print $2;}')
+    echo "::warning::Added lines: $COUNT_ADDED_LINES, Removed lines: $COUNT_REMOVED_LINES"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $BASE_DIR_PROJECT/lang/help.pot
     fi
@@ -176,7 +177,7 @@ if [ "$PROJECT" = "centreon" ]; then
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
-    echo -e "::warning::Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
+    echo -e "Warning: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
 fi
 if [ "$PROJECT" = "centreon-bam" ]; then
     echo -n "Extracting strings to translate the menus"
