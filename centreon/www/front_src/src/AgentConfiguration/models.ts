@@ -27,6 +27,8 @@ export interface TelegrafConfiguration {
 }
 
 export interface HostConfiguration {
+  id: number;
+  name: string;
   address: string;
   port: number;
   pollerCaCertificate: string | null;
