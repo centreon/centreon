@@ -137,7 +137,6 @@ if [ "$PROJECT" = "centreon" ]; then
     echo
     echo "$POT_FILE_PATH"
     git diff --numstat | grep "$POT_FILE_PATH"
-    echo -n "::warning::Added lines: $COUNT_ADDED_LINES, Removed lines: $COUNT_REMOVED_LINES"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $POT_FILE_PATH
     fi
@@ -174,7 +173,6 @@ if [ "$PROJECT" = "centreon" ]; then
     echo
     echo "$POT_FILE_PATH"
     git diff --numstat | grep "$POT_FILE_PATH"
-    echo -n "::warning::Added lines: $COUNT_ADDED_LINES, Removed lines: $COUNT_REMOVED_LINES"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $POT_FILE_PATH
     fi
