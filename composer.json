@@ -1,0 +1,5 @@
+{
+    "require": {
+        "nelmio/api-doc-bundle": "^5.0"
+    }
+}
