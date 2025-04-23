@@ -165,7 +165,8 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/:[0-9]+$//g' $BASE_DIR_PROJECT/lang/help.pot
     COUNT_ADDED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/help.pot" | awk '{print $1;}')
     COUNT_REMOVED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/help.pot" | awk '{print $2;}')
-    echo "::warning::Added lines: $COUNT_ADDED_LINES, Removed lines: $COUNT_REMOVED_LINES"
+    git diff --numstat | grep "$BASE_DIR_PROJECT/lang/help.pot"
+    echo -e "::warning::Added lines: $COUNT_ADDED_LINES, Removed lines: $COUNT_REMOVED_LINES"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $BASE_DIR_PROJECT/lang/help.pot
     fi
