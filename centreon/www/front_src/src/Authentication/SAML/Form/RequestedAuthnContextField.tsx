@@ -1,4 +1,5 @@
 import type React from 'react';
+
 import { useFormikContext } from 'formik';
 import { equals, find } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -27,16 +28,16 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
     { id: RequestedAuthnContextValue.Minimum, name: t(labelMinimum) },
     { id: RequestedAuthnContextValue.Exact, name: t(labelExact) },
     { id: RequestedAuthnContextValue.Better, name: t(labelBetter) },
-    { id: RequestedAuthnContextValue.Maximum, name: t(labelMaximum) },
+    { id: RequestedAuthnContextValue.Maximum, name: t(labelMaximum) }
   ];
 
-  const selectedOption = find(
-    (option: SelectEntry) => equals(option.id, values.requestedAuthnContext)
+  const selectedOption = find((option: SelectEntry) =>
+    equals(option.id, values.requestedAuthnContext)
   )(options);
 
   const error = touched?.requestedAuthnContext
     ? errors?.requestedAuthnContext
-    : undefined
+    : undefined;
 
   return (
     <SelectField
@@ -49,12 +50,11 @@ const RequestedAuthnContextField = (): React.JSX.Element => {
       name="requestedAuthnContext"
       options={options}
       selectedOptionId={
-        selectedOption?.id
-          || RequestedAuthnContextValue.Minimum
+        selectedOption?.id || RequestedAuthnContextValue.Minimum
       }
       onChange={changeValue}
     />
   );
-}
+};
 
 export default RequestedAuthnContextField;
