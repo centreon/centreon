@@ -126,19 +126,20 @@ if [ "$PROJECT" = "centreon" ]; then
     echo -n " - 0K"
     echo
     echo -n "Generate messages.pot file including all strings to translate"
-    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/messages.pot > /dev/null 2>&1
+    POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/messages.pot")
+    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
-    sed -i -r 's/#:.+\.\.\//#: /g' $BASE_DIR_PROJECT/lang/messages.pot
+    sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
-    sed -i -r 's/:[0-9]+$//g' $BASE_DIR_PROJECT/lang/messages.pot
-    COUNT_ADDED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/messages.pot" | awk '{print $1;}')
-    COUNT_REMOVED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/messages.pot" | awk '{print $2;}')
+    sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
+    COUNT_ADDED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $1;}')
+    COUNT_REMOVED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $2;}')
     echo
-    echo "$BASE_DIR_PROJECT/lang/messages.pot"
-    git diff --numstat | grep "lang/messages.pot"
+    echo "$POT_FILE_PATH"
+    git diff --numstat | grep "$POT_FILE_PATH"
     echo -n "::warning::Added lines: $COUNT_ADDED_LINES, Removed lines: $COUNT_REMOVED_LINES"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
-        git checkout $BASE_DIR_PROJECT/lang/messages.pot
+        git checkout $POT_FILE_PATH
     fi
     echo -n " - 0K"
     echo
@@ -162,19 +163,20 @@ if [ "$PROJECT" = "centreon" ]; then
     echo -n " - 0K"
     echo
     echo -n "Generate help.pot file including all strings to translate"
-    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/lang/help.pot > /dev/null 2>&1
+    POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/help.pot")
+    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
-    sed -i -r 's/#:.+\.\.\//#: /g' $BASE_DIR_PROJECT/lang/help.pot
+    sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
-    sed -i -r 's/:[0-9]+$//g' $BASE_DIR_PROJECT/lang/help.pot
-    COUNT_ADDED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/help.pot" | awk '{print $1;}')
-    COUNT_REMOVED_LINES=$(git diff --numstat | grep "$BASE_DIR_PROJECT/lang/help.pot" | awk '{print $2;}')
+    sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
+    COUNT_ADDED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $1;}')
+    COUNT_REMOVED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $2;}')
     echo
-    echo "$BASE_DIR_PROJECT/lang/help.pot"
-    git diff --numstat | grep "lang/help.pot"
+    echo "$POT_FILE_PATH"
+    git diff --numstat | grep "$POT_FILE_PATH"
     echo -n "::warning::Added lines: $COUNT_ADDED_LINES, Removed lines: $COUNT_REMOVED_LINES"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
-        git checkout $BASE_DIR_PROJECT/lang/help.pot
+        git checkout $POT_FILE_PATH
     fi
     echo -n " - 0K"
     echo
