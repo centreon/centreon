@@ -487,7 +487,7 @@
             }
           ]
         },
-        "yBoundaries": {
+        "boundariesType": {
           "group": "axis",
           "type": "button-group",
           "label": "Y-axis boundaries",
@@ -508,35 +508,48 @@
             {
               "direction": "row",
               "displayValue": "custom",
-              "name": "yBoundaryMin",
+              "name": "boundaries",
               "input": {
-                "type": "textfield",
-                "label": "Min value",
+                "type": "boundaries",
                 "text": {
                   "unit": "%",
                   "type": "number",
                   "min": 0,
                   "max": 100,
                   "autoSize": true
-                },
-                "defaultValue": 0
+                }
               }
-            },
+            }
+          ]
+        },
+        "showLegend": {
+          "group": "legend",
+          "type": "switch",
+          "label": "Show legend",
+          "defaultValue": true,
+          "subInputs": [
             {
-              "direction": "row",
-              "displayValue": "custom",
-              "name": "yBoundaryMax",
+              "name": "legendPlacement",
+              "displayValue": true,
               "input": {
-                "type": "textfield",
-                "label": "Max value",
-                "text": {
-                  "unit": "%",
-                  "type": "number",
-                  "min": 0,
-                  "max": 100,
-                  "autoSize": true
-                },
-                "defaultValue": 100
+                "group": "legend",
+                "type": "button-group",
+                "label": "Position",
+                "defaultValue": "bottom",
+                "options": [
+                  {
+                    "id": "left",
+                    "name": "Left"
+                  },
+                  {
+                    "id": "bottom",
+                    "name": "Bottom"
+                  },
+                  {
+                    "id": "right",
+                    "name": "Right"
+                  }
+                ]
               }
             }
           ]

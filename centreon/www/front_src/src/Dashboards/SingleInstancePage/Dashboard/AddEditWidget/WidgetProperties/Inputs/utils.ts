@@ -28,6 +28,7 @@ import {
   FederatedWidgetOptionType
 } from '../../../../../../federatedModules/models';
 import {
+  labelMinMustLowerThanMax,
   labelPleaseSelectAMetric,
   labelPleaseSelectAResource,
   labelRequired
@@ -161,6 +162,21 @@ const getYupValidatorType = ({
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.tiles),
       always(number().min(1))
+    ],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.boundaries),
+      always(
+        object().shape({
+          min: number(),
+          max: number().test(
+            'isMinAboveMax',
+            labelMinMustLowerThanMax,
+            (value, context) => {
+              return Number(value || 0) > context.parent.min;
+            }
+          )
+        })
+      )
     ]
   ])(properties.type);
 

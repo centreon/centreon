@@ -63,7 +63,8 @@ export enum FederatedWidgetOptionType {
   timezone = 'timezone',
   topBottomSettings = 'top-bottom-settings',
   valueFormat = 'value-format',
-  warning = 'warning'
+  warning = 'warning',
+  boundaries = 'boundaries'
 }
 
 export interface WidgetHiddenCondition {

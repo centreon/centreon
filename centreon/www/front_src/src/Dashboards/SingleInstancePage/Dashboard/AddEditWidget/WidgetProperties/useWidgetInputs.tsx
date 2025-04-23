@@ -23,6 +23,7 @@ import {
 import { Widget, WidgetPropertyProps } from '../models';
 
 import {
+  WidgetBoundaries,
   WidgetButtonGroup,
   WidgetCheckboxes,
   WidgetColorSelector,
@@ -83,7 +84,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.color]: WidgetColorSelector,
   [FederatedWidgetOptionType.timeFormat]: WidgetTimeFormat,
   [FederatedWidgetOptionType.datePicker]: WidgetDatePicker,
-  [FederatedWidgetOptionType.warning]: WidgetWarning
+  [FederatedWidgetOptionType.warning]: WidgetWarning,
+  [FederatedWidgetOptionType.boundaries]: WidgetBoundaries
 };
 
 export const DefaultComponent = (): JSX.Element => (

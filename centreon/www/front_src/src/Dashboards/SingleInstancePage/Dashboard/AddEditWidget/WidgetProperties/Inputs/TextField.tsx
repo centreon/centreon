@@ -22,8 +22,9 @@ const WidgetTextField = ({
   disabled = false,
   className,
   isInGroup,
-  secondaryLabel
-}: WidgetPropertyProps): JSX.Element => {
+  secondaryLabel,
+  ignoreError
+}: WidgetPropertyProps & { ignoreError?: boolean }): JSX.Element => {
   const { t } = useTranslation();
   const { pluralizedT } = usePluralizedTranslation();
 
@@ -53,7 +54,13 @@ const WidgetTextField = ({
     setFieldTouched(`options.${propertyName}`, true);
 
     const newText = event.target.value;
-    setFieldValue(`options.${propertyName}`, newText);
+    setFieldValue(
+      `options.${propertyName}`,
+      equals(text?.type, 'number') &&
+        equals(event.nativeEvent.inputType, 'insertReplacementText')
+        ? Number(newText)
+        : newText
+    );
   };
 
   const blur = useCallback(
@@ -84,8 +91,8 @@ const WidgetTextField = ({
           className={className}
           dataTestId={label}
           disabled={!canEditField || disabled}
-          error={isTouched && error}
-          helperText={isTouched && error}
+          error={ignoreError ? undefined : isTouched && error}
+          helperText={ignoreError ? undefined : isTouched && error}
           textFieldSlotsAndSlotProps={{
             slotProps: {
               htmlInput: {
