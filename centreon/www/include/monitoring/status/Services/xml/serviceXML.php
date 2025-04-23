@@ -134,7 +134,7 @@ $tabOrder["default"] = $tabOrder['criticality_id'];
  */
 function analyseGraphs(array $hostServiceIds): void
 {
-    if (empty($hostServiceIds)) {
+    if ($hostServiceIds === []) {
         return;
     }
     global $obj, $graphs;
@@ -150,7 +150,7 @@ function analyseGraphs(array $hostServiceIds): void
     $index = 0;
     $valuesToBind = [];
     foreach ($hostServiceIds as $hostServiceId) {
-        list ($hostId, $serviceId) = explode('_', $hostServiceId);
+        [$hostId, $serviceId] = explode('_', $hostServiceId);
         if (! empty($whereConditions)) {
             $whereConditions .= ' OR ';
         }
@@ -171,25 +171,25 @@ function analyseGraphs(array $hostServiceIds): void
     }
 }
 
-$request = <<<SQL
-    SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, h.name, h.alias, h.address, h.host_id, s.description,
-    s.service_id, s.notes, s.notes_url, s.action_url, s.max_check_attempts,
-    s.icon_image, s.display_name, s.state, s.output as plugin_output,
-    s.state_type, s.check_attempt as current_attempt, s.last_update as status_update_time, s.last_state_change,
-    s.last_hard_state_change, s.last_check, s.next_check,
-    s.notify, s.acknowledged, s.passive_checks, s.active_checks, s.event_handler_enabled, s.flapping,
-    s.scheduled_downtime_depth, s.flap_detection, h.state as host_state, h.acknowledged AS h_acknowledged,
-    h.scheduled_downtime_depth AS h_scheduled_downtime_depth,
-    h.icon_image AS h_icon_images, h.display_name AS h_display_name, h.action_url AS h_action_url,
-    h.notes_url AS h_notes_url, h.notes AS h_notes, h.address,
-    h.passive_checks AS h_passive_checks, h.active_checks AS h_active_checks,
-    i.name as instance_name, cv.value as criticality, cv.value IS NULL as isnull
-    FROM hosts h
-    INNER JOIN instances i
-      ON h.instance_id = i.instance_id
-    INNER JOIN services s
-      ON s.host_id = h.host_id
-    SQL;
+$request = <<<SQL_WRAP
+        SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, h.name, h.alias, h.address, h.host_id, s.description,
+        s.service_id, s.notes, s.notes_url, s.action_url, s.max_check_attempts,
+        s.icon_image, s.display_name, s.state, s.output as plugin_output,
+        s.state_type, s.check_attempt as current_attempt, s.last_update as status_update_time, s.last_state_change,
+        s.last_hard_state_change, s.last_check, s.next_check,
+        s.notify, s.acknowledged, s.passive_checks, s.active_checks, s.event_handler_enabled, s.flapping,
+        s.scheduled_downtime_depth, s.flap_detection, h.state as host_state, h.acknowledged AS h_acknowledged,
+        h.scheduled_downtime_depth AS h_scheduled_downtime_depth,
+        h.icon_image AS h_icon_images, h.display_name AS h_display_name, h.action_url AS h_action_url,
+        h.notes_url AS h_notes_url, h.notes AS h_notes, h.address,
+        h.passive_checks AS h_passive_checks, h.active_checks AS h_active_checks,
+        i.name as instance_name, cv.value as criticality, cv.value IS NULL as isnull
+        FROM hosts h
+        INNER JOIN instances i
+          ON h.instance_id = i.instance_id
+        INNER JOIN services s
+          ON s.host_id = h.host_id
+    SQL_WRAP;
 
 if (!$obj->is_admin) {
     $request .= <<<SQL
@@ -321,9 +321,7 @@ if ($statusService === 'svc_unhandled' || $statusService === 'svcpb') {
 }
 
 // Sort order by
-$request .= isset($tabOrder[$sortType])
-    ? $tabOrder[$sortType]
-    : $tabOrder["default"];
+$request .= $tabOrder[$sortType] ?? $tabOrder["default"];
 
 $request .= " LIMIT :numLimit, :limit";
 $queryValues['numLimit'] = [\PDO::PARAM_INT => ($num * $limit)];
@@ -436,11 +434,9 @@ if (!$sqlError) {
         if ($data["scheduled_downtime_depth"] > 0) {
             $class = "line_downtime";
         } elseif ($data["state"] == 2) {
-            $data["acknowledged"] == 1 ? $class = "line_ack" : $class = "list_down";
-        } else {
-            if ($data["acknowledged"] == 1) {
-                $class = "line_ack";
-            }
+            $class = $data["acknowledged"] == 1 ? "line_ack" : "list_down";
+        } elseif ($data["acknowledged"] == 1) {
+            $class = "line_ack";
         }
 
         $obj->XML->startElement("l");

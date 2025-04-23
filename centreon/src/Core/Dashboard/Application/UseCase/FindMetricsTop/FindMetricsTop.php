@@ -35,10 +35,12 @@ use Core\Dashboard\Application\UseCase\FindMetricsTop\Response\MetricInformation
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindMetricsTop
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
      * @param ContactInterface $user
@@ -46,6 +48,7 @@ final class FindMetricsTop
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository
      * @param DashboardRights $rights
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -53,6 +56,7 @@ final class FindMetricsTop
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository,
         private readonly DashboardRights $rights,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -63,21 +67,14 @@ final class FindMetricsTop
     public function __invoke(FindMetricsTopPresenterInterface $presenter, FindMetricsTopRequest $request): void
     {
         try {
-            if (! $this->rights->canAccess()) {
-                $presenter->presentResponse(new ForbiddenResponse(
-                    DashboardException::accessNotAllowed()->getMessage()
-                ));
-
-                return;
-            }
-            if ($this->user->isAdmin()) {
+            if ($this->isUserAdmin()) {
                 $this->info('find top/bottom metrics for admin user');
 
                 $resourceMetrics = $this->dashboardMetricRepository->findByRequestParametersAndMetricName(
                     $this->requestParameters,
                     $request->metricName
                 );
-            } else {
+            } elseif ($this->rights->canAccess()) {
                 $this->info('find top/bottom metrics for non-admin user');
 
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
@@ -87,6 +84,12 @@ final class FindMetricsTop
                         $accessGroups,
                         $request->metricName
                     );
+            } else {
+                $presenter->presentResponse(new ForbiddenResponse(
+                    DashboardException::accessNotAllowed()->getMessage()
+                ));
+
+                return;
             }
             if ([] === $resourceMetrics) {
                 $presenter->presentResponse(new NotFoundResponse('metrics'));
@@ -134,5 +137,25 @@ final class FindMetricsTop
         }, $resourceMetrics);
 
         return $response;
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->accessGroupRepository->findByContact($this->user)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

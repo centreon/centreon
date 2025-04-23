@@ -58,7 +58,7 @@ function getMyHostGraphs($host_id = null)
     if (!isset($host_id)) {
         return null;
     }
-    $tab_svc = array();
+    $tab_svc = [];
 
     $DBRESULT = $pearDBO->query(
         "SELECT `service_id`, `service_description` "
@@ -79,7 +79,7 @@ function getHostGraphedList()
 {
     global $pearDBO;
 
-    $tab = array();
+    $tab = [];
     $DBRESULT = $pearDBO->query(
         "SELECT `host_id` FROM `index_data`, `metrics` "
         . "WHERE metrics.index_id = index_data.id "
@@ -99,7 +99,7 @@ function checkIfServiceSgIsEn($host_id = null, $service_id = null)
     if (!isset($host_id) || !isset($service_id)) {
         return null;
     }
-    $tab_svc = array();
+    $tab_svc = [];
 
     $DBRESULT = $pearDBO->query(
         "SELECT `service_id` FROM `index_data` "

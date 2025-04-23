@@ -1,0 +1,27 @@
+{
+  "User_1": {
+    "name": "User_1",
+    "email": "user_1@centreon.com",
+    "password": "myPassword@1"
+  },
+  "User_2": {
+    "name": "User_2",
+    "email": "user_2@centreon.com",
+    "password": "myPassword@1"
+  },
+  "User_3": {
+    "name": "User_3",
+    "email": "user_3@centreon.com",
+    "password": "myPassword@1"
+  },
+  "User_4": {
+    "name": "User_4",
+    "email": "user_4@centreon.com",
+    "password": "myPassword@1"
+  },
+  "User_5": {
+    "name": "User_5",
+    "email": "user_5@centreon.com",
+    "password": "myPassword@1"
+  }
+}

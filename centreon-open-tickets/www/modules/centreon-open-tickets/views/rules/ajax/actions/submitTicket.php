@@ -23,7 +23,7 @@ function get_contact_information()
 {
     global $db, $centreon_bg;
 
-    $result = array('alias' => '', 'email' => '', 'name' => '');
+    $result = ['alias' => '', 'email' => '', 'name' => ''];
     $dbResult = $db->query(
         "SELECT
             contact_name as `name`,
@@ -77,7 +77,7 @@ function get_provider_class($rule_id)
 
 function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected)
 {
-    $loop_check = array();
+    $loop_check = [];
 
     while (($provider = array_shift($rule_list))) {
         $provider_class = get_provider_class($provider['Provider']);
@@ -99,10 +99,7 @@ function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected)
     }
 }
 
-$resultat = array(
-    "code" => 0,
-    "msg" => 'ok'
-);
+$resultat = ["code" => 0, "msg" => 'ok'];
 
 // Load provider class
 if (is_null($get_information['provider_id']) || is_null($get_information['form'])) {
@@ -159,8 +156,8 @@ $db_storage = new CentreonDBManager('centstorage');
 
 $selected = $rule->loadSelection(
     $db_storage,
-    $get_information['form']['cmd'],
-    $get_information['form']['selection']
+    (string) $get_information['form']['cmd'],
+    (string) $get_information['form']['selection']
 );
 
 $sticky = ! empty($centreon->optGen['monitoring_ack_sticky']) ? 2 : 1;

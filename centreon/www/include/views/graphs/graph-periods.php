@@ -47,11 +47,8 @@ $path = "./include/views/graphs/";
  * Include Pear Lib
  */
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $chartId = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['chartId'] ?? null);
 

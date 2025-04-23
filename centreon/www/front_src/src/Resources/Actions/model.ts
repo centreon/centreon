@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { PrimitiveAtom } from 'jotai';
 
 import { Resource } from '../models';
@@ -73,3 +75,17 @@ export interface ExtraActionsInformation {
   arrayActions: MainActions['actions'] | SecondaryActions;
   key: Action;
 }
+
+export enum Type {
+  medium = 'medium',
+  small = 'small'
+}
+interface Arg {
+  close: () => void;
+}
+export interface MoreSecondaryActions {
+  renderMoreSecondaryActions?: (arg: Arg) => ReactNode;
+}
+
+export const smallWidth = 760;
+export const mediumWidth = 1100;

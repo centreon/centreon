@@ -46,11 +46,11 @@ function check_file($file)
 
 function get_list($file)
 {
-    $packages = array();
+    $packages = [];
     $fd = fopen($file, 'r');
     while ($line = fgets($fd)) {
-        list($name, $version, $status) = preg_split('/::/', trim($line));
-        $package = array('name' => $name, 'version' => $version);
+        [$name, $version, $status] = preg_split('/::/', trim($line));
+        $package = ['name' => $name, 'version' => $version];
         if ($status) {
             $package['status'] = $status;
         }
@@ -101,7 +101,7 @@ function install($packages)
                 $name .= '-' . $package['status'];
             }
             ob_start();
-            $ok = $cmd->run('install', array('soft' => true, 'onlyreqdeps' => true), array($name));
+            $ok = $cmd->run('install', ['soft' => true, 'onlyreqdeps' => true], [$name]);
             ob_end_clean();
             $package_info =& $reg->getPackage($package['name']);
             if (!is_null($package_info)) {
@@ -131,7 +131,7 @@ function upgrade($packages)
 
         if ($package['name'] == "PEAR") {
             ob_start();
-            $ok = $cmd->run('install', array('soft' => true, 'nodeps' => true, 'force' => true), array($package['name']));
+            $ok = $cmd->run('install', ['soft' => true, 'nodeps' => true, 'force' => true], [$package['name']]);
             ob_end_clean();
         }
 
@@ -143,7 +143,7 @@ function upgrade($packages)
                 $name .= '-' . $package['status'];
             }
             ob_start();
-            $ok = $cmd->run('install', array('soft' => true, 'onlyreqdeps' => true, 'upgrade' => true), array($name));
+            $ok = $cmd->run('install', ['soft' => true, 'onlyreqdeps' => true, 'upgrade' => true], [$name]);
             ob_end_clean();
             $package_info =& $reg->getPackage($package['name']);
             if (!is_null($package_info)) {
@@ -163,11 +163,7 @@ if (count($argv) < 2 || count($argv) > 3) {
     exit(2);
 }
 
-if (count($argv) == 3) {
-    $file = $argv[2];
-} else {
-    $file = 'pear.lst';
-}
+$file = count($argv) == 3 ? $argv[2] : 'pear.lst';
 check_file($file);
 
 $packages = get_list($file);

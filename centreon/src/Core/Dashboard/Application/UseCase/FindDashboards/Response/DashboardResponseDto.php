@@ -31,7 +31,7 @@ final class DashboardResponseDto
     /**
      * @param int $id
      * @param string $name
-     * @param string $description
+     * @param string|null $description
      * @param UserResponseDto|null $createdBy
      * @param UserResponseDto|null $updatedBy
      * @param DateTimeImmutable $createdAt
@@ -50,17 +50,21 @@ final class DashboardResponseDto
      *      role: DashboardSharingRole
      *     }>
      * } $shares
+     * @param ThumbnailResponseDto $thumbnail
+     * @param bool $isFavorite
      */
     public function __construct(
         public int $id = 0,
         public string $name = '',
-        public string $description = '',
+        public ?string $description = null,
         public ?UserResponseDto $createdBy = null,
         public ?UserResponseDto $updatedBy = null,
-        public DateTimeImmutable $createdAt = new \DateTimeImmutable(),
-        public DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
+        public DateTimeImmutable $createdAt = new DateTimeImmutable(),
+        public DateTimeImmutable $updatedAt = new DateTimeImmutable(),
         public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
-        public array $shares = ['contacts' => [], 'contact_groups' => []]
+        public array $shares = ['contacts' => [], 'contact_groups' => []],
+        public ?ThumbnailResponseDto $thumbnail = null,
+        public bool $isFavorite = false
     ) {
     }
 }

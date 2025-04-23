@@ -4,6 +4,9 @@ inputs:
   name:
     description: "test name"
     required: true
+  database_image:
+    description: "docker database image"
+    required: true
   web_image_os:
     description: "Web image operating system"
     required: true
@@ -13,28 +16,50 @@ inputs:
   openid_image_version:
     description: "Openid image version"
     required: true
+  saml_image_version:
+    description: "SAML image version"
+    required: true
   module:
     description: "module"
     required: true
   feature_file_path:
     description: "feature file"
     required: true
+  test_tags:
+    description: "filter tests by tags"
+    required: false
+    default: "not @ignore"
   dependencies_lock_file:
     description: "The frontend dependencies lock file path"
     required: true
   test_execution_key:
     description: "xray test execution key"
     required: true
+  stability:
+    description: "Branch stability"
+    required: true
+  target_stability:
+    description: "Target branch stability"
+    required: true
+  is_cloud:
+    description: "Define if the version is targeting cloud"
+    required: false
+  artifactory_internal_repo_username:
+    description: "Artifactory internal repository username"
+    required: false
+  artifactory_internal_repo_password:
+    description: "Artifactory internal repository password"
+    required: false
 
 runs:
   using: "composite"
   steps:
-    - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+    - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
       with:
-        version: 8
+        version: 10
         run_install: false
 
-    - uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
+    - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
       with:
         node-version: 20
         cache: pnpm
@@ -50,7 +75,7 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Install Cypress binary
-      uses: nick-fields/retry@v2
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
       with:
         timeout_seconds: 120
         max_attempts: 10
@@ -59,31 +84,46 @@ runs:
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
     - name: Cypress end-to-end testing
-      uses: cypress-io/github-action@v6
+      uses: cypress-io/github-action@108b8684ae52e735ff7891524cbffbcd4be5b19f # v6.7.16
       with:
-        command: pnpm run cypress:run --browser chromium --spec features/**/${{ inputs.feature_file_path }}
+        command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }} --env tags="${{ inputs.test_tags }}"
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
         publish-summary: false
       env:
         CYPRESS_VERIFY_TIMEOUT: "60000"
+        CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
         CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
+        CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.saml_image_version }}
+        CYPRESS_STABILITY: ${{ inputs.stability }}
+        CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
+        CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
+        CYPRESS_INTERNAL_REPO_USERNAME: ${{ inputs.artifactory_internal_repo_username }}
+        CYPRESS_INTERNAL_REPO_PASSWORD: ${{ inputs.artifactory_internal_repo_password }}
+
+    - name: Ensure logs directory exists
+      run: mkdir -p ${{ inputs.module }}/tests/e2e/results/cucumber-logs/
+      shell: bash
 
     - name: Rename JSON report
       if: ${{ always() }}
       run: |
         feature_name=$(basename "${{ inputs.feature_file_path }}")
-        report_path="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json"
-        report_path_updated="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/${feature_name}-report.json"
+        report_path="${{ inputs.module }}/tests/e2e/results/cucumber-logs/report.json"
+        report_path_updated="${{ inputs.module }}/tests/e2e/results/cucumber-logs/${feature_name}-report.json"
 
-        jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
+        if [ -f "$report_path" ]; then
+          jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
+          rm "$report_path"
 
-        rm "$report_path"
-
-        # Show the content of the modified file
-        echo "::group::${feature_name}-report.json"
-        cat "$report_path_updated"
-        echo "::endgroup::"
+          # Show the content of the modified file
+          echo "::group::${feature_name}-report.json"
+          cat "$report_path_updated"
+          echo "::endgroup::"
+        else
+          echo "Report file not found: $report_path"
+          exit 1
+        fi
       shell: bash

@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\Repository;
 
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostTemplateRepositoryInterface
 {
@@ -40,6 +42,18 @@ interface ReadHostTemplateRepositoryInterface
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
 
     /**
+     * Find all host templates by access groups.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return HostTemplate[]
+     */
+    public function findByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): array;
+
+    /**
      * Find a host template by its id.
      *
      * @param int $hostTemplateId
@@ -49,6 +63,18 @@ interface ReadHostTemplateRepositoryInterface
      * @return ?HostTemplate
      */
     public function findById(int $hostTemplateId): ?HostTemplate;
+
+    /**
+     * Find a host template by id and access groups.
+     *
+     * @param int $hostTemplateId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return HostTemplate|null
+     */
+    public function findByIdAndAccessGroups(int $hostTemplateId, array $accessGroups): ?HostTemplate;
 
     /**
      * Find a host template by its id.
@@ -139,4 +165,24 @@ interface ReadHostTemplateRepositoryInterface
      * @return array<int,string>
      */
     public function findNamesByIds(array $templateIds): array;
+
+    /**
+     * Find all host templates.
+     *
+     * @throws \Throwable
+     *
+     * @return HostTemplate[]
+     */
+    public function findAll(): array;
+
+    /**
+     * Find direct parent templates of a host id.
+     *
+     * @param int $hostId
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int, int>
+     */
+    public function findByHostId(int $hostId): array;
 }

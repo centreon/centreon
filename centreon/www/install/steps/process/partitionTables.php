@@ -43,11 +43,7 @@ require_once '../../../class/centreon-partition/config.class.php';
 require_once '../../../class/centreon-partition/mysqlTable.class.php';
 require_once '../../../class/centreon-partition/options.class.php';
 
-$return = array(
-    'id' => 'dbpartitioning',
-    'result' => 1,
-    'msg' => ''
-);
+$return = ['id' => 'dbpartitioning', 'result' => 1, 'msg' => ''];
 
 /* Create partitioned tables */
 $database = new CentreonDB('centstorage');
@@ -61,12 +57,7 @@ if (!$partEngine->isCompatible($database)) {
     exit;
 }
 
-$tables = array(
-    'data_bin',
-    'logs',
-    'log_archive_host',
-    'log_archive_service'
-);
+$tables = ['data_bin', 'logs', 'log_archive_host', 'log_archive_service'];
 
 try {
     foreach ($tables as $table) {

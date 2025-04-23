@@ -1,0 +1,22 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Provider ID (rule)"
+    example: 1
+    nullable: false
+  name:
+    type: string
+    description: "Provider name (rule)"
+    example: "glpi"
+    nullable: false
+  type:
+    type: string
+    description: "Provider type (provider name)"
+    example: "GlpiApiRest"
+    nullable: false
+  is_activated:
+    type: boolean
+    description: "Indicates whether the provider configuration (rule) is activated or not"
+    nullable: false
+

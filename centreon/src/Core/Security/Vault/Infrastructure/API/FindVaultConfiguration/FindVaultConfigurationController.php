@@ -24,49 +24,24 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\FindVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\{
-    FindVaultConfiguration,
-    FindVaultConfigurationRequest
-};
+use Core\Security\Vault\Application\UseCase\FindVaultConfiguration\FindVaultConfiguration;
 
 final class FindVaultConfigurationController extends AbstractController
 {
     /**
-     * @param int $vaultId
-     * @param int $vaultConfigurationId
      * @param FindVaultConfiguration $useCase
-     * @param DefaultPresenter $presenter
+     * @param FindVaultConfigurationPresenter $presenter
      *
      * @return object
      */
     public function __invoke(
-        int $vaultId,
-        int $vaultConfigurationId,
         FindVaultConfiguration $useCase,
-        DefaultPresenter $presenter
+        FindVaultConfigurationPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $findVaultConfigurationRequest = $this->createDtoRequest($vaultId, $vaultConfigurationId);
-
-        $useCase($presenter, $findVaultConfigurationRequest);
+        $useCase($presenter);
 
         return $presenter->show();
-    }
-
-    /**
-     * @param int $vaultId
-     * @param int $vaultConfigurationId
-     *
-     * @return FindVaultConfigurationRequest
-     */
-    private function createDtoRequest(int $vaultId, int $vaultConfigurationId): FindVaultConfigurationRequest
-    {
-        $findVaultConfigurationRequest = new FindVaultConfigurationRequest();
-        $findVaultConfigurationRequest->vaultId = $vaultId;
-        $findVaultConfigurationRequest->vaultConfigurationId = $vaultConfigurationId;
-
-        return $findVaultConfigurationRequest;
     }
 }

@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode, forwardRef } from 'react';
 
 import {
   IconButton as MuiIconButton,
@@ -32,31 +32,36 @@ type IconButtonProps = {
 /**
  * @todo re-factor as `iconVariant: 'icon-only'` Button variant, and remove IconButton component (reason: code duplication)
  */
-const IconButton = ({
-  variant = 'primary',
-  size = 'medium',
-  icon,
-  disabled = false,
-  onClick,
-  ...attr
-}: IconButtonProps): ReactElement => {
-  const { classes } = useStyles();
+const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+  (
+    {
+      variant = 'primary',
+      size = 'medium',
+      icon,
+      disabled = false,
+      onClick,
+      ...attr
+    },
+    ref
+  ): ReactElement => {
+    const { classes } = useStyles();
 
-  return (
-    <MuiIconButton
-      className={classes.iconButton}
-      data-size={size}
-      data-variant={variant}
-      disabled={disabled}
-      size={size}
-      onClick={(e) => onClick?.(e)}
-      {...attr}
-      // Mui overrides
-      color={muiColorMap[variant]}
-    >
-      {icon}
-    </MuiIconButton>
-  );
-};
-
+    return (
+      <MuiIconButton
+        ref={ref}
+        className={classes.iconButton}
+        data-size={size}
+        data-variant={variant}
+        disabled={disabled}
+        size={size}
+        onClick={(e) => onClick?.(e)}
+        {...attr}
+        // Mui overrides
+        color={muiColorMap[variant]}
+      >
+        {icon}
+      </MuiIconButton>
+    );
+  }
+);
 export { IconButton };

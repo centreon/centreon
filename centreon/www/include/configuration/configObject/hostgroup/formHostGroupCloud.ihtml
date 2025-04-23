@@ -1,0 +1,102 @@
+{$form.javascript}{$javascript}
+<form {$form.attributes}>
+    {if !isset($form.msgacl) }
+    <div id="validFormTop">
+        {if $o == "a" || $o == "c"}
+        <p class="oreonbutton">
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+            &nbsp;&nbsp;&nbsp;{$form.reset.html}
+        </p>
+        {else if $o == "w"}
+        <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
+        {/if}
+    </div>
+    {/if}
+    {if isset($form.msgacl) }
+    <div style="color: red; text-align: center; font-weight: bold; margin: 4px">
+        {t}You can't edit this hostgroup because you don't have access to all its resources{/t}
+    </div>
+    {/if}
+    <div id='tab1' class='tab'>
+        <table class="formTable table">
+            <tr class="ListHeader">
+                <td class="FormHeader" colspan="2">
+                    <h3>| {$form.header.title}</h3>
+                </td>
+            </tr>
+            <tr class="list_lvl_1">
+                <td class="ListColLvl1_name" colspan="2">
+                    <h4>{$form.header.information}</h4>
+                </td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField"><img class="helpTooltip" name="hostgroup_name"> {$form.hg_name.label}</td>
+                <td class="FormRowValue">{$form.hg_name.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField"><img class="helpTooltip" name="alias"> {$form.hg_alias.label}</td>
+                <td class="FormRowValue">{$form.hg_alias.html}</td>
+            </tr>
+            <tr class="list_two">
+                <td class="FormRowField"><img class="helpTooltip" name="geo_coords"> {$form.geo_coords.label}</td>
+                <td class="FormRowValue">{$form.geo_coords.html}</td>
+            </tr>
+
+            <tr class="list_lvl_1">
+                <td class="ListColLvl1_name" colspan="2">
+                    <h4>{$form.header.relation}</h4>
+                </td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField"><img class="helpTooltip" name="members"> {$form.hg_hosts.label}</td>
+                <td class="FormRowValue"><p class="oreonbutton">{$form.hg_hosts.html} </p></td>
+            </tr>
+
+            {if $o == "a" || $o == "c"}
+            <tr class="list_lvl_2">
+                <td class="ListColLvl2_name" colspan="2">
+                    {if isset($form.required)}
+                        {$form.required._note}
+                    {/if}
+                </td>
+            </tr>
+            {/if}
+
+			{if isset($form.resource_access_rules)}
+            <tr class="list_lvl_1">
+                <td class="ListColLvl1_name" colspan="2">
+                    <h4>{$resourceAccess}</h4>
+                </td>
+            </tr>
+		    <tr class="list_one">
+		        <td class="FormRowField"><img class="helpTooltip" name="resource_access_rules"> {$form.resource_access_rules.label}</td>
+		        <td class="FormRowField">{$form.resource_access_rules.html}</td>
+		    </tr>
+		    {/if}
+
+
+        </table>
+    </div>
+    {if !isset($form.msgacl) }
+    <div id="validForm">
+        {if $o == "a" || $o == "c"}
+        <p class="oreonbutton">
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+            &nbsp;&nbsp;&nbsp;{$form.reset.html}
+        </p>
+        {else if $o == "w"}
+        <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
+        {/if}
+    </div>
+    {/if}
+    {$form.hidden}
+</form>
+{$helptext}

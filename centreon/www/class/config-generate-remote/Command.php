@@ -23,11 +23,21 @@ namespace ConfigGenerateRemote;
 use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class Command
+ * @package ConfigGenerateRemote
+ */
 class Command extends AbstractObject
 {
+    /** @var array|null */
     private $commands = null;
+    /** @var string */
     protected $table = 'command';
+    /** @var string */
     protected $generateFilename = 'commands.infile';
+    /** @var string */
     protected $attributesSelect = '
         command_id,
         command_name,
@@ -36,6 +46,7 @@ class Command extends AbstractObject
         enable_shell,
         graph_id
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'command_id',
         'command_name',
@@ -61,8 +72,10 @@ class Command extends AbstractObject
     /**
      * Generate command and get command name
      *
-     * @param null|integer $commandId
+     * @param null|int $commandId
+     *
      * @return string|null
+     * @throws \Exception
      */
     public function generateFromCommandId(?int $commandId): ?string
     {

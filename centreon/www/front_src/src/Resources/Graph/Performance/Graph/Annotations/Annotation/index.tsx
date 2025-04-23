@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Tooltip, Paper, Typography } from '@mui/material';
+import { Paper, Tooltip, Typography } from '@mui/material';
 
-import truncate from '../../../../../truncate';
+import { truncate } from '@centreon/ui';
 import { TimelineEvent } from '../../../../../Details/tabs/Timeline/models';
 import { labelBy } from '../../../../../translatedLabels';
 import { annotationHoveredAtom } from '../../annotationsAtoms';
@@ -43,8 +43,9 @@ const Annotation = ({
 
   const setAnnotationHovered = useSetAtom(annotationHoveredAtom);
 
-  const content = `${truncate(event.content)} (${t(labelBy)} ${event.contact
-    ?.name})`;
+  const content = `${truncate({ content: event.content })} (${t(labelBy)} ${
+    event.contact?.name
+  })`;
 
   return (
     <g>

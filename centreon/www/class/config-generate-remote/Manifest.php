@@ -22,15 +22,25 @@ namespace ConfigGenerateRemote;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class Manifest
+ * @package ConfigGenerateRemote
+ */
 class Manifest extends AbstractObject
 {
+    /** @var string */
     protected $generateFilename = 'manifest.json';
+    /** @var array */
     protected $manifest = [];
+    /** @var string */
     protected $type = 'manifest';
+    /** @var string */
     protected $subdir = '';
 
     /**
-     * Constructor
+     * Manifest constructor
      *
      * @param \Pimple\Container $dependencyInjector
      */
@@ -78,10 +88,10 @@ class Manifest extends AbstractObject
     /**
      * Add remote server
      *
-     * @param integer $remoteId
+     * @param int $remoteId
      * @return void
      */
-    public function addRemoteServer(int $remoteId)
+    public function addRemoteServer(int $remoteId): void
     {
         $this->manifest['remote_server'] = $remoteId;
     }
@@ -89,10 +99,10 @@ class Manifest extends AbstractObject
     /**
      * Add poller
      *
-     * @param integer $pollerId
+     * @param int $pollerId
      * @return void
      */
-    public function addPoller(int $pollerId)
+    public function addPoller(int $pollerId): void
     {
         $this->manifest['pollers'][] = $pollerId;
     }
@@ -106,7 +116,7 @@ class Manifest extends AbstractObject
      * @param array $columns
      * @return void
      */
-    public function addFile(string $filename, string $type, string $table, array $columns)
+    public function addFile(string $filename, string $type, string $table, array $columns): void
     {
         $this->manifest['import']['data'][$filename] = [
             'filename' => $filename,
@@ -121,7 +131,7 @@ class Manifest extends AbstractObject
      *
      * @return void
      */
-    public function clean()
+    public function clean(): void
     {
         $this->manifest['date'] = date('l jS \of F Y h:i:s A');
         $this->manifest['import']['data'] = [];

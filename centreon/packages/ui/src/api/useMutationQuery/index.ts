@@ -1,18 +1,22 @@
-import 'ulog';
 import { useEffect } from 'react';
 
 import {
-  useMutation,
   UseMutationOptions,
-  UseMutationResult
+  UseMutationResult,
+  useMutation,
+  useQueryClient
 } from '@tanstack/react-query';
+import { equals, includes, omit, type } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
-import anylogger from 'anylogger';
-import { includes, omit } from 'ramda';
 
-import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
+import { CatchErrorProps, ResponseError, customFetch } from '../customFetch';
+import { errorLog } from '../logger';
+import {
+  OptimisticListing,
+  useOptimisticMutation
+} from './useOptimisticMutation';
 
 export enum Method {
   DELETE = 'DELETE',
@@ -20,6 +24,11 @@ export enum Method {
   PATCH = 'PATCH',
   POST = 'POST',
   PUT = 'PUT'
+}
+
+interface Variables<TMeta, T> {
+  _meta?: TMeta;
+  payload?: T;
 }
 
 export type UseMutationQueryProps<T, TMeta> = {
@@ -33,30 +42,35 @@ export type UseMutationQueryProps<T, TMeta> = {
   method: Method;
   onError?: (
     error: ResponseError,
-    variables: T & { _meta: TMeta },
+    variables: Variables<TMeta, T>,
     context: unknown
   ) => unknown;
-  onMutate?: (variables: T & { _meta: TMeta }) => Promise<unknown> | unknown;
+  onMutate?: (variables: Variables<TMeta, T>) => Promise<unknown> | unknown;
   onSuccess?: (
     data: ResponseError | T,
-    variables: T & {
-      _meta: TMeta;
-    },
+    variables: Variables<TMeta, T>,
     context: unknown
   ) => unknown;
+  optimisticListing?: OptimisticListing;
 } & Omit<
-  UseMutationOptions<T & { _meta?: TMeta }>,
-  'mutationFn' | 'onError' | 'onMutate' | 'onSuccess'
+  UseMutationOptions<{ _meta?: TMeta; payload: T }>,
+  'mutationFn' | 'onError' | 'onMutate' | 'onSuccess' | 'mutateAsync' | 'mutate'
 >;
 
-const log = anylogger('API Request');
-
-export type UseMutationQueryState<T> = Omit<
+export type UseMutationQueryState<T, TMeta> = Omit<
   UseMutationResult<T | ResponseError>,
-  'isError'
+  'isError' | 'mutate' | 'mutateAsync'
 > & {
   isError: boolean;
   isMutating: boolean;
+  mutate: (variables: Variables<TMeta, T>) => ResponseError | T;
+  mutateAsync: (
+    variables: Variables<TMeta, T>,
+    rest?: Pick<
+      UseMutationQueryProps<T, TMeta>,
+      'onError' | 'onMutate' | 'onSettled' | 'onSuccess'
+    >
+  ) => Promise<ResponseError | T>;
 };
 
 const useMutationQuery = <T extends object, TMeta>({
@@ -71,19 +85,24 @@ const useMutationQuery = <T extends object, TMeta>({
   onError,
   onSuccess,
   onSettled,
-  baseEndpoint
-}: UseMutationQueryProps<T, TMeta>): UseMutationQueryState<T> => {
+  baseEndpoint,
+  optimisticListing
+}: UseMutationQueryProps<T, TMeta>): UseMutationQueryState<T, TMeta> => {
   const { showErrorMessage } = useSnackbar();
+
+  const queryClient = useQueryClient();
+  const { getListingQueryKey, getOptimisticMutationItems, getPreviousListing } =
+    useOptimisticMutation({ optimisticListing });
 
   const queryData = useMutation<
     T | ResponseError,
     ResponseError,
-    T & { _meta: TMeta }
+    Variables<TMeta, T>
   >({
     mutationFn: (
-      _payload: T & { _meta: TMeta }
+      variables: Variables<TMeta, T>
     ): Promise<T | ResponseError> => {
-      const { _meta, ...payload } = _payload || {};
+      const { _meta, payload } = variables || {};
 
       return customFetch<T>({
         baseEndpoint,
@@ -92,7 +111,7 @@ const useMutationQuery = <T extends object, TMeta>({
         defaultFailureMessage,
         endpoint: getEndpoint(_meta as TMeta),
         headers: new Headers({
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           ...fetchHeaders
         }),
         isMutation: true,
@@ -100,11 +119,57 @@ const useMutationQuery = <T extends object, TMeta>({
         payload
       });
     },
-    onError,
-    onMutate,
+    onError: (error, variables, context) => {
+      if (optimisticListing?.enabled) {
+        const listingQueryKey = getListingQueryKey();
+        queryClient.setQueriesData(
+          { queryKey: listingQueryKey },
+          context.previousListing
+        );
+      }
+
+      onError?.(error, variables, context);
+    },
+    onMutate: optimisticListing?.enabled
+      ? ({ payload, _meta }) => {
+          const listingQueryKey = getListingQueryKey();
+          const newListing = getOptimisticMutationItems({
+            method,
+            payload,
+            _meta
+          });
+          const previousListing = getPreviousListing();
+
+          queryClient.setQueriesData({ queryKey: listingQueryKey }, newListing);
+
+          return { previousListing };
+        }
+      : onMutate,
     onSettled,
     onSuccess: (data, variables, context) => {
+      if (optimisticListing?.enabled) {
+        const isQueryKeyArray = equals(
+          type(optimisticListing.queryKey),
+          'Array'
+        );
+        const listingQueryKey = isQueryKeyArray
+          ? optimisticListing?.queryKey
+          : [optimisticListing?.queryKey];
+
+        queryClient.invalidateQueries({
+          queryKey: listingQueryKey
+        });
+      }
+
       if (data?.isError) {
+        if (optimisticListing?.enabled) {
+          const listingQueryKey = getListingQueryKey();
+          queryClient.setQueriesData(
+            { queryKey: listingQueryKey },
+            context.previousListing
+          );
+        }
+
         onError?.(data, variables, context);
 
         return;
@@ -116,7 +181,7 @@ const useMutationQuery = <T extends object, TMeta>({
   const manageError = (): void => {
     const data = queryData.data as ResponseError | undefined;
     if (data?.isError) {
-      log.error(data.message);
+      errorLog(data.message);
       const hasACorrespondingHttpCode = includes(
         data?.statusCode || 0,
         httpCodesBypassErrorSnackbar

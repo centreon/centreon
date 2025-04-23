@@ -1,12 +1,12 @@
 import { ChangeEvent, useEffect } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, includes, path, split } from 'ramda';
+import { path, equals, includes, split } from 'ramda';
 
 import { Box, Typography } from '@mui/material';
 
-import { CheckboxGroup as CheckboxGroupComponent } from '../../Checkbox';
 import { useMemoComponent } from '../..';
+import { CheckboxGroup as CheckboxGroupComponent } from '../../Checkbox';
 
 import { InputPropsWithoutGroup } from './models';
 
@@ -46,7 +46,10 @@ const CheckboxGroup = ({
       return;
     }
 
-    setFieldValue(fieldName, value?.filter((elm) => !equals(elm, label)));
+    setFieldValue(
+      fieldName,
+      value?.filter((elm) => !equals(elm, label))
+    );
   };
 
   return useMemoComponent({

@@ -59,6 +59,7 @@ const resourceLinksEndpointDecoder = JsonDecoder.object<ResourceEndpoints>(
     downtime: JsonDecoder.optional(JsonDecoder.string),
     forced_check: JsonDecoder.optional(JsonDecoder.string),
     metrics: JsonDecoder.optional(JsonDecoder.string),
+    notification_policy: JsonDecoder.optional(JsonDecoder.string),
     performance_graph: JsonDecoder.optional(JsonDecoder.string),
     sensitivity: JsonDecoder.optional(JsonDecoder.string),
     status_graph: JsonDecoder.optional(JsonDecoder.string),
@@ -200,7 +201,7 @@ const downtimeDecoder = JsonDecoder.object<Downtime>(
 
 const groupDecoder = JsonDecoder.object<Group>(
   {
-    configuration_uri: JsonDecoder.nullable(JsonDecoder.string),
+    configuration_endpoint: JsonDecoder.nullable(JsonDecoder.string),
     ...namedEntityDecoder
   },
   'group'
@@ -219,6 +220,11 @@ const sensitivityDecoder = JsonDecoder.object<Sensitivity>(
 const resourceTypeDecoder = JsonDecoder.enumeration<ResourceType>(
   ResourceType,
   'resourceType'
+);
+
+const dateDecoder = JsonDecoder.oneOf<string | undefined | number>(
+  [JsonDecoder.optional(JsonDecoder.string), JsonDecoder.isExactly(0)],
+  'date'
 );
 
 const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
@@ -244,15 +250,15 @@ const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
     information: JsonDecoder.optional(JsonDecoder.string),
     is_acknowledged: JsonDecoder.boolean,
     is_in_downtime: JsonDecoder.boolean,
-    last_check: JsonDecoder.optional(JsonDecoder.string),
-    last_notification: JsonDecoder.optional(JsonDecoder.string),
-    last_status_change: JsonDecoder.optional(JsonDecoder.string),
-    last_time_with_no_issue: JsonDecoder.optional(JsonDecoder.string),
+    last_check: dateDecoder,
+    last_notification: dateDecoder,
+    last_status_change: dateDecoder,
+    last_time_with_no_issue: dateDecoder,
     latency: JsonDecoder.optional(JsonDecoder.number),
     links: JsonDecoder.optional(resourceLinksDecoder),
     monitoring_server_name: JsonDecoder.optional(JsonDecoder.string),
     name: JsonDecoder.string,
-    next_check: JsonDecoder.optional(JsonDecoder.string),
+    next_check: dateDecoder,
     notification_number: JsonDecoder.optional(JsonDecoder.number),
     parent: JsonDecoder.optional(
       JsonDecoder.object<Parent>(commonDecoders, 'ResourceDetailsParent')
@@ -260,6 +266,7 @@ const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
     percent_state_change: JsonDecoder.optional(JsonDecoder.number),
     performance_data: JsonDecoder.optional(JsonDecoder.string),
     sensitivity: JsonDecoder.optional(sensitivityDecoder),
+    service_id: JsonDecoder.optional(JsonDecoder.number),
     severity: JsonDecoder.optional(severityDecoder),
     severity_level: JsonDecoder.optional(JsonDecoder.number),
     short_type: JsonDecoder.optional(shortTypeDecoder),

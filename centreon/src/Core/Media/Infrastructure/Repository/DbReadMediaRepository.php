@@ -28,6 +28,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
 use Psr\Log\LoggerInterface;
@@ -43,11 +44,91 @@ use Traversable;
  */
 class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRepositoryInterface
 {
+    use SqlMultipleBindTrait;
     private const MAX_ITEMS_BY_REQUEST = 100;
 
     public function __construct(DatabaseConnection $db, readonly private LoggerInterface $logger)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $mediaId): ?Media
+    {
+        $request = <<<'SQL'
+            SELECT
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            WHERE `img`.img_id = :mediaId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':mediaId', $mediaId, \PDO::PARAM_INT);
+
+        $statement->execute();
+
+        /** @var _Media|false */
+        $record = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if ($record === false) {
+            return null;
+        }
+
+        return $this->createMedia($record);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIds(array $mediaIds): array
+    {
+        if ($mediaIds === []) {
+            return [];
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+            $mediaIds,
+            ':mediaId_',
+        );
+
+        $request = <<<SQL
+            SELECT
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            WHERE `img`.img_id IN ({$bindQuery})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $statement->execute();
+
+        $result = [];
+        foreach ($statement as $record) {
+            /** @var _Media $record */
+            $result[$record['img_id']] = $this->createMedia($record);
+        }
+
+        return $result;
     }
 
     /**
@@ -88,7 +169,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
      */
     public function findAll(): Traversable&\Countable
     {
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 `img`.img_id,
                 `img`.img_path,
@@ -101,7 +182,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
                 ON dir.dir_id = rel.dir_dir_parent_id
             ORDER BY img_id
             LIMIT :from, :max_item_by_request
-            SQL;
+            SQL_WRAP;
         $index = 0;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindParam(':from', $index, \PDO::PARAM_INT);
@@ -180,7 +261,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             'filename' => 'img_path',
             'directory' => 'dir_name',
         ]);
-        $request = <<<'SQL'
+        $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
                 `img`.img_id,
                 `img`.img_path,
@@ -191,7 +272,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
                 ON rel.img_img_id = img.img_id
             INNER JOIN `:db`.`view_img_dir` dir
                 ON dir.dir_id = rel.dir_dir_parent_id
-            SQL;
+            SQL_WRAP;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
         if ($searchRequest !== null) {
@@ -200,7 +281,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
 
         // Handle sort
         $sortRequest = $sqlTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY img_id';
+        $request .= $sortRequest ?? ' ORDER BY img_id';
         $request .= $sqlTranslator->translatePaginationToSql();
         $statement = $this->db->prepare($this->translateDbName($request));
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {

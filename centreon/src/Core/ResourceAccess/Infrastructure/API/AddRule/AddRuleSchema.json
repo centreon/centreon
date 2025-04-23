@@ -1,0 +1,87 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add resource access rule",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "contacts",
+        "contact_groups",
+        "dataset_filters",
+        "is_enabled"
+    ],
+    "definitions": {
+        "dataset_filter": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+                "type",
+                "resources",
+                "dataset_filter"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "resources": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "dataset_filter": {
+                    "$ref": "#/definitions/dataset_filter"
+                }
+            }
+        }
+    },
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "is_enabled": {
+            "type": "boolean"
+        },
+        "contacts": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "all": {
+                    "type": "boolean"
+                }
+            }
+        },
+       "contact_groups": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "all": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dataset_filters": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/definitions/dataset_filter"
+            }
+        }
+    }
+}

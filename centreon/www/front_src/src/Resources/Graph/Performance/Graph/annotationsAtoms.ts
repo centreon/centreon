@@ -1,6 +1,9 @@
 import { ScaleTime } from 'd3-scale';
 import { atom } from 'jotai';
 import {
+  Pred,
+  T,
+  __,
   always,
   both,
   cond,
@@ -14,10 +17,7 @@ import {
   lte,
   not,
   or,
-  pipe,
-  Pred,
-  T,
-  __
+  pipe
 } from 'ramda';
 
 import { alpha } from '@mui/material';

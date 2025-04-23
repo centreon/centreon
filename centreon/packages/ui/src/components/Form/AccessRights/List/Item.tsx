@@ -2,16 +2,16 @@ import { useSetAtom } from 'jotai';
 
 import { Chip } from '@mui/material';
 
-import { AccessRight, Labels } from '../models';
-import { List } from '../../../List';
-import RoleSelectField from '../common/RoleSelectField';
 import { SelectEntry } from '../../../..';
+import { List } from '../../../List';
 import { updateContactRoleDerivedAtom } from '../atoms';
+import RoleSelectField from '../common/RoleSelectField';
+import { AccessRight, Labels } from '../models';
 
-import { useItem } from './useItem';
 import { useListStyles } from './List.styles';
-import StateChip from './StateChip';
 import RemoveAccessRight from './RemoveAccessRight';
+import StateChip from './StateChip';
+import { useItem } from './useItem';
 
 interface Props extends AccessRight {
   index: number;

@@ -3,8 +3,6 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Box, Typography } from '@mui/material';
 
-import EllipsisTypography from '../../Typography/EllipsisTypography';
-
 import heatMapData from './HeatMapData.json';
 
 import { HeatMap } from '.';
@@ -21,29 +19,6 @@ const meta: Meta<typeof HeatMap<Data>> = {
 
 export default meta;
 type Story = StoryObj<typeof HeatMap<Data>>;
-
-const TileContent = ({
-  isSmallestSize,
-  data
-}: {
-  data: Data;
-  isSmallestSize: boolean;
-}): JSX.Element | false =>
-  !isSmallestSize && (
-    <Box
-      sx={{
-        alignItems: 'center',
-        color: 'common.black',
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%'
-      }}
-    >
-      <EllipsisTypography textAlign="center">{data.host}</EllipsisTypography>
-      <EllipsisTypography textAlign="center">{data.service}</EllipsisTypography>
-      <EllipsisTypography textAlign="center">{data.counter}</EllipsisTypography>
-    </Box>
-  );
 
 const TooltipContent = ({ data }: { data: Data }): JSX.Element => {
   return (
@@ -79,6 +54,19 @@ const Template = (args): JSX.Element => {
 
   return <HeatMap {...args} arrowClassName={classes.arrow} />;
 };
+
+const TileContent = ({ data }: { data: Data }): JSX.Element => (
+  <div
+    style={{
+      alignItems: 'center',
+      display: 'flex',
+      height: '100%',
+      justifyContent: 'center'
+    }}
+  >
+    {data.counter}
+  </div>
+);
 
 export const normal: Story = {
   args: {

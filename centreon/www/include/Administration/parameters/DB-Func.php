@@ -35,6 +35,13 @@
  */
 
 require_once __DIR__ . '/../../../../bootstrap.php';
+require __DIR__ . '/../../common/vault-functions.php';
+
+use App\Kernel;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
  * Used to update fields in the 'centreon.options' table
@@ -137,6 +144,12 @@ function is_writable_file_if_exist($path = null)
     return false;
 }
 
+function is_greater_than($value, $minValue) 
+{
+    return is_numeric($value) && $value >= $minValue;
+}
+
+
 /**
  * rule to check the session duration value chosen by the user
  * @param int $value
@@ -161,7 +174,7 @@ function updateNagiosConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -351,7 +364,7 @@ function updateSNMPConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -396,7 +409,7 @@ function updateDebugConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -524,7 +537,7 @@ function updateGeneralConfigData()
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     if (!isset($ret['AjaxTimeReloadStatistic'])) {
@@ -700,7 +713,7 @@ function updateRRDToolConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -718,12 +731,12 @@ function updateRRDToolConfigData($gopt_id = null)
     updateOption(
         $pearDB,
         "rrdcached_enable",
-        isset($ret['rrdcached_enable']['rrdcached_enable']) ? $ret['rrdcached_enable']['rrdcached_enable'] : '0'
+        $ret['rrdcached_enable']['rrdcached_enable'] ?? '0'
     );
     updateOption(
         $pearDB,
         "rrdcached_port",
-        isset($ret['rrdcached_port']) ? $ret['rrdcached_port'] : ''
+        $ret['rrdcached_port'] ?? ''
     );
     updateOption(
         $pearDB,
@@ -751,7 +764,7 @@ function updateODSConfigData()
 {
     global $form, $pearDBO, $pearDB;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
     if (!isset($ret["audit_log_option"])) {
         $ret["audit_log_option"] = '0';
@@ -799,7 +812,7 @@ function updateODSConfigData()
         `archive_retention` = '" . $ret["archive_retention"] . "',
         `reporting_retention` = '" . $ret["reporting_retention"] . "',
         `audit_log_option` = '" . $ret["audit_log_option"] . "',
-        `storage_type` = " . (isset($ret["storage_type"]) ? $ret["storage_type"] : 'NULL') . ",
+        `storage_type` = " . ($ret["storage_type"] ?? 'NULL') . ",
         `len_storage_downtimes` = '" . $ret["len_storage_downtimes"] . "',
         `audit_log_retention` = '" . $ret["audit_log_retention"] . "',
         `len_storage_comments` = '" . $ret["len_storage_comments"] . "' "
@@ -824,7 +837,7 @@ function updateCASConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -853,28 +866,21 @@ function updateBackupConfigData($db, $form, $centreon)
 {
     $ret = $form->getSubmitValues();
 
-    $radiobutton = array(
-        'backup_enabled',
-        'backup_database_type',
-        'backup_export_scp_enabled'
-    );
+    $radiobutton = ['backup_enabled', 'backup_database_type', 'backup_export_scp_enabled'];
     foreach ($radiobutton as $value) {
         $ret[$value] = isset($ret[$value]) && isset($ret[$value][$value]) && $ret[$value][$value] ? 1 : 0;
     }
 
-    $checkbox = array(
+    $checkbox = [
         'backup_configuration_files',
         'backup_database_centreon',
         'backup_database_centreon_storage'
-    );
+    ];
     foreach ($checkbox as $value) {
         $ret[$value] = isset($ret[$value]) && $ret[$value] ? 1 : 0;
     }
 
-    $checkboxGroup = array(
-        'backup_database_full',
-        'backup_database_partial'
-    );
+    $checkboxGroup = ['backup_database_full', 'backup_database_partial'];
     foreach ($checkboxGroup as $value) {
         if (isset($ret[$value]) && count($ret[$value])) {
             $valueKeys = array_keys($ret[$value]);
@@ -893,11 +899,11 @@ function updateBackupConfigData($db, $form, $centreon)
     $centreon->initOptGen($db);
 }
 
-function updateKnowledgeBaseData($db, $form, $centreon)
+function updateKnowledgeBaseData($db, $form, $centreon, ?string $originalPassword)
 {
     $ret = $form->getSubmitValues();
 
-    if (!isset($ret['kb_wiki_certificate']) || !filter_var($ret["kb_wiki_certificate"], FILTER_VALIDATE_INT)) {
+    if (!isset($ret['kb_wiki_certificate']) || ! filter_var($ret["kb_wiki_certificate"], FILTER_VALIDATE_INT)) {
         $ret['kb_wiki_certificate'] = 0;
     }
 
@@ -905,17 +911,56 @@ function updateKnowledgeBaseData($db, $form, $centreon)
         unset($ret["kb_wiki_password"]);
     }
 
-    if (isset($ret["kb_wiki_url"]) && !filter_var($ret["kb_wiki_url"], FILTER_VALIDATE_URL)) {
+    if (isset($ret["kb_wiki_url"]) && ! filter_var($ret["kb_wiki_url"], FILTER_VALIDATE_URL)) {
         unset($ret["kb_wiki_url"]);
     }
 
     foreach ($ret as $key => $value) {
-        if (preg_match('/^kb_/', $key)) {
+        if ($key === "kb_wiki_password") {
+            $vaultPath = saveKnowledgeBasePasswordInVault($value, $originalPassword);
+            $value = $vaultPath ?? $value;
+            updateOption($db, $key, $value);
+        } elseif (preg_match('/^kb_/', $key)) {
             updateOption($db, $key, $value);
         }
     }
 
     $centreon->initOptGen($db);
+}
+
+/**
+ * @param string $password
+ * @param string $originalPassword
+ *
+ * @return string|null
+ *
+ * @throws Throwable
+ */
+function saveKnowledgeBasePasswordInVault(string $password, ?string $originalPassword): ?string
+{
+    $kernel = Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    if ($vaultConfiguration === null) {
+        return null;
+    }
+
+    $uuid = null;
+    if ($originalPassword !== null && str_starts_with($originalPassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
+        $uuid = preg_match(
+            '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+            $originalPassword,
+            $matches
+        )
+        && isset($matches[2]) ? $matches[2] : null;
+    }
+
+    /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+    $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+    $writeVaultRepository->setCustomPath(AbstractVaultRepository::KNOWLEDGE_BASE_PATH);
+    return upsertKnowledgeBasePasswordInVault($writeVaultRepository, $password, $uuid);
 }
 
 /**

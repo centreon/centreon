@@ -1,0 +1,6 @@
+Core\TimePeriod\Domain\Model\Template:
+  attributes:
+    id:
+      groups: ['TimePeriod:Read']
+    alias:
+      groups: ['TimePeriod:Read']

@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography, Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { ParentSize } from '@centreon/ui';
 

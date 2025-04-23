@@ -1,12 +1,12 @@
-import { useAtomValue } from 'jotai';
 import { FormikValues, useFormikContext } from 'formik';
-import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import { labelDeleteNotification } from '../../../translatedLabels';
-import { editedNotificationIdAtom } from '../../atom';
 import { DeleteButton, useDelete } from '../../../Actions/Delete';
 import { DeleteType } from '../../../models';
+import { labelDeleteNotification } from '../../../translatedLabels';
+import { editedNotificationIdAtom } from '../../atom';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {

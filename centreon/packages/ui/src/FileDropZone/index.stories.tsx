@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
-import { Button, Paper, Typography, Theme } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
+import { Button, Paper, Theme, Typography } from '@mui/material';
 
 import FileDropZone, {
   CustomDropZoneContentProps,

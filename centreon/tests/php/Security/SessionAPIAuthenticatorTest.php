@@ -51,11 +51,6 @@ class SessionAPIAuthenticatorTest extends TestCase
     private $contactRepository;
 
     /**
-     * @var SessionRepositoryInterface
-     */
-    private $sessionRepository;
-
-    /**
      * @var MockObject|Request
      */
     private Request|MockObject $request;
@@ -69,7 +64,6 @@ class SessionAPIAuthenticatorTest extends TestCase
     {
         $this->authenticationService = $this->createMock(AuthenticationServiceInterface::class);
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class);
-        $this->sessionRepository = $this->createMock(SessionRepositoryInterface::class);
         $this->request = $this->createMock(Request::class);
         $this->session = $this->createMock(SessionInterface::class);
 
@@ -89,7 +83,6 @@ class SessionAPIAuthenticatorTest extends TestCase
         $authenticator = new SessionAPIAuthenticator(
             $this->authenticationService,
             $this->contactRepository,
-            $this->sessionRepository
         );
 
         $this->request->headers->set('Cookie', 'centreon_session=my_session_id');
@@ -102,7 +95,6 @@ class SessionAPIAuthenticatorTest extends TestCase
         $authenticator = new SessionAPIAuthenticator(
             $this->authenticationService,
             $this->contactRepository,
-            $this->sessionRepository
         );
 
         $request = new Request();
@@ -115,7 +107,6 @@ class SessionAPIAuthenticatorTest extends TestCase
         $authenticator = new SessionAPIAuthenticator(
             $this->authenticationService,
             $this->contactRepository,
-            $this->sessionRepository
         );
 
         $request = new Request();
@@ -137,7 +128,6 @@ class SessionAPIAuthenticatorTest extends TestCase
         $authenticator = new SessionAPIAuthenticator(
             $this->authenticationService,
             $this->contactRepository,
-            $this->sessionRepository
         );
 
         $this->assertInstanceOf(

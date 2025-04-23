@@ -1,9 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
 
+import '@testing-library/jest-dom';
+import { TextDecoder, TextEncoder } from 'util';
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
 import fetchMock from 'jest-fetch-mock';
+import { initReactI18next } from 'react-i18next';
 
 const mockedMatchMedia = () => ({
   addListener: () => {},
@@ -12,6 +14,8 @@ const mockedMatchMedia = () => ({
 });
 
 window.matchMedia = window.matchMedia || mockedMatchMedia;
+
+Object.assign(global, { TextDecoder, TextEncoder });
 
 document.createRange = () => ({
   commonAncestorContainer: {

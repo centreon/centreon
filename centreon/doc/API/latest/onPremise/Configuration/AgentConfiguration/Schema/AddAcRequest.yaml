@@ -1,0 +1,33 @@
+type: object
+required: ["name", "type", "pollerIds", "configuration"]
+properties:
+  name:
+    type: string
+    description: "configuration name"
+    example: "my-cfg-name"
+  type:
+    type: string
+    description: |
+      Type of configuration
+
+      Supported types:
+        * telegraf
+        * centreon-agent
+    example: telegraf
+  poller_ids:
+    type: array
+    items:
+      type: integer
+    description: Poller ID(s) associated with the configuration
+    example: [1, 12]
+  configuration:
+    type: object
+    description: |
+      Configuration parameters, varies depending on the type.
+    example:
+      otel_public_certificate: "my-otel-certificate-name"
+      otel_ca_certificate: null
+      otel_private_key: "my-otel-private-key-name"
+      conf_server_port: 1443
+      conf_certificate: "my-certificate-name"
+      conf_private_key: "my-private-key-name"

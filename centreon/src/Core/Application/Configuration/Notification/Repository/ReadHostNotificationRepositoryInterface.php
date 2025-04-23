@@ -23,22 +23,66 @@ declare(strict_types=1);
 
 namespace Core\Application\Configuration\Notification\Repository;
 
+use Centreon\Domain\Repository\RepositoryException;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostNotificationRepositoryInterface
 {
     /**
      * @param int $hostId
+     * @param array<int, int> $notifiedContactsIds
+     * @param array<int, int> $notifiedContactGroupIds
      *
      * @return NotifiedContact[]
      */
-    public function findNotifiedContactsById(int $hostId): array;
+    public function findNotifiedContactsByIds(int $hostId, array $notifiedContactsIds, array $notifiedContactGroupIds): array;
+
+    /**
+     * @param int $hostId
+     * @param array<int, int> $notifiedContactsIds
+     * @param array<int, int> $notifiedContactGroupIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return NotifiedContact[]
+     */
+    public function findNotifiedContactsByIdsAndAccessGroups(int $hostId, array $notifiedContactsIds, array $notifiedContactGroupIds, array $accessGroups): array;
+
+    /**
+     * @param int $hostId
+     * @param array<int, int> $notifiedContactsIds
+     * @param array<int, int> $notifiedContactGroupIds
+     *
+     * @return NotifiedContactGroup[]
+     */
+    public function findNotifiedContactGroupsByIds(int $hostId, array $notifiedContactsIds, array $notifiedContactGroupIds): array;
+
+    /**
+     * @param int $hostId
+     * @param array<int, int> $notifiedContactsIds
+     * @param array<int, int> $notifiedContactGroupIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return NotifiedContactGroup[]
+     */
+    public function findNotifiedContactGroupsByIdsAndAccessGroups(int $hostId, array $notifiedContactsIds, array $notifiedContactGroupIds, array $accessGroups): array;
 
     /**
      * @param int $hostId
      *
-     * @return NotifiedContactGroup[]
+     * @throws RepositoryException
+     *
+     * @return array<int, int>
      */
-    public function findNotifiedContactGroupsById(int $hostId): array;
+    public function findContactsByHostOrHostTemplate(int $hostId): array;
+
+    /**
+     * @param int $hostId
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int, int>
+     */
+    public function findContactGroupsByHostOrHostTemplate(int $hostId): array;
 }

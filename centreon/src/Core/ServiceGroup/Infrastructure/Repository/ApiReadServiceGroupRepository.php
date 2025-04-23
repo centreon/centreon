@@ -84,7 +84,7 @@ class ApiReadServiceGroupRepository implements ReadServiceGroupRepositoryInterfa
     /**
      * @inheritDoc
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): \Traversable&\Countable
+    public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): \Traversable&\Countable
     {
         throw RepositoryException::notYetImplemented();
     }
@@ -173,6 +173,14 @@ class ApiReadServiceGroupRepository implements ReadServiceGroupRepositoryInterfa
      * @inheritDoc
      */
     public function findNames(array $serviceGroupIds): ServiceGroupNamesById
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasAccessToAllServiceGroups(array $accessGroupIds): bool
     {
         throw RepositoryException::notYetImplemented();
     }

@@ -26,7 +26,7 @@ namespace Tests\Core\Category\RealTime\Infrastructure\Repository;
 use Core\Tag\RealTime\Domain\Model\Tag;
 use Core\Tag\RealTime\Infrastructure\Repository\Tag\DbTagFactory;
 
-it('DbTagFactory creation test', function () {
+it('DbTagFactory creation test', function (): void {
     $record = [
         'id' => 1,
         'name' => 'Name of the tag',

@@ -2,8 +2,8 @@ import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { Button, Divider } from '@mui/material';
 
 import { labelAddNewDataset } from '../../../translatedLabels';
 import { useAddDatasetButtonStyles } from '../styles/AddDatasetButton.styles';
@@ -22,18 +22,19 @@ const AddDatasetButton = ({
   const dataTestId = 'addNewDataset';
 
   return (
-    <Button
-      aria-label={labelAddNewDataset}
-      className={classes.addDatasetButton}
-      color="primary"
-      data-testid={dataTestId}
-      disabled={addButtonDisabled}
-      startIcon={<AddIcon />}
-      variant="contained"
-      onClick={onAddItem}
-    >
-      {t(labelAddNewDataset)}
-    </Button>
+    <Divider className={classes.addDatasetButtonDivider} variant="middle">
+      <Button
+        aria-label={labelAddNewDataset}
+        className={classes.addDatasetButton}
+        data-testid={dataTestId}
+        disabled={addButtonDisabled}
+        onClick={onAddItem}
+      >
+        <AddCircleIcon />
+        &nbsp;
+        {t(labelAddNewDataset)}
+      </Button>
+    </Divider>
   );
 };
 

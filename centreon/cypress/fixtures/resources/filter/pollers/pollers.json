@@ -1,0 +1,18 @@
+{
+    "meta":{
+        "limit": 10,
+        "page": 1,
+        "search": {},
+        "sort_by": {},
+        "total": 1
+      },
+      "result":[{
+          "address": null,
+          "description": null,
+          "id": 1,
+          "is_running": true,
+          "last_alive": 1697038658,
+          "name": "Central",
+          "version": "23.10.0"
+        }]
+}

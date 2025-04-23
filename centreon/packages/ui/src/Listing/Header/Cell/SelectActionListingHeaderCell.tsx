@@ -1,15 +1,13 @@
-import React from 'react';
-
 import { equals, isEmpty, not } from 'ramda';
 
-import { TableCell, TableCellBaseProps } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { TableCell, TableCellBaseProps } from '@mui/material';
 
-import Checkbox from '../../Checkbox';
 import PopoverMenu from '../../../PopoverMenu';
+import Checkbox from '../../Checkbox';
+import { PredefinedRowSelection } from '../../models';
 import { labelPredefinedRowsSelectionMenu } from '../../translatedLabels';
 import PredefinedSelectionList from '../_internals/PredefinedSelectionList';
-import { PredefinedRowSelection } from '../../models';
 
 import { useStyles } from './SelectActionListingHeaderCell.styles';
 

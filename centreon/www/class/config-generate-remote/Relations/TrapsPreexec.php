@@ -20,20 +20,35 @@
 
 namespace ConfigGenerateRemote\Relations;
 
-use \PDO;
+use Exception;
+use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Pimple\Container;
 
+/**
+ * Class
+ *
+ * @class TrapsPreexec
+ * @package ConfigGenerateRemote\Relations
+ */
 class TrapsPreexec extends AbstractObject
 {
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
 
+    /** @var array */
     private $trapPreexecCache = [];
 
+    /** @var string */
     protected $table = 'traps_preexec';
+    /** @var string */
     protected $generateFilename = 'traps_preexec.infile';
+    /** @var null */
     protected $stmtTrap = null;
 
+    /** @var string[] */
     protected $attributesWrite = [
         'trap_id',
         'tpe_order',
@@ -41,11 +56,11 @@ class TrapsPreexec extends AbstractObject
     ];
 
     /**
-     * Constructor
+     * TrapsPreexec constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->buildCache();
@@ -56,7 +71,7 @@ class TrapsPreexec extends AbstractObject
      *
      * @return void
      */
-    private function cacheTrapPreexec()
+    private function cacheTrapPreexec(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT *
@@ -91,11 +106,13 @@ class TrapsPreexec extends AbstractObject
     /**
      * Generate object
      *
-     * @param integer $trapId
+     * @param int $trapId
      * @param array $trapPreexecCache
+     *
      * @return void
+     * @throws Exception
      */
-    public function generateObject($trapId, $trapPreexecCache)
+    public function generateObject($trapId, $trapPreexecCache): void
     {
         foreach ($trapPreexecCache as $value) {
             $this->generateObjectInFile($value);
@@ -105,8 +122,10 @@ class TrapsPreexec extends AbstractObject
     /**
      * Get trap preexec from trap id
      *
-     * @param integer $trapId
+     * @param int $trapId
+     *
      * @return void
+     * @throws Exception
      */
     public function getTrapPreexecByTrapId(int $trapId)
     {

@@ -1,0 +1,40 @@
+get:
+  tags:
+    - Dashboard
+  summary: "List all contacts for the sharing modal of a dashboard"
+  description: |
+    Return all contacts for the sharing modal of a dashboard.
+    
+    The available parameters to **search** / **sort_by** are:
+    
+    * id
+    * name
+    
+    `Since Centreon web 23.10`
+  parameters:
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    "200":
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: integer, description: "Contact ID" }
+                    name: { type: string,  description: "Contact name" }
+                    email: { type: string,  description: "Contact email" }
+                    most_permissive_role: {type: string, description: "Most Permissive role on dashboards"}
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

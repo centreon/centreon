@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useRequest } from '@centreon/ui';
 
 import { getPasswordPasswordSecurityPolicy } from '../api';
-import { securityPolicyDecoder } from '../api/decoders';
 import { adaptPasswordSecurityPolicyFromAPI } from '../api/adapters';
+import { securityPolicyDecoder } from '../api/decoders';
 
 import { PasswordSecurityPolicy } from './models';
 

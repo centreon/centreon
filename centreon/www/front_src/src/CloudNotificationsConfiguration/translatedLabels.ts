@@ -48,6 +48,9 @@ export const labelNotificationChannels = 'Notification channels';
 export const labelServiceGroups = 'Service groups';
 export const labelHostGroups = 'Host groups';
 export const labelTimePeriod = 'Time period';
+export const labelSelectTimePeriod = 'Select time period';
+export const labelTimePeriodFieldShouldNotBeEmpty =
+  'The time period field should not be empty!';
 export const labelSearchServiceGroups = 'Search service groups';
 export const labelDoYouWantToQuitWithoutSaving =
   'Do you want to quit the form without saving the changes?';

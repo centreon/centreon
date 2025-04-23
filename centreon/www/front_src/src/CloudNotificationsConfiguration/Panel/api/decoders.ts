@@ -1,13 +1,13 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { TimeperiodType, ChannelsEnum, ResourcesTypeEnum } from '../../models';
+import { ChannelsEnum, ResourcesTypeEnum, TimeperiodType } from '../../models';
 import {
+  MessageType,
   NotificationType,
-  ResourceType,
-  UserType,
-  ResourceIdsType,
   ResourceExtraType,
-  MessageType
+  ResourceIdsType,
+  ResourceType,
+  UserType
 } from '../models';
 
 const timeperiod = JsonDecoder.object<TimeperiodType>(

@@ -33,16 +33,20 @@
  *
  */
 
-/*
- *  Class that is used for writing XML in utf_8 only!
+/**
+ * Class
+ *
+ * @class CentreonXML
+ * @description Class that is used for writing XML in utf_8 only!
  */
-
 class CentreonXML
 {
+    /** @var XMLWriter */
     public $buffer;
 
     /**
-     * CentreonXML constructor.
+     * CentreonXML constructor
+     *
      * @param bool $indent
      */
     public function __construct($indent = false)
@@ -59,6 +63,7 @@ class CentreonXML
      * Clean string
      *
      * @param string $str
+     *
      * @return string
      */
     protected function cleanStr($str)
@@ -67,37 +72,47 @@ class CentreonXML
         return $str;
     }
 
-    /*
-     *  Starts an element that contains other elements
+    /**
+     * Starts an element that contains other elements
+     *
+     * @param string $element_tag
+     *
+     * @return void
      */
-    public function startElement($element_tag)
+    public function startElement($element_tag): void
     {
         $this->buffer->startElement($element_tag);
     }
 
-    /*
-     *  Ends an element (closes tag)
+    /**
+     * Ends an element (closes tag)
+     *
+     * @return void
      */
-    public function endElement()
+    public function endElement(): void
     {
         $this->buffer->endElement();
     }
 
-    /*
-     *  Simply puts text
+    /**
+     * Simply puts text
+     *
+     * @param string $txt
+     * @param bool $cdata
+     * @param int $encode
+     *
+     * @return void
      */
-    public function text($txt, $cdata = true, $encode = 0)
+    public function text($txt, $cdata = true, $encode = 0): void
     {
         $txt = $this->cleanStr($txt);
         $txt = html_entity_decode($txt);
         if ($encode || !$this->is_utf8($txt)) {
-            $this->buffer->writeCData(utf8_encode($txt));
+            $this->buffer->writeCData(mb_convert_encoding($txt, 'UTF-8', 'ISO-8859-1'));
+        } elseif ($cdata) {
+            $this->buffer->writeCData($txt);
         } else {
-            if ($cdata) {
-                $this->buffer->writeCData($txt);
-            } else {
-                $this->buffer->text($txt);
-            }
+            $this->buffer->text($txt);
         }
     }
 
@@ -105,7 +120,8 @@ class CentreonXML
      * Checks if string is encoded
      *
      * @param string $string
-     * @return boolean
+     *
+     * @return int
      */
     protected function is_utf8($string)
     {
@@ -115,16 +131,22 @@ class CentreonXML
         return 0;
     }
 
-    /*
-     *  Creates a tag and writes data
+    /**
+     * Creates a tag and writes data
+     *
+     * @param string $element_tag
+     * @param string $element_value
+     * @param int $encode
+     *
+     * @return void
      */
-    public function writeElement($element_tag, $element_value, $encode = 0)
+    public function writeElement($element_tag, $element_value, $encode = 0): void
     {
         $this->startElement($element_tag);
         $element_value = $this->cleanStr($element_value);
         $element_value = html_entity_decode($element_value);
         if ($encode || !$this->is_utf8($element_value)) {
-            $this->buffer->writeCData(utf8_encode($element_value));
+            $this->buffer->writeCData(mb_convert_encoding($element_value, 'UTF-8', 'ISO-8859-1'));
         } else {
             $this->buffer->writeCData($element_value);
         }
@@ -132,29 +154,43 @@ class CentreonXML
         $this->endElement();
     }
 
-    /*
-     *  Writes attribute
+    /**
+     * Writes attribute
+     *
+     * @param string $att_name
+     * @param string $att_value
+     * @param bool $encode
+     *
+     * @return void
      */
-    public function writeAttribute($att_name, $att_value, $encode = false)
+    public function writeAttribute($att_name, $att_value, $encode = false): void
     {
         $att_value = $this->cleanStr($att_value);
         if ($encode) {
-            $this->buffer->writeAttribute($att_name, utf8_encode(html_entity_decode($att_value)));
+            $this->buffer->writeAttribute($att_name, mb_convert_encoding(html_entity_decode($att_value), 'UTF-8', 'ISO-8859-1'));
         } else {
             $this->buffer->writeAttribute($att_name, html_entity_decode($att_value));
         }
     }
 
-    /*
-     *  Output the whole XML buffer
+    /**
+     * Output the whole XML buffer
+     *
+     * @return void
      */
-    public function output()
+    public function output(): void
     {
         $this->buffer->endDocument();
         print $this->buffer->outputMemory(true);
     }
 
-    public function outputFile($filename = null)
+    /**
+     * @param string|null $filename
+     *
+     * @return void
+     * @throws RuntimeException
+     */
+    public function outputFile($filename = null): void
     {
         $this->buffer->endDocument();
         $content = $this->buffer->outputMemory(true);

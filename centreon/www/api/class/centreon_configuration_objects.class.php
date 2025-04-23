@@ -34,12 +34,17 @@
  */
 
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once dirname(__FILE__) . "/webService.class.php";
+require_once __DIR__ . "/webService.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationObjects
+ */
 class CentreonConfigurationObjects extends CentreonWebService
 {
     /**
-     * CentreonConfigurationObjects constructor.
+     * CentreonConfigurationObjects constructor
      */
     public function __construct()
     {
@@ -73,7 +78,7 @@ class CentreonConfigurationObjects extends CentreonWebService
             throw new RestBadRequestException("Bad parameters target");
         }
 
-        $defaultValuesParameters = array();
+        $defaultValuesParameters = [];
         $targetedFile = _CENTREON_PATH_ . "/www/class/centreon" . $target . ".class.php";
         if (file_exists($targetedFile)) {
             require_once $targetedFile;
@@ -87,10 +92,7 @@ class CentreonConfigurationObjects extends CentreonWebService
         if (isset($defaultValuesParameters['type']) && $defaultValuesParameters['type'] === 'simple') {
             if (isset($defaultValuesParameters['reverse']) && $defaultValuesParameters['reverse']) {
                 $selectedValues = $this->retrieveSimpleValues(
-                    array(
-                        'table' => $defaultValuesParameters['externalObject']['table'],
-                        'id' => $defaultValuesParameters['currentObject']['id']
-                    ),
+                    ['table' => $defaultValuesParameters['externalObject']['table'], 'id' => $defaultValuesParameters['currentObject']['id']],
                     $id,
                     $defaultValuesParameters['externalObject']['id']
                 );
@@ -104,7 +106,7 @@ class CentreonConfigurationObjects extends CentreonWebService
         }
 
         // Manage final data
-        $finalDatas = array();
+        $finalDatas = [];
         if (count($selectedValues) > 0) {
             $finalDatas = $this->retrieveExternalObjectDatas(
                 $defaultValuesParameters['externalObject'],
@@ -116,14 +118,14 @@ class CentreonConfigurationObjects extends CentreonWebService
     }
 
     /**
-     * @param $externalObject
-     * @param $values
+     * @param array $externalObject
+     * @param array $values
      * @return array
      * @throws Exception
      */
     protected function retrieveExternalObjectDatas($externalObject, $values)
     {
-        $tmpValues = array();
+        $tmpValues = [];
 
         if (isset($externalObject['object'])) {
             $classFile = $externalObject['object'] . '.class.php';
@@ -131,20 +133,21 @@ class CentreonConfigurationObjects extends CentreonWebService
             $calledClass = ucfirst($externalObject['object']);
             $externalObjectInstance = new $calledClass($this->pearDB);
 
-            $options = array();
+            $options = [];
             if (isset($externalObject['objectOptions'])) {
                 $options = $externalObject['objectOptions'];
             }
             try {
                 $tmpValues = $externalObjectInstance->getObjectForSelect2($values, $options);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 print $e->getMessage();
             }
         } else {
             $explodedValues = '';
 
             if (!empty($values)) {
-                for ($i = 1; $i <= count($values); $i++) {
+                $counter = count($values);
+                for ($i = 1; $i <= $counter; $i++) {
                     $explodedValues .= '?,';
                 }
                 $explodedValues = rtrim($explodedValues, ',');
@@ -163,21 +166,18 @@ class CentreonConfigurationObjects extends CentreonWebService
             $dbResult = $stmt->execute($values);
 
             if (!$dbResult) {
-                throw new \Exception("An error occured");
+                throw new Exception("An error occured");
             }
 
             while ($row = $stmt->fetch()) {
-                $tmpValues[] = array(
-                    'id' => $row[$externalObject['id']],
-                    'text' => $row[$externalObject['name']]
-                );
+                $tmpValues[] = ['id' => $row[$externalObject['id']], 'text' => $row[$externalObject['name']]];
             }
         }
         return $tmpValues;
     }
 
     /**
-     * @param $additonalComparator
+     * @param array $additonalComparator
      * @return string
      */
     protected function processAdditionalComparator($additonalComparator)
@@ -198,16 +198,18 @@ class CentreonConfigurationObjects extends CentreonWebService
      * @param $currentObject
      * @param $id
      * @param $field
+     *
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     protected function retrieveSimpleValues($currentObject, $id, $field)
     {
         if (!is_numeric($id)) {
-            throw new \RestBadRequestException('Error, id must be numerical');
+            throw new RestBadRequestException('Error, id must be numerical');
         }
-        $tmpValues = array();
-        $fields = array();
+        $tmpValues = [];
+        $fields = [];
         $fields[] = $field;
         if (isset($currentObject['additionalField'])) {
             $fields[] = $currentObject['additionalField'];
@@ -235,13 +237,15 @@ class CentreonConfigurationObjects extends CentreonWebService
     /**
      * @param $relationObject
      * @param $id
+     *
      * @return array
+     * @throws PDOException
      */
     protected function retrieveRelatedValues($relationObject, $id)
     {
-        $tmpValues = array();
+        $tmpValues = [];
 
-        $fields = array();
+        $fields = [];
         $fields[] = $relationObject['field'];
         if (isset($relationObject['additionalField'])) {
             $fields[] = $relationObject['additionalField'];
@@ -269,9 +273,9 @@ class CentreonConfigurationObjects extends CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param \CentreonUser $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

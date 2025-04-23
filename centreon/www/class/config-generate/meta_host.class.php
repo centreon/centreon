@@ -34,30 +34,28 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class MetaHost
+ */
 class MetaHost extends AbstractObject
 {
+    /** @var string */
     protected $generate_filename = 'meta_host.cfg';
-    protected $object_name = 'host';
-    protected $attributes_write = array(
-        'host_name',
-        'alias',
-        'address',
-        'check_command',
-        'max_check_attempts',
-        'check_interval',
-        'active_checks_enabled',
-        'passive_checks_enabled',
-        'check_period',
-        'notification_interval',
-        'notification_period',
-        'notification_options',
-        'notifications_enabled',
-        'register',
-    );
-    protected $attributes_hash = array(
-        'macros'
-    );
+    /** @var string */
+    protected string $object_name = 'host';
+    /** @var string[] */
+    protected $attributes_write = ['host_name', 'alias', 'address', 'check_command', 'max_check_attempts', 'check_interval', 'active_checks_enabled', 'passive_checks_enabled', 'check_period', 'notification_interval', 'notification_period', 'notification_options', 'notifications_enabled', 'register'];
+    /** @var string[] */
+    protected $attributes_hash = ['macros'];
 
+    /**
+     * @param $host_name
+     *
+     * @return mixed|null
+     * @throws PDOException
+     */
     public function getHostIdByHostName($host_name)
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
@@ -71,13 +69,19 @@ class MetaHost extends AbstractObject
         return array_pop($result);
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return int|void
+     * @throws Exception
+     */
     public function generateObject($host_id)
     {
         if ($this->checkGenerate($host_id)) {
             return 0;
         }
 
-        $object = array();
+        $object = [];
         $object['host_name'] = '_Module_Meta';
         $object['alias'] = 'Meta Service Calculate Module For Centreon';
         $object['address'] = '127.0.0.1';
@@ -93,7 +97,7 @@ class MetaHost extends AbstractObject
         $object['notification_options'] = 'd';
         $object['notifications_enabled'] = 0;
         $object['register'] = 1;
-        $object['macros'] = array('_HOST_ID' => $host_id);
+        $object['macros'] = ['_HOST_ID' => $host_id];
 
         $this->generateObjectInFile($object, $host_id);
     }

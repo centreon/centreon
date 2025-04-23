@@ -1,4 +1,4 @@
-import { includes, flatten } from 'ramda';
+import { flatten, includes } from 'ramda';
 
 import PollerIcon from '@mui/icons-material/DeviceHub';
 

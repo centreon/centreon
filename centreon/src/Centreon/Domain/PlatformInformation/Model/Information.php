@@ -31,10 +31,10 @@ use Centreon\Domain\Common\Assertion\Assertion;
  */
 class Information
 {
-    public const MAX_KEY_LENGTH = 25,
-                 MAX_VALUE_LENGTH = 1024,
-                 MIN_KEY_LENGTH = 1,
-                 MIN_VALUE_LENGTH = 1;
+    public const MAX_KEY_LENGTH = 25;
+    public const MAX_VALUE_LENGTH = 1024;
+    public const MIN_KEY_LENGTH = 1;
+    public const MIN_VALUE_LENGTH = 1;
     /**
      * Information key
      *

@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
 import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { RichTextEditor } from '@centreon/ui';
 
-import { Widget, WidgetPropertyProps } from '../../models';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
+import { Widget, WidgetPropertyProps } from '../../models';
 
 import { getProperty } from './utils';
 
@@ -38,11 +38,6 @@ const WidgetRichTextEditor = ({
     [getProperty({ obj: errors, propertyName })]
   );
 
-  const openLinksInNewTab = useMemo<boolean | undefined>(
-    () => getProperty({ obj: values, propertyName: 'openLinksInNewTab' }),
-    [getProperty({ obj: values, propertyName: 'openLinksInNewTab' })]
-  );
-
   const change = (newEditiorState: unknown): void => {
     setFieldTouched(`options.${propertyName}`, true, false);
     setFieldValue(`options.${propertyName}`, JSON.stringify(newEditiorState));
@@ -51,13 +46,13 @@ const WidgetRichTextEditor = ({
   return (
     <RichTextEditor
       editable
+      openLinkInNewTab
       disabled={!canEditField || disabledCondition?.(values)}
       displayBlockButtons={isGenericTextWidget}
       editorState={value || undefined}
       error={error}
       getEditorState={change}
       initialEditorState={value || undefined}
-      openLinkInNewTab={openLinksInNewTab}
       placeholder={t(label) as string}
       resetEditorToInitialStateCondition={() => isNil(value)}
     />

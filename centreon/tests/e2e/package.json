@@ -3,8 +3,8 @@
   "version": "21.04.0",
   "description": "centreon web package",
   "scripts": {
-    "cypress:open": "cypress open --config-file cypress.dev.config.ts --e2e",
-    "cypress:run": "cypress run --env tags='not @ignore' --config-file cypress.dev.config.ts --e2e",
+    "cypress:open": "TESTCONTAINERS_RYUK_DISABLED=true cypress open --config-file cypress.dev.config.ts --e2e",
+    "cypress:run": "TESTCONTAINERS_RYUK_DISABLED=true cypress run --env tags='not @ignore' --config-file cypress.config.ts --e2e",
     "cypress:run:develop:debug": "DEBUG=cypress:* cypress run --config-file cypress.dev.json 2> ./cypress/results/logs.txt",
     "cypress:open:dev": "cypress open --config-file cypress.dev.config.ts --e2e",
     "eslint": "eslint ./features",
@@ -12,15 +12,17 @@
     "gherkinlint": "pnpm gherkin-lint -c ../../../.github/actions/gherkin-lint/.gherkin-lintrc ./features/"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^19.2.0",
+    "@badeball/cypress-cucumber-preprocessor": "^20.1.2",
     "@types/cypress-cucumber-preprocessor": "^4.0.5",
-    "@types/node": "^20.10.4",
-    "cypress": "^13.6.1",
-    "cypress-real-events": "^1.11.0",
-    "cypress-wait-until": "^3.0.1",
+    "@types/node": "^22.5.0",
+    "cross-env": "^7.0.3",
+    "cypress": "^13.13.3",
+    "cypress-on-fix": "^1.0.3",
+    "cypress-real-events": "^1.13.0",
+    "cypress-wait-until": "^3.0.2",
     "path": "^0.12.7",
     "shell-exec": "^1.1.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.4"
   },
   "cypress-cucumber-preprocessor": {
     "filterSpecs": false,
@@ -28,7 +30,7 @@
     "omitFiltered": true,
     "json": {
       "enabled": true,
-      "output": "cypress/cucumber-logs/report.json"
+      "output": "results/cucumber-logs/report.json"
     },
     "pretty": {
       "enabled": true

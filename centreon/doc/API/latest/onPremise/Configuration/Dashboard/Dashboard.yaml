@@ -1,0 +1,60 @@
+get:
+  tags:
+    - Dashboard
+  summary: "Get a dashboard"
+  description: |
+    Return one dashboard configuration.
+    
+    `Since Centreon web 23.10`
+  parameters:
+    - $ref: 'QueryParameter/DashboardId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/Dashboard.Find.yaml'
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+
+post:
+  tags:
+    - Dashboard
+  summary: "Partial update of a dashboard"
+  description: |
+    `Since Centreon web 23.10`
+    
+    Partial update dashboard.
+  parameters:
+    - $ref: 'QueryParameter/DashboardId.yaml'
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          $ref: 'Schema/Dashboard.PartialUpdate.yaml'
+  responses:
+    '204': { description: "OK" }
+    '400': { $ref: '../../Common/Response/BadRequest.yaml' }
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '409': { $ref: '../../Common/Response/Conflict.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+
+delete:
+  tags:
+    - Dashboard
+  summary: "Delete a dashboard"
+  description: |
+    Delete one dashboard configuration.
+    
+    `Since Centreon web 23.10`
+  parameters:
+    - $ref: 'QueryParameter/DashboardId.yaml'
+  responses:
+    '204': { description: "OK" }
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

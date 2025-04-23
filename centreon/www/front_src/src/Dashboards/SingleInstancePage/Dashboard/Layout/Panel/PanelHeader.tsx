@@ -1,34 +1,53 @@
 import { useMemo, useState } from 'react';
 
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { equals, includes } from 'ramda';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
-import { CardHeader } from '@mui/material';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import DvrIcon from '@mui/icons-material/Dvr';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import UpdateIcon from '@mui/icons-material/Update';
+import {
+  Button,
+  CardHeader,
+  CircularProgress,
+  Typography
+} from '@mui/material';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
+import { Tooltip } from '@centreon/ui/components';
 
 import {
   dashboardAtom,
   duplicatePanelDerivedAtom,
   isEditingAtom
 } from '../../atoms';
-import { labelMoreActions, labelSeeMore } from '../../translatedLabels';
-import { resourceBasedWidgets } from '../../utils';
+import { useLastRefresh } from '../../hooks/useLastRefresh';
+import {
+  labelMoreActions,
+  labelResourcesStatus,
+  labelSeeMore
+} from '../../translatedLabels';
 
-import { usePanelHeaderStyles } from './usePanelStyles';
+import ExpandableButton from './ExpandableButton';
 import MorePanelActions from './MorePanelActions';
+import { ExpandableData } from './models';
+import { usePanelHeaderStyles } from './usePanelStyles';
+import useRefreshWebPageWidget from './useRefreshWebPageWidget';
 
 interface PanelHeaderProps {
   changeViewMode: (displayType) => void;
   displayMoreActions: boolean;
+  displayShrinkRefresh: boolean;
+  forceDisplayShrinkRefresh: boolean;
   id: string;
   linkToResourceStatus?: string;
+  pageType: string | null;
   setRefreshCount?: (id) => void;
-  widgetName?: string;
+  name: string;
+  expandableData?: ExpandableData;
 }
 
 const PanelHeader = ({
@@ -36,11 +55,14 @@ const PanelHeader = ({
   setRefreshCount,
   linkToResourceStatus,
   displayMoreActions,
-  widgetName,
-  changeViewMode
+  changeViewMode,
+  pageType,
+  displayShrinkRefresh,
+  forceDisplayShrinkRefresh,
+  name,
+  expandableData
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
-
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
 
   const { classes } = usePanelHeaderStyles();
@@ -50,60 +72,157 @@ const PanelHeader = ({
 
   const setIsEditing = useSetAtom(isEditingAtom);
 
-  const duplicate = (event): void => {
-    event.preventDefault();
-    setIsEditing(true);
-    duplicatePanel(id);
-  };
-
-  const openMoreActions = (event): void => setMoreActionsOpen(event.target);
-  const closeMoreActions = (): void => setMoreActionsOpen(null);
-
   const panel = useMemo(
     () => dashboard.layout.find((dashbordPanel) => equals(dashbordPanel.i, id)),
     useDeepCompare([dashboard.layout])
   );
 
+  const widgetPrefixQuery = useMemo(
+    () => `${panel?.panelConfiguration.path}_${id}`,
+    [panel?.panelConfiguration.path, id]
+  );
+
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching({ queryKey: [widgetPrefixQuery] });
+
+  const { labelRefresh, isLastRefreshMoreThanADay } =
+    useLastRefresh(isFetching);
+
+  const hasQueryData = !isEmpty(
+    queryClient.getQueriesData({
+      queryKey: [widgetPrefixQuery]
+    })
+  );
+
+  const duplicate = (event: MouseEvent): void => {
+    event.preventDefault();
+    setIsEditing(() => true);
+    duplicatePanel(id);
+  };
+
+  const refresh = (): void => {
+    setRefreshCount?.(id);
+  };
+
+  const openMoreActions = (event): void => setMoreActionsOpen(event.target);
+  const closeMoreActions = (): void => setMoreActionsOpen(null);
+
+  const page = t(pageType || labelResourcesStatus);
+
+  const isWebPageWidget = equals(name, 'centreon-widget-webpage');
+
+  const refresWebpageWidget = useRefreshWebPageWidget(id);
+
   return (
     <CardHeader
       action={
-        displayMoreActions && (
+        displayMoreActions ? (
           <div className={classes.panelActionsIcons}>
-            {includes(widgetName, resourceBasedWidgets) && (
+            {hasQueryData && (
+              <div>
+                {forceDisplayShrinkRefresh ||
+                (displayShrinkRefresh && isLastRefreshMoreThanADay) ? (
+                  <IconButton
+                    disabled={!!isFetching}
+                    size="small"
+                    title={labelRefresh}
+                    tooltipPlacement="top"
+                    onClick={refresh}
+                  >
+                    {isFetching ? (
+                      <CircularProgress size={22} />
+                    ) : (
+                      <UpdateIcon sx={{ height: 22, width: 22 }} />
+                    )}
+                  </IconButton>
+                ) : (
+                  <Button
+                    className={classes.panelHeaderRefreshButton}
+                    disabled={!!isFetching}
+                    size="small"
+                    startIcon={
+                      isFetching ? (
+                        <CircularProgress size={22} />
+                      ) : (
+                        <UpdateIcon sx={{ height: 22, width: 22 }} />
+                      )
+                    }
+                    onClick={refresh}
+                  >
+                    {labelRefresh}
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {linkToResourceStatus && (
               <Link
-                data-testid={labelSeeMore}
+                data-testid={t(labelSeeMore, { page })}
                 style={{ all: 'unset' }}
                 target="_blank"
                 to={linkToResourceStatus as string}
               >
                 <IconButton
-                  ariaLabel={t(labelSeeMore)}
-                  title={t(labelSeeMore)}
+                  ariaLabel={t(labelSeeMore, { page })}
+                  title={t(labelSeeMore, { page })}
                   onClick={changeViewMode}
                 >
                   <DvrIcon fontSize="small" />
                 </IconButton>
               </Link>
             )}
-            <IconButton
-              ariaLabel={t(labelMoreActions) as string}
-              title={t(labelMoreActions) as string}
-              onClick={openMoreActions}
-            >
-              <MoreHorizIcon fontSize="small" />
-            </IconButton>
+
+            {isWebPageWidget && (
+              <IconButton
+                size="small"
+                title={'Refresh the page'}
+                tooltipPlacement="top"
+                onClick={refresWebpageWidget}
+              >
+                <UpdateIcon sx={{ height: 22, width: 22 }} />
+              </IconButton>
+            )}
+
+            {!expandableData || !expandableData?.isExpanded ? (
+              <IconButton
+                ariaLabel={t(labelMoreActions) as string}
+                title={t(labelMoreActions) as string}
+                onClick={openMoreActions}
+              >
+                <MoreHorizIcon fontSize="small" />
+              </IconButton>
+            ) : (
+              <ExpandableButton expandableData={expandableData} />
+            )}
             <MorePanelActions
               anchor={moreActionsOpen}
               close={closeMoreActions}
               duplicate={duplicate}
               id={id}
-              setRefreshCount={setRefreshCount}
+              expandableData={expandableData}
             />
           </div>
+        ) : (
+          <ExpandableButton expandableData={expandableData} />
         )
       }
       className={classes.panelHeader}
-      title={panel?.options?.name || ''}
+      classes={{
+        content: displayShrinkRefresh
+          ? classes.panelHeaderContentWithShrink
+          : classes.panelHeaderContent
+      }}
+      title={
+        <Tooltip
+          followCursor={false}
+          label={panel?.options?.name}
+          placement="top"
+        >
+          <Typography className={classes.panelTitle}>
+            {panel?.options?.name || ''}
+          </Typography>
+        </Tooltip>
+      }
     />
   );
 };

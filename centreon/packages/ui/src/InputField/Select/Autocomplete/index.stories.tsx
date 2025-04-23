@@ -1,8 +1,7 @@
-import * as React from 'react';
-
 import EditIcon from '@mui/icons-material/Edit';
 import { InputAdornment } from '@mui/material';
 
+import { useState } from 'react';
 import AutocompleteField from '.';
 
 export default { title: 'InputField/Autocomplete' };
@@ -85,7 +84,7 @@ const AutoSizeAutocompleteField = ({
   endAdornment,
   customPadding
 }: AutoSizeAutocompleteFieldProps): JSX.Element => {
-  const [value, setValue] = React.useState(null);
+  const [value, setValue] = useState(null);
 
   const change = (_, newValue): void => {
     setValue(newValue);

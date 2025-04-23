@@ -31,9 +31,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
  */
 class Image
 {
-    public const MAX_NAME_LENGTH = 255,
-                 MAX_PATH_LENGTH = 255,
-                 MAX_COMMENTS_LENGTH = 65535;
+    public const MAX_NAME_LENGTH = 255;
+    public const MAX_PATH_LENGTH = 255;
+    public const MAX_COMMENTS_LENGTH = 65535;
 
     /**
      * @var int|null

@@ -81,11 +81,11 @@ class I18nService
      *
      * @return void
      */
-    private function initLang()
+    private function initLang(): void
     {
         $this->lang = getenv('LANG');
 
-        if (strstr($this->lang, '.UTF-8') === false) {
+        if (!str_contains($this->lang, '.UTF-8')) {
             $this->lang .= '.UTF-8';
         }
     }

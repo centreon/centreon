@@ -35,15 +35,37 @@
 
 namespace CentreonClapi;
 
+use CentreonDB;
+use PDOException;
+use Pimple\Container;
+
+/**
+ * Class
+ *
+ * @class CentreonACLResources
+ * @package CentreonClapi
+ */
 class CentreonACLResources
 {
-    private $DB;
+    /** @var CentreonDB */
+    public $_DB;
 
-    public function __construct(\Pimple\Container $dependencyInjector)
+    /**
+     * CentreonACLResources constructor
+     *
+     * @param Container $dependencyInjector
+     */
+    public function __construct(Container $dependencyInjector)
     {
         $this->_DB = $dependencyInjector['configuration_db'];
     }
 
+    /**
+     * @param string $name
+     *
+     * @return int
+     * @throws PDOException
+     */
     public function getACLResourceID($name)
     {
         $request = "SELECT acl_group_id FROM acl_groups WHERE acl_group_name LIKE '"
@@ -57,6 +79,13 @@ class CentreonACLResources
         }
     }
 
+    /**
+     * @param $contact_id
+     * @param $aclid
+     *
+     * @return int
+     * @throws PDOException
+     */
     public function addContact($contact_id, $aclid)
     {
         $request = "DELETE FROM acl_group_contacts_relations "
@@ -70,6 +99,13 @@ class CentreonACLResources
         return 0;
     }
 
+    /**
+     * @param $contact_id
+     * @param $aclid
+     *
+     * @return int
+     * @throws PDOException
+     */
     public function delContact($contact_id, $aclid)
     {
         $request = "DELETE FROM acl_group_contacts_relations "
@@ -78,6 +114,10 @@ class CentreonACLResources
         return 0;
     }
 
+    /**
+     * @return int
+     * @throws PDOException
+     */
     public function updateACL()
     {
         $request = "UPDATE `acl_resources` SET `changed` = '1'";

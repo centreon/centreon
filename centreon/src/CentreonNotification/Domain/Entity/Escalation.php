@@ -41,21 +41,23 @@ class Escalation implements Mapping\MetadataInterface
      * $this->repository->getClassMetadata()->getTableName()
      * </example>
      */
-    public const TABLE = 'escalation',
-                 ENTITY_IDENTIFICATOR_COLUMN = 'esc_id';
+    public const TABLE = 'escalation';
 
     /**
-     * @Serializer\Groups({Escalation::SERIALIZER_GROUP_LIST})
+     * Use class metadata instead calling of this constant.
      *
-     * @var int an identification of entity
+     * <example>
+     * $this->repository->getClassMetadata()->getTableName()
+     * </example>
      */
+    public const ENTITY_IDENTIFICATOR_COLUMN = 'esc_id';
+
+    /** @var int an identification of entity */
+    #[Serializer\Groups([Escalation::SERIALIZER_GROUP_LIST])]
     private $id;
 
-    /**
-     * @Serializer\Groups({Escalation::SERIALIZER_GROUP_LIST})
-     *
-     * @var string escalation name
-     */
+    /** @var string escalation name */
+    #[Serializer\Groups([Escalation::SERIALIZER_GROUP_LIST])]
     private $name;
 
     /**

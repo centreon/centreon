@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { makeStyles } from 'tss-react/mui';
 
 import AccessibilityIcon from '@mui/icons-material/Accessibility';

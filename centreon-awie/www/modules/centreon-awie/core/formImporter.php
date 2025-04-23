@@ -18,11 +18,12 @@
 
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
 
-$export = isset($export) ? $export : null;
+$export ??= null;
 $import = realpath(__DIR__);
-// Smarty template Init
-$path = _MODULE_PATH_ . "/core/templates/";
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+
+// Smarty template initialization
+$path = _MODULE_PATH_ . '/core/templates/';
+$tpl = SmartyBC::createSmartyTemplate($path);
+
 $tpl->assign('formPath', $export);
 $tpl->display('formImport.tpl');

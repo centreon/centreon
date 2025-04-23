@@ -33,8 +33,9 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @param DatabaseConnection $db
      */
-    public function __construct(protected DatabaseConnection $db)
+    public function __construct(DatabaseConnection $db)
     {
+        $this->db = $db;
     }
 
     /**
@@ -78,5 +79,13 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
         }
 
         $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateDatasetAccess(int $ruleId, int $datasetId, bool $fullAccess): void
+    {
+        return;
     }
 }

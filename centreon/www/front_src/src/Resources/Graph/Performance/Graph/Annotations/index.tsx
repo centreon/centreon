@@ -2,9 +2,9 @@ import { ScaleTime } from 'd3-scale';
 
 import { TimelineEvent } from '../../../../Details/tabs/Timeline/models';
 
-import CommentAnnotations from './Line/Comments';
-import AcknowledgementAnnotations from './Line/Acknowledgement';
 import DowntimeAnnotations from './Area/Downtime';
+import AcknowledgementAnnotations from './Line/Acknowledgement';
+import CommentAnnotations from './Line/Comments';
 
 export interface Props {
   graphHeight: number;

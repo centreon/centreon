@@ -1,0 +1,33 @@
+{
+   "data":{
+      "resources":[
+         {
+            "resourceType":"host-group",
+            "resources":[
+               {
+                  "id":53,
+                  "name":"Linux-Servers"
+               }
+            ]
+         }
+      ]
+   },
+   "options":{
+      "resourceTypes":[
+         "host",
+         "service"
+      ],
+      "statuses":[
+         "1",
+         "2"
+      ],
+      "refreshInterval":"default",
+      "description":{
+         "content":"{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Group Monitoring widget description\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+         "enabled":true
+      },
+      "name":"Group Monitoring widget title",
+      "limit":10,
+      "page":0
+   }
+}

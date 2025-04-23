@@ -1,8 +1,0 @@
-PartialUpdateContactDashboardShare:
-  methods: PATCH
-  path: /configuration/dashboards/{dashboardId}/access_rights/contacts/{contactId}
-  requirements:
-    dashboardId: '\d+'
-    contactId: '\d+'
-  controller: 'Core\Dashboard\Infrastructure\API\PartialUpdateContactDashboardShare\PartialUpdateContactDashboardShareController'
-  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.dashboard')"

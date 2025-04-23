@@ -34,12 +34,12 @@ use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOCon
     FindWebSSOConfigurationResponse
 };
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadWebSSOConfigurationRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
 });
 
-it('should present a FindWebSSOConfigurationResponse when everything goes well', function () {
+it('should present a FindWebSSOConfigurationResponse when everything goes well', function (): void {
     $configuration = new WebSSOConfiguration(
         true,
         false,
@@ -69,7 +69,7 @@ it('should present a FindWebSSOConfigurationResponse when everything goes well',
     expect($presenter->response->patternReplaceLogin)->toBeNull();
 });
 
-it('should present a NotFoundResponse when no configuration are found in Data storage', function () {
+it('should present a NotFoundResponse when no configuration are found in Data storage', function (): void {
     $useCase = new FindWebSSOConfiguration($this->repository);
     $presenter = new FindWebSSOConfigurationPresenterStub($this->presenterFormatter);
 
@@ -84,7 +84,7 @@ it('should present a NotFoundResponse when no configuration are found in Data st
         ->toBe((new NotFoundResponse('WebSSOConfiguration'))->getMessage());
 });
 
-it('should present an ErrorResponse when an error occured during the finding process', function () {
+it('should present an ErrorResponse when an error occured during the finding process', function (): void {
     $useCase = new FindWebSSOConfiguration($this->repository);
     $presenter = new FindWebSSOConfigurationPresenterStub($this->presenterFormatter);
     $exceptionMessage = 'An error occured';

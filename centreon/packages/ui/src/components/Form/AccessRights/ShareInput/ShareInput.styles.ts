@@ -4,7 +4,7 @@ export const useShareInputStyles = makeStyles()((theme) => ({
   inputs: {
     display: 'grid',
     gap: theme.spacing(1),
-    gridTemplateColumns: `1fr min-content min-content`
+    gridTemplateColumns: '1fr min-content min-content'
   }
 }));
 

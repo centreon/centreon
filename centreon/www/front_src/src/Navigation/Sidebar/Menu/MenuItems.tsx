@@ -1,31 +1,28 @@
 import {
-  forwardRef,
   MouseEvent,
   MouseEventHandler,
   ReactNode,
+  forwardRef,
   useMemo
 } from 'react';
 
 import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
-import {
-  Link as RouterLink,
-  LinkProps as RouterLinkProps
-} from 'react-router-dom';
 import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
+import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
+import { Chip, Theme } from '@mui/material';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { Chip, Theme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
-import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
 import { Page } from '../../models';
+import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
 import {
   hoveredNavigationItemsAtom,
   selectedNavigationItemsAtom
@@ -182,7 +179,10 @@ const MenuItems = ({
                   />
                 )}
             </ListItemIcon>
-            <ListItemText className={classes.rootLabel} primary={data.label} />
+            <ListItemText
+              className={classes.rootLabel}
+              primary={t(data.label)}
+            />
             {optionalLabel}
           </>
         ) : (
@@ -192,7 +192,7 @@ const MenuItems = ({
                 <ArrowIcon isOpen={isOpen} size="small" />
               )}
             </ListItemIcon>
-            <ListItemText className={classes.label} secondary={data.label} />
+            <ListItemText className={classes.label} secondary={t(data.label)} />
             {optionalLabel}
           </>
         )}

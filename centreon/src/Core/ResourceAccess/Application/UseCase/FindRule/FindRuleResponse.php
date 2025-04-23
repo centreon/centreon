@@ -33,6 +33,10 @@ final class FindRuleResponse
 
     public bool $isEnabled = true;
 
+    public bool $applyToAllContacts = false;
+
+    public bool $applyToAllContactGroups = false;
+
     /** @var array<int, array{id: int, name: string}> */
     public array $contacts = [];
 

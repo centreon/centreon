@@ -34,15 +34,33 @@
  *
  */
 
+use App\Kernel;
+use Core\Common\Application\UseCase\VaultTrait;
+use Pimple\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class Broker
+ */
 class Broker extends AbstractObjectJSON
 {
+    use VaultTrait;
+
     private const STREAM_BBDO_SERVER = 'bbdo_server';
     private const STREAM_BBDO_CLIENT = 'bbdo_client';
 
+    /** @var array|null */
     protected $engine = null;
+    /** @var mixed|null */
     protected $broker = null;
+    /** @var string|null */
     protected $generate_filename = null;
+    /** @var string|null */
     protected $object_name = null;
+    /** @var string */
     protected $attributes_select = '
         config_id,
         config_name,
@@ -62,6 +80,7 @@ class Broker extends AbstractObjectJSON
         pool_size,
         bbdo_version
     ';
+    /** @var string */
     protected $attributes_select_parameters = '
         config_group,
         config_group_id,
@@ -73,6 +92,7 @@ class Broker extends AbstractObjectJSON
         parent_grp_id,
         fieldIndex
     ';
+    /** @var string */
     protected $attributes_engine_parameters = '
         id,
         name,
@@ -80,26 +100,60 @@ class Broker extends AbstractObjectJSON
         centreonbroker_cfg_path,
         centreonbroker_logs_path
     ';
-    protected $exclude_parameters = array(
-        'blockId'
-    );
-    protected $authorized_empty_field = array(
-        'db_password'
-    );
+    /** @var string[] */
+    protected $exclude_parameters = ['blockId'];
+    /** @var string[] */
+    protected $authorized_empty_field = ['db_password'];
+    /** @var CentreonDBStatement|null */
     protected $stmt_engine = null;
+    /** @var CentreonDBStatement|null */
     protected $stmt_broker = null;
+    /** @var CentreonDBStatement|null */
     protected $stmt_broker_parameters = null;
+    /** @var CentreonDBStatement|null */
     protected $stmt_engine_parameters = null;
+    /** @var array|null */
     protected $cacheExternalValue = null;
+    /** @var array|null */
     protected $cacheLogValue = null;
+    /** @var object|null */
+    protected $readVaultConfigurationRepository = null;
 
-    private function getExternalValues()
+    /**
+     * Broker constructor
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    public function __construct(Container $dependencyInjector)
+    {
+        parent::__construct($dependencyInjector);
+
+        // Get Centeron Vault Storage configuration
+        $kernel = Kernel::createForWeb();
+        $this->readVaultConfigurationRepository = $kernel->getContainer()->get(
+            Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+        );
+
+        if (! $this->isVaultEnabled) {
+            $this->getVaultConfigurationStatus();
+        }
+    }
+
+    /**
+     * @return void
+     * @throws PDOException
+     */
+    private function getExternalValues(): void
     {
         if (!is_null($this->cacheExternalValue)) {
             return;
         }
 
-        $this->cacheExternalValue = array();
+        $this->cacheExternalValue = [];
         $stmt = $this->backend_instance->db->prepare("
             SELECT CONCAT(cf.fieldname, '_', cttr.cb_tag_id, '_', ctfr.cb_type_id) as name, external
             FROM cb_field cf, cb_type_field_relation ctfr, cb_tag_type_relation cttr
@@ -113,12 +167,16 @@ class Broker extends AbstractObjectJSON
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function getLogsValues(): void
     {
         if (!is_null($this->cacheLogValue)) {
             return;
         }
-        $this->cacheLogValue = array();
+        $this->cacheLogValue = [];
         $stmt = $this->backend_instance->db->prepare("
             SELECT relation.`id_centreonbroker`, log.`name`, lvl.`name` as level
             FROM `cfg_centreonbroker_log` relation
@@ -133,7 +191,15 @@ class Broker extends AbstractObjectJSON
         }
     }
 
-    private function generate($poller_id, $localhost)
+    /**
+     * @param $poller_id
+     * @param $localhost
+     *
+     * @return void
+     * @throws PDOException
+     * @throws RuntimeException
+     */
+    private function generate($poller_id, $localhost): void
     {
         $this->getExternalValues();
 
@@ -204,8 +270,8 @@ class Broker extends AbstractObjectJSON
             $resultParameters = $this->stmt_broker_parameters->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
 
             //logger
-            $object['log']['directory'] = \HtmlAnalyzer::sanitizeAndRemoveTags($row['log_directory']);
-            $object['log']['filename'] = \HtmlAnalyzer::sanitizeAndRemoveTags($row['log_filename']);
+            $object['log']['directory'] = HtmlAnalyzer::sanitizeAndRemoveTags($row['log_directory']);
+            $object['log']['filename'] = HtmlAnalyzer::sanitizeAndRemoveTags($row['log_filename']);
             $object['log']['max_size'] = filter_var($row['log_max_size'], FILTER_VALIDATE_INT);
             $this->getLogsValues();
             $logs = $this->cacheLogValue[$object['broker_id']];
@@ -333,7 +399,7 @@ class Broker extends AbstractObjectJSON
 
             if ($anomalyDetectionLuaOutputGroupID >= 0) {
                 $luaParameters = $this->generateAnomalyDetectionLuaParameters();
-                if (!empty($luaParameters)) {
+                if ($luaParameters !== []) {
                     $object["output"][$anomalyDetectionLuaOutputGroupID]['lua_parameter'] = array_merge_recursive(
                         $object["output"][$anomalyDetectionLuaOutputGroupID]['lua_parameter'],
                         $luaParameters
@@ -356,6 +422,17 @@ class Broker extends AbstractObjectJSON
 
             // Remove unnecessary element form inputs and output for stream types bbdo
             $object = $this->cleanBbdoStreams($object);
+
+            // Add vault path if vault if defined
+            if ($this->readVaultConfigurationRepository->exists()) {
+                $object['vault_configuration'] = $this->readVaultConfigurationRepository->getLocation();
+            }
+
+            if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
+                foreach ($object['output'] as $outputIndex => $output) {
+                    $this->processVaultOutput($output, $outputIndex, $object);
+                }
+            }
 
             // Generate file
             $this->generateFile($object);
@@ -387,7 +464,7 @@ class Broker extends AbstractObjectJSON
                     unset($config['input'][$key]['compression']);
                     unset($config['input'][$key]['retention']);
 
-                    if ($config['input']['encrypt'] === 'no') {
+                    if ($config['input'][$key]['encryption'] === 'no') {
                         unset($config['input'][$key]['private_key']);
                         unset($config['input'][$key]['certificate']);
                     }
@@ -395,7 +472,7 @@ class Broker extends AbstractObjectJSON
                 if ($inputCfg['type'] === self::STREAM_BBDO_CLIENT) {
                     unset($config['input'][$key]['compression']);
 
-                    if ($config['input'][$key]['encrypt'] === 'no') {
+                    if ($config['input'][$key]['encryption'] === 'no') {
                         unset($config['input'][$key]['ca_certificate']);
                         unset($config['input'][$key]['ca_name']);
                     }
@@ -418,7 +495,13 @@ class Broker extends AbstractObjectJSON
         return $config;
     }
 
-    private function getEngineParameters($poller_id)
+    /**
+     * @param $poller_id
+     *
+     * @return void
+     * @throws PDOException
+     */
+    private function getEngineParameters($poller_id): void
     {
         if (is_null($this->stmt_engine_parameters)) {
             $this->stmt_engine_parameters = $this->backend_instance->db->prepare("SELECT
@@ -441,11 +524,24 @@ class Broker extends AbstractObjectJSON
         }
     }
 
-    public function generateFromPoller($poller)
+    /**
+     * @param $poller
+     *
+     * @return void
+     * @throws PDOException
+     * @throws RuntimeException
+     */
+    public function generateFromPoller($poller): void
     {
         $this->generate($poller['id'], $poller['localhost']);
     }
 
+    /**
+     * @param $string
+     *
+     * @return array|false|mixed|string
+     * @throws PDOException
+     */
     private function getInfoDb($string)
     {
         /*
@@ -458,10 +554,10 @@ class Broker extends AbstractObjectJSON
          */
         $configs = explode(':', $string);
         foreach ($configs as $config) {
-            if (strpos($config, '=') == false) {
+            if (!str_contains($config, '=')) {
                 continue;
             }
-            list($key, $value) = explode('=', $config);
+            [$key, $value] = explode('=', $config);
             switch ($key) {
                 case 'D':
                     $s_db = $value;
@@ -512,7 +608,7 @@ class Broker extends AbstractObjectJSON
         $stmt = $db->prepare($query);
         $stmt->execute();
 
-        $infos = array();
+        $infos = [];
         while (($row = $stmt->fetch(PDO::FETCH_ASSOC))) {
             $val = $row[$s_column];
             if (!is_null($s_rpn)) {
@@ -528,6 +624,12 @@ class Broker extends AbstractObjectJSON
         return $infos;
     }
 
+    /**
+     * @param $rpn
+     * @param $val
+     *
+     * @return float|int|mixed|string
+     */
     private function rpnCalc($rpn, $val)
     {
         if (!is_numeric($val)) {
@@ -536,7 +638,7 @@ class Broker extends AbstractObjectJSON
         try {
             $val = array_reduce(
                 preg_split('/\s+/', $val . ' ' . $rpn),
-                array($this, 'rpnOperation')
+                [$this, 'rpnOperation']
             );
             return $val[0];
         } catch (InvalidArgumentException $e) {
@@ -544,15 +646,22 @@ class Broker extends AbstractObjectJSON
         }
     }
 
+    /**
+     * @param $result
+     * @param $item
+     *
+     * @return array|mixed
+     * @throws InvalidArgumentException
+     */
     private function rpnOperation($result, $item)
     {
-        if (in_array($item, array('+', '-', '*', '/'))) {
+        if (in_array($item, ['+', '-', '*', '/'])) {
             if (count($result) < 2) {
                 throw new InvalidArgumentException('Not enough arguments to apply operator');
             }
             $a = $result[0];
             $b = $result[1];
-            $result = array();
+            $result = [];
             $result[0] = eval("return $a $item $b;");
         } elseif (is_numeric($item)) {
             $result[] = $item;
@@ -572,9 +681,9 @@ class Broker extends AbstractObjectJSON
         global $pearDB;
         $result = $pearDB->query("SELECT `value` FROM informations WHERE `key` = 'uuid'");
 
-        if (! $record = $result->fetch(\PDO::FETCH_ASSOC)) {
+        if (! $record = $result->fetch(PDO::FETCH_ASSOC)) {
             return null;
-        };
+        }
 
         return $record['value'];
     }
@@ -614,7 +723,7 @@ class Broker extends AbstractObjectJSON
          *     proxy_password?: null|string
          * } $options
          */
-        $options = $pearDB->query($sql)->fetchAll(\PDO::FETCH_KEY_PAIR) ?: [];
+        $options = $pearDB->query($sql)->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
 
         $luaParameters = [];
 
@@ -664,5 +773,77 @@ class Broker extends AbstractObjectJSON
         ];
 
         return $luaParameters;
+    }
+
+    /**
+     * Process vault output and update object with vault data.
+     *
+     * @param array $output
+     * @param int $outputIndex
+     * @param array $object
+     * @return void
+     */
+    private function processVaultOutput(array &$output, int $outputIndex, array &$object): void
+    {
+        foreach ($output as $outputKey => $outputValue) {
+            if (is_string($outputValue) && $this->isAVaultPath($outputValue)) {
+                $this->updateVaultData($output, $outputKey, $outputValue, $object['output'][$outputIndex]);
+            }
+
+            if ($outputKey === "lua_parameter" && is_array($outputValue)) {
+                $this->processLuaParameters($output, $outputKey, $outputValue, $object['output'][$outputIndex]);
+            }
+        }
+    }
+
+    /**
+     * Update vault data for a given key.
+     *
+     * @param array $output
+     * @param string $outputKey
+     * @param string $outputValue
+     * @param array $outputReference
+     * @return void
+     */
+    private function updateVaultData(
+        array &$output,
+        string $outputKey,
+        string $outputValue,
+        array &$outputReference
+    ): void {
+        $vaultData = $this->readVaultRepository->findFromPath($outputValue);
+        $vaultKey = $output['name'] . '_' . $outputKey;
+        if (array_key_exists($vaultKey, $vaultData)) {
+            $outputReference[$outputKey] = $vaultData[$vaultKey];
+        }
+    }
+
+    /**
+     * Process Lua parameters and update with vault data if applicable.
+     *
+     * @param array $output
+     * @param string $outputKey
+     * @param array $luaParameters
+     * @param array $outputReference
+     * @return void
+     */
+    private function processLuaParameters(
+        array &$output,
+        string $outputKey,
+        array $luaParameters,
+        array &$outputReference
+    ): void {
+        foreach ($luaParameters as $parameterIndex => $luaParameter) {
+            if ($luaParameter['type'] === 'password'
+                && is_string($luaParameter['value'])
+                && $this->isAVaultPath($luaParameter['value'])
+            ) {
+                $vaultData = $this->readVaultRepository->findFromPath($luaParameter['value']);
+                $vaultKey = $output['name'] . '_' . $outputKey . '_' . $luaParameter['name'];
+                if (array_key_exists($vaultKey, $vaultData)) {
+                    $outputReference[$outputKey][$parameterIndex]['value'] = $vaultData[$vaultKey];
+                }
+            }
+        }
     }
 }

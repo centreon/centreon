@@ -35,57 +35,56 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Relation_Timeperiod_Exclude;
+use Centreon_Object_Relation_Timeperiod_Include;
+use Centreon_Object_Timeperiod;
+use Centreon_Object_Timeperiod_Exception;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Timeperiod/Timeperiod.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Timeperiod/Exception.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Timeperiod/Exclude.php";
 require_once __DIR__ . "/../../../lib/Centreon/Object/Relation/Timeperiod/Include.php";
 
+/**
+ * Class
+ *
+ * @class CentreonTimePeriod
+ * @package CentreonClapi
+ */
 class CentreonTimePeriod extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
-    const TP_INCLUDE = "include";
-    const TP_EXCLUDE = "exclude";
-    const TP_EXCEPTION = "exception";
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
+    public const TP_INCLUDE = "include";
+    public const TP_EXCLUDE = "exclude";
+    public const TP_EXCEPTION = "exception";
 
-    /**
-     * @var Centreon_Relation_Timeperiod_Exclude
-     */
+    /** @var Centreon_Object_Timeperiod */
     protected $exclude;
-
-    /**
-     * @var Centreon_Relation_Timeperiod_Exclude
-     */
+    /** @var Container */
     protected $dependencyInjector;
-
-    /**
-     *
-     * @var Centreon_Relation_Timeperiod_Include
-     */
+    /** @var Centreon_Object_Timeperiod */
     protected $include;
 
     /**
-     * Constructor
+     * CentreonTimePeriod constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->dependencyInjector = $dependencyInjector;
-        $this->object = new \Centreon_Object_Timeperiod($dependencyInjector);
-        $this->params = array(
-            'tp_sunday' => '',
-            'tp_monday' => '',
-            'tp_tuesday' => '',
-            'tp_wednesday' => '',
-            'tp_thursday' => '',
-            'tp_friday' => '',
-            'tp_saturday' => ''
-        );
-        $this->insertParams = array("tp_name", "tp_alias");
-        $this->exportExcludedParams = array_merge($this->insertParams, array($this->object->getPrimaryKey()));
+        $this->object = new Centreon_Object_Timeperiod($dependencyInjector);
+        $this->params = ['tp_sunday' => '', 'tp_monday' => '', 'tp_tuesday' => '', 'tp_wednesday' => '', 'tp_thursday' => '', 'tp_friday' => '', 'tp_saturday' => ''];
+        $this->insertParams = ["tp_name", "tp_alias"];
+        $this->exportExcludedParams = array_merge($this->insertParams, [$this->object->getPrimaryKey()]);
         $this->action = "TP";
         $this->nbOfCompulsoryParams = count($this->insertParams);
     }
@@ -93,25 +92,16 @@ class CentreonTimePeriod extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array(
-            'tp_id',
-            'tp_name',
-            'tp_alias',
-            'tp_sunday',
-            'tp_monday',
-            'tp_tuesday',
-            'tp_wednesday',
-            'tp_thursday',
-            'tp_friday',
-            'tp_saturday'
-        );
+        $params = ['tp_id', 'tp_name', 'tp_alias', 'tp_sunday', 'tp_monday', 'tp_tuesday', 'tp_wednesday', 'tp_thursday', 'tp_friday', 'tp_saturday'];
         $paramString = str_replace("tp_", "", implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
@@ -131,16 +121,18 @@ class CentreonTimePeriod extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     *
+     * @return void
      * @throws CentreonClapiException
+     * @throws PDOException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $this->checkIllegalChar($params[self::ORDER_UNIQUENAME]);
         $addParams['tp_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
@@ -167,7 +159,7 @@ class CentreonTimePeriod extends CentreonObject
                 $params[1] = "tp_" . $params[1];
             }
             if ($params[1] != self::TP_INCLUDE && $params[1] != self::TP_EXCLUDE) {
-                $updateParams = array($params[1] => $params[2]);
+                $updateParams = [$params[1] => $params[2]];
                 $updateParams['objectId'] = $objectId;
                 return $updateParams;
             }
@@ -183,7 +175,7 @@ class CentreonTimePeriod extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function setexception($parameters)
+    public function setexception($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (($tpId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) == 0) {
@@ -192,27 +184,20 @@ class CentreonTimePeriod extends CentreonObject
         if (count($params) < self::NB_UPDATE_PARAMS) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $excObj = new \Centreon_Object_Timeperiod_Exception($this->dependencyInjector);
+        $excObj = new Centreon_Object_Timeperiod_Exception($this->dependencyInjector);
         $escList = $excObj->getList(
             $excObj->getPrimaryKey(),
             -1,
             0,
             null,
             null,
-            array(
-                "timeperiod_id" => $tpId,
-                "days" => $params[1]
-            ),
+            ["timeperiod_id" => $tpId, "days" => $params[1]],
             "AND"
         );
         if (count($escList)) {
-            $excObj->update($escList[0][$excObj->getPrimaryKey()], array('timerange' => $params[2]));
+            $excObj->update($escList[0][$excObj->getPrimaryKey()], ['timerange' => $params[2]]);
         } else {
-            $excObj->insert(array(
-                'timeperiod_id' => $tpId,
-                'days' => $params[1],
-                'timerange' => $params[2]
-            ));
+            $excObj->insert(['timeperiod_id' => $tpId, 'days' => $params[1], 'timerange' => $params[2]]);
         }
     }
 
@@ -223,7 +208,7 @@ class CentreonTimePeriod extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function delexception($parameters)
+    public function delexception($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (($tpId = $this->getObjectId($params[self::ORDER_UNIQUENAME])) == 0) {
@@ -232,17 +217,14 @@ class CentreonTimePeriod extends CentreonObject
         if (count($params) < 2) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $excObj = new \Centreon_Object_Timeperiod_Exception($this->dependencyInjector);
+        $excObj = new Centreon_Object_Timeperiod_Exception($this->dependencyInjector);
         $escList = $excObj->getList(
             $excObj->getPrimaryKey(),
             -1,
             0,
             null,
             null,
-            array(
-                "timeperiod_id" => $tpId,
-                "days" => $params[1]
-            ),
+            ["timeperiod_id" => $tpId, "days" => $params[1]],
             "AND"
         );
         if (count($escList)) {
@@ -257,13 +239,13 @@ class CentreonTimePeriod extends CentreonObject
      * @return void
      * @throws CentreonClapiException
      */
-    public function getexception($parameters)
+    public function getexception($parameters): void
     {
         if (($tpId = $this->getObjectId($parameters)) == 0) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $parameters);
         }
-        $excObj = new \Centreon_Object_Timeperiod_Exception($this->dependencyInjector);
-        $escList = $excObj->getList(array("days", "timerange"), -1, 0, null, null, array("timeperiod_id" => $tpId));
+        $excObj = new Centreon_Object_Timeperiod_Exception($this->dependencyInjector);
+        $escList = $excObj->getList(["days", "timerange"], -1, 0, null, null, ["timeperiod_id" => $tpId]);
         echo "days;timerange\n";
         foreach ($escList as $exc) {
             echo $exc['days'] . $this->delim . $exc['timerange'] . "\n";
@@ -279,7 +261,7 @@ class CentreonTimePeriod extends CentreonObject
      */
     public function getTimeperiodId($name)
     {
-        $tpIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($name));
+        $tpIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
         if (!count($tpIds)) {
             throw new CentreonClapiException("Unknown timeperiod: " . $name);
         }
@@ -294,7 +276,7 @@ class CentreonTimePeriod extends CentreonObject
      */
     public function getTimeperiodName($timeperiodId)
     {
-        $tpName = $this->object->getParameters($timeperiodId, array($this->object->getUniqueLabelField()));
+        $tpName = $this->object->getParameters($timeperiodId, [$this->object->getUniqueLabelField()]);
         return $tpName[$this->object->getUniqueLabelField()];
     }
 
@@ -302,22 +284,24 @@ class CentreonTimePeriod extends CentreonObject
      * Set Include / Exclude relations
      *
      * @param int $relationType
-     * @param string $sourceName
+     * @param int $sourceId
      * @param string $relationName
+     *
      * @return void
+     * @throws CentreonClapiException
      */
     protected function setRelations($relationType, $sourceId, $relationName)
     {
-        $relationIds = array();
+        $relationIds = [];
         $relationNames = explode("|", $relationName);
         foreach ($relationNames as $name) {
             $name = trim($name);
             $relationIds[] = $this->getTimePeriodId($name);
         }
         if ($relationType == self::TP_INCLUDE) {
-            $relObj = new \Centreon_Object_Relation_Timeperiod_Include($this->dependencyInjector);
+            $relObj = new Centreon_Object_Relation_Timeperiod_Include($this->dependencyInjector);
         } else {
-            $relObj = new \Centreon_Object_Relation_Timeperiod_Exclude($this->dependencyInjector);
+            $relObj = new Centreon_Object_Relation_Timeperiod_Exclude($this->dependencyInjector);
         }
         $relObj->delete($sourceId);
         foreach ($relationIds as $relId) {

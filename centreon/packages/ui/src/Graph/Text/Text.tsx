@@ -1,7 +1,8 @@
 import { isNil } from 'ramda';
 
-import { Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 
+import FluidTypography from '../../Typography/FluidTypography';
 import { LineChartData, Thresholds } from '../common/models';
 import {
   formatMetricValueWithUnit,
@@ -11,7 +12,7 @@ import { getColorFromDataAndTresholds } from '../common/utils';
 
 import { useTextStyles } from './Text.styles';
 
-interface Props {
+export interface Props {
   baseColor?: string;
   data?: LineChartData;
   displayAsRaw?: boolean;
@@ -30,7 +31,7 @@ export const Text = ({
   baseColor
 }: Props): JSX.Element | null => {
   const theme = useTheme();
-  const { classes } = useTextStyles();
+  const { classes, cx } = useTextStyles();
 
   if (isNil(data)) {
     return null;
@@ -63,27 +64,35 @@ export const Text = ({
 
   return (
     <div className={classes.graphText}>
-      <Typography sx={{ color }} variant="h2">
-        <strong>
-          {formatMetricValueWithUnit({
+      <FluidTypography
+        max="40px"
+        pref={16}
+        sx={{ color, fontWeight: 'bold', textAlign: 'center' }}
+        text={
+          formatMetricValueWithUnit({
             isRaw: displayAsRaw,
             unit: metricUnit,
             value: metricValue
-          })}
-        </strong>
-      </Typography>
+          }) || ''
+        }
+        variant="h2"
+      />
       {thresholds.enabled && (
         <div className={classes.thresholds}>
-          <Typography sx={{ color: 'warning.main' }} variant="h5">
-            {labels.warning}
-            {': '}
-            {warningThresholdLabels.join(' - ')}
-          </Typography>
-          <Typography sx={{ color: 'error.main' }} variant="h5">
-            {labels.critical}
-            {': '}
-            {criticalThresholdLabels.join(' - ')}
-          </Typography>
+          <FluidTypography
+            containerClassName={cx(classes.threshold, classes.warning)}
+            max="30px"
+            pref={14}
+            text={`${labels.warning}: ${warningThresholdLabels.join(' - ')}`}
+            variant="h5"
+          />
+          <FluidTypography
+            containerClassName={cx(classes.threshold, classes.critical)}
+            max="30px"
+            pref={14}
+            text={`${labels.critical}: ${criticalThresholdLabels.join(' - ')}`}
+            variant="h5"
+          />
         </div>
       )}
     </div>

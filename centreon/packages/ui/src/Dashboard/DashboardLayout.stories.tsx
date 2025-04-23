@@ -95,7 +95,7 @@ export const normal = DashboardTemplate.bind({});
 
 export const withManyPanels = DashboardTemplate.bind({});
 withManyPanels.args = {
-  layout: generateLayout(1000)
+  layout: generateLayout(100)
 };
 
 export const withItemHeader = DashboardTemplate.bind({});

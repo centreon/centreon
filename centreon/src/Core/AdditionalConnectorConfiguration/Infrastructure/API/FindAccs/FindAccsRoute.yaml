@@ -1,0 +1,5 @@
+FindAdditionalConnectorConfigurations:
+  methods: GET
+  path: /configuration/additional-connector-configurations
+  controller: 'Core\AdditionalConnectorConfiguration\Infrastructure\API\FindAccs\FindAccsController'
+  condition: "request.attributes.get('version') >= 24.09"

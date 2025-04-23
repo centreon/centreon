@@ -33,7 +33,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\{
 
 it(
     'should sanitize URL/endpoint values when they contain additional slashes and/or spaces in the beginning and end',
-    function () {
+    function (): void {
         $json = [
             'is_active' => true,
             'is_forced' => false,

@@ -29,18 +29,31 @@ use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\{ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface};
-use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodRequest};
+use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodDto, DtoException};
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
 use Tests\Core\TimePeriod\Application\UseCase\ExtractResponse;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->writeRepository = $this->createMock(WriteTimePeriodRepositoryInterface::class);
     $this->formatter = $this->createMock(JsonFormatter::class);
     $this->user = $this->createMock(ContactInterface::class);
+    $this->timePeriodRequest = new AddTimePeriodDto(
+        'fake_name',
+        'fake_alias',
+        [
+            ['day' => 1, 'time_range' => '00:00-01:00'],
+            ['day' => 2, 'time_range' => '00:00-01:00'],
+        ],
+        [1],
+        [
+            ['day_range' => 'monday', 'time_range' => '00:00-01:00'],
+            ['day_range' => 'tuesday', 'time_range' => '00:00-01:00'],
+        ]
+    );
 });
 
-it('should present an ForbiddenResponse whenuser has insufficient rights', function () {
+it('should present an ForbiddenResponse whenuser has insufficient rights', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -48,7 +61,7 @@ it('should present an ForbiddenResponse whenuser has insufficient rights', funct
 
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
     $presenter = new DefaultPresenter($this->formatter);
-    $useCase(new AddTimePeriodRequest(), $presenter);
+    $useCase($this->timePeriodRequest, $presenter);
 
     expect($presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
@@ -56,7 +69,7 @@ it('should present an ForbiddenResponse whenuser has insufficient rights', funct
         ->toBe(TimePeriodException::editNotAllowed()->getMessage());
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
 
     $this->user
         ->expects($this->once())
@@ -70,7 +83,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
 
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
     $presenter = new DefaultPresenter($this->formatter);
-    $useCase(new AddTimePeriodRequest(), $presenter);
+    $useCase($this->timePeriodRequest, $presenter);
 
     expect($presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
@@ -78,7 +91,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(TimePeriodException::errorWhenAddingTimePeriod()->getMessage());
 });
 
-it('should present an ErrorResponse when the name already exists', function () {
+it('should present an ErrorResponse when the name already exists', function (): void {
     $nameToFind = 'fake_name';
 
     $this->user
@@ -92,11 +105,9 @@ it('should present an ErrorResponse when the name already exists', function () {
         ->with($nameToFind, null)
         ->willReturn(true);
 
-    $request = new AddTimePeriodRequest();
-    $request->name = $nameToFind;
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
     $presenter = new DefaultPresenter($this->formatter);
-    $useCase($request, $presenter);
+    $useCase($this->timePeriodRequest, $presenter);
 
     expect($presenter->getResponseStatus())
         ->toBeInstanceOf(ConflictResponse::class)
@@ -104,8 +115,8 @@ it('should present an ErrorResponse when the name already exists', function () {
         ->toBe(TimePeriodException::nameAlreadyExists($nameToFind)->getMessage());
 });
 
-it('should present an ErrorResponse when the new time period cannot be found after creation', function () {
-    $nameToFind = 'fake_name';
+it('should present an ErrorResponse when the new time period cannot be found after creation', function (): void {
+    $nameToFind = $this->timePeriodRequest->name;
 
     $this->user
         ->expects($this->once())
@@ -129,12 +140,9 @@ it('should present an ErrorResponse when the new time period cannot be found aft
         ->with(1)
         ->willReturn(null);
 
-    $request = new AddTimePeriodRequest();
-    $request->name = $nameToFind;
-    $request->alias = 'fake_alias';
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
     $presenter = new DefaultPresenter($this->formatter);
-    $useCase($request, $presenter);
+    $useCase($this->timePeriodRequest, $presenter);
 
     expect($presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
@@ -142,8 +150,8 @@ it('should present an ErrorResponse when the new time period cannot be found aft
         ->toBe(TimePeriodException::errorWhenAddingTimePeriod()->getMessage());
 });
 
-it('should present a correct CreatedResponse object after creation', function () {
-    $fakeName = 'fake_name';
+it('should present a correct CreatedResponse object after creation', function (): void {
+    $fakeName = $this->timePeriodRequest->name;
 
     $this->user
         ->expects($this->once())
@@ -174,12 +182,9 @@ it('should present a correct CreatedResponse object after creation', function ()
         ->with(1)
         ->willReturn($newTimePeriod);
 
-    $request = new AddTimePeriodRequest();
-    $request->name = $fakeName;
-    $request->alias = 'fake_alias';
     $useCase = new AddTimePeriod($this->readRepository, $this->writeRepository, $this->user);
     $presenter = new AddTimePeriodsPresenterStub($this->formatter);
-    $useCase($request, $presenter);
+    $useCase($this->timePeriodRequest, $presenter);
 
     expect($presenter->response)->toBeInstanceOf(CreatedResponse::class);
     expect($presenter->response->getResourceId())->toBe($newTimePeriod->getId());

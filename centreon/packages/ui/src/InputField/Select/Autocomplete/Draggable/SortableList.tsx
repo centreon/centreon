@@ -1,6 +1,6 @@
-import { map, find, propEq } from 'ramda';
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
+import { find, map, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { lighten } from '@mui/material';

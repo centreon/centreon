@@ -37,7 +37,7 @@ if (!isset($centreon)) {
     exit();
 }
 
-$tab = array("1" => "ENABLE", "0" => "DISABLE");
+$tab = ["1" => "ENABLE", "0" => "DISABLE"];
 
 function write_command($cmd, $poller)
 {
@@ -48,18 +48,14 @@ function write_command($cmd, $poller)
     /*
      * Destination is centcore pipe path
      */
-    if (defined("_CENTREON_VARLIB_")) {
-        $destination = _CENTREON_VARLIB_ . "/centcore.cmd";
-    } else {
-        $destination = "/var/lib/centreon/centcore.cmd";
-    }
+    $destination = defined("_CENTREON_VARLIB_") ? _CENTREON_VARLIB_ . "/centcore.cmd" : "/var/lib/centreon/centcore.cmd";
 
     $cmd = str_replace("`", "&#96;", $cmd);
     $cmd = str_replace("\n", "<br>", $cmd);
     $informations = preg_split("/\;/", $key);
 
     if (!mb_detect_encoding($cmd, 'UTF-8', true)) {
-        $cmd = utf8_encode($cmd);
+        $cmd = mb_convert_encoding($cmd, 'UTF-8', 'ISO-8859-1');
     }
     setlocale(LC_CTYPE, 'en_US.UTF-8');
 
@@ -72,7 +68,7 @@ function send_cmd($cmd, $poller = null)
     if (isset($cmd)) {
         $flg = write_command($cmd, $poller);
     }
-    isset($flg) && $flg ? $ret = $flg : $ret = _("Command execution problem");
+    $ret = isset($flg) && $flg ? $flg : _("Command execution problem");
     return $ret;
 }
 
@@ -87,7 +83,7 @@ function schedule_host_svc_checks($arg, $forced)
     $actions = $centreon->user->access->checkAction("host_checks_for_services");
 
     if ($actions == true || $is_admin) {
-        $tab_forced = array("0" => "", "1" => "_FORCED");
+        $tab_forced = ["0" => "", "1" => "_FORCED"];
         $flg = send_cmd(
             " SCHEDULE" . $tab_forced[$forced] . "_HOST_SVC_CHECKS;" . $arg . ";" . time(),
             GetMyHostPoller($pearDB, $arg)
@@ -111,7 +107,7 @@ function schedule_svc_checks($arg, $forced)
     }
 
     if ($actions == true || $is_admin) {
-        $tab_forced = array("0" => "", "1" => "_FORCED");
+        $tab_forced = ["0" => "", "1" => "_FORCED"];
         $tab_data = preg_split("/\;/", $arg);
         $flg = send_cmd(
             " SCHEDULE" . $tab_forced[$forced] . "_SVC_CHECK;" . urldecode($tab_data[0]) .
@@ -136,7 +132,7 @@ function schedule_host_checks($arg, $forced)
     }
 
     if ($actions == true || $is_admin) {
-        $tab_forced = array("0" => "", "1" => "_FORCED");
+        $tab_forced = ["0" => "", "1" => "_FORCED"];
         $tab_data = preg_split("/\;/", $arg);
         $flg = send_cmd(
             " SCHEDULE" . $tab_forced[$forced] . "_HOST_CHECK;" . urldecode($tab_data[0]) . ";" . time(),
@@ -403,7 +399,7 @@ function acknowledgeHost($param)
 
     if ($actions == true || $is_admin) {
         $key = $param["host_name"];
-        isset($param['sticky']) && $param['sticky'] == "1" ? $sticky = "2" : $sticky = "1";
+        $sticky = isset($param['sticky']) && $param['sticky'] == "1" ? "2" : "1";
         $host_poller = GetMyHostPoller($pearDB, htmlentities($param["host_name"], ENT_QUOTES, "UTF-8"));
         $flg = write_command(
             " ACKNOWLEDGE_HOST_PROBLEM;" . urldecode($param["host_name"]) .
@@ -495,14 +491,14 @@ function acknowledgeService($param)
     if ($actions == true || $is_admin) {
         $param["comment"] = $param["comment"];
         $param["comment"] = str_replace('\'', ' ', $param["comment"]);
-        isset($param['sticky']) && $param['sticky'] == "1" ? $sticky = "2" : $sticky = "1";
+        $sticky = isset($param['sticky']) && $param['sticky'] == "1" ? "2" : "1";
         $flg = send_cmd(
             " ACKNOWLEDGE_SVC_PROBLEM;" . urldecode($param["host_name"]) . ";" .
             urldecode($param["service_description"]) . ";" . $sticky . ";" . $param["notify"] .
             ";" . $param["persistent"] . ";" . $param["author"] . ";" . $param["comment"],
             GetMyHostPoller($pearDB, urldecode($param["host_name"]))
         );
-        isset($param['force_check']) && $param['force_check'] ? $force_check = 1 : $force_check = 0;
+        $force_check = isset($param['force_check']) && $param['force_check'] ? 1 : 0;
         if ($force_check == 1 && $centreon->user->access->checkAction("service_schedule_forced_check") == true) {
             send_cmd(
                 " SCHEDULE_FORCED_SVC_CHECK;" . urldecode($param["host_name"]) . ";" .

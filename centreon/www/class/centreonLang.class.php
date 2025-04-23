@@ -33,45 +33,33 @@
  *
  */
 
- /*
-  *  Language management class
-  */
+/**
+ * Class
+ *
+ * @class CentreonLang
+ */
 class CentreonLang
 {
-    /**
-     *
-     * @var string
-     */
-    protected $charset;
+    /** @var string */
+    protected $charset = "UTF-8";
     
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     protected $lang;
     
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     protected $path;
     
-    /**
-     *
-     * @var array
-     */
+    /** @var array */
     protected $charsetList;
 
     /**
-     *  Constructor
+     * CentreonLang constructor
      *
      * @param string $centreon_path
      * @param Centreon $centreon
-     * @return void
      */
     public function __construct($centreon_path, $centreon = null)
     {
-        $this->charset = "UTF-8";
         if (!is_null($centreon) && isset($centreon->user->charset)) {
             $this->charset = $centreon->user->charset;
         }
@@ -85,10 +73,13 @@ class CentreonLang
         $this->path = $centreon_path;
         $this->setCharsetList();
     }
-    
+
+    /**
+     * @return int|string|null
+     */
     private function parseHttpAcceptHeader()
     {
-        $langs = array();
+        $langs = [];
 
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             // break up string into pieces (languages and q factors)
@@ -151,12 +142,7 @@ class CentreonLang
     {
         $fullLocale = '';
 
-        $as = array(
-            'fr' => 'fr_FR',
-            'fr_FR' => 'fr_FR',
-            'en' => 'en_US',
-            'en_US' => 'en_US'
-        );
+        $as = ['fr' => 'fr_FR', 'fr_FR' => 'fr_FR', 'en' => 'en_US', 'en_US' => 'en_US'];
 
         if (isset($as[$shortLocale])) {
             $fullLocale .= $as[$shortLocale];
@@ -173,53 +159,9 @@ class CentreonLang
      *
      *  @return void
      */
-    private function setCharsetList()
+    private function setCharsetList(): void
     {
-        $this->charsetList = array(
-            "ISO-8859-1",
-            "ISO-8859-2",
-            "ISO-8859-3",
-            "ISO-8859-4",
-            "ISO-8859-5",
-            "ISO-8859-6",
-            "ISO-8859-7",
-            "ISO-8859-8",
-            "ISO-8859-9",
-            "UTF-80",
-            "UTF-83",
-            "UTF-84",
-            "UTF-85",
-            "UTF-86",
-            "ISO-2022-JP",
-            "ISO-2022-KR",
-            "ISO-2022-CN",
-            "WINDOWS-1251",
-            "CP866",
-            "KOI8",
-            "KOI8-E",
-            "KOI8-R",
-            "KOI8-U",
-            "KOI8-RU",
-            "ISO-10646-UCS-2",
-            "ISO-10646-UCS-4",
-            "UTF-7",
-            "UTF-8",
-            "UTF-16",
-            "UTF-16BE",
-            "UTF-16LE",
-            "UTF-32",
-            "UTF-32BE",
-            "UTF-32LE",
-            "EUC-CN",
-            "EUC-GB",
-            "EUC-JP",
-            "EUC-KR",
-            "EUC-TW",
-            "GB2312",
-            "ISO-10646-UCS-2",
-            "ISO-10646-UCS-4",
-            "SHIFT_JIS"
-        );
+        $this->charsetList = ["ISO-8859-1", "ISO-8859-2", "ISO-8859-3", "ISO-8859-4", "ISO-8859-5", "ISO-8859-6", "ISO-8859-7", "ISO-8859-8", "ISO-8859-9", "UTF-80", "UTF-83", "UTF-84", "UTF-85", "UTF-86", "ISO-2022-JP", "ISO-2022-KR", "ISO-2022-CN", "WINDOWS-1251", "CP866", "KOI8", "KOI8-E", "KOI8-R", "KOI8-U", "KOI8-RU", "ISO-10646-UCS-2", "ISO-10646-UCS-4", "UTF-7", "UTF-8", "UTF-16", "UTF-16BE", "UTF-16LE", "UTF-32", "UTF-32BE", "UTF-32LE", "EUC-CN", "EUC-GB", "EUC-JP", "EUC-KR", "EUC-TW", "GB2312", "ISO-10646-UCS-2", "ISO-10646-UCS-4", "SHIFT_JIS"];
         sort($this->charsetList);
     }
 
@@ -228,7 +170,7 @@ class CentreonLang
      *
      *  @return void
      */
-    public function bindLang($domain = "messages", $path = "www/locale/")
+    public function bindLang($domain = "messages", $path = "www/locale/"): void
     {
         putenv("LANG=$this->lang");
         setlocale(LC_ALL, $this->lang);
@@ -243,7 +185,7 @@ class CentreonLang
      *  @param string $newLang
      *  @return void
      */
-    public function setLang($newLang)
+    public function setLang($newLang): void
     {
         $this->lang = $newLang;
     }
@@ -264,7 +206,7 @@ class CentreonLang
      *  @param string $newCharset
      *  @return void
      */
-    public function setCharset($newCharset)
+    public function setCharset($newCharset): void
     {
         $this->charset = $newCharset;
     }

@@ -1,5 +1,5 @@
 <?php
-$help = array();
+$help = [];
 $help["mc_update"] = dgettext(
     "help",
     "Choose the update mode for the below field: incremental adds the selected values, replacement overwrites " .

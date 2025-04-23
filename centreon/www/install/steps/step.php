@@ -6,7 +6,7 @@ $installFactory = new \CentreonLegacy\Core\Install\Factory($dependencyInjector);
 $information = $installFactory->newInformation();
 
 $parameters = filter_input_array(INPUT_GET);
-$action = isset($parameters['action']) ? $parameters['action'] : 'stepContent';
+$action = $parameters['action'] ?? 'stepContent';
 
 switch ($action) {
     case 'stepContent':
@@ -17,5 +17,8 @@ switch ($action) {
         break;
     case 'previousStep':
         echo $information->previousStepContent();
+        break;
+    case 'vaultStep':
+        echo $information->vaultStepContent();
         break;
 }

@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
@@ -39,6 +40,7 @@ final class FindServiceTemplates
     use LoggerTrait;
 
     public function __construct(
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadServiceTemplateRepositoryInterface $repository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ContactInterface $user
@@ -66,7 +68,15 @@ final class FindServiceTemplates
                 return;
             }
 
-            $serviceTemplates = $this->repository->findByRequestParameter($this->requestParameters);
+            if ($this->user->isAdmin()) {
+                $serviceTemplates = $this->repository->findByRequestParameter($this->requestParameters);
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $serviceTemplates = $this->repository->findByRequestParametersAndAccessGroups(
+                    $this->requestParameters,
+                    $accessGroups
+                );
+            }
 
             $presenter->presentResponse($this->createResponse($serviceTemplates));
         } catch (RequestParametersTranslatorException $ex) {

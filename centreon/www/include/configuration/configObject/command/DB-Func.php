@@ -34,6 +34,8 @@
  *
  */
 
+use Core\ActionLog\Domain\Model\ActionLog;
+
 if (!isset($centreon)) {
     exit();
 }
@@ -94,7 +96,7 @@ function testCmdExistence($name = null)
     }
 }
 
-function deleteCommandInDB($commands = array())
+function deleteCommandInDB($commands = [])
 {
     global $pearDB, $centreon;
 
@@ -103,11 +105,16 @@ function deleteCommandInDB($commands = array())
         $dbResult2 = $pearDB->query($query);
         $row = $dbResult2->fetch();
         $pearDB->query("DELETE FROM `command` WHERE `command_id` = '" . (int)$key . "'");
-        $centreon->CentreonLogAction->insertLog("command", $key, $row['command_name'], "d");
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_COMMAND,
+            object_id: $key,
+            object_name: $row['command_name'],
+            action_type: ActionLog::ACTION_TYPE_DELETE
+        );
     }
 }
 
-function multipleCommandInDB($commands = array(), $nbrDup = array())
+function multipleCommandInDB($commands = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
@@ -123,6 +130,9 @@ function multipleCommandInDB($commands = array(), $nbrDup = array())
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 $key2 == "command_name" ? ($command_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "command_locked") {
+                    $value2 = "0"; // Duplicate a locked command to edit it
+                }
                 $val ? $val .= ($value2 != null ? (", '" . $pearDB->escape($value2) . "'")
                     : ", NULL") : $val .= ($value2 != null ? ("'" . $pearDB->escape($value2) . "'") : "NULL");
                 if ($key2 != "command_id") {
@@ -131,10 +141,11 @@ function multipleCommandInDB($commands = array(), $nbrDup = array())
                 if (isset($command_name)) {
                     $fields["command_name"] = $command_name;
                 }
+                $fields["command_locked"] = 0;
             }
 
             if (isset($command_name) && testCmdExistence($command_name)) {
-                $val ? $rq = "INSERT INTO `command` VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO `command` VALUES (" . $val . ")" : null;
                 $dbResult = $pearDB->query($rq);
 
                 /*
@@ -143,11 +154,11 @@ function multipleCommandInDB($commands = array(), $nbrDup = array())
                 $dbResult = $pearDB->query("SELECT MAX(command_id) FROM `command`");
                 $cmd_id = $dbResult->fetch();
                 $centreon->CentreonLogAction->insertLog(
-                    "command",
-                    $cmd_id["MAX(command_id)"],
-                    $command_name,
-                    "a",
-                    $fields
+                    object_type: ActionLog::OBJECT_TYPE_COMMAND,
+                    object_id: $cmd_id["MAX(command_id)"],
+                    object_name: $command_name,
+                    action_type: ActionLog::ACTION_TYPE_ADD,
+                    fields: $fields
                 );
 
                 /*
@@ -167,20 +178,24 @@ function updateCommandInDB($cmd_id = null)
     updateCommand($cmd_id);
 }
 
-function updateCommand($cmd_id = null, $params = array())
+/**
+ * @param $cmd_id
+ * @param $params
+ *
+ * @return void
+ * @throws PDOException
+ * @throws UnexpectedValueException
+ */
+function updateCommand($cmd_id = null, $params = [])
 {
-    global $form, $pearDB, $centreon;
+    global $form, $pearDB, $centreon, $isCloudPlatform;
 
     if (!$cmd_id) {
         return;
     }
 
-    $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
+    $ret = [];
+    $ret = count($params) ? $params : $form->getSubmitValues();
 
     $ret["command_name"] = $centreon->checkIllegalChar($ret["command_name"]);
     if (!isset($ret['enable_shell'])) {
@@ -199,16 +214,23 @@ function updateCommand($cmd_id = null, $params = array())
         "WHERE `command_id` = :command_id";
 
     $ret["connectors"] = (isset($ret["connectors"]) && !empty($ret["connectors"])) ? $ret["connectors"] : null;
-    $ret["command_activate"]["command_activate"] = (isset($ret["command_activate"]["command_activate"]))
-            ? $ret["command_activate"]["command_activate"]
-            : null;
+    $ret["command_activate"]["command_activate"] ??= null;
+
+    if (
+        ($isCloudPlatform && !isset($ret['type'])) ||
+        (!$isCloudPlatform && !isset($ret["command_type"]) && !isset($ret["command_type"]["command_type"]))
+    ) {
+        throw new UnexpectedValueException('command type is undefined');
+    }
+
+    $type = $isCloudPlatform ? $ret['type'] : $ret["command_type"]["command_type"];
 
     $sth = $pearDB->prepare($rq);
     $sth->bindParam(':command_name', $ret["command_name"], PDO::PARAM_STR);
     $sth->bindParam(':command_line', $ret["command_line"], PDO::PARAM_STR);
     $sth->bindParam(':enable_shell', $ret["enable_shell"], PDO::PARAM_INT);
     $sth->bindParam(':command_example', $ret["command_example"], PDO::PARAM_STR);
-    $sth->bindParam(':command_type', $ret["command_type"]["command_type"], PDO::PARAM_INT);
+    $sth->bindParam(':command_type', $type, PDO::PARAM_INT);
     $sth->bindParam(':command_comment', $ret["command_comment"], PDO::PARAM_STR);
     $sth->bindParam(':graph_id', $ret["graph_id"], PDO::PARAM_INT);
     $sth->bindParam(':connector_id', $ret["connectors"], PDO::PARAM_INT);
@@ -222,18 +244,24 @@ function updateCommand($cmd_id = null, $params = array())
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("command", $cmd_id, $pearDB->escape($ret["command_name"]), "c", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_COMMAND,
+        object_id: $cmd_id,
+        object_name: $ret["command_name"],
+        action_type: ActionLog::ACTION_TYPE_CHANGE,
+        fields: $fields
+    );
 }
 
-function insertCommandInDB($ret = array())
+function insertCommandInDB($ret = [])
 {
     $cmd_id = insertCommand($ret);
     return ($cmd_id);
 }
 
-function insertCommand($ret = array())
+function insertCommand($ret = [])
 {
-    global $form, $pearDB, $centreon;
+    global $form, $pearDB, $centreon, $isCloudPlatform;
 
     if (!count($ret)) {
         $ret = $form->getSubmitValues();
@@ -243,6 +271,8 @@ function insertCommand($ret = array())
     if (!isset($ret['enable_shell'])) {
         $ret['enable_shell'] = 0;
     }
+
+    $commandType = $isCloudPlatform ? $ret['type'] : $ret["command_type"]["command_type"];
 
     /*
      * Insert
@@ -254,12 +284,13 @@ function insertCommand($ret = array())
             '" . $pearDB->escape($ret["command_line"]) . "',
             " . (int)$ret['enable_shell'] . ",
             '" . $pearDB->escape($ret["command_example"]) . "',
-            " . (int)$ret["command_type"]["command_type"] . ",
+            " . (int) $commandType . ",
             " . (!empty($ret["graph_id"]) ? (int)$ret['graph_id'] : "NULL") . ",
             " . (!empty($ret["connectors"]) ? (int)$ret['connectors'] : "NULL") . ",
             '" . $pearDB->escape($ret["command_comment"]) . "',
             '" . $pearDB->escape($ret["command_activate"]["command_activate"]) . "'";
     $rq .= ")";
+
     $pearDB->query($rq);
 
     /*
@@ -269,7 +300,13 @@ function insertCommand($ret = array())
 
     /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog("command", $max_id, $pearDB->escape($ret["command_name"]), "a", $fields);
+    $centreon->CentreonLogAction->insertLog(
+        object_type: ActionLog::OBJECT_TYPE_COMMAND,
+        object_id: $max_id,
+        object_name: $ret["command_name"],
+        action_type: ActionLog::ACTION_TYPE_ADD,
+        fields: $fields
+    );
 
     insertArgDesc($max_id, $ret);
     insertMacrosDesc($max_id, $ret);
@@ -290,27 +327,18 @@ function return_plugin($rep)
 {
     global $centreon;
 
-    $plugins = array();
-    $is_not_a_plugin = array(
-        "." => 1,
-        ".." => 1,
-        "oreon.conf" => 1,
-        "oreon.pm" => 1,
-        "utils.pm" => 1,
-        "negate" => 1,
-        "centreon.conf" => 1,
-        "centreon.pm" => 1
-    );
+    $plugins = [];
+    $is_not_a_plugin = ["." => 1, ".." => 1, "oreon.conf" => 1, "oreon.pm" => 1, "utils.pm" => 1, "negate" => 1, "centreon.conf" => 1, "centreon.pm" => 1];
     $handle[$rep] = opendir($rep);
     while (false != ($filename = readdir($handle[$rep]))) {
         if ($filename != "." && $filename != "..") {
             if (is_dir($rep . $filename)) {
-                $plg_tmp = return_plugin($rep . "/" . $filename, $handle[$rep]);
+                $plg_tmp = return_plugin($rep . "/" . $filename);
                 $plugins = array_merge($plugins, $plg_tmp);
                 unset($plg_tmp);
             } elseif (!isset($is_not_a_plugin[$filename]) &&
-                substr($filename, -1) != "~" &&
-                substr($filename, -1) != "#"
+                !str_ends_with($filename, "~") &&
+                !str_ends_with($filename, "#")
             ) {
                 $key = substr($rep . "/" . $filename, strlen($centreon->optGen["nagios_path_plugins"]));
                 $plugins[$key] = $key;
@@ -458,7 +486,7 @@ function insertMacrosDesc($cmd, $ret)
 {
     global $pearDB;
 
-    $arr = array("HOST" => "1", "SERVICE" => "2");
+    $arr = ["HOST" => "1", "SERVICE" => "2"];
     if (!count($ret)) {
         $ret = $form->getSubmitValues();
     }
@@ -513,10 +541,10 @@ function changeCommandStatus($command_id, $commands, $status)
             "WHERE command_id = '" . $pearDB->escape($command_id) . "'";
         $pearDB->query($query);
         $centreon->CentreonLogAction->insertLog(
-            "command",
-            $command_id,
-            getCommandName($command_id),
-            $status ? "enable" : "disable"
+            object_type: ActionLog::OBJECT_TYPE_COMMAND,
+            object_id: $command_id,
+            object_name: getCommandName($command_id),
+            action_type: $status ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE
         );
     } else {
         foreach ($commands as $command_id => $flag) {
@@ -526,10 +554,10 @@ function changeCommandStatus($command_id, $commands, $status)
                 $pearDB->query($query);
 
                 $centreon->CentreonLogAction->insertLog(
-                    "command",
-                    $command_id,
-                    getCommandName($command_id),
-                    $status ? "enable" : "disable"
+                    object_type: ActionLog::OBJECT_TYPE_COMMAND,
+                    object_id: $command_id,
+                    object_name: getCommandName($command_id),
+                    action_type: $status ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE
                 );
             }
         }

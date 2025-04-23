@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,72 +25,137 @@ namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
-use Core\Contact\Domain\Model\ContactGroup;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\Response\ContactGroupsResponseDto;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindDashboardContactGroups
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
-        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
-    public function __invoke(FindDashboardContactGroupsPresenterInterface $presenter): void
+    /**
+     * @return FindDashboardContactGroupsResponse|ResponseStatusInterface
+     */
+    public function __invoke(): FindDashboardContactGroupsResponse|ResponseStatusInterface
     {
         try {
-            if ($this->rights->canAccess()) {
-                $this->info('Find dashboard contact groups', ['request' => $this->requestParameters->toArray()]);
-                $users = $this->contact->isAdmin()
-                    ? $this->findContactGroupsAsAdmin()
-                    : $this->findContactGroupsAsContact();
+            $this->info('Find dashboard contact groups', ['request' => $this->requestParameters->toArray()]);
 
-                $presenter->presentResponse($this->createResponse($users));
-            } else {
-                $this->error(
-                    "User doesn't have sufficient rights to see dashboards",
-                    ['user_id' => $this->contact->getId()]
-                );
-                $presenter->presentResponse(new ForbiddenResponse(DashboardException::accessNotAllowed()));
-            }
+            return $this->isUserAdmin()
+                ? $this->createResponse($this->findContactGroupsAsAdmin())
+                : $this->createResponse($this->findContactGroupsAsContact());
+        } catch (RepositoryException $ex) {
+            $this->error(
+                $ex->getMessage(),
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => [
+                        'message' => $ex->getPrevious()?->getMessage(),
+                        'trace' => $ex->getPrevious()?->getTraceAsString(),
+                    ],
+                ]
+            );
+
+            return new ErrorResponse(DashboardException::errorWhileSearchingSharableContactGroups());
         } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while retrieving contact groups allowed to receive a dashboard share : {$ex->getMessage()}",
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => [
+                        'message' => $ex->getMessage(),
+                        'trace' => $ex->getTraceAsString(),
+                    ],
+                ]
+            );
+
+            return new ErrorResponse(DashboardException::errorWhileSearchingSharableContactGroups());
         }
     }
 
     /**
+     * Cloud UseCase - ACL groups are not linked to contact groups.
+     * Therefore, we need to retrieve all contact groups as admin.
+     * Those contact groups will have as most permissive role 'Viewer'.
+     * No checks will be done regarding Dashboard Rights when sharing to the contact groups selected
+     * however it will be not possible for contacts belonging to these contact groups
+     * to have more rights than configured through their ACLs as user dashboard rights will
+     * be applied for the user that reaches Dashboard.
+     *
+     * OnPremise
+     *
+     * Retrieve contact groups having access to Dashboard.
+     *
      * @throws \Throwable
      *
-     * @return array<ContactGroup>
+     * @return DashboardContactGroupRole[]
      */
     private function findContactGroupsAsAdmin(): array
     {
-        return $this->readContactGroupRepository->findAll();
+        return $this->isCloudPlatform
+            ? $this->readDashboardShareRepository->findContactGroupsByRequestParameters($this->requestParameters)
+            : $this->readDashboardShareRepository->findContactGroupsWithAccessRightByRequestParameters(
+            $this->requestParameters
+        );
     }
 
     /**
+     * Cloud
+     *
+     * ACL groups are not linked to contact groups.
+     * Therefore, we need to retrieve all contact groups to which belongs the current user.
+     * Those contact groups will have as most permissive role 'Viewer'.
+     * No checks will be done regarding Dashboard Rights when sharing to the contact groups selected
+     * however it will be not possible for contacts belonging to these contact groups
+     * to have more rights than configured through their ACLs as user dashboard rights will
+     * be applied for the user that reaches Dashboard.
+     *
+     * OnPremise
+     *
+     * Retrieve contact groups to which belongs the current user and having access to Dashboard.
+     *
      * @throws \Throwable
      *
-     * @return array<ContactGroup>
+     * @return DashboardContactGroupRole[]
      */
     private function findContactGroupsAsContact(): array
     {
-        return $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
+        if ($this->isCloudPlatform === true) {
+            return $this->readDashboardShareRepository->findContactGroupsByUserAndRequestParameters(
+                $this->requestParameters,
+                $this->contact->getId()
+            );
+        }
+
+        return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByUserAndRequestParameters(
+            $this->requestParameters,
+            $this->contact->getId()
+        );
     }
 
     /**
-     * @param ContactGroup[] $groups
+     * @param DashboardContactGroupRole[] $groups
      */
     private function createResponse(array $groups): FindDashboardContactGroupsResponse
     {
@@ -98,11 +163,32 @@ final class FindDashboardContactGroups
 
         foreach ($groups as $group) {
             $response->contactGroups[] = new ContactGroupsResponseDto(
-                $group->getId(),
-                $group->getName(),
+                $group->getContactGroupId(),
+                $group->getContactGroupName(),
+                $group->getMostPermissiverole()
             );
         }
 
         return $response;
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

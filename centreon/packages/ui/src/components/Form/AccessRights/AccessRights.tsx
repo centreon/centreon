@@ -8,33 +8,35 @@ import Provider from './Provider';
 import ShareInput from './ShareInput/ShareInput';
 import Stats from './Stats/Stats';
 import { AccessRightInitialValues, Endpoints, Labels } from './models';
+import { useAccessRightsChange } from './useAccessRightsChange';
 import { useAccessRightsInitValues } from './useAccessRightsInitValues';
 
 interface Props {
-  cancel: ({ dirty, values }) => void;
+  cancel?: ({ dirty, values }) => void;
   endpoints: Endpoints;
   initialValues: Array<AccessRightInitialValues>;
   isSubmitting?: boolean;
   labels: Labels;
-  link?: string;
   loading?: boolean;
+  onChange?: (values: Array<AccessRightInitialValues>) => void;
   roles: Array<SelectEntry>;
   submit: (values: Array<AccessRightInitialValues>) => Promise<void>;
 }
 
-export const AccessRights = ({
+export const AccessRightsContent = ({
   initialValues,
   roles,
   endpoints,
   submit,
   cancel,
-  link,
   loading,
   labels,
-  isSubmitting
+  isSubmitting,
+  onChange
 }: Props): JSX.Element => {
   const { classes } = useAccessRightsStyles();
   const clear = useAccessRightsInitValues({ initialValues });
+  useAccessRightsChange(onChange);
 
   return (
     <div className={classes.container}>
@@ -46,15 +48,14 @@ export const AccessRights = ({
         clear={clear}
         isSubmitting={isSubmitting}
         labels={labels.actions}
-        link={link}
         submit={submit}
       />
     </div>
   );
 };
 
-export default (props: Props): JSX.Element => (
+export const AccessRights = (props: Props): JSX.Element => (
   <Provider>
-    <AccessRights {...props} />
+    <AccessRightsContent {...props} />
   </Provider>
 );

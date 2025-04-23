@@ -33,10 +33,10 @@ abstract class ExporterServiceAbstract implements ExporterServiceInterface
     /** @var \Centreon\Infrastructure\Service\CentreonDBManagerService */
     protected $db;
 
-    /** @var \CentreonRemote\Infrastructure\Service\ExporterCacheService */
+    /** @var ExporterCacheService */
     protected $cache;
 
-    /** @var \CentreonRemote\Infrastructure\Export\ExportCommitment */
+    /** @var ExportCommitment */
     protected $commitment;
 
     /** @var \Centreon\Infrastructure\Service\CentcoreConfigService */

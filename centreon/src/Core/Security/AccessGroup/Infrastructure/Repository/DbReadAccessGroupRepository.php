@@ -29,6 +29,7 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
@@ -39,6 +40,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements ReadAccessGroupRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
@@ -76,7 +78,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY acl_group_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY acl_group_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -173,7 +175,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY acl_group_id ASC';
+        $request .= $sortRequest ?? ' ORDER BY acl_group_id ASC';
 
         // Pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -220,7 +222,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
             $queryBindValues[':access_group_' . $accessGroupId] = $accessGroupId;
         }
 
-        if (empty($queryBindValues)) {
+        if ($queryBindValues === []) {
             return [];
         }
         $accessGroups = [];
@@ -240,5 +242,50 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
         $this->debug('Access group found: ' . count($accessGroups));
 
         return $accessGroups;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasAccessToResources(array $accessGroupIds): bool
+    {
+        if ([] === $accessGroupIds) {
+            return false;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':accessGroupIds');
+        $statement = $this->db->prepare(
+            <<<SQL
+                SELECT 1 FROM acl_res_group_relations
+                WHERE acl_group_id IN ({$bindQuery})
+                SQL
+        );
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAclResourcesByHostGroupId(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare(
+            <<<'SQL'
+                SELECT DISTINCT acl_res_id
+                FROM acl_resources_hg_relations
+                WHERE hg_hg_id = :hostGroupId
+                SQL
+        );
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 }

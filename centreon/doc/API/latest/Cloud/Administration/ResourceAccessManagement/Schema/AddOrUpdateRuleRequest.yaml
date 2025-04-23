@@ -1,0 +1,47 @@
+type: object
+required: ['name', 'contacts', 'contact_groups', 'dataset_filters']
+properties:
+  name:
+    type: string
+    description: "Resource access rule name"
+    example: "Rule for viewers"
+  contacts:
+    type: object
+    properties:
+      ids:
+        type: array
+        items:
+          type: integer
+        description: "Define contacts that should be linked to the resource access rule"
+        example: [1, 2, 3]
+      all:
+        type: boolean
+        description: "Indicates that the rule should be applied to all current / future contacts"
+        example: true
+  contact_groups:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+          description: "Define contact groups that should be linked to the resource access rule"
+          example: [1, 2, 3]
+        all:
+          type: boolean
+          description: "Indicates that the rule should be applied to all current / future contact groups"
+          example: true
+  description:
+    type: string
+    nullable: true
+    description: "Short description of the rule"
+    example: "Rule dedicated for users with limited rights"
+  is_enabled:
+    type: boolean
+    description: "Indicate the status of the rule enabled/disabled"
+    example: true
+  dataset_filters:
+    type: array
+    items:
+      $ref: 'DatasetFilter.yaml'
+

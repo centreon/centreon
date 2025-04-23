@@ -7,7 +7,7 @@ const useHeaderStyles = makeStyles()((theme) => ({
     gap: theme.spacing(4)
   },
   icon: {
-    color: theme.palette.text.secondary
+    color: theme.palette.primary.main
   }
 }));
 

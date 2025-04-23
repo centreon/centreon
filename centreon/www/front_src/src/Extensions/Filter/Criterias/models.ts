@@ -3,11 +3,11 @@ import type { SelectEntry } from '@centreon/ui';
 import {
   labelInstalled,
   labelModule,
-  labelUninstalled,
   labelOutdated,
-  labelUpToDate,
-  labelType,
   labelStatus,
+  labelType,
+  labelUninstalled,
+  labelUpToDate,
   labelWidget
 } from '../../translatedLabels';
 

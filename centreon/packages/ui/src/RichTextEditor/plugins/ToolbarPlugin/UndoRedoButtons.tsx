@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-  UNDO_COMMAND,
-  REDO_COMMAND,
-  CAN_UNDO_COMMAND,
-  CAN_REDO_COMMAND
-} from 'lexical';
 import { mergeRegister } from '@lexical/utils';
+import {
+  CAN_REDO_COMMAND,
+  CAN_UNDO_COMMAND,
+  REDO_COMMAND,
+  UNDO_COMMAND
+} from 'lexical';
 import { useTranslation } from 'react-i18next';
 
-import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
+import UndoIcon from '@mui/icons-material/Undo';
 
 import { IconButton } from '../../..';
 import { labelRedo, labelUndo } from '../../translatedLabels';

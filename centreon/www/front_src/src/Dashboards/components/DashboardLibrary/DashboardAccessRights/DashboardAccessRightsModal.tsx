@@ -5,6 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { AccessRights, Modal } from '@centreon/ui/components';
 
 import {
+  dashboardsContactGroupsEndpoint,
+  dashboardsContactsEndpoint
+} from '../../../api/endpoints';
+import { DashboardRole } from '../../../api/models';
+import { useUpdateAccessRights } from '../../../api/useUpdateAccessRights';
+import {
   labelAddAContact,
   labelAddAContactGroup,
   labelAdded,
@@ -25,12 +31,6 @@ import {
   labelUserRights,
   labelViewer
 } from '../../../translatedLabels';
-import {
-  dashboardsContactGroupsEndpoint,
-  dashboardsContactsEndpoint
-} from '../../../api/endpoints';
-import { DashboardRole } from '../../../api/models';
-import { useUpdateAccessRights } from '../../../api/useUpdateAccessRights';
 
 import { useDashboardAccessRights } from './useDashboardAccessRights';
 

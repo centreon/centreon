@@ -3,22 +3,35 @@ import { makeStyles } from 'tss-react/mui';
 import { alpha } from '@mui/system';
 
 export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
-  previewDescription: {
-    marginTop: theme.spacing(1)
+  groupContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),
+    marginLeft: theme.spacing(0.5)
+  },
+  groupDivider: {
+    marginBottom: theme.spacing(1)
+  },
+  groupTitle: {
+    fontWeight: theme.typography.fontWeightBold
   },
   previewHeading: {
-    display: 'block',
-    height: '19px',
-    lineHeight: 1
+    display: 'block'
   },
   previewPanelContainer: {
     height: '400px',
-    padding: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      height: '200px'
+    },
+    padding: theme.spacing(1.5),
     position: 'relative',
     width: '100%'
   },
   previewTitle: {
-    marginBottom: theme.spacing(1)
+    fontSize: '1.3rem',
+    fontWeight: theme.typography.fontWeightBold,
+    marginBottom: theme.spacing(1),
+    padding: theme.spacing(0)
   },
   previewUserRightPanel: {
     alignItems: 'center',
@@ -39,9 +52,14 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1)
   },
   widgetDataContent: {
-    display: 'grid',
+    display: 'flex',
+    flexDirection: 'row',
+    [theme.breakpoints.down('lg')]: {
+      flexDirection: 'column'
+    },
     gap: theme.spacing(2),
-    gridTemplateColumns: '1fr 1fr'
+    maxHeight: '27vh',
+    overflow: 'auto'
   },
   widgetDataItem: {
     width: '100%'
@@ -53,10 +71,24 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(2)
+  },
+  widgetPropertiesContainer: {
+    backgroundColor: theme.palette.background.default,
+    borderRadius: theme.shape.borderRadius
   }
 }));
 
 export const useWidgetSelectionStyles = makeStyles()((theme) => ({
+  groupContainer: {
+    width: '100%',
+    paddingLeft: theme.spacing(4),
+    backgroundColor: theme.palette.background.listingHeader,
+    color: theme.palette.common.white,
+    '&:hover': {
+      backgroundColor: theme.palette.background.listingHeader,
+      color: theme.palette.common.white
+    }
+  },
   selectField: {
     flexGrow: 1
   },
@@ -74,5 +106,23 @@ export const useWidgetSelectionStyles = makeStyles()((theme) => ({
     flexDirection: 'row',
     gap: theme.spacing(1),
     width: '100%'
+  }
+}));
+
+export const useWidgetMessageStyles = makeStyles()((theme) => ({
+  label: {
+    color: theme.palette.action.disabled
+  },
+  container: {
+    marginTop: theme.spacing(4),
+    display: 'flex',
+    alignItems: 'center'
+  },
+  icon: {
+    fill: theme.palette.primary.main,
+    height: theme.spacing(3),
+    marginRight: theme.spacing(1),
+    marginTop: theme.spacing(0.5),
+    width: theme.spacing(3)
   }
 }));

@@ -34,6 +34,26 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
+/**
+ * @phpstan-type _AddRequestData array{
+ *     name: string,
+ *     description: ?string,
+ *     is_enabled: bool,
+ *     contacts: array{
+ *      ids: list<int>,
+ *      all: bool
+ *     },
+ *     contact_groups: array{
+ *      ids: list<int>,
+ *      all: bool
+ *     },
+ *     dataset_filters: non-empty-list<array{
+ *      type:string,
+ *      resources: list<int>,
+ *      ...
+ *     }>
+ * }
+ */
 final class AddRuleController extends AbstractController
 {
     use LoggerTrait;
@@ -55,31 +75,9 @@ final class AddRuleController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
-            /**
-             * @var array{
-             *     name: string,
-             *     description?: string,
-             *     is_enabled?: bool,
-             *     contacts: non-empty-list<int>,
-             *     contact_groups: non-empty-list<int>,
-             *     dataset_filters: non-empty-list<array{
-             *      type:string,
-             *      resources: non-empty-list<int>,
-             *      ...
-             *     }>
-             * } $data
-             */
-            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddRuleSchema.yaml');
-
-            $requestDto = new AddRuleRequest();
-            $requestDto->name = $data['name'];
-            $requestDto->isEnabled = $data['is_enabled'] ?? true;
-            $requestDto->description = $data['description'] ?? '';
-            $requestDto->contactIds = $data['contacts'];
-            $requestDto->contactGroupIds = $data['contact_groups'];
-            $requestDto->datasetFilters = $data['dataset_filters'];
-
-            $useCase($requestDto, $presenter);
+            /** @var _AddRequestData $data */
+            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddRuleSchema.json');
+            $useCase($this->createDtoFromData($data), $presenter);
         } catch (\InvalidArgumentException $exception) {
             $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($exception));
@@ -89,5 +87,25 @@ final class AddRuleController extends AbstractController
         }
 
         return $presenter->show();
+    }
+
+    /**
+     * @param _AddRequestData $data
+     *
+     * @return AddRuleRequest
+     */
+    private function createDtoFromData(array $data): AddRuleRequest
+    {
+        $dto = new AddRuleRequest();
+        $dto->name = $data['name'];
+        $dto->isEnabled = $data['is_enabled'];
+        $dto->description = $data['description'] ?? '';
+        $dto->contactIds = $data['contacts']['ids'];
+        $dto->contactGroupIds = $data['contact_groups']['ids'];
+        $dto->applyToAllContacts = $data['contacts']['all'];
+        $dto->applyToAllContactGroups = $data['contact_groups']['all'];
+        $dto->datasetFilters = $data['dataset_filters'];
+
+        return $dto;
     }
 }

@@ -1,14 +1,14 @@
-import { makeStyles } from 'tss-react/mui';
 import { toPairs } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import {
-  useTheme,
-  Typography,
   Box,
-  Stack,
-  CardContent,
   Card,
-  CardHeader
+  CardContent,
+  CardHeader,
+  Stack,
+  Typography,
+  useTheme
 } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({

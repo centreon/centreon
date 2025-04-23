@@ -1,16 +1,16 @@
+import { renderHook } from '@testing-library/react';
 import dayjs from 'dayjs';
 import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { Provider, createStore } from 'jotai';
 import { equals } from 'ramda';
-import { renderHook } from '@testing-library/react';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { CustomTimePeriodProperty } from './models';
 import DateTimePickerInput from './DateTimePickerInput';
+import { CustomTimePeriodProperty } from './models';
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
@@ -339,7 +339,7 @@ testData.forEach((item) =>
         cy.get('@listWeeks').children('button').as('days');
 
         cy.get('@days')
-          .each(($day) => daysInCurrentMonth.push($day.text()))
+          .each((day) => daysInCurrentMonth.push(day.text()))
           .as('currentDays');
 
         cy.get('@currentDays').then(() => {

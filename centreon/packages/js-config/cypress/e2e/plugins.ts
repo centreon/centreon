@@ -3,6 +3,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-param-reassign */
 
+import fs from 'fs';
+import path from 'path';
+
 export default (
   on: Cypress.PluginEvents,
   config: Cypress.PluginConfigOptions
@@ -11,7 +14,7 @@ export default (
     const width = 1920;
     const height = 1080;
 
-    if (browser.family === 'chromium') {
+    if (browser.family === 'chromium' && browser.name !== 'electron') {
       if (browser.isHeadless) {
         launchOptions.args.push('--headless=new');
       }
@@ -23,13 +26,37 @@ export default (
       launchOptions.args.push('--hide-scrollbars');
       launchOptions.args.push('--mute-audio');
 
-      launchOptions.args.push(`--window-size=${width},${height}`);
-
       // force screen to be non-retina and just use our given resolution
       launchOptions.args.push('--force-device-scale-factor=1');
+
+      launchOptions.args.push(`--window-size=${width},${height}`);
     }
 
     return launchOptions;
+  });
+
+  on('after:run', (results) => {
+    const testRetries: { [key: string]: Number } = {};
+    if ('runs' in results) {
+      results.runs.forEach((run) => {
+        run.tests.forEach((test) => {
+          console.log(test)
+          if (test.attempts && test.attempts.length > 1 && test.state === 'passed') {
+            const testTitle = test.title.join(' > '); // Convert the array to a string
+            testRetries[testTitle] = test.attempts.length - 1;
+          }
+        });
+      });
+    }
+
+    // Save the testRetries object to a file in the e2e/results directory
+    const resultFilePath = path.join(
+      __dirname,
+      '../../../../tests/e2e/results',
+      'retries.json'
+    );
+
+    fs.writeFileSync(resultFilePath, JSON.stringify(testRetries, null, 2));
   });
 
   return config;

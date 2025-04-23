@@ -459,9 +459,9 @@
                                         <span class="badge" style='background-color:{$color_onoff[$service_data.obsess_over_service]};'>{$en_disable[$service_data.obsess_over_service]}</span>
                                     {/if}
                                 </td>
-                                <td class="ListColRight ColPopup" id="service_obsess">
-                                {if isset($service_data.obsess_over_service) && in_array($service_data.obsess_over_service, ['0', '1']) && ($aclAct.service_obsess || $admin == true)}
-                                    <a href="#" onClick="send_command('service_obsess', '{$en_inv[$service_data.obsess_over_service]}');" title='{$en_inv_text[$service_data.obsess_over_service]} {$m_mon_obsessing}'>
+                                <td class="ListColRight ColPopup" id="global_service_obsess">
+                                {if isset($service_data.obsess_over_service) && in_array($service_data.obsess_over_service, ['0', '1']) && ($aclAct.global_service_obsess || $admin == 1)}
+                                    <a href="#" onClick="send_command('global_service_obsess', '{$en_inv[$service_data.obsess_over_service]}');" title='{$en_inv_text[$service_data.obsess_over_service]} {$m_mon_obsessing}'>
                                     <img class="ico-16" src={$img_en[$service_data.obsess_over_service]}
                                     alt="{$en_inv_text[$service_data.obsess_over_service]} {$m_mon_obsessing}" />
                                     </a>

@@ -1,15 +1,15 @@
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import ModeEditIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
 
-import { labelEditor, labelViewer } from '../translatedLabels';
 import { DashboardRole } from '../../../../api/models';
+import { labelEditor, labelViewer } from '../translatedLabels';
 
 import { useColumnStyles } from './useColumnStyles';
 

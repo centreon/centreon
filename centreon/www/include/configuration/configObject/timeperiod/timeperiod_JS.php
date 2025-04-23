@@ -178,7 +178,7 @@
         }
         document.getElementById('hiddenExInput').value = globalj;
     }
-    
+
     /*
      * Dynamic validation of Time range exceptions fileds
      */

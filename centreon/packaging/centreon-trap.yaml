@@ -42,12 +42,12 @@ contents:
   - src: "../tmpl/install/systemd/centreontrapd.rpm.systemd"
     dst: "/usr/lib/systemd/system/centreontrapd.service"
     file_info:
-      mode: 0400
+      mode: 0644
     packager: rpm
   - src: "../tmpl/install/systemd/centreontrapd.deb.systemd"
     dst: "/lib/systemd/system/centreontrapd.service"
     file_info:
-      mode: 0400
+      mode: 0644
     packager: deb
 
   - src: "../tmpl/install/systemd/centreontrapd.sysconfig"
@@ -74,14 +74,16 @@ scripts:
 overrides:
   rpm:
     depends:
-      - centreon-perl-libs = ${VERSION}-${RELEASE}${DIST}
+      - centreon-perl-libs
       - net-snmp
+      - perl(SNMP)
     replaces:
       - centreon-trap-central
       - centreon-trap-poller
   deb:
     depends:
-      - centreon-perl-libs (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-perl-libs
+      - libsnmp-perl
       - snmptrapd
       - snmpd
 
@@ -91,3 +93,6 @@ rpm:
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
+
+deb:
+  compression: zstd

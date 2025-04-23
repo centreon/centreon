@@ -1,8 +1,7 @@
-import * as React from 'react';
-
 import { makeStyles } from 'tss-react/mui';
 
 import { Typography, TypographyProps } from '@mui/material';
+import { ReactNode } from 'react';
 
 const useStyles = makeStyles()(() => ({
   root: {
@@ -11,7 +10,7 @@ const useStyles = makeStyles()(() => ({
 }));
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const HeaderLabel = ({

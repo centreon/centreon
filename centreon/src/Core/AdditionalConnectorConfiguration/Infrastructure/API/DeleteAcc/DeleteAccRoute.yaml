@@ -1,0 +1,7 @@
+DeleteAdditionalConnectorConfiguration:
+  methods: DELETE
+  path: /configuration/additional-connector-configurations/{id}
+  requirements:
+    id: '\d+'
+  controller: 'Core\AdditionalConnectorConfiguration\Infrastructure\API\DeleteAcc\DeleteAccController'
+  condition: "request.attributes.get('version') >= 24.09"

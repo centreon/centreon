@@ -1,8 +1,8 @@
 import { Method } from '@centreon/ui';
 
-import { labelAdd, labelComment } from '../../../../translatedLabels';
-import { Resource } from '../../../../models';
 import { commentEndpoint } from '../../../../Actions/api/endpoint';
+import { Resource } from '../../../../models';
+import { labelAdd, labelComment } from '../../../../translatedLabels';
 
 import AddCommentForm from '.';
 

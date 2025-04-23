@@ -1,124 +1,125 @@
 {
-    "acknowledged":true,
-    "acknowledgement":{
-       "author_id":1,
-       "author_name":"Admin",
-       "comment":"Acknowledged by Admin",
-       "deletion_time":"2020-03-19T18:57:59Z",
-       "entry_time":"2020-03-18T18:57:59Z",
-       "host_id":1,
-       "id":1,
-       "is_notify_contacts":false,
-       "is_persistent_comment":true,
-       "is_sticky":true,
-       "poller_id":2,
-       "service_id":1,
-       "state":1
+  "acknowledged": true,
+  "acknowledgement": {
+    "author_id": 1,
+    "author_name": "Admin",
+    "comment": "Acknowledged by Admin",
+    "deletion_time": "2020-03-19T18:57:59Z",
+    "entry_time": "2020-03-18T18:57:59Z",
+    "host_id": 1,
+    "id": 1,
+    "is_notify_contacts": false,
+    "is_persistent_comment": true,
+    "is_sticky": true,
+    "poller_id": 2,
+    "service_id": 1,
+    "state": 1
+  },
+  "active_checks": false,
+  "alias": "Central-Centreon",
+  "categories": [
+    {
+      "configuration_uri": "/centreon/main.php?p=60102&o=c&hg_id=53",
+      "id": 0,
+      "name": "Windows"
+    }
+  ],
+  "checked": true,
+  "command_line": "base_host_alive --test 2 -n 1 -w 3000,80 -c 5000,100 -t host --test2=\"ok\"",
+  "downtimes": [
+    {
+      "author_name": "admin",
+      "comment": "First downtime set by Admin",
+      "end_time": "2020-01-18T18:57:59Z",
+      "entry_time": "2020-01-18T17:57:59Z",
+      "start_time": "2020-01-18T17:57:59Z"
     },
-    "active_checks":false,
-    "alias":"Central-Centreon",
-    "categories": [
-        {
-            "configuration_uri": "/centreon/main.php?p=60102&o=c&hg_id=53",
-            "id": 0,
-            "name": "Windows"
-          }
-    ],
-    "checked":true,
-    "command_line":"base_host_alive",
-    "downtimes":[
-       {
-          "author_name":"admin",
-          "comment":"First downtime set by Admin",
-          "end_time":"2020-01-18T18:57:59Z",
-          "entry_time":"2020-01-18T17:57:59Z",
-          "start_time":"2020-01-18T17:57:59Z"
-       },
-       {
-          "author_name":"admin",
-          "comment":"Second downtime set by Admin",
-          "end_time":"2020-02-18T18:57:59Z",
-          "entry_time":"2020-01-18T17:57:59Z",
-          "start_time":"2020-02-18T17:57:59Z"
-       }
-    ],
-    "duration":"22m",
-    "execution_time":0.070906,
-    "flapping":true,
-    "fqdn":"central.centreon.com",
-    "groups": [
-        {
-          "configuration_uri": "/centreon/main.php?p=60102&o=c&hg_id=53",
-          "id": 0,
-          "name": "Linux-servers"
-        }
-      ] ,
-    "id":1,
-    "in_downtime":true,
-    "information":"OK - 127.0.0.1 rta 0.100ms lost 0%\n OK - 127.0.0.1 rta 0.99ms lost 0%\n OK - 127.0.0.1 rta 0.98ms lost 0%\n OK - 127.0.0.1 rta 0.97ms lost 0%",
-    "last_check":"2020-05-18T16:00Z",
-    "last_notification":"2020-07-18T17:30:00Z",
-    "last_status_change":"2020-04-18T15:00Z",
-    "last_time_with_no_issue":"2021-09-23T15:49:50+02:00",
-    "last_update":"2020-03-18T16:30:00Z",
-    "latency":0.005,
-    "links":{
-       "endpoints":{
-          "details":"/centreon/api/latest/monitoring/resources/hosts/1/services/1",
-          "notification_policy":"notification_policy",
-          "performance_graph":"performance_graph",
-          "timeline":"timeline",
-          "timeline_download":"timeline/download"
-       },
-       "externals":{
-          "action_url":null,
-          "notes":null
-       },
-       "uris":{
-          "configuration":null,
-          "logs":null,
-          "reporting":null
-       }
+    {
+      "author_name": "admin",
+      "comment": "Second downtime set by Admin",
+      "end_time": "2020-02-18T18:57:59Z",
+      "entry_time": "2020-01-18T17:57:59Z",
+      "start_time": "2020-02-18T17:57:59Z"
+    }
+  ],
+  "duration": "22m",
+  "execution_time": 0.070906,
+  "flapping": true,
+  "fqdn": "central.centreon.com",
+  "groups": [
+    {
+      "configuration_endpoint": "/centreon/api/latest/configuration/hosts/groups/53",
+      "id": 0,
+      "name": "Linux-servers"
+    }
+  ],
+  "id": 1,
+  "in_downtime": true,
+  "information": "OK - 127.0.0.1 rta 0.100ms lost 0%\n OK - 127.0.0.1 rta 0.99ms lost 0%\n OK - 127.0.0.1 rta 0.98ms lost 0%\n OK - 127.0.0.1 rta 0.97ms lost 0%",
+  "last_check": "2020-05-18T16:00Z",
+  "last_notification": "2020-07-18T17:30:00Z",
+  "last_status_change": "2020-04-18T15:00Z",
+  "last_time_with_no_issue": "2021-09-23T15:49:50+02:00",
+  "last_update": "2020-03-18T16:30:00Z",
+  "latency": 0.005,
+  "links": {
+    "endpoints": {
+      "details": "/centreon/api/latest/monitoring/resources/hosts/1/services/1",
+      "notification_policy": "notification_policy",
+      "performance_graph": "performance_graph",
+      "timeline": "timeline",
+      "timeline_download": "timeline/download"
     },
-    "monitoring_server_name":"Poller",
-    "name":"Central",
-    "next_check":"2020-06-18T17:15:00Z",
-    "notification_number":3,
-    "parent":{
-       "id":1,
-       "links":{
-          "endpoints":{
-             "performance_graph":"performance_graph",
-             "timeline":"timeline"
-          },
-          "externals":{
-             "action_url":null,
-             "notes":null
-          },
-          "uris":{
-             "configuration":null,
-             "logs":null,
-             "reporting":null
-          }
-       },
-       "name":"Centreon",
-       "short_type":"h",
-       "status":{
-          "name":"S1",
-          "severity_code":1
-       },
-       "type":"host",
-       "uuid":"h1"
+    "externals": {
+      "action_url": null,
+      "notes": null
     },
-    "passive_checks":false,
-    "percent_state_change":3.5,
-    "performance_data":"rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100",
-    "status":{
-       "name":"Critical",
-       "severity_code":1
+    "uris": {
+      "configuration": null,
+      "logs": null,
+      "reporting": null
+    }
+  },
+  "monitoring_server_name": "Poller",
+  "name": "Central",
+  "next_check": "2020-06-18T17:15:00Z",
+  "notification_number": 3,
+  "parent": {
+    "id": 1,
+    "links": {
+      "endpoints": {
+        "performance_graph": "performance_graph",
+        "timeline": "timeline"
+      },
+      "externals": {
+        "action_url": null,
+        "notes": null
+      },
+      "uris": {
+        "configuration": null,
+        "logs": null,
+        "reporting": null
+      }
     },
-    "timezone":"Europe/Paris",
-    "tries":"3/3 (Hard)",
-    "type":"service",
-    "uuid":"h1-s1"
- }
+    "name": "Centreon",
+    "short_type": "h",
+    "status": {
+      "name": "S1",
+      "severity_code": 1
+    },
+    "type": "host",
+    "uuid": "h1"
+  },
+  "passive_checks": false,
+  "percent_state_change": 3.5,
+  "performance_data": "rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100",
+  "status": {
+    "name": "Critical",
+    "severity_code": 1
+  },
+  "timezone": "Europe/Paris",
+  "tries": "3/3 (Hard)",
+  "type": "service",
+  "uuid": "h1-s1"
+}
+

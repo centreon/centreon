@@ -42,8 +42,8 @@ if (!isset($oreon)) {
 
 require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 
-$attrsText = array("size" => "80");
-$attrsText2 = array("size" => "5");
+$attrsText = ["size" => "80"];
+$attrsText2 = ["size" => "5"];
 
 /*
  * Form begin
@@ -61,17 +61,14 @@ $form->addElement('header', 'result', _("Search Result"));
 $form->addElement('header', 'ldap_search_result_output', _("Result"));
 
 $link = "LdapSearch()";
-$form->addElement("button", "ldap_search_button", _("Search"), array("class" => "btc bt_success", "onClick" => $link));
+$form->addElement("button", "ldap_search_button", _("Search"), ["class" => "btc bt_success", "onClick" => $link]);
 
 $form->addElement('hidden', 'contact_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     'ldap_search_filter_help',
@@ -109,7 +106,7 @@ while ($row = $res->fetch()) {
  * List available contacts to choose which one we want to import
  */
 if ($o == "li") {
-    $subA = $form->addElement('submit', 'submitA', _("Import"), array("class" => "btc bt_success"));
+    $subA = $form->addElement('submit', 'submitA', _("Import"), ["class" => "btc bt_success"]);
 }
 
 $valid = false;
@@ -120,7 +117,7 @@ if ($form->validate()) {
         unset($_POST["contact_select"]['select']);
 
         // removing the useless data sent
-        $arrayToReturn = array();
+        $arrayToReturn = [];
         foreach ($_POST["contact_select"] as $key => $subKey) {
             $arrayToReturn[$key] = array_intersect_key($_POST["contact_select"][$key], $selectedUsers);
         }

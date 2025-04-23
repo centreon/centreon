@@ -37,17 +37,34 @@ require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wiki.class.php";
 
+/**
+ * Class
+ *
+ * @class WikiApi
+ */
 class WikiApi
 {
+    /** @var never[] */
+    public $cookies = [];
+    /** @var CentreonDB */
     private $db;
+    /** @var Wiki */
     private $wikiObj;
+    /** @var string */
     private $url;
+    /** @var string */
     private $username;
+    /** @var string */
     private $password;
+    /** @var float */
     private $version;
+    /** @var CurlHandle|false */
     private $curl;
+    /** @var bool */
     private $loggedIn;
+    /** @var array */
     private $tokens;
+    /** @var mixed */
     private $noSslCertificate;
 
     public const PROXY_URL = './include/configuration/configKnowledge/proxy/proxy.php';
@@ -66,9 +83,11 @@ class WikiApi
         $this->noSslCertificate = $config['kb_wiki_certificate'];
         $this->curl = $this->getCurl();
         $this->version = $this->getWikiVersion();
-        $this->cookies = array();
     }
 
+    /**
+     * @return CurlHandle|false
+     */
     private function getCurl()
     {
         $curl = curl_init();
@@ -84,13 +103,13 @@ class WikiApi
         return $curl;
     }
 
+    /**
+     * @return float
+     * @throws Exception
+     */
     public function getWikiVersion()
     {
-        $postfields = array(
-            'action' => 'query',
-            'meta' => 'siteinfo',
-            'format' => 'json',
-        );
+        $postfields = ['action' => 'query', 'meta' => 'siteinfo', 'format' => 'json'];
 
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         $result = curl_exec($this->curl);
@@ -104,6 +123,10 @@ class WikiApi
         }
     }
 
+    /**
+     * @return bool
+     * @throws Exception
+     */
     public function login()
     {
         if ($this->loggedIn) {
@@ -111,12 +134,7 @@ class WikiApi
         }
 
         // Get Connection Cookie/Token
-        $postfields = array(
-            'action' => 'query',
-            'meta' => 'tokens',
-            'format' => 'json',
-            'type' => 'login'
-        );
+        $postfields = ['action' => 'query', 'meta' => 'tokens', 'format' => 'json', 'type' => 'login'];
 
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         $result = curl_exec($this->curl);
@@ -154,39 +172,31 @@ class WikiApi
         return $this->loggedIn;
     }
 
-    public function logout()
+    /**
+     * @return void
+     */
+    public function logout(): void
     {
-        $postfields = array(
-            'action' => 'logout'
-        );
+        $postfields = ['action' => 'logout'];
 
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         curl_exec($this->curl);
     }
 
+    /**
+     * @param $method
+     * @param $title
+     *
+     * @return mixed
+     */
     public function getMethodToken($method = 'delete', $title = '')
     {
         if ($this->version >= 1.24) {
-            $postfields = array(
-                'action' => 'query',
-                'meta' => 'tokens',
-                'type' => 'csrf',
-                'format' => 'json'
-            );
+            $postfields = ['action' => 'query', 'meta' => 'tokens', 'type' => 'csrf', 'format' => 'json'];
         } elseif ($this->version >= 1.20) {
-            $postfields = array(
-                'action' => 'tokens',
-                'type' => $method,
-                'format' => 'json'
-            );
+            $postfields = ['action' => 'tokens', 'type' => $method, 'format' => 'json'];
         } else {
-            $postfields = array(
-                'action' => 'query',
-                'prop' => 'info',
-                'intoken' => $method,
-                'format' => 'json',
-                'titles' => $title
-            );
+            $postfields = ['action' => 'query', 'prop' => 'info', 'intoken' => $method, 'format' => 'json', 'titles' => $title];
         }
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         $result = curl_exec($this->curl);
@@ -205,17 +215,19 @@ class WikiApi
         return $this->tokens[$method];
     }
 
+    /**
+     * @param $oldTitle
+     * @param $newTitle
+     *
+     * @return true
+     * @throws Exception
+     */
     public function movePage($oldTitle = '', $newTitle = '')
     {
         $this->login();
         $token = $this->getMethodToken('move', $oldTitle);
 
-        $postfields = array(
-            'action' => 'move',
-            'from' => $oldTitle,
-            'to' => $newTitle,
-            'token' => $token
-        );
+        $postfields = ['action' => 'move', 'from' => $oldTitle, 'to' => $newTitle, 'token' => $token];
 
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         curl_exec($this->curl);
@@ -225,8 +237,11 @@ class WikiApi
 
     /**
      * API Endpoint for deleting Knowledgebase Page
+     *
      * @param string $title
+     *
      * @return bool
+     * @throws Exception
      */
     public function deletePage($title = '')
     {
@@ -246,16 +261,14 @@ class WikiApi
         }
     }
 
+    /**
+     * @return array
+     */
     public function getAllPages()
     {
-        $postfields = array(
-            'format' => 'json',
-            'action' => 'query',
-            'list' => 'allpages',
-            'aplimit' => '200'
-        );
+        $postfields = ['format' => 'json', 'action' => 'query', 'list' => 'allpages', 'aplimit' => '200'];
 
-        $pages = array();
+        $pages = [];
         do {
             curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
             $result = curl_exec($this->curl);
@@ -288,14 +301,7 @@ class WikiApi
     public function getChangedPages($count = 50)
     {
         // Connecting to Mediawiki API
-        $postfields = array(
-            'format' => 'json',
-            'action' => 'query',
-            'list' => 'recentchanges',
-            'rclimit' => $count,
-            'rcprop' => 'title',
-            'rctype' => 'new|edit'
-        );
+        $postfields = ['format' => 'json', 'action' => 'query', 'list' => 'recentchanges', 'rclimit' => $count, 'rcprop' => 'title', 'rctype' => 'new|edit'];
 
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         $result = curl_exec($this->curl);
@@ -311,10 +317,10 @@ class WikiApi
     {
         $pages = $this->getChangedPages();
 
-        $hosts = array();
-        $hostsTemplates = array();
-        $services = array();
-        $servicesTemplates = array();
+        $hosts = [];
+        $hostsTemplates = [];
+        $services = [];
+        $servicesTemplates = [];
 
         $count = count($pages);
         for ($i = 0; $i < $count; $i++) {
@@ -347,18 +353,14 @@ class WikiApi
             }
         }
 
-        return array(
-            'hosts' => $hosts,
-            'hostTemplates' => $hostsTemplates,
-            'services' => $services,
-            'serviceTemplates' => $servicesTemplates,
-        );
+        return ['hosts' => $hosts, 'hostTemplates' => $hostsTemplates, 'services' => $services, 'serviceTemplates' => $servicesTemplates];
     }
 
     /**
-     *
+     * @return void
+     * @throws PDOException
      */
-    public function synchronize()
+    public function synchronize(): void
     {
         // Get all pages title that where changed
         $listOfObjects = $this->detectCentreonObjects();
@@ -404,8 +406,10 @@ class WikiApi
 
     /**
      * @param $hostName
+     *
+     * @throws PDOException
      */
-    public function updateLinkForHost($hostName)
+    public function updateLinkForHost($hostName): void
     {
         $resHost = $this->db->query(
             "SELECT host_id FROM host WHERE host_name LIKE '" . $hostName . "'"
@@ -429,8 +433,10 @@ class WikiApi
     /**
      * @param $hostName
      * @param $serviceDescription
+     *
+     * @throws PDOException
      */
-    public function updateLinkForService($hostName, $serviceDescription)
+    public function updateLinkForService($hostName, $serviceDescription): void
     {
         $resService = $this->db->query(
             "SELECT service_id " .
@@ -457,8 +463,10 @@ class WikiApi
 
     /**
      * @param $serviceName
+     *
+     * @throws PDOException
      */
-    public function updateLinkForServiceTemplate($serviceName)
+    public function updateLinkForServiceTemplate($serviceName): void
     {
         $resService = $this->db->query(
             "SELECT service_id FROM service " .
@@ -481,8 +489,11 @@ class WikiApi
 
     /**
      * make a call to mediawiki api to delete a page
+     *
      * @param string $title
+     *
      * @return object
+     * @throws Exception
      */
     private function deleteMWPage($title = '')
     {
@@ -490,12 +501,7 @@ class WikiApi
 
         $token = $this->getMethodToken('delete', $title);
 
-        $postfields = array(
-            'action' => 'delete',
-            'title' => $title,
-            'token' => $token,
-            'format' => 'json'
-        );
+        $postfields = ['action' => 'delete', 'title' => $title, 'token' => $token, 'format' => 'json'];
         curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postfields);
         $result = curl_exec($this->curl);
         return json_decode($result);

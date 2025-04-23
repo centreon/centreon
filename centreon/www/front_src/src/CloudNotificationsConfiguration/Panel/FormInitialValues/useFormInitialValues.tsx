@@ -1,13 +1,13 @@
-import { equals } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useFetchQuery } from '@centreon/ui';
 
-import { PanelMode } from '../models';
-import { notificationEndpoint } from '../api/endpoints';
 import { notificationdecoder } from '../api';
+import { notificationEndpoint } from '../api/endpoints';
 import { editedNotificationIdAtom, panelModeAtom } from '../atom';
+import { PanelMode } from '../models';
 
 import { getEmptyInitialValues, getInitialValues } from './initialValues';
 

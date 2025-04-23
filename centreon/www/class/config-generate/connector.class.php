@@ -38,18 +38,15 @@ class Connector extends AbstractObject
 {
     private $connectors = null;
     protected $generate_filename = 'connectors.cfg';
-    protected $object_name = 'connector';
+    protected string $object_name = 'connector';
     protected $attributes_select = '
         id,
         name as connector_name,
         command_line as connector_line
     ';
-    protected $attributes_write = array(
-        'connector_name',
-        'connector_line',
-    );
+    protected $attributes_write = ['connector_name', 'connector_line'];
 
-    private function getConnectors()
+    private function getConnectors(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
               $this->attributes_select

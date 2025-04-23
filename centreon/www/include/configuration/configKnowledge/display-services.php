@@ -72,9 +72,8 @@ set_include_path(get_include_path() . PATH_SEPARATOR . $modules_path);
 
 require_once $centreon_path . "/www/class/centreon-knowledge/procedures.class.php";
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($modules_path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($modules_path);
 
 try {
     $postHost = !empty($_POST['searchHost'])
@@ -239,11 +238,7 @@ try {
         $tplStr = "";
         $tplArr = $proc->getMyServiceTemplateModels($value['id']);
         $key_nospace = str_replace(" ", "_", $key);
-        if ($proc->serviceHasProcedure($key_nospace, $tplArr) == true) {
-            $diff[$key] = 1;
-        } else {
-            $diff[$key] = 0;
-        }
+        $diff[$key] = $proc->serviceHasProcedure($key_nospace, $tplArr) == true ? 1 : 0;
 
         if (!empty($templatesHasNoProcedure)) {
             if (

@@ -31,6 +31,7 @@ use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 
 class DashboardRights
 {
+    public const AUTHORIZED_ACL_GROUP = 'customer_admin_acl';
     private const ROLE_VIEWER = Contact::ROLE_HOME_DASHBOARD_VIEWER;
     private const ROLE_CREATOR = Contact::ROLE_HOME_DASHBOARD_CREATOR;
     private const ROLE_ADMIN = Contact::ROLE_HOME_DASHBOARD_ADMIN;

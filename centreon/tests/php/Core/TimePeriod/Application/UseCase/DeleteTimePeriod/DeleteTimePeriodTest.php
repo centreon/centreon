@@ -31,14 +31,14 @@ use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\{ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface};
 use Core\TimePeriod\Application\UseCase\DeleteTimePeriod\DeleteTimePeriod;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->writeRepository = $this->createMock(WriteTimePeriodRepositoryInterface::class);
     $this->formatter = $this->createMock(JsonFormatter::class);
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present a ForbiddenResponse when user has insufficient rights', function () {
+it('should present a ForbiddenResponse when user has insufficient rights', function (): void {
     $timePeriodId = 1;
 
     $this->user
@@ -56,7 +56,7 @@ it('should present a ForbiddenResponse when user has insufficient rights', funct
         ->toBe(TimePeriodException::editNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse error when the time period is not found', function () {
+it('should present a NotFoundResponse error when the time period is not found', function (): void {
     $timePeriodId = 1;
 
     $this->user
@@ -80,7 +80,7 @@ it('should present a NotFoundResponse error when the time period is not found', 
         ->toBe((new NotFoundResponse('Time period'))->getMessage());
 });
 
-it('should present an ErrorResponse response when the exception is raised', function () {
+it('should present an ErrorResponse response when the exception is raised', function (): void {
     $timePeriodId = 1;
 
     $this->user
@@ -109,7 +109,7 @@ it('should present an ErrorResponse response when the exception is raised', func
         ->toBe(TimePeriodException::errorOnDelete($timePeriodId)->getMessage());
 });
 
-it('should present a NoContentResponse response when the time period is deleted', function () {
+it('should present a NoContentResponse response when the time period is deleted', function (): void {
     $timePeriodId = 1;
 
     $this->user

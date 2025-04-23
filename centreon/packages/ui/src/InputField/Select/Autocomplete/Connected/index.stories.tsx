@@ -1,9 +1,9 @@
-import { buildListingEndpoint } from '../../../..';
 import { SelectEntry } from '../..';
+import { buildListingEndpoint } from '../../../..';
 import { Listing } from '../../../../api/models';
 
-import SingleConnectedAutocompleteField from './Single';
 import MultiConnectedAutocompleteField from './Multi';
+import SingleConnectedAutocompleteField from './Single';
 
 export default {
   title: 'InputField/Autocomplete/Connected'
@@ -41,7 +41,7 @@ const mockSearch = (page: number): object => ({
   response: (request): Listing<SelectEntry> => {
     const { searchParams } = request;
 
-    return buildResult(parseInt(searchParams.page || '0', 10));
+    return buildResult(Number.parseInt(searchParams.page || '0', 10));
   },
   status: 200,
   url: `/endpoint?page=${page}&search=`
@@ -54,7 +54,7 @@ const getMockData = (): Array<object> => [
     response: (request): Listing<SelectEntry> => {
       const { searchParams } = request;
 
-      return buildResult(parseInt(searchParams.page || '0', 10));
+      return buildResult(Number.parseInt(searchParams.page || '0', 10));
     },
     status: 200,
     url: '/endpoint?page='

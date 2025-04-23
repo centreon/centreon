@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
-import { equals } from 'ramda';
+import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -13,9 +14,11 @@ import {
   TextField,
   useResizeObserver
 } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
-import { buildListEndpoint, listConfiguredUser } from '../api/endpoints';
+import { getEndpointConfiguredUser } from '../api/endpoints';
+import { Parameters } from '../api/models';
 import {
   labelCancel,
   labelClose,
@@ -25,20 +28,28 @@ import {
   labelUser
 } from '../translatedLabels';
 
-import CustomTimePeriod from './CustomTimePeriod/CustomTimePeriod';
+import InputCalendar from './InputCalendar/inputCalendar';
 import Title from './Title';
 import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
-import useCreateTokenFormValues from './useTokenFormValues';
-import { isCreatingTokenAtom } from './atoms';
 import { useStyles } from './tokenCreation.styles';
+import useCreateTokenFormValues from './useTokenFormValues';
 
 interface Props {
+  closeDialog: () => void;
   data?: ResponseError | CreatedToken;
+  isDialogOpened: boolean;
   isMutating: boolean;
+  isRefetching: boolean;
 }
 
-const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
+const FormCreation = ({
+  data,
+  isMutating,
+  isRefetching,
+  isDialogOpened,
+  closeDialog
+}: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -46,13 +57,8 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
     ref: document.getElementById('root')
   });
 
-  const [open, setOpen] = useState(true);
   const [isDisplayingDateTimePicker, setIsDisplayingDateTimePicker] =
     useState(false);
-  const refSingleAutocompleteField = useRef<HTMLDivElement | null>(null);
-  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
-
-  const [isCreatingToken, setIsCreatingToken] = useAtom(isCreatingTokenAtom);
 
   const {
     values,
@@ -61,8 +67,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
     handleChange,
     setFieldValue,
     handleSubmit,
-    resetForm,
-    errors
+    resetForm
   } = useFormikContext<CreateTokenFormValues>();
 
   const { token, duration, tokenName, user } = useCreateTokenFormValues({
@@ -70,31 +75,39 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
     values
   });
 
-  const getEndpointConfiguredUser = (dataConfiguredUser): string => {
-    return buildListEndpoint({
-      endpoint: listConfiguredUser,
-      parameters: { ...dataConfiguredUser, limit: 10 }
+  const { canManageApiTokens, isAdmin } = useAtomValue(userAtom);
+
+  const searchParams = isAdmin
+    ? {}
+    : { search: { regex: { fields: ['is_admin'], value: '0' } } };
+
+  const getUsersEndpoint = (parameters: Parameters): string =>
+    getEndpointConfiguredUser({
+      ...parameters,
+      ...searchParams
     });
-  };
 
-  const closeDialog = (): void => {
+  const close = (): void => {
     resetForm();
-    setIsCreatingToken(false);
+    closeDialog();
   };
 
-  const handleCustomizeCase = (value): void => {
+  const selectCustomizeCase = (value): void => {
     setIsDisplayingDateTimePicker(true);
-    setAnchorEl(refSingleAutocompleteField?.current);
-    setOpen(true);
+
+    if (dayjs(values.duration?.name).isValid()) {
+      return;
+    }
     setFieldValue('duration', value);
   };
 
   const changeDuration = (_, value): void => {
     if (equals(value.id, 'customize')) {
-      handleCustomizeCase(value);
+      selectCustomizeCase(value);
 
       return;
     }
+    setFieldValue('customizeDate', null);
 
     setFieldValue('duration', value);
   };
@@ -110,17 +123,20 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
 
   const labelConfirm = token ? t(labelClose) : t(labelGenerateNewToken);
 
+  const confirmDisabled = !dirty || !isValid || isRefetching || isMutating;
+
   return (
     <Dialog
-      confirmDisabled={!dirty || !isValid}
+      cancelDisabled={isMutating}
+      confirmDisabled={confirmDisabled}
       data-testid="tokenCreationDialog"
       labelCancel={t(labelCancel)}
       labelConfirm={labelConfirm}
       labelTitle={<Title token={token} />}
-      open={isCreatingToken}
+      open={isDialogOpened}
       submitting={isMutating}
-      onCancel={token ? undefined : closeDialog}
-      onConfirm={token ? closeDialog : handleSubmit}
+      onCancel={token ? undefined : close}
+      onConfirm={token ? close : handleSubmit}
     >
       <TextField
         autoComplete="off"
@@ -128,7 +144,9 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
         dataTestId="tokenName"
         disabled={Boolean(token)}
         id="tokenName"
-        inputProps={{ 'data-testid': 'tokenNameInput' }}
+        textFieldSlotsAndSlotProps={{
+          slotProps: { htmlInput: { 'data-testid': 'tokenNameInput' } }
+        }}
         label={t(labelName)}
         required={!token}
         value={tokenName}
@@ -138,20 +156,16 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
         className={classes.input}
         dataTestId={labelDuration}
         disabled={Boolean(token) || isDisplayingDateTimePicker}
-        error={errors?.duration?.invalidDate}
         getOptionItemLabel={(option) => option?.name}
         id="duration"
         label={t(labelDuration)}
         options={options}
-        ref={refSingleAutocompleteField}
         required={!token}
         value={duration}
         onChange={changeDuration}
       />
       {isDisplayingDateTimePicker && (
-        <CustomTimePeriod
-          anchorElDuration={{ anchorEl, setAnchorEl }}
-          openPicker={{ open, setOpen }}
+        <InputCalendar
           setIsDisplayingDateTimePicker={setIsDisplayingDateTimePicker}
           windowHeight={height}
         />
@@ -160,9 +174,9 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
       <SingleConnectedAutocompleteField
         className={classes.input}
         dataTestId={labelUser}
-        disabled={Boolean(token)}
+        disabled={Boolean(token) || !canManageApiTokens}
         field="name"
-        getEndpoint={getEndpointConfiguredUser}
+        getEndpoint={getUsersEndpoint}
         id="user"
         label={t(labelUser)}
         required={!token}

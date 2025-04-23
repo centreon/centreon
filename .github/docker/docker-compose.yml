@@ -1,14 +1,81 @@
-version: "3.2"
 services:
   web:
-    image: "@WEB_IMAGE@"
-    ports: ["80", "3306"]
-    profiles: ["web"]
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${WEB_IMAGE}"
+    ports: ["4000:80"]
+    depends_on:
+      - db
+    environment:
+      MYSQL_HOST: db
+      GLPI_HOST: glpi
+      VAULT_HOST: vault
+      CENTREON_DATASET: ${CENTREON_DATASET:-1}
+      CENTREON_LANG: ${CENTREON_LANG:-en_US}
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+      interval: 1s
+      retries: 120
+      timeout: 5s
 
-  web-fresh:
-    image: "@WEB_FRESH_IMAGE@"
-    ports: ["80", "3306"]
-    profiles: ["web-fresh"]
+  db:
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${MYSQL_IMAGE:-bitnami/mariadb:10.11}"
+    ports: ["3306"]
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 100M
+
+  poller:
+    env_file:
+      - .env
+    image: "${POLLER_IMAGE:-docker.centreon.com/centreon/centreon-poller-alma9:develop}"
+    depends_on:
+      web:
+        condition: service_healthy
+    profiles: ["poller"]
+    environment:
+      WEB_HOST: web
+
+  glpi:
+    env_file:
+      - .env
+    image: "${GLPI_IMAGE:-docker.centreon.com/centreon/glpi:24.11}"
+    ports: ["80"]
+    depends_on:
+      - db
+    profiles: ["glpi"]
+    environment:
+      MYSQL_HOST: db
+
+  vault:
+    image: "${VAULT_IMAGE:-docker.centreon.com/centreon/vault:24.11}"
+    env_file:
+      - .env
+    ports: ["8200"]
+    profiles: ["vault"]
+
+  openid:
+    env_file:
+      - .env
+    image: "${OPENID_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
+    ports: ["8080:8080"]
+    profiles: ["openid"]
+
+  saml:
+    env_file:
+      - .env
+    image: "${SAML_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
+    ports: ["8080:8080"]
+    profiles: ["saml"]
 
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest

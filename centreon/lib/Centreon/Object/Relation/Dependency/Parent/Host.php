@@ -37,16 +37,29 @@ require_once "Centreon/Object/Relation/Relation.php";
 require_once "Centreon/Object/Dependency/Dependency.php";
 require_once "Centreon/Object/Host/Host.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Dependency_Parent_Host
+ */
 class Centreon_Object_Relation_Dependency_Parent_Host extends Centreon_Object_Relation
 {
+
+    /** @var Centreon_Object_Dependency */
+    public $firstObject;
+    /** @var Centreon_Object_Host */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "dependency_hostParent_relation";
+    /** @var string */
     protected $firstKey = "dependency_dep_id";
+    /** @var string */
     protected $secondKey = "host_host_id";
 
     /**
-     * Constructor
+     * Centreon_Object_Relation_Dependency_Parent_Host constructor
      *
-     * @return void
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct(\Pimple\Container $dependencyInjector)
     {

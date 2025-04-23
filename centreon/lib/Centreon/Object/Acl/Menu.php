@@ -36,13 +36,16 @@
 require_once __DIR__ . "/../Object.php";
 
 /**
- * Used for interacting with Acl Menus
+ * Class
  *
- * @author sylvestre
+ * @class Centreon_Object_Acl_Menu
  */
 class Centreon_Object_Acl_Menu extends Centreon_Object
 {
+    /** @var string */
     protected $table = "acl_topology";
+    /** @var string */
     protected $primaryKey = "acl_topo_id";
+    /** @var string */
     protected $uniqueLabelField = "acl_topo_name";
 }

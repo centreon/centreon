@@ -14,8 +14,8 @@ import {
 
 import { labelUserDeleted } from '../translatedLabels';
 
-import { DeleteAccessRightDto, resource } from './models';
 import { getDashboardAccessRightsContactEndpoint } from './endpoints';
+import { DeleteAccessRightDto, resource } from './models';
 
 type UseDeleteAccessRightsContact<
   TData extends null = null,
@@ -37,7 +37,6 @@ const useDeleteAccessRightsContact = (): UseDeleteAccessRightsContact => {
 
   const {
     mutateAsync,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
   } = useMutationQuery<object, { dashboardId; id }>({
@@ -64,14 +63,11 @@ const useDeleteAccessRightsContact = (): UseDeleteAccessRightsContact => {
       error: ResponseError | null,
       vars: DeleteAccessRightDto
     ): void => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      invalidateQueries(vars as any);
+      invalidateQueries(vars);
       onSettled?.(data, error, vars, undefined);
     };
 
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const { id, dashboardId } = variables as any;
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+    const { id, dashboardId } = variables;
 
     return mutateAsync(
       {

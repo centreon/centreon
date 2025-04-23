@@ -1,14 +1,13 @@
 <?php
 
 /*
- *
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,8 +30,10 @@ use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
 class PlatformTopologyFactoryRDB
 {
     /**
-     * Create a platform entity depending on the pending status
-     * @param array<int|string> $platformData
+     * Create a platform entity depending on the pending status.
+     *
+     * @param array<null|int|string> $platformData
+     *
      * @return PlatformInterface
      */
     public static function create(array $platformData): PlatformInterface
@@ -45,8 +46,10 @@ class PlatformTopologyFactoryRDB
     }
 
     /**
-     * Return a Registered platform entity
-     * @param array<int|string> $platformData
+     * Return a Registered platform entity.
+     *
+     * @param array<null|int|string> $platformData
+     *
      * @return PlatformRegistered
      */
     private static function createPlatformRegistered(array $platformData): PlatformRegistered
@@ -99,8 +102,10 @@ class PlatformTopologyFactoryRDB
     }
 
     /**
-     * Return a pending platform pending
+     * Return a pending platform pending.
+     *
      * @param array<int|string> $platformData
+     *
      * @return PlatformPending
      */
     private static function createPlatformPending(array $platformData): PlatformPending

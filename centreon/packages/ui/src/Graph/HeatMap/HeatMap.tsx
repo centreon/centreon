@@ -5,7 +5,9 @@ import { HeatMapProps } from './model';
 
 const HeatMap = <TData,>(props: HeatMapProps<TData>): JSX.Element => (
   <ParentSize>
-    {({ width }) => <ResponsiveHeatMap<TData> {...props} width={width} />}
+    {({ width, height }) => (
+      <ResponsiveHeatMap<TData> {...props} height={height} width={width} />
+    )}
   </ParentSize>
 );
 

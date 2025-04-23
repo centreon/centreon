@@ -48,15 +48,7 @@ if (!isset($centreon)) {
 // getting the garbage collector value set
 define("SESSION_DURATION_LIMIT", (int)(ini_get('session.gc_maxlifetime') / 60));
 
-$transcoKey = array(
-    "enable_autologin" => "yes",
-    "display_autologin_shortcut" => "yes",
-    "enable_gmt" => "yes",
-    "strict_hostParent_poller_management" => "yes",
-    'display_downtime_chart' => 'yes',
-    'display_comment_chart' => 'yes',
-    'send_statistics' => 'yes'
-);
+$transcoKey = ["enable_autologin" => "yes", "display_autologin_shortcut" => "yes", "enable_gmt" => "yes", "strict_hostParent_poller_management" => "yes", 'display_downtime_chart' => 'yes', 'display_comment_chart' => 'yes', 'send_statistics' => 'yes'];
 
 $dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` <> 'proxy_password'");
 while ($opt = $dbResult->fetch()) {
@@ -66,14 +58,15 @@ while ($opt = $dbResult->fetch()) {
         $gopt[$opt["key"]] = myDecode($opt["value"]);
     }
 }
-$gopt['proxy_password'] = CentreonAuth::PWS_OCCULTATION;
 
 /*
  * Style
  */
-$attrsText = array("size" => "40");
-$attrsText2 = array("size" => "5");
+$attrsText = ['size' => '40'];
+$attrsText2 = ['size' => '5'];
 $attrsAdvSelect = null;
+
+$autocompleteOff = ['autocomplete' => 'new-password'];
 
 /*
  * Form begin
@@ -89,7 +82,7 @@ $form->addElement('text', 'oreon_path', _("Directory"), $attrsText);
 
 $form->addElement('text', 'session_expire', _("Sessions Expiration Time"), $attrsText2);
 
-$inheritanceMode = array();
+$inheritanceMode = [];
 $inheritanceMode[] = $form->createElement(
     'radio',
     'inheritance_mode',
@@ -115,9 +108,9 @@ $inheritanceMode[] = $form->createElement(
 );
 
 $form->addGroup($inheritanceMode, 'inheritance_mode', _("Contacts & Contact groups method calculation"), '&nbsp;');
-$form->setDefaults(array('inheritance_mode' => CUMULATIVE_NOTIFICATION));
+$form->setDefaults(['inheritance_mode' => CUMULATIVE_NOTIFICATION]);
 
-$limit = array(10 => 10, 20 => 20, 30 => 30, 40 => 40, 50 => 50, 60 => 60, 70 => 70, 80 => 80, 90 => 90, 100 => 100);
+$limit = [10 => 10, 20 => 20, 30 => 30, 40 => 40, 50 => 50, 60 => 60, 70 => 70, 80 => 80, 90 => 90, 100 => 100];
 $form->addElement('select', 'maxViewMonitoring', _("Limit per page for Monitoring"), $limit);
 $form->addElement('text', 'maxGraphPerformances', _("Graph per page for Performances"), $attrsText2);
 
@@ -132,35 +125,18 @@ $GMTList = $CentreonGMT->getGMTList();
 
 $form->addElement('select', 'gmt', _("Timezone"), $GMTList);
 
-$globalSortType = array(
-    "host_name" => _("Hosts"),
-    "last_state_change" => _("Duration"),
-    "service_description" => _("Services"),
-    "current_state" => _("Status"),
-    "last_check" => _("Last check"),
-    "output" => _("Output"),
-    "criticality_id" => _("Criticality"),
-    "current_attempt" => _("Attempt"),
-);
+$globalSortType = ["host_name" => _("Hosts"), "last_state_change" => _("Duration"), "service_description" => _("Services"), "current_state" => _("Status"), "last_check" => _("Last check"), "output" => _("Output"), "criticality_id" => _("Criticality"), "current_attempt" => _("Attempt")];
 
-$sortType = array(
-    "last_state_change" => _("Duration"),
-    "host_name" => _("Hosts"),
-    "service_description" => _("Services"),
-    "current_state" => _("Status"),
-    "last_check" => _("Last check"),
-    "plugin_output" => _("Output"),
-    "criticality_id" => _("Criticality"),
-);
+$sortType = ["last_state_change" => _("Duration"), "host_name" => _("Hosts"), "service_description" => _("Services"), "current_state" => _("Status"), "last_check" => _("Last check"), "plugin_output" => _("Output"), "criticality_id" => _("Criticality")];
 
 $form->addElement('select', 'global_sort_type', _("Sort by  "), $globalSortType);
-$global_sort_order = array("ASC" => _("Ascending"), "DESC" => _("Descending"));
+$global_sort_order = ["ASC" => _("Ascending"), "DESC" => _("Descending")];
 
 $form->addElement('select', 'global_sort_order', _("Order sort "), $global_sort_order);
 
 $form->addElement('select', 'problem_sort_type', _("Sort problems by"), $sortType);
 
-$sort_order = array("ASC" => _("Ascending"), "DESC" => _("Descending"));
+$sort_order = ["ASC" => _("Ascending"), "DESC" => _("Descending")];
 $form->addElement('select', 'problem_sort_order', _("Order sort problems"), $sort_order);
 
 $options1[] = $form->createElement(
@@ -178,7 +154,7 @@ $form->addGroup($options2, 'display_autologin_shortcut', _("Display Autologin sh
 /*
  * statistics options
  */
-$stat = array();
+$stat = [];
 $stat[] = $form->createElement('checkbox', 'yes', '&nbsp;', '');
 $form->addGroup($stat, 'send_statistics', _("Send anonymous statistics"), '&nbsp;&nbsp;');
 
@@ -190,11 +166,11 @@ $form->addElement(
     'button',
     'test_proxy',
     _("Test Internet Connection"),
-    array("class" => "btc bt_success", "onClick" => "javascript:checkProxyConf()")
+    ["class" => "btc bt_success", "onClick" => "javascript:checkProxyConf()"]
 );
 $form->addElement('text', 'proxy_port', _("Proxy port"), $attrsText2);
-$form->addElement('text', 'proxy_user', _("Proxy user"), $attrsText);
-$form->addElement('password', 'proxy_password', _("Proxy password"), $attrsText);
+$form->addElement('text', 'proxy_user', _("Proxy user"), array_merge($attrsText, $autocompleteOff));
+$form->addElement('password', 'proxy_password', _("Proxy password"), array_merge($attrsText, $autocompleteOff));
 
 /**
  * Charts options
@@ -233,12 +209,20 @@ $form->registerRule('is_executable_binary', 'callback', 'is_executable_binary');
 $form->registerRule('is_writable_path', 'callback', 'is_writable_path');
 $form->registerRule('is_writable_file', 'callback', 'is_writable_file');
 $form->registerRule('is_writable_file_if_exist', 'callback', 'is_writable_file_if_exist');
+$form->registerRule('greaterthan', 'callback', 'is_greater_than');
+
 $form->addRule('oreon_path', _('Mandatory field'), 'required');
 $form->addRule('oreon_path', _("Can't write in directory"), 'is_valid_path');
+
 $form->addRule('AjaxTimeReloadMonitoring', _('Mandatory field'), 'required');
 $form->addRule('AjaxTimeReloadMonitoring', _('Must be a number'), 'numeric');
+$form->addRule('AjaxTimeReloadMonitoring', _('The minimum allowed value is 10'), 'greaterthan', 10);
+
 $form->addRule('AjaxTimeReloadStatistic', _('Mandatory field'), 'required');
 $form->addRule('AjaxTimeReloadStatistic', _('Must be a number'), 'numeric');
+$form->addRule('AjaxTimeReloadStatistic', _('The minimum allowed value is 10'), 'greaterthan', 10);
+
+
 $form->addRule('selectPaginationSize', _('Mandatory field'), 'required');
 $form->addRule('selectPaginationSize', _('Must be a number'), 'numeric');
 $form->addRule('maxGraphPerformances', _('Mandatory field'), 'required');
@@ -256,11 +240,8 @@ $form->addRule(
     'isSessionDurationValid'
 );
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path . 'general/', $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . 'general/');
 
 $form->setDefaults($gopt);
 
@@ -270,7 +251,7 @@ $subC = $form->addElement(
     _("Save"),
     ["class" => "btc bt_success", "id" => "submitGeneralOptionsForm", "data-testid" => _("Save")]
 );
-$form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
 $valid = false;
 if ($form->validate()) {
@@ -278,7 +259,7 @@ if ($form->validate()) {
         /*
         * Update in DB
         */
-        updateGeneralConfigData(1);
+        updateGeneralConfigData();
 
         /*
         * Update in Oreon Object
@@ -302,7 +283,7 @@ $form->addElement(
     "button",
     "change",
     _("Modify"),
-    array("onClick" => "javascript:window.location.href='?p=" . $p . "'", 'class' => 'btc bt_info')
+    ["onClick" => "javascript:window.location.href='?p=" . $p . "'", 'class' => 'btc bt_info']
 );
 
 /*

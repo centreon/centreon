@@ -1,18 +1,18 @@
 import { useCallback, useEffect } from 'react';
 
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-  $getSelection,
-  $isRangeSelection,
-  RangeSelection,
-  SELECTION_CHANGE_COMMAND,
-  ElementNode,
-  TextNode
-} from 'lexical';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isAtNodeEnd } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
 import { useAtom } from 'jotai';
+import {
+  $getSelection,
+  $isRangeSelection,
+  ElementNode,
+  RangeSelection,
+  SELECTION_CHANGE_COMMAND,
+  TextNode
+} from 'lexical';
 
 import LinkIcon from '@mui/icons-material/Link';
 

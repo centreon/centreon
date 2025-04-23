@@ -195,7 +195,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
      */
     private function linkHostTemplatesToHost(int $hostId, array $hostTemplates): void
     {
-        if (empty($hostTemplates)) {
+        if ($hostTemplates === []) {
             return;
         }
 
@@ -215,7 +215,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
      */
     public function findHostByAccessGroupIds(int $hostId, array $accessGroupIds): ?Host
     {
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return null;
         }
 
@@ -256,7 +256,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 ON host_server.host_host_id = host.host_id
             INNER JOIN `:db`.nagios_server nagios
                 ON nagios.id = host_server.nagios_server_id '  .
-            ($accessGroupRequest !== null ? $accessGroupRequest : '') .
+            ($accessGroupRequest ?? '') .
             'WHERE host.host_id = :host_id
             AND host.host_register = \'1\''
         );
@@ -589,7 +589,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
      */
     public function findHostNamesAlreadyUsed(array $namesToCheck): array
     {
-        if (empty($namesToCheck)) {
+        if ($namesToCheck === []) {
             return [];
         }
 

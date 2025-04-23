@@ -1,0 +1,156 @@
+get:
+  tags:
+    - Resource Access Management
+  summary: "Find a configured resource access rule"
+  description: "Return information about the resource access rule identified by the ID provided"
+
+  parameters:
+    - $ref: 'QueryParameter/RuleId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: "Resource access rule ID"
+                example: 1
+              name:
+                type: string
+                description: "Resource access rule name"
+                example: "Rule_for_viewers"
+              description:
+                type: string
+                description: "Resource access rule description"
+                example: "Rule that will be applied to all viewers"
+              contacts:
+                type: object
+                properties:
+                  values:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: "ID of the contact linked to the rule"
+                          example: 1
+                        name:
+                          type: string
+                          description: "Name of the contact linked to the rule"
+                  all:
+                    type: boolean
+                    description: "Indicates that the rule should be applied to all current / future contacts"
+                    example: false
+              contact_groups:
+                type: object
+                properties:
+                  values:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: "ID of the contact group linked to the rule"
+                          example: 1
+                        name:
+                          type: string
+                          description: "Name of the contact group linked to the rule"
+                  all:
+                    type: boolean
+                    description: "Indicates that the rule should be applied to all current / future contact groups"
+                    example: false
+              is_enabled:
+                type: boolean
+                description: "Indicates whether the resource access rule is activated or not"
+              dataset_filters:
+                type: array
+                items:
+                  $ref: './Schema/DatasetFilterWithNames.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+put:
+  tags:
+    - Resource Access Management
+  summary: "Update a resource access rule"
+  description: |
+    Update a resource access rule configuration
+  parameters:
+    - $ref: 'QueryParameter/RuleId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/AddOrUpdateRuleRequest.yaml'
+  responses:
+    '204':
+      $ref: '../../../Common/Response/NoContent.yaml'
+    '400':
+      $ref: '../../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+delete:
+  tags:
+    - Resource Access Management
+  summary: "Delete a resource access rule configuration"
+  description: |
+    Delete a resource access rule configuration.
+  parameters:
+    - $ref: 'QueryParameter/RuleId.yaml'
+  responses:
+    '204':
+      $ref: '../../../Common/Response/NoContent.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+patch:
+  tags:
+    - Resource Access Management
+  summary: "Update partially a resource access rule"
+  description: |
+    Partial update of resource access rule configuration.
+    The available parameters to **update** are:
+
+    * name
+    * description
+    * is_enabled
+  parameters:
+    - $ref: 'QueryParameter/RuleId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/PartialRuleUpdateRequest.yaml'
+  responses:
+    '204':
+      $ref: '../../../Common/Response/NoContent.yaml'
+    '400':
+      $ref: '../../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+

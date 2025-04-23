@@ -1,0 +1,5 @@
+DeleteServices:
+  methods: POST
+  path: /configuration/services/_delete
+  controller: 'Core\Service\Infrastructure\API\DeleteServices\DeleteServicesController'
+  condition: "request.attributes.get('version') >= 25.03"

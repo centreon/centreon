@@ -1,11 +1,11 @@
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Button, CircularProgress } from '@mui/material';
 
-import { WizardButtonsTypes } from '../models';
-import { labelPrevious, labelNext, labelApply } from '../translatedLabels';
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
+import { WizardButtonsTypes } from '../models';
+import { labelApply, labelNext, labelPrevious } from '../translatedLabels';
 
 interface Props {
   disabled: boolean;

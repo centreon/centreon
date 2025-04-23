@@ -1,24 +1,15 @@
-import {
-  includes,
-  isEmpty,
-  last,
-  length,
-  propEq,
-  split,
-  complement,
-  equals,
-  prop
-} from 'ramda';
 import { useQueryClient } from '@tanstack/react-query';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
   Method,
   ResponseError,
-  useMutationQuery,
-  useSnackbar
+  useBulkResponse,
+  useMutationQuery
 } from '@centreon/ui';
 
+import { DeleteType } from '../../models';
 import {
   labelFailedToDeleteNotification,
   labelFailedToDeleteNotifications,
@@ -26,14 +17,13 @@ import {
   labelNotificationSuccessfullyDeleted,
   labelNotificationsSuccessfullyDeleted
 } from '../../translatedLabels';
-import { DeleteType } from '../../models';
 
 import {
   deleteMultipleNotificationEndpoint,
   deleteSingleNotificationEndpoint
 } from './endpoints';
 
-interface useDeleteRequestState {
+interface UseDeleteRequestState {
   isLoading: boolean;
   submit: () => void;
 }
@@ -42,11 +32,11 @@ const useDeleteRequest = ({
   onSettled,
   selectedRows,
   deleteNotification
-}): useDeleteRequestState => {
+}): UseDeleteRequestState => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { showSuccessMessage, showErrorMessage, showWarningMessage } =
-    useSnackbar();
+
+  const handleBulkResponse = useBulkResponse();
 
   const isSingleItem = equals(deleteNotification.type, DeleteType.SingleItem);
 
@@ -69,46 +59,27 @@ const useDeleteRequest = ({
   });
 
   const submit = (): void => {
-    mutateAsync(payload || {})
+    mutateAsync({
+      payload: payload || {}
+    })
       .then((response) => {
-        const { isError, statusCode, message, data } =
-          response as ResponseError;
+        const { isError, results } = response as ResponseError;
 
         if (isError) {
           return;
         }
 
-        if (equals(statusCode, 207)) {
-          const successfullResponses = data.filter(propEq(204, 'status'));
-          const failedResponsesIds = data
-            .filter(complement(propEq(204, 'status')))
-            .map(prop('href'))
-            .map((item) => parseInt(last(split('/', item)) as string, 10));
+        handleBulkResponse({
+          data: results,
+          labelWarning: t(labelFailedToDeleteNotifications),
+          labelFailed: t(labelFailed),
+          labelSuccess: t(labelSuccess),
+          items: selectedRows
+        });
 
-          if (isEmpty(successfullResponses)) {
-            showErrorMessage(t(labelFailed));
-
-            return;
-          }
-
-          if (length(successfullResponses) < length(data)) {
-            const failedResponsesName = selectedRows
-              ?.filter((item) => includes(item.id, failedResponsesIds))
-              .map((item) => item.name);
-
-            showWarningMessage(
-              `${labelFailedToDeleteNotifications}: ${failedResponsesName.join(
-                ', '
-              )}`
-            );
-
-            return;
-          }
-        }
-
-        showSuccessMessage(message || t(labelSuccess));
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
       })
+
       .finally(() => {
         onSettled();
       });

@@ -1,5 +1,5 @@
 <?php
-$help = array();
+$help = [];
 
 $help["name"] = dgettext("help", "Name used for identification of this meta service.");
 $help["display"] = dgettext(

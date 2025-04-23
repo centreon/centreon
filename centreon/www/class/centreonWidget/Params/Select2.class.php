@@ -35,14 +35,37 @@
 
 require_once __DIR__ . "/../Params.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsSelect2
+ */
 class CentreonWidgetParamsSelect2 extends CentreonWidgetParams
 {
+    /** @var HTML_QuickForm_element */
+    public $element;
+
+    /**
+     * CentreonWidgetParamsSelect2 Constructor
+     *
+     * @param CentreonDB $db
+     * @param HTML_Quickform $quickform
+     * @param int $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    /**
+     * @param $params
+     *
+     * @return void
+     * @throws HTML_QuickForm_Error
+     */
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -50,7 +73,7 @@ class CentreonWidgetParamsSelect2 extends CentreonWidgetParams
                 'select2',
                 'param_' . $params['parameter_id'],
                 $params['parameter_name'],
-                array(),
+                [],
                 $this->getParameters()
             );
         }

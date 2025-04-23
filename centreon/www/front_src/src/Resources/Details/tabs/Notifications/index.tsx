@@ -1,5 +1,5 @@
-import { isNil } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
 
 import { detailsAtom } from '../../detailsAtoms';
 

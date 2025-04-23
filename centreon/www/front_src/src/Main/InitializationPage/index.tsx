@@ -1,13 +1,13 @@
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 
-import { isNil, not } from 'ramda';
 import { useAtom, useAtomValue } from 'jotai';
+import { isNil, not } from 'ramda';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { platformInstallationStatusAtom } from '../atoms/platformInstallationStatusAtom';
 import PageLoader from '../../components/PageLoader';
 import { MainLoader } from '../MainLoader';
+import { platformInstallationStatusAtom } from '../atoms/platformInstallationStatusAtom';
 import { areUserParametersLoadedAtom } from '../useUser';
 
 const App = lazy(() => import('../../App'));

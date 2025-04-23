@@ -36,7 +36,7 @@
 /**
  * Include config file
  */
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 require_once "$centreon_path/www/class/centreonDB.class.php";
 require_once _CENTREON_PATH_."/www/class/centreonGraph.class.php";
 
@@ -64,7 +64,7 @@ if (isset($_GET['index'])) {
     }
     $index = $_GET['index'];
 } else {
-    list($hostId, $svcId) = explode('_', $_GET['svcId']);
+    [$hostId, $svcId] = explode('_', $_GET['svcId']);
     if (false === is_numeric($hostId) || false === is_numeric($svcId)) {
         CentreonGraph::displayError();
     }

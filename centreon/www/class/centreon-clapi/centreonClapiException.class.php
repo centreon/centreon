@@ -36,7 +36,10 @@
 namespace CentreonClapi;
 
 /**
- * Exception class
+ * Class
+ *
+ * @class CentreonClapiException
+ * @package CentreonClapi
  */
 class CentreonClapiException extends \Exception
 {

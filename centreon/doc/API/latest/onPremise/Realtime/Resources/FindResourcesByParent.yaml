@@ -1,0 +1,78 @@
+get:
+  tags:
+    - Resource
+  summary: "List all resources by their parents"
+  description: |
+    List all the resources in real-time monitoring by their parents : parent -> resources.
+
+    The available parameters to **search** / **sort_by** are:
+
+    * id
+    * name
+    * alias
+    * fqdn
+    * type
+    * status_code
+    * status
+    * action_url
+    * notes_label
+    * notes_url
+    * parent_name
+    * parent_status
+    * in_downtime
+    * in_flapping
+    * acknowledged
+    * last_status_change
+    * tries
+    * last_check
+    * information
+    * monitoring_server_name
+    * status_types
+
+    Only for **searching**:
+
+    ---
+
+    * h.name
+    * h.alias
+    * h.address
+    * h.fqdn
+    * s.description
+  parameters:
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+    - $ref: 'QueryParameter/FilterType.yaml'
+    - $ref: 'QueryParameter/FilterState.yaml'
+    - $ref: 'QueryParameter/FilterStatus.yaml'
+    - $ref: 'QueryParameter/FilterHostgroupName.yaml'
+    - $ref: 'QueryParameter/FilterServicegroupName.yaml'
+    - $ref: 'QueryParameter/FilterServiceCategoryName.yaml'
+    - $ref: 'QueryParameter/FilterHostCategoryName.yaml'
+    - $ref: 'QueryParameter/FilterHostSeverityName.yaml'
+    - $ref: 'QueryParameter/FilterServiceSeverityName.yaml'
+    - $ref: 'QueryParameter/FilterHostSeverityLevel.yaml'
+    - $ref: 'QueryParameter/FilterServiceSeverityLevel.yaml'
+    - $ref: 'QueryParameter/FilterMonitoringServerName.yaml'
+    - $ref: 'QueryParameter/FilterStatusTypes.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/ResourcesByParent.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

@@ -6,8 +6,13 @@ import {
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
-import { Dashboard, DeleteDashboardDto, resource } from './models';
+import { useAtomValue } from 'jotai';
+import {
+  limitAtom,
+  totalAtom
+} from '../components/DashboardLibrary/DashboardListing/atom';
 import { getDashboardEndpoint } from './endpoints';
+import { Dashboard, DeleteDashboardDto, resource } from './models';
 
 type UseDeleteDashboard<
   TData extends null = null,
@@ -24,6 +29,9 @@ type UseDeleteDashboard<
 >;
 
 const useDeleteDashboard = (): UseDeleteDashboard => {
+  const limit = useAtomValue(limitAtom);
+  const total = useAtomValue(totalAtom);
+
   const {
     mutateAsync,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -31,7 +39,13 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     ...mutationData
   } = useMutationQuery<Dashboard, { id }>({
     getEndpoint: ({ id }) => getDashboardEndpoint(id),
-    method: Method.DELETE
+    method: Method.DELETE,
+    optimisticListing: {
+      enabled: true,
+      queryKey: resource.dashboards,
+      total,
+      limit: limit || 10
+    }
   });
 
   const queryClient = useQueryClient();

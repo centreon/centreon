@@ -25,7 +25,7 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 23.04.6: ';
 $errorMessage = '';
 
-$alterMetricsTable = function(CentreonDB $pearDBO) {
+$alterMetricsTable = function(CentreonDB $pearDBO): void {
     $pearDBO->query(
         <<<'SQL'
             ALTER TABLE `metrics`

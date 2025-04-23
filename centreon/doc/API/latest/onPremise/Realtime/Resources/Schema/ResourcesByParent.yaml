@@ -1,0 +1,74 @@
+allOf:
+  - $ref: 'ResourceLightened.yaml'
+  - properties:
+      name:
+        type: string
+        description: "Parent Resource name"
+        example: "Central"
+      extra:
+        type: array
+        items:
+          type: object
+      children:
+        type: object
+        properties:
+          total:
+            type: integer
+            description: "Total number of children"
+            example: "10"
+          status_count:
+            type: object
+            properties:
+              ok:
+                type: integer
+                description: "Number of resources in OK status"
+                example: 1
+              warning:
+                type: integer
+                description: "Number of resources in WARNING status"
+                example: 1
+              critical:
+                type: integer
+                description: "Number of resources in CRITICAL status"
+                example: 1
+              unknown:
+                type: integer
+                description: "Number of resources in UNKNOWN status"
+                example: 1
+          resources:
+            type: array
+            items:
+              allOf:
+                - $ref: 'ResourceLightened.yaml'
+                - properties:
+                    resource_name:
+                      type: string
+                      description: "Resource name"
+                      example: "Ping"
+                    host_id:
+                      type: integer
+                      format: int32
+                      description: "ID of the host behind the resource"
+                      example: 12
+                    service_id:
+                      type: integer
+                      format: int32
+                      description: "ID of the service behind the resource"
+                      example: 12
+                    extra:
+                      type: array
+                      items:
+                        type: object
+                    parent:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: int32
+                          description: "ID of the parent"
+                          example: 12
+                        extra:
+                          type: array
+                          items:
+                            type: object
+

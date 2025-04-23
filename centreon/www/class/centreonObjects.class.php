@@ -33,27 +33,35 @@
  *
  */
 
- /*
-  *  Class that contains various methods for managing hosts
-  */
+/**
+ * Class
+ *
+ * @class CentreonObjects
+ * @description Class that contains various methods for managing hosts
+ */
 class CentreonObjects
 {
+    /** @var CentreonDB */
     private $DB;
+    /** @var array */
     public $hosts;
+    /** @var array */
     public $services;
+    /** @var array */
     public $hostgoups;
+    /** @var array */
     public $servicegroups;
+    /** @var array */
     public $commandes;
 
     /**
+     * CentreonObjects constructor
      *
-     * Constructor
-     * @param $pearDB
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
         $this->DB = $pearDB;
-
         //$this->hostgroups = new CentreonHostGroups($pearDB);
     }
 }

@@ -43,9 +43,11 @@ while ($opt = $DBRESULT->fetchRow()) {
 }
 $DBRESULT->closeCursor();
 
-$attrsText = array("size" => "40");
-$attrsText2 = array("size" => "5");
+$attrsText = ['size' => '40'];
+$attrsText2 = ['size' => '5'];
 $attrsAdvSelect = null;
+
+$autocompleteOff = ['autocomplete' => 'new-password'];
 
 // Form begin
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
@@ -61,8 +63,8 @@ $form->addElement('text', 'gorgone_illegal_characters', _("Illegal characters fo
 $form->addElement('text', 'gorgone_api_address', _("IP address or hostname"), $attrsText);
 $form->addElement('text', 'gorgone_api_port', _("Port"), $attrsText2);
 $form->addRule('gorgone_api_port', _('Must be a number'), 'numeric');
-$form->addElement('text', 'gorgone_api_username', _("Username"), $attrsText);
-$form->addElement('password', 'gorgone_api_password', _("Password"), $attrsText);
+$form->addElement('text', 'gorgone_api_username', _("Username"), array_merge($attrsText, $autocompleteOff));
+$form->addElement('password', 'gorgone_api_password', _("Password"), array_merge($attrsText, $autocompleteOff));
 $form->addElement(
     'checkbox',
     'gorgone_api_ssl',
@@ -84,16 +86,13 @@ $redirect->setValue($o);
 
 $form->applyFilter('__ALL__', 'myTrim');
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path . "/gorgone", $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . "/gorgone");
 
 $form->setDefaults($gopt);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+$DBRESULT = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 
 // prepare help texts
 $helptext = "";
@@ -120,7 +119,7 @@ $form->addElement(
     "button",
     "change",
     _("Modify"),
-    array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=gorgone'", 'class' => 'btc bt_info')
+    ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=gorgone'", 'class' => 'btc bt_info']
 );
 
 /*

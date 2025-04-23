@@ -2,6 +2,8 @@ import { PopoverOrigin, PopoverPosition } from '@mui/material';
 
 import { CustomTimePeriod, CustomTimePeriodProperty } from '../../models';
 
+import { PickersStartEndDateModel } from './usePickersStartEndDate';
+
 interface RangeDate {
   max?: Date;
   min?: Date;
@@ -56,4 +58,17 @@ export const defaultTransformOrigin = {
 export enum PickersStartEndDateDirection {
   column = 'column',
   row = 'row'
+}
+
+interface DisabledPicker {
+  isDisabledEndPicker?: boolean;
+  isDisabledStartPicker?: boolean;
+}
+type PickersDate = Pick<PickersData, 'rangeEndDate' | 'rangeStartDate'>;
+
+export interface PickersStartEndDateProps
+  extends PickersDate,
+    PickersStartEndDateModel {
+  direction?: PickersStartEndDateDirection;
+  disabled?: DisabledPicker;
 }

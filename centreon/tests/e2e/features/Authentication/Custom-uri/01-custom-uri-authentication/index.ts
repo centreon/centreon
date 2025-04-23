@@ -10,7 +10,11 @@ const service = 'Ping';
 const host = 'Centreon-Server';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
+
+  cy.loginAsAdminViaApiV2()
+    .scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
+    .logoutViaAPI();
 });
 
 beforeEach(() => {
@@ -158,5 +162,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

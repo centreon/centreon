@@ -109,7 +109,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
 
         // Handle sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY name ASC';
+        $request .= $sortRequest ?? ' ORDER BY name ASC';
 
         // Handle pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();
@@ -236,7 +236,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
 
         // Handle sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY name ASC';
+        $request .= $sortRequest ?? ' ORDER BY name ASC';
 
         // Handle pagination
         $request .= $this->sqlRequestTranslator->translatePaginationToSql();

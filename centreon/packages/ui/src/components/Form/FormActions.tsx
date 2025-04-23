@@ -8,6 +8,7 @@ import { FormVariant } from './Form.models';
 import { useStyles } from './Form.styles';
 
 export type FormActionsProps = {
+  enableSubmitWhenNotDirty?: boolean;
   labels: FormActionsLabels;
   onCancel: () => void;
   variant: FormVariant;
@@ -21,11 +22,15 @@ export type FormActionsLabels = {
 const FormActions = <TResource extends object>({
   labels,
   onCancel,
-  variant
+  variant,
+  enableSubmitWhenNotDirty
 }: FormActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { isSubmitting, dirty, isValid, submitForm } =
     useFormikContext<TResource>();
+
+  const isSubmitDisabled =
+    isSubmitting || (!dirty && !enableSubmitWhenNotDirty) || !isValid;
 
   return (
     <div className={classes.actions}>
@@ -42,7 +47,7 @@ const FormActions = <TResource extends object>({
       <Button
         aria-label={labels.submit[variant]}
         data-testid="submit"
-        disabled={isSubmitting || !dirty || !isValid}
+        disabled={isSubmitDisabled}
         size="medium"
         type="submit"
         variant="primary"

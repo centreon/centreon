@@ -1,20 +1,19 @@
 import { useEffect, useMemo, useRef } from 'react';
 
-import 'ulog';
 import {
   QueryKey,
   QueryObserverBaseResult,
+  UseQueryOptions,
   useQuery,
-  useQueryClient,
-  UseQueryOptions
+  useQueryClient
 } from '@tanstack/react-query';
+import { equals, has, includes, isNil, not, omit } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
-import anylogger from 'anylogger';
-import { has, includes, isNil, not, omit } from 'ramda';
 
-import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
+import { CatchErrorProps, ResponseError, customFetch } from '../customFetch';
+import { errorLog } from '../logger';
 
 export interface UseFetchQueryProps<T> {
   baseEndpoint?: string;
@@ -33,6 +32,7 @@ export interface UseFetchQueryProps<T> {
     UseQueryOptions<T | ResponseError, Error, T | ResponseError, QueryKey>,
     'queryKey' | 'queryFn'
   >;
+  useLongCache?: boolean;
 }
 
 export type UseFetchQueryState<T> = {
@@ -48,8 +48,6 @@ export interface PrefetchEndpointParams {
   page: number;
 }
 
-const log = anylogger('API Request');
-
 const useFetchQuery = <T extends object>({
   getEndpoint,
   getQueryKey,
@@ -61,11 +59,17 @@ const useFetchQuery = <T extends object>({
   queryOptions,
   httpCodesBypassErrorSnackbar = [],
   baseEndpoint,
-  doNotCancelCallsOnUnmount = false
+  doNotCancelCallsOnUnmount = false,
+  useLongCache
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
   const dataRef = useRef<T | undefined>(undefined);
 
   const { showErrorMessage } = useSnackbar();
+
+  const isCypressTest = equals(window.Cypress?.testingType, 'component');
+
+  const cacheOptions =
+    !isCypressTest && useLongCache ? { gcTime: 60 * 1000 } : {};
 
   const queryData = useQuery<T | ResponseError, Error>({
     queryFn: ({ signal }): Promise<T | ResponseError> =>
@@ -79,6 +83,7 @@ const useFetchQuery = <T extends object>({
         signal
       }),
     queryKey: getQueryKey(),
+    ...cacheOptions,
     ...queryOptions
   });
 
@@ -87,7 +92,7 @@ const useFetchQuery = <T extends object>({
   const manageError = (): void => {
     const data = queryData.data as ResponseError | undefined;
     if (data?.isError) {
-      log.error(data.message);
+      errorLog(data.message);
       const hasACorrespondingHttpCode = includes(
         data?.statusCode || 0,
         httpCodesBypassErrorSnackbar
@@ -117,12 +122,12 @@ const useFetchQuery = <T extends object>({
 
   const prefetchNextPage = ({ page, getPrefetchQueryKey }): void => {
     if (!isPaginated) {
-      return undefined;
+      return;
     }
 
     const nextPage = page + 1;
 
-    return prefetchQuery({
+    prefetchQuery({
       endpointParams: { page: nextPage },
       queryKey: getPrefetchQueryKey(nextPage)
     });
@@ -130,12 +135,12 @@ const useFetchQuery = <T extends object>({
 
   const prefetchPreviousPage = ({ page, getPrefetchQueryKey }): void => {
     if (!isPaginated) {
-      return undefined;
+      return;
     }
 
     const previousPage = page - 1;
 
-    return prefetchQuery({
+    prefetchQuery({
       endpointParams: { page: previousPage },
       queryKey: getPrefetchQueryKey(previousPage)
     });

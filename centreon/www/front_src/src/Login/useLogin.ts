@@ -1,57 +1,47 @@
 import { useCallback, useEffect } from 'react';
 
-import { useCookies } from 'react-cookie';
-import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
-import { useAtom, useSetAtom, useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
+import { useAtom, useSetAtom } from 'jotai';
 import {
+  equals,
   filter,
   isEmpty,
   isNil,
   not,
+  prop,
   propEq,
-  reject,
-  equals,
-  path,
-  prop
+  reject
 } from 'ramda';
+import { useCookies } from 'react-cookie';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router';
 
-import { useSnackbar, useFetchQuery, ResponseError } from '@centreon/ui';
+import { ResponseError, useFetchQuery, useSnackbar } from '@centreon/ui';
 
-import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
+import useInitializeTranslation from '../Main/useInitializeTranslation';
 import useUser from '../Main/useUser';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
+import { PlatformInstallationStatus } from '../api/models';
 import routeMap from '../reactRoutes/routeMap';
-import useInitializeTranslation from '../Main/useInitializeTranslation';
-import centreonLogo from '../assets/logo-centreon-colors.svg';
 
+import { providersConfigurationDecoder } from './api/decoder';
+import { providersConfigurationEndpoint } from './api/endpoint';
 import {
-  loginPageCustomisationDecoder,
-  providersConfigurationDecoder
-} from './api/decoder';
+  LoginFormValues,
+  ProviderConfiguration,
+  Redirect,
+  RedirectAPI
+} from './models';
 import {
   labelLoginSucceeded,
   labelPasswordHasExpired
 } from './translatedLabels';
-import {
-  loginPageCustomisationEndpoint,
-  providersConfigurationEndpoint
-} from './api/endpoint';
-import {
-  LoginFormValues,
-  Redirect,
-  RedirectAPI,
-  ProviderConfiguration,
-  LoginPageCustomisation
-} from './models';
 import usePostLogin from './usePostLogin';
-import useWallpaper from './useWallpaper';
 
 interface UseLoginState {
-  loginPageCustomisation: LoginPageCustomisation;
+  authenticationError: string | null;
+  hasForcedProvider: boolean;
   platformInstallationStatus: PlatformInstallationStatus | null;
   providersConfiguration: Array<ProviderConfiguration> | null;
   submitLoginForm: (
@@ -75,21 +65,15 @@ const getActiveProviders = filter<ProviderConfiguration>(
   propEq(true, 'isActive')
 );
 
-const defaultLoginPageCustomisation: LoginPageCustomisation = {
-  customText: null,
-  iconSource: centreonLogo,
-  imageSource: null,
-  platformName: null,
-  textPosition: null
-};
-
 export const router = {
-  useNavigate
+  useNavigate,
+  useSearchParams
 };
 
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
   const { sendLogin } = usePostLogin();
+  const [searchParams] = router.useSearchParams();
 
   const [cookies] = useCookies(['REDIRECT_URI']);
 
@@ -103,22 +87,6 @@ const useLogin = (): UseLoginState => {
     }
   });
   const [platformInstallationStatus] = useAtom(platformInstallationStatusAtom);
-  const platformVersions = useAtomValue(platformVersionsAtom);
-  const { data: loginPageCustomisationData, isFetching } =
-    useFetchQuery<LoginPageCustomisation>({
-      decoder: loginPageCustomisationDecoder,
-      getEndpoint: () => loginPageCustomisationEndpoint,
-      getQueryKey: () => ['loginPageCustomisation'],
-      httpCodesBypassErrorSnackbar: [404],
-      queryOptions: {
-        enabled: !!path(
-          ['modules', 'centreon-it-edition-extensions'],
-          platformVersions
-        ),
-        retry: false,
-        suspense: false
-      }
-    });
 
   const { getInternalTranslation, getExternalTranslation } =
     useInitializeTranslation();
@@ -162,8 +130,10 @@ const useLogin = (): UseLoginState => {
     { setSubmitting }
   ): void => {
     sendLogin({
-      login: values.alias,
-      password: values.password
+      payload: {
+        login: values.alias,
+        password: values.password
+      }
     })
       .then((response) => {
         if ((response as ResponseError).isError) {
@@ -176,11 +146,10 @@ const useLogin = (): UseLoginState => {
           return;
         }
         showSuccessMessage(t(labelLoginSucceeded));
-        getInternalTranslation().then(
-          () =>
-            loadUser()?.then(() =>
-              navigate(prop('redirectUri', response as Redirect))
-            )
+        getInternalTranslation().then(() =>
+          loadUser()?.then(() =>
+            navigate(prop('redirectUri', response as Redirect))
+          )
         );
       })
       .catch((error) =>
@@ -191,8 +160,8 @@ const useLogin = (): UseLoginState => {
   const getBrowserLocale = (): string => navigator.language.slice(0, 2);
 
   useEffect(() => {
-    getExternalTranslation().then(
-      () => i18n.changeLanguage?.(getBrowserLocale())
+    getExternalTranslation().then(() =>
+      i18n.changeLanguage?.(getBrowserLocale())
     );
   }, []);
 
@@ -202,25 +171,7 @@ const useLogin = (): UseLoginState => {
 
   const activeProviders = getActiveProviders(externalProviders || []);
 
-  const wallpaper = useWallpaper();
-
-  const loginPageCustomisation = isFetching
-    ? defaultLoginPageCustomisation
-    : {
-        customText:
-          loginPageCustomisationData?.customText ||
-          defaultLoginPageCustomisation.customText,
-        iconSource:
-          loginPageCustomisationData?.iconSource ||
-          defaultLoginPageCustomisation.iconSource,
-        imageSource: loginPageCustomisationData?.imageSource || wallpaper,
-        platformName:
-          loginPageCustomisationData?.platformName ||
-          defaultLoginPageCustomisation.platformName,
-        textPosition:
-          loginPageCustomisationData?.textPosition ||
-          defaultLoginPageCustomisation.textPosition
-      };
+  const authenticationError = searchParams.get('authenticationError');
 
   useEffect(() => {
     if (!prop('REDIRECT_URI', cookies)) {
@@ -230,15 +181,16 @@ const useLogin = (): UseLoginState => {
   }, [cookies]);
 
   useEffect(() => {
-    if (isEmpty(forcedProviders)) {
+    if (isEmpty(forcedProviders) || authenticationError) {
       return;
     }
 
     window.location.replace(forcedProviders[0].authenticationUri);
-  }, [forcedProviders]);
+  }, [forcedProviders, authenticationError]);
 
   return {
-    loginPageCustomisation,
+    authenticationError,
+    hasForcedProvider: !!forcedProviders,
     platformInstallationStatus,
     providersConfiguration: activeProviders,
     submitLoginForm

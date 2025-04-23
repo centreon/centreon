@@ -1,7 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 
-import * as React from 'react';
-
+import { useAtomValue } from 'jotai';
 import {
   concat,
   differenceWith,
@@ -10,6 +9,7 @@ import {
   findIndex,
   gt,
   gte,
+  identity,
   includes,
   isNil,
   last,
@@ -18,7 +18,6 @@ import {
   map,
   not,
   pick,
-  pluck,
   prop,
   propEq,
   reduce,
@@ -28,19 +27,31 @@ import {
   uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import { Box, LinearProgress, Table, TableBody } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { useKeyObserver, useMemoComponent } from '../utils';
 import { ParentSize } from '..';
+import { useKeyObserver, useMemoComponent } from '../utils';
 
+import {
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import ListingActionBar from './ActionBar';
 import Cell from './Cell';
 import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
+import { EmptyResult } from './EmptyResult/EmptyResult';
+import { ListingHeader } from './Header';
+import { useListingStyles } from './Listing.styles';
+import ListingRow from './Row/Row';
+import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import {
   Column,
   ColumnConfiguration,
@@ -49,14 +60,11 @@ import {
   RowId,
   SortOrder
 } from './models';
-import ListingRow from './Row/Row';
-import { labelNoResultFound } from './translatedLabels';
-import useStyleTable from './useStyleTable';
-import { useListingStyles } from './Listing.styles';
-import { EmptyResult } from './EmptyResult/EmptyResult';
-import { SkeletonLoader } from './Row/SkeletonLoaderRows';
-import { ListingHeader } from './Header';
 import { subItemsPivotsAtom } from './tableAtoms';
+import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
+import useStyleTable from './useStyleTable';
+
+const subItemPrefixKey = 'listing';
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -68,9 +76,9 @@ const getVisibleColumns = ({
     return columns;
   }
 
-  return selectedColumnIds.map((id) =>
-    columns.find(propEq(id, 'id'))
-  ) as Array<Column>;
+  return selectedColumnIds
+    .map((id) => columns.find(propEq(id, 'id')))
+    .filter(identity) as Array<Column>;
 };
 
 interface CustomStyle {
@@ -102,6 +110,7 @@ export interface Props<TRow> {
   getId?: (row: TRow) => RowId;
   headerMemoProps?: Array<unknown>;
   innerScrollDisabled?: boolean;
+  isResponsive?: boolean;
   limit?: number;
   listingVariant?: ListingVariant;
   loading?: boolean;
@@ -129,8 +138,9 @@ export interface Props<TRow> {
   };
   totalRows?: number;
   viewerModeConfiguration?: ViewerModeConfiguration;
-  visualizationActions?: JSX.Element;
   widthToMoveTablePagination?: number;
+  isActionBarVisible: boolean;
+  labelNoResultFound?: string | JSX.Element;
 }
 
 const defaultColumnConfiguration = {
@@ -139,14 +149,20 @@ const defaultColumnConfiguration = {
 
 export const performanceRowsLimit = 60;
 
-const Listing = <TRow extends { id: RowId }>({
+const Listing = <
+  TRow extends {
+    id: RowId;
+    internalListingParentId?: RowId;
+    internalListingParentRow: TRow;
+  }
+>({
   customListingComponent,
   displayCustomListing,
   limit = 10,
-  visualizationActions,
   columns,
   columnConfiguration = defaultColumnConfiguration,
   customPaginationClassName,
+  isResponsive = false,
   onResetColumns,
   onSelectColumns,
   rows = [],
@@ -183,7 +199,9 @@ const Listing = <TRow extends { id: RowId }>({
     getRowProperty: () => '',
     labelCollapse: 'Collapse',
     labelExpand: 'Expand'
-  }
+  },
+  isActionBarVisible = true,
+  labelNoResultFound = defaultLabelNoResultFound
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -197,19 +215,34 @@ const Listing = <TRow extends { id: RowId }>({
 
   const { t } = useTranslation();
 
-  const [hoveredRowId, setHoveredRowId] = React.useState<RowId | null>(null);
-  const [shiftKeyDownRowPivot, setShiftKeyDownRowPivot] = React.useState<
+  const [hoveredRowId, setHoveredRowId] = useState<RowId | null>(null);
+  const [shiftKeyDownRowPivot, setShiftKeyDownRowPivot] = useState<
     number | null
   >(null);
-  const [lastSelectionIndex, setLastSelectionIndex] = React.useState<
-    number | null
-  >(null);
-  const containerRef = React.useRef<HTMLDivElement>();
-  const actionBarRef = React.useRef<HTMLDivElement>();
+  const [lastSelectionIndex, setLastSelectionIndex] = useState<number | null>(
+    null
+  );
+  const containerRef = useRef<HTMLDivElement>();
+  const actionBarRef = useRef<HTMLDivElement>();
 
   const subItemsPivots = useAtomValue(subItemsPivotsAtom);
 
-  const rowsToDisplay = React.useMemo(
+  const allSubItemIds = useMemo(
+    () =>
+      reduce<TRow | number, Array<string | number>>(
+        (acc, row) => [
+          ...acc,
+          ...(row[subItems?.getRowProperty() || ''] || []).map(
+            ({ id }) => `${subItemPrefixKey}_${getId(row)}_${id}`
+          )
+        ],
+        [],
+        rows
+      ),
+    [rows, subItems]
+  );
+
+  const rowsToDisplay = useMemo(
     () =>
       subItems?.enable
         ? reduce<TRow, Array<TRow>>(
@@ -218,7 +251,15 @@ const Listing = <TRow extends { id: RowId }>({
                 row[subItems.getRowProperty()] &&
                 subItemsPivots.includes(row.id)
               ) {
-                return [...acc, row, ...row[subItems.getRowProperty()]];
+                return [
+                  ...acc,
+                  row,
+                  ...row[subItems.getRowProperty()].map((subRow) => ({
+                    ...subRow,
+                    internalListingParentId: row.id,
+                    internalListingParentRow: row
+                  }))
+                ];
               }
 
               return [...acc, row];
@@ -230,10 +271,28 @@ const Listing = <TRow extends { id: RowId }>({
     [rows, subItemsPivots, subItems]
   );
 
+  const getSubItemRowId = useCallback((row: TRow) => {
+    return `${subItemPrefixKey}_${row.internalListingParentId}_${row.id}`;
+  }, []);
+
+  const getIsSubItem = useCallback(
+    (row: TRow) => {
+      return allSubItemIds.includes(getSubItemRowId(row));
+    },
+    [allSubItemIds]
+  );
+
+  const getRowId = useCallback(
+    (row: TRow) => {
+      return getIsSubItem(row) ? getSubItemRowId(row) : getId(row);
+    },
+    [allSubItemIds]
+  );
+
   const { classes } = useListingStyles({
     dataStyle,
     getGridTemplateColumn,
-    listingVariant,
+    isResponsive,
     rows: rowsToDisplay
   });
 
@@ -253,7 +312,7 @@ const Listing = <TRow extends { id: RowId }>({
       event.target.checked &&
       event.target.getAttribute('data-indeterminate') === 'false'
     ) {
-      onSelectRows(reject(disableRowCheckCondition, rows));
+      onSelectRows(reject(disableRowCheckCondition, rowsToDisplay));
       setLastSelectionIndex(null);
 
       return;
@@ -325,7 +384,11 @@ const Listing = <TRow extends { id: RowId }>({
   const selectRowsWithShiftKey = (selectedRowIndex: number): void => {
     const lastSelectedIndex = lastSelectionIndex as number;
     if (isNil(shiftKeyDownRowPivot)) {
-      const selectedRowsFromTheStart = slice(0, selectedRowIndex + 1, rows);
+      const selectedRowsFromTheStart = slice(
+        0,
+        selectedRowIndex + 1,
+        rowsToDisplay
+      );
 
       onSelectRows(reject(disableRowCheckCondition, selectedRowsFromTheStart));
 
@@ -334,7 +397,10 @@ const Listing = <TRow extends { id: RowId }>({
 
     const selectedRowsIndex = map(
       (row) =>
-        findIndex((listingRow) => equals(getId(row), getId(listingRow)), rows),
+        findIndex(
+          (listingRow) => equals(getId(row), getId(listingRow)),
+          rowsToDisplay
+        ),
       selectedRows
     ).sort(subtract);
 
@@ -342,7 +408,7 @@ const Listing = <TRow extends { id: RowId }>({
       const newSelection = slice(
         selectedRowIndex,
         (lastSelectionIndex as number) + 1,
-        rows
+        rowsToDisplay
       );
       onSelectRows(
         reject(
@@ -361,7 +427,11 @@ const Listing = <TRow extends { id: RowId }>({
       return;
     }
 
-    const newSelection = slice(lastSelectedIndex, selectedRowIndex + 1, rows);
+    const newSelection = slice(
+      lastSelectedIndex,
+      selectedRowIndex + 1,
+      rowsToDisplay
+    );
     onSelectRows(
       reject(
         disableRowCheckCondition,
@@ -377,7 +447,7 @@ const Listing = <TRow extends { id: RowId }>({
     );
   };
 
-  const selectRow = (event: React.MouseEvent, row): void => {
+  const selectRow = (event: MouseEvent, row): void => {
     event.preventDefault();
     event.stopPropagation();
     // This prevents unwanted text selection
@@ -385,7 +455,7 @@ const Listing = <TRow extends { id: RowId }>({
 
     const selectedRowIndex = findIndex(
       (listingRow) => equals(getId(row), getId(listingRow)),
-      rows
+      rowsToDisplay
     );
 
     if (isShiftKeyDown) {
@@ -412,10 +482,10 @@ const Listing = <TRow extends { id: RowId }>({
   };
 
   const hoverRow = (row): void => {
-    if (equals(hoveredRowId, getId(row))) {
+    if (equals(hoveredRowId, getRowId(row))) {
       return;
     }
-    setHoveredRowId(getId(row));
+    setHoveredRowId(getRowId(row));
   };
 
   const clearHoveredRow = (): void => {
@@ -426,8 +496,6 @@ const Listing = <TRow extends { id: RowId }>({
     return selectedRowsInclude(row);
   };
 
-  const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
-
   const changeLimit = (updatedLimit: string): void => {
     onLimitChange?.(Number(updatedLimit));
   };
@@ -437,7 +505,7 @@ const Listing = <TRow extends { id: RowId }>({
     columns
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (not(isShiftKeyDown)) {
       setShiftKeyDownRowPivot(null);
 
@@ -447,19 +515,6 @@ const Listing = <TRow extends { id: RowId }>({
   }, [isShiftKeyDown, lastSelectionIndex]);
 
   const areColumnsEditable = not(isNil(onSelectColumns));
-
-  const allSubItemIds = React.useMemo(
-    () =>
-      reduce<TRow | number, Array<string | number>>(
-        (acc, row) => [
-          ...acc,
-          ...pluck('id', row[subItems?.getRowProperty() || ''] || [])
-        ],
-        [],
-        rows
-      ),
-    [rows, subItems]
-  );
 
   return (
     <div className={classes.listingContainer}>
@@ -471,33 +526,34 @@ const Listing = <TRow extends { id: RowId }>({
       )}
       <div
         className={classes.container}
-        ref={containerRef as React.RefObject<HTMLDivElement>}
+        ref={containerRef as RefObject<HTMLDivElement>}
       >
-        <div
-          className={classes.actionBar}
-          ref={actionBarRef as React.RefObject<HTMLDivElement>}
-        >
-          <ListingActionBar
-            actions={actions}
-            actionsBarMemoProps={actionsBarMemoProps}
-            columnConfiguration={columnConfiguration}
-            columns={columns}
-            currentPage={currentPage}
-            customPaginationClassName={customPaginationClassName}
-            limit={limit}
-            listingVariant={listingVariant}
-            moveTablePagination={moveTablePagination}
-            paginated={paginated}
-            totalRows={totalRows}
-            viewerModeConfiguration={viewerModeConfiguration}
-            visualizationActions={visualizationActions}
-            widthToMoveTablePagination={widthToMoveTablePagination}
-            onLimitChange={changeLimit}
-            onPaginate={onPaginate}
-            onResetColumns={onResetColumns}
-            onSelectColumns={onSelectColumns}
-          />
-        </div>
+        {isActionBarVisible && (
+          <div
+            className={classes.actionBar}
+            ref={actionBarRef as RefObject<HTMLDivElement>}
+          >
+            <ListingActionBar
+              actions={actions}
+              actionsBarMemoProps={actionsBarMemoProps}
+              columnConfiguration={columnConfiguration}
+              columns={columns}
+              currentPage={currentPage}
+              customPaginationClassName={customPaginationClassName}
+              limit={limit}
+              listingVariant={listingVariant}
+              moveTablePagination={moveTablePagination}
+              paginated={paginated}
+              totalRows={totalRows}
+              viewerModeConfiguration={viewerModeConfiguration}
+              widthToMoveTablePagination={widthToMoveTablePagination}
+              onLimitChange={changeLimit}
+              onPaginate={onPaginate}
+              onResetColumns={onResetColumns}
+              onSelectColumns={onSelectColumns}
+            />
+          </div>
+        )}
 
         <ParentSize
           parentSizeStyles={{
@@ -521,7 +577,6 @@ const Listing = <TRow extends { id: RowId }>({
                   stickyHeader
                   className={classes.table}
                   component="div"
-                  role={undefined}
                   size="small"
                 >
                   <ListingHeader
@@ -532,7 +587,7 @@ const Listing = <TRow extends { id: RowId }>({
                     listingVariant={listingVariant}
                     memoProps={headerMemoProps}
                     predefinedRowsSelection={predefinedRowsSelection}
-                    rowCount={limit - emptyRows}
+                    rowCount={rowsToDisplay.length}
                     selectedRowCount={selectedRows.length}
                     sortField={sortField}
                     sortOrder={sortOrder}
@@ -549,8 +604,10 @@ const Listing = <TRow extends { id: RowId }>({
                   >
                     {rowsToDisplay.map((row, index) => {
                       const isRowSelected = isSelected(row);
-                      const isRowHovered = equals(hoveredRowId, getId(row));
-                      const isSubItem = allSubItemIds.includes(row.id);
+                      const isSubItem = allSubItemIds.includes(
+                        getSubItemRowId(row)
+                      );
+                      const isRowHovered = equals(hoveredRowId, getRowId(row));
 
                       return (
                         <ListingRow
@@ -567,7 +624,7 @@ const Listing = <TRow extends { id: RowId }>({
                           key={
                             gte(limit, performanceRowsLimit)
                               ? `row_${index}`
-                              : getId(row)
+                              : getRowId(row)
                           }
                           lastSelectionIndex={lastSelectionIndex}
                           limit={limit}
@@ -578,9 +635,13 @@ const Listing = <TRow extends { id: RowId }>({
                           subItemsPivots={subItemsPivots}
                           tabIndex={-1}
                           visibleColumns={visibleColumns}
-                          onClick={(): void => {
-                            onRowClick(row);
-                          }}
+                          onClick={
+                            isSubItem
+                              ? undefined
+                              : (): void => {
+                                  onRowClick(row);
+                                }
+                          }
                           onFocus={(): void => hoverRow(row)}
                           onMouseOver={(): void => hoverRow(row)}
                         >
@@ -644,7 +705,13 @@ const Listing = <TRow extends { id: RowId }>({
                       (loading ? (
                         <SkeletonLoader rows={limit} />
                       ) : (
-                        <EmptyResult label={t(labelNoResultFound)} />
+                        <EmptyResult
+                          label={
+                            labelNoResultFound
+                              ? t(labelNoResultFound)
+                              : t(defaultLabelNoResultFound)
+                          }
+                        />
                       ))}
                   </TableBody>
                 </Table>
@@ -680,6 +747,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   moveTablePagination,
   widthToMoveTablePagination,
   listingVariant,
+  labelNoResultFound,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
@@ -702,6 +770,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortOrder={sortOrder}
         totalRows={totalRows}
         widthToMoveTablePagination={widthToMoveTablePagination}
+        labelNoResultFound={labelNoResultFound}
         {...props}
       />
     ),
@@ -724,7 +793,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       sortOrder,
       sortField,
       innerScrollDisabled,
-      listingVariant
+      listingVariant,
+      labelNoResultFound
     ]
   });
 

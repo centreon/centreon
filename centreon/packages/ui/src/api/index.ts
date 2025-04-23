@@ -30,7 +30,7 @@ const patchData =
   <TData, TResult>(cancelToken: CancelToken) =>
   ({ endpoint, data }: RequestWithData<TData>): Promise<TResult> =>
     axios
-      .patch(endpoint, data, {
+      .patch(endpoint, JSON.stringify(data), {
         cancelToken,
         headers: contentTypeHeaders
       })
@@ -40,7 +40,7 @@ const postData =
   <TData, TResult>(cancelToken: CancelToken) =>
   ({ endpoint, data }: RequestWithData<TData>): Promise<TResult> =>
     axios
-      .post(endpoint, data, {
+      .post(endpoint, JSON.stringify(data), {
         cancelToken,
         headers: contentTypeHeaders
       })
@@ -50,7 +50,7 @@ const putData =
   <TData, TResult>(cancelToken: CancelToken) =>
   ({ endpoint, data }: RequestWithData<TData>): Promise<TResult> =>
     axios
-      .put(endpoint, data, {
+      .put(endpoint, JSON.stringify(data), {
         cancelToken,
         headers: contentTypeHeaders
       })

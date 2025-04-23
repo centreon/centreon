@@ -58,7 +58,7 @@ $redirect->setValue($o);
 
 $host_name = getMyHostName($hostId);
 $items = $centreon->user->access->getHostServices($pearDBO, $hostId);
-$itemsForUrl = array();
+$itemsForUrl = [];
 foreach ($items as $key => $value) {
     $itemsForUrl[str_replace(":", "%3A", $key)] = str_replace(":", "%3A", $value);
 }

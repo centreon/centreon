@@ -1,24 +1,27 @@
+import { useAtomValue } from 'jotai';
 import { equals, find, isEmpty, isNil, propEq, reject, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
-
-import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
-import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import {
-  ChangedCriteriaParams,
-  DeactivateProps,
-  ExtendedCriteriaResourceType,
+  MultiConnectedAutocompleteField,
+  type SelectEntry
+} from '@centreon/ui';
+
+import { selectedVisualizationAtom } from '../../../Actions/actionsAtoms';
+import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
+import { Visualization } from '../../../models';
+import { labelHost, labelService } from '../../../translatedLabels';
+import type { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
+import {
+  type ChangedCriteriaParams,
+  type DeactivateProps,
   SectionType
 } from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
-import {
-  labelHost,
-  labelMetaService,
-  labelService
-} from '../../../translatedLabels';
 
+import { serviceNamesEndpoint } from '../../api/endpoint';
+import { useStyles } from './sections/sections.style';
 import useSectionsData from './sections/useSections';
 
 interface Props {
@@ -30,8 +33,7 @@ interface Props {
 
 const label = {
   [SectionType.host]: labelHost,
-  [SectionType.service]: labelService,
-  [ExtendedCriteriaResourceType.metaservice]: labelMetaService
+  [SectionType.service]: labelService
 };
 
 const SelectInput = ({
@@ -41,7 +43,11 @@ const SelectInput = ({
   changeCriteria,
   isDeactivated
 }: Props & DeactivateProps): JSX.Element | null => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
+
+  const visualization = useAtomValue(selectedVisualizationAtom);
+
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
   const { dataByFilterName } = useInputData({
     data: sectionData,
@@ -53,7 +59,7 @@ const SelectInput = ({
   )?.value as Array<SelectEntry>;
 
   const value = dataByFilterName?.value?.map((item) => ({
-    id: item?.valueId,
+    id: item?.valueId ?? item.id,
     name: item?.name
   })) as Array<SelectEntry>;
 
@@ -62,6 +68,10 @@ const SelectInput = ({
   }
 
   const updateResourceType = (updatedValue): void => {
+    if (!equals(visualization, Visualization.All)) {
+      return;
+    }
+
     if (isNil(resourceTypesCriteria)) {
       return;
     }
@@ -69,23 +79,31 @@ const SelectInput = ({
     if (isEmpty(updatedValue)) {
       changeCriteria({
         filterName: 'resource_types',
-        updatedValue: reject(propEq('id', resourceType), resourceTypesCriteria)
+        updatedValue: reject(propEq(resourceType, 'id'), resourceTypesCriteria)
       });
+
+      return;
     }
 
     if (find(propEq('id', resourceType), resourceTypesCriteria)) {
       return;
     }
 
+    const updatedValues = [
+      ...resourceTypesCriteria,
+      {
+        id: resourceType,
+        name: resourceType
+      }
+    ];
+
+    const uniqUpdatedValues = [
+      ...new Map(updatedValues.map((item) => [item.id, item]))
+    ].map(([, item]) => item);
+
     changeCriteria({
       filterName: 'resource_types',
-      updatedValue: [
-        ...resourceTypesCriteria,
-        {
-          id: resourceType,
-          name: resourceType
-        }
-      ]
+      updatedValue: uniqUpdatedValues
     });
   };
 
@@ -110,7 +128,7 @@ const SelectInput = ({
   };
 
   const onDelete = (_, option): void => {
-    const updatedValue = reject(propEq('name', option.name), value);
+    const updatedValue = reject(propEq(option.name, 'name'), value);
 
     updateResourceType(updatedValue);
 
@@ -122,6 +140,9 @@ const SelectInput = ({
 
   const getEndpoint = ({ search, page }): string => {
     return buildResourcesEndpoint({
+      endpoint: equals(resourceType, SectionType.service)
+        ? serviceNamesEndpoint
+        : undefined,
       limit: 10,
       page,
       resourceTypes: [resourceType],
@@ -155,9 +176,13 @@ const SelectInput = ({
       chipProps={{
         onDelete
       }}
+      className={classes.input}
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
+      textFieldSlotsAndSlotProps={{
+        slotProps: { htmlInput: { 'data-testid': resourceType } }
+      }}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(label[resourceType]) as string}
       placeholder={t(label[resourceType]) as string}

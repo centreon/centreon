@@ -24,16 +24,15 @@ declare(strict_types=1);
 namespace Tests\Core\Platform\Infrastructure\Repository;
 
 use Core\Platform\Infrastructure\Repository\FsReadUpdateRepository;
-use Core\Platform\Application\Repository\UpdateNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->filesystem = $this->createMock(Filesystem::class);
     $this->finder = $this->createMock(Finder::class);
 });
 
-it('should return an error when install directory does not exist', function () {
+it('should return an empty array when install directory does not exist', function (): void {
     $repository = new FsReadUpdateRepository(sys_get_temp_dir(), $this->filesystem, $this->finder);
 
     $this->filesystem
@@ -42,12 +41,10 @@ it('should return an error when install directory does not exist', function () {
         ->willReturn(false);
 
     $availableUpdates = $repository->findOrderedAvailableUpdates('22.04.0');
-})->throws(
-    UpdateNotFoundException::class,
-    UpdateNotFoundException::updatesNotFound()->getMessage(),
-);
+    expect($availableUpdates)->toEqual([]);
+});
 
-it('should order found updates', function () {
+it('should order found updates', function (): void {
     $repository = new FsReadUpdateRepository(sys_get_temp_dir(), $this->filesystem, $this->finder);
 
     $this->filesystem
@@ -68,7 +65,12 @@ it('should order found updates', function () {
     $this->finder
         ->expects($this->once())
         ->method('name')
-        ->willReturn(
+        ->willReturn($this->finder);
+
+    $this->finder
+        ->expects($this->once())
+        ->method('getIterator')
+        ->willReturn(new \ArrayIterator(
             [
                 new \SplFileInfo('Update-21.10.0.php'),
                 new \SplFileInfo('Update-22.04.0.php'),
@@ -77,7 +79,7 @@ it('should order found updates', function () {
                 new \SplFileInfo('Update-22.10.0-beta.3.php'),
                 new \SplFileInfo('Update-22.10.0-alpha.1.php'),
             ]
-        );
+        ));
 
     $availableUpdates = $repository->findOrderedAvailableUpdates('22.04.0');
     expect($availableUpdates)->toEqual([

@@ -45,7 +45,7 @@ function getRrdtoolVersion($rrdtoolBin = null)
     if (is_null($rrdtoolBin) || !is_executable($rrdtoolBin)) {
         return '';
     }
-    $output = array();
+    $output = [];
     $retval = 0;
     @exec($rrdtoolBin, $output, $retval);
     if ($retval != 0) {

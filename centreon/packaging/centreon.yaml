@@ -27,11 +27,11 @@ overrides:
   rpm:
     depends:
       - centreon-central = ${VERSION}-${RELEASE}${DIST}
-      - centreon-database = ${VERSION}-${RELEASE}${DIST}
+      - "(centreon-mariadb = ${VERSION}-${RELEASE}${DIST} or centreon-mysql = ${VERSION}-${RELEASE}${DIST})"
   deb:
     depends:
       - centreon-central (= ${VERSION}-${RELEASE}${DIST})
-      - centreon-database (= ${VERSION}-${RELEASE}${DIST})
+      - "centreon-mariadb (= ${VERSION}-${RELEASE}${DIST}) | centreon-mysql (= ${VERSION}-${RELEASE}${DIST})"
 
 rpm:
   summary: Centreon, Network & System Monitoring
@@ -39,3 +39,6 @@ rpm:
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
+
+deb:
+  compression: zstd

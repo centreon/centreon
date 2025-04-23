@@ -33,20 +33,24 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonVersion
+ */
 class CentreonVersion
 {
-    /**
-     * @var CentreonDB
-     * @var CentreonDBStorage
-     */
+    /** @var CentreonDB */
     private $db;
+
+    /** @var CentreonDB|null */
     private $dbStorage;
 
     /**
-     * Constructor
+     * CentreonVersion constructor
      *
      * @param CentreonDB $db
-     * @param CentreonDBStorage $dbStorage
+     * @param CentreonDB|null $dbStorage
      */
     public function __construct($db, $dbStorage = null)
     {
@@ -61,10 +65,11 @@ class CentreonVersion
      * Get Centreon core version
      *
      * @return array
+     * @throws PDOException
      */
     public function getCore()
     {
-        $data = array();
+        $data = [];
 
         // Get version of the centreon-web
         $query = 'SELECT i.value FROM informations i ' .
@@ -97,10 +102,11 @@ class CentreonVersion
      * Get all Centreon modules
      *
      * @return array
+     * @throws PDOException
      */
     public function getModules()
     {
-        $data = array();
+        $data = [];
 
         $query = 'SELECT name, mod_release FROM modules_informations';
         $result = $this->db->query($query);
@@ -114,10 +120,11 @@ class CentreonVersion
      * Get all Centreon widgets
      *
      * @return array
+     * @throws PDOException
      */
     public function getWidgets()
     {
-        $data = array();
+        $data = [];
 
         $query = 'SELECT title, version FROM widget_models';
         $result = $this->db->query($query);
@@ -131,12 +138,11 @@ class CentreonVersion
      * Get versions of the system processus
      *
      * @return array
+     * @throws PDOException
      */
     public function getSystem()
     {
-        $data = array(
-            'OS' => php_uname()
-        );
+        $data = ['OS' => php_uname()];
 
         $query = 'SHOW VARIABLES LIKE "version"';
         $result = $this->db->query($query);
@@ -151,7 +157,6 @@ class CentreonVersion
      * get system information
      *
      * @return array $data An array composed with the name and version of the OS
-     * @throws Exception
      */
     public function getVersionSystem()
     {
@@ -174,10 +179,11 @@ class CentreonVersion
      * Get all Centreon widgets
      *
      * @return array $data Widgets statistics
+     * @throws PDOException
      */
     public function getWidgetsUsage()
     {
-        $data = array();
+        $data = [];
 
         $query = 'SELECT wm.title AS name, version, COUNT(widget_id) AS count
             FROM widgets AS w
@@ -185,11 +191,7 @@ class CentreonVersion
             GROUP BY name';
         $result = $this->db->query($query);
         while ($row = $result->fetch()) {
-            $data[] = array(
-                'name' => $row['name'],
-                'version' => $row['version'],
-                'used' => $row['count']
-            );
+            $data[] = ['name' => $row['name'], 'version' => $row['version'], 'used' => $row['count']];
         }
         return $data;
     }

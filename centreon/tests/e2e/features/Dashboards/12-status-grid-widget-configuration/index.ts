@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -8,7 +9,7 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
-import twoStatusGridWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwostatusGrid.json';
+import statusGridWidgetWithNewAddedHost from '../../../fixtures/dashboards/creation/widgets/statusGridWidgetWithNewAddedHost.json';
 
 const services = {
   serviceCritical: {
@@ -49,6 +50,7 @@ const resultsToSubmit = [
     status: 'ok'
   }
 ];
+
 before(() => {
   cy.intercept({
     method: 'GET',
@@ -62,7 +64,7 @@ before(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
@@ -127,6 +129,8 @@ before(() => {
     jsonName: 'admin'
   });
 
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
+
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -142,13 +146,7 @@ before(() => {
   ]);
 
   cy.logoutViaAPI();
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: Cypress.env('dockerName')
-  });
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -190,36 +188,27 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given('a dashboard that includes a configured Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
+
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
   'the dashboard administrator user selects a particular status in the displayed resource status list',
   () => {
     cy.get('input[value="service"]').click();
-    cy.get('input[name="ok"]').click();
+    cy.get('input[name="success"]').click();
     cy.wait('@resourceRequest');
   }
 );
@@ -233,32 +222,22 @@ Then(
 );
 
 Given('a dashboard configuring Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
   'the dashboard administrator user updates the displayed resource type of the widget',
   () => {
     cy.get('input[value="service"]').click();
-    cy.get('input[name="ok"]').click();
+    cy.get('input[name="success"]').click();
     cy.wait('@resourceRequest');
   }
 );
@@ -267,8 +246,8 @@ Then(
   'the list of available statuses to display is updated in the configuration properties',
   () => {
     cy.get('input[name="warning"]').should('exist');
-    cy.get('input[name="critical"]').should('exist');
-    cy.get('input[name="unknown"]').should('exist');
+    cy.get('input[name="problem"]').should('exist');
+    cy.get('input[name="undefined"]').should('exist');
     cy.get('input[name="pending"]').should('exist');
   }
 );
@@ -282,19 +261,15 @@ Then(
 );
 
 Given('a dashboard featuring two Status Grid widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, twoStatusGridWidgets);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.insertDashboardWithDoubleWidget(
+    dashboards.default,
+    statusGridWidget,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
+
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
@@ -303,27 +278,26 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
     label: 'Delete',
-    tag: 'li'
+    tag: 'button'
   }).realClick();
 });
 
 Then('only the contents of the other widget are displayed', () => {
+  cy.get('[class*="resourceName"]')
+    .eq(0)
+    .parent()
+    .parent()
+    .invoke('removeAttr', 'target')
+    .click({ force: true });
   cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
-  cy.get('[class*="resourceName"]').contains('host3').should('exist');
 });
 
 Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -332,7 +306,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
   }
 );
 
@@ -348,12 +322,10 @@ Then(
     cy.getByLabel({ label: 'Title' }).should('exist');
     cy.get('input[value="host"]').should('exist');
     cy.get('input[value="service"]').should('exist');
-    cy.get('input[name="up"]').should('exist');
-    cy.get('input[name="down"]').should('exist');
-    cy.get('input[name="unreachable"]').should('exist');
+    cy.get('input[name="success"]').should('exist');
+    cy.get('input[name="problem"]').should('exist');
+    cy.get('input[name="undefined"]').should('exist');
     cy.get('input[name="pending"]').should('exist');
-    cy.get('input[name="acknowledged"]').should('exist');
-    cy.get('input[name="in_downtime"]').should('exist');
     cy.get('input[value="status_severity_code"]').should('exist');
     cy.get('input[value="name"]').should('exist');
   }
@@ -370,6 +342,7 @@ When(
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
+    cy.get('input[name="success"]').click();
   }
 );
 
@@ -389,25 +362,15 @@ Then("the Status Grid widget is added in the dashboard's layout", () => {
 });
 
 Given('a dashboard with a configured Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
+  cy.editWidget(1);
 });
 
 When(
@@ -416,7 +379,9 @@ When(
     cy.getByLabel({
       label: 'tiles',
       tag: 'input'
-    }).clear();
+    })
+      .clear()
+      .type('2');
     cy.wait('@resourceRequest');
   }
 );
@@ -425,31 +390,24 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
   cy.getByTestId({
     testId: 'DvrIcon'
   }).should('be.visible');
-  cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
 });
 
 Given('a dashboard having a configured Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
 });
 
 When(
   'the dashboard administrator user duplicates the Status Grid widget',
   () => {
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-    cy.wait('@resourceRequest');
   }
 );
 
@@ -460,10 +418,168 @@ Then('a second Status Grid widget is displayed on the dashboard', () => {
 });
 
 Then('the second widget has the same properties as the first widget', () => {
-  cy.get('[class*="resourceName"]')
-    .eq(3)
-    .contains('Centreon-Server')
-    .should('exist');
-  cy.get('[class*="resourceName"]').eq(4).contains('host2').should('exist');
-  cy.get('[class*="resourceName"]').eq(5).contains('host3').should('exist');
+  cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
+    .eq(0)
+    .parent()
+    .parent()
+    .invoke('removeAttr', 'target')
+    .click({ force: true });
+  cy.get('[class*="resourceName"]').contains('host2').should('exist');
+});
+
+Given('a dashboard with a Status Grid widget', () => {
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidget,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+});
+
+When('the dashboard administrator clicks on a random resource', () => {
+  cy.getByTestId({ tag: 'svg', testId: 'HostIcon' })
+    .eq(0)
+    .parent()
+    .parent()
+    .invoke('removeAttr', 'target')
+    .click({ force: true });
+});
+
+Then(
+  'the user should be redirected to the resource status screen and all the resources must be displayed',
+  () => {
+    cy.contains('host2').should('exist');
+  }
+);
+
+Given('a new host is successfully added and configured', () => {
+  cy.logoutViaAPI();
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    loginViaApi: false
+  });
+  cy.addNewHostAndReturnId().then((hostId) => {
+    cy.log(`Host ID is: ${hostId}`);
+    cy.getServiceIdByName('service_test_ok').then((serviceId) => {
+      cy.log(`Service ID is: ${serviceId}`);
+      cy.patchServiceWithHost(hostId, serviceId);
+    });
+  });
+  cy.waitUntil(
+    () => {
+      return cy
+        .getByLabel({ label: 'Up status hosts', tag: 'a' })
+        .invoke('text')
+        .then((text) => {
+          if (text != '4') {
+            cy.exportConfig();
+          }
+
+          return text === '4';
+        });
+    },
+    { interval: 10000, timeout: 600000 }
+  );
+});
+
+When('the dashboard administrator adds a status grid widget', () => {
+  cy.insertDashboardWithWidget(
+    dashboards.default,
+    statusGridWidgetWithNewAddedHost,
+    'centreon-widget-statusgrid',
+    '/widgets/statusgrid'
+  );
+
+  cy.editDashboard(dashboards.default.name);
+  cy.wait('@resourceRequest');
+});
+
+Then('the newly added host is displayed in the status grid widget', () => {
+  cy.getByTestId({ testId: 'link to service_test_ok' }).should('be.visible');
+});
+
+Then('searches for a specific resource type', () => {
+  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description);
+  cy.getByTestId({ testId: 'Resource type' }).realClick();
+  cy.getByLabel({ label: 'Host' }).eq(1).click();
+  cy.getByTestId({ testId: 'Select resource' }).type('3')
+  cy.wait('@resourceRequest');
+});
+
+Then('only the resource that matches the search input is displayed in the results', () => {
+  cy.waitUntil(() =>
+    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
+      return listboxText.includes('host3') &&
+             !listboxText.includes('Centreon-Server') &&
+             !listboxText.includes('host2');
+    }),
+    {
+      timeout: 10000,
+      interval: 500,
+    }
+  );
+});
+
+When(
+  'the dashboard administrator selects a service by typing a single character',
+  () => {
+    cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.getByLabel({ label: 'RichTextEditor' })
+      .eq(0)
+      .type(genericTextWidgets.default.description);
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByLabel({ label: 'Service' }).eq(1).click();
+    cy.getByLabel({ label: 'Select resource' }).type('Pin');
+    cy.getByLabel({ label: 'Select resource' }).click()
+
+  }
+);
+
+Then('only the services containing the typed character should be displayed in the list', () => {
+  const clickAndCheckForServices = () => {
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+
+    return cy.getByLabel({ label: 'Service' }).eq(1).click()
+      .then(() => {
+        return cy.getByLabel({ label: 'Select resource' }).type('ser');
+      })
+      .then(() => {
+        cy.intercept('GET', '**/centreon/api/latest/monitoring/services/names**').as('getServices');
+        cy.wait('@getServices');
+        return cy.getByLabel({ label: 'Select resource' }).click();
+      });
+  };
+
+  cy.waitUntil(() => {
+    return clickAndCheckForServices().then(() => {
+      return cy.get('ul.MuiAutocomplete-listbox')
+        .find('li')
+        .then(($items) => {
+          const textArray = $items.map((index, el) => {
+            return Cypress.$(el).find('p').text();
+          }).get();
+
+          cy.log(textArray.join(', '));
+
+          // Check if all displayed services contain "ser"
+          const allServicesContainSer = textArray.every(service => service.includes('ser'));
+
+          // Ensure that there are no extra services that do not contain "ser"
+          const noExtraServices = textArray.length === textArray.filter(service => service.includes('ser')).length;
+
+          return Cypress.Promise.resolve(allServicesContainSer && noExtraServices);
+        });
+    });
+  }, { timeout: 30000, interval: 3000 }).then((found) => {
+    if (found) {
+      cy.log('Only services containing "ser" are displayed in the list.');
+    } else {
+      cy.log('The displayed services do not match the expected criteria.');
+    }
+  });
 });

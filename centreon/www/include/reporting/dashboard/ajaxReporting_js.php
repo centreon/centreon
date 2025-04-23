@@ -33,13 +33,9 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
 
-if ($type == "Service") {
-    $arg = "id=" . $serviceId . "&host_id=" . $hostId;
-} else {
-    $arg = "id=" . $id;
-}
+$arg = $type == "Service" ? "id=" . $serviceId . "&host_id=" . $hostId : "id=" . $id;
 
 $arg .= "&color[UP]=#" . $colors["up"] . "&color[UNDETERMINED]=#" . $colors["undetermined"] .
         "&color[DOWN]=#" . $colors["down"] . "&color[UNREACHABLE]=#" . $colors["unreachable"] .

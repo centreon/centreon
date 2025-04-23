@@ -2,13 +2,15 @@ import { ReactNode } from 'react';
 
 import { equals, type } from 'ramda';
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  Accordion,
   AccordionDetails,
   AccordionSummary,
-  Accordion,
-  Typography
+  AccordionSummaryProps,
+  Typography,
+  TypographyProps
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useCollapsibleItemStyles } from './useCollapsibleItemStyles';
 
@@ -18,6 +20,7 @@ export interface Props {
   dataTestId?: string;
   defaultExpanded?: boolean;
   title: string | JSX.Element;
+  titleProps?: TypographyProps;
 }
 
 export const CollapsibleItem = ({
@@ -25,8 +28,10 @@ export const CollapsibleItem = ({
   children,
   defaultExpanded,
   compact = false,
-  dataTestId = ''
-}: Props): JSX.Element => {
+  dataTestId = '',
+  titleProps,
+  ...rest
+}: Props & AccordionSummaryProps): JSX.Element => {
   const { classes, cx } = useCollapsibleItemStyles();
 
   const isStringTitle = equals(type(title), 'String');
@@ -56,9 +61,10 @@ export const CollapsibleItem = ({
           }}
           data-testid={`${dataTestId}-summary`}
           expandIcon={<ExpandMoreIcon color="primary" />}
+          {...rest}
         >
           {isStringTitle && (
-            <Typography color="primary" variant="h6">
+            <Typography color="primary" variant="h6" {...titleProps}>
               {title}
             </Typography>
           )}

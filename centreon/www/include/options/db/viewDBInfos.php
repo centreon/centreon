@@ -54,22 +54,16 @@ $dataCentstorage = $pearDBO->getProperties();
  */
 $partEngine = new PartEngine();
 
-$tables = array(
-    'data_bin',
-    'logs',
-    'log_archive_host',
-    'log_archive_service'
-);
+$tables = ['data_bin', 'logs', 'log_archive_host', 'log_archive_service'];
 
-$partitioningInfos = array();
+$partitioningInfos = [];
 foreach ($tables as $table) {
     $mysqlTable = new MysqlTable($pearDBO, $table, $conf_centreon['dbcstg']);
     $partitioningInfos[$table] = $partEngine->listParts($mysqlTable, $pearDBO, false);
 }
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl("./include/options/db/", $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate("./include/options/db/");
 
 $tpl->assign('conf_centreon', $conf_centreon);
 $tpl->assign('dataCentreon', $dataCentreon);

@@ -1,0 +1,53 @@
+type: object
+
+properties:
+  name:
+    type: string
+    maxLength: 200
+    description: "Dashboard name"
+    example: "my dashboard"
+
+  description:
+    type: string
+    nullable: true
+    maxLength: 65535
+    description: "Description about this dashboard"
+    example: "my description"
+
+  panels:
+    type: array
+    items:
+      allOf:
+        - $ref: 'Panel/DashboardPanel.WithoutId.yaml'
+        - $ref: 'Panel/DashboardPanel.IdOptional.yaml'
+
+  refresh:
+    type: object
+    properties:
+      type:
+        type: string
+        enum: [ global, manual ]
+        example: 'manual'
+      interval:
+        type: integer
+        nullable: true
+        example: 10
+
+  thumbnail:
+    type: object
+    properties:
+      id:
+        type: integer
+        nullable: true
+        example: 1
+      name:
+        type: string
+        example: 'cat.png'
+      directory:
+        type: string
+        example: 'dashboard'
+
+  thumbnail_data:
+    type: string
+    format: binary
+

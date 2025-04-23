@@ -27,7 +27,7 @@ final class FindNotifiableRuleResponse
 {
     public function __construct(
         public int $notificationId = 0,
-        public Response\ChannelsResponseDto $channels = new Response\ChannelsResponseDto(),
+        public Response\ChannelsDto $channels = new Response\ChannelsDto(),
     ) {
     }
 }

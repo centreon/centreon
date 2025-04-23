@@ -42,6 +42,12 @@ services:
             $dataStorageEngine: '@Core\Common\Infrastructure\Repository\DataStorageObserver'
             $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
 
+    Core\Media\Application\UseCase\UpdateMedia\UpdateMedia:
+        arguments:
+            $writeMediaRepository: '@Core\Media\Infrastructure\Repository\FileWriteMediaRepository'
+            $dataStorageEngine: '@Core\Common\Infrastructure\Repository\DataStorageObserver'
+            $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
+
     Core\Media\Infrastructure\Repository\ApiReadMediaRepository:
         arguments:
             $logger: '@Centreon\Domain\Log\Logger'

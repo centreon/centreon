@@ -1,0 +1,12 @@
+[
+    {
+        "action": "add",
+        "object": "INSTANCE",
+        "values": "Poller-1;10.30.2.55;22;ZMQ;5556"
+    },
+    {
+        "action": "add",
+        "object": "ENGINECFG",
+        "values": "Centreon Engine cfg for poller-1;Poller-1;Just a small comment"
+    }
+]

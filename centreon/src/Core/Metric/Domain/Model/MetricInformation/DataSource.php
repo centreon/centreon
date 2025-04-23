@@ -32,6 +32,13 @@ class DataSource
         private readonly ?int $lastValue,
         private readonly ?int $averageValue,
         private readonly ?int $total,
+        private readonly ?float $transparency,
+        private readonly ?string $colorArea,
+        private readonly bool $isFilled,
+        private readonly bool $isInverted,
+        private readonly ?string $legend,
+        private readonly bool $isStacked,
+        private readonly ?int $order,
         private readonly int $tickness,
         private readonly int $colorMode,
         private readonly string $lineColor
@@ -81,5 +88,40 @@ class DataSource
     public function getLineColor(): string
     {
         return $this->lineColor;
+    }
+
+    public function getTransparency(): ?float
+    {
+        return $this->transparency;
+    }
+
+    public function getColorArea(): ?string
+    {
+        return $this->colorArea;
+    }
+
+    public function isFilled(): bool
+    {
+        return $this->isFilled;
+    }
+
+    public function isInverted(): bool
+    {
+        return $this->isInverted;
+    }
+
+    public function getLegend(): ?string
+    {
+        return $this->legend;
+    }
+
+    public function isStacked(): bool
+    {
+        return $this->isStacked;
+    }
+
+    public function getOrder(): ?int
+    {
+        return $this->order;
     }
 }

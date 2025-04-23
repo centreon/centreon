@@ -1,0 +1,63 @@
+post:
+  tags:
+    - Notification
+  summary: "Create a notification"
+  description: |
+    Create a notification
+
+    This endpoint is accessible for SaaS platforms only
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "Schema/Notification.Add.yaml"
+  responses:
+    '201':
+      description: "OK"
+    '400':
+      $ref: '../../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+get:
+  tags:
+    - Notification
+  summary: "List all notifications"
+  description: |
+    Return all notifications.
+
+    The available parameters to **search** are:
+
+    * name
+  parameters:
+    - $ref: '../../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../../Common/QueryParameter/Search.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: "Schema/Notification.Listing.yaml"
+              meta:
+                $ref: '../../../Common/Schema/Meta.yaml'
+    '400':
+      $ref: '../../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'

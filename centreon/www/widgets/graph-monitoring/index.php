@@ -63,8 +63,9 @@ try {
     }
 
     global $pearDB;
-
-    $pearDB = $dbAcl = $db = $dependencyInjector['configuration_db'];
+    $pearDB = $dependencyInjector['configuration_db'];
+    $dbAcl = $dependencyInjector['configuration_db'];
+    $db = $dependencyInjector['configuration_db'];
     $db2 = $dependencyInjector['realtime_db'];
 
     $widgetObj = new CentreonWidget($centreon, $db);
@@ -91,9 +92,9 @@ if ($centreon->user->admin == 0) {
     $grouplistStr = $access->getAccessGroupsString();
 }
 
+// Smarty template initialization
 $path = $centreon_path . 'www/widgets/graph-monitoring/src/';
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, "/", $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, '/');
 
 /*
 * Check ACL

@@ -33,7 +33,7 @@
  *
  */
 
-$help = array();
+$help = [];
 $help["use_timezone"] = dgettext(
     "help",
     "Define the poller timezone. If not set, default Centreon timezone is used (parameters). " .
@@ -597,6 +597,12 @@ $help["enable_predictive_service_dependency_checks"] = dgettext(
     "being depended upon (as defined in service dependencies) for a particular service when it changes state. " .
     "Predictive checks help ensure that the dependency logic is as accurate as possible. More information on " .
     "how predictive checks work can be found here. This option is enabled by default."
+);
+$help["host_down_disable_service_checks"] = dgettext(
+    "help",
+    "This option will disable all service checks if the host is not in an UP state. While desirable in some
+    environments, enabling this value can distort report values as the expected quantity of checks will not have been
+    performed."
 );
 $help["cached_host_check_horizon"] = dgettext(
     "help",

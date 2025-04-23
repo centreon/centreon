@@ -1,76 +1,45 @@
-ARG REGISTRY_URL
-ARG VERSION
+ARG REGISTRY_URL=docker.centreon.com/centreon
+ARG FROM_IMAGE_VERSION=develop
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${VERSION} AS web_fresh
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma8:${FROM_IMAGE_VERSION}
 
-ARG VERSION
+ARG STABILITY
 
-COPY *.rpm /tmp/rpms-centreon/
+COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint /usr/share/centreon
+COPY --chown=apache:apache ./.github/docker/centreon-web/alma8/configuration /usr/share/centreon/www/install/tmp
 
-RUN bash -e <<EOF
+COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
-rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
-dnf install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
+RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
-echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
+if [[ "$STABILITY" == "testing" ]]; then
+  dnf config-manager --set-disabled 'centreon*unstable*'
+elif [[ "$STABILITY" == "stable" ]]; then
+  dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing*'
+fi
+dnf config-manager --set-disabled 'centreon-plugin*unstable*' --set-disabled 'centreon-plugin*testing*'
+
+dnf install -y /tmp/packages-centreon/centreon-*.rpm
+
+sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/20-timezone.ini
 
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
-dnf clean all --enablerepo=*
-
-systemctl stop centreon
+systemctl stop gorgoned
+systemctl stop centengine
+systemctl stop cbd
 systemctl stop httpd
 systemctl stop php-fpm
+systemctl stop snmpd
+
+dnf clean all
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint/container.d/* /usr/share/centreon/container.d/
-COPY --chmod=755 ./.github/docker/centreon-web/alma8/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=apache:apache ./.github/docker/centreon-web/alma8/configuration /usr/share/centreon/www/install/tmp/
-
-RUN <<EOF
-
-service mysql start
-mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-
-cd /usr/share/centreon/www/install/steps/process
-su apache -s /bin/bash -c "php configFileSetup.php"
-su apache -s /bin/bash -c "php installConfigurationDb.php"
-su apache -s /bin/bash -c "php installStorageDb.php"
-su apache -s /bin/bash -c "php createDbUser.php"
-su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
-su apache -s /bin/bash -c "php partitionTables.php"
-su apache -s /bin/bash -c "php generationCache.php"
-su apache -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
-
-mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
-mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-service mysql stop
-
-sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
-sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
-
-EOF
-
-EXPOSE 80 3306
+EXPOSE 80
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
-FROM web_fresh AS web_standard
-
-COPY ./.github/docker/centreon-web/sql /tmp/sql
-
-RUN bash -e <<EOF
-
-service mysql start
-mysql centreon < /tmp/sql/standard.sql
-mysql centreon < /tmp/sql/media.sql
-mysql centreon < /tmp/sql/openldap.sql
-centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-service mysql stop
-
-EOF
+ENV CENTREON_DATASET="1"
+ENV CENTREON_LANG="en_US"

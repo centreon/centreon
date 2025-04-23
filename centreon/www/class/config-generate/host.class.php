@@ -34,29 +34,50 @@
  *
  */
 
-require_once dirname(__FILE__) . '/abstract/host.class.php';
-require_once dirname(__FILE__) . '/abstract/service.class.php';
+require_once __DIR__ . '/abstract/host.class.php';
+require_once __DIR__ . '/abstract/service.class.php';
 
+/**
+ * Class
+ *
+ * @class Host
+ */
 class Host extends AbstractHost
 {
     public const VERTICAL_NOTIFICATION = 1;
     public const CLOSE_NOTIFICATION = 2;
     public const CUMULATIVE_NOTIFICATION = 3;
 
-    protected $hosts_by_name = array();
+    /** @var array */
+    protected $hosts_by_name = [];
+    /** @var array|null */
     protected $hosts = null;
+    /** @var string */
     protected $generate_filename = 'hosts.cfg';
-    protected $object_name = 'host';
+    /** @var string */
+    protected string $object_name = 'host';
+    /** @var null */
     protected $stmt_hg = null;
+    /** @var null */
     protected $stmt_parent = null;
+    /** @var null */
     protected $stmt_service = null;
+    /** @var null */
     protected $stmt_service_sg = null;
-    protected $generated_parentship = array();
-    protected $generatedHosts = array();
+    /** @var array */
+    protected $generated_parentship = [];
+    /** @var array */
+    protected $generatedHosts = [];
 
-    private function getHostGroups(&$host)
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws PDOException
+     */
+    private function getHostGroups(&$host): void
     {
-        $host['group_tags'] = $host['group_tags'] ?? [];
+        $host['group_tags'] ??= [];
 
         if (!isset($host['hg'])) {
             if (is_null($this->stmt_hg)) {
@@ -78,7 +99,13 @@ class Host extends AbstractHost
         }
     }
 
-    private function getParents(&$host)
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws PDOException
+     */
+    private function getParents(&$host): void
     {
         if (is_null($this->stmt_parent)) {
             $this->stmt_parent = $this->backend_instance->db->prepare("SELECT
@@ -91,7 +118,7 @@ class Host extends AbstractHost
         $this->stmt_parent->execute();
         $result = $this->stmt_parent->fetchAll(PDO::FETCH_COLUMN);
 
-        $host['parents'] = array();
+        $host['parents'] = [];
         foreach ($result as $parent_id) {
             if (isset($this->hosts[$parent_id])) {
                 $host['parents'][] = $this->hosts[$parent_id]['host_name'];
@@ -99,7 +126,13 @@ class Host extends AbstractHost
         }
     }
 
-    private function getServices(&$host)
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws PDOException
+     */
+    private function getServices(&$host): void
     {
         if (is_null($this->stmt_service)) {
             $this->stmt_service = $this->backend_instance->db->prepare("SELECT
@@ -118,6 +151,12 @@ class Host extends AbstractHost
         }
     }
 
+    /**
+     * @param $host
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     private function getServicesByHg(&$host)
     {
         if (count($host['hg']) == 0) {
@@ -145,15 +184,15 @@ class Host extends AbstractHost
      */
     private function manageCumulativeInheritance(array &$host): array
     {
-        $results = array('cg' => array(), 'contact' => array());
+        $results = ['cg' => [], 'contact' => []];
 
         $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         foreach ($host['htpl'] as $hostIdTopLevel) {
-            $stack = array($hostIdTopLevel);
-            $loop = array();
+            $stack = [$hostIdTopLevel];
+            $loop = [];
             if (!isset($hostsTpl[$hostIdTopLevel]['contacts_computed_cache'])) {
-                $contacts = array();
-                $cg = array();
+                $contacts = [];
+                $cg = [];
                 while (($hostId = array_shift($stack))) {
                     if (isset($loop[$hostId]) || !isset($hostsTpl[$hostId])) {
                         continue;
@@ -209,10 +248,10 @@ class Host extends AbstractHost
 
         $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         foreach ($host['htpl'] as $hostIdTopLevel) {
-            $stack = array($hostIdTopLevel);
-            $loop = array();
+            $stack = [$hostIdTopLevel];
+            $loop = [];
             if (!isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
-                $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'] = array();
+                $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'] = [];
 
                 while (($hostId = array_shift($stack))) {
                     if (isset($loop[$hostId])) {
@@ -241,7 +280,7 @@ class Host extends AbstractHost
                 return $hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'];
             }
         }
-        return array();
+        return [];
     }
 
     /**
@@ -263,12 +302,12 @@ class Host extends AbstractHost
         $hostsTpl = HostTemplate::getInstance($this->dependencyInjector)->hosts;
         $hostIdCache = null;
         foreach ($host['htpl'] as $hostIdTopLevel) {
-            $computedCache = array();
+            $computedCache = [];
             if (!isset($hostsTpl[$hostIdTopLevel][$attribute . '_computed_cache'])) {
-                $stack = array(array($hostIdTopLevel, 1));
-                $loop = array();
+                $stack = [[$hostIdTopLevel, 1]];
+                $loop = [];
                 $currentLevelCatch = null;
-                while ((list($hostId, $level) = array_shift($stack))) {
+                while (([$hostId, $level] = array_shift($stack))) {
                     if (!is_null($currentLevelCatch) && $currentLevelCatch >= $level) {
                         break;
                     }
@@ -296,7 +335,7 @@ class Host extends AbstractHost
                     }
 
                     foreach (array_reverse($hostsTpl[$hostId]['htpl']) as $htplId) {
-                        array_unshift($stack, array($htplId, $level + 1));
+                        array_unshift($stack, [$htplId, $level + 1]);
                     }
                 }
 
@@ -367,7 +406,7 @@ class Host extends AbstractHost
      */
     private function manageNotificationInheritance(array &$host, bool $generate = true): array
     {
-        $results = array('cg' => array(), 'contact' => array());
+        $results = ['cg' => [], 'contact' => []];
 
         if (!is_null($host['notifications_enabled']) && (int)$host['notifications_enabled'] === 0) {
             return $results;
@@ -393,15 +432,26 @@ class Host extends AbstractHost
         return $results;
     }
 
+    /**
+     * @param $host_id
+     *
+     * @return mixed
+     */
     public function getSeverityForService($host_id)
     {
         return $this->hosts[$host_id]['severity_id_for_services'];
     }
 
+    /**
+     * @param $host_id_arg
+     *
+     * @return void
+     * @throws PDOException
+     */
     protected function getSeverity($host_id_arg)
     {
         $host_id = null;
-        $loop = array();
+        $loop = [];
 
         $severity_instance = Severity::getInstance($this->dependencyInjector);
         $severity_id = $severity_instance->getHostSeverityByHostId($host_id_arg);
@@ -458,12 +508,24 @@ class Host extends AbstractHost
         $this->hosts[$host_id_arg]['severity_id_for_services'] = $severity_instance->getHostSeverityById($severity_id);
     }
 
-    public function addHost($host_id, $attr = array())
+    /**
+     * @param $host_id
+     * @param $attr
+     *
+     * @return void
+     */
+    public function addHost($host_id, $attr = []): void
     {
         $this->hosts[$host_id] = $attr;
     }
 
-    private function getHosts($poller_id)
+    /**
+     * @param $poller_id
+     *
+     * @return void
+     * @throws PDOException
+     */
+    private function getHosts($poller_id): void
     {
         # We use host_register = 1 because we don't want _Module_* hosts
         $stmt = $this->backend_instance->db->prepare("SELECT
@@ -478,6 +540,16 @@ class Host extends AbstractHost
         $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @param $host
+     * @param $generateConfigurationFile
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
     public function processingFromHost(&$host, $generateConfigurationFile = true): void
     {
         $this->getImages($host);
@@ -504,7 +576,16 @@ class Host extends AbstractHost
 
     }
 
-    public function generateFromHostId(&$host)
+    /**
+     * @param $host
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
+    public function generateFromHostId(&$host): void
     {
         $this->processingFromHost($host);
 
@@ -515,7 +596,17 @@ class Host extends AbstractHost
         $this->addGeneratedHost($host['host_id']);
     }
 
-    public function generateFromPollerId($poller_id, $localhost = 0)
+    /**
+     * @param $poller_id
+     * @param $localhost
+     *
+     * @return void
+     * @throws LogicException
+     * @throws PDOException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     */
+    public function generateFromPollerId($poller_id, $localhost = 0): void
     {
         if (is_null($this->hosts)) {
             $this->getHosts($poller_id);
@@ -542,24 +633,37 @@ class Host extends AbstractHost
         ServiceCategory::getInstance($this->dependencyInjector)->generateObjects();
     }
 
+    /**
+     * @param $host_name
+     *
+     * @return mixed|null
+     */
     public function getHostIdByHostName($host_name)
     {
-        if (isset($this->hosts_by_name[$host_name])) {
-            return $this->hosts_by_name[$host_name];
-        }
-        return null;
+        return $this->hosts_by_name[$host_name] ?? null;
     }
 
+    /**
+     * @return array
+     */
     public function getGeneratedParentship()
     {
         return $this->generated_parentship;
     }
 
-    public function addGeneratedHost($hostId)
+    /**
+     * @param $hostId
+     *
+     * @return void
+     */
+    public function addGeneratedHost($hostId): void
     {
         $this->generatedHosts[] = $hostId;
     }
 
+    /**
+     * @return array
+     */
     public function getGeneratedHosts()
     {
         return $this->generatedHosts;
@@ -581,7 +685,7 @@ class Host extends AbstractHost
         $hostTplInstance = HostTemplate::getInstance($this->dependencyInjector);
 
         $stack = $host['htpl'];
-        $loop = array();
+        $loop = [];
         while (($hostTplId = array_shift($stack))) {
             if (isset($loop[$hostTplId])) {
                 continue;
@@ -599,12 +703,16 @@ class Host extends AbstractHost
         return $this->manageNotificationInheritance($host, false);
     }
 
-    public function reset()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function reset(): void
     {
-        $this->hosts_by_name = array();
+        $this->hosts_by_name = [];
         $this->hosts = null;
-        $this->generated_parentship = array();
-        $this->generatedHosts = array();
+        $this->generated_parentship = [];
+        $this->generatedHosts = [];
         parent::reset();
     }
 }

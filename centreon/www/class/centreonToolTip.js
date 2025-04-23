@@ -5,26 +5,59 @@ $.fn.replaceWithPush = function(newElement) {
     return $newElement;
 };
 
+/**
+ * @class CentreonToolTip
+ * @constructor
+ */
 function CentreonToolTip()
-{	
+{
+    /**
+     * @type {string}
+     * @private
+     */
 	this._className = 'helpTooltip';
+    /**
+     * @type {string}
+     * @private
+     */
 	this._source = '';
+    /**
+     * @type {string}
+     * @private
+     */
 	this._title = 'Help';
-	
+    /**
+     * @type {CentreonToolTip}
+     * @private
+     */
 	var _self = this;
-	
+
+    /**
+     * @param {string} name
+     * @return string
+     */
 	this.setClass = function(name) {
 		this._className = name;
 	}
-	
+
+    /**
+     * @param source
+     */
 	this.setSource = function(source) {
 		this._source = source;
 	}
-	
+
+    /**
+     * @param {string} title
+     * @return string
+     */
 	this.setTitle = function(title) {
 		this._title = title;
 	}
-	
+
+    /**
+     * @return void
+     */
 	this.render = function() {
 		jQuery('img.' + _self._className).each(function(index){
 			var el = jQuery(this);

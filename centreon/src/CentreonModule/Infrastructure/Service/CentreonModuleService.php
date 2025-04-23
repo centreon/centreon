@@ -33,7 +33,7 @@ class CentreonModuleService
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {
@@ -60,7 +60,7 @@ class CentreonModuleService
             $sources = [];
 
             foreach ($this->sources as $type => $source) {
-                if (! in_array($type, $typeList)) {
+                if (! in_array($type, $typeList) && ! $installed) {
                     continue;
                 }
 

@@ -17,7 +17,7 @@ class RestApiContext extends CentreonContext
     public function aCentreonServerWithRestApiTestingData()
     {
         // Launch container.
-        $this->launchCentreonWebContainer('docker_compose_web', ['web-fresh', 'webdriver']);
+        $this->launchCentreonWebContainer('docker_compose_web', [], ['CENTREON_DATASET' => '0']);
 
         // Copy images.
         $basedir = 'tests/rest_api/images';
@@ -80,7 +80,7 @@ class RestApiContext extends CentreonContext
         file_put_contents($this->envfile, $env);
         $this->logfile = tempnam(sys_get_temp_dir(), $this->logFilePrefix);
         exec(
-            'npm install -g newman && newman run' .
+            'npm install -g newman@6.1.3 && newman run' .
             ' tests/rest_api/behat-collections/' . $this->restCollection .
             ' --color off --disable-unicode --reporter-cli-no-assertions' .
             ' --timeout-script 60000' .

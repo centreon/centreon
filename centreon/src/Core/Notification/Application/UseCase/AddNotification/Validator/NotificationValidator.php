@@ -24,96 +24,128 @@ declare(strict_types=1);
 namespace Core\Notification\Application\UseCase\AddNotification\Validator;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Contact\Domain\Model\BasicContact;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Utility\Difference\BasicDifference;
 
 class NotificationValidator
 {
     use LoggerTrait;
 
+    private ContactInterface $currentContact;
+
+    public function __construct(
+        private readonly ReadContactRepositoryInterface $contactRepository,
+        private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
+    ) {
+    }
+
     /**
-     * Validate that provided user and contactgroup ids exists.
+     * Validate that provided user and contact group ids exists.
      *
      * @param int[] $userIds
      * @param int[] $contactGroupsIds
-     * @param ContactRepositoryInterface $contactRepository
-     * @param ReadContactGroupRepositoryInterface $contactGroupRepository
-     * @param ContactInterface $user
+     * @param ContactInterface $currentContact
      *
-     * @throws \Throwable|NotificationException
+     * @throws NotificationException
+     * @throws \Throwable
      */
     public function validateUsersAndContactGroups(
         array $userIds,
         array $contactGroupsIds,
-        ContactRepositoryInterface $contactRepository,
-        ReadContactGroupRepositoryInterface $contactGroupRepository,
-        ContactInterface $user
+        ContactInterface $currentContact
     ): void {
-        if (empty($userIds) && empty($contactGroupsIds)) {
-            throw NotificationException::emptyArrayNotAllowed('users, contactgroups');
+        if ($userIds === [] && $contactGroupsIds === []) {
+            throw NotificationException::emptyArrayNotAllowed('users, contact groups');
         }
-        if (! empty($userIds)) {
-            $this->validateUsers($userIds, $contactRepository);
+        $this->currentContact = $currentContact;
+        if ($userIds !== []) {
+            $this->validateUsers($userIds);
         }
-        if (! empty($contactGroupsIds)) {
-            $this->validateContactGroups($contactGroupsIds, $contactGroupRepository, $user);
+        if ($contactGroupsIds !== []) {
+            $this->validateContactGroups($contactGroupsIds);
+        }
+    }
+
+    /**
+     * Validate that provided time period id exists.
+     *
+     * @param int $timePeriodId
+     *
+     * @throws \Throwable|NotificationException
+     */
+    public function validateTimePeriod(int $timePeriodId): void {
+        if (false === $this->readTimePeriodRepository->exists($timePeriodId)) {
+            $this->error('Time period does not exist', ['timePeriodId' => $timePeriodId]);
+
+            throw NotificationException::invalidId('timeperiodId');
         }
     }
 
     /**
      * Validate that provided user ids exists.
      *
-     * @param int[] $userIds
-     * @param ContactRepositoryInterface $contactRepository
+     * @param int[] $contactIdsToValidate
      *
      * @throws \Throwable|NotificationException
      */
-    private function validateUsers(array $userIds, ContactRepositoryInterface $contactRepository): void
+    private function validateUsers(array $contactIdsToValidate): void
     {
-        $userIds = array_unique($userIds);
+        $contactIdsToValidate = array_unique($contactIdsToValidate);
 
-        $existingUsers = $contactRepository->exist($userIds);
-        $difference = new BasicDifference($userIds, $existingUsers);
-        $missingUsers = $difference->getRemoved();
+        if ($this->currentContact->isAdmin()) {
+            $existingContactIds = $this->contactRepository->retrieveExistingContactIds($contactIdsToValidate);
+        } else {
+            $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
+            $existingContacts = $this->contactRepository->findByAccessGroupsAndUserAndRequestParameters(
+                $accessGroups,
+                $this->currentContact
+            );
+            $existingContactIds = array_map(fn (BasicContact $contact) => $contact->getId(), $existingContacts);
+        }
 
-        if ([] !== $missingUsers) {
+        $contactDifference = new BasicDifference($contactIdsToValidate, $existingContactIds);
+        $missingContact = $contactDifference->getRemoved();
+
+        if ([] !== $missingContact) {
             $this->error(
                 'Invalid ID(s) provided',
-                ['propertyName' => 'users', 'propertyValues' => array_values($missingUsers)]
+                ['propertyName' => 'users', 'propertyValues' => array_values($missingContact)]
             );
 
             throw NotificationException::invalidId('users');
         }
-
     }
 
     /**
-     * Validate that provided contactgroup ids exists.
+     * Validate that provided contact group ids exists.
      *
      * @param int[] $contactGroupIds
-     * @param ReadContactGroupRepositoryInterface $contactGroupRepository
-     * @param ContactInterface $user
      *
      * @throws \Throwable|NotificationException
      */
-    private function validateContactGroups(
-        array $contactGroupIds,
-        ReadContactGroupRepositoryInterface $contactGroupRepository,
-        ContactInterface $user
-    ):void {
+    private function validateContactGroups(array $contactGroupIds): void {
         $contactGroupIds = array_unique($contactGroupIds);
 
-        if ($user->isAdmin()) {
-            $contactGroups = $contactGroupRepository->findByIds($contactGroupIds);
+        if ($this->currentContact->isAdmin()) {
+            $contactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
         } else {
-            $contactGroups = $contactGroupRepository->findByIdsAndUserId($contactGroupIds, $user->getId());
+            $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
+            $contactGroups = $this->contactGroupRepository->findByAccessGroupsAndUserAndRequestParameter(
+                $accessGroups,
+                $this->currentContact
+            );
         }
-        $existingContactGroups = array_map(fn (ContactGroup $contactgroup) => $contactgroup->getId(), $contactGroups);
-        $difference = new BasicDifference($contactGroupIds, $existingContactGroups);
+        $existingContactGroupIds = array_map(fn (ContactGroup $contactGroup) => $contactGroup->getId(), $contactGroups);
+        $difference = new BasicDifference($contactGroupIds, $existingContactGroupIds);
         $missingContactGroups = $difference->getRemoved();
 
         if ([] !== $missingContactGroups) {

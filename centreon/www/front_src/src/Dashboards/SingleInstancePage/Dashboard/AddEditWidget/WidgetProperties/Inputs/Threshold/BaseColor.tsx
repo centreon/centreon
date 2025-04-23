@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Box, Typography, useTheme } from '@mui/material';
 

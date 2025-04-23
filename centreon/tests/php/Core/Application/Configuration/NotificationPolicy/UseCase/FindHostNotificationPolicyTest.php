@@ -33,22 +33,28 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\RealTime\Repository\ReadHostRepositoryInterface as ReadRealTimeHostRepositoryInterface;
 use Centreon\Domain\Engine\EngineConfiguration;
 use Centreon\Domain\HostConfiguration\Host;
+use Centreon\Domain\Option\OptionService;
 use Core\Domain\RealTime\Model\Host as RealTimeHost;
 use Core\Domain\RealTime\Model\HostStatus;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
 use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readHostNotificationRepository = $this->createMock(ReadHostNotificationRepositoryInterface::class);
     $this->hostRepository = $this->createMock(HostConfigurationRepositoryInterface::class);
     $this->engineService = $this->createMock(EngineConfigurationServiceInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
     $this->readRealTimeHostRepository = $this->createMock(ReadRealTimeHostRepositoryInterface::class);
+    $this->optionsService = $this->createMock(OptionService::class);
+    $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
+    $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class);
 
     $this->host = new Host();
     $this->realTimeHost = new RealTimeHost(
@@ -85,10 +91,13 @@ beforeEach(function () {
         $this->accessGroupRepository,
         $this->contact,
         $this->readRealTimeHostRepository,
+        $this->optionsService,
+        $this->readHostTemplateRepository,
+        $this->readHostRepository
     );
 });
 
-it('does not find host notification policy when host is not found by admin user', function () {
+it('does not find host notification policy when host is not found by admin user', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
@@ -107,7 +116,7 @@ it('does not find host notification policy when host is not found by admin user'
     ($this->useCase)(1, $this->findNotificationPolicyPresenter);
 });
 
-it('does not find host notification policy when host is not found by acl user', function () {
+it('does not find host notification policy when host is not found by acl user', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')
@@ -132,9 +141,9 @@ it('does not find host notification policy when host is not found by acl user', 
     ($this->useCase)(1, $this->findNotificationPolicyPresenter);
 });
 
-it('returns users, user groups and notification status', function () {
+it('returns users, user groups and notification status', function (): void {
     $this->contact
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
 
@@ -147,13 +156,13 @@ it('returns users, user groups and notification status', function () {
 
     $this->readHostNotificationRepository
         ->expects($this->once())
-        ->method('findNotifiedContactsById')
+        ->method('findNotifiedContactsByIds')
         ->with(1)
         ->willReturn([$this->notifiedContact]);
 
     $this->readHostNotificationRepository
         ->expects($this->once())
-        ->method('findNotifiedContactGroupsById')
+        ->method('findNotifiedContactGroupsByIds')
         ->with(1)
         ->willReturn([$this->notifiedContactGroup]);
 

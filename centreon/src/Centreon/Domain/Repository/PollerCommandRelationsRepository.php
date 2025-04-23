@@ -38,7 +38,7 @@ SQL;
         return $result;
     }
 
-    public function truncate()
+    public function truncate(): void
     {
         $sql = <<<SQL
 TRUNCATE TABLE `poller_command_relations`

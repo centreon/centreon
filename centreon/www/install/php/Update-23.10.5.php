@@ -54,6 +54,8 @@ try {
     }
     $errorMessage = 'Unable to update topology for Cloud Notifications';
     $updateTopologyForCloudNotifications($pearDB);
+
+    $pearDB->commit();
 } catch (\Exception $ex) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();

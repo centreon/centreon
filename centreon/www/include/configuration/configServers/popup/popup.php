@@ -52,8 +52,8 @@ if ($isAdmin === false) {
     }
 }
 
-$tpl = new Smarty();
-$tpl = initSmartyTpl(null, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate();
 
 // get remote server ip
 $query = 'SELECT ip FROM remote_servers';
@@ -114,12 +114,14 @@ if ($server['localhost'] === '1') {
     $config = str_replace(
         [
             '__SERVERNAME__',
+            '__SERVERID__',
             '__COMMAND__',
             '__CENTREON_VARLIB__',
             '__CENTREON_CACHEDIR__',
         ],
         [
             $server['name'],
+            $server['id'],
             $server['command_file'],
             _CENTREON_VARLIB_,
             _CENTREON_CACHEDIR_,

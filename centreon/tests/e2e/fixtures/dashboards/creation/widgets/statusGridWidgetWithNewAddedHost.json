@@ -1,0 +1,37 @@
+{
+      "data":{
+         "resources":[
+            {
+               "resourceType":"host",
+               "resources":[
+                  {
+                     "id":17,
+                     "name":"generic-active-host"
+                  }
+               ]
+            }
+         ]
+      },
+      "options":{
+         "viewMode":"standard",
+         "resourceType":"service",
+         "statuses":[
+            "success",
+            "warning",
+            "problem",
+            "pending",
+            "undefined"
+         ],
+         "sortBy":"status_severity_code",
+         "tiles":100,
+         "refreshInterval":"default",
+         "states":[
+
+         ],
+         "description":{
+            "content":"{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Descirption for status grid\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+            "enabled":true
+         },
+         "name":"Title For status grid"
+      }
+}

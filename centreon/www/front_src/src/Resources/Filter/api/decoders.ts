@@ -3,9 +3,9 @@ import { JsonDecoder } from 'ts.data.json';
 import { buildListingDecoder } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
-import { Filter } from '../models';
-import { Criteria } from '../Criterias/models';
 import { SortOrder } from '../../models';
+import { Criteria } from '../Criterias/models';
+import { Filter } from '../models';
 
 const entityDecoder = JsonDecoder.object<Filter>(
   {

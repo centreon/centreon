@@ -2,15 +2,14 @@ import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
 import {
-  labelDashboardGlobalInterval,
-  labelInterval,
-  labelRefreshInterval
-} from '../../../../translatedLabels';
-import {
   dashboardRefreshIntervalAtom,
   hasEditPermissionAtom,
   isEditingAtom
 } from '../../../../atoms';
+import {
+  labelDashboardGlobalInterval,
+  labelRefreshInterval
+} from '../../../../translatedLabels';
 
 import RefreshInterval from './RefreshInterval';
 
@@ -67,7 +66,7 @@ describe('Refresh interval', () => {
 
   it('changes the "second" label to "seconds" when the value is greater than 1', () => {
     cy.findByTestId('custom').click();
-    cy.findByTestId(labelInterval).type('2');
+    cy.findByTestId('intervalInput').type('2');
     cy.findAllByText('second').should('not.exist');
     cy.findAllByText('seconds').should('exist');
 

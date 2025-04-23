@@ -22,12 +22,26 @@ services:
     Core\Command\Application\UseCase\MigrateAllCommands\MigrateAllCommands:
         arguments:
             $writeCommandRepository: '@Core\Command\Infrastructure\Repository\ApiWriteCommandRepository'
+            $logger: '@Centreon\Domain\Log\Logger'
 
     Core\Command\Application\UseCase\AddCommand\AddCommand:
         arguments:
-            $writeCommandRepository: '@Core\Command\Infrastructure\Repository\DbWriteCommandRepository'
+            $writeCommandRepository: '@Core\Command\Infrastructure\Repository\DbWriteCommandActionLogRepository'
 
     Core\Command\Infrastructure\Repository\ApiWriteCommandRepository:
         calls:
         - method: setTimeOut
           arguments: [ '%curl.timeout%' ]
+
+    Core\Command\Infrastructure\Command\MigrateAllCommands\MigrateAllCommandsCommand:
+      arguments:
+        $curlTimeout: '%curl.timeout%'
+
+    Core\Command\Infrastructure\Repository\DbWriteCommandActionLogRepository:
+        decorates: Core\Command\Application\Repository\WriteCommandRepositoryInterface
+        arguments:
+        - '@.inner'
+        - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
+        - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+        - '@Centreon\Infrastructure\DatabaseConnection'
+

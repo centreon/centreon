@@ -35,12 +35,30 @@
 
 require_once __DIR__ . "/../../Relation.php";
 
+/**
+ * Class
+ *
+ * @class Centreon_Object_Relation_Acl_Group_Resource
+ */
 class Centreon_Object_Relation_Acl_Group_Resource extends Centreon_Object_Relation
 {
+
+    /** @var Centreon_Object_Acl_Group */
+    public $firstObject;
+    /** @var Centreon_Object_Acl_Resource */
+    public $secondObject;
+    /** @var string */
     protected $relationTable = "acl_res_group_relations";
+    /** @var string */
     protected $firstKey = "acl_group_id";
+    /** @var string */
     protected $secondKey = "acl_res_id";
 
+    /**
+     * Centreon_Object_Relation_Acl_Group_Resource constructor
+     *
+     * @param \Pimple\Container $dependencyInjector
+     */
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);

@@ -1,4 +1,4 @@
-import { isNil, isEmpty } from 'ramda';
+import { isEmpty, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Avatar, Tooltip } from '@mui/material';

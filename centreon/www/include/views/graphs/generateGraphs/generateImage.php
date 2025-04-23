@@ -95,7 +95,7 @@ if (!empty($userName) && !empty($token)) {
     }
 }
 
-$index = filter_var(
+$indexDataId = filter_var(
     $_GET['index'] ?? 0,
     FILTER_VALIDATE_INT
 );
@@ -110,6 +110,7 @@ if (!empty($_GET['service'])) {
 }
 
 $pearDBO = new CentreonDB("centstorage");
+
 if (!empty($hostName) && !empty($serviceDescription)) {
     $statement = $pearDBO->prepare(
         "SELECT `id`
@@ -123,7 +124,7 @@ if (!empty($hostName) && !empty($serviceDescription)) {
     $statement->bindValue(':serviceDescription', $serviceDescription, \PDO::PARAM_STR);
     $statement->execute();
     if ($res = $statement->fetch()) {
-        $index = $res["id"];
+        $indexDataId = $res["id"];
     } else {
         die('Resource not found');
     }
@@ -151,7 +152,7 @@ if (!empty($chartId)) {
     $statement->execute();
 
     if ($row = $statement->fetch()) {
-        $index = $row['id'];
+        $indexDataId = $row['id'];
     } else {
         die('Resource not found');
     }
@@ -176,43 +177,57 @@ $isAdmin = $row['contact_admin'];
 $contactId = $row['contact_id'];
 
 if (!$isAdmin) {
-    $acl = new CentreonACL($contactId, $isAdmin);
-    $dbstorage = new CentreonDB('centstorage');
 
-    $aclGroups = $acl->getAccessGroupsString();
-    $sql = "SELECT host_id, service_id FROM index_data WHERE id = :index_data_id";
-    $statement = $dbstorage->prepare($sql);
-    $statement->bindValue(':index_data_id', (int) $index, \PDO::PARAM_INT);
-    $statement->execute();
-    if (!$statement->rowCount()) {
-        die('Graph not found');
-    }
-    $row = $statement->fetch(\PDO::FETCH_ASSOC);
-    unset($statement);
-    $hostId = $row['host_id'];
-    $serviceId = $row['service_id'];
-    $aclGroupsExploded = explode(',', $aclGroups);
-    if (empty($aclGroupsExploded)) {
+    $acl = new CentreonACL($contactId, $isAdmin);
+
+    if (empty($acl->getAccessGroups())) {
         throw new \Exception('Access denied');
     }
 
-    $aclGroupsQueryBinds = [];
-    foreach ($aclGroupsExploded as $key => $value) {
-        $aclGroupsQueryBinds[':acl_group_' . $key] = str_replace("'","",$value);
-    }
-    $aclGroupBinds = implode(',', array_keys($aclGroupsQueryBinds));
-    $sql = "SELECT service_id FROM centreon_acl WHERE host_id = :host_id AND service_id = :service_id
-        AND group_id IN ($aclGroupBinds)";
-    $statement = $pearDBO->prepare($sql);
-    $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
-    $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
-    foreach ($aclGroupsQueryBinds as $key => $value) {
-        $statement->bindValue($key, (int) $value, \PDO::PARAM_INT);
-    }
-    $statement->execute();
-    if (!$statement->rowCount()) {
+    $aclGroupIds = array_keys($acl->getAccessGroups());
+
+    try {
+        $sql = "SELECT host_id, service_id FROM index_data WHERE id = :index_data_id";
+        $statement = $pearDBO->prepare($sql);
+        $statement->bindValue(':index_data_id', (int) $indexDataId, \PDO::PARAM_INT);
+        $statement->execute();
+        if (!$statement->rowCount()) {
+            die('Graph not found');
+        }
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        unset($statement);
+        $hostId = $row['host_id'];
+        $serviceId = $row['service_id'];
+        $aclGroupQueryBinds = [];
+        foreach ($aclGroupIds as $index => $aclGroupId) {
+            $aclGroupQueryBinds[':acl_group_' . $index] = (int) $aclGroupId;
+        }
+        $aclGroupBinds = implode(',', array_keys($aclGroupQueryBinds));
+
+        $sql = <<<SQL
+            SELECT service_id
+            FROM centreon_acl
+            WHERE host_id = :host_id
+                AND service_id = :service_id
+                AND group_id IN ({$aclGroupBinds})
+            SQL;
+
+        $statement = $pearDBO->prepare($sql);
+        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+
+        foreach ($aclGroupQueryBinds as $queryBind => $queryValue) {
+            $statement->bindValue($queryBind, (int) $queryValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+        if (!$statement->rowCount()) {
+            die('Access denied');
+        }
+    } catch (PDOException $e) {
+        (new CentreonLog())->insertLog(2, "Error while checking acl to generate graph image : {$e->getMessage()}");
         die('Access denied');
     }
+
 }
 
 /* Check security session */
@@ -225,7 +240,7 @@ require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
 /**
  * Create XML Request Objects
  */
-$obj = new CentreonGraph($contactId, $index, 0, 1);
+$obj = new CentreonGraph($contactId, $indexDataId, 0, 1);
 
 /**
  * Set arguments from GET
@@ -283,5 +298,5 @@ if (isset($_GET['akey'])) {
     $dbResult = $pearDB->prepare(
         "DELETE FROM session
         WHERE session_id = ? AND user_id = (SELECT contact_id from contact where contact_autologin_key = ?)");
-    $dbResult = $pearDB->execute($dbResult, array($mySessionId, $_GET['akey']));
+    $dbResult = $pearDB->execute($dbResult, [$mySessionId, $_GET['akey']]);
 }

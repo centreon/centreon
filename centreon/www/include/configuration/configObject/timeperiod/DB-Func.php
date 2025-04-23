@@ -1,4 +1,5 @@
 <?php
+
 /*
 * Copyright 2005-2015 Centreon
 * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -33,11 +34,18 @@
 *
 */
 
+use App\Kernel;
+
 if (!isset($centreon)) {
     exit();
 }
 
-function includeExcludeTimeperiods($tpId, $includeTab = array(), $excludeTab = array())
+use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Infrastructure\Common\Api\Router;
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
+function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
 {
     global $pearDB;
 
@@ -104,25 +112,14 @@ function testTPExistence($name = null)
     }
 }
 
-function deleteTimeperiodInDB($timeperiods = array())
-{
-    global $pearDB, $centreon;
-    foreach ($timeperiods as $key => $value) {
-        $dbResult2 = $pearDB->query("SELECT tp_name FROM `timeperiod` WHERE `tp_id` = '" . $key . "' LIMIT 1");
-        $row = $dbResult2->fetch();
-        $dbResult = $pearDB->query("DELETE FROM timeperiod WHERE tp_id = '" . $key . "'");
-        $centreon->CentreonLogAction->insertLog("timeperiod", $key, $row['tp_name'], "d");
-    }
-}
-
-function multipleTimeperiodInDB($timeperiods = array(), $nbrDup = array())
+function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
 {
     global $centreon;
 
     foreach ($timeperiods as $key => $value) {
         global $pearDB;
 
-        $fields = array();
+        $fields = [];
         $dbResult = $pearDB->query("SELECT * FROM timeperiod WHERE tp_id = '" . $key . "' LIMIT 1");
 
         $query = "SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = '" . $key . "'";
@@ -141,7 +138,9 @@ function multipleTimeperiodInDB($timeperiods = array(), $nbrDup = array())
                 if ($key2 == "tp_name") {
                     $value2 .= "_" . $i;
                 }
-                $key2 == "tp_name" ? ($tp_name = $value2) : "";
+                if ($key2 == "tp_name") {
+                    $tp_name = $value2;
+                }
                 $val[] = $value2 ?: null;
                 if ($key2 != "tp_id") {
                     $fields[$key2] = $value2;
@@ -156,221 +155,29 @@ function multipleTimeperiodInDB($timeperiods = array(), $nbrDup = array())
                     'timeperiod_id' => $key
                 ];
                 $tpId = duplicateTimePeriod($params);
-                $centreon->CentreonLogAction->insertLog("timeperiod", $tpId, $tp_name, "a", $fields);
+                $centreon->CentreonLogAction->insertLog(
+                    object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
+                    object_id: $tpId,
+                    object_name: $tp_name,
+                    action_type: ActionLog::ACTION_TYPE_ADD,
+                    fields: $fields
+                );
             }
         }
     }
 }
 
-function updateTimeperiodInDB($tp_id = null)
-{
-    if (!$tp_id) {
-        return;
-    }
-    updateTimeperiod($tp_id);
-}
-
-function updateTimeperiod($tp_id, $params = array())
-{
-    global $form, $pearDB, $centreon;
-
-    if (!$tp_id) {
-        return;
-    }
-    $ret = array();
-    if (count($params)) {
-        $ret = $params;
-    } else {
-        $ret = $form->getSubmitValues();
-    }
-
-    $ret["tp_name"] = $centreon->checkIllegalChar($ret["tp_name"]);
-
-    $rq = "UPDATE timeperiod ";
-    $rq .= "SET tp_name = '" . htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_alias = '" . htmlentities($ret["tp_alias"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_sunday = '" . htmlentities($ret["tp_sunday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_monday = '" . htmlentities($ret["tp_monday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_tuesday = '" . htmlentities($ret["tp_tuesday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_wednesday = '" . htmlentities($ret["tp_wednesday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_thursday = '" . htmlentities($ret["tp_thursday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_friday = '" . htmlentities($ret["tp_friday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_saturday = '" . htmlentities($ret["tp_saturday"], ENT_QUOTES, "UTF-8") . "' " .
-        "WHERE tp_id = '" . $tp_id . "'";
-    $pearDB->query($rq);
-
-    $pearDB->query("DELETE FROM timeperiod_include_relations WHERE timeperiod_id = '" . $tp_id . "'");
-    $pearDB->query("DELETE FROM timeperiod_exclude_relations WHERE timeperiod_id = '" . $tp_id . "'");
-
-    if (!isset($ret['tp_include'])) {
-        $ret['tp_include'] = array();
-    }
-    if (!isset($ret['tp_exclude'])) {
-        $ret['tp_exclude'] = array();
-    }
-
-    includeExcludeTimeperiods($tp_id, $ret['tp_include'], $ret['tp_exclude']);
-
-    if (isset($_POST['nbOfExceptions'])) {
-        $my_tab = $_POST;
-        $already_stored = array();
-        $pearDB->query("DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id`='" . $tp_id . "'");
-        for ($i = 0; $i <= $my_tab['nbOfExceptions']; $i++) {
-            $exInput = "exceptionInput_" . $i;
-            $exValue = "exceptionTimerange_" . $i;
-            if (isset($my_tab[$exInput]) &&
-                !isset($already_stored[strtolower($my_tab[$exInput])]) &&
-                $my_tab[$exInput]
-            ) {
-                $query = "INSERT INTO timeperiod_exceptions (`timeperiod_id`, `days`, `timerange`) " .
-                    "VALUES ('" . $tp_id . "', LOWER('" . $pearDB->escape($my_tab[$exInput]) . "'), '" .
-                    $pearDB->escape($my_tab[$exValue]) . "')";
-                $pearDB->query($query);
-                $fields[$my_tab[$exInput]] = $my_tab[$exValue];
-                $already_stored[strtolower($my_tab[$exInput])] = 1;
-            }
-        }
-    }
-
-    /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog(
-        "timeperiod",
-        $tp_id,
-        htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8"),
-        "c",
-        $fields
-    );
-}
-
-function insertTimeperiodInDB($ret = array())
-{
-    $tp_id = insertTimeperiod($ret);
-    return ($tp_id);
-}
-
-function insertTimeperiod($ret = array(), $exceptions = null)
-{
-    global $form, $pearDB, $centreon;
-
-    if (!count($ret)) {
-        $ret = $form->getSubmitValues();
-    }
-
-    $ret["tp_name"] = $centreon->checkIllegalChar($ret["tp_name"]);
-
-    $rq = "INSERT INTO timeperiod ";
-    $rq .= "(tp_name, tp_alias, tp_sunday, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday, tp_saturday) ";
-    $rq .= "VALUES (";
-    isset($ret["tp_name"]) && $ret["tp_name"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_alias"]) && $ret["tp_alias"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_alias"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_sunday"]) && $ret["tp_sunday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_sunday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_monday"]) && $ret["tp_monday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_monday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_tuesday"]) && $ret["tp_tuesday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_tuesday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_wednesday"]) && $ret["tp_wednesday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_wednesday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_thursday"]) && $ret["tp_thursday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_thursday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_friday"]) && $ret["tp_friday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_friday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_saturday"]) && $ret["tp_saturday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_saturday"], ENT_QUOTES, "UTF-8") . "'"
-        : $rq .= "NULL";
-    $rq .= ")";
-    $pearDB->query($rq);
-    $dbResult = $pearDB->query("SELECT MAX(tp_id) FROM timeperiod");
-    $tp_id = $dbResult->fetch();
-
-    if (!isset($ret['tp_include'])) {
-        $ret['tp_include'] = array();
-    }
-    if (!isset($ret['tp_exclude'])) {
-        $ret['tp_exclude'] = array();
-    }
-
-    includeExcludeTimeperiods($tp_id['MAX(tp_id)'], $ret['tp_include'], $ret['tp_exclude']);
-
-    /*
-     *  Insert exceptions
-     */
-    if (isset($exceptions)) {
-        $my_tab = $exceptions;
-    } elseif (isset($_POST['nbOfExceptions'])) {
-        $my_tab = $_POST;
-    }
-    if (isset($my_tab['nbOfExceptions'])) {
-        $already_stored = array();
-        $query = "INSERT INTO timeperiod_exceptions (`timeperiod_id`, `days`, `timerange`) " .
-                 "VALUES (:timeperiod_id, :days, :timerange)";
-        $statement = $pearDB->prepare($query);
-        for ($i = 0; $i <= $my_tab['nbOfExceptions']; $i++) {
-            $exInput = "exceptionInput_" . $i;
-            $exValue = "exceptionTimerange_" . $i;
-            if (
-                isset($my_tab[$exInput]) && !isset($already_stored[strtolower($my_tab[$exInput])]) &&
-                $my_tab[$exInput]
-            ) {
-                $statement->bindValue(':timeperiod_id', (int) $tp_id['MAX(tp_id)'], \PDO::PARAM_INT);
-                $statement->bindValue(':days', strtolower($my_tab[$exInput]), \PDO::PARAM_STR);
-                $statement->bindValue(':timerange', $my_tab[$exValue], \PDO::PARAM_STR);
-                $statement->execute();
-                $fields[$my_tab[$exInput]] = $my_tab[$exValue];
-                $already_stored[strtolower($my_tab[$exInput])] = 1;
-            }
-        }
-    }
-
-    /* Prepare value for changelog */
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog(
-        "timeperiod",
-        $tp_id["MAX(tp_id)"],
-        htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8"),
-        "a",
-        $fields
-    );
-
-    return ($tp_id["MAX(tp_id)"]);
-}
-
+/**
+ * Form validator.
+ */
 function checkHours($hourString)
 {
     if ($hourString == "") {
         return true;
-    } else {
-        if (strstr($hourString, ",")) {
-            $tab1 = preg_split("/\,/", $hourString);
-            for ($i = 0; isset($tab1[$i]); $i++) {
-                if (preg_match("/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/", $tab1[$i], $str)) {
-                    if ($str[1] > 24 || $str[3] > 24) {
-                        return false;
-                    }
-                    if ($str[2] > 59 || $str[4] > 59) {
-                        return false;
-                    }
-                    if (($str[3] * 60 * 60 + $str[4] * 60) > 86400 || ($str[1] * 60 * 60 + $str[2] * 60) > 86400) {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            if (preg_match("/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/", $hourString, $str)) {
+    } elseif (strstr($hourString, ",")) {
+        $tab1 = preg_split("/\,/", $hourString);
+        for ($i = 0; isset($tab1[$i]); $i++) {
+            if (preg_match("/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/", $tab1[$i], $str)) {
                 if ($str[1] > 24 || $str[3] > 24) {
                     return false;
                 }
@@ -380,11 +187,24 @@ function checkHours($hourString)
                 if (($str[3] * 60 * 60 + $str[4] * 60) > 86400 || ($str[1] * 60 * 60 + $str[2] * 60) > 86400) {
                     return false;
                 }
-                return true;
             } else {
                 return false;
             }
         }
+        return true;
+    } elseif (preg_match("/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/", $hourString, $str)) {
+        if ($str[1] > 24 || $str[3] > 24) {
+            return false;
+        }
+        if ($str[2] > 59 || $str[4] > 59) {
+            return false;
+        }
+        if (($str[3] * 60 * 60 + $str[4] * 60) > 86400 || ($str[1] * 60 * 60 + $str[2] * 60) > 86400) {
+            return false;
+        }
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -573,4 +393,268 @@ function createTimePeriodsExceptions(array $params): void
     $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
     $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
     $statement->execute();
+}
+
+// ----------------- API CALLS --------------------
+
+/**
+ * Create a new timeperiod form formData.
+ *
+ * @param array<mixed> $ret
+ *
+ * @return int|null
+ */
+function insertTimePeriodInAPI(array $ret = []): int|null
+{
+    global $form, $basePath;
+
+    $formData = $ret === [] ? $form->getSubmitValues() : $ret;
+
+    try {
+        return insertTimeperiodByApi($formData, $basePath);
+    } catch (Throwable $th) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while inserting timeperiod by api : {$th->getMessage()}",
+            customContext: ['form_data' => $formData, 'base_path' => $basePath],
+            exception: $th
+        );
+
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
+
+        return null;
+    }
+}
+
+/**
+ * Make the API request to create a new timeeperiod and return the new ID.
+ *
+ * @param array $formData
+ * @param string $basePath
+ *
+ * @throws Throwable
+ *
+ * @return int
+ */
+function insertTimeperiodByApi(array $formData, string $basePath): int
+{
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class);
+    $client = new CurlHttpClient();
+
+    $payload = getPayloadForTimePeriod($formData);
+    $url = $router->generate(
+        'AddTimePeriod',
+        $basePath ? ['base_uri' => $basePath] : [],
+        UrlGeneratorInterface::ABSOLUTE_URL,
+    );
+
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+    ];
+    $response = $client->request(
+        'POST',
+        $url,
+        [
+            'headers' => $headers,
+            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
+        ],
+    );
+
+    if ($response->getStatusCode() !== 201) {
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+
+        throw new Exception($content->message ?? 'Unexpected return status');
+    }
+
+    $data = $response->toArray();
+
+    /** @var array{id:int} $data */
+    return $data['id'];
+}
+
+/**
+ * Update a timeperiod.
+ *
+ * @param mixed $tp_id
+ *
+ * @return bool
+ */
+function updateTimeperiodInAPI($tp_id = null): bool
+{
+    if (! $tp_id) {
+        return true;
+    }
+
+    global $form, $basePath;
+
+    $formData = $form->getSubmitValues();
+
+    try {
+        updateTimeperiodByApi($formData, $basePath);
+
+        return true;
+    } catch (Throwable $th) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while updating timeperiod by api : {$th->getMessage()}",
+            customContext: ['form_data' => $formData, 'base_path' => $basePath],
+            exception: $th
+        );
+
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
+
+        return false;
+    }
+}
+
+/**
+ * Make the API request to update a timeeperiod .
+ * @param array $formData
+ * @param string $basePath
+ *
+ * @throws Throwable
+ *
+ * @return void
+ */
+function updateTimeperiodByApi(array $formData, string $basePath): void
+{
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class);
+    $client = new CurlHttpClient();
+
+    $payload = getPayloadForTimePeriod($formData);
+    $url = $router->generate(
+        'UpdateTimePeriod',
+        $basePath ? ['base_uri' => $basePath, 'id' => $formData['tp_id']] : [],
+        UrlGeneratorInterface::ABSOLUTE_URL,
+    );
+
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+    ];
+    $response = $client->request(
+        'PUT',
+        $url,
+        [
+            'headers' => $headers,
+            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
+        ],
+    );
+
+    if ($response->getStatusCode() !== 204) {
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+
+        throw new Exception($content->message ?? 'Unexpected return status');
+    }
+}
+
+/**
+ * @param int[] $timeperiods
+ *
+ * @return bool
+ */
+function deleteTimePeriodInAPI(array $timeperiods = []): bool
+{
+    global $basePath;
+
+   try {
+        deleteTimeperiodByApi($basePath, $timeperiods);
+
+        return true;
+    } catch (Throwable $th) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while deleting timeperiod by api : {$th->getMessage()}",
+            customContext: ['timeperiods' => $timeperiods, 'base_path' => $basePath],
+            exception: $th
+        );
+
+        echo "<div class='msg' align='center'>" . _($th->getMessage()) . '</div>';
+
+        return false;
+    }
+}
+
+/**
+ * @param string $basePath
+ * @param int[] $timePeriodIds
+ *
+ * @throws Throwable
+ */
+function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
+{
+    $kernel = Kernel::createForWeb();
+    /** @var Router $router */
+    $router = $kernel->getContainer()->get(Router::class);
+    $client = new CurlHttpClient();
+
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'] . ';XDEBUG_SESSION=XDEBUG_KEY',
+    ];
+
+    foreach ($timePeriodIds as $id) {
+        $url = $router->generate(
+            'DeleteTimePeriod',
+            $basePath ? ['base_uri' => $basePath, 'id' => $id] : [],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        $response = $client->request('DELETE', $url, ['headers' => $headers]);
+
+        if ($response->getStatusCode() !== 204) {
+            $content = json_decode($response->getContent(false), true);
+            $message = $content['message'] ?? 'Unknown error';
+
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Error while deleting timeperiod by API : {$message}",
+                customContext: ['timeperiod_id' => $id]
+            );
+        }
+    }
+}
+
+/**
+ * @param array<mixed> $formData
+ *
+ * @return array<string,mixed>
+ */
+function getPayloadForTimePeriod(array $formData): array
+{
+    $days = [];
+    $exceptions = [];
+    $weekDays = [
+        'tp_monday' => 1,
+        'tp_tuesday' => 2,
+        'tp_wednesday' => 3,
+        'tp_thursday' => 4,
+        'tp_friday' => 5,
+        'tp_saturday' => 6,
+        'tp_sunday' => 7,
+    ];
+    foreach ($formData as $name => $value) {
+        if (str_starts_with($name, 'exceptionInput_')) {
+            $exceptions[] = [
+                'day_range' => $value,
+                'time_range' => $formData[str_replace('Input', 'Timerange', $name)],
+            ];
+        }
+        if (in_array($name, array_keys($weekDays), true) && $value !== '') {
+            $days[] = ['day' => $weekDays[$name], 'time_range' => $value];
+        }
+    }
+
+    return [
+        'name' => $formData['tp_name'],
+        'alias' => $formData['tp_alias'],
+        'days' => $days,
+        'templates' => array_map(static fn(string $id): int => (int) $id, $formData['tp_include'] ?? []),
+        'exceptions' => $exceptions,
+    ];
 }

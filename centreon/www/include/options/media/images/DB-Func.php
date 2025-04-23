@@ -43,7 +43,7 @@ if (!isset($oreon)) {
 function sanitizeFilename($filename)
 {
     $cleanstr = str_replace(
-        array(' ', '/', '\\'),
+        [' ', '/', '\\'],
         "_",
         $filename
     );
@@ -53,7 +53,7 @@ function sanitizeFilename($filename)
 function sanitizePath($path)
 {
     $cleanstr = str_replace(
-        array('#', '/', '\\'),
+        ['#', '/', '\\'],
         "_",
         $path
     );
@@ -64,7 +64,7 @@ function sanitizePath($path)
 function extractDir($zipfile, $path)
 {
     if (file_exists($zipfile)) {
-        $files = array();
+        $files = [];
         $zip = new ZipArchive;
         if ($zip->open($zipfile) === true) {
             if ($zip->extractTo($path) === true) {
@@ -153,7 +153,7 @@ function insertImg($src_dir, $src_file, $dst_dir, $dst_file, $img_comment = "")
     return $image_id;
 }
 
-function deleteMultImg($images = array())
+function deleteMultImg($images = [])
 {
     foreach (array_keys($images) as $selector) {
         $id = explode('-', $selector);
@@ -174,22 +174,38 @@ function deleteImg($imageId)
     global $pearDB;
 
     $mediadir = "./img/media/";
+    $query = <<<SQL
+        SELECT dir.dir_alias, img.img_path
+        FROM view_img img
+        INNER JOIN view_img_dir_relation rel ON img.img_id = rel.img_img_id
+        INNER JOIN view_img_dir dir ON rel.dir_dir_parent_id = dir.dir_id
+        WHERE img.img_id = :imageId
+    SQL;
 
-    $dbResult = $pearDB->query(
-        "SELECT dir_alias, img_path "
-        . "FROM view_img, view_img_dir, view_img_dir_relation "
-        . "WHERE img_id = $imageId AND img_id = img_img_id "
-        . "AND dir_dir_parent_id = dir_id"
-    );
-    while ($imagePath = $dbResult->fetch()) {
+    $dbResult = $pearDB->prepare($query);
+    $dbResult->bindValue(':imageId', $imageId, PDO::PARAM_INT);
+    $dbResult->execute();
+    foreach ($dbResult->fetchAll(PDO::FETCH_ASSOC) as $imagePath) {
         $fullpath = $mediadir . basename($imagePath["dir_alias"]) . "/" . basename($imagePath["img_path"]);
         if (is_file($fullpath)) {
             unlink($fullpath);
         }
-        $pearDB->query("DELETE FROM view_img WHERE img_id = $imageId");
-        $pearDB->query("DELETE FROM view_img_dir_relation WHERE img_img_id = $imageId");
     }
-    $dbResult->closeCursor();
+
+    $pearDB->beginTransaction();
+    try {
+        $deleteStatement = $pearDB->prepare('DELETE FROM view_img WHERE img_id = :imageId');
+        $deleteStatement->bindValue(':imageId', $imageId, PDO::PARAM_INT);
+        $deleteStatement->execute();
+
+        $deleteRelationStatement = $pearDB->prepare('DELETE FROM view_img_dir_relation WHERE img_img_id = :imageId');
+        $deleteRelationStatement->bindValue(':imageId', $imageId, PDO::PARAM_INT);
+        $deleteRelationStatement->execute();
+        $pearDB->commit();
+    } catch (PDOException $e) {
+        $pearDB->rollBack();
+        throw $e;
+    }
 }
 
 function moveMultImg($images, $dirName)
@@ -222,11 +238,7 @@ function moveImg($img_id, $dir_alias)
     $img_info = $prepare->fetch(PDO::FETCH_ASSOC);
     $image_info_path = basename($img_info["img_path"]);
     $image_info_dir_alias = basename($img_info["dir_alias"]);
-    if ($dir_alias) {
-        $dir_alias = sanitizePath($dir_alias);
-    } else {
-        $dir_alias = $image_info_dir_alias;
-    }
+    $dir_alias = $dir_alias ? sanitizePath($dir_alias) : $image_info_dir_alias;
     if ($dir_alias != $img_info["dir_alias"]) {
         $oldpath = $mediadir . $image_info_dir_alias . "/" . $image_info_path;
         $newpath = $mediadir . $dir_alias . "/" . $image_info_path;
@@ -284,20 +296,18 @@ function testDirectoryExistence($name)
     return $dir_id;
 }
 
-function testDirectoryIsEmpty($dir_id)
+function testDirectoryIsEmpty($directoryId)
 {
-    if (!$dir_id) {
+    if (!$directoryId) {
         return true;
     }
     global $pearDB;
 
-    $rq = "SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = '".$dir_id."'";
-    $dbResult = $pearDB->query($rq);
-    $empty = true;
-    if ($dbResult && $dbResult->rowCount() >= 1) {
-        $empty = false;
-    }
-    $dbResult->closeCursor();
+    $statement = $pearDB->prepare('SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId');
+    $statement->bindValue(':directoryId', $directoryId, \PDO::PARAM_INT);
+    $statement->execute();
+    $empty = ($statement->fetchColumn() > 0) ? false : true;
+    $statement->closeCursor();
     return $empty;
 }
 
@@ -323,7 +333,7 @@ function insertDirectory($dir_alias, $dir_comment = "")
     }
 }
 
-function deleteMultDirectory($dirs = array())
+function deleteMultDirectory($dirs = [])
 {
     foreach (array_keys($dirs) as $selector) {
         $id = explode('-', $selector);
@@ -338,26 +348,24 @@ function deleteDirectory($directoryId)
 {
     global $pearDB;
     $mediadir = "./img/media/";
-
     $directoryId = (int) $directoryId;
-    /*
-     * Purge images of the directory
-     */
-    $dbResult = $pearDB->query(
-        "SELECT img_img_id "
-        . "FROM view_img_dir_relation "
-        . "WHERE dir_dir_parent_id = $directoryId"
-    );
-    while ($img = $dbResult->fetch()) {
+
+    // Purge images of the directory
+    $statement1 = $pearDB->prepare("SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId");
+    $statement1->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
+    $statement1->execute();
+    while ($img = $statement1->fetch()) {
         deleteImg($img["img_img_id"]);
     }
-    /*
-     * Delete directory
-     */
-    $dbResult = $pearDB->query(
-        "SELECT dir_alias FROM view_img_dir WHERE dir_id = $directoryId"
-    );
-    $dirAlias = $dbResult->fetch();
+    $statement1->closeCursor();
+
+    // Delete directory
+    $statement2 = $pearDB->prepare("SELECT dir_alias FROM view_img_dir WHERE dir_id = :directoryId");
+    $statement2->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
+    $statement2->execute();
+    $dirAlias = $statement2->fetch();
+    $statement2->closeCursor();
+
     $safeDirAlias = basename($dirAlias["dir_alias"]);
     $filenames = scandir($mediadir . $safeDirAlias);
     foreach ($filenames as $fileName) {
@@ -366,8 +374,11 @@ function deleteDirectory($directoryId)
         }
     }
     rmdir($mediadir . $safeDirAlias);
+
     if (!is_dir($mediadir . $safeDirAlias)) {
-        $dbResult = $pearDB->query("DELETE FROM view_img_dir WHERE dir_id = $directoryId");
+        $statement3 = $pearDB->prepare("DELETE FROM view_img_dir WHERE dir_id = :directoryId");
+        $statement3->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
+        $statement3->execute();
     }
 }
 
@@ -413,7 +424,7 @@ function getListDirectory($filter = null)
         $query .= "WHERE dir_name LIKE '" . $filter . "%' ";
     }
     $query .= "ORDER BY dir_name";
-    $list_dir = array();
+    $list_dir = [];
     $dbresult = $pearDB->query($query);
     while ($row = $dbresult->fetch(PDO::FETCH_ASSOC)) {
         $list_dir[$row['dir_id']] = CentreonUtils::escapeSecure(
@@ -498,6 +509,63 @@ function isCorrectMIMEType(array $file): bool
             $uploadedSVG = file_get_contents($file['tmp_name']);
             $cleanSVG = $sanitizer->sanitize($uploadedSVG);
             file_put_contents($file['tmp_name'], $cleanSVG);
+            return true;
+            break;
+        case 'image/jpeg':
+            /**
+             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             */
+            $image = @imagecreatefromjpeg($file['tmp_name']);
+            if (! $image) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    "Unable to validate image, your image may be corrupted",
+                    [
+                        'mime_type' => $mimeType,
+                        'filename' => $file['name'],
+                        'extension' => $fileExtension
+                    ]
+                );
+                return false;
+            }
+            return true;
+            break;
+        case 'image/png':
+            /**
+             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             */
+            $image = @imagecreatefrompng($file['tmp_name']);
+            if (! $image) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    "Unable to validate image, your image may be corrupted",
+                    [
+                        'mime_type' => $mimeType,
+                        'filename' => $file['name'],
+                        'extension' => $fileExtension
+                    ]
+                );
+                return false;
+            }
+            return true;
+            break;
+        case 'image/gif':
+            /**
+             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             */
+            $image = @imagecreatefromgif($file['tmp_name']);
+            if (! $image) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    "Unable to validate image, your image may be corrupted",
+                    [
+                        'mime_type' => $mimeType,
+                        'filename' => $file['name'],
+                        'extension' => $fileExtension
+                    ]
+                );
+                return false;
+            }
             return true;
             break;
         default:
@@ -591,11 +659,66 @@ function isValidMIMETypeFromArchive(
         ) {
             return false;
         }
-        if ($mimeType === "image/svg+xml") {
-            $sanitizer = new Sanitizer();
-            $uploadedSVG = file_get_contents($dir . '/' . $file);
-            $cleanSVG = $sanitizer->sanitize($uploadedSVG);
-            file_put_contents($dir . '/' . $file, $cleanSVG);
+        switch ($mimeType) {
+            case 'image/svg+xml':
+                $sanitizer = new Sanitizer();
+                $uploadedSVG = file_get_contents($file['tmp_name']);
+                $cleanSVG = $sanitizer->sanitize($uploadedSVG);
+                file_put_contents($file['tmp_name'], $cleanSVG);
+                break;
+            case 'image/jpeg':
+                /**
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 */
+                $image = @imagecreatefromjpeg($file['tmp_name']);
+                if (! $image) {
+                    CentreonLog::create()->error(
+                        CentreonLog::TYPE_BUSINESS_LOG,
+                        "Unable to validate image, your image may be corrupted",
+                        [
+                            'filename' => $file['name'],
+                            'extension' => $fileExtension
+                        ]
+                    );
+                    return false;
+                }
+                break;
+            case 'image/png':
+                /**
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 */
+                $image = @imagecreatefrompng($file['tmp_name']);
+                if (! $image) {
+                    CentreonLog::create()->error(
+                        CentreonLog::TYPE_BUSINESS_LOG,
+                        "Unable to validate image, your image may be corrupted",
+                        [
+                            'filename' => $file['name'],
+                            'extension' => $fileExtension
+                        ]
+                    );
+                    return false;
+                }
+                break;
+            case 'image/gif':
+                /**
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 */
+                $image = @imagecreatefromgif($file['tmp_name']);
+                if (! $image) {
+                    CentreonLog::create()->error(
+                        CentreonLog::TYPE_BUSINESS_LOG,
+                        "Unable to validate image, your image may be corrupted",
+                        [
+                            'filename' => $file['name'],
+                            'extension' => $fileExtension
+                        ]
+                    );
+                    return false;
+                }
+                break;
+            default:
+                return true;
         }
     }
     return true;

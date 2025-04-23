@@ -1,25 +1,25 @@
 import {
+  equals,
+  flatten,
+  head,
   isEmpty,
   isNil,
-  reject,
-  prop,
-  head,
-  toPairs,
-  flatten,
   pluck,
-  uniq,
-  equals
+  prop,
+  reject,
+  toPairs,
+  uniq
 } from 'ramda';
 
 import {
-  SearchMatch,
+  ConditionsSearchParameter,
+  GetConditionsSearchQueryParameterValueState,
+  GetListsSearchQueryParameterValueProps,
   RegexSearchParameter,
   RegexSearchQueryParameterValue,
+  SearchMatch,
   SearchParameter,
-  SearchQueryParameterValue,
-  ConditionsSearchParameter,
-  GetListsSearchQueryParameterValueProps,
-  GetConditionsSearchQueryParameterValueState
+  SearchQueryParameterValue
 } from './models';
 
 export const getFoundFields = ({
@@ -93,8 +93,14 @@ const getConditionsSearchQueryParameterValue = (
       equals(listField, field)
     );
 
+    const globalOperator = filteredItems.every(({ operator }) =>
+      equals(operator, filteredItems[0].operator)
+    )
+      ? filteredItems[0].operator || '$or'
+      : '$or';
+
     return {
-      $or: flatten(
+      [globalOperator]: flatten(
         filteredItems.map(({ value, values }) => {
           if (!isNil(value)) {
             return [

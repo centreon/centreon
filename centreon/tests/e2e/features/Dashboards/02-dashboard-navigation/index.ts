@@ -4,7 +4,7 @@ import { last } from 'ramda';
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
@@ -12,7 +12,7 @@ before(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 beforeEach(() => {
@@ -42,18 +42,12 @@ Given('a user with access to the dashboards overview page', () => {
 });
 
 When('the user accesses the dashboard overview page with no dashboards', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 Then(
   'an empty state message and a button to create a new dashboard are displayed instead of the dashboards',
   () => {
-    cy.getByTestId({ testId: 'data-table-empty-state' }).should('be.visible');
-
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    }).should('not.exist');
     cy.getByLabel({
       label: 'create',
       tag: 'button'
@@ -63,18 +57,13 @@ Then(
 
 Given('a list of dashboards', () => {
   cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 When('the user clicks on the dashboard they want to select', () => {
   const lastDashboard = dashboardsOnePage[dashboardsOnePage.length - 1];
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(lastDashboard.name)
-    .click();
+  cy.contains(lastDashboard.name).click();
 });
 
 Then('the user is redirected to the detail page for this dashboard', () => {

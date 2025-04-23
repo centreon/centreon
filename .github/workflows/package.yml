@@ -13,6 +13,10 @@ on:
         type: string
         description: The package extension (deb or rpm)
         required: true
+      distrib:
+        type: string
+        description: The package distribution
+        required: true
       frontend_index_cache_key:
         type: string
         description: The index.html cache key
@@ -79,11 +83,15 @@ on:
         required: true
       registry_password:
         required: true
+      registry_private_username:
+        required: true
+      registry_private_token:
+        required: true
 
 jobs:
   package:
     name: Package ${{ inputs.package_extension }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}:${{ inputs.major_version }}
       credentials:
@@ -91,13 +99,14 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - uses: ./.github/actions/package
         with:
           base_directory: ${{ inputs.base_directory }}
           spec_file: ${{ inputs.spec_file }}
           package_extension: ${{ inputs.package_extension }}
+          distrib: ${{ inputs.distrib }}
           frontend_index_cache_key: ${{ inputs.frontend_index_cache_key }}
           frontend_index_file: ${{ inputs.frontend_index_file }}
           frontend_static_cache_key: ${{ inputs.frontend_static_cache_key }}
@@ -117,7 +126,7 @@ jobs:
           cache_key: unsigned-${{ inputs.cache_key }}
 
       - if: ${{ inputs.package_extension == 'deb' }}
-        uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
@@ -125,13 +134,13 @@ jobs:
   sign:
     if: ${{ inputs.package_extension == 'rpm' }}
     needs: [package]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/rpm-signing:ubuntu
+      image: docker.centreon.com/centreon-private/rpm-signing:latest
       options: -t
       credentials:
-        username: ${{ secrets.registry_username }}
-        password: ${{ secrets.registry_password }}
+        username: ${{ secrets.registry_private_username }}
+        password: ${{ secrets.registry_private_token }}
 
     steps:
       - run: |
@@ -139,9 +148,9 @@ jobs:
           apt-get install -y zstd
         shell: bash
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      - uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ./*.${{ inputs.package_extension }}
           key: unsigned-${{ inputs.cache_key }}
@@ -152,7 +161,7 @@ jobs:
       - run: rpmsign --addsign ./*.${{ inputs.package_extension }}
         shell: bash
 
-      - uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      - uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}

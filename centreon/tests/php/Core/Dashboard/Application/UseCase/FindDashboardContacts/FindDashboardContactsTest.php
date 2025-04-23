@@ -23,11 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Application\UseCase\FindDashboardContacts;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -35,71 +34,295 @@ use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContacts;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\FindDashboardContactsResponse;
+use Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
-    $this->presenter = new FindDashboardContactsPresenterStub();
-    $this->useCase = new FindDashboardContacts(
-        $this->requestParameters = $this->createMock(RequestParametersInterface::class),
-        $this->rights = $this->createMock(DashboardRights::class),
-        $this->contact = $this->createMock(ContactInterface::class),
-        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
+    $this->requestParameters = $this->createMock(RequestParametersInterface::class);
+    $this->rights = $this->createMock(DashboardRights::class);
+    $this->contact = $this->createMock(ContactInterface::class);
+    $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class);
+    $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class);
+    $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
+
+    $this->useCaseOnPremise = new FindDashboardContacts(
+        $this->requestParameters,
+        $this->rights,
+        $this->contact,
+        $this->readDashboardShareRepository,
+        $this->readAccessGroupRepository,
+        $this->readContactRepository,
+        $this->readContactGroupRepository,
+        $this->isCloudPlatform = false
+    );
+
+    $this->useCaseCloud = new FindDashboardContacts(
+        $this->requestParameters,
+        $this->rights,
+        $this->contact,
+        $this->readDashboardShareRepository,
+        $this->readAccessGroupRepository,
+        $this->readContactRepository,
+        $this->readContactGroupRepository,
+        $this->isCloudPlatform = true
     );
 });
 
 it(
-    'should present an ErrorResponse if an error is raised',
+    'should return an ErrorResponse if an error is raised during user search - AS ADMIN - OnPremise',
     function (): void {
-        $this->rights->expects($this->once())->method('canAccess')->willThrowException(new \Exception());
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(true);
 
-        ($this->useCase)($this->presenter);
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactsWithAccessRightByRequestParameters')
+            ->willThrowException(new \Exception());
 
-        expect($this->presenter->data)->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->data->getMessage())->toBe(DashboardException::errorWhileRetrieving()->getMessage());
+        $response = ($this->useCaseOnPremise)();
+
+        expect($response)->toBeInstanceOf(ErrorResponse::class)
+            ->and($response->getMessage())->toBe(DashboardException::errorWhileSearchingSharableContacts()->getMessage());
     }
 );
 
 it(
-    'should present a ForbiddenResponse if the contact is NOT allowed',
+    'should return an ErrorResponse if an error is raised during admin search - AS ADMIN - OnPremise',
     function (): void {
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(true);
 
-        ($this->useCase)($this->presenter);
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactsWithAccessRightByRequestParameters')
+            ->willReturn([]);
 
-        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->data->getMessage())->toBe(DashboardException::accessNotAllowed()->getMessage());
+        $this->readContactRepository->expects($this->once())
+            ->method('findAdminWithRequestParameters')
+            ->willThrowException(new \Exception());
+
+        $response = ($this->useCaseOnPremise)();
+
+        expect($response)->toBeInstanceOf(ErrorResponse::class)
+            ->and($response->getMessage())->toBe(DashboardException::errorWhileSearchingSharableContacts()->getMessage());
     }
 );
 
 it(
-    'should present a FindDashboardContactsResponse if the contact is allowed',
+    'should return a FindDashboardContactsResponse if no error is raised - AS ADMIN - OnPremise',
     function (): void {
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
-        $this->readDashboardShareRepository->expects($this->once())->method(
-            'findContactsWithAccessRightByRequestParameters'
-        )->willReturn([]);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(true);
 
-        ($this->useCase)($this->presenter);
+        $userDashboardRole = new DashboardContactRole(
+            contactId: 1,
+            contactName: 'test',
+            contactEmail: 'email',
+            roles: [DashboardGlobalRole::Creator]
+        );
 
-        expect($this->presenter->data)->toBeInstanceOf(FindDashboardContactsResponse::class);
+        $adminContact = (new Contact())
+            ->setAdmin(true)
+            ->setName('adminUser')
+            ->setId(2)
+            ->setEmail('email');
+
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactsWithAccessRightByRequestParameters')
+            ->willReturn([$userDashboardRole]);
+
+        $this->readContactRepository->expects($this->once())
+            ->method('findAdminWithRequestParameters')
+            ->willReturn([$adminContact]);
+
+        $response = ($this->useCaseOnPremise)();
+
+        $contacts = $response->getData();
+
+        expect($response)->toBeInstanceOf(FindDashboardContactsResponse::class)
+            ->and($contacts[0])->toBeInstanceOf(ContactsResponseDto::class)
+            ->and($contacts[0]->id)->toBe(1)
+            ->and($contacts[0]->name)->toBe('test')
+            ->and($contacts[0]->email)->toBe('email')
+            ->and($contacts[0]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator)
+            ->and($contacts[1])->toBeInstanceOf(ContactsResponseDto::class)
+            ->and($contacts[1]->id)->toBe(2)
+            ->and($contacts[1]->name)->toBe('adminUser')
+            ->and($contacts[1]->email)->toBe('email')
+            ->and($contacts[1]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator);
     }
 );
 
 it(
-    'should present a FindDashboardContactsResponse if the contact is allowed and non admin',
+    'should return an ErrorResponse if an error is raised during user access group search - AS USER - OnPremise',
     function (): void {
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
-        $this->readDashboardShareRepository->expects($this->once())->method(
-            'findContactsWithAccessRightByACLGroupsAndRequestParameters'
-        )->willReturn([]);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(false);
 
-        ($this->useCase)($this->presenter);
+        $this->readAccessGroupRepository->expects($this->once())
+            ->method('findByContact')
+            ->willThrowException(new \Exception());
 
-        expect($this->presenter->data)->toBeInstanceOf(FindDashboardContactsResponse::class);
+        $response = ($this->useCaseOnPremise)();
+
+        expect($response)->toBeInstanceOf(ErrorResponse::class)
+            ->and($response->getMessage())->toBe(DashboardException::errorWhileSearchingSharableContacts()->getMessage());
     }
 );
+
+it(
+    'should return an ErrorResponse if an error is raised during user search - AS USER - OnPremise',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(false);
+
+        $this->readAccessGroupRepository->expects($this->any())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'name', 'alias')]);
+
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactsWithAccessRightByACLGroupsAndRequestParameters')
+            ->willThrowException(new \Exception());
+
+        $response = ($this->useCaseOnPremise)();
+
+        expect($response)->toBeInstanceOf(ErrorResponse::class)
+            ->and($response->getMessage())->toBe(DashboardException::errorWhileSearchingSharableContacts()->getMessage());
+    }
+);
+
+it(
+    'should return a FindDashboardContactsResponse if no error is raised - AS USER - OnPremise',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(false);
+
+        $this->readAccessGroupRepository->expects($this->any())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'name', 'alias')]);
+
+        $userDashboardRole = new DashboardContactRole(
+            contactId: 1,
+            contactName: 'test',
+            contactEmail: 'email',
+            roles: [DashboardGlobalRole::Creator]
+        );
+
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactsWithAccessRightByACLGroupsAndRequestParameters')
+            ->willReturn([$userDashboardRole]);
+
+        $response = ($this->useCaseOnPremise)();
+
+        $contacts = $response->getData();
+
+        expect($response)->toBeInstanceOf(FindDashboardContactsResponse::class)
+            ->and($contacts[0])->toBeInstanceOf(ContactsResponseDto::class)
+            ->and($contacts[0]->id)->toBe(1)
+            ->and($contacts[0]->name)->toBe('test')
+            ->and($contacts[0]->email)->toBe('email')
+            ->and($contacts[0]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator);
+    }
+);
+
+it(
+    'should return a FindDashboardContactsResponse if no error is raised - AS ADMIN - Cloud',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(true);
+
+        $userDashboardRoles = [
+            new DashboardContactRole(
+                contactId: 1,
+                contactName: 'test',
+                contactEmail: 'email',
+                roles: [DashboardGlobalRole::Creator]
+            ),
+            new DashboardContactRole(
+                contactId: 2,
+                contactName: 'test-cloud-admin',
+                contactEmail: 'email',
+                roles: [DashboardGlobalRole::Administrator]
+            ),
+        ];
+
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactsWithAccessRightByRequestParameters')
+            ->willReturn($userDashboardRoles);
+
+        $response = ($this->useCaseCloud)();
+
+        $contacts = $response->getData();
+
+        expect($response)->toBeInstanceOf(FindDashboardContactsResponse::class)
+            ->and($contacts[0])->toBeInstanceOf(ContactsResponseDto::class)
+            ->and($contacts[0]->id)->toBe(1)
+            ->and($contacts[0]->name)->toBe('test')
+            ->and($contacts[0]->email)->toBe('email')
+            ->and($contacts[0]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator)
+            ->and($contacts[1])->toBeInstanceOf(ContactsResponseDto::class)
+            ->and($contacts[1]->id)->toBe(2)
+            ->and($contacts[1]->name)->toBe('test-cloud-admin')
+            ->and($contacts[1]->email)->toBe('email')
+            ->and($contacts[1]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator);
+    }
+);
+
+it(
+    'should return a FindDashboardContactsResponse if no error is raised - AS USER - Cloud',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(false);
+
+        $this->readContactGroupRepository->expects($this->once())
+            ->method('findAllByUserId')
+            ->willReturn([new ContactGroup(1, 'name', 'alias')]);
+
+        $userDashboardRoles = [
+            new DashboardContactRole(
+                contactId: 1,
+                contactName: 'test',
+                contactEmail: 'email',
+                roles: [DashboardGlobalRole::Creator]
+            ),
+            new DashboardContactRole(
+                contactId: 2,
+                contactName: 'test-cloud-admin',
+                contactEmail: 'email',
+                roles: [DashboardGlobalRole::Administrator]
+            ),
+        ];
+
+        $this->readDashboardShareRepository->expects($this->once())
+            ->method('findContactsWithAccessRightsByContactGroupsAndRequestParameters')
+            ->willReturn($userDashboardRoles);
+
+        $response = ($this->useCaseCloud)();
+
+        $contacts = $response->getData();
+
+        expect($response)->toBeInstanceOf(FindDashboardContactsResponse::class)
+            ->and($contacts[0])->toBeInstanceOf(ContactsResponseDto::class)
+            ->and($contacts[0]->id)->toBe(1)
+            ->and($contacts[0]->name)->toBe('test')
+            ->and($contacts[0]->email)->toBe('email')
+            ->and($contacts[0]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator)
+            ->and($contacts[1])->toBeInstanceOf(ContactsResponseDto::class)
+            ->and($contacts[1]->id)->toBe(2)
+            ->and($contacts[1]->name)->toBe('test-cloud-admin')
+            ->and($contacts[1]->email)->toBe('email')
+            ->and($contacts[1]->mostPermissiveRole)->toBe(DashboardGlobalRole::Creator);
+    }
+);
+

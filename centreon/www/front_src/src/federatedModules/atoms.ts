@@ -1,10 +1,9 @@
 import { atom } from 'jotai';
 
-import { FederatedModule, FederatedWidgetProperties } from './models';
+import { pluck } from 'ramda';
+import { internalWidgetComponents } from '../Dashboards/SingleInstancePage/Dashboard/Widgets/widgets';
+import { FederatedWidgetProperties } from './models';
 
-export const federatedModulesAtom = atom<Array<FederatedModule> | null>(null);
-
-export const federatedWidgetsAtom = atom<Array<FederatedModule> | null>(null);
-
-export const federatedWidgetsPropertiesAtom =
-  atom<Array<FederatedWidgetProperties> | null>(null);
+export const federatedWidgetsPropertiesAtom = atom<
+  Array<FederatedWidgetProperties>
+>(pluck('properties', internalWidgetComponents));

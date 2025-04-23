@@ -1,14 +1,34 @@
 # Monolog Bundle configuration
 # https://github.com/symfony/monolog-bundle/blob/master/DependencyInjection/Configuration.php#L25
-monolog:
-    channels: ['centreon']
+when@prod:
+  monolog:
+    channels: [ 'centreon']
     handlers:
-        system:
-            type: error_log
-            level: warning
-            formatter: monolog.error.formater
-            channels: ['!centreon']
-        centreon:
-            type: service
-            id: monolog.debug.handler
-            channels: ['centreon']
+      system:
+        type: error_log
+        level: warning
+        formatter: monolog.formater
+        channels: [ '!centreon' ]
+      centreon:
+        type: service
+        id: monolog.handler
+        channels: [ 'centreon' ]
+when@dev:
+  monolog:
+    channels: [ 'centreon', 'deprecation' ]
+    handlers:
+      system:
+        type: error_log
+        level: warning
+        formatter: monolog.formater
+        channels: [ '!centreon' ]
+      centreon:
+        type: service
+        id: monolog.handler
+        channels: [ 'centreon' ]
+      deprecation:
+        type: rotating_file
+        path: "%log_path%/%kernel.environment%.deprecations.log"
+        max_files: 2
+        channels: [ 'deprecation' ]
+        file_permission: 0660

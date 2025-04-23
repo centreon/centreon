@@ -78,6 +78,14 @@ if (isset($_POST["o1"]) && isset($_POST["o2"])) {
     }
 }
 
+// For inline action
+if (($o === "m" || $o === "d") && count($select) == 0 && $command_id) {
+    $select[$command_id] = 1;
+}
+
+global $isCloudPlatform;
+$isCloudPlatform = isCloudPlatform();
+
 $commandObj = new CentreonCommand($pearDB);
 $lockedElements = $commandObj->getLockedCommands();
 
@@ -105,8 +113,8 @@ if ($min) {
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
                 multipleCommandInDB(
-                    is_array($select) ? $select : array(),
-                    is_array($dupNbr) ? $dupNbr : array()
+                    is_array($select) ? $select : [],
+                    $select
                 );
             } else {
                 unvalidFormMessage();
@@ -117,7 +125,7 @@ if ($min) {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                deleteCommandInDB(is_array($select) ? $select : array());
+                deleteCommandInDB(is_array($select) ? $select : []);
             } else {
                 unvalidFormMessage();
             }
@@ -127,7 +135,7 @@ if ($min) {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                changeCommandStatus(null, is_array($select) ? $select : array(), 1);
+                changeCommandStatus(null, is_array($select) ? $select : [], 1);
             } else {
                 unvalidFormMessage();
             }
@@ -137,7 +145,7 @@ if ($min) {
             purgeOutdatedCSRFTokens();
             if (isCSRFTokenValid()) {
                 purgeCSRFToken();
-                changeCommandStatus(null, is_array($select) ? $select : array(), 0);
+                changeCommandStatus(null, is_array($select) ? $select : [], 0);
             } else {
                 unvalidFormMessage();
             }

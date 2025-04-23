@@ -27,10 +27,10 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class NewServiceCategory
 {
-    public const MAX_NAME_LENGTH = 200,
-        MAX_ALIAS_LENGTH = 200,
-        MIN_NAME_LENGTH = 1,
-        MIN_ALIAS_LENGTH = 1;
+    public const MAX_NAME_LENGTH = 200;
+    public const MAX_ALIAS_LENGTH = 200;
+    public const MIN_NAME_LENGTH = 1;
+    public const MIN_ALIAS_LENGTH = 1;
 
     protected bool $isActivated = true;
 

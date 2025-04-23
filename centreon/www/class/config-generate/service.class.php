@@ -34,23 +34,39 @@
  *
  */
 
-require_once dirname(__FILE__) . '/abstract/service.class.php';
+require_once __DIR__ . '/abstract/service.class.php';
 
+/**
+ * Class
+ *
+ * @class Service
+ */
 class Service extends AbstractService
 {
     const VERTICAL_NOTIFICATION = 1;
     const CLOSE_NOTIFICATION = 2;
     const CUMULATIVE_NOTIFICATION = 3;
 
+    /** @var int */
     private $use_cache = 0;
+    /** @var int */
     private $use_cache_poller = 1;
+    /** @var int */
     private $done_cache = 0;
+    /** @var array|null */
     protected $service_cache = null;
-    protected $generated_services = array(); // for index_data build and escalation
+    /** @var array */
+    protected $generated_services = []; // for index_data build and escalation
+    /** @var string */
     protected $generate_filename = 'services.cfg';
-    protected $object_name = 'service';
+    /** @var string */
+    protected string $object_name = 'service';
+    /** @var null */
     public $poller_id = null; // for by poller cache
 
+    /**
+     * @return void
+     */
     public function use_cache() : void
     {
         $this->use_cache = 1;
@@ -80,6 +96,10 @@ class Service extends AbstractService
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function generateServiceCacheByPollerCache() : void
     {
         $query = "SELECT $this->attributes_select FROM ns_host_relation, host_service_relation, service " .
@@ -96,6 +116,10 @@ class Service extends AbstractService
         }
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function generateServiceCache() : void
     {
         $query = "SELECT $this->attributes_select FROM service " .
@@ -110,7 +134,7 @@ class Service extends AbstractService
      * @param int $serviceId
      * @param array $attr
      */
-    public function addServiceCache(int $serviceId, $attr = array()): void
+    public function addServiceCache(int $serviceId, $attr = []): void
     {
         $this->service_cache[$serviceId] = $attr;
     }
@@ -162,18 +186,16 @@ class Service extends AbstractService
      */
     private function manageCumulativeInheritance(array &$service): array
     {
-        $results = array('cg' => $service['contact_groups_cache'], 'contact' => $service['contacts_cache']);
+        $results = ['cg' => $service['contact_groups_cache'], 'contact' => $service['contacts_cache']];
 
         $servicesTpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $serviceId = isset($this->service_cache[$service['service_id']]['service_template_model_stm_id'])
-            ? $this->service_cache[$service['service_id']]['service_template_model_stm_id']
-            : null;
+        $serviceId = $this->service_cache[$service['service_id']]['service_template_model_stm_id'] ?? null;
         $serviceIdTopLevel = $serviceId;
 
         if (!is_null($serviceIdTopLevel) && !isset($servicesTpl[$serviceIdTopLevel]['contacts_computed_cache'])) {
-            $contacts = array();
-            $cg = array();
-            $loop = array();
+            $contacts = [];
+            $cg = [];
+            $loop = [];
             while (!is_null($serviceId)) {
                 if (isset($loop[$serviceId]) || ! isset($servicesTpl[$serviceId])) {
                     break;
@@ -192,9 +214,7 @@ class Service extends AbstractService
                     $contacts = array_merge($contacts, $servicesTpl[$serviceId]['contacts_cache']);
                 }
 
-                $serviceId = isset($servicesTpl[$serviceId]['service_template_model_stm_id'])
-                    ? $servicesTpl[$serviceId]['service_template_model_stm_id']
-                    : null;
+                $serviceId = $servicesTpl[$serviceId]['service_template_model_stm_id'] ?? null;
             }
 
             $servicesTpl[$serviceIdTopLevel]['contacts_computed_cache'] = array_unique($contacts);
@@ -228,14 +248,12 @@ class Service extends AbstractService
         }
 
         $servicesTpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $serviceId = isset($this->service_cache[$service['service_id']]['service_template_model_stm_id'])
-            ? $this->service_cache[$service['service_id']]['service_template_model_stm_id']
-            : null;
+        $serviceId = $this->service_cache[$service['service_id']]['service_template_model_stm_id'] ?? null;
         $serviceIdTopLevel = $serviceId;
 
         if (!is_null($serviceIdTopLevel) && !isset($servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'])) {
-            $servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'] = array();
-            $loop = array();
+            $servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'] = [];
+            $loop = [];
             while (!is_null($serviceId)) {
                 if (isset($loop[$serviceId])) {
                     break;
@@ -253,13 +271,11 @@ class Service extends AbstractService
                     break;
                 }
 
-                $serviceId = isset($servicesTpl[$serviceId]['service_template_model_stm_id'])
-                    ? $servicesTpl[$serviceId]['service_template_model_stm_id']
-                    : null;
+                $serviceId = $servicesTpl[$serviceId]['service_template_model_stm_id'] ?? null;
             }
             return $servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'];
         }
-        return array();
+        return [];
     }
 
     /**
@@ -277,13 +293,11 @@ class Service extends AbstractService
         }
 
         $servicesTpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $serviceId = isset($this->service_cache[$service['service_id']]['service_template_model_stm_id'])
-            ? $this->service_cache[$service['service_id']]['service_template_model_stm_id']
-            : null;
+        $serviceId = $this->service_cache[$service['service_id']]['service_template_model_stm_id'] ?? null;
         $serviceIdTopLevel = $serviceId;
-        $computedCache = array();
+        $computedCache = [];
         if (!is_null($serviceIdTopLevel) && !isset($servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'])) {
-            $loop = array();
+            $loop = [];
             while (!is_null($serviceId)) {
                 if (isset($loop[$serviceId])) {
                     break;
@@ -302,9 +316,7 @@ class Service extends AbstractService
                         break;
                     }
                 }
-                $serviceId = isset($servicesTpl[$serviceId]['service_template_model_stm_id'])
-                    ? $servicesTpl[$serviceId]['service_template_model_stm_id']
-                    : null;
+                $serviceId = $servicesTpl[$serviceId]['service_template_model_stm_id'] ?? null;
             }
             $servicesTpl[$serviceIdTopLevel][$attribute . '_computed_cache'] = array_unique($computedCache);
         }
@@ -367,7 +379,7 @@ class Service extends AbstractService
      */
     protected function manageNotificationInheritance(array &$service, bool $generate = true): array
     {
-        $results = array('cg' => array(), 'contact' => array());
+        $results = ['cg' => [], 'contact' => []];
 
         if (!is_null($service['notifications_enabled']) && (int)$service['notifications_enabled'] === 0) {
             return $results;
@@ -424,11 +436,9 @@ class Service extends AbstractService
         }
 
         // Check from service templates
-        $loop = array();
+        $loop = [];
         $servicesTpl = &ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
-        $servicesTopTpl = isset($this->service_cache[$serviceIdArg]['service_template_model_stm_id'])
-            ? $this->service_cache[$serviceIdArg]['service_template_model_stm_id']
-            : null;
+        $servicesTopTpl = $this->service_cache[$serviceIdArg]['service_template_model_stm_id'] ?? null;
         $serviceId = $servicesTopTpl;
         $severityId = null;
         while (!is_null($serviceId)) {
@@ -447,9 +457,7 @@ class Service extends AbstractService
                 $servicesTpl[$servicesTopTpl]['severity_id_from_below'] = $servicesTpl[$serviceId]['severity_id'];
                 break;
             }
-            $serviceId = isset($servicesTpl[$serviceId]['service_template_model_stm_id'])
-                ? $servicesTpl[$serviceId]['service_template_model_stm_id']
-                : null;
+            $serviceId = $servicesTpl[$serviceId]['service_template_model_stm_id'] ?? null;
         }
 
         return;
@@ -479,6 +487,11 @@ class Service extends AbstractService
         }
     }
 
+    /**
+     * @param $service
+     *
+     * @return void
+     */
     protected function clean(&$service)
     {
         if ($service['severity_from_host'] == 1) {
@@ -495,7 +508,7 @@ class Service extends AbstractService
     public function addGeneratedServices(int $hostId, int $serviceId): void
     {
         if (!isset($this->generated_services[$hostId])) {
-            $this->generated_services[$hostId] = array();
+            $this->generated_services[$hostId] = [];
         }
         $this->generated_services[$hostId][] = $serviceId;
     }
@@ -508,6 +521,10 @@ class Service extends AbstractService
         return $this->generated_services;
     }
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     private function buildCache() : void
     {
         if ($this->done_cache == 1 || ($this->use_cache == 0 && $this->use_cache_poller == 0)) {
@@ -591,7 +608,7 @@ class Service extends AbstractService
         $this->getSeverity($hostId, $serviceId);
         $this->getServiceGroups($serviceId, $hostId, $hostName);
         $this->generateObjectInFile(
-            $this->service_cache[$serviceId] + array('host_name' => $hostName),
+            $this->service_cache[$serviceId] + ['host_name' => $hostName],
             $hostId . '.' . $serviceId
         );
         $this->addGeneratedServices($hostId, $serviceId);
@@ -599,6 +616,11 @@ class Service extends AbstractService
         return $this->service_cache[$serviceId]['service_description'];
     }
 
+    /**
+     * @param $pollerId
+     *
+     * @return void
+     */
     public function set_poller($pollerId) : void
     {
         $this->poller_id = $pollerId;
@@ -615,10 +637,8 @@ class Service extends AbstractService
         $this->getContacts($this->service_cache[$serviceId]);
         $serviceTplInstance = ServiceTemplate::getInstance($this->dependencyInjector);
 
-        $serviceTplId = isset($this->service_cache[$serviceId]['service_template_model_stm_id'])
-            ? $this->service_cache[$serviceId]['service_template_model_stm_id']
-            : null;
-        $loop = array();
+        $serviceTplId = $this->service_cache[$serviceId]['service_template_model_stm_id'] ?? null;
+        $loop = [];
         while (!is_null($serviceTplId)) {
             if (isset($loop[$serviceTplId])) {
                 break;
@@ -632,24 +652,31 @@ class Service extends AbstractService
             $serviceTplInstance->getContactGroups($serviceTplInstance->service_cache[$serviceTplId]);
             $serviceTplInstance->getContacts($serviceTplInstance->service_cache[$serviceTplId]);
 
-            $serviceTplId = isset($serviceTplInstance->service_cache[$serviceTplId]['service_template_model_stm_id'])
-                    ? $serviceTplInstance->service_cache[$serviceTplId]['service_template_model_stm_id']
-                    : null;
+            $serviceTplId = $serviceTplInstance->service_cache[$serviceTplId]['service_template_model_stm_id'] ?? null;
         }
         return $this->manageNotificationInheritance($this->service_cache[$serviceId], false);
     }
 
-    public function reset()
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function reset(): void
     {
         # We reset it by poller (dont need all. We save memory)
         if ($this->use_cache_poller == 1) {
-            $this->service_cache = array();
+            $this->service_cache = [];
             $this->done_cache = 0;
         }
-        $this->generated_services = array();
+        $this->generated_services = [];
         parent::reset();
     }
 
+    /**
+     * @param int $serviceId
+     *
+     * @return array|null
+     */
     public function getServiceFromCache(int $serviceId): ?array
     {
         if ($this->service_cache !== null && ! array_key_exists($serviceId, $this->service_cache)) {

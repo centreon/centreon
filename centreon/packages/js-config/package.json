@@ -1,7 +1,7 @@
 {
     "name": "@centreon/js-config",
     "description": "Centreon Frontend shared build configuration",
-    "version": "24.4.0",
+    "version": "1.0.0",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/centreon/centreon-frontend.git"
@@ -11,36 +11,29 @@
         "eslint"
     ],
     "author": "centreon@centreon.com",
-    "license": "GPL-2.0",
+    "license": "MIT",
     "bugs": {
         "url": "https://github.com/centreon/centreon-frontend/issues"
     },
     "homepage": "https://github.com/centreon/centreon-frontend#readme",
-    "files": [
-        "eslint",
-        "jest",
-        "tsconfig",
-        "webpack",
-        "cypress"
-    ],
     "peerDependencies": {
-        "prettier": "^3.0.0",
-        "eslint": "^8.53.0"
+        "eslint": "^8.53.0",
+        "prettier": "^3.0.0"
     },
     "dependencies": {
-        "@badeball/cypress-cucumber-preprocessor": "^19.1.0",
-        "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
+        "@badeball/cypress-cucumber-preprocessor": "^20.1.2",
+        "@bahmutov/cypress-esbuild-preprocessor": "^2.2.2",
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
         "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
-        "@tsconfig/node16": "^16.1.1",
-        "@tsconfig/node20": "^20.1.2",
+        "@tsconfig/node16": "^16.1.3",
+        "@tsconfig/node20": "^20.1.4",
         "@types/cypress-cucumber-preprocessor": "^4.0.5",
-        "@types/dockerode": "^3.3.23",
+        "cypress": "^13.13.3",
         "cypress-multi-reporters": "^1.6.4",
-        "cypress-terminal-report": "^5.3.9",
-        "dockerode": "^4.0.0",
-        "dotenv": "^16.3.1",
-        "esbuild": "^0.19.5",
+        "cypress-terminal-report": "^6.1.2",
+        "cypress-wait-until": "^3.0.2",
+        "dotenv": "^16.4.5",
+        "esbuild": "^0.21.5",
         "eslint": "^8.53.0",
         "eslint-config-airbnb": "19.0.4",
         "eslint-config-prettier": "^8.5.0",
@@ -58,6 +51,9 @@
         "eslint-plugin-react-hooks": "^4.5.0",
         "eslint-plugin-sort-keys-fix": "^1.1.2",
         "eslint-plugin-typescript-sort-keys": "^2.1.0",
-        "mochawesome": "^7.1.3"
+        "mochawesome": "^7.1.3",
+        "mysql2": "^3.11.0",
+        "tar-fs": "^3.0.6",
+        "testcontainers": "^10.11.0"
     }
 }

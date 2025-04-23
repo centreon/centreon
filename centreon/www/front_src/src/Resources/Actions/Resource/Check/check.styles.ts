@@ -4,9 +4,6 @@ export const useStyles = makeStyles()((theme) => ({
   buttonGroup: {
     alignItems: 'center'
   },
-  condensed: {
-    marginRight: theme.spacing(2)
-  },
   container: {
     '& .MuiButton-root': {
       backgroundColor: 'transparent',

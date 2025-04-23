@@ -33,6 +33,7 @@ use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
+use Core\ServiceCategory\Infrastructure\Repository\ServiceCategoryRepositoryTrait;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
@@ -89,6 +90,7 @@ use Utility\SqlConcatenator;
 class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements ReadServiceTemplateRepositoryInterface
 {
     use LoggerTrait;
+    use ServiceCategoryRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -159,10 +161,116 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                     AND host.host_register = '0'
                 WHERE service.service_id = :id
                     AND service.service_register = '0'
-                GROUP BY service.service_id
+                GROUP BY
+                    service.service_id,
+                    esi.esi_action_url,
+                    esi.esi_icon_image,
+                    esi.esi_icon_image_alt,
+                    esi.esi_notes,
+                    esi.esi_notes_url,
+                    esi.graph_id
             SQL;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _ServiceTemplate $result */
+            return $this->createServiceTemplate($result);
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIdAndAccessGroups(int $serviceTemplateId, array $accessGroups): ?ServiceTemplate
+    {
+        $accessGroupIds = array_map(
+            static fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
+        $categoryAcls = empty($subRequest)
+             ? ''
+             : <<<SQL
+                 AND scr.sc_id IN ({$subRequest})
+                 SQL;
+
+        $request = <<<SQL
+            SELECT service_id,
+                service.cg_additive_inheritance,
+                service.contact_additive_inheritance,
+                service.command_command_id,
+                service.command_command_id2,
+                service.command_command_id_arg,
+                service.command_command_id_arg2,
+                service.timeperiod_tp_id,
+                service.timeperiod_tp_id2,
+                service_acknowledgement_timeout,
+                service_active_checks_enabled,
+                service_event_handler_enabled,
+                service_flap_detection_enabled,
+                service_check_freshness,
+                service_locked,
+                service_notifications_enabled,
+                service_passive_checks_enabled,
+                service_is_volatile,
+                service_low_flap_threshold,
+                service_high_flap_threshold,
+                service_max_check_attempts,
+                service_description,
+                service_comment,
+                service_alias,
+                service_freshness_threshold,
+                service_normal_check_interval,
+                service_notification_interval,
+                service_notification_options,
+                service_recovery_notification_delay,
+                service_retry_check_interval,
+                service_template_model_stm_id,
+                service_first_notification_delay,
+                esi.esi_action_url,
+                esi.esi_icon_image,
+                esi.esi_icon_image_alt,
+                esi.esi_notes,
+                esi.esi_notes_url,
+                esi.graph_id,
+                GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
+            FROM `:db`.service
+            LEFT JOIN `:db`.extended_service_information esi
+                ON esi.service_service_id = service.service_id
+            LEFT JOIN `:db`.service_categories_relation scr
+                ON scr.service_service_id = service.service_id
+            LEFT JOIN `:db`.service_categories severity
+                ON severity.sc_id = scr.sc_id
+                AND severity.level IS NOT NULL
+            LEFT JOIN `:db`.host_service_relation hsr
+                ON hsr.service_service_id = service.service_id
+            LEFT JOIN `:db`.host
+                ON host.host_id = hsr.host_host_id
+                AND host.host_register = '0'
+            WHERE service.service_id = :id
+                AND service.service_register = '0'
+                {$categoryAcls}
+            GROUP BY
+                service.service_id,
+                esi.esi_action_url,
+                esi.esi_icon_image,
+                esi.esi_icon_image_alt,
+                esi.esi_notes,
+                esi.esi_notes_url,
+                esi.graph_id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
+        if ($this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
+            foreach ($accessGroupIds as $index => $id) {
+                $statement->bindValue(':access_group_id_' . $index, $id, \PDO::PARAM_INT);
+            }
+        }
         $statement->execute();
 
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
@@ -190,70 +298,70 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $sqlTranslator->addNormalizer('is_locked', new BoolToEnumNormalizer());
 
         $serviceTemplates = [];
-        $request = <<<'SQL'
-                SELECT service_id,
-                       service.cg_additive_inheritance,
-                       service.contact_additive_inheritance,
-                       service.command_command_id,
-                       service.command_command_id2,
-                       service.command_command_id_arg,
-                       service.command_command_id_arg2,
-                       service.timeperiod_tp_id,
-                       service.timeperiod_tp_id2,
-                       service_acknowledgement_timeout,
-                       service_active_checks_enabled,
-                       service_event_handler_enabled,
-                       service_flap_detection_enabled,
-                       service_check_freshness,
-                       service_locked,
-                       service_notifications_enabled,
-                       service_passive_checks_enabled,
-                       service_is_volatile,
-                       service_low_flap_threshold,
-                       service_high_flap_threshold,
-                       service_max_check_attempts,
-                       service_description,
-                       service_comment,
-                       service_alias,
-                       service_freshness_threshold,
-                       service_normal_check_interval,
-                       service_notification_interval,
-                       service_notification_options,
-                       service_recovery_notification_delay,
-                       service_retry_check_interval,
-                       service_template_model_stm_id,
-                       service_first_notification_delay,
-                       esi.esi_action_url,
-                       esi.esi_icon_image,
-                       esi.esi_icon_image_alt,
-                       esi.esi_notes,
-                       esi.esi_notes_url,
-                       esi.graph_id,
-                       GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
-                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
-                FROM `:db`.service
-                LEFT JOIN `:db`.extended_service_information esi
-                    ON esi.service_service_id = service.service_id
-                LEFT JOIN `:db`.service_categories_relation scr
-                    ON scr.service_service_id = service.service_id
-                LEFT JOIN `:db`.service_categories severity
-                    ON severity.sc_id = scr.sc_id
-                    AND severity.level IS NOT NULL
-                LEFT JOIN `:db`.host_service_relation hsr
-                    ON hsr.service_service_id = service.service_id
-                LEFT JOIN `:db`.host
-                    ON host.host_id = hsr.host_host_id
-                    AND host.host_register = '0'
-            SQL;
+        $request = $this->findServiceTemplatesRequest();
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
-        $sqlConcatenator->appendWhere("service_register = '0'");
-        $sqlConcatenator->appendGroupBy('service.service_id');
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
         $sqlTranslator->bindSearchValues($statement);
         $sqlConcatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $sqlTranslator->calculateNumberOfRows($this->db);
+
+        while ($data = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /**
+             * @var _ServiceTemplate $data
+             */
+            $serviceTemplates[] = $this->createServiceTemplate($data);
+        }
+
+        return $serviceTemplates;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array {
+         if ($accessGroups === []) {
+            $this->debug('No access group for this user, return empty');
+
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+        $this->info('Searching for service templates');
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'service_id',
+            'name' => 'service_description',
+            'alias' => 'service_alias',
+            'is_locked' => 'service_locked',
+        ]);
+        $sqlTranslator->addNormalizer('is_locked', new BoolToEnumNormalizer());
+
+        $serviceTemplates = [];
+        $request = $this->findServiceTemplatesRequest($accessGroupIds);
+        $sqlConcatenator = new SqlConcatenator();
+        $sqlConcatenator->defineSelect($request);
+        $sqlTranslator->translateForConcatenator($sqlConcatenator);
+        $sql = $sqlConcatenator->__toString();
+        $statement = $this->db->prepare($this->translateDbName($sql));
+        $sqlTranslator->bindSearchValues($statement);
+        $sqlConcatenator->bindValuesToStatement($statement);
+        if ($this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
+            foreach ($accessGroupIds as $index => $id) {
+                $statement->bindValue(':access_group_id_' . $index, $id, \PDO::PARAM_INT);
+            }
+        }
         $statement->execute();
 
         $sqlTranslator->calculateNumberOfRows($this->db);
@@ -339,6 +447,93 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         }
 
         return $serviceTemplateInheritances;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostId(int $hostId): array
+    {
+        $serviceTemplates = [];
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT service_id,
+                       service.cg_additive_inheritance,
+                       service.contact_additive_inheritance,
+                       service.command_command_id,
+                       service.command_command_id2,
+                       service.command_command_id_arg,
+                       service.command_command_id_arg2,
+                       service.timeperiod_tp_id,
+                       service.timeperiod_tp_id2,
+                       service_acknowledgement_timeout,
+                       service_active_checks_enabled,
+                       service_event_handler_enabled,
+                       service_flap_detection_enabled,
+                       service_check_freshness,
+                       service_locked,
+                       service_notifications_enabled,
+                       service_passive_checks_enabled,
+                       service_is_volatile,
+                       service_low_flap_threshold,
+                       service_high_flap_threshold,
+                       service_max_check_attempts,
+                       service_description,
+                       service_comment,
+                       service_alias,
+                       service_freshness_threshold,
+                       service_normal_check_interval,
+                       service_notification_interval,
+                       service_notification_options,
+                       service_recovery_notification_delay,
+                       service_retry_check_interval,
+                       service_template_model_stm_id,
+                       service_first_notification_delay,
+                       esi.esi_action_url,
+                       esi.esi_icon_image,
+                       esi.esi_icon_image_alt,
+                       esi.esi_notes,
+                       esi.esi_notes_url,
+                       esi.graph_id,
+                       GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
+                FROM `:db`.service
+                LEFT JOIN `:db`.extended_service_information esi
+                    ON esi.service_service_id = service.service_id
+                LEFT JOIN `:db`.service_categories_relation scr
+                    ON scr.service_service_id = service.service_id
+                LEFT JOIN `:db`.service_categories severity
+                    ON severity.sc_id = scr.sc_id
+                    AND severity.level IS NOT NULL
+                LEFT JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                LEFT JOIN `:db`.host
+                    ON host.host_id = hsr.host_host_id
+                    AND host.host_register = '0'
+                WHERE host.host_id = :host_id
+                    AND service.service_register = '0'
+                GROUP BY
+                    service.service_id,
+                    esi.esi_action_url,
+                    esi.esi_icon_image,
+                    esi.esi_icon_image_alt,
+                    esi.esi_notes,
+                    esi.esi_notes_url,
+                    esi.graph_id
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        while (($data = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var _ServiceTemplate $data */
+            $serviceTemplates[] = $this->createServiceTemplate($data);
+        }
+
+        return $serviceTemplates;
     }
 
     /**
@@ -458,5 +653,85 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         }
 
         return $notifications;
+    }
+
+    /**
+     * @param int[] $accessGroupIds
+     *
+     * @return string
+     */
+    private function findServiceTemplatesRequest(array $accessGroupIds = []): string
+    {
+        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
+        $categoryAcls = empty($subRequest)
+             ? ''
+             : <<<SQL
+                 AND scr.sc_id IN ({$subRequest})
+                 SQL;
+
+        return <<<SQL
+            SELECT service_id,
+                   service.cg_additive_inheritance,
+                   service.contact_additive_inheritance,
+                   service.command_command_id,
+                   service.command_command_id2,
+                   service.command_command_id_arg,
+                   service.command_command_id_arg2,
+                   service.timeperiod_tp_id,
+                   service.timeperiod_tp_id2,
+                   service_acknowledgement_timeout,
+                   service_active_checks_enabled,
+                   service_event_handler_enabled,
+                   service_flap_detection_enabled,
+                   service_check_freshness,
+                   service_locked,
+                   service_notifications_enabled,
+                   service_passive_checks_enabled,
+                   service_is_volatile,
+                   service_low_flap_threshold,
+                   service_high_flap_threshold,
+                   service_max_check_attempts,
+                   service_description,
+                   service_comment,
+                   service_alias,
+                   service_freshness_threshold,
+                   service_normal_check_interval,
+                   service_notification_interval,
+                   service_notification_options,
+                   service_recovery_notification_delay,
+                   service_retry_check_interval,
+                   service_template_model_stm_id,
+                   service_first_notification_delay,
+                   esi.esi_action_url,
+                   esi.esi_icon_image,
+                   esi.esi_icon_image_alt,
+                   esi.esi_notes,
+                   esi.esi_notes_url,
+                   esi.graph_id,
+                   GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                   GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
+            FROM `:db`.service
+            LEFT JOIN `:db`.extended_service_information esi
+                ON esi.service_service_id = service.service_id
+            LEFT JOIN `:db`.service_categories_relation scr
+                ON scr.service_service_id = service.service_id
+            LEFT JOIN `:db`.service_categories severity
+                ON severity.sc_id = scr.sc_id
+                AND severity.level IS NOT NULL
+            LEFT JOIN `:db`.host_service_relation hsr
+                ON hsr.service_service_id = service.service_id
+            LEFT JOIN `:db`.host
+                ON host.host_id = hsr.host_host_id
+                AND host.host_register = '0'
+            WHERE service_register = '0'
+                {$categoryAcls}
+            GROUP BY service.service_id,
+                esi.esi_action_url,
+                esi.esi_icon_image,
+                esi.esi_icon_image_alt,
+                esi.esi_notes,
+                esi.esi_notes_url,
+                esi.graph_id
+            SQL;
     }
 }

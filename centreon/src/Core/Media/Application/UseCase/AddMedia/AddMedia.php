@@ -24,12 +24,9 @@ declare(strict_types = 1);
 namespace Core\Media\Application\UseCase\AddMedia;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Media\Application\Exception\MediaException;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
@@ -49,12 +46,17 @@ final class AddMedia
     /** @var list<string> */
     private array $fileExtensionsAllowed;
 
+    /**
+     * @param WriteMediaRepositoryInterface $writeMediaRepository
+     * @param ReadMediaRepositoryInterface $readMediaRepository
+     * @param DataStorageEngineInterface $dataStorageEngine
+     * @param Sanitizer $svgSanitizer
+     */
     public function __construct(
-        readonly private WriteMediaRepositoryInterface $writeMediaRepository,
-        readonly private ReadMediaRepositoryInterface $readMediaRepository,
-        readonly private DataStorageEngineInterface $dataStorageEngine,
-        readonly private ContactInterface $user,
-        readonly private Sanitizer $svgSanitizer,
+        private readonly WriteMediaRepositoryInterface $writeMediaRepository,
+        private readonly ReadMediaRepositoryInterface $readMediaRepository,
+        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly Sanitizer $svgSanitizer,
     ) {
     }
 
@@ -65,16 +67,6 @@ final class AddMedia
     public function __invoke(AddMediaRequest $request, AddMediaPresenterInterface $presenter): void
     {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW)) {
-                $this->error(
-                    "User doesn't have sufficient rights to add a media", ['user_id' => $this->user->getId()]
-                );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(MediaException::addNotAllowed()->getMessage())
-                );
-
-                return;
-            }
             $this->addMimeTypeFilter('image/png', 'image/gif', 'image/jpeg', 'image/svg+xml');
             [$mediasRecorded, $errors] = $this->addMedias($this->createMedias($request));
             $presenter->presentResponse($this->createResponse($mediasRecorded, $errors));
@@ -88,7 +80,7 @@ final class AddMedia
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
-    
+
     /**
      * @param string $mimeType
      */
@@ -98,7 +90,7 @@ final class AddMedia
             $this->fileExtensionsAllowed[] = $oneMimeType;
         }
     }
-    
+
     private function addMimeTypeFilter(string ...$mimeTypes): void
     {
         foreach ($mimeTypes as $mimeType) {

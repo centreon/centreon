@@ -70,6 +70,7 @@ class DbResourceFactory
             $fqdn = $record['parent_fqdn'];
 
             $parent = (new ResourceEntity())
+                ->setResourceId((int) $record['parent_resource_id'])
                 ->setId((int) $record['parent_id'])
                 ->setName($name)
                 ->setAlias($alias)
@@ -124,6 +125,7 @@ class DbResourceFactory
         $information = $record['output'];
 
         $resource = (new ResourceEntity())
+            ->setResourceId((int) $record['resource_id'])
             ->setType($resourceType)
             ->setParent($parent)
             ->setStatus($status)
@@ -134,6 +136,8 @@ class DbResourceFactory
             ->setStatus($status)
             ->setInDowntime((int) $record['in_downtime'] === 1)
             ->setAcknowledged((int) $record['acknowledged'] === 1)
+            ->setFlapping((int) $record['flapping'] === 1)
+            ->setPercentStateChange(self::getFloatOrNull($record['percent_state_change']))
             ->setStateType((int) $record['status_confirmed'])
             ->setName($name)
             ->setAlias($alias)

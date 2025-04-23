@@ -27,26 +27,27 @@ import {
   sortBy,
   split,
   startsWith,
+  toLower,
   trim,
   without
 } from 'ramda';
 
-import { type SelectEntry } from '@centreon/ui';
+import type { SelectEntry } from '@centreon/ui';
 
 import getDefaultCriterias from '../default';
 import {
-  Criteria,
-  CriteriaDisplayProps,
+  type Criteria,
+  type CriteriaDisplayProps,
   criteriaValueNameById,
   selectableCriterias
 } from '../models';
 
 import {
-  AutocompleteSuggestionProps,
-  CriteriaId,
+  type AutocompleteSuggestionProps,
+  type CriteriaId,
+  type CriteriaValueSuggestionsProps,
   criteriaNameSortOrder,
   criteriaNameToQueryLanguageName,
-  CriteriaValueSuggestionsProps,
   dynamicCriteriaValuesByName,
   getSelectableCriteriasByName,
   searchableFields,
@@ -75,6 +76,14 @@ const isCriteriaPart = pipe(
   isIn(selectableCriteriaNames)
 );
 const isFilledCriteria = pipe(endsWith(':'), not);
+
+const replaceEscapeWithSpace = (text) => {
+  return text.replace(/\\s/g, ' ');
+};
+
+export const replaceMiddleSpace = (text: string) => {
+  return text.replace(/\b\s+\b/g, '\\s');
+};
 
 interface ParametersParse {
   criteriaName?: Record<string, string>;
@@ -106,11 +115,11 @@ const parse = ({
       name: pluralizedKey,
       object_type: objectType,
       type: 'multi_select',
-      value: values?.split(',').map((value) => {
+      value: values?.split(',').map((value, index) => {
         const isStaticCriteria = isNil(objectType);
 
         if (isStaticCriteria) {
-          const id = getCriteriaNameFromQueryLanguageName(value);
+          const id = getCriteriaNameFromQueryLanguageName(toLower(value));
 
           return {
             id,
@@ -119,8 +128,9 @@ const parse = ({
         }
 
         return {
-          id: 0,
-          name: value
+          id: index,
+          name: replaceEscapeWithSpace(value),
+          formattedName: value
         };
       })
     };
@@ -182,7 +192,7 @@ const build = (criterias: Array<Criteria>): string => {
         ? values.map(
             pipe(({ id }) => id as string, getCriteriaQueryLanguageName)
           )
-        : values.map(({ name: valueName }) => `${valueName}`);
+        : values.map(({ name: valueName }) => replaceMiddleSpace(valueName));
 
       const criteriaName = compose(
         getCriteriaQueryLanguageName,
@@ -346,17 +356,20 @@ const getAutocompleteSuggestions = ({
 
     const criteriaValueSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
-      selectedValues: expressionCriteriaValues
+      selectedValues: map(toLower, expressionCriteriaValues)
     });
 
     const isLastValueInSuggestions = getCriteriaValueSuggestions({
       criterias: allCriterias,
       selectedValues: []
-    }).includes(lastCriteriaValue);
+    }).includes(toLower(lastCriteriaValue));
 
     return isLastValueInSuggestions
       ? map(concat(','), criteriaValueSuggestions)
-      : filter(startsWith(lastCriteriaValue), criteriaValueSuggestions);
+      : filter(
+          startsWith(toLower(lastCriteriaValue)),
+          criteriaValueSuggestions
+        );
   }
 
   return reject(includes(__, search), getCriteriaNameSuggestions(criteriaName));
@@ -364,7 +377,7 @@ const getAutocompleteSuggestions = ({
 
 export {
   build,
-  DynamicCriteriaParametersAndValues,
+  type DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
   parse,

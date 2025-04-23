@@ -4,13 +4,15 @@ import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
-  TextField as MuiTextField,
+  Box,
   InputAdornment,
+  InputProps,
+  TextField as MuiTextField,
   TextFieldProps,
+  TextFieldSlotsAndSlotProps,
   Theme,
   Tooltip,
-  Typography,
-  Box
+  Typography
 } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';
@@ -21,6 +23,12 @@ const useStyles = makeStyles()((theme: Theme) => ({
   autoSizeCompact: {
     paddingRight: theme.spacing(1),
     paddingTop: theme.spacing(0.6)
+  },
+  compactLabel: {
+    top: '-10px'
+  },
+  compactLabelShrink: {
+    top: '0px'
   },
   hiddenText: {
     display: 'table',
@@ -71,7 +79,7 @@ const OptionalLabelInputAdornment = ({
 type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
 
 export type TextProps = {
-  EndAdornment?: React.FC;
+  EndAdornment?: React.FC | JSX.Element;
   StartAdornment?: React.FC;
   ariaLabel?: string;
   autoSize?: boolean;
@@ -89,6 +97,7 @@ export type TextProps = {
   size?: SizeVariant;
   transparent?: boolean;
   value?: string;
+  textFieldSlotsAndSlotProps?: TextFieldSlotsAndSlotProps<InputProps>;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = forwardRef(
@@ -113,6 +122,7 @@ const TextField = forwardRef(
       required = false,
       containerClassName,
       type,
+      textFieldSlotsAndSlotProps,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -134,7 +144,6 @@ const TextField = forwardRef(
       if (debounced) {
         return {};
       }
-
       if (defaultValue) {
         return { defaultValue };
       }
@@ -153,42 +162,11 @@ const TextField = forwardRef(
             error={!isNil(error)}
             helperText={displayErrorInTooltip ? undefined : error}
             id={getNormalizedId(dataTestId || '')}
-            inputProps={{
-              'aria-label': ariaLabel,
-              'data-testid': dataTestId,
-              ...rest.inputProps
-            }}
             label={label}
             ref={ref}
             size={size || 'small'}
             onChange={changeInputValue}
             {...getValueProps()}
-            {...rest}
-            InputProps={{
-              className: cx(
-                classes.inputBase,
-                {
-                  [classes.transparent]: transparent,
-                  [classes.autoSizeCompact]: autoSize && equals(size, 'compact')
-                },
-                className
-              ),
-              endAdornment: (
-                <OptionalLabelInputAdornment label={label} position="end">
-                  {EndAdornment ? (
-                    <EndAdornment />
-                  ) : (
-                    rest.InputProps?.endAdornment
-                  )}
-                </OptionalLabelInputAdornment>
-              ),
-              startAdornment: StartAdornment && (
-                <OptionalLabelInputAdornment label={label} position="start">
-                  <StartAdornment />
-                </OptionalLabelInputAdornment>
-              ),
-              ...rest.InputProps
-            }}
             className={classes.textField}
             required={required}
             sx={{
@@ -196,6 +174,48 @@ const TextField = forwardRef(
               ...rest?.sx
             }}
             type={type}
+            slotProps={{
+              input: {
+                className: cx(
+                  classes.inputBase,
+                  {
+                    [classes.transparent]: transparent,
+                    [classes.autoSizeCompact]:
+                      autoSize && equals(size, 'compact')
+                  },
+                  className
+                ),
+                endAdornment: (
+                  <OptionalLabelInputAdornment label={label} position="end">
+                    {EndAdornment ? (
+                      <EndAdornment />
+                    ) : (
+                      textFieldSlotsAndSlotProps?.slotProps?.input?.endAdornment
+                    )}
+                  </OptionalLabelInputAdornment>
+                ),
+                startAdornment: StartAdornment && (
+                  <OptionalLabelInputAdornment label={label} position="start">
+                    <StartAdornment />
+                  </OptionalLabelInputAdornment>
+                ),
+                ...textFieldSlotsAndSlotProps?.slotProps?.input
+              },
+              inputLabel: {
+                classes: {
+                  root: cx(equals(size, 'compact') && classes.compactLabel),
+                  shrink: cx(
+                    equals(size, 'compact') && classes.compactLabelShrink
+                  )
+                }
+              },
+              htmlInput: {
+                'aria-label': ariaLabel,
+                'data-testid': dataTestId,
+                ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
+              }
+            }}
+            {...rest}
           />
         </Tooltip>
         {autoSize && (

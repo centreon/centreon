@@ -53,5 +53,13 @@ abstract class AbstractDatasetFilterType implements DatasetFilterTypeInterface
     {
         return $this->possibleChildren;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function canResourceIdsBeEmpty(): bool
+    {
+        return false;
+    }
 }
 

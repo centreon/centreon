@@ -66,7 +66,7 @@ $centreon = $_SESSION['centreon'];
  */
 $centreonGMT = new CentreonGMT($pearDB);
 $sid = session_id();
-$centreonGMT->getMyGMTFromSession($sid, $pearDB);
+$centreonGMT->getMyGMTFromSession($sid);
 
 require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
 require_once _CENTREON_PATH_ . "www/include/monitoring/common-Func.php";

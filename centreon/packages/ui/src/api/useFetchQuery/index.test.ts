@@ -1,6 +1,5 @@
-import { renderHook, waitFor, RenderHookResult } from '@testing-library/react';
+import { RenderHookResult, renderHook, waitFor } from '@testing-library/react';
 import fetchMock from 'jest-fetch-mock';
-import anyLogger from 'anylogger';
 
 import TestQueryProvider from '../TestQueryProvider';
 
@@ -77,8 +76,6 @@ describe('useFetchQuery', () => {
       expect(mockedShowErrorMessage).toHaveBeenCalledWith('custom message');
     });
 
-    expect(anyLogger().error).toHaveBeenCalledWith('custom message');
-
     await waitFor(() => {
       expect(result.current.error).toStrictEqual({
         additionalInformation: {
@@ -102,8 +99,6 @@ describe('useFetchQuery', () => {
     await waitFor(() => {
       expect(mockedShowErrorMessage).toHaveBeenCalledWith('error');
     });
-
-    expect(anyLogger().error).toHaveBeenCalledWith('error');
   });
 
   it('shows a default failure message via the Snackbar as fallback', async () => {

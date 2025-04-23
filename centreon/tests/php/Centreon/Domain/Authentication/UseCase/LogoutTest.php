@@ -22,10 +22,9 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\Authentication\UseCase;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Authentication\UseCase\Logout;
 use Centreon\Domain\Authentication\UseCase\LogoutRequest;
-use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
+use PHPUnit\Framework\TestCase;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 
 /**
@@ -34,18 +33,12 @@ use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 class LogoutTest extends TestCase
 {
     /**
-     * @var AuthenticationServiceInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $authenticationService;
-
-    /**
      * @var AuthenticationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private $authenticationRepository;
 
     protected function setUp(): void
     {
-        $this->authenticationService = $this->createMock(AuthenticationServiceInterface::class);
         $this->authenticationRepository = $this->createMock(AuthenticationRepositoryInterface::class);
     }
 
@@ -54,13 +47,9 @@ class LogoutTest extends TestCase
      */
     public function testExecute(): void
     {
-        $logout = new Logout($this->authenticationService, $this->authenticationRepository);
+        $logout = new Logout($this->authenticationRepository);
 
         $logoutRequest = new LogoutRequest('abc123');
-
-        $this->authenticationService
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
 
         $this->authenticationRepository
             ->expects($this->once())

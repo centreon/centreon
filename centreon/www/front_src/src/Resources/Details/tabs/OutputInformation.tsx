@@ -1,10 +1,9 @@
-import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
+import parse from 'html-react-parser';
 import { makeStyles } from 'tss-react/mui';
 
+import { truncate } from '@centreon/ui';
 import { Typography } from '@mui/material';
-
-import truncate from '../../truncate';
 
 type StylesProps = Pick<Props, 'bold'>;
 
@@ -24,7 +23,7 @@ const OutputInformation = ({ content, bold = false }: Props): JSX.Element => {
 
   return (
     <Typography className={classes.information} variant="body2">
-      {parse(DOMPurify.sanitize(truncate(content)))}
+      {parse(DOMPurify.sanitize(truncate({ content })))}
     </Typography>
   );
 };

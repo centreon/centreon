@@ -1,7 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { ListingVariant } from '@centreon/ui-context';
-
 import { TableStyleAtom as TableStyle } from './models';
 
 const loadingIndicatorHeight = 3;
@@ -9,12 +7,12 @@ const loadingIndicatorHeight = 3;
 interface StylesProps {
   dataStyle: TableStyle;
   getGridTemplateColumn: string;
-  listingVariant: ListingVariant;
+  isResponsive: string;
   rows: Array<unknown>;
 }
 
 const useListingStyles = makeStyles<StylesProps>()(
-  (theme, { dataStyle, getGridTemplateColumn, rows }) => ({
+  (theme, { dataStyle, getGridTemplateColumn, rows, isResponsive }) => ({
     actionBar: {
       alignItems: 'center',
       display: 'flex'
@@ -56,7 +54,7 @@ const useListingStyles = makeStyles<StylesProps>()(
       gridTemplateColumns: getGridTemplateColumn,
       gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
         rows?.length || 1
-      }, ${dataStyle.body.height}px)`,
+      }, ${isResponsive ? 'auto' : `${dataStyle.body.height}px`})`,
       position: 'relative'
     },
     tableBody: {

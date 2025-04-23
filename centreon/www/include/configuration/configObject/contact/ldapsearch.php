@@ -33,7 +33,7 @@
  *
  */
 
-require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../../../config/centreon.config.php");
 require_once(_CENTREON_PATH_ . "www/include/common/common-Func.php");
 require_once(_CENTREON_PATH_ . "www/class/centreonSession.class.php");
 require_once(_CENTREON_PATH_ . "www/class/centreon.class.php");
@@ -54,7 +54,7 @@ if (!isset($_POST['confList']) || !strlen($_POST['confList'])) {
 }
 $confList = $_POST['confList'];
 
-$ldap_search_filters = array();
+$ldap_search_filters = [];
 if (isset($_POST['ldap_search_filter'])) {
     $ldap_search_filters = $_POST['ldap_search_filter'];
 }
@@ -84,7 +84,7 @@ $queryGetLdap = 'SELECT contact_alias
 		 FROM contact
                  WHERE contact_register = 1';
 
-$listLdapUsers = array();
+$listLdapUsers = [];
 try {
     $res = $pearDB->query($queryGetLdap);
     while ($row = $res->fetchRow()) {
@@ -202,7 +202,7 @@ foreach ($ids as $arId) {
                     $buffer->text($searchResult[$i]['name'], 1, 0);
                     $buffer->endElement();
                     $buffer->startElement("uid");
-                    $buffer->writeAttribute("isvalid", (($searchResult[$i]['alias'] != '') ? "1" : "0"), 1, 0);
+                    $buffer->writeAttribute("isvalid", (($searchResult[$i]['alias'] != '') ? "1" : "0"), 1);
                     $buffer->text($searchResult[$i]['alias'], 1, 0);
                     $buffer->endElement();
                     $buffer->startElement("in_database");

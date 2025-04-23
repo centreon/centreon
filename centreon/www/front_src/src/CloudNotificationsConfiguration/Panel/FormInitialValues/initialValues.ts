@@ -1,11 +1,8 @@
 import { TFunction } from 'i18next';
 
 import { ChannelsEnum, ResourcesTypeEnum } from '../../models';
-import {
-  labelIncludeServicesForTheseHosts,
-  labelTimePeriod24h7days
-} from '../../translatedLabels';
-import { SlackIcon, EmailIcon, SmsIcon } from '../FormInputs/Channel/Icons';
+import { labelIncludeServicesForTheseHosts } from '../../translatedLabels';
+import { EmailIcon, SlackIcon, SmsIcon } from '../FormInputs/Channel/Icons';
 import { NotificationType } from '../models';
 import {
   defaultEmailBody,
@@ -38,6 +35,7 @@ export const getInitialValues = ({
   messages,
   resources,
   contactgroups,
+  timeperiod,
   t,
   isBamModuleInstalled
 }: NotificationType & {
@@ -75,10 +73,7 @@ export const getInitialValues = ({
     message: defaultEmailBody,
     subject: ''
   },
-  timeperiod: {
-    checked: true,
-    label: t(labelTimePeriod24h7days)
-  },
+  timeperiod: { id: timeperiod.id, name: timeperiod.name },
   users,
   ...formatBV({ isBamModuleInstalled: !!isBamModuleInstalled, resources })
 });
@@ -147,7 +142,7 @@ export const getEmptyInitialValues = ({
     message: defaultEmailBody,
     subject: ''
   },
-  timeperiod: { checked: true, label: t(labelTimePeriod24h7days) },
+  timeperiod: null,
   users: [],
   ...getBVInitialValue(isBamModuleInstalled)
 });

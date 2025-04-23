@@ -38,10 +38,10 @@ use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsData;
-use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequest;
+use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequestDto;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataResponse;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1);
     $this->nonAdminUser = (new Contact())->setAdmin(false)->setId(1);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -49,19 +49,20 @@ beforeEach(function () {
     $this->metricRepositoryLegacy = $this->createMock(MetricRepositoryInterface::class);
     $this->metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
+    $this->isCloudPlatform = false;
 });
 
-it('should present a ForbiddenResponse when the user does not has sufficient rights', function () {
+it('should present a ForbiddenResponse when the user does not has sufficient rights', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta']);
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
@@ -77,17 +78,17 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
 
 });
 
-it('should present an ErrorResponse when an error occurs', function () {
+it('should present an ErrorResponse when an error occurs', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta', 'pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
@@ -107,17 +108,17 @@ it('should present an ErrorResponse when an error occurs', function () {
         ->and($presenter->data->getMessage())->toBe('An error occurred while retrieving metrics data');
 });
 
-it('should get the metrics with access group management when the user is not admin', function () {
+it('should get the metrics with access group management when the user is not admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta','pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
@@ -132,22 +133,22 @@ it('should get the metrics with access group management when the user is not adm
     $useCase($presenter, $request);
 });
 
-it('should get the metrics without access group management when the user is admin', function () {
+it('should get the metrics without access group management when the user is admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta','pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
         ->expects($this->once())
-        ->method('canAccess')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->metricRepository
@@ -157,17 +158,42 @@ it('should get the metrics without access group management when the user is admi
     $useCase($presenter, $request);
 });
 
-it('should present a FindPerformanceMetricsDataResponse when metrics are correctly retrieve', function () {
+it('should take account of access groups to retrieve metrics when the user is not admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta','pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->requestParameters,
         $this->metricRepositoryLegacy,
         $this->metricRepository,
         $this->accessGroupRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
+    );
+
+    $this->rights
+        ->expects($this->once())
+        ->method('canAccess')
+        ->willReturn(true);
+
+    $this->metricRepository
+        ->expects($this->once())
+        ->method('findServicesByMetricNamesAndAccessGroupsAndRequestParameters');
+
+    $useCase($presenter, $request);
+});
+
+it('should present a FindPerformanceMetricsDataResponse when metrics are correctly retrieve', function (): void {
+    $presenter = new FindPerformanceMetricsDataPresenterStub();
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['pl']);
+    $useCase = new FindPerformanceMetricsData(
+        $this->adminUser,
+        $this->requestParameters,
+        $this->metricRepositoryLegacy,
+        $this->metricRepository,
+        $this->accessGroupRepository,
+        $this->rights,
+        $this->isCloudPlatform
     );
     $service = (new Service())
         ->setId(1)
@@ -177,7 +203,7 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
 
     $this->rights
         ->expects($this->once())
-        ->method('canAccess')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->metricRepository
@@ -198,7 +224,8 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
             [
                 'global' => [
                     'base' => 1000,
-                    'title' => 'Ping graph on myHost'
+                    'title' => 'Ping graph on myHost',
+                    'host_name' => 'myHost'
                 ],
                 'metrics' => [
                     [

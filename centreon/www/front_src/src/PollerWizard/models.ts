@@ -5,8 +5,8 @@ export enum ServerType {
 }
 
 export enum WizardButtonsTypes {
-  'Next',
-  'Apply'
+  Next = 0,
+  Apply = 1
 }
 
 export interface WizardFormProps {

@@ -33,27 +33,44 @@
  *
  */
 
+/**
+ * Class
+ *
+ * @class CentreonPdoStatement
+ */
 class CentreonPdoStatement extends PDOStatement
 {
+    /** @var CentreonDB */
     public $dbh;
 
+    /**
+     * CentreonPdoStatement constructor
+     *
+     * @param CentreonDB $dbh
+     */
     protected function __construct($dbh)
     {
         $this->dbh = $dbh;
     }
 
+    /**
+     * @return mixed
+     */
     public function fetchRow()
     {
         return $this->fetch();
     }
 
+    /**
+     * @return int
+     */
     public function numRows()
     {
         return $this->rowCount();
     }
 
-    public function free()
-    {
-        ;
-    }
+    /**
+     * @return void
+     */
+    public function free() {}
 }

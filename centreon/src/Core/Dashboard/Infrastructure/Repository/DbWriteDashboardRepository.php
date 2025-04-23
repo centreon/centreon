@@ -43,6 +43,29 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
     }
 
     /**
+     * @inheritDoc
+     */
+    public function addThumbnailRelation(int $dashboardId, int $thumbnailId): void {
+        $request = <<<'SQL'
+                INSERT INTO `:db`.dashboard_thumbnail_relation
+                    (
+                        dashboard_id,
+                        img_id
+                    )
+                VALUES
+                    (
+                        :dashboardId,
+                        :thumbnailId
+                    )
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':thumbnailId', $thumbnailId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function delete(int $dashboardId): void
@@ -72,7 +95,9 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
                     created_by,
                     updated_by,
                     created_at,
-                    updated_at
+                    updated_at,
+                    refresh_type,
+                    refresh_interval
                 )
             VALUES
                 (
@@ -81,7 +106,9 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
                     :created_by,
                     :updated_by,
                     :created_at,
-                    :updated_at
+                    :updated_at,
+                    :refresh_type,
+                    :refresh_interval
                 )
             SQL;
 
@@ -133,13 +160,15 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
     private function bindValueOfDashboard(\PDOStatement $statement, Dashboard|NewDashboard $dashboard): void
     {
         $statement->bindValue(':name', $dashboard->getName());
-        $statement->bindValue(':description', $this->emptyStringAsNull($dashboard->getDescription()));
+        $statement->bindValue(':description', $dashboard->getDescription());
         $statement->bindValue(':updated_at', $dashboard->getUpdatedAt()->getTimestamp());
         $statement->bindValue(':updated_by', $dashboard->getUpdatedBy());
 
         if ($dashboard instanceof NewDashboard) {
             $statement->bindValue(':created_at', $dashboard->getCreatedAt()->getTimestamp());
             $statement->bindValue(':created_by', $dashboard->getCreatedBy());
+            $statement->bindValue(':refresh_type', RefreshTypeConverter::toString($dashboard->getRefresh()->getRefreshType()), \PDO::PARAM_STR);
+            $statement->bindValue(':refresh_interval', $dashboard->getRefresh()->getRefreshInterval(), \PDO::PARAM_INT);
         }
     }
 }

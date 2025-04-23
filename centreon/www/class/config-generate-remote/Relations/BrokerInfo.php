@@ -24,17 +24,30 @@ namespace ConfigGenerateRemote\Relations;
 use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class BrokerInfo
+ * @package ConfigGenerateRemote\Relations
+ */
 class BrokerInfo extends AbstractObject
 {
+    /** @var int */
     private $useCache = 1;
+    /** @var int */
     private $doneCache = 0;
 
+    /** @var array */
     private $brokerInfoCache = [];
 
+    /** @var string */
     protected $table = 'cfg_centreonbroker_info';
+    /** @var string */
     protected $generateFilename = 'cfg_centreonbroker_info.infile';
+    /** @var null */
     protected $stmtBrokerInfo = null;
 
+    /** @var string[] */
     protected $attributesWrite = [
         'config_id',
         'config_key',
@@ -48,7 +61,7 @@ class BrokerInfo extends AbstractObject
     ];
 
     /**
-     * Constructor
+     * BrokerInfo constructor
      *
      * @param \Pimple\Container $dependencyInjector
      */
@@ -63,7 +76,7 @@ class BrokerInfo extends AbstractObject
      *
      * @return void
      */
-    private function cacheBrokerInfo()
+    private function cacheBrokerInfo(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT *
@@ -85,7 +98,7 @@ class BrokerInfo extends AbstractObject
      *
      * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache === 0) {
             $this->cacheBrokerInfo();
@@ -96,11 +109,13 @@ class BrokerInfo extends AbstractObject
     /**
      * Generate broker info configs
      *
-     * @param integer $configId
+     * @param int $configId
      * @param array $brokerInfoCache
+     *
      * @return void
+     * @throws \Exception
      */
-    public function generateObject(int $configId, array $brokerInfoCache)
+    public function generateObject(int $configId, array $brokerInfoCache): void
     {
         foreach ($brokerInfoCache[$configId] as $value) {
             $this->generateObjectInFile($value);
@@ -110,8 +125,10 @@ class BrokerInfo extends AbstractObject
     /**
      * Get broker information config
      *
-     * @param  integer $configId
+     * @param int $configId
+     *
      * @return array
+     * @throws \Exception
      */
     public function getBrokerInfoByConfigId(int $configId)
     {

@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
+import { useAtom } from 'jotai';
 import { equals } from 'ramda';
 
-import { Dataset } from '../../../models';
+import { selectedDatasetFiltersAtom } from '../../../atom';
+import { Dataset, ResourceTypeEnum } from '../../../models';
 
 type UseDatasetFiltersState = {
   addDatasetFilter: () => void;
@@ -12,6 +14,9 @@ type UseDatasetFiltersState = {
 };
 
 const useDatasetFilters = (): UseDatasetFiltersState => {
+  const [selectedDatasetFilters, setSelectedDatasetFilters] = useAtom(
+    selectedDatasetFiltersAtom
+  );
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
   const datasetFilters = useMemo<Array<Array<Dataset>> | undefined>(
@@ -24,8 +29,19 @@ const useDatasetFilters = (): UseDatasetFiltersState => {
       ...(datasetFilters || []),
       [
         {
+          allOfResourceType: false,
           resourceType: '',
           resources: []
+        }
+      ]
+    ]);
+    setSelectedDatasetFilters([
+      ...selectedDatasetFilters,
+      [
+        {
+          allOf: false,
+          ids: [],
+          type: ResourceTypeEnum.Empty
         }
       ]
     ]);
@@ -35,6 +51,9 @@ const useDatasetFilters = (): UseDatasetFiltersState => {
     setFieldValue(
       'datasetFilters',
       (datasetFilters || []).filter((_, i) => !equals(i, index))
+    );
+    setSelectedDatasetFilters(
+      selectedDatasetFilters.filter((_, i) => !equals(i, index))
     );
   };
 

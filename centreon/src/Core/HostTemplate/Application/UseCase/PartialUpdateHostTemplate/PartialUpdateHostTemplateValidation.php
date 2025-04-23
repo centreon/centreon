@@ -131,10 +131,16 @@ class PartialUpdateHostTemplateValidation
      */
     public function assertIsValidSeverity(?int $severityId): void
     {
-        if ($severityId !== null && false === $this->readHostSeverityRepository->exists($severityId) ) {
-            $this->error('Host severity does not exist', ['severity_id' => $severityId]);
+        if ($severityId !== null) {
+            $exists = ($this->accessGroups === [])
+                ? $this->readHostSeverityRepository->exists($severityId)
+                : $this->readHostSeverityRepository->existsByAccessGroups($severityId, $this->accessGroups);
 
-            throw HostTemplateException::idDoesNotExist('severityId', $severityId);
+            if (! $exists) {
+                $this->error('Host severity does not exist', ['severity_id' => $severityId]);
+
+                throw HostTemplateException::idDoesNotExist('severityId', $severityId);
+            }
         }
     }
 

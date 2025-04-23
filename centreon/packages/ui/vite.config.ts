@@ -1,10 +1,9 @@
 import path from 'path';
 
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import smvp from 'speed-measure-vite-plugin';
-import svgr from 'vite-plugin-svgr';
+import { defineConfig } from 'vite';
 import istanbul from 'vite-plugin-istanbul';
+import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   base: '/',
@@ -28,7 +27,7 @@ export default defineConfig({
     'process.env.DEBUG_PRINT_LIMIT': 10000
   },
   esbuild: {},
-  plugins: smvp([
+  plugins: [
     svgr({
       svgrOptions: {
         icon: true,
@@ -51,11 +50,6 @@ export default defineConfig({
       include: 'src/*',
       requireEnv: false
     })
-  ]),
-  resolve: {
-    alias: {
-      '@centreon/ui/fonts': path.resolve(__dirname, '/fonts')
-    }
-  },
+  ],
   root: '.'
 });

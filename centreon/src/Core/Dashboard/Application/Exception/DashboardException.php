@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,24 @@ namespace Core\Dashboard\Application\Exception;
 
 class DashboardException extends \Exception
 {
+    public const CODE_NOT_FOUND = 1;
+    public const CODE_FORBIDDEN = 2;
+    public const CODE_CONFLICT = 3;
+
     /**
      * @return self
      */
     public static function errorWhileSearching(): self
     {
         return new self(_('Error while searching for dashboards'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileSearchingFavorites(): self
+    {
+        return new self(_('Error while searching for user favorite dashboards'));
     }
 
     /**
@@ -75,7 +87,8 @@ class DashboardException extends \Exception
             sprintf(
                 _('You are not allowed to edit access rights on the dashboard #%d'),
                 $dashboardId
-            )
+            ),
+            self::CODE_FORBIDDEN
         );
     }
 
@@ -106,6 +119,22 @@ class DashboardException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileSearchingSharableContacts(): self
+    {
+        return new self(_('Error while retrieving contacts allowed to receive a dashboard share'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileSearchingSharableContactGroups(): self
+    {
+        return new self(_('Error while retrieving contact groups allowed to receive a dashboard share'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorWhileDeleting(): self
     {
         return new self(_('Error while deleting a dashboard'));
@@ -122,36 +151,171 @@ class DashboardException extends \Exception
     /**
      * @return self
      */
+    public static function errorWhileUpdatingDashboardShare(): self
+    {
+        return new self(_('Error while updating the dashboard share'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileThumbnailToDashboard(): self
+    {
+        return new self(_('Error while linking a dashboard to its thumbnail'));
+    }
+
+    /**
+     * @return self
+     */
     public static function errorTryingToUpdateAPanelWhichDoesNotBelongsToTheDashboard(): self
     {
         return new self(_('Error while trying to update a widget which belongs to another dashboard'));
     }
 
     /**
-     * @return self
-     */
-    public static function errorWhileRetrievingJustCreatedShare(): self
-    {
-        return new self(_('Error while retrieving the new dashboard share'));
-    }
-
-    /**
-     * @param int $contactGroupId
+     * @param int $dashboardId
      *
      * @return self
      */
-    public static function theContactGroupDoesNotExist(int $contactGroupId): self
+    public static function theDashboardDoesNotExist(int $dashboardId): self
     {
-        return new self(sprintf(_("The contact group id #%d doesn't exist"), $contactGroupId));
+        return new self(sprintf(_('The dashboard [%d] does not exist'), $dashboardId), self::CODE_NOT_FOUND);
     }
 
     /**
-     * @param int $contactId
+     * @param int $dashboardId
      *
      * @return self
      */
-    public static function theContactDoesNotExist(int $contactId): self
+    public static function dashboardAlreadySetAsFavorite(int $dashboardId): self
     {
-        return new self(sprintf(_('The contact ID #%d does not exist'), $contactId));
+        return new self(sprintf(_('The dashboard [%d] is already set as favorite'), $dashboardId), self::CODE_CONFLICT);
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function theContactsDoNotExist(array $contactIds): self
+    {
+        return new self(sprintf(_('The contacts [%s] do not exist'), implode(', ', $contactIds)));
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function theContactGroupsDoNotExist(array $contactGroupIds): self
+    {
+        return new self(sprintf(_('The contact groups [%s] do not exist'), implode(', ', $contactGroupIds)));
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function theContactsDoesNotHaveDashboardAccessRights(array $contactIds): self
+    {
+        return new self (
+            sprintf(_('The contacts [%s] do not have any dashboard Access rights'), implode(', ', $contactIds))
+        );
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function theContactGroupsDoesNotHaveDashboardAccessRights(array $contactGroupIds): self
+    {
+        return new self (
+            sprintf(
+                _('The contact groups [%s] do not have any dashboard Access rights'),
+                implode(', ', $contactGroupIds)
+            )
+        );
+    }
+
+    /**
+     * @return self
+     */
+    public static function contactForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share the same dashboard to a contact several times'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function contactGroupForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share the same dashboard to a contact group several times'));
+    }
+
+    public static function notSufficientAccessRightForUser(string $contactName, string $role): self
+    {
+        return new self(sprintf(_('No sufficient access rights to user [%s] to give role [%s]'), $contactName, $role));
+    }
+
+    public static function notSufficientAccessRightForContactGroup(string $contactGroupName, string $role): self
+    {
+        return new self(
+            sprintf(_('No sufficient access rights to contact group [%s] to give role [%s]'), $contactGroupName, $role)
+        );
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function userAreNotInAccessGroups(array $contactIds): self
+    {
+        return new self(sprintf(
+            _('The users [%s] are not in your access groups'),
+            implode(', ', $contactIds)
+        ));
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function userAreNotInContactGroups(array $contactIds): self
+    {
+        return new self(sprintf(
+            _('The users [%s] are not in your contact groups'),
+            implode(', ', $contactIds)
+        ));
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function contactGroupIsNotInUserContactGroups(array $contactGroupIds): self
+    {
+        return new self(sprintf(
+            _('The contact groups [%s] are not in your contact groups'),
+            implode(', ', $contactGroupIds)
+        ));
+    }
+
+    /**
+     * @param int $dashboardId
+     *
+     * @return self
+     */
+    public static function thumbnailNotFound(int $dashboardId): self
+    {
+        return new self(sprintf(
+            _('The thumbnail provided for dashboard [%d] was not found'),
+            $dashboardId
+        ));
     }
 }

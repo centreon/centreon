@@ -1,45 +1,44 @@
-import * as React from 'react';
-
 import {
+  CollisionDetection,
   DndContext,
+  DragEndEvent,
+  DragOverEvent,
   DragOverlay,
-  MouseSensor,
+  DragStartEvent,
+  DraggableSyntheticListeners,
   KeyboardSensor,
+  MouseSensor,
+  Over,
   PointerSensor,
   useSensor,
-  useSensors,
-  CollisionDetection,
-  DraggableSyntheticListeners,
-  DragOverEvent,
-  DragStartEvent,
-  DragEndEvent,
-  Over
+  useSensors
 } from '@dnd-kit/core';
 import { SortableContext, SortingStrategy } from '@dnd-kit/sortable';
 import {
+  path,
   equals,
   find,
   indexOf,
   isNil,
   move,
   not,
-  path,
-  pipe,
-  propEq,
   pick,
-  pluck
+  pipe,
+  pluck,
+  propEq
 } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
-import SortableItem from './SortableItem';
+import { RefObject, useEffect, useState } from 'react';
 import Item from './Item';
+import SortableItem from './SortableItem';
 
 interface ContentProps {
   attributes;
   index;
   isDragging: boolean;
-  itemRef: React.RefObject<HTMLDivElement>;
+  itemRef: RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
   style;
 }
@@ -106,8 +105,8 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   const getItemsIds = (): Array<string> =>
     pluck(propertyToFilterItemsOn, items);
 
-  const [activeId, setActiveId] = React.useState<string | null>(null);
-  const [sortableItemsIds, setSortableItemsIds] = React.useState(getItemsIds());
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [sortableItemsIds, setSortableItemsIds] = useState(getItemsIds());
 
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -168,7 +167,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
 
   const activeItem = getItemById(activeId) as Record<string, unknown>;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (not(updateSortableItemsOnItemsChange)) {
       return;
     }
@@ -186,6 +185,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
     >
       <SortableContext items={sortableItemsIds} strategy={sortingStrategy}>
         <RootComponent>
+          {/* biome-ignore lint: */}
           <>
             {sortableItemsIds.map((sortableItemId, index) => {
               const item = getItemById(sortableItemId) as

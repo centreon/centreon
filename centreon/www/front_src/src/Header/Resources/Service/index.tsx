@@ -7,10 +7,10 @@ import {
   TopCounterResourceSubMenu
 } from '@centreon/ui';
 
-import useResourceCounters from '../useResourceCounters';
 import { serviceStatusDecoder } from '../../api/decoders';
 import type { ServiceStatusResponse } from '../../api/decoders';
 import { serviceStatusEndpoint } from '../../api/endpoints';
+import useResourceCounters from '../useResourceCounters';
 
 import type { ServicesPropsAdapterOutput } from './getServicePropsAdapter';
 import getServicePropsAdapter from './getServicePropsAdapter';

@@ -38,12 +38,14 @@ require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
 require_once __DIR__ . "/webService.class.php";
 
 /**
- * Class CentreonKeepalive
+ * Class
+ *
+ * @class CentreonKeepalive
  */
 class CentreonKeepalive extends CentreonWebService
 {
     /**
-     * CentreonKeepalive constructor.
+     * CentreonKeepalive constructor
      */
     public function __construct()
     {
@@ -52,14 +54,15 @@ class CentreonKeepalive extends CentreonWebService
 
     /**
      * Keep alive
+     * @throws PDOException
      * @throws RestUnauthorizedException
      */
-    public function getKeepAlive()
+    public function getKeepAlive(): void
     {
         $session = new CentreonSession();
         if (!$session->updateSession($this->pearDB)) {
             // return 401 if session is not updated (session expired)
-            throw new \RestUnauthorizedException(_('Session is expired'));
+            throw new RestUnauthorizedException(_('Session is expired'));
         }
     }
 
@@ -68,8 +71,8 @@ class CentreonKeepalive extends CentreonWebService
      *
      * @param string $action The action name
      * @param array $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

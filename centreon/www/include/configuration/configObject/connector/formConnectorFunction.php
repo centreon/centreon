@@ -37,28 +37,19 @@ function return_plugin($rep)
 {
     global $centreon;
 
-    $availableConnectors = array();
-    $is_not_a_plugin = array(
-        "." => 1,
-        ".." => 1,
-        "oreon.conf" => 1,
-        "oreon.pm" => 1,
-        "utils.pm" => 1,
-        "negate" => 1,
-        "centreon.conf" => 1,
-        "centreon.pm" => 1
-    );
+    $availableConnectors = [];
+    $is_not_a_plugin = ["." => 1, ".." => 1, "oreon.conf" => 1, "oreon.pm" => 1, "utils.pm" => 1, "negate" => 1, "centreon.conf" => 1, "centreon.pm" => 1];
     if (is_readable($rep)) {
         $handle[$rep] = opendir($rep);
         while (false != ($filename = readdir($handle[$rep]))) {
             if ($filename != "." && $filename != "..") {
                 if (is_dir($rep.$filename)) {
-                    $plg_tmp = return_plugin($rep."/".$filename, $handle[$rep]);
+                    $plg_tmp = return_plugin($rep."/".$filename);
                     $availableConnectors = array_merge($availableConnectors, $plg_tmp);
                     unset($plg_tmp);
                 } elseif (!isset($is_not_a_plugin[$filename])
-                    && substr($filename, -1)!= "~"
-                    && substr($filename, -1) != "#"
+                    && !str_ends_with($filename, "~")
+                    && !str_ends_with($filename, "#")
                 ) {
                     if (isset($oreon)) {
                         $key = substr($rep."/".$filename, strlen($oreon->optGen["cengine_path_connectors"]));

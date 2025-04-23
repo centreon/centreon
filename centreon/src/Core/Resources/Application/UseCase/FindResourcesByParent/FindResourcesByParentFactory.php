@@ -28,19 +28,20 @@ use Core\Resources\Application\UseCase\FindResourcesByParent\Response\ResourcesB
 
 final class FindResourcesByParentFactory
 {
-    private const STATUS_CODE_OK = 0,
-        STATUS_CODE_WARNING = 1,
-        STATUS_CODE_CRITICAL = 2,
-        STATUS_CODE_UNKNOWN = 3,
-        STATUS_CODE_PENDING = 4;
+    private const STATUS_CODE_OK = 0;
+    private const STATUS_CODE_WARNING = 1;
+    private const STATUS_CODE_CRITICAL = 2;
+    private const STATUS_CODE_UNKNOWN = 3;
+    private const STATUS_CODE_PENDING = 4;
 
     /**
      * @param list<ResourceResponseDto> $parents
      * @param list<ResourceResponseDto> $children
+     * @param array<string, array<mixed, mixed>> $extraData
      *
      * @return FindResourcesByParentResponse
      */
-    public static function createResponse(array $parents, array $children): FindResourcesByParentResponse
+    public static function createResponse(array $parents, array $children, array $extraData): FindResourcesByParentResponse
     {
         $resources = [];
         foreach ($parents as $parent) {
@@ -57,7 +58,7 @@ final class FindResourcesByParentFactory
             );
         }
 
-        return new FindResourcesByParentResponse($resources);
+        return new FindResourcesByParentResponse($resources, $extraData);
     }
 
     /**

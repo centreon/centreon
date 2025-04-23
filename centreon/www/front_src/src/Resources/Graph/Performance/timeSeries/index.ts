@@ -1,36 +1,36 @@
 import { Scale } from '@visx/visx';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import {
-  map,
-  pipe,
-  reduce,
-  filter,
-  addIndex,
-  isNil,
   path,
-  reject,
-  equals,
-  keys,
-  prop,
-  flatten,
-  propEq,
-  uniq,
-  find,
-  sortBy,
   add,
-  isEmpty,
+  addIndex,
   any,
-  not,
+  equals,
+  filter,
+  find,
+  flatten,
+  isEmpty,
+  isNil,
+  keys,
+  map,
+  max,
   min,
-  max
+  not,
+  pipe,
+  prop,
+  propEq,
+  reduce,
+  reject,
+  sortBy,
+  uniq
 } from 'ramda';
 
-import {
-  Metric,
-  TimeValue,
+import type {
+  AxeScale,
   GraphData,
   Line,
-  AxeScale,
+  Metric,
+  TimeValue,
   Xscale
 } from '../models';
 
@@ -118,7 +118,7 @@ const toLine = ({
   minimum_value,
   name: legend,
   stackOrder: equals(ds_data.ds_stack, '1')
-    ? parseInt(ds_data.ds_order || '0', 10)
+    ? Number.parseInt(ds_data.ds_order || '0', 10)
     : null,
   transparency: ds_data.ds_transparency,
   unit
@@ -334,7 +334,7 @@ const getLeftScale = ({
   dataTimeSeries,
   valueGraphHeight
 }: AxeScale): ScaleLinear<number, number> => {
-  const [firstUnit, thirdUnit] = getUnits(dataLines);
+  const [firstUnit, , thirdUnit] = getUnits(dataLines);
 
   const graphValues = isNil(thirdUnit)
     ? getMetricValuesForUnit({
@@ -377,7 +377,7 @@ const getRightScale = ({
   dataTimeSeries,
   valueGraphHeight
 }: AxeScale): ScaleLinear<number, number> => {
-  const [secondUnit] = getUnits(dataLines);
+  const [, secondUnit] = getUnits(dataLines);
 
   const graphValues = getMetricValuesForUnit({
     lines: dataLines,

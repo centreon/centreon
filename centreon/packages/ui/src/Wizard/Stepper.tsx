@@ -1,10 +1,10 @@
-import { length, gte } from 'ramda';
+import { gte, length } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Stepper as MUIStepper, Step, StepLabel } from '@mui/material';
 
-import { Step as StepType } from './models';
 import StepIcon from './StepIcon';
+import { Step as StepType } from './models';
 
 interface Props {
   currentStep: number;

@@ -432,7 +432,6 @@ CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_port;3306
 CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_user;centreon
 CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_password;centreon
 CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_name;centreon_storage
-CENTBROKERCFG;SETOUTPUT;central-broker-master;2;check_replication;no
 CENTBROKERCFG;SETPARAM;central-module-master;filename;central-module.json
 CENTBROKERCFG;SETPARAM;central-module-master;cache_directory;/var/lib/centreon-engine
 CENTBROKERCFG;SETPARAM;central-module-master;stats_activate;1
@@ -527,6 +526,7 @@ ENGINECFG;setparam;Centreon Engine Central;nagios_activate;1
 ENGINECFG;setparam;Centreon Engine Central;event_broker_options;-1
 ENGINECFG;setparam;Centreon Engine Central;enable_predictive_host_dependency_checks;2
 ENGINECFG;setparam;Centreon Engine Central;enable_predictive_service_dependency_checks;2
+ENGINECFG;setparam;Centreon Engine Central;host_down_disable_service_checks;0
 ENGINECFG;setparam;Centreon Engine Central;cached_host_check_horizon;60
 ENGINECFG;setparam;Centreon Engine Central;enable_environment_macros;2
 ENGINECFG;setparam;Centreon Engine Central;debug_file;/var/log/centreon-engine/centengine.debug

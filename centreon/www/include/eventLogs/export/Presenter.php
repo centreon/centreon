@@ -73,7 +73,7 @@ class Presenter
      * Renders metadata and formatted records as CSV file
      * @return void
      */
-    public function render()
+    public function render(): void
     {
         header('Content-Disposition: attachment;filename="EventLogs.csv";');
         header('Content-Type: application/csv; charset=UTF-8');

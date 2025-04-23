@@ -1,24 +1,27 @@
 import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
+import { federatedModulesAtom } from '@centreon/ui-context';
 import {
-  render,
   RenderResult,
-  waitFor,
-  screen
+  render,
+  screen,
+  waitFor
 } from '@centreon/ui/test/testRenderer';
 
+import { labelYouAreNotAllowedToSeeThisPage } from '../../FallbackPages/NotAllowedPage/translatedLabels';
 import { labelThisPageCouldNotBeFound } from '../../FallbackPages/NotFoundPage/translatedLabels';
-import navigationAtom from '../../Navigation/navigationAtoms';
 import {
   retrievedNavigation,
   retrievedNavigationWithAnEmptySet
 } from '../../Navigation/mocks';
+import navigationAtom from '../../Navigation/navigationAtoms';
 import { retrievedFederatedModule } from '../../federatedModules/mocks';
-import { federatedModulesAtom } from '../../federatedModules/atoms';
-import { labelYouAreNotAllowedToSeeThisPage } from '../../FallbackPages/NotAllowedPage/translatedLabels';
 
+import { TextDecoder, TextEncoder } from 'node:util';
 import ReactRouter from '.';
+
+Object.assign(global, { TextDecoder, TextEncoder });
 
 const labelResourceStatus = 'Resource Status page';
 

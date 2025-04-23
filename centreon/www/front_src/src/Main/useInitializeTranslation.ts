@@ -1,9 +1,9 @@
 import { useLayoutEffect } from 'react';
 
 import i18next, { i18n, Resource, ResourceLanguage } from 'i18next';
+import { useAtomValue } from 'jotai';
 import { mergeAll, pipe, reduce, toPairs } from 'ramda';
 import { initReactI18next } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import { getData, useRequest } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';

@@ -74,7 +74,7 @@ final class NewHostTemplateFactory
             YesNoDefaultConverter::fromScalar($dto->flapDetectionEnabled),
             $dto->lowFlapThreshold,
             $dto->highFlapThreshold,
-            YesNoDefaultConverter::fromScalar($dto->eventHandlerEnabled),
+            $dto->eventHandlerEnabled,
             $dto->eventHandlerCommandId,
             $dto->eventHandlerCommandArgs,
             $dto->noteUrl,

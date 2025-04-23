@@ -36,22 +36,26 @@
 require_once "Centreon/Object/ObjectRt.php";
 
 /**
- * Used for interacting with downtime objects
+ * Class
  *
- * @author Baldo Guillaume
+ * @class Centreon_Object_RtDowntime
  */
 class Centreon_Object_RtDowntime extends Centreon_ObjectRt
 {
+    /** @var string */
     protected $table = "downtimes";
+    /** @var string */
     protected $name = "downtime_name";
+    /** @var string */
     protected $primaryKey = "downtime_id";
+    /** @var string */
     protected $uniqueLabelField = "comment_data";
 
     /**
      * @param array $hostList
      * @return array
      */
-    public function getHostDowntimes($hostList = array())
+    public function getHostDowntimes($hostList = [])
     {
         $hostFilter = '';
 
@@ -76,14 +80,15 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
      * @param array $svcList
      * @return array
      */
-    public function getSvcDowntimes($svcList = array())
+    public function getSvcDowntimes($svcList = [])
     {
         $serviceFilter = '';
 
         if (!empty($svcList)) {
             $serviceFilter = 'AND (';
-            $filterTab = array();
-            for ($i = 0; $i < count($svcList); $i += 2) {
+            $filterTab = [];
+            $counter = count($svcList);
+            for ($i = 0; $i < $counter; $i += 2) {
                 $hostname = $svcList[$i];
                 $serviceDescription = $svcList[$i + 1];
                 $filterTab[] = '(h.name = "' . $hostname . '" AND s.description = "' . $serviceDescription . '")';
@@ -114,6 +119,6 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
     {
         $query = "SELECT * FROM downtimes WHERE ISNULL(actual_end_time) " .
             " AND end_time > " . time() . " AND downtime_id = " . $id;
-        return $this->getResult($query, array(), 'fetch');
+        return $this->getResult($query, [], 'fetch');
     }
 }

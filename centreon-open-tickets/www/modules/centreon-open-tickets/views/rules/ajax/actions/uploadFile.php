@@ -19,10 +19,7 @@
  * limitations under the License.
  */
 
-$resultat = array(
-    "code" => 0,
-    "msg" => 'ok',
-);
+$resultat = ["code" => 0, "msg" => 'ok'];
 
 $uniq_id = $_REQUEST['uniqId'];
 foreach ($_FILES as $file) {
@@ -31,10 +28,10 @@ foreach ($_FILES as $file) {
     @mkdir($dir . '/opentickets', 0750);
     if (rename($file['tmp_name'], $file_dst)) {
         if (!isset($_SESSION['ot_upload_files'])) {
-            $_SESSION['ot_upload_files'] = array();
+            $_SESSION['ot_upload_files'] = [];
         }
         if (!isset($_SESSION['ot_upload_files'][$uniq_id])) {
-            $_SESSION['ot_upload_files'][$uniq_id] = array();
+            $_SESSION['ot_upload_files'][$uniq_id] = [];
         }
 
         $_SESSION['ot_upload_files'][$uniq_id][$file_dst] = 1;

@@ -51,7 +51,7 @@ abstract class SourceAbstract implements SourceInterface
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {

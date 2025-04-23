@@ -135,7 +135,8 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
          * @return \Generator<TinyService>
          */
         $serviceFactory = function (array $data): \Generator {
-            foreach ($data['host'] as $host) {
+            $propertyName = isset($data['hosts']) ? 'hosts' : 'host';
+            foreach ($data[$propertyName] as $host) {
                 yield TinyServiceFactory::createFromApi([
                     'id' => $data['id'],
                     'name' => $data['name'],
@@ -185,6 +186,22 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
      * @inheritDoc
      */
     public function exist(array $serviceIds): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceRelationsByHostGroupId(int $hostGroupId): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNameById(int $serviceId): ?string
     {
         throw RepositoryException::notYetImplemented();
     }

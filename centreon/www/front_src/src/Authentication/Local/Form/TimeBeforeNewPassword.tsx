@@ -1,18 +1,18 @@
 import { useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { FormikValues, useFormikContext } from 'formik';
 import dayjs from 'dayjs';
+import { FormikValues, useFormikContext } from 'formik';
 import { lte } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { FormHelperText, FormLabel } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { labelMinimumTimeBetweenPasswordChanges } from '../translatedLabels';
 import TimeInputs from '../TimeInputs';
 import { TimeInputConfiguration } from '../models';
 import { sevenDays } from '../timestamps';
+import { labelMinimumTimeBetweenPasswordChanges } from '../translatedLabels';
 
 import { getField } from './utils';
 

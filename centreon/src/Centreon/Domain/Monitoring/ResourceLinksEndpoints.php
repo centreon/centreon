@@ -28,34 +28,34 @@ namespace Centreon\Domain\Monitoring;
 class ResourceLinksEndpoints
 {
     /** @var string|null */
-    private ?string $details;
+    private ?string $details = null;
 
     /** @var string|null */
-    private ?string $timeline;
+    private ?string $timeline = null;
 
     /** @var string|null */
-    private ?string $statusGraph;
+    private ?string $statusGraph = null;
 
     /** @var string|null */
-    private ?string $performanceGraph;
+    private ?string $performanceGraph = null;
 
     /** @var string|null */
-    private ?string $acknowledgement;
+    private ?string $acknowledgement = null;
 
     /** @var string|null */
-    private ?string $downtime;
+    private ?string $downtime = null;
 
     /** @var string|null */
-    private ?string $metrics;
+    private ?string $metrics = null;
 
     /** @var string|null */
-    private ?string $notificationPolicy;
+    private ?string $notificationPolicy = null;
 
     /** @var string|null */
-    private ?string $check;
+    private ?string $check = null;
 
     /** @var string|null */
-    private ?string $forcedCheck;
+    private ?string $forcedCheck = null;
 
     /**
      * @return string|null

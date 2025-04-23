@@ -54,26 +54,26 @@ const BASE_ROUTE = './include/common/webServices/rest/internal.php';
 $datasetRoutes = [
     'timeperiods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=list',
     'default_check_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=host&field=timeperiod_tp_id&id=' . $host_id,
-    'default_notification_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=host&field=timeperiod_tp_id2&id=' . $host_id, 
+    'default_notification_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=host&field=timeperiod_tp_id2&id=' . $host_id,
     'hosts' => BASE_ROUTE . '?object=centreon_configuration_host&action=list',
-    'default_host_parents' => BASE_ROUTE . '?object=centreon_configuration_host&action=defaultValues&target=host&field=host_parents&id=' . $host_id, 
+    'default_host_parents' => BASE_ROUTE . '?object=centreon_configuration_host&action=defaultValues&target=host&field=host_parents&id=' . $host_id,
     'default_host_child' => BASE_ROUTE . '?object=centreon_configuration_host&action=defaultValues&target=host&field=host_childs&id=' . $host_id,
     'host_groups' => BASE_ROUTE . '?object=centreon_configuration_hostgroup&action=list',
     'default_host_groups' => BASE_ROUTE . '?object=centreon_configuration_hostgroup&action=defaultValues&target=host&field=host_hgs&id=' . $host_id,
     'host_categories' => BASE_ROUTE . '?object=centreon_configuration_hostcategory&action=list&t=c',
     'default_host_categories' => BASE_ROUTE . '?object=centreon_configuration_hostcategory&action=defaultValues&target=host&field=host_hcs&id=' . $host_id,
-    'default_contacts' => BASE_ROUTE . '?object=centreon_configuration_contact&action=defaultValues&target=host&field=host_cs&id=' . $host_id, 
+    'default_contacts' => BASE_ROUTE . '?object=centreon_configuration_contact&action=defaultValues&target=host&field=host_cs&id=' . $host_id,
     'contacts' => BASE_ROUTE . '?object=centreon_configuration_contact&action=list',
     'default_contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=defaultValues&target=host&field=host_cgs&id=' . $host_id,
     'contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=list',
     'default_timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=defaultValues&target=host&field=host_location&id=' . $host_id,
-    'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list', 
+    'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list',
     'default_commands' => BASE_ROUTE . '?object=centreon_configuration_comman&action=defaultValues&target=host&field=command_command_id&id=' . $host_id,
     'check_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=list&t=2',
     'event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=list',
-    'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $host_id, 
+    'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $host_id,
     'default_acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=defaultValues&target=host&field=acl_groups&id=' . $host_id,
-    'acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list' 
+    'acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list'
 ];
 
 $attributes = [
@@ -222,18 +222,15 @@ if (
     $host = array_map("myDecode", $host_list);
 
     $cmdId = $host['command_command_id'] ?? "";
+    if (! empty($host['host_snmp_community'])) {
+        $host['host_snmp_community'] = PASSWORD_REPLACEMENT_VALUE;
+    }
 
     if (! $isCloudPlatform) {
         // Set Host Notification Options
         $tmp = explode(',', $host['host_notification_options'] ?? '');
         foreach ($tmp as $key => $value) {
             $host['host_notifOpts'][trim($value)] = 1;
-        }
-
-        // Set Stalking Options
-        $tmp = explode(',', $host['host_stalking_options'] ?? '');
-        foreach ($tmp as $key => $value) {
-            $host['host_stalOpts'][trim($value)] = 1;
         }
     }
 
@@ -260,7 +257,7 @@ if (
     $statement = $pearDB->prepare('SELECT `nagios_server_id` FROM `ns_host_relation` WHERE `host_host_id` = :host_id');
     $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
     $statement->execute();
-    for (($o !== HOST_MASSIVE_CHANGE) ? $i = 0 : $i = 1; $ns = $statement->fetch(); $i++) {
+    for ($i = ($o !== HOST_MASSIVE_CHANGE) ? 0 : 1; $ns = $statement->fetch(); $i++) {
         $host['nagios_server_id'][$i] = $ns['nagios_server_id'];
     }
     unset($ns);
@@ -349,7 +346,7 @@ $cdata->addJsData('clone-values-macro', htmlspecialchars(
 $cdata->addJsData('clone-count-macro', count($aMacros));
 
 // Preset values of host templates
-$tplArray = $hostObj->getTemplates(isset($host_id) ? $host_id : null);
+$tplArray = $hostObj->getTemplates($host_id ?? null);
 $cdata->addJsData('clone-values-template', htmlspecialchars(
     json_encode($tplArray),
     ENT_QUOTES
@@ -367,7 +364,7 @@ $statement = $pearDB->query(
     . ' ORDER BY name'
 );
 while ($nsServer = $statement->fetch()) {
-    $nsServers[$nsServer['id']] = $nsServer['name'];
+    $nsServers[$nsServer['id']] = HtmlSanitizer::createFromString($nsServer['name'])->sanitize()->getString();
 }
 $statement->closeCursor();
 
@@ -434,7 +431,17 @@ if ($o !== HOST_MASSIVE_CHANGE) {
     }
 }
 
-$form->addElement('text', 'host_snmp_community', _('SNMP Community'), $attrsText);
+switch ($o) {
+    case HOST_ADD:
+    case HOST_MASSIVE_CHANGE:
+        $form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
+        break;
+    default:
+        $snmpAttribute = $attrsText;
+        $snmpAttribute['onClick'] = 'javascript:change_snmp_community_input_type(this)';
+        $form->addElement('password', 'host_snmp_community', _("SNMP Community"), $snmpAttribute);
+        break;
+}
 $form->addElement('select', 'host_snmp_version', _('Version'), [null => null, 1 => '1', '2c' => '2c', 3 => '3']);
 $form->addElement('select2', 'host_location', _('Timezone'), [], $attributes['timezones']);
 $form->addElement('select', 'nagios_server_id', _('Monitoring server'), $nsServers);
@@ -529,47 +536,46 @@ $form->addElement('text', 'host_max_check_attempts', _('Max Check Attempts'), $a
 $form->addElement('text', 'host_check_interval', _('Normal Check Interval'), $attrsText2);
 $form->addElement('text', 'host_retry_check_interval', _('Retry Check Interval'), $attrsText2);
 
-if (! $isCloudPlatform) {
-    $form->addElement('header', 'check', _('Host Check Properties'));
+$form->addElement('header', 'check', _('Host Check Properties'));
 
-    $checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
-    $checkCommandSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
-    );
+$checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
+$checkCommandSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
+);
 
-    $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
+$form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
 
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
-    $form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_event_handler_enabled' => '2']);
-    }
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
+$form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_event_handler_enabled' => '2']);
+}
 
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
-    $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
-    $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
+$eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
+$eventHandlerSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+);
 
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2');
-    $form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_active_checks_enabled' => '2']);
-    }
+$form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
 
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2');
-    $form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_passive_checks_enabled' => '2']);
-    }
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1');
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0');
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2');
+$form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_active_checks_enabled' => '2']);
+}
+
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1');
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0');
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2');
+$form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_passive_checks_enabled' => '2']);
 }
 
 $form->addElement('select2', 'timeperiod_tp_id', _('Check Period'), [], $attributes['check_periods']);
@@ -634,7 +640,7 @@ if ($o === HOST_MASSIVE_CHANGE) {
 $dbResult = $pearDB->query('SELECT `value` FROM options WHERE `key` = "inheritance_mode"');
 $inheritanceMode = $dbResult->fetch();
 
-if (! $isCloudPlatform) { 
+if (! $isCloudPlatform) {
     if ($o === HOST_MASSIVE_CHANGE) {
         $contactAdditive[] = $form->createElement('radio', 'mc_contact_additive_inheritance', null, _('Yes'), '1');
         $contactAdditive[] = $form->createElement('radio', 'mc_contact_additive_inheritance', null, _('No'), '0');
@@ -777,11 +783,6 @@ if (! $isCloudPlatform) {
         ),
     ];
     $form->addGroup($hostNotifOpt, 'host_notifOpts', _('Notification Options'), '&nbsp;&nbsp;');
-
-    $hostStalOpt[] = $form->createElement('checkbox', 'o', '&nbsp;', _('Up'));
-    $hostStalOpt[] = $form->createElement('checkbox', 'd', '&nbsp;', _('Down'));
-    $hostStalOpt[] = $form->createElement('checkbox', 'u', '&nbsp;', _('Unreachable'));
-    $form->addGroup($hostStalOpt, 'host_stalOpts', _('Stalking Options'), '&nbsp;&nbsp;');
 }
 
 //
@@ -797,6 +798,10 @@ if ($o !== HOST_MASSIVE_CHANGE) {
 $form->addElement('textarea', 'host_comment', _('Comments'), $attrsTextarea);
 
 $form->addElement('select2', 'host_hgs', _('Host Groups'), [], $attributes['host_groups']);
+
+if ($isCloudPlatform && $o !== HOST_MASSIVE_CHANGE) {
+    $form->addRule('host_hgs', _('Mandatory field for ACL purpose.'), 'required');
+}
 
 if ($o === HOST_MASSIVE_CHANGE) {
     $mc_mod_hhg = [];
@@ -873,14 +878,6 @@ if (! $isCloudPlatform) {
 
     $form->addElement('header', 'treatment', _('Data Processing'));
 
-    $hostOOH[] = $form->createElement('radio', 'host_obsess_over_host', null, _('Yes'), '1');
-    $hostOOH[] = $form->createElement('radio', 'host_obsess_over_host', null, _('No'), '0');
-    $hostOOH[] = $form->createElement('radio', 'host_obsess_over_host', null, _('Default'), '2');
-    $form->addGroup($hostOOH, 'host_obsess_over_host', _('Obsess Over Host'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_obsess_over_host' => '2']);
-    }
-
     $hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('Yes'), '1');
     $hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('No'), '0');
     $hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('Default'), '2');
@@ -901,21 +898,6 @@ if (! $isCloudPlatform) {
     $form->addElement('text', 'host_low_flap_threshold', _('Low Flap Threshold'), $attrsText2);
     $form->addElement('text', 'host_high_flap_threshold', _('High Flap Threshold'), $attrsText2);
 
-    $hostRSI[] = $form->createElement('radio', 'host_retain_status_information', null, _('Yes'), '1');
-    $hostRSI[] = $form->createElement('radio', 'host_retain_status_information', null, _('No'), '0');
-    $hostRSI[] = $form->createElement('radio', 'host_retain_status_information', null, _('Default'), '2');
-    $form->addGroup($hostRSI, 'host_retain_status_information', _('Retain Status Information'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_retain_status_information' => '2']);
-    }
-
-    $hostRNI[] = $form->createElement('radio', 'host_retain_nonstatus_information', null, _('Yes'), '1');
-    $hostRNI[] = $form->createElement('radio', 'host_retain_nonstatus_information', null, _('No'), '0');
-    $hostRNI[] = $form->createElement('radio', 'host_retain_nonstatus_information', null, _('Default'), '2');
-    $form->addGroup($hostRNI, 'host_retain_nonstatus_information', _('Retain Non Status Information'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_retain_nonstatus_information' => '2']);
-    }
 }
 
 $form->addElement('select', 'ehi_icon_image', _('Icon'), $extImg, [
@@ -943,8 +925,6 @@ if (! $isCloudPlatform) {
         'onChange' => "showLogo('ehi_statusmap_image_img',this.value)",
         'onkeyup' => 'this.blur();this.focus();',
     ]);
-    $form->addElement('text', 'ehi_2d_coords', _('2d Coords'), $attrsText2);
-    $form->addElement('text', 'ehi_3d_coords', _('3d Coords'), $attrsText2);
 }
 
 $form->addElement('text', 'ehi_notes', _('Note'), $attrsText);
@@ -1057,11 +1037,7 @@ if ($o !== HOST_MASSIVE_CHANGE) {
         );
     }
 } elseif ($o === HOST_MASSIVE_CHANGE) {
-    if ($form->getSubmitValue('submitMC')) {
-        $from_list_menu = false;
-    } else {
-        $from_list_menu = true;
-    }
+    $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
 }
 
 $form->setRequiredNote("<i style='color: red;'>*</i>&nbsp;" . _('Required fields'));
@@ -1071,9 +1047,8 @@ $macChecker->setValue(1);
 $form->registerRule('macHandler', 'callback', 'hostMacHandler');
 $form->addRule('macChecker', _('You cannot override reserved macros'), 'macHandler');
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     'alert_check_interval',
@@ -1167,40 +1142,25 @@ if ($o !== HOST_ADD && $o !== HOST_MODIFY) {
 $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        $hostObj->setValue(insertHostInDB());
-    } elseif ($form->getSubmitValue('submitC')) {
-        /*
-         * Before saving, we check if a password macro has changed its name to be able to give it the right password
-         * instead of wildcards (PASSWORD_REPLACEMENT_VALUE).
-         */
-        if (isset($_REQUEST['macroInput'])) {
-            foreach ($_REQUEST['macroInput'] as $index => $macroName) {
-                if (array_key_exists('macroOriginalName_' . $index, $_REQUEST)) {
-                    $originalMacroName = $_REQUEST['macroOriginalName_' . $index];
-                    if ($_REQUEST['macroValue'][$index] === PASSWORD_REPLACEMENT_VALUE) {
-                        /*
-                         * The password has not been changed along with the name, so its value is equal to the wildcard.
-                         * We will therefore recover the password stored for its original name.
-                         */
-                        foreach ($aMacros as $indexMacro => $macroDetails) {
-                            if ($macroDetails['macroInput_#index#'] === $originalMacroName) {
-                                $_REQUEST['macroValue'][$index] = $macroPasswords[$indexMacro]['password'];
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+        if (null !== $hostId = insertHostInAPI($formData)) {
+            $hostObj->setValue($hostId);
+            $o = HOST_WATCH;
+            $valid = true;
         }
-        updateHostInDB($hostObj->getValue());
+    } elseif ($form->getSubmitValue('submitC')) {
+        if (false !== updateHostInApi((int) $hostObj->getValue(), $formData)) {
+            $o = HOST_WATCH;
+            $valid = true;
+        }
     } elseif ($form->getSubmitValue('submitMC')) {
         foreach (array_keys($select) as $hostIdToUpdate) {
-            updateHostInDB($hostIdToUpdate, true);
+            updateHostInDB_MC($hostIdToUpdate);
         }
+        $o = HOST_WATCH;
+        $valid = true;
     }
-    $o = HOST_WATCH;
-    $valid = true;
 } elseif ($form->isSubmitted()) {
     $tpl->assign('macChecker', "<i style='color:red;'>" . $form->getElementError('macChecker') . '</i>');
 }
@@ -1225,12 +1185,12 @@ if ($valid) {
         $tpl->assign('Freshness_Control_options', _('Freshness Control options'));
         $tpl->assign('Flapping_Options', _('Flapping options'));
         $tpl->assign('History_Options', _('History Options'));
-        $tpl->assign('Event_Handler', _('Event Handler'));
         $tpl->assign('hostID', $host_id);
         $tpl->assign('add_mtp_label', _('Add a template'));
         $tpl->assign('tpl', 0);
         $tpl->assign('is_not_template', $host_register);
     }
+    $tpl->assign('Event_Handler', _('Event Handler'));
     $tpl->assign('inheritance', $inheritanceMode['value']);
     $tpl->assign('topdoc', _('Documentation'));
     $tpl->assign('custom_macro_label', _('Custom macros'));
@@ -1248,7 +1208,6 @@ if ($valid) {
     ?>
     <script type="text/javascript">
         showLogo('ehi_icon_image_img', document.getElementById('ehi_icon_image').value);
-        showLogo('ehi_statusmap_image_img', document.getElementById('ehi_statusmap_image').value);
 
         function uncheckNotifOption(object) {
             if (object.id == "notifN" && object.checked) {

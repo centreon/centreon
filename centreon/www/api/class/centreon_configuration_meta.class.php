@@ -37,10 +37,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationMeta
+ */
 class CentreonConfigurationMeta extends CentreonConfigurationObjects
 {
     /**
-     * CentreonConfigurationMeta constructor.
+     * CentreonConfigurationMeta constructor
      */
     public function __construct()
     {
@@ -49,6 +54,7 @@ class CentreonConfigurationMeta extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
@@ -58,7 +64,7 @@ class CentreonConfigurationMeta extends CentreonConfigurationObjects
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
         $aclMetaServices = '';
-        $queryValues = array();
+        $queryValues = [];
 
         /* Get ACL if user is not admin */
         if (!$isAdmin) {
@@ -67,11 +73,7 @@ class CentreonConfigurationMeta extends CentreonConfigurationObjects
         }
 
         // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['name'] = '%%';
-        }
+        $queryValues['name'] = isset($this->arguments['q']) ? '%' . (string)$this->arguments['q'] . '%' : '%%';
 
         $queryMeta = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT meta_id, meta_name, meta_activate FROM meta_service ' .
             'WHERE meta_name LIKE :name ' .
@@ -99,18 +101,11 @@ class CentreonConfigurationMeta extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $metaList = array();
+        $metaList = [];
         while ($data = $stmt->fetch()) {
-            $metaList[] = array(
-                'id' => $data['meta_id'],
-                'text' => $data['meta_name'],
-                'status' => (bool) $data['meta_activate'],
-            );
+            $metaList[] = ['id' => $data['meta_id'], 'text' => $data['meta_name'], 'status' => (bool) $data['meta_activate']];
         }
 
-        return array(
-            'items' => $metaList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $metaList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

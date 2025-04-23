@@ -28,6 +28,16 @@ class RuleException extends \Exception
     public const CODE_CONFLICT = 1;
 
     /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileDeleting(\Throwable $ex): self
+    {
+        return new self(_('Error while deleting the resource access rule'), 0, $ex);
+    }
+
+    /**
      * @return self
      */
     public static function notAllowed(): self
@@ -65,6 +75,11 @@ class RuleException extends \Exception
     public static function addRule(): self
     {
         return new self(_('Error while adding a resource access rule'));
+    }
+
+    public static function updateRule(): self
+    {
+        return new self(_('Error while updating the resource access rule'));
     }
 
     /**

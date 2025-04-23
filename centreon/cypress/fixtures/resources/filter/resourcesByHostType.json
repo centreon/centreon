@@ -1,0 +1,67 @@
+{
+    "meta":{
+        "limit": 10,
+        "page": 1,
+        "search": {},
+        "sort_by": {},
+        "total": 1
+      },
+    "result":[{
+    "alias": "SensorProbe-Datacenter-04",
+    "chart_url": null,
+    "duration": "5m 23s",
+    "fqdn": "SensorProbe-Datacenter-04",
+    "has_active_checks_enabled": true,
+    "has_passive_checks_enabled": false,
+    "host_id": 143,
+    "icon": {
+      "name": "climate_64",
+      "url": "/centreon/img/media/Hardware/climate_64.png"
+    },
+    "id": 143,
+    "information": "OK - SensorProbe-Datacenter-04: rta 0.873ms, lost 0%",
+    "is_acknowledged": false,
+    "is_in_downtime": false,
+    "last_check": "2m 26s",
+    "last_status_change": "2023-10-11T17:05:57+02:00",
+    "links": {
+      "endpoints": {
+        "acknowledgement": "/centreon/api/latest/monitoring/hosts/143/acknowledgements?limit=1",
+        "details": "/centreon/api/latest/monitoring/resources/hosts/143",
+        "downtime": "/centreon/api/latest/monitoring/hosts/143/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1697037080%7D,%22end_time%22:%7B%22%24gt%22:1697037080%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1697037080%7D%7D%7D%7D%5D%7D",
+        "notification_policy": null,
+        "performance_graph": null,
+        "status_graph": null,
+        "timeline": "/centreon/api/latest/monitoring/hosts/143/timeline"
+      },
+      "externals": {
+        "action_url": "",
+        "notes": {
+          "label": "",
+          "url": ""
+        }
+      },
+      "uris": {
+        "configuration": "/centreon/main.php?p=60101&o=c&host_id=143",
+        "logs": "/centreon/main.php?p=20301&h=143",
+        "reporting": "/centreon/main.php?p=307&host=143"
+      }
+    },
+    "monitoring_server_name": "Central",
+    "name": "SensorProbe-Datacenter-04",
+    "notification_enabled": false,
+    "parent": null,
+    "performance_data": null,
+    "service_id": null,
+    "severity": null,
+    "short_type": "h",
+    "status": {
+      "code": 0,
+      "name": "UP",
+      "severity_code": 5
+    },
+    "tries": "1/5 (H)",
+    "type": "host",
+    "uuid": "h143"
+  }]
+}

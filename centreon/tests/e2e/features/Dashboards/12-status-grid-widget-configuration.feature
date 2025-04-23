@@ -46,3 +46,32 @@ Feature: Configuring status grid widget
     When the dashboard administrator user duplicates the Status Grid widget
     Then a second Status Grid widget is displayed on the dashboard
     And the second widget has the same properties as the first widget
+
+  @TEST_MON-130767
+  Scenario: Access the resource status page by clicking on a resource from the status grid widget
+    Given a dashboard with a Status Grid widget
+    When the dashboard administrator clicks on a random resource
+    Then the user should be redirected to the resource status screen and all the resources must be displayed
+
+  @TEST_MON-148286
+  Scenario: Adding a new host and verifying widget behavior
+    Given a new host is successfully added and configured
+    When the dashboard administrator adds a status grid widget
+    Then the newly added host is displayed in the status grid widget
+
+  @TEST_MON-149365
+  Scenario: Adding and Filtering Resources in a Status Grid Widget on a Dashboard
+    Given a dashboard in the dashboard administrator user's dashboard library
+    When the dashboard administrator user selects the option to add a new widget
+    And selects the widget type "Status Grid"
+    And searches for a specific resource type
+    Then only the resource that matches the search input is displayed in the results
+
+  @TEST_MON-153189
+  Scenario: Verifying the Proper Functionality of the Resource Filter
+    Given a dashboard in the dashboard administrator user's dashboard library
+    When the dashboard administrator user selects the option to add a new widget
+    And selects the widget type "Status Grid"
+    Then configuration properties for the Status Grid widget are displayed
+    When the dashboard administrator selects a service by typing a single character
+    Then only the services containing the typed character should be displayed in the list

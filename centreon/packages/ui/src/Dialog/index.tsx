@@ -4,12 +4,14 @@ import { makeStyles } from 'tss-react/mui';
 
 import {
   Button,
-  Dialog as MuiDialog,
-  DialogTitle,
-  DialogContent,
+  ButtonProps,
+  CircularProgress,
   DialogActions,
+  DialogContent,
   DialogProps,
-  CircularProgress
+  DialogTitle,
+  DialogTitleProps,
+  Dialog as MuiDialog
 } from '@mui/material';
 
 import { DataTestAttributes } from '../@types/data-attributes';
@@ -36,6 +38,7 @@ export type Props = {
   className?: string;
   confirmDisabled?: boolean;
   contentWidth?: number;
+  dialogTitleProps?: DialogTitleProps;
   dialogActionsClassName?: string;
   dialogConfirmButtonClassName?: string;
   dialogContentClassName?: string;
@@ -48,6 +51,8 @@ export type Props = {
   onClose?: () => void;
   onConfirm: (event, value?) => void;
   open: boolean;
+  restCancelButtonProps?: ButtonProps;
+  restConfirmButtonProps?: ButtonProps;
   submitting?: boolean;
 } & DialogProps &
   DataTestAttributes;
@@ -65,11 +70,14 @@ const Dialog = ({
   confirmDisabled = false,
   cancelDisabled = false,
   submitting = false,
+  dialogTitleProps,
   dialogPaperClassName,
   dialogTitleClassName,
   dialogContentClassName,
   dialogActionsClassName,
   dialogConfirmButtonClassName,
+  restCancelButtonProps,
+  restConfirmButtonProps,
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ contentWidth });
@@ -85,7 +93,9 @@ const Dialog = ({
       {...rest}
     >
       {labelTitle && (
-        <DialogTitle className={dialogTitleClassName}>{labelTitle}</DialogTitle>
+        <DialogTitle className={dialogTitleClassName} {...dialogTitleProps}>
+          {labelTitle}
+        </DialogTitle>
       )}
       {children && (
         <DialogContent
@@ -101,6 +111,7 @@ const Dialog = ({
             data-testid="Cancel"
             disabled={cancelDisabled}
             onClick={onCancel}
+            {...restCancelButtonProps}
           >
             {labelCancel}
           </Button>
@@ -113,6 +124,7 @@ const Dialog = ({
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}
           onClick={onConfirm}
+          {...restConfirmButtonProps}
         >
           {labelConfirm}
         </Button>

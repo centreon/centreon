@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,8 +37,9 @@ use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Host\Application\Converter\HostEventConverter;
-use Core\Host\Application\InheritanceManager;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -58,7 +59,7 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
     $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class);
     $this->readCommandMacroRepository = $this->createMock(ReadCommandMacroRepositoryInterface::class);
@@ -82,6 +83,8 @@ beforeEach(function () {
         $this->optionService = $this->createMock(OptionService::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
+        $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -134,7 +137,7 @@ beforeEach(function () {
     $this->request->highFlapThreshold = 5;
     $this->request->eventHandlerEnabled = 1;
     $this->request->eventHandlerCommandId = 2;
-    $this->request->eventHandlerCommandArgs = ["arg3", "  arg4"];
+    $this->request->eventHandlerCommandArgs = ['arg3', '  arg4'];
     $this->request->noteUrl = 'noteUrl-value edit';
     $this->request->note = 'note-value edit';
     $this->request->actionUrl = 'actionUrl-value edit';
@@ -195,7 +198,7 @@ beforeEach(function () {
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [
-        $this->commandMacro->getName() => $this->commandMacro
+        $this->commandMacro->getName() => $this->commandMacro,
     ];
     $this->hostMacros = [
         $this->macroA->getName() => $this->macroA,
@@ -208,16 +211,16 @@ beforeEach(function () {
 
     $this->request->macros = [
         [
-            'name' =>   $this->macroA->getName(),
-            'value' =>  $this->macroA->getValue() . '_edit',
-            'is_password' =>  $this->macroA->isPassword(),
-            'description' =>  $this->macroA->getDescription()
+            'name' => $this->macroA->getName(),
+            'value' => $this->macroA->getValue() . '_edit',
+            'is_password' => $this->macroA->isPassword(),
+            'description' => $this->macroA->getDescription(),
         ],
         [
-            'name' =>   'macroNameC',
-            'value' =>  'macroValueC',
-            'is_password' =>  false,
-            'description' =>  null
+            'name' => 'macroNameC',
+            'value' => 'macroValueC',
+            'is_password' => false,
+            'description' => null,
         ],
     ];
 
@@ -226,7 +229,6 @@ beforeEach(function () {
     $this->categoryB = new HostCategory(2, 'cat-name-B', 'cat-alias-B');
 
     $this->request->categories = [$this->categoryB->getId()];
-
 });
 
 // Generic usecase tests
@@ -245,11 +247,17 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(HostTemplateException::writeActionsNotAllowed()->getMessage());
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -263,14 +271,20 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(HostTemplateException::partialUpdateHostTemplate()->getMessage());
 });
 
-it('should present a NotFoundResponse when the host template does not exist', function () {
+it('should present a NotFoundResponse when the host template does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->willReturn(null);
 
     ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
@@ -281,12 +295,18 @@ it('should present a NotFoundResponse when the host template does not exist', fu
         ->toBe('Host template not found');
 });
 
-it('should present a InvalidArgumentResponse when the host template is locked', function () {
+it('should present a InvalidArgumentResponse when the host template is locked', function (): void {
     $hostTemplate = new HostTemplate(id: 1, name: 'tpl-name', alias: 'tpl-alias', isLocked: true);
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -307,6 +327,12 @@ it('should present a ConflictResponse when name is already used', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -340,9 +366,15 @@ it('should present a ConflictResponse when host severity ID is not valid', funct
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->willReturn($this->originalHostTemplate);
 
     $this->validation
@@ -365,6 +397,12 @@ it('should present a ConflictResponse when a host timezone ID is not valid', fun
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -390,9 +428,15 @@ it('should present a ConflictResponse when a timeperiod ID is not valid', functi
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->willReturn($this->originalHostTemplate);
 
     $this->validation
@@ -423,6 +467,12 @@ it('should present a ConflictResponse when a command ID is not valid', function 
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -456,9 +506,15 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->willReturn($this->originalHostTemplate);
 
     $this->validation
@@ -569,7 +625,7 @@ it('should present a ConflictResponse when a parent template create a circular i
 
 // Tests for categories
 
-it('should present a ConflictResponse when a host category does not exist', function () {
+it('should present a ConflictResponse when a host category does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -639,7 +695,7 @@ it('should present a ConflictResponse when a host category does not exist', func
 
 // Test for successful request
 
-it('should present a NoContentResponse on success', function () {
+it('should present a NoContentResponse on success', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

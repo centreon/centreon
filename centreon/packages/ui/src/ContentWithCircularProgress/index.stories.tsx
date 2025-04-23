@@ -1,7 +1,7 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography, Theme } from '@mui/material';
+import { Theme, Typography } from '@mui/material';
 
 import ContentWithCircularLoading from '.';
 

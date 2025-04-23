@@ -5,48 +5,49 @@ import type { SelectEntry } from '@centreon/ui';
 import { SortOrder } from '../../models';
 import {
   labelAcknowledged,
-  labelInDowntime,
-  labelUnhandled,
-  labelHost,
-  labelService,
-  labelOk,
-  labelUp,
-  labelWarning,
-  labelDown,
+  labelAnomalyDetection,
   labelCritical,
-  labelUnreachable,
-  labelUnknown,
-  labelPending,
-  labelHostGroup,
-  labelType,
-  labelServiceGroup,
-  labelState,
-  labelStatus,
-  labelMonitoringServer,
-  labelMetaService,
-  labelStatusType,
+  labelDown,
+  labelFlapping,
   labelHard,
-  labelSoft,
+  labelHost,
   labelHostCategory,
-  labelServiceCategory,
-  labelServiceSeverity,
+  labelHostGroup,
   labelHostSeverity,
   labelHostSeverityLevel,
-  labelServiceSeverityLevel,
-  labelAnomalyDetection,
+  labelInDowntime,
+  labelMetaService,
+  labelMonitoringServer,
   labelName,
-  labelParentName
+  labelOk,
+  labelParentName,
+  labelPending,
+  labelService,
+  labelServiceCategory,
+  labelServiceGroup,
+  labelServiceSeverity,
+  labelServiceSeverityLevel,
+  labelSoft,
+  labelState,
+  labelStatus,
+  labelStatusType,
+  labelType,
+  labelUnhandled,
+  labelUnknown,
+  labelUnreachable,
+  labelUp,
+  labelWarning
 } from '../../translatedLabels';
 import {
-  buildHostGroupsEndpoint,
   buildHostCategoriesEndpoint,
-  buildServiceCategoriesEndpoint,
-  buildMonitoringServersEndpoint,
-  buildServiceGroupsEndpoint,
+  buildHostGroupsEndpoint,
   buildHostServeritiesEndpoint,
+  buildHostsEndpoint,
+  buildMonitoringServersEndpoint,
+  buildServiceCategoriesEndpoint,
+  buildServiceGroupsEndpoint,
   buildServiceSeveritiesEndpoint,
-  buildServicesEndpoint,
-  buildHostsEndpoint
+  buildServicesEndpoint
 } from '../api/endpoint';
 
 import { SearchableFields } from './searchQueryLanguage/models';
@@ -79,6 +80,7 @@ const criteriaValueNameById = {
   hard: labelHard,
   host: labelHost,
   in_downtime: labelInDowntime,
+  in_flapping: labelFlapping,
   metaservice: labelMetaService,
   service: labelService,
   soft: labelSoft,
@@ -103,7 +105,18 @@ const inDowntimeState = {
   name: criteriaValueNameById[inDowntimeStateId]
 };
 
-const selectableStates = [unhandledState, acknowledgedState, inDowntimeState];
+const inFlappingStateId = 'in_flapping';
+const inFlappingState = {
+  id: inFlappingStateId,
+  name: criteriaValueNameById[inFlappingStateId]
+};
+
+const selectableStates = [
+  unhandledState,
+  acknowledgedState,
+  inDowntimeState,
+  inFlappingState
+];
 
 const hostResourceTypeId = 'host';
 const hostResourceType = {

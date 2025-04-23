@@ -1,0 +1,5 @@
+FindRealTimeHostStatusesCount:
+  methods: GET
+  path: /monitoring/hosts/status
+  controller: 'Core\Host\Infrastructure\API\FindRealTimeHostStatusesCount\FindRealTimeHostStatusesCountController'
+  condition: "request.attributes.get('version') >= 24.04"

@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
+import { RenderResult, render } from '@testing-library/react';
+import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
-import { render, RenderResult } from '@testing-library/react';
 import { Provider, useSetAtom } from 'jotai';
 
-import { userAtom, ThemeMode } from '@centreon/ui-context';
+import { ThemeMode, userAtom } from '@centreon/ui-context';
 
 import { useLocaleDateTimeFormat } from '.';
 

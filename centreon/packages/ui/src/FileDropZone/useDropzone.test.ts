@@ -1,4 +1,4 @@
-import { act, renderHook, RenderHookResult } from '@testing-library/react';
+import { RenderHookResult, act, renderHook } from '@testing-library/react';
 
 import { labelFileTooBig, labelInvalidFileType } from './translatedLabels';
 import useDropzone, { UseDropzoneProps, UseDropzoneState } from './useDropzone';

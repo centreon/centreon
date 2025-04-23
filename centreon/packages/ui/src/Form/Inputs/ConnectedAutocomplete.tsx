@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, isEmpty, path, split } from 'ramda';
+import { path, equals, isEmpty, propEq, reject, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -30,8 +30,15 @@ const ConnectedAutocomplete = ({
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
-  const { values, touched, errors, setFieldValue, setFieldTouched } =
-    useFormikContext<FormikValues>();
+  const {
+    values,
+    touched,
+    errors,
+    setFieldValue,
+    setFieldTouched,
+    setValues,
+    setTouched
+  } = useFormikContext<FormikValues>();
 
   const filterKey = connectedAutocomplete?.filterKey || defaultFilterKey;
 
@@ -58,18 +65,20 @@ const ConnectedAutocomplete = ({
   const changeAutocomplete = useCallback(
     (_, value): void => {
       if (change) {
-        change({ setFieldValue, value });
+        change({
+          setFieldValue,
+          value,
+          setFieldTouched,
+          setValues,
+          values,
+          setTouched
+        });
 
         return;
       }
 
+      setFieldTouched(fieldName, true, false);
       setFieldValue(fieldName, value);
-
-      if (path(fieldNamePath, touched)) {
-        return;
-      }
-
-      setFieldTouched(fieldName, true);
     },
     [fieldName, touched, additionalMemoProps]
   );
@@ -102,9 +111,22 @@ const ConnectedAutocomplete = ({
     [isMultiple]
   );
 
+  const deleteItem = (_, option): void => {
+    const newValue = reject(propEq(option.id, 'id'), value);
+
+    setFieldTouched(fieldName, true, false);
+    setFieldValue(fieldName, newValue);
+  };
+
+  const chipProps = connectedAutocomplete && {
+    color: connectedAutocomplete?.chipColor || 'default',
+    onDelete: deleteItem
+  };
+
   return useMemoComponent({
     Component: (
       <AutocompleteField
+        chipProps={chipProps}
         dataTestId={dataTestId}
         disableClearable={false}
         disableSortedOptions={disableSortedOptions}
@@ -121,6 +143,8 @@ const ConnectedAutocomplete = ({
         value={value ?? null}
         onBlur={blur}
         onChange={changeAutocomplete}
+        disableSelectAll={connectedAutocomplete?.disableSelectAll}
+        limitTags={connectedAutocomplete?.limitTags}
       />
     ),
     memoProps: [

@@ -3,16 +3,16 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+
 import {
+  Box,
   Collapse,
-  Tooltip,
-  IconButton as MuiIconButton,
-  Typography,
   ListItemButton,
-  Box
+  IconButton as MuiIconButton,
+  Tooltip,
+  Typography
 } from '@mui/material';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMore from '@mui/icons-material/ExpandMore';
 
 import { Group } from './Inputs/models';
 
@@ -43,7 +43,8 @@ const useStyles = makeStyles()((theme) => ({
   },
   tooltip: {
     maxWidth: theme.spacing(60)
-  }
+  },
+  title: {}
 }));
 
 const CollapsibleGroup = ({
@@ -65,7 +66,7 @@ const CollapsibleGroup = ({
 
   const containerClassName = className || '';
 
-  const CollapseIcon = isOpen ? ExpandMore : ChevronRightIcon;
+  const CollapseIcon = isOpen ? ExpandLess : ExpandMore;
   const ContainerComponent = useCallback(
     ({
       children: containerComponentChildren
@@ -97,7 +98,7 @@ const CollapsibleGroup = ({
           <div className={classes.groupTitleIcon}>
             <Typography
               className="groupText"
-              variant="h5"
+              variant="h6"
               {...group?.titleAttributes}
             >
               {t(group?.name as string)}

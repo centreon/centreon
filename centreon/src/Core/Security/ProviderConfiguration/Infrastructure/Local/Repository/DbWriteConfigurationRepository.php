@@ -144,7 +144,7 @@ class DbWriteConfigurationRepository extends AbstractRepositoryDRB implements Wr
      */
     private function addExcludedUsers(array $excludedUserIds): void
     {
-        if (empty($excludedUserIds)) {
+        if ($excludedUserIds === []) {
             return;
         }
 

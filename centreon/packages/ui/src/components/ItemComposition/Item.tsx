@@ -10,8 +10,8 @@ type Props = {
   children: ReactElement | Array<ReactElement>;
   className?: string;
   deleteButtonHidden?: boolean;
-  labelDelete: string;
-  onDeleteItem: () => void;
+  labelDelete?: string;
+  onDeleteItem?: () => void;
 };
 
 export const Item = ({

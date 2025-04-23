@@ -1,7 +1,7 @@
-import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Theme, alpha } from '@mui/material';
+import { Theme } from '@mui/material';
 
 interface GetBackgroundAndColorProps {
   status: string;
@@ -18,96 +18,65 @@ export const useStyles = makeStyles()((theme) => ({
     '& .MuiListItemText-secondary': {
       textWrap: 'pretty'
     },
-    '&[data-variant="error"]': {
+
+    '&:hover': {
       '& .MuiListItemIcon-root': {
-        color: getColor({ status: 'error', theme })
-      },
+        color: getColor({ status: 'info', theme })
+      }
+    },
+    '&[data-variant="error"]': {
       '&:hover': {
-        background: alpha(
-          theme.palette.error.main,
-          theme.palette.action.focusOpacity
-        ),
-        color: getColor({ status: 'error', theme })
-      },
-      color: theme.palette.error.main
+        '& .MuiListItemIcon-root': {
+          color: getColor({ status: 'error', theme })
+        }
+      }
     },
     '&[data-variant="info"]': {
-      '& .MuiListItemIcon-root': {
-        color: getColor({ status: 'info', theme })
-      },
       '&:hover': {
-        background: alpha(
-          theme.palette.info.main,
-          theme.palette.action.focusOpacity
-        ),
-        color: getColor({ status: 'info', theme })
-      },
-      color: theme.palette.info.main
+        '& .MuiListItemIcon-root': {
+          color: getColor({ status: 'info', theme })
+        }
+      }
     },
+
     '&[data-variant="pending"]': {
-      '& .MuiListItemIcon-root': {
-        color: getColor({ status: 'pending', theme })
-      },
       '&:hover': {
-        background: alpha(
-          theme.palette.pending.main,
-          theme.palette.action.focusOpacity
-        ),
-        color: getColor({ status: 'pending', theme })
-      },
-      color: theme.palette.pending.main
+        '& .MuiListItemIcon-root': {
+          color: getColor({ status: 'pending', theme })
+        }
+      }
     },
+
     '&[data-variant="primary"]': {
-      '& .MuiListItemIcon-root': {
-        color: getColor({ status: 'primary', theme })
-      },
       '&:hover': {
-        background: alpha(
-          theme.palette.primary.main,
-          theme.palette.action.focusOpacity
-        ),
-        color: getColor({ status: 'primary', theme })
-      },
-      color: theme.palette.primary.main
+        '& .MuiListItemIcon-root': {
+          color: getColor({ status: 'primary', theme })
+        }
+      }
     },
+
     '&[data-variant="secondary"]': {
-      '& .MuiListItemIcon-root': {
-        color: getColor({ status: 'secondary', theme })
-      },
       '&:hover': {
-        background: alpha(
-          theme.palette.secondary.main,
-          theme.palette.action.focusOpacity
-        ),
-        color: getColor({ status: 'secondary', theme })
-      },
-      color: theme.palette.secondary.main
+        '& .MuiListItemIcon-root': {
+          color: getColor({ status: 'secondary', theme })
+        }
+      }
     },
+
     '&[data-variant="success"]': {
-      '& .MuiListItemIcon-root': {
-        color: getColor({ status: 'success', theme })
-      },
       '&:hover': {
-        background: alpha(
-          theme.palette.success.main,
-          theme.palette.action.focusOpacity
-        ),
-        color: getColor({ status: 'success', theme })
-      },
-      color: theme.palette.success.main
+        '& .MuiListItemIcon-root': {
+          color: getColor({ status: 'success', theme })
+        }
+      }
     },
+
     '&[data-variant="warning"]': {
-      '& .MuiListItemIcon-root': {
-        color: getColor({ status: 'warning', theme })
-      },
       '&:hover': {
-        background: alpha(
-          theme.palette.warning.main,
-          theme.palette.action.focusOpacity
-        ),
-        color: getColor({ status: 'warning', theme })
-      },
-      color: theme.palette.warning.main
+        '& .MuiListItemIcon-root': {
+          color: getColor({ status: 'warning', theme })
+        }
+      }
     }
   },
   list: {

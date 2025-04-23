@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2016 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,12 +22,17 @@ use CentreonLegacy\Core\Widget;
 use CentreonLegacy\ServiceProvider;
 
 /**
- * Description of factoryTest
+ * Class
  *
- * @author lionel
+ * @class FactoryTest
+ * @package CentreonLegacy\Core\Widget
  */
 class FactoryTest extends \PHPUnit\Framework\TestCase
 {
+
+    /** @var ServiceContainer */
+    public $container;
+
     public function setUp(): void
     {
         $this->container = new ServiceContainer();
@@ -68,25 +73,25 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
         $this->container = null;
     }
 
-    public function testNewInformation()
+    public function testNewInformation(): void
     {
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Information::class, $factory->newInformation());
     }
 
-    public function testNewInstaller()
+    public function testNewInstaller(): void
     {
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Installer::class, $factory->newInstaller('MyWidget'));
     }
     
-    public function testNewUpgrader()
+    public function testNewUpgrader(): void
     {
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Upgrader::class, $factory->newUpgrader('MyWidget'));
     }
     
-    public function testNewRemover()
+    public function testNewRemover(): void
     {
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Remover::class, $factory->newRemover('MyWidget'));

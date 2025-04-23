@@ -23,8 +23,8 @@ declare(strict_types = 1);
 
 namespace Tests\Core\Host\Domain\Model;
 
-use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\SimpleEntity;
+use Core\Common\Domain\TrimmedString;
 use Core\Host\Domain\Model\SmallHost;
 
 beforeEach(function (): void {
@@ -50,11 +50,6 @@ it('should throw an exception when the id property is not a positive number', fu
 
 it('should throw an exception when the name property is empty', function (): void {
     $this->parameters['name'] = new TrimmedString('');
-    new SmallHost(...$this->parameters);
-})->expectException(\Assert\AssertionFailedException::class);
-
-it('should throw an exception when the alias property is empty', function (): void {
-    $this->parameters['alias'] = new TrimmedString('');
     new SmallHost(...$this->parameters);
 })->expectException(\Assert\AssertionFailedException::class);
 

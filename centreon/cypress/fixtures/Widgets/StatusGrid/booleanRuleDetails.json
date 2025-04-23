@@ -1,0 +1,11 @@
+{
+    "id":1,
+    "name":"boolean 1",
+    "status":{
+       "code":0,
+       "name":"OK",
+       "severity_code":5
+    },
+    "is_impacting_when_expression_true":true,
+    "expression_status":false
+}

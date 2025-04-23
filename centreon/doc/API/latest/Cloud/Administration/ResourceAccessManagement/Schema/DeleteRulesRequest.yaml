@@ -1,0 +1,8 @@
+type: object
+properties:
+  ids:
+    type: array
+    description: List of resource access rule IDs to delete
+    items:
+      type: integer
+

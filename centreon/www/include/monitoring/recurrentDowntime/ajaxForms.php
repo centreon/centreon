@@ -40,35 +40,23 @@ if (!isset($centreon)) {
     return;
 }
 
-if (isset($_GET['period'])) {
-    $period_tab = $_GET['period'];
-} else {
-    $period_tab = 1;
-}
+$period_tab = $_GET['period'] ?? 1;
 
-if (isset($_GET['period_form'])) {
-    $form = $_GET['period_form'];
-} else {
-    $form = "general";
-}
+$form = $_GET['period_form'] ?? "general";
 
-    $path = "./include/monitoring/recurrentDowntime/";
+// Smarty template initialization
+$path = "./include/monitoring/recurrentDowntime/";
+$tpl = SmartyBC::createSmartyTemplate($path, 'templates/');
 
-    /*
-	 * Smarty template Init
-	 */
-    $tpl = new Smarty();
-    $tpl = initSmartyTpl($path, $tpl, 'templates/');
+$tpl->assign("period_tab", $period_tab);
 
-    $tpl->assign("period_tab", $period_tab);
-
-    $tpl->assign("days", _("Days"));
-    $tpl->assign("hours", _("Hours"));
-    $tpl->assign("minutes", _("Minutes"));
-    $tpl->assign("seconds", _("Seconds"));
-    $tpl->assign("downtime_type", _("Downtime type"));
-    $tpl->assign("fixed", _("Fixed"));
-    $tpl->assign("flexible", _("Flexible"));
+$tpl->assign("days", _("Days"));
+$tpl->assign("hours", _("Hours"));
+$tpl->assign("minutes", _("Minutes"));
+$tpl->assign("seconds", _("Seconds"));
+$tpl->assign("downtime_type", _("Downtime type"));
+$tpl->assign("fixed", _("Fixed"));
+$tpl->assign("flexible", _("Flexible"));
 
 switch ($form) {
     case "weekly_basis":

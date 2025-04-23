@@ -89,7 +89,7 @@ function hasTopologyNameNeverUsed($topologyName = null)
  * @param int $aclTopologyId ACL topology id to enable
  * @param array $acls Array of ACL topology id to disable
  */
-function enableLCAInDB($aclTopologyId = null, $acls = array())
+function enableLCAInDB($aclTopologyId = null, $acls = [])
 {
     global $pearDB, $centreon;
     
@@ -97,7 +97,7 @@ function enableLCAInDB($aclTopologyId = null, $acls = array())
         return;
     }
     if (is_int($aclTopologyId)) {
-        $acls = array($aclTopologyId => "1");
+        $acls = [$aclTopologyId => "1"];
     }
 
     foreach (array_keys($acls) as $currentAclTopologyId) {
@@ -145,7 +145,7 @@ function enableLCAInDB($aclTopologyId = null, $acls = array())
  * @param int $aclTopologyId ACL topology id to disable
  * @param array $acls Array of ACL topology id to disable
  */
-function disableLCAInDB($aclTopologyId = null, $acls = array())
+function disableLCAInDB($aclTopologyId = null, $acls = [])
 {
     global $pearDB, $centreon;
 
@@ -153,7 +153,7 @@ function disableLCAInDB($aclTopologyId = null, $acls = array())
         return;
     }
     if (is_int($aclTopologyId)) {
-        $acls = array($aclTopologyId => "1");
+        $acls = [$aclTopologyId => "1"];
     }
     
     foreach (array_keys($acls) as $currentTopologyId) {
@@ -200,7 +200,7 @@ function disableLCAInDB($aclTopologyId = null, $acls = array())
  * @global Centreon $centreon
  * @param array $acls
  */
-function deleteLCAInDB($acls = array())
+function deleteLCAInDB($acls = [])
 {
     global $pearDB, $centreon;
     
@@ -249,7 +249,7 @@ function deleteLCAInDB($acls = array())
  * @param array $lcas
  * @param array $nbrDup
  */
-function multipleLCAInDB($acls = array(), $duplicateNbr = array())
+function multipleLCAInDB($acls = [], $duplicateNbr = [])
 {
     global $pearDB, $centreon;
     
@@ -273,7 +273,7 @@ function multipleLCAInDB($acls = array(), $duplicateNbr = array())
         for ($newIndex = 1; $newIndex <= $duplicateNbr[$currentTopologyId]; $newIndex++) {
             $val = null;
             $aclName = null;
-            $fields = array();
+            $fields = [];
             foreach ($topology as $column => $value) {
                 if ($column === 'acl_topo_name') {
                     $count = 1;

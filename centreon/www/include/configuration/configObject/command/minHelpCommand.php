@@ -76,7 +76,7 @@ if (isCommandInAllowedResources($pearDB, $commandPath)) {
     $msg = str_replace("\n", "<br />", $stdout);
 }
 
-$attrsText = array("size" => "25");
+$attrsText = ["size" => "25"];
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
 $form->addElement('header', 'title', _("Plugin Help"));
 
@@ -87,11 +87,8 @@ $form->addElement('header', 'information', _("Help"));
 $form->addElement('text', 'command_line', _("Command Line"), $attrsText);
 $form->addElement('text', 'command_help', _("Output"), $attrsText);
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 /*
  * Apply a template definition

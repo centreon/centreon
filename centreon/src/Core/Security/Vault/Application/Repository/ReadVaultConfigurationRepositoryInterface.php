@@ -28,62 +28,23 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 interface ReadVaultConfigurationRepositoryInterface
 {
     /**
-     * @param int $id
-     *
      * @throws \Throwable
      *
      * @return bool
      */
-    public function exists(int $id): bool;
+    public function exists(): bool;
 
     /**
-     * @param string $address
-     * @param int $port
-     * @param string $rootPath
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    public function existsSameConfiguration(string $address, int $port, string $rootPath): bool;
-
-    /**
-     * @param string $address
-     * @param int $port
-     * @param string $rootPath
-     *
      * @throws \Throwable
      *
      * @return VaultConfiguration|null
      */
-    public function findByAddressAndPortAndRootPath(
-        string $address,
-        int $port,
-        string $rootPath
-    ): ?VaultConfiguration;
+    public function find(): ?VaultConfiguration;
 
     /**
-     * @param int $id
-     *
      * @throws \Throwable
      *
-     * @return VaultConfiguration|null
+     * @return string|null
      */
-    public function findById(int $id): ?VaultConfiguration;
-
-    /**
-     * @param int $vaultId
-     *
-     * @throws \Throwable
-     *
-     * @return VaultConfiguration[]
-     */
-    public function findVaultConfigurationsByVault(int $vaultId): array;
-
-    /**
-     * Get first vault configuration.
-     *
-     * @return VaultConfiguration|null
-     */
-    public function findDefaultVaultConfiguration(): ?VaultConfiguration;
+    public function getLocation(): ?string;
 }

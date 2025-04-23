@@ -1,0 +1,151 @@
+type: object
+properties:
+  uuid:
+    type: string
+    description: "Uniq ID of the resource"
+    example: "h13-s21"
+  type:
+    type: string
+    description: "Type of the resource"
+    example: "service|host"
+  short_type:
+    type: string
+    description: "Short name of the resource type"
+    example: "s|h"
+  id:
+    type: integer
+    format: int32
+    description: "ID of the resource"
+    example: 12
+  alias:
+    type: string
+    nullable: true
+    description: "Resource alias"
+    example: null
+  fqdn:
+    type: string
+    nullable: true
+    description: "Resource fqdn"
+    example: null
+  links:
+    $ref: 'Links.yaml'
+  monitoring_server_name:
+    type: string
+    description: "Monitoring Server from which is monitored the Resource"
+    example: "Central"
+  icon:
+    type: object
+    nullable: true
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: "ID of the image"
+        example: 12
+      name:
+        type: string
+        description: "Name of the icon"
+        example: "memory"
+      url:
+        type: string
+        description: "Url of the icon"
+        example: "/media/memory.png"
+  status:
+    $ref: 'Status.yaml'
+  is_in_downtime:
+    type: boolean
+    description: "Indicates whether resource is in downtime"
+    example: false
+  is_acknowledged:
+    type: boolean
+    description: "Indicates whether resource is acknowledged"
+    example: false
+  is_in_flapping:
+    type: boolean
+    description: "Indicates whether resource is in flapping"
+    example: false
+  percent_state_change:
+    type: float
+    nullable: true
+    description: "Percentage of state change"
+    example: "10.4"
+  duration:
+    type: string
+    nullable: true
+    description: "Duration since last status change"
+    example: "2h 3m"
+  last_status_change:
+    type: string
+    format: date-time
+    nullable: true
+    description: "Date of the last status change (ISO8601)"
+  last_time_with_no_issue:
+    type: string
+    format: date-time
+    nullable: true
+    description: "Date of the last status change (ISO8601)"
+  tries:
+    type: string
+    nullable: true
+    description: "Number of check tries"
+    example: "3/3 (H)"
+  last_check:
+    type: string
+    nullable: true
+    description: "Duration since last check"
+    example: "1h 45m"
+  information:
+    type: string
+    nullable: true
+    description: "Output of the resource"
+    example: "OK - Ping is ok"
+  has_active_checks_enabled:
+    type: boolean
+    nullable: true
+    description: "Indicates whether active checks are enabled"
+    example: true
+  has_passive_checks_enabled:
+    type: boolean
+    nullable: true
+    description: "Indicates whether passive checks are enabled"
+    example: true
+  performance_data:
+    type: string
+    nullable: true
+    description: "Performance data result of the check sent"
+    example: "rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100 "
+  is_notification_enabled:
+    type: boolean
+    description: "Indicates if notifications are enabled for the resource"
+    example: false
+  severity:
+    type: object
+    nullable: true
+    properties:
+      type:
+        type: string
+        description: "Type of severity (host or service)"
+        example: "service"
+      id:
+        type: integer
+        description: "ID of the severity"
+        example: 1
+      name:
+        type: string
+        description: "Name of the severity"
+        example: "Priority 1"
+      icon:
+        type: object
+        properties:
+          id:
+            type: integer
+            description: "ID of the icon"
+            example: 1
+          name:
+            type: string
+            description: "Name of the icon"
+            example: "applications-monitoring-centreon-central-centreon-128-2.png"
+          url:
+            type: string
+            description: "URL for the icon"
+            example: "/centreon/img/media/ppm/applications-monitoring-centreon-central-centreon-128-2.png"

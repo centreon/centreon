@@ -3,16 +3,17 @@ import { useTranslation } from 'react-i18next';
 
 import { Divider } from '@mui/material';
 
+import { labelStatusType } from '../../../translatedLabels';
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
+import MemoizedCheckBox from '../MemoizedCheckBox';
 import { displayInformationFilterAtom } from '../basicFilter/atoms';
+import MemoizedInputGroup from '../basicFilter/sections/MemoizedInputGroup';
 import { useStyles } from '../criterias.style';
-import { ChangedCriteriaParams } from '../model';
+import { ChangedCriteriaParams, ExtendedCriteria } from '../model';
 import { informationLabel } from '../translatedLabels';
 
 import FilterSearch from './FilterSearch';
-import MemoizedCheckBoxWrapper from './MemoizedCheckBoxWrapper';
-import MemoizedInputGroup from './MemoizedInputGroup';
 import useExtendedFilter from './useExtendedFilter';
 
 interface Props {
@@ -32,15 +33,17 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
   return (
     <div className={classes.containerFilter}>
       {inputGroupsData?.map((item) => (
-        <>
+        <div key={item.name}>
           <MemoizedInputGroup
             changeCriteria={changeCriteria}
             data={data}
-            filterName={item.name}
-            key={item.name}
+            filterName={item.name as ExtendedCriteria}
           />
-          <Divider className={classes.dividerInputs} />
-        </>
+          <Divider
+            className={classes.dividerInputs}
+            key={`${item.name}-divider`}
+          />
+        </div>
       ))}
 
       {displayInformationFilter && (
@@ -52,9 +55,11 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
       <Divider className={classes.dividerInputs} />
 
       {displayInformationFilter && (
-        <MemoizedCheckBoxWrapper
+        <MemoizedCheckBox
           changeCriteria={changeCriteria}
-          data={statusTypes}
+          data={statusTypes as Array<Criteria & CriteriaDisplayProps>}
+          filterName={ExtendedCriteria.statusTypes}
+          title={labelStatusType}
         />
       )}
       <Divider className={classes.dividerInputs} />

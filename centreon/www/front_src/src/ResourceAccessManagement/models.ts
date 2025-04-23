@@ -1,11 +1,12 @@
-import { Column } from '@centreon/ui';
-
 export enum ModalMode {
   Create = 'create',
   Edit = 'edit'
 }
 
 export enum ResourceTypeEnum {
+  All = 'all',
+  BusinessView = 'business_view',
+  Empty = '',
   Host = 'host',
   HostCategory = 'host_category',
   HostGroup = 'hostgroup',
@@ -13,33 +14,6 @@ export enum ResourceTypeEnum {
   Service = 'service',
   ServiceCategory = 'service_category',
   ServiceGroup = 'servicegroup'
-}
-
-export interface Listing {
-  changePage: (page: number) => void;
-  changeSort: ({
-    sortField,
-    sortOrder
-  }: {
-    sortField: string;
-    sortOrder: SortOrder;
-  }) => void;
-  columns: Array<Column>;
-  data?: ResourceAccessRuleListingType;
-  loading: boolean;
-  page: number | undefined;
-  predefinedRowsSelection: Array<{
-    label: string;
-    rowCondition: (row: ResourceAccessRuleType) => boolean;
-  }>;
-  resetColumns: () => void;
-  selectedColumnIds: Array<string>;
-  selectedRows: Array<ResourceAccessRuleType>;
-  setLimit: (limit: number | undefined) => void;
-  setSelectedColumnIds: (selectedColumnIds: Array<string>) => void;
-  setSelectedRows: (selectedRows: Array<ResourceAccessRuleType>) => void;
-  sortF: string;
-  sortO: SortOrder;
 }
 
 export interface MetaType {
@@ -57,20 +31,62 @@ export interface ResourceAccessRuleListingType {
 
 export type ResourceAccessRuleType = {
   description: string;
-  id?: number;
+  id: number;
   isActivated: boolean;
   name: string;
 };
 
 export type Dataset = {
-  resourceType: ResourceTypeEnum | undefined;
-  resources: Array<number>;
+  allOfResourceType: boolean;
+  resourceType: ResourceTypeEnum;
+  resources: Array<NamedEntity>;
 };
 
 export type ResourceAccessRule = ResourceAccessRuleType & {
-  contactGroups: Array<number>;
-  contacts: Array<number>;
+  allContactGroups: boolean;
+  allContacts: boolean;
+  contactGroups: Array<NamedEntity>;
+  contacts: Array<NamedEntity>;
   datasetFilters: Array<Array<Dataset>>;
 };
 
+export type DatasetFilter = {
+  datasetFilter: DatasetFilter | null;
+  resourceType: ResourceTypeEnum;
+  resources: Array<NamedEntity>;
+};
+
+export type GetResourceAccessRule = ResourceAccessRuleType & {
+  contactGroups: {
+    all: boolean;
+    values: Array<NamedEntity>;
+  };
+  contacts: {
+    all: boolean;
+    values: Array<NamedEntity>;
+  };
+  datasetFilters: Array<DatasetFilter>;
+};
+
 export type SortOrder = 'asc' | 'desc';
+
+export type NamedEntity = {
+  id: number;
+  name: string;
+};
+
+export enum DeleteType {
+  MultipleItems = 0,
+  SingleItem = 1
+}
+
+export interface DeleteResourceAccessRuleType {
+  deleteType: DeleteType;
+  id: number | Array<number> | null;
+  name?: string;
+}
+
+export interface DuplicateResourceAccessRuleType {
+  id: number | null;
+  rule?: ResourceAccessRule;
+}

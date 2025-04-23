@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
 
 import {
   Column as ColumnTable,
@@ -10,18 +9,17 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { labelActive, labelRevoked } from '../../translatedLabels';
+import Title from '../Title';
 import { selectedColumnIdsAtom } from '../atoms';
 import { Row } from '../models';
-import Title from '../Title';
 
 import ActionsColumn from './ActionsColumn';
+import Activate from './Activate';
 import { Column, UseColumns, defaultSelectedColumnIds } from './models';
 
 const dateFormat = 'L';
 
 export const useColumns = (): UseColumns => {
-  const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
 
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(
@@ -40,18 +38,6 @@ export const useColumns = (): UseColumns => {
 
   const columns: Array<ColumnTable> = useMemo(() => {
     return [
-      {
-        Component: ({ row }: Row) => (
-          <Title
-            msg={row.isRevoked ? t(labelRevoked) : t(labelActive)}
-            variant="body2"
-          />
-        ),
-        id: 'status',
-        label: Column.Status,
-        sortable: true,
-        type: ColumnType.component
-      },
       {
         Component: ({ row }: Row) => {
           return <Title msg={row.name} variant="body2" />;
@@ -118,6 +104,12 @@ export const useColumns = (): UseColumns => {
         Component: ActionsColumn,
         id: 'actions',
         label: Column.Actions,
+        type: ColumnType.component
+      },
+      {
+        Component: Activate,
+        id: 'activate',
+        label: Column.Activate,
         type: ColumnType.component
       }
     ];

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { makeStyles } from 'tss-react/mui';
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
@@ -167,7 +167,7 @@ const ContentEditable = ({
         editable && classes.container,
         !isEditable && !disabled && classes.notEditable,
         className,
-        isFocused && classes.inputFocused
+        !disabled && isFocused && classes.inputFocused
       )}
     >
       {editable && isTextEmpty && (

@@ -95,7 +95,7 @@ class SqlRequestParametersTranslator
             } elseif (is_int($key) && (is_object($searchRequests) || is_array($searchRequests))) {
                 // It's a list of object to process
                 $searchRequests = (array) $searchRequests;
-                if (!empty($searchRequests)) {
+                if ($searchRequests !== []) {
                     // Recursive call until to read key/value data
                     $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $aggregateOperator);
                 }
@@ -296,9 +296,18 @@ class SqlRequestParametersTranslator
                 if ($mixedValue === '') {
                     $mixedValue = '.*';
                 }
-                preg_match('/' . $mixedValue . '/', '');
-                if (preg_last_error() !== PREG_NO_ERROR) {
-                    throw new RequestParametersTranslatorException('Bad regex format \'' . $mixedValue . '\'', 0);
+                try {
+                    $mixedValue = str_replace('/', '\/', $mixedValue);
+                    preg_match('/' . $mixedValue . '/', '');
+                    if (preg_last_error() !== PREG_NO_ERROR) {
+                        throw new RequestParametersTranslatorException('Bad regex format \'' . $mixedValue . '\'', 0);
+                    }
+                } catch (\ErrorException $exception) {
+                    throw new RequestParametersTranslatorException(
+                        message: 'Error while preg_match() the value : \'' . $mixedValue . '\'',
+                        code: 0,
+                        previous: $exception
+                    );
                 }
             }
             $bindKey = ':value_' . (count($this->searchValues) + 1);
@@ -458,6 +467,14 @@ class SqlRequestParametersTranslator
         $this->getRequestParameters()->setTotal($nbRows = (int) $value);
 
         return $nbRows;
+    }
+
+    /**
+     * @param int $numberOfRows
+     */
+    public function setNumberOfRows(int $numberOfRows): void
+    {
+        $this->requestParameters->setTotal($numberOfRows);
     }
 
     /**

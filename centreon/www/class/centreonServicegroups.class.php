@@ -34,34 +34,23 @@
  */
 
 /**
+ * Class
  *
- * Servicegroups objects
- *
+ * @class CentreonServicegroups
  */
 class CentreonServicegroups
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     private $DB;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var */
     private $relationCache;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var */
     private $dataTree;
 
     /**
+     * CentreonServicegroups constructor
      *
-     * Constructor
-     * @param $pearDB
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -70,7 +59,9 @@ class CentreonServicegroups
 
     /**
      * @param null $sgId
+     *
      * @return array|void
+     * @throws PDOException
      */
     public function getServiceGroupServices($sgId = null)
     {
@@ -78,7 +69,7 @@ class CentreonServicegroups
             return;
         }
 
-        $services = array();
+        $services = [];
         $query = "SELECT host_host_id, service_service_id "
             . "FROM servicegroup_relation "
             . "WHERE servicegroup_sg_id = " . $sgId . " "
@@ -93,7 +84,7 @@ class CentreonServicegroups
 
         $res = $this->DB->query($query);
         while ($row = $res->fetchRow()) {
-            $services[] = array($row['host_host_id'], $row['service_service_id']);
+            $services[] = [$row['host_host_id'], $row['service_service_id']];
         }
         $res->closeCursor();
 
@@ -129,7 +120,7 @@ class CentreonServicegroups
              */
             $filteredSgIds = $this->filteredArrayId($serviceGroupsIds);
             $sgParams = [];
-            if (count($filteredSgIds) > 0) {
+            if ($filteredSgIds !== []) {
                 /*
                  * Building the sgParams hash table in order to correctly
                  * bind ids as ints for the request.
@@ -144,12 +135,12 @@ class CentreonServicegroups
                 );
 
                 foreach ($sgParams as $index => $value) {
-                    $stmt->bindValue($index, $value, \PDO::PARAM_INT);
+                    $stmt->bindValue($index, $value, PDO::PARAM_INT);
                 }
 
                 $stmt->execute();
 
-                while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $servicesGroups[] = [
                         'id' => $row['sg_id'],
                         'name' => $row['sg_name']
@@ -169,7 +160,7 @@ class CentreonServicegroups
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'servicegroup';
         $parameters['currentObject']['id'] = 'sg_id';
         $parameters['currentObject']['name'] = 'sg_name';
@@ -187,7 +178,7 @@ class CentreonServicegroups
             case 'sg_tServices':
                 $parameters['type'] = 'relation';
                 $parameters['externalObject']['object'] = 'centreonServicetemplates';
-                $parameters['externalObject']['objectOptions'] = array('withHosttemplate' => true);
+                $parameters['externalObject']['objectOptions'] = ['withHosttemplate' => true];
                 $parameters['relationObject']['table'] = 'servicegroup_relation';
                 $parameters['relationObject']['field'] = 'host_host_id';
                 $parameters['relationObject']['additionalField'] = 'service_service_id';
@@ -196,7 +187,7 @@ class CentreonServicegroups
             case 'sg_hgServices':
                 $parameters['type'] = 'relation';
                 $parameters['externalObject']['object'] = 'centreonService';
-                $parameters['externalObject']['objectOptions'] = array('hostgroup' => true);
+                $parameters['externalObject']['objectOptions'] = ['hostgroup' => true];
                 $parameters['relationObject']['table'] = 'servicegroup_relation';
                 $parameters['relationObject']['field'] = 'hostgroup_hg_id';
                 $parameters['relationObject']['additionalField'] = 'service_service_id';
@@ -208,95 +199,173 @@ class CentreonServicegroups
     }
 
     /**
+     * @param array<int|string, int|string> $list
+     * @param string $prefix
+     *
+     * @return array{0: array<string, mixed>, 1: string}
+     */
+    private function createMultipleBindQuery(array $list, string $prefix): array
+    {
+        $bindValues = [];
+        foreach ($list as $index => $id) {
+            $bindValues[$prefix . $index] = $id;
+        }
+
+        return [$bindValues, implode(', ', array_keys($bindValues))];
+    }
+
+    /**
      * @param array $values
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        global $centreon;
-        $items = array();
+        $items = [];
 
+        if (empty($values)) {
+            return $items;
+        }
+
+        global $centreon;
+        $sgAcl = [];
         # get list of authorized servicegroups
-        if (!$centreon->user->access->admin) {
+        if (
+            ! $centreon->user->access->admin
+            && $centreon->user->access->hasAccessToAllServiceGroups === false
+        ) {
             $sgAcl = $centreon->user->access->getServiceGroupAclConf(
                 null,
                 'broker',
-                array(
-                    'distinct' => true,
-                    'fields' => array('servicegroup.sg_id'),
-                    'get_row' => 'sg_id',
-                    'keys' => array('sg_id'),
-                    'conditions' => array(
-                        'servicegroup.sg_id' => array(
-                            'IN',
-                            $values
-                        )
-                    )
-                ),
+                ['distinct' => true, 'fields' => ['servicegroup.sg_id'], 'get_row' => 'sg_id', 'keys' => ['sg_id'], 'conditions' => ['servicegroup.sg_id' => ['IN', $values]]],
                 true
             );
         }
 
         $queryValues = [];
-        if (!empty($values)) {
-            foreach ($values as $k => $v) {
-                $multiValues = explode(',', $v);
-                foreach ($multiValues as $item) {
-                    $queryValues[':sg_' . $item] = (int) $item;
+        $whereCondition = '';
+        if (! empty($values)) {
+            foreach ($values as $key => $value) {
+                $serviceGroupIds = explode(',', $value);
+                foreach ($serviceGroupIds as $serviceGroupId) {
+                    $queryValues[':sg_' . $serviceGroupId] = (int) $serviceGroupId;
                 }
             }
+
+            $whereCondition = ' WHERE sg_id IN (' . implode(',', array_keys($queryValues)) . ')';
         }
 
-        # get list of selected servicegroups
-        $query = 'SELECT sg_id, sg_name FROM servicegroup '
-            . 'WHERE sg_id IN ('
-            . (count($queryValues) ? implode(',', array_keys($queryValues)) : '""')
-            . ') ORDER BY sg_name ';
+        $request = <<<SQL
+            SELECT
+                sg_id,
+                sg_name
+            FROM servicegroup
+            $whereCondition
+            ORDER BY sg_name
+        SQL;
 
-        $stmt = $this->DB->prepare($query);
-        foreach ($queryValues as $key => $id) {
-            $stmt->bindValue($key, $id, PDO::PARAM_INT);
+        $statement = $this->DB->prepare($request);
+
+        foreach ($queryValues as $key => $value) {
+            $statement->bindValue($key, $value, PDO::PARAM_INT);
         }
-        $stmt->execute();
+        $statement->execute();
 
-        while ($row = $stmt->fetch()) {
+        while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
             # hide unauthorized servicegroups
             $hide = false;
-            if (!$centreon->user->access->admin && !in_array($row['sg_id'], $sgAcl)) {
+            if (
+                ! $centreon->user->access->admin
+                && $centreon->user->access->hasAccessToAllServiceGroups === false
+                && ! in_array($record['sg_id'], $sgAcl)
+            ) {
                 $hide = true;
             }
-            $items[] = array(
-                'id' => $row['sg_id'],
-                'text' => $row['sg_name'],
+            $items[] = [
+                'id' => $record['sg_id'],
+                'text' => $record['sg_name'],
                 'hide' => $hide
-            );
+            ];
         }
         return $items;
     }
 
     /**
-     * @param $sgName
-     * @return array
+     * @param string $sgName
+     *
+     * @return array<array{service:string,service_id:int,host:string,sg_name:string}>
+     *@throws Throwable
+     *
      */
-    public function getServicesByServicegroupName($sgName)
+    public function getServicesByServicegroupName(string $sgName): array
     {
-        $serviceList = array();
-        $query = "SELECT service_description, service_id, host_name " .
-            "FROM servicegroup_relation sgr, service s, servicegroup sg, host h " .
-            "WHERE sgr.service_service_id = s.service_id " .
-            "AND sgr.servicegroup_sg_id = sg.sg_id " .
-            "AND s.service_activate = '1' " .
-            "AND sgr.host_host_id = h.host_id " .
-            "AND sg.sg_name = '" . $this->DB->escape($sgName) . "'";
-        $result = $this->DB->query($query);
-        while ($elem = $result->fetchrow()) {
-            $serviceList[] = array(
+        $serviceList = [];
+        $query = <<<'SQL'
+            SELECT service_description, service_id, host_name
+            FROM servicegroup_relation sgr, service s, servicegroup sg, host h
+            WHERE sgr.service_service_id = s.service_id
+                AND sgr.servicegroup_sg_id = sg.sg_id
+                AND s.service_activate = '1'
+                AND s.service_register = '1'
+                AND sgr.host_host_id = h.host_id
+                AND sg.sg_name = :sgName
+            SQL;
+        $statement = $this->DB->prepare($query);
+        $statement->bindValue(':sgName', $this->DB->escape($sgName), PDO::PARAM_STR);
+        $statement->execute();
+        while ($elem = $statement->fetch()) {
+            /** @var array{service_description:string,service_id:int,host_name:string} $elem */
+            $serviceList[] = [
                 'service' => $elem['service_description'],
                 'service_id' => $elem['service_id'],
                 'host' => $elem['host_name'],
-                'sg_name' => $sgName
-            );
+                'sg_name' => $sgName,
+            ];
+        }
+        return $serviceList;
+    }
+
+    /**
+     * @param string $sgName
+     *
+     * @return array<array{service:string,service_id:int,host:string,sg_name:string}>
+     *@throws Throwable
+     *
+     */
+    public function getServicesThroughtServiceTemplatesByServicegroupName(string $sgName): array
+    {
+        $serviceList = [];
+        $query = <<<'SQL'
+            SELECT s.service_description, s.service_id, h.host_name
+            FROM `servicegroup_relation` sgr
+            JOIN `servicegroup` sg
+                ON sg.sg_id = sgr.servicegroup_sg_id
+            JOIN `service` st
+                ON st.service_id = sgr.service_service_id
+                AND st.service_activate = '1'
+                AND st.service_register = '0'
+            JOIN `service` s
+                ON s.service_template_model_stm_id = st.service_id
+                AND s.service_activate = '1'
+                AND s.service_register = '1'
+            JOIN `host_service_relation` hsrel
+                ON hsrel.service_service_id = s.service_id
+            JOIN `host` h
+                ON h.host_id = hsrel.host_host_id
+            WHERE sg.sg_name = :sgName
+            SQL;
+
+        $statement = $this->DB->prepare($query);
+        $statement->bindValue(':sgName', $this->DB->escape($sgName), PDO::PARAM_STR);
+        $statement->execute();
+        while ($elem = $statement->fetch()) {
+            /** @var array{service_description:string,service_id:int,host_name:string} $elem */
+            $serviceList[] = [
+                'service' => $elem['service_description'],
+                'service_id' => $elem['service_id'],
+                'host' => $elem['host_name'],
+                'sg_name' => $sgName,
+            ];
         }
         return $serviceList;
     }
@@ -307,7 +376,7 @@ class CentreonServicegroups
      */
     public function getServicesGroupId($sgName)
     {
-        static $ids = array();
+        static $ids = [];
 
         if (!isset($ids[$sgName])) {
             $query = "SELECT sg_id FROM servicegroup WHERE sg_name = '" . $this->DB->escape($sgName) . "'";
@@ -317,9 +386,6 @@ class CentreonServicegroups
                 $ids[$sgName] = $row['sg_id'];
             }
         }
-        if (isset($ids[$sgName])) {
-            return $ids[$sgName];
-        }
-        return 0;
+        return $ids[$sgName] ?? 0;
     }
 }

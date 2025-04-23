@@ -4,7 +4,7 @@ import { Filter } from './models';
 
 const filterKey = `${baseKey}filter`;
 
-let cachedFilter;
+let cachedFilter: unknown;
 
 const getStoredOrDefaultFilter = (defaultValue: Filter): Filter => {
   return getStoredOrDefault<Filter>({

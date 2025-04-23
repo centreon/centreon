@@ -1,11 +1,11 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
+import { T, always, cond, lt, lte, map, not, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { Button, ButtonGroup, Paper, Tooltip, useTheme } from '@mui/material';
 
-import { useDebounce, useMemoComponent, ParentSize } from '@centreon/ui';
+import { ParentSize, useDebounce, useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { timePeriods } from '../../../Details/tabs/Graph/models';
@@ -39,7 +39,7 @@ const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
     boxShadow: disablePaper ? 'unset' : 'undefined',
     columnGap: theme.spacing(2),
     display: 'grid',
-    gridTemplateColumns: `repeat(4, auto)`,
+    gridTemplateColumns: 'repeat(4, auto)',
     gridTemplateRows: '1fr',
     justifyContent: 'center',
     padding: theme.spacing(1, 0.5)

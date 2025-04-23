@@ -1,14 +1,15 @@
 import { ChangeEvent, useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
+import { path, isEmpty, isNil, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { isEmpty, isNil, not, path } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { useTheme } from '@mui/material';
 
 import { TextField, useMemoComponent } from '@centreon/ui';
 
+import StrengthProgress from '../StrengthProgress';
 import {
   labelGood,
   labelNumberOfAttemptsBeforeUserIsBlocked,
@@ -16,7 +17,6 @@ import {
   labelUnknown,
   labelWeak
 } from '../translatedLabels';
-import StrengthProgress from '../StrengthProgress';
 
 import { getField } from './utils';
 
@@ -44,7 +44,7 @@ const Attempts = (): JSX.Element => {
         return;
       }
 
-      setFieldValue(attemptsFieldName, parseInt(value, 10));
+      setFieldValue(attemptsFieldName, Number.parseInt(value, 10));
     },
     [attemptsFieldName]
   );
@@ -82,10 +82,14 @@ const Attempts = (): JSX.Element => {
           dataTestId={labelNumberOfAttemptsBeforeUserIsBlocked}
           error={attemptsError}
           helperText={attemptsError}
-          inputProps={{
-            'aria-label': t(labelNumberOfAttemptsBeforeUserIsBlocked),
-            'data-testid': 'local_numberOfAttemptsBeforeUserIsBlocked',
-            min: 1
+          textFieldSlotsAndSlotProps={{
+            slotProps: {
+              htmlInput: {
+                'aria-label': t(labelNumberOfAttemptsBeforeUserIsBlocked),
+                'data-testid': 'local_numberOfAttemptsBeforeUserIsBlocked',
+                min: 1
+              }
+            }
           }}
           label={t(labelNumberOfAttemptsBeforeUserIsBlocked)}
           name={attemptsFieldName}

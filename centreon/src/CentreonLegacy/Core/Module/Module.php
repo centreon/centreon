@@ -27,7 +27,7 @@ use Psr\Container\ContainerInterface;
 
 class Module
 {
-    /** @var \CentreonLegacy\Core\Module\Information */
+    /** @var Information */
     protected $informationObj;
 
     /** @var string */
@@ -36,20 +36,20 @@ class Module
     /** @var int */
     protected $moduleId;
 
-    /** @var \CentreonLegacy\Core\Utils\Utils */
+    /** @var Utils */
     protected $utils;
 
     /** @var array */
     protected $moduleConfiguration;
 
-    /** @var \Psr\Container\ContainerInterface */
+    /** @var ContainerInterface */
     protected $services;
 
     /**
-     * @param \Psr\Container\ContainerInterface $services
-     * @param \CentreonLegacy\Core\Module\Information $informationObj
+     * @param ContainerInterface $services
+     * @param Information $informationObj
      * @param string $moduleName
-     * @param \CentreonLegacy\Core\Utils\Utils $utils
+     * @param Utils $utils
      * @param int $moduleId
      */
     public function __construct(

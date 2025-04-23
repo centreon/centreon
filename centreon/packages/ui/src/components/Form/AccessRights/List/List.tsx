@@ -1,16 +1,16 @@
 import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
 import { isEmpty } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { valuesAtom } from '../atoms';
-import { List as UIList } from '../../../List';
-import { Labels } from '../models';
 import { SelectEntry, Subtitle } from '../../../..';
+import { List as UIList } from '../../../List';
+import { valuesAtom } from '../atoms';
+import { Labels } from '../models';
 
-import { useListStyles } from './List.styles';
 import Item from './Item';
+import { useListStyles } from './List.styles';
 
 interface Props {
   labels: Labels['list'];

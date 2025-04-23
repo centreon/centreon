@@ -7,10 +7,10 @@ import {
   TopCounterResourceSubMenu
 } from '@centreon/ui';
 
-import useResourceCounters from '../useResourceCounters';
-import { hostStatusEndpoint } from '../../api/endpoints';
 import { hostStatusDecoder } from '../../api/decoders';
 import type { HostStatusResponse } from '../../api/decoders';
+import { hostStatusEndpoint } from '../../api/endpoints';
+import useResourceCounters from '../useResourceCounters';
 
 import getHostPropsAdapter from './getHostPropsAdapter';
 import type { HostPropsAdapterOutput } from './getHostPropsAdapter';

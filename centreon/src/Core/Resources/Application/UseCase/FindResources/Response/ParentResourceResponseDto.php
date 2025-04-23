@@ -26,6 +26,7 @@ namespace Core\Resources\Application\UseCase\FindResources\Response;
 final class ParentResourceResponseDto
 {
     /**
+     * @param int|null $resourceId
      * @param string|null $uuid
      * @param int|null $id
      * @param string|null $name
@@ -37,6 +38,7 @@ final class ParentResourceResponseDto
      * @param string|null $shortType
      */
     public function __construct(
+        public ?int $resourceId = null,
         public ?string $uuid = null,
         public ?int $id = null,
         public ?string $name = null,

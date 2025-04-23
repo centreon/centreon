@@ -26,6 +26,7 @@ namespace Core\Resources\Application\UseCase\FindResources\Response;
 final class ResourceResponseDto
 {
     public function __construct(
+        public ?int $resourceId = null,
         public ?int $id = null,
         public ?string $name = null,
         public ?string $type = null,
@@ -38,6 +39,8 @@ final class ResourceResponseDto
         public ?ResourceStatusResponseDto $status = null,
         public bool $isInDowntime = false,
         public bool $isAcknowledged = false,
+        public bool $isInFlapping = false,
+        public ?float $percentStateChange = null,
         public bool $withActiveChecks = false,
         public bool $withPassiveChecks = false,
         public ?\DateTimeInterface $lastStatusChange = null,

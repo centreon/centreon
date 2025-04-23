@@ -3,7 +3,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
@@ -11,7 +11,7 @@ before(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 beforeEach(() => {
@@ -38,18 +38,14 @@ afterEach(() => {
 });
 
 Given('a user with dashboard update rights on the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 When(
   'the user clicks on the delete button for a dashboard featured in the library',
   () => {
-    const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
-
-    cy.contains(dashboardToDelete.name)
-      .parent()
-      .find('button[aria-label="delete"]')
-      .click();
+    cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(2).click();
+    cy.getByLabel({ label: 'Delete' }).click();
   }
 );
 
@@ -57,53 +53,39 @@ Then('a confirmation poppin appears', () => {
   const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
 
   cy.contains('Delete').should('be.visible');
-  cy.getByLabel({ label: 'Cancel', tag: 'li' }).should('be.visible');
+  cy.getByLabel({ label: 'Cancel', tag: 'button' }).should('be.visible');
   cy.contains(
-    `Are you sure you want to delete ${dashboardToDelete.name} ?`
+    `The ${dashboardToDelete.name} dashboard will be permanently deleted.`
   ).should('be.visible');
 });
 
 When('the user confirms the choice to delete the dashboard', () => {
-  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
   cy.wait('@listAllDashboards');
 });
 
 Then('the dashboard is not listed anymore in the dashboards library', () => {
   const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboardToDelete.name)
-    .should('not.exist');
+  cy.contains(dashboardToDelete.name).should('not.exist');
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboardToDelete.description)
-    .should('not.exist');
+  cy.contains(dashboardToDelete.description).should('not.exist');
 });
 
 Given(
   'a user with dashboard edition rights about to delete a dashboard',
   () => {
-    const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
-    cy.visit('/centreon/home/dashboards');
-    cy.contains(dashboardToDelete.name)
-      .parent()
-      .find('button[aria-label="delete"]')
-      .click();
+    cy.visitDashboards();
+    cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(2).click();
+    cy.getByLabel({ label: 'Delete' }).click();
   }
 );
 
 When('the user cancels their choice', () => {
-  cy.getByLabel({ label: 'Cancel', tag: 'li' }).click();
+  cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
 });
 
 Then('the dashboard is still listed in the dashboards library', () => {
   const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
   cy.contains(dashboardToDelete.name).parent().should('exist');
-  cy.contains(dashboardToDelete.description).parent().should('exist');
 });

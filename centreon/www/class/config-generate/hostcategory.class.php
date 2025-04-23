@@ -34,6 +34,13 @@
  *
  */
 
+use Pimple\Container;
+
+/**
+ * Class
+ *
+ * @class HostCategory
+ */
 final class HostCategory extends AbstractObject
 {
     private const TAG_TYPE = 'hostcategory';
@@ -45,9 +52,9 @@ final class HostCategory extends AbstractObject
     protected string $object_name = 'tag';
 
     /**
-     * @param \Pimple\Container $dependencyInjector
+     * @param Container $dependencyInjector
      */
-    protected function __construct(\Pimple\Container $dependencyInjector)
+    protected function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->generate_filename = 'tags.cfg';
@@ -60,7 +67,9 @@ final class HostCategory extends AbstractObject
 
     /**
      * @param int $hostCategoryId
+     *
      * @return self
+     * @throws PDOException
      */
     private function addHostCategoryToList(int $hostCategoryId): self
     {
@@ -73,7 +82,7 @@ final class HostCategory extends AbstractObject
         );
         $stmt->bindParam(':hc_id', $hostCategoryId, PDO::PARAM_INT);
         $stmt->execute();
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $this->hostCategories[$hostCategoryId] = $row;
             $this->hostCategories[$hostCategoryId]['members'] = [];
         }
@@ -87,6 +96,8 @@ final class HostCategory extends AbstractObject
      * @param int $hostCategoryId
      * @param int $hostId
      * @param string $hostName
+     *
+     * @throws PDOException
      */
     public function insertHostToCategoryMembers(int $hostCategoryId, int $hostId, string $hostName): void
     {

@@ -1,12 +1,12 @@
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { buildResourceAccessRulesEndpoint } from '../Listing/api/endpoints';
 import {
   defaultQueryParams,
   getListingResponse
 } from '../Listing/Tests/testUtils';
-import { labelSearch } from '../translatedLabels';
+import { buildResourceAccessRulesEndpoint } from '../Listing/api/endpoints';
 import useListing from '../Listing/useListing';
+import { labelSearch } from '../translatedLabels';
 
 import Filter from '.';
 

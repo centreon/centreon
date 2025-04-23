@@ -1,5 +1,11 @@
-import { TestQueryProvider, Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
 
+import {
+  labelDoYouWantToResetTheForm,
+  labelReset,
+  labelResetTheForm,
+  labelSave
+} from '../Local/translatedLabels';
 import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
@@ -7,13 +13,6 @@ import {
   contactTemplatesEndpoint
 } from '../api/endpoints';
 import { Provider } from '../models';
-import {
-  labelActivation,
-  labelAuthenticationConditions,
-  labelAutoImportUsers,
-  labelGroupsMapping,
-  labelIdentityProvider
-} from '../translatedLabels';
 import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
@@ -31,11 +30,12 @@ import {
   labelRolesMapping
 } from '../shared/translatedLabels';
 import {
-  labelDoYouWantToResetTheForm,
-  labelReset,
-  labelResetTheForm,
-  labelSave
-} from '../Local/translatedLabels';
+  labelActivation,
+  labelAuthenticationConditions,
+  labelAutoImportUsers,
+  labelGroupsMapping,
+  labelIdentityProvider
+} from '../translatedLabels';
 
 import {
   labelAuthorizationEndpoint,
@@ -325,17 +325,15 @@ describe('Open ID', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@updateOpenidConfiguration').then(({ request }) => {
-      expect(request.body).to.deep.equal(
-        JSON.stringify({
-          ...retrievedOpenidConfiguration,
-          base_url: 'http://localhost:8081/login',
-          groups_mapping: {
-            ...retrievedOpenidConfiguration.groups_mapping,
-            relations: [{ contact_group_id: 2, group_value: 'groupValue' }]
-          },
-          redirect_url: null
-        })
-      );
+      expect(request.body).to.deep.equal({
+        ...retrievedOpenidConfiguration,
+        base_url: 'http://localhost:8081/login',
+        groups_mapping: {
+          ...retrievedOpenidConfiguration.groups_mapping,
+          relations: [{ contact_group_id: 2, group_value: 'groupValue' }]
+        },
+        redirect_url: null
+      });
     });
 
     cy.makeSnapshot();

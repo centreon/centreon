@@ -132,25 +132,21 @@ if (!$min) {
 </script>
 <?php
 
-if (
-    (isset($_GET["mini"]) && $_GET["mini"] == 1)
-    || (isset($_SESSION['fullScreen']) && isset($_SESSION['fullScreen']['value']) && $_SESSION['fullScreen']['value'])
-) {
+if ((isset($_GET["mini"]) && $_GET["mini"] == 1)
+|| (isset($_SESSION['fullScreen']) && isset($_SESSION['fullScreen']['value']) && $_SESSION['fullScreen']['value'])) {
     ?>
     <script type="text/javascript">
         myToggleAll(0, false);
     </script>
-    <?php
-} else {
-    if (!$centreon->user->showDiv("footer")) {
-        ?>
+    <?php 
+} elseif (!$centreon->user->showDiv("footer")) {
+    ?>
         <script type="text/javascript">
             new Effect.toggle('footer', 'blind', {
                 duration: 0
             });
         </script>
-        <?php
-    }
+        <?php 
 }
 
 /*

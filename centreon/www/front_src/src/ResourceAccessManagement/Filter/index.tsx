@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import debounce from '@mui/utils/debounce';
 

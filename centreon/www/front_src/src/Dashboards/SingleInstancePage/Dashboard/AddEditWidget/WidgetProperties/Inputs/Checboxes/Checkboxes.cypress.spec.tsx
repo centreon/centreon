@@ -1,7 +1,6 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
-import WidgetSwitch from '../Switch';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import WidgetCheckboxes from './Chekboxes';
@@ -18,28 +17,23 @@ const primaryOptions = [
   }
 ];
 
-const secondaryOptions = [
-  {
-    id: 'c',
-    name: 'C'
-  },
-  {
-    id: 'd',
-    name: 'D'
-  }
-];
-
 const title = 'Title';
 const secondaryLabel = ['Secondary label', 'other label'];
 
 interface Props {
+  areValuesEmpty?: boolean;
   canEdit?: boolean;
+  hasOptions?: boolean;
+  keepOneOptionSelected?: boolean;
   labels?: string | Array<string>;
 }
 
 const initializeSimpleCheckboxes = ({
   canEdit = true,
-  labels = secondaryLabel[0]
+  labels = secondaryLabel[0],
+  hasOptions = true,
+  keepOneOptionSelected,
+  areValuesEmpty = false
 }: Props): void => {
   const store = createStore();
 
@@ -52,63 +46,23 @@ const initializeSimpleCheckboxes = ({
         <Formik
           initialValues={{
             moduleName: 'widget',
-            options: {
-              checkbox: []
-            }
+            options: areValuesEmpty
+              ? undefined
+              : {
+                  checkbox: keepOneOptionSelected ? ['a', 'b'] : []
+                }
           }}
           onSubmit={cy.stub()}
         >
           <WidgetCheckboxes
             defaultValue={[]}
+            keepOneOptionSelected={keepOneOptionSelected}
             label={title}
-            options={primaryOptions}
+            options={hasOptions ? primaryOptions : undefined}
             propertyName="checkbox"
             secondaryLabel={labels}
+            type=""
           />
-        </Formik>
-      </Provider>
-    )
-  });
-};
-
-const initializeAdvancedCheckboxes = (dependency: boolean): void => {
-  const store = createStore();
-
-  store.set(hasEditPermissionAtom, true);
-  store.set(isEditingAtom, true);
-
-  cy.mount({
-    Component: (
-      <Provider store={store}>
-        <Formik
-          initialValues={{
-            moduleName: 'widget',
-            options: {
-              checkbox: [],
-              dependency
-            }
-          }}
-          onSubmit={cy.stub()}
-        >
-          <>
-            <WidgetSwitch label="Dependency" propertyName="dependency" />
-            <WidgetCheckboxes
-              defaultValue={{
-                is: true,
-                otherwise: ['d'],
-                then: ['a'],
-                when: 'dependency'
-              }}
-              label={title}
-              options={{
-                is: true,
-                otherwise: secondaryOptions,
-                then: primaryOptions,
-                when: 'dependency'
-              }}
-              propertyName="checkbox"
-            />
-          </>
         </Formik>
       </Provider>
     )
@@ -180,6 +134,44 @@ describe('Simple checkboxes', () => {
 
     cy.makeSnapshot();
   });
+
+  it('does not display options when the option list is empty', () => {
+    initializeSimpleCheckboxes({ hasOptions: false });
+
+    cy.contains(labelUnselectAll).should('not.exist');
+    cy.contains(labelSelectAll).should('not.exist');
+    cy.findByLabelText('A', { exact: true }).should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('cannot unchecks the last checked option when the corresponding prop is set', () => {
+    initializeSimpleCheckboxes({ keepOneOptionSelected: true });
+
+    cy.findByLabelText('B', { exact: true }).click();
+
+    cy.findByLabelText('A', { exact: true }).should('be.checked');
+
+    cy.findByLabelText('A', { exact: true }).click();
+
+    cy.findByLabelText('A', { exact: true }).should('be.checked');
+
+    cy.makeSnapshot();
+  });
+
+  it('selects all options when the data is empty and options are clicked', () => {
+    initializeSimpleCheckboxes({ areValuesEmpty: true });
+
+    cy.findByLabelText('A', { exact: true }).click();
+    cy.findByLabelText('B', { exact: true }).click();
+
+    cy.findByLabelText('A', { exact: true }).should('be.checked');
+    cy.findByLabelText('B', { exact: true }).should('be.checked');
+
+    cy.findByLabelText('A', { exact: true }).click();
+
+    cy.findByLabelText('A', { exact: true }).should('not.be.checked');
+  });
 });
 
 describe('Checkbox disabled', () => {
@@ -190,35 +182,6 @@ describe('Checkbox disabled', () => {
 
     cy.findByLabelText('A', { exact: true }).should('be.disabled');
     cy.findByLabelText('B', { exact: true }).should('be.disabled');
-
-    cy.makeSnapshot();
-  });
-});
-
-describe('Advanced checkboxes', () => {
-  it('displays other options and default value when the dependency value unmeet the condition', () => {
-    initializeAdvancedCheckboxes(true);
-
-    cy.findByLabelText('Dependency').click();
-
-    cy.findByLabelText('C', { exact: true }).should('not.be.checked');
-    cy.findByLabelText('D', { exact: true }).should('be.checked');
-
-    cy.makeSnapshot();
-  });
-
-  it('displays options and default value when the dependency value meet the condition', () => {
-    initializeAdvancedCheckboxes(true);
-
-    cy.findByLabelText('Dependency').click();
-
-    cy.findByLabelText('C', { exact: true }).should('be.enabled');
-    cy.findByLabelText('D', { exact: true }).should('be.enabled');
-
-    cy.findByLabelText('Dependency').click();
-
-    cy.findByLabelText('A', { exact: true }).should('be.checked');
-    cy.findByLabelText('B', { exact: true }).should('not.be.checked');
 
     cy.makeSnapshot();
   });

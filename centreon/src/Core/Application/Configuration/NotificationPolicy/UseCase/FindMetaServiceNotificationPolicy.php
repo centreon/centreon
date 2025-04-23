@@ -35,12 +35,14 @@ use Core\Application\RealTime\Repository\ReadMetaServiceRepositoryInterface as R
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
 use Core\Domain\RealTime\Model\MetaService as RealtimeMetaService;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class FindMetaServiceNotificationPolicy
 {
     use LoggerTrait;
 
     /**
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ReadMetaServiceNotificationRepositoryInterface $readMetaServiceNotificationRepository
      * @param MetaServiceConfigurationReadRepositoryInterface $readMetaServiceRepository
      * @param EngineConfigurationServiceInterface $engineService
@@ -48,11 +50,12 @@ class FindMetaServiceNotificationPolicy
      * @param ReadRealTimeMetaServiceRepositoryInterface $readRealTimeMetaServiceRepository
      */
     public function __construct(
-        private ReadMetaServiceNotificationRepositoryInterface $readMetaServiceNotificationRepository,
-        private MetaServiceConfigurationReadRepositoryInterface $readMetaServiceRepository,
-        private EngineConfigurationServiceInterface $engineService,
-        private ContactInterface $contact,
-        private ReadRealTimeMetaServiceRepositoryInterface $readRealTimeMetaServiceRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadMetaServiceNotificationRepositoryInterface $readMetaServiceNotificationRepository,
+        private readonly MetaServiceConfigurationReadRepositoryInterface $readMetaServiceRepository,
+        private readonly EngineConfigurationServiceInterface $engineService,
+        private readonly ContactInterface $contact,
+        private readonly ReadRealTimeMetaServiceRepositoryInterface $readRealTimeMetaServiceRepository,
     ) {
     }
 
@@ -64,17 +67,30 @@ class FindMetaServiceNotificationPolicy
         int $metaServiceId,
         FindNotificationPolicyPresenterInterface $presenter,
     ): void {
-        $host = $this->findMetaService($metaServiceId);
-        if ($host === null) {
+        $metaService = $this->findMetaService($metaServiceId);
+        if ($metaService === null) {
             $this->handleMetaServiceNotFound($metaServiceId, $presenter);
 
             return;
         }
 
-        $notifiedContacts = $this->readMetaServiceNotificationRepository->findNotifiedContactsById($metaServiceId);
-        $notifiedContactGroups = $this->readMetaServiceNotificationRepository->findNotifiedContactGroupsById(
-            $metaServiceId
-        );
+        if ($this->contact->isAdmin()) {
+            $notifiedContacts = $this->readMetaServiceNotificationRepository->findNotifiedContactsById($metaServiceId);
+            $notifiedContactGroups = $this->readMetaServiceNotificationRepository->findNotifiedContactGroupsById(
+                $metaServiceId
+            );
+        } else {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+            $notifiedContacts = $this->readMetaServiceNotificationRepository->findNotifiedContactsByIdAndAccessGroups(
+                $metaServiceId,
+                $accessGroups
+            );
+            $notifiedContactGroups
+                = $this->readMetaServiceNotificationRepository->findNotifiedContactGroupsByIdAndAccessGroups(
+                    $metaServiceId,
+                    $accessGroups
+                );
+        }
 
         $realtimeMetaService = $this->readRealTimeMetaServiceRepository->findMetaServiceById($metaServiceId);
         if ($realtimeMetaService === null) {

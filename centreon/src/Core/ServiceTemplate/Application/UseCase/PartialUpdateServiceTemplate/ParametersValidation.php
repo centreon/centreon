@@ -267,7 +267,7 @@ class ParametersValidation
         array $accessGroups
     ): void
     {
-        if (empty($serviceGroupDtos)) {
+        if ($serviceGroupDtos === []) {
             return;
         }
 

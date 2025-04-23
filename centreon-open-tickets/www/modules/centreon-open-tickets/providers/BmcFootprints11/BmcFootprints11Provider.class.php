@@ -52,17 +52,8 @@ class BmcFootprints11Provider extends AbstractProvider
         $this->default_data['https'] = 0;
         $this->default_data['timeout'] = 60;
 
-        $this->default_data['clones']['mappingTicket'] = array(
-            array(
-                'Arg' => self::ARG_TITLE,
-                'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
-                    '/Abstract/templates/display_title.ihtml"}'
-            ),
-            array('Arg' => self::ARG_DESCRIPTION, 'Value' => '{$body}'),
-            array('Arg' => self::ARG_STATUS, 'Value' => 'Open'),
-            array('Arg' => self::ARG_PROJECTID, 'Value' => '1'),
-            array('Arg' => self::ARG_ASSIGNEE, 'Value' => '{$user.alias}'),
-        );
+        $this->default_data['clones']['mappingTicket'] = [['Arg' => self::ARG_TITLE, 'Value' => 'Issue {include file="file:$centreon_open_tickets_path/providers' .
+            '/Abstract/templates/display_title.ihtml"}'], ['Arg' => self::ARG_DESCRIPTION, 'Value' => '{$body}'], ['Arg' => self::ARG_STATUS, 'Value' => 'Open'], ['Arg' => self::ARG_PROJECTID, 'Value' => '1'], ['Arg' => self::ARG_ASSIGNEE, 'Value' => '{$user.alias}']];
     }
 
     protected function setDefaultValueMain($body_html = 0)
@@ -106,7 +97,7 @@ class BmcFootprints11Provider extends AbstractProvider
 
         $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
         $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", array("bmc" => _("BMC Footprints 11")));
+        $tpl->assign("header", ["bmc" => _("BMC Footprints 11")]);
 
         // Form
         $address_html = '<input size="50" name="address" type="text" value="' .
@@ -150,20 +141,14 @@ class BmcFootprints11Provider extends AbstractProvider
         '<option value="' . self::ARG_PRIORITYNUMBER . '">' . _('Priority Number') . '</options>' .
         '<option value="' . self::ARG_ASSIGNEE . '">' . _('Assignee') . '</options>' .
         '</select>';
-        $array_form['mappingTicket'] = array(
-            array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
-            array('label' => _("Value"), 'html' => $mappingTicketValue_html),
-        );
+        $array_form['mappingTicket'] = [['label' => _("Argument"), 'html' => $mappingTicketArg_html], ['label' => _("Value"), 'html' => $mappingTicketValue_html]];
 
         // mapping Ticket ProjectField
         $mappingTicketProjectFieldName_html = '<input id="mappingTicketProjectFieldName_#index#" ' .
             'name="mappingTicketProjectFieldName[#index#]" size="20"  type="text" />';
         $mappingTicketProjectFieldValue_html = '<input id="mappingTicketProjectFieldValue_#index#" ' .
             'name="mappingTicketProjectFieldValue[#index#]" size="20"  type="text" />';
-        $array_form['mappingTicketProjectField'] = array(
-            array('label' => _("Name"), 'html' => $mappingTicketProjectFieldName_html),
-            array('label' => _("Value"), 'html' => $mappingTicketProjectFieldValue_html),
-        );
+        $array_form['mappingTicketProjectField'] = [['label' => _("Name"), 'html' => $mappingTicketProjectFieldName_html], ['label' => _("Value"), 'html' => $mappingTicketProjectFieldValue_html]];
 
         $tpl->assign('form', $array_form);
 
@@ -194,17 +179,17 @@ class BmcFootprints11Provider extends AbstractProvider
 
         $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted(
             'mappingTicket',
-            array('Arg', 'Value')
+            ['Arg', 'Value']
         );
         $this->save_config['clones']['mappingTicketProjectField'] = $this->getCloneSubmitted(
             'mappingTicketProjectField',
-            array('Name', 'Value')
+            ['Name', 'Value']
         );
     }
 
     public function validateFormatPopup()
     {
-        $result = array('code' => 0, 'message' => 'ok');
+        $result = ['code' => 0, 'message' => 'ok'];
 
         $this->validateFormatPopupLists($result);
 
@@ -213,12 +198,7 @@ class BmcFootprints11Provider extends AbstractProvider
 
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
-        $result = array(
-            'ticket_id' => null,
-            'ticket_error_message' => null,
-            'ticket_is_ok' => 0,
-            'ticket_time' => time()
-        );
+        $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
         $tpl = $this->initSmartyTemplate();
 
@@ -229,7 +209,7 @@ class BmcFootprints11Provider extends AbstractProvider
 
         $this->assignSubmittedValues($tpl);
 
-        $ticket_arguments = array();
+        $ticket_arguments = [];
         if (isset($this->rule_data['clones']['mappingTicket'])) {
             foreach ($this->rule_data['clones']['mappingTicket'] as $value) {
                 $tpl->assign('string', $value['Value']);
@@ -242,15 +222,15 @@ class BmcFootprints11Provider extends AbstractProvider
                 $ticket_arguments[$this->internal_arg_name[$value['Arg']]] = $result_str;
             }
         }
-        $ticket_project_fields = array();
+        $ticket_project_fields = [];
         if (isset($this->rule_data['clones']['mappingTicketProjectField'])) {
             foreach ($this->rule_data['clones']['mappingTicketProjectField'] as $value) {
                 if ($value['Name'] == '' ||  $value['Value'] == '') {
                     continue;
                 }
-                $array_tmp = array();
+                $array_tmp = [];
                 $tpl->assign('string', $value['Name']);
-                $array_tmp = array('Name' => $tpl->fetch('eval.ihtml'));
+                $array_tmp = ['Name' => $tpl->fetch('eval.ihtml')];
 
                 $tpl->assign('string', $value['Value']);
                 $array_tmp['Value'] = $tpl->fetch('eval.ihtml');
@@ -268,20 +248,9 @@ class BmcFootprints11Provider extends AbstractProvider
         $this->saveHistory(
             $db_storage,
             $result,
-            array(
-                'contact' => $contact,
-                'host_problems' => $host_problems,
-                'service_problems' => $service_problems,
-                'ticket_value' => $this->_ticket_number,
-                'subject' => $ticket_arguments['Subject'],
-                'data_type' => self::DATA_TYPE_JSON,
-                'data' => json_encode(
-                    array(
-                        'arguments' => $ticket_arguments,
-                        'project_fields' => $ticket_project_fields
-                    )
-                )
-            )
+            ['contact' => $contact, 'host_problems' => $host_problems, 'service_problems' => $service_problems, 'ticket_value' => $this->_ticket_number, 'subject' => $ticket_arguments['Subject'], 'data_type' => self::DATA_TYPE_JSON, 'data' => json_encode(
+                ['arguments' => $ticket_arguments, 'project_fields' => $ticket_project_fields]
+            )]
         );
 
         return $result;
@@ -390,11 +359,7 @@ class BmcFootprints11Provider extends AbstractProvider
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
-            array(
-                'Content-Type:  text/xml;charset=UTF-8',
-                'SOAPAction: ' . $url . '#MRWebServices__createIssue',
-                'Content-Length: ' . strlen($data)
-            )
+            ['Content-Type:  text/xml;charset=UTF-8', 'SOAPAction: ' . $url . '#MRWebServices__createIssue', 'Content-Length: ' . strlen($data)]
         );
         $result = curl_exec($ch);
         curl_close($ch);

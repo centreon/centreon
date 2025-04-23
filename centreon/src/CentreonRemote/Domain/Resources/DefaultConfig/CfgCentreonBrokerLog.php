@@ -52,6 +52,13 @@ class CfgCentreonBrokerLog
             $loggerIds['tls'] => $loggerLevelIds['error'],
             $loggerIds['lua'] => $loggerLevelIds['error'],
             $loggerIds['bam'] => $loggerLevelIds['error'],
+            $loggerIds['neb'] => $loggerLevelIds['error'],
+            $loggerIds['rrd'] => $loggerLevelIds['error'],
+            $loggerIds['grpc'] => $loggerLevelIds['error'],
+            $loggerIds['influxdb'] => $loggerLevelIds['error'],
+            $loggerIds['graphite'] => $loggerLevelIds['error'],
+            $loggerIds['victoria_metrics'] => $loggerLevelIds['error'],
+            $loggerIds['stats'] => $loggerLevelIds['error'],
         ];
 
         foreach ($loggerConfigurations as $loggerId => $loggerLevel) {

@@ -2,8 +2,8 @@ import React, { ReactElement } from 'react';
 
 import { equals } from 'ramda';
 
-import { Dialog as MuiDialog, Slide } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+import { Dialog as MuiDialog, Slide } from '@mui/material';
 
 import { AriaLabelingAttributes } from '../../@types/aria-attributes';
 import { IconButton } from '../Button';

@@ -23,11 +23,21 @@ namespace ConfigGenerateRemote;
 use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
 
+/**
+ * Class
+ *
+ * @class Media
+ * @package ConfigGenerateRemote
+ */
 class Media extends AbstractObject
 {
+    /** @var array|null */
     private $medias = null;
+    /** @var string */
     protected $table = 'view_img';
+    /** @var string */
     protected $generateFilename = 'view_img.infile';
+    /** @var string */
     protected $attributesSelect = '
         img_id,
         img_name,
@@ -38,12 +48,14 @@ class Media extends AbstractObject
         dir_alias,
         dir_comment
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'img_id',
         'img_name',
         'img_path',
         'img_comment',
     ];
+    /** @var string|null */
     protected $pathImg = null;
 
     /**
@@ -51,7 +63,7 @@ class Media extends AbstractObject
      *
      * @return void
      */
-    private function getMedias()
+    private function getMedias(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT $this->attributesSelect
@@ -70,7 +82,9 @@ class Media extends AbstractObject
      *
      * @param string $dir
      * @param string $file
+     *
      * @return void
+     * @throws \Exception
      */
     protected function copyMedia(string $dir, string $file)
     {
@@ -84,8 +98,10 @@ class Media extends AbstractObject
     /**
      * Generate media object and get path
      *
-     * @param integer|null $mediaId
+     * @param int|null $mediaId
+     *
      * @return null|string
+     * @throws \Exception
      */
     public function getMediaPathFromId(?int $mediaId)
     {

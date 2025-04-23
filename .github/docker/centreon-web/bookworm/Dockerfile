@@ -1,82 +1,51 @@
-ARG REGISTRY_URL
-ARG VERSION
+ARG REGISTRY_URL=docker.centreon.com/centreon
+ARG FROM_IMAGE_VERSION=develop
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-bookworm:${VERSION} AS web_fresh
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-bookworm:${FROM_IMAGE_VERSION}
 
-ARG VERSION
+ARG STABILITY
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 COPY *.deb /tmp/debs-centreon/
 
-RUN bash -e <<EOF
+COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
+COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
+
+COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
+
+RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
+
+if [[ "$STABILITY" == "testing" ]]; then
+  for i in \$( ls /etc/apt/sources.list.d/centreon*unstable* ); do mv \$i \$i.disabled; done
+elif [[ "$STABILITY" == "stable" ]]; then
+  for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
+fi
 
 apt-get update
 
-rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb
-apt-get install -y /tmp/debs-centreon/centreon-*.deb
+apt-get install -y /tmp/packages-centreon/centreon-*.deb
 
-echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
+sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
+phpenmod -v 8.2 timezone
 
-touch /var/log/php8.1-fpm-centreon-error.log
-chown www-data:www-data /var/log/php8.1-fpm-centreon-error.log
+touch /var/log/php8.2-fpm-centreon-error.log
+chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
+
+systemctl stop gorgoned
+systemctl stop centengine
+systemctl stop cbd
+systemctl stop apache2
+systemctl stop php8.2-fpm
+systemctl stop snmpd
 
 apt-get clean
 
-systemctl stop centreon
-systemctl stop apache2
-systemctl stop php8.1-fpm
-
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint/container.d/* /usr/share/centreon/container.d/
-COPY --chmod=755 ./.github/docker/centreon-web/bookworm/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp/
-
-RUN <<EOF
-
-sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
-
-service mysql start
-mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-
-cd /usr/share/centreon/www/install/steps/process
-su www-data -s /bin/bash -c "php configFileSetup.php"
-su www-data -s /bin/bash -c "php installConfigurationDb.php"
-su www-data -s /bin/bash -c "php installStorageDb.php"
-su www-data -s /bin/bash -c "php createDbUser.php"
-su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
-su www-data -s /bin/bash -c "php partitionTables.php"
-su www-data -s /bin/bash -c "php generationCache.php"
-su www-data -s /bin/bash -c "rm -rf /usr/share/centreon/www/install"
-
-mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
-mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-service mysql stop
-
-sed -i 's#severity=error#severity=debug#' /etc/default/gorgoned
-sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
-
-EOF
-
-EXPOSE 80 3306
+EXPOSE 80
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
-FROM web_fresh AS web_standard
-
-COPY ./.github/docker/centreon-web/sql /tmp/sql
-
-RUN bash -e <<EOF
-
-service mysql start
-mysql centreon < /tmp/sql/standard.sql
-mysql centreon < /tmp/sql/media.sql
-mysql centreon < /tmp/sql/openldap.sql
-centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-service mysql stop
-
-EOF
+ENV CENTREON_DATASET="1"
+ENV CENTREON_LANG="en_US"

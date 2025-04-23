@@ -6,15 +6,15 @@ import { Box } from '@mui/material';
 import { panelModeAtom } from '../atom';
 import { PanelMode } from '../models';
 
-import useStyles from './Header.styles';
-import NotificationName from './NotificationName';
 import {
-  DeleteAction,
-  DuplicateAction,
   ActivateAction,
   ClosePanelAction,
+  DeleteAction,
+  DuplicateAction,
   SaveAction
 } from './Actions';
+import useStyles from './Header.styles';
+import NotificationName from './NotificationName';
 
 const Header = (): JSX.Element => {
   const { classes } = useStyles();

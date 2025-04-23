@@ -2,12 +2,15 @@ name: centreon-js-config-stable
 
 on:
   workflow_dispatch:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
     paths:
       - "centreon/packages/js-config/**"
       - ".github/actions/npm-publish-package-stable/**"
+      - '.github/workflows/js-config-stable.yml'
+      - "!centreon/packages/js-config/package.json"
 
 env:
   directory: "centreon/packages/js-config"
@@ -16,11 +19,11 @@ env:
 
 jobs:
   publish-new-npm-version:
+    if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-22.04
-    if: ${{ github.event.pull_request.merged == true }}
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - uses: ./.github/actions/npm-publish-package-stable
         with:

@@ -21,11 +21,21 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class ExtendedHostInformation
+ * @package ConfigGenerateRemote\Relations
+ */
 class ExtendedHostInformation extends AbstractObject
 {
+    /** @var string */
     protected $table = 'extended_host_information';
+    /** @var string */
     protected $generateFilename = 'extended_host_information.infile';
+    /** @var string[] */
     protected $attributesWrite = [
         'host_host_id',
         'ehi_notes',
@@ -41,8 +51,10 @@ class ExtendedHostInformation extends AbstractObject
      * Add relation
      *
      * @param array $object
-     * @param integer $hostId
+     * @param int $hostId
+     *
      * @return void
+     * @throws Exception
      */
     public function add(array $object, int $hostId)
     {

@@ -7,13 +7,13 @@ import {
   ListNode,
   REMOVE_LIST_COMMAND
 } from '@lexical/list';
-import { $getSelection, $isRootOrShadowRoot } from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $findMatchingParent,
   $getNearestNodeOfType,
   mergeRegister
 } from '@lexical/utils';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $getSelection, $isRootOrShadowRoot } from 'lexical';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 

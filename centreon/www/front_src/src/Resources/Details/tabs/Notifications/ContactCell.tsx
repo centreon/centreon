@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 
-import { Typography, Tooltip } from '@mui/material';
+import { Tooltip, Typography } from '@mui/material';
 
 interface Props {
   children: ReactElement | string;

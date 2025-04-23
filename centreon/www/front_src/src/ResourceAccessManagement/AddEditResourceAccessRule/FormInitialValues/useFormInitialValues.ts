@@ -1,13 +1,41 @@
-import { getEmptyInitialValues } from './initialValues';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+
+import { editedResourceAccessRuleIdAtom, modalStateAtom } from '../../atom';
+import { ModalMode, ResourceAccessRule } from '../../models';
+
+import { getEmptyInitialValues, getInitialValues } from './initialValues';
 
 interface UseFormState {
-  initialValues: object;
+  initialValues: Omit<ResourceAccessRule, 'id'>;
   isLoading: boolean;
 }
 
+export const query = {
+  useQueryClient
+};
+
 const useFormInitialValues = (): UseFormState => {
-  const initialValues = getEmptyInitialValues();
-  const isLoading = false;
+  const modalState = useAtomValue(modalStateAtom);
+  const editRuleId = useAtomValue(editedResourceAccessRuleIdAtom);
+
+  const data = query
+    .useQueryClient()
+    .getQueryData(['resource-access-rule', editRuleId]);
+
+  const isFetching = useIsFetching({
+    queryKey: ['resource-access-rule', editRuleId]
+  });
+
+  const initialValues =
+    equals(modalState.mode, ModalMode.Edit) && data
+      ? getInitialValues(data)
+      : getEmptyInitialValues();
+
+  const isLoading = equals(modalState.mode, ModalMode.Edit)
+    ? !!isFetching
+    : false;
 
   return { initialValues, isLoading };
 };

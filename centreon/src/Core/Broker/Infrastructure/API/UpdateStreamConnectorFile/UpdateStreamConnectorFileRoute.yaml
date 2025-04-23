@@ -1,0 +1,8 @@
+UpdateStreamConnectorFile:
+  methods: PUT
+  path: /configuration/broker/{brokerId}/outputs/{outputId}/file
+  requirements:
+    brokerId: '\d+'
+    outputId: '\d+'
+  controller: 'Core\Broker\Infrastructure\API\UpdateStreamConnectorFile\UpdateStreamConnectorFileController'
+  condition: "request.attributes.get('version') >= 24.04"

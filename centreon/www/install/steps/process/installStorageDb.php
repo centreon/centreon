@@ -37,11 +37,7 @@ session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../functions.php';
 
-$return = array(
-    'id' => 'dbstorage',
-    'result' => 1,
-    'msg' => ''
-);
+$return = ['id' => 'dbstorage', 'result' => 1, 'msg' => ''];
 
 $factory = new \CentreonLegacy\Core\Utils\Factory($dependencyInjector);
 $utils = $factory->newUtils();

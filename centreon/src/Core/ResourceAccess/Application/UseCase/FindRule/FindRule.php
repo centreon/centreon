@@ -35,6 +35,7 @@ use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Providers\DatasetProviderInterface;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -53,6 +54,8 @@ final class FindRule
      * @param ReadResourceAccessRepositoryInterface $repository
      * @param ReadContactRepositoryInterface $contactRepository
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
+     * @param DatasetFilterValidator $datasetFilterValidator
+     * @param bool $isCloudPlatform
      * @param \Traversable<DatasetProviderInterface> $repositoryProviders
      */
     public function __construct(
@@ -61,6 +64,8 @@ final class FindRule
         private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly ReadContactRepositoryInterface $contactRepository,
         private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
+        private readonly DatasetFilterValidator $datasetFilterValidator,
+        private readonly bool $isCloudPlatform,
         \Traversable $repositoryProviders
     ) {
         $this->repositoryProviders = iterator_to_array($repositoryProviders);
@@ -124,6 +129,9 @@ final class FindRule
         $response->id = $rule->getId();
         $response->name = $rule->getName();
         $response->description = $rule->getDescription();
+        $response->isEnabled = $rule->isEnabled();
+        $response->applyToAllContacts = $rule->doesApplyToAllContacts();
+        $response->applyToAllContactGroups = $rule->doesApplyToAllContactGroups();
 
         // retrieve names of linked contact IDs
         $response->contacts = array_values(
@@ -140,21 +148,35 @@ final class FindRule
         {
             $data['type'] = $datasetFilter->getType();
 
-            $resourcesNamesById = null;
-            foreach ($this->repositoryProviders as $provider) {
-                if ($provider->isValidFor($data['type'])) {
-                    $resourcesNamesById = $provider->findResourceNamesByIds($datasetFilter->getResourceIds());
+            if (
+                $datasetFilter->getResourceIds() === []
+                && $this->datasetFilterValidator->canResourceIdsBeEmpty($data['type'])
+            ) {
+                $data['resources'] = [];
+
+                // special 'ALL' type dataset_filter type case
+                if ($data['type'] === DatasetFilterValidator::ALL_RESOURCES_FILTER) {
+                    $data['dataset_filter'] = null;
+
+                    return $data;
                 }
-            }
+            } else {
+                $resourcesNamesById = null;
+                foreach ($this->repositoryProviders as $provider) {
+                    if ($provider->isValidFor($data['type'])) {
+                        $resourcesNamesById = $provider->findResourceNamesByIds($datasetFilter->getResourceIds());
+                    }
+                }
 
-            if ($resourcesNamesById === null) {
-                throw new \InvalidArgumentException('No repository providers found');
-            }
+                if ($resourcesNamesById === null) {
+                    throw new \InvalidArgumentException('No repository providers found');
+                }
 
-            $data['resources'] = array_map(
-                static fn (int $resourceId): array => ['id' => $resourceId, 'name' => $resourcesNamesById->getName($resourceId)],
-                $datasetFilter->getResourceIds()
-            );
+                $data['resources'] = array_map(
+                    static fn (int $resourceId): array => ['id' => $resourceId, 'name' => $resourcesNamesById->getName($resourceId)],
+                    $datasetFilter->getResourceIds()
+                );
+            }
 
             $data['dataset_filter'] = null;
 
@@ -173,10 +195,18 @@ final class FindRule
     }
 
     /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
      * @return bool
      */
     private function isAuthorized(): bool
     {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
         $userAccessGroupNames = array_map(
             static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
             $this->accessGroupRepository->findByContact($this->user)
@@ -188,6 +218,7 @@ final class FindRule
          *     - authorized to reach the Resource Access Management page.
          */
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            || $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
+            && $this->isCloudPlatform;
     }
 }

@@ -23,7 +23,6 @@ declare(strict_types = 1);
 
 namespace Tests\Core\ResourceAccess\Application\UseCase\FindRules;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
@@ -45,6 +44,7 @@ use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\ResourceAccess\Infrastructure\API\FindRules\FindRulesPresenterStub;
 
 beforeEach(closure: function (): void {
@@ -68,29 +68,20 @@ beforeEach(closure: function (): void {
     $this->presenter = new FindRulesPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 
-    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters, $this->accessGroupRepository);
-});
-
-it('should present a Forbidden response when user does not have sufficient rights', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturnMap([
-            [Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW, false],
-        ]);
-
-    ($this->useCase)($this->presenter);
-    expect($this->presenter->response)
-        ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->response->getMessage())
-        ->toBe(RuleException::notAllowed()->getMessage());
+    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters, $this->accessGroupRepository, true);
 });
 
 it('should present an ErrorResponse when an exception occurs', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+        );
+
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
-        ->with(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
         ->willReturn(true);
 
     $exception = new \Exception();
@@ -108,10 +99,16 @@ it('should present an ErrorResponse when an exception occurs', function (): void
 });
 
 it('should present an ErrorResponse when an error occurs concerning the request parameters', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+        );
+
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
-        ->with(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
         ->willReturn(true);
 
     $this->repository
@@ -125,11 +122,17 @@ it('should present an ErrorResponse when an error occurs concerning the request 
         ->toBeInstanceOf(ErrorResponse::class);
 });
 
-it('should present a FindRulesResponse when no error occurs', function (): void {
+it('should present a FindRulesResponse when no error occurs (custom_admin)', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+        );
+
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
-        ->with(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
         ->willReturn(true);
 
     $rule = new Rule(
@@ -158,3 +161,36 @@ it('should present a FindRulesResponse when no error occurs', function (): void 
         ->and($response->rulesDto[0]->isEnabled)->toBe($rule->isEnabled());
 });
 
+it('should present a FindRulesResponse when no error occurs (custom_editor)', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'customer_editor_acl', 'not an admin')]
+        );
+
+    $rule = new Rule(
+        id: 1,
+        name: 'name',
+        description: 'description',
+        linkedContacts: [1],
+        linkedContactGroups: [2],
+        datasets: [new DatasetFilter('host', [3, 4], $this->datasetValidator)],
+        isEnabled: true
+    );
+
+    $rulesFound = [$rule];
+    $this->repository
+        ->expects($this->once())
+        ->method('findAllByRequestParametersAndUserId')
+        ->with($this->requestParameters)
+        ->willReturn($rulesFound);
+
+    ($this->useCase)($this->presenter);
+    $response = $this->presenter->response;
+    expect($response)->toBeInstanceOf(FindRulesResponse::class)
+        ->and($response->rulesDto[0]->id)->toBe($rule->getId())
+        ->and($response->rulesDto[0]->name)->toBe($rule->getName())
+        ->and($response->rulesDto[0]->description)->toBe($rule->getDescription())
+        ->and($response->rulesDto[0]->isEnabled)->toBe($rule->isEnabled());
+});

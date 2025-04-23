@@ -34,16 +34,54 @@
  *
  */
 
+use Core\Common\Application\UseCase\VaultTrait;
+use Pimple\Container;
+
+/**
+ * Class
+ *
+ * @class Resource
+ */
 class Resource extends AbstractObject
 {
-    private $connectors = null;
-    protected $generate_filename = 'resource.cfg';
-    protected $object_name = null;
-    protected $stmt = null;
-    protected $attributes_hash = array(
-        'resources'
-    );
+    use VaultTrait;
 
+    /** @var null */
+    private $connectors = null;
+    /** @var string */
+    protected $generate_filename = 'resource.cfg';
+    /** @var string */
+    protected string $object_name;
+    /** @var null */
+    protected $stmt = null;
+    /** @var string[] */
+    protected $attributes_hash = ['resources'];
+
+    /**
+     * Macro constructor
+     *
+     * @param Container $dependencyInjector
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     */
+    public function __construct(Container $dependencyInjector)
+    {
+        parent::__construct($dependencyInjector);
+
+        if (! $this->isVaultEnabled) {
+            $this->getVaultConfigurationStatus();
+        }
+    }
+
+    /**
+     * @param $poller_id
+     *
+     * @return int|void
+     * @throws PDOException
+     */
     public function generateFromPollerId($poller_id)
     {
         if (is_null($poller_id)) {
@@ -59,9 +97,23 @@ class Resource extends AbstractObject
         $this->stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
         $this->stmt->execute();
 
-        $object = array('resources' => array());
+        $object = ['resources' => []];
+        $vaultPaths = [];
         foreach ($this->stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             $object['resources'][$value['resource_name']] = $value['resource_line'];
+            if ($this->isAVaultPath($value['resource_line'])) {
+                $vaultPaths[] = $value['resource_line'];
+            }
+        }
+        if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
+            $vaultData = $this->readVaultRepository->findFromPaths($vaultPaths);
+            foreach ($vaultData as $vaultValues) {
+                foreach ($vaultValues as $vaultKey => $vaultValue) {
+                    if (array_key_exists($vaultKey, $object['resources']) || array_key_exists('$' . $vaultKey . '$', $object['resources'])) {
+                        $object['resources'][$vaultKey] = $vaultValue;
+                    }
+                }
+            }
         }
 
         $this->generateFile($object);

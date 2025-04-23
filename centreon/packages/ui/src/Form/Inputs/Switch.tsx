@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Switch as MUISwitch } from '@mui/material';
 
-import { getNormalizedId } from '../../utils/getNormalizedId';
 import { useMemoComponent } from '../..';
+import { getNormalizedId } from '../../utils/getNormalizedId';
 
 import { InputPropsWithoutGroup } from './models';
 
@@ -22,11 +22,19 @@ const Switch = ({
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
-  const { values, setFieldValue } = useFormikContext<FormikValues>();
+  const { values, setFieldValue, setFieldTouched, setValues, setTouched } =
+    useFormikContext<FormikValues>();
 
   const changeSwitchValue = (event: ChangeEvent<HTMLInputElement>): void => {
     if (change) {
-      change({ setFieldValue, value: event.target.checked });
+      change({
+        setFieldValue,
+        value: event.target.checked,
+        values,
+        setFieldTouched,
+        setValues,
+        setTouched
+      });
 
       return;
     }
@@ -50,8 +58,10 @@ const Switch = ({
             data-testid={dataTestId}
             disabled={disabled}
             id={getNormalizedId(dataTestId || '')}
-            inputProps={{
-              'aria-label': t(label) || ''
+            slotProps={{
+              input: {
+                'aria-label': t(label) || ''
+              }
             }}
             onChange={changeSwitchValue}
           />
@@ -59,7 +69,7 @@ const Switch = ({
         label={t(label) as string}
       />
     ),
-    memoProps: [value, disabled, additionalMemoProps]
+    memoProps: [value, disabled, additionalMemoProps, values]
   });
 };
 

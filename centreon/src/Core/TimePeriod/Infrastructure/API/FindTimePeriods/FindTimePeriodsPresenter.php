@@ -60,6 +60,7 @@ class FindTimePeriodsPresenter extends AbstractPresenter implements PresenterInt
                 'days' => $timePeriod['days'],
                 'templates' => $timePeriod['templates'],
                 'exceptions' => $timePeriod['exceptions'],
+                'in_period' => $timePeriod['in_period'],
             ];
         }
         $response['meta'] = $this->requestParameters->toArray();

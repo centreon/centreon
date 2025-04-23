@@ -38,5 +38,13 @@ class HostGroupFilterType extends AbstractDatasetFilterType
         ServiceCategoryFilterType::TYPE_NAME,
         ServiceFilterType::TYPE_NAME,
     ];
+
+    /**
+     * @inheritDoc
+     */
+    public function canResourceIdsBeEmpty(): bool
+    {
+        return true;
+    }
 }
 

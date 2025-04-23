@@ -32,6 +32,10 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
@@ -40,7 +44,7 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteService
 {
-    use LoggerTrait;
+    use LoggerTrait,VaultTrait;
 
     /**
      * @param ReadServiceRepositoryInterface $readRepository
@@ -49,6 +53,8 @@ final class DeleteService
      * @param ContactInterface $user
      * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
      * @param DataStorageEngineInterface $storageEngine
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
+     * @param ReadServiceMacroRepositoryInterface $readServiceMacroRepository
      */
     public function __construct(
         private readonly ReadServiceRepositoryInterface $readRepository,
@@ -56,8 +62,11 @@ final class DeleteService
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly DataStorageEngineInterface $storageEngine,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
+        private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
     ) {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
     /**
@@ -98,6 +107,13 @@ final class DeleteService
 
                 $monitoringServerId = $this->readRepository->findMonitoringServerId($serviceId);
                 $this->info("Delete service #{$serviceId}");
+
+                if ($this->writeVaultRepository->isVaultConfigured()) {
+                    $this->retrieveServiceUuidFromVault($serviceId);
+                    if ($this->uuid !== null) {
+                        $this->writeVaultRepository->delete($this->uuid);
+                    }
+                }
                 $this->writeRepository->delete($serviceId);
                 $this->info("Notify monitoiring server #{$monitoringServerId} of configuration change");
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($monitoringServerId);
@@ -120,6 +136,24 @@ final class DeleteService
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse(ServiceException::errorWhileDeleting($ex)));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        }
+    }
+
+    /**
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     */
+    private function retrieveServiceUuidFromVault(int $serviceId): void
+    {
+        $macros = $this->readServiceMacroRepository->findByServiceIds($serviceId);
+        foreach ($macros as $macro) {
+            if (
+                $macro->isPassword() === true
+                && null !== ($this->uuid = $this->getUuidFromPath($macro->getValue()))
+            ) {
+                break;
+            }
         }
     }
 }

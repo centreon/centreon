@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "58d18f50-5072-4117-9bed-3a2934729df6",
+		"_postman_id": "066a7fc3-f87f-46d8-ad63-1a7918fd5223",
 		"name": "21 - Contact management - Centreon Web Refactored API Test Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "22770334",
-		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-58d18f50-5072-4117-9bed-3a2934729df6?action=share&source=collection_link&creator=22770334"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -1932,13 +1931,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
 									"const nextRequestInCaseOfFailure = \"[2106] Login with admin user after non-admin user check\"\r",
 									"\r",
 									"pm.test(\"Since the non-admin user was granted API access rights, but without access to configuration user page, it can not access the list of users.\", function () {\r",
 									"    const expectedResponseCode = 403\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
-									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, 403, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(403);\r",
 									"});"
 								],
 								"type": "text/javascript"

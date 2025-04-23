@@ -131,11 +131,7 @@ $obj->XML->startElement("reponse");
 if ($data = $dbResult->fetch()) {
     /* Split the plugin_output */
     $outputLines = preg_split('/<br \/>|<br>|\\\n|\x0A|\x0D\x0A|\n/', $data['output']);
-    if (strlen($outputLines[0]) > 100) {
-        $pluginShortOuput = sprintf("%.100s", $outputLines[0]) . "...";
-    } else {
-        $pluginShortOuput = $outputLines[0];
-    }
+    $pluginShortOuput = strlen($outputLines[0]) > 100 ? sprintf("%.100s", $outputLines[0]) . "..." : $outputLines[0];
     $longOutput = [];
     if (isset($outputLines[1])) {
         for ($x = 1; isset($outputLines[$x]) && $x < 5; $x++) {
@@ -148,11 +144,7 @@ if ($data = $dbResult->fetch()) {
 
     $obj->XML->writeElement("svc_name", CentreonUtils::escapeSecure($data["description"]), false);
 
-    if ($data["icon_image"] == "") {
-        $data["icon_image"] = "./img/icons/service.png";
-    } else {
-        $data["icon_image"] = "./img/media/" . $data["icon_image"];
-    }
+    $data["icon_image"] = $data["icon_image"] == "" ? "./img/icons/service.png" : "./img/media/" . $data["icon_image"];
 
     $duration = "";
     if ($data["last_state_change"] > 0) {

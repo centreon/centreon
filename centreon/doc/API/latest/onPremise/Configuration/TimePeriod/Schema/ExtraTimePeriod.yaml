@@ -1,0 +1,18 @@
+type: object
+properties:
+  day_range:
+    type: string
+    description: |
+      Directives, including weekdays, days of the month, and calendar dates
+
+      * Calendar date (2008-01-01)
+      * Specific month date (January 1st)
+      * Generic month date (Day 15)
+      * Offset weekday of specific month (2nd Tuesday in December)
+      * Offset weekday (3rd Monday)
+      * Normal weekday (Tuesday)
+    example: "monday 1"
+  time_range:
+    type: string
+    description: "Time range for the day"
+    example: "00:00-06:00,07:00-08:00"

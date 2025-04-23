@@ -8,11 +8,11 @@ Cypress : https://docs.cypress.io/guides/references/best-practices.html
 
 - docker + docker-compose
 - npm >= 5.2 (to use npx included)
-- pnpm >= 7.0
+- pnpm >= 8
 
 ### General infos
 
-All the tests should run fine, except some of them like "SAML, openid.." they need a small change in the config file to be able to function for windows/mac users.
+All the tests should run fine, except some of them like "SAML, openid.." they need a small change in the config file to be able to run for windows/mac users.
 
 ## Step by Step
 

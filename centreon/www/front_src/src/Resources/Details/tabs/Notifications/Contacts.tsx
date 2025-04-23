@@ -1,8 +1,9 @@
-import { useCallback, Fragment } from 'react';
+import { Fragment, useCallback } from 'react';
 
 import { t } from 'i18next';
 import { isEmpty, isNil } from 'ramda';
 
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Box,
   Divider,
@@ -11,15 +12,14 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import SettingsIcon from '@mui/icons-material/Settings';
 
+import memoizeComponent from '../../../memoizedComponent';
 import {
   labelConfigure,
   labelNotAuthorizedToAccessConfiguration
 } from '../../../translatedLabels';
-import memoizeComponent from '../../../memoizedComponent';
 
-import { ContactGroup, Contact } from './models';
+import { Contact, ContactGroup } from './models';
 
 interface Props {
   contacts: Array<Contact> | Array<ContactGroup> | undefined;

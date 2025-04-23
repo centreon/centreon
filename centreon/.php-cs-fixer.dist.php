@@ -25,8 +25,14 @@ use Centreon\PhpCsFixer\PhpCsFixerRuleSet;
 use PhpCsFixer\{Config, Finder};
 
 $finder = Finder::create()
+    // add directories
     ->in([
         __DIR__ . '/src/Core',
+        __DIR__ . '/src/Adaptation',
+    ])
+    // add files
+    ->append([
+        __DIR__ . '/src/Centreon/Infrastructure/DatabaseConnection.php',
     ]);
 
 /**
@@ -38,4 +44,5 @@ $finder = Finder::create()
 return (new Config())
     ->setFinder($finder)
     ->setRiskyAllowed(true)
+    ->setUsingCache(false)
     ->setRules(PhpCsFixerRuleSet::getRules());

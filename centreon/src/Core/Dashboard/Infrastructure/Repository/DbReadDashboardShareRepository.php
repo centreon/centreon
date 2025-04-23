@@ -32,8 +32,12 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
@@ -47,6 +51,7 @@ use Utility\SqlConcatenator;
 class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements ReadDashboardShareRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -300,6 +305,68 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     /**
      * @inheritDoc
      */
+    public function findDashboardsContactSharesByContactIds(array $contactIds, Dashboard ...$dashboards): array
+    {
+        if ([] === $dashboards) {
+            return [];
+        }
+
+        $dashboardsById = [];
+        foreach ($dashboards as $dashboard) {
+            $dashboardsById[$dashboard->getId()] = $dashboard;
+        }
+
+        $select = <<<'SQL'
+            SELECT
+                dcr.`dashboard_id`,
+                dcr.`role`,
+                c.`contact_id`,
+                c.`contact_email`,
+                c.`contact_name`
+            FROM `:db`.`dashboard_contact_relation` dcr
+            INNER JOIN contact c
+                ON dcr.contact_id = c.contact_id
+            WHERE dcr.`dashboard_id` IN (:dashboard_ids)
+            AND c.contact_id IN(:contact_ids)
+            SQL;
+
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect($select)
+            ->storeBindValueMultiple(':dashboard_ids', array_keys($dashboardsById), \PDO::PARAM_INT)
+            ->storeBindValueMultiple(':contact_ids', $contactIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Retrieve data
+        $shares = [];
+        foreach ($statement as $result) {
+            /** @var array{
+             *     dashboard_id: int,
+             *     role: string,
+             *     contact_id: int,
+             *     contact_email: string,
+             *     contact_name: string
+             * } $result
+             */
+            $dashboardId = $result['dashboard_id'];
+
+            $shares[$dashboardId][] = new DashboardContactShare(
+                $dashboardsById[$dashboardId],
+                $result['contact_id'],
+                $result['contact_name'],
+                $result['contact_email'],
+                $this->stringToRole($result['role'])
+            );
+        }
+
+        return $shares;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findDashboardsContactGroupShares(Dashboard ...$dashboards): array
     {
         if ([] === $dashboards) {
@@ -367,58 +434,56 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     /**
      * @inheritDoc
      */
-    public function findContactsWithAccessRightByRequestParameters(RequestParametersInterface $requestParameters): array
-    {
+    public function findContactsWithAccessRightByRequestParameters(
+        RequestParametersInterface $requestParameters
+    ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
             'name' => 'c.contact_name',
         ]);
 
-        $query = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, c.contact_name, c.contact_id, c.contact_email
-                FROM `:db`.contact c
-                    LEFT JOIN `:db`.contactgroup_contact_relation cgcr
-                        ON cgcr.contact_contact_id = c.contact_id
-                    LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
-                        ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
-                    LEFT JOIN `:db`.acl_group_contacts_relations gcr
-                        ON gcr.contact_contact_id = c.contact_id
-                    LEFT JOIN `:db`.acl_group_topology_relations agtr
-                        ON agtr.acl_group_id = gcr.acl_group_id
-                            OR agtr.acl_group_id = gcgr.acl_group_id
-                    LEFT JOIN `:db`.acl_topology_relations acltr
-                        ON acltr.acl_topo_id = agtr.acl_topology_id
-                    INNER JOIN `:db`.topology
-                        ON topology.topology_id = acltr.topology_topology_id
-                    INNER JOIN `:db`.topology parent
-                        ON topology.topology_parent = parent.topology_page
-            SQL;
+        $query = <<<'SQL_WRAP'
+            SELECT SQL_CALC_FOUND_ROWS
+                GROUP_CONCAT(topology.topology_name) as topologies,
+                c.contact_name,
+                c.contact_id,
+                c.contact_email,
+                ag.acl_group_name
+            FROM `:db`.contact c
+            LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                ON cgcr.contact_contact_id = c.contact_id
+            LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
+            LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                ON gcr.contact_contact_id = c.contact_id
+            LEFT JOIN `:db`.acl_groups ag
+                ON ag.acl_group_id = gcr.acl_group_id
+            LEFT JOIN `:db`.acl_group_topology_relations agtr
+                ON agtr.acl_group_id = gcr.acl_group_id
+                    OR agtr.acl_group_id = gcgr.acl_group_id
+            LEFT JOIN `:db`.acl_topology_relations acltr
+                ON acltr.acl_topo_id = agtr.acl_topology_id
+            LEFT JOIN `:db`.topology
+                ON topology.topology_id = acltr.topology_topology_id
+            LEFT JOIN `:db`.topology parent
+                ON topology.topology_parent = parent.topology_page
+            WHERE
+                c.contact_admin = '0'
+                AND c.contact_oreon = '1'
+                AND parent.topology_name = 'Dashboards'
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                AND acltr.access_right IS NOT NULL
+            SQL_WRAP;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
-        $query .= $searchRequest !== null
-            ? $searchRequest . ' AND '
-            : ' WHERE ';
-
-        $query .= <<<'SQL'
-            parent.topology_name = 'Dashboards'
-            AND topology.topology_name IN ('Viewer','Editor','Creator')
-            AND acltr.access_right IS NOT NULL
-                AND c.contact_oreon = '1'
-            GROUP BY c.contact_id
-            SQL;
+        $query .= $searchRequest !== null ? ' AND ' . $searchRequest : '';
+        $query .= ' GROUP BY c.contact_id, ag.acl_group_name';
 
         $query .= $sqlTranslator->translatePaginationToSql();
 
         $statement = $this->db->prepare($this->translateDbName($query));
-        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-            /**
-             * @var int
-             */
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
+        $sqlTranslator->bindSearchValues($statement);
         $statement->execute();
 
         $result = $this->db->query('SELECT FOUND_ROWS()');
@@ -439,6 +504,342 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         }
 
         return $dashboardContactRoles;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactsWithAccessRightByContactIds(array $contactIds): array
+    {
+        $bind = [];
+        foreach ($contactIds as $key => $contactId) {
+            $bind[':contact_id' . $key] = $contactId;
+        }
+        if ([] === $bind) {
+            return [];
+        }
+
+        $bindTokenAsString = implode(', ', array_keys($bind));
+
+        $query = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, c.contact_name, c.contact_id, c.contact_email
+            FROM `:db`.contact c
+            LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                ON cgcr.contact_contact_id = c.contact_id
+            LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
+            LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                ON gcr.contact_contact_id = c.contact_id
+            LEFT JOIN `:db`.acl_group_topology_relations agtr
+                ON agtr.acl_group_id = gcr.acl_group_id
+                    OR agtr.acl_group_id = gcgr.acl_group_id
+            LEFT JOIN `:db`.acl_topology_relations acltr
+                ON acltr.acl_topo_id = agtr.acl_topology_id
+            INNER JOIN `:db`.topology
+                ON topology.topology_id = acltr.topology_topology_id
+            INNER JOIN `:db`.topology parent
+                ON topology.topology_parent = parent.topology_page
+            WHERE parent.topology_name = 'Dashboards'
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                AND acltr.access_right IS NOT NULL
+                AND c.contact_id IN ({$bindTokenAsString})
+                AND c.contact_admin = '0'
+                GROUP BY c.contact_id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($bind as $token => $contactId) {
+            $statement->bindValue($token, $contactId, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        $dashboardContactRoles = [];
+        foreach ($statement as $contactRole) {
+            /** @var array{
+             *     topologies: string,
+             *     contact_name: string,
+             *     contact_id: int,
+             *     contact_email: string,
+             *     acl_group_name: string|null
+             * } $contactRole
+             */
+            $dashboardContactRoles[] = $this->createDashboardContactRole($contactRole);
+        }
+
+        return $dashboardContactRoles;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactGroupsByRequestParameters(RequestParametersInterface $requestParameters): array
+    {
+        try {
+            $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+            $sqlTranslator->setConcordanceArray([
+                'name' => 'cg.cg_name',
+            ]);
+
+            $query = <<<'SQL_WRAP'
+                SELECT SQL_CALC_FOUND_ROWS
+                    'Viewer' as topologies,
+                    cg.cg_name,
+                    cg.cg_id
+                FROM `:db`.contactgroup cg
+                SQL_WRAP;
+
+            $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+            $query .= $searchRequest !== null ? ' WHERE ' . $searchRequest : '';
+            $query .= ' GROUP BY cg.cg_id';
+
+            $query .= $sqlTranslator->translatePaginationToSql();
+
+            $statement = $this->db->prepare($this->translateDbName($query));
+            $sqlTranslator->bindSearchValues($statement);
+            $statement->execute();
+
+            $result = $this->db->query('SELECT FOUND_ROWS()');
+            if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+                $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+            }
+
+            $dashboardContactGroupRoles = [];
+            foreach ($statement as $contactGroupRole) {
+                /** @var array{
+                 *     topologies: string,
+                 *     cg_name: string,
+                 *     cg_id: int,
+                 * } $contactGroupRole
+                 */
+                $dashboardContactGroupRoles[] = $this->createDashboardContactGroupRole($contactGroupRole);
+            }
+
+            return $dashboardContactGroupRoles;
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(message: 'Error while searching for contact groups', previous: $exception);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactGroupsWithAccessRightByRequestParameters(RequestParametersInterface $requestParameters): array
+    {
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'cg.cg_name',
+        ]);
+
+        $query = <<<'SQL_WRAP'
+            SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, cg.cg_name, cg.cg_id
+                FROM `:db`.contactgroup cg
+                    LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                        ON gcgr.cg_cg_id = cg.cg_id
+                    LEFT JOIN `:db`.acl_group_topology_relations agtr
+                        ON agtr.acl_group_id = gcgr.acl_group_id
+                    LEFT JOIN `:db`.acl_topology_relations acltr
+                        ON acltr.acl_topo_id = agtr.acl_topology_id
+                    INNER JOIN `:db`.topology
+                        ON topology.topology_id = acltr.topology_topology_id
+                    INNER JOIN `:db`.topology parent
+                        ON topology.topology_parent = parent.topology_page
+            SQL_WRAP;
+
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        $query .= $searchRequest !== null
+            ? $searchRequest . ' AND '
+            : ' WHERE ';
+
+        $query .= <<<'SQL'
+            parent.topology_name = 'Dashboards'
+            AND topology.topology_name IN ('Viewer','Administrator','Creator')
+            AND acltr.access_right IS NOT NULL
+            GROUP BY cg.cg_id
+            SQL;
+
+        $query .= $sqlTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            /**
+             * @var int
+             */
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+        $statement->execute();
+
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $dashboardContactGroupRoles = [];
+        foreach ($statement as $contactGroupRole) {
+            /** @var array{
+             *     topologies: string,
+             *     cg_name: string,
+             *     cg_id: int,
+             * } $contactGroupRole
+             */
+            $dashboardContactGroupRoles[] = $this->createDashboardContactGroupRole($contactGroupRole);
+        }
+
+        return $dashboardContactGroupRoles;
+    }
+
+    public function findContactGroupsWithAccessRightByContactGroupIds(array $contactGroupIds): array
+    {
+        $bind = [];
+        foreach ($contactGroupIds as $key => $contactGroupId) {
+            $bind[':contact_group' . $key] = $contactGroupId;
+        }
+
+        if ([] === $bind) {
+            return [];
+        }
+
+        $bindTokenAsString = implode(', ', array_keys($bind));
+
+        $query = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, cg.cg_name, cg.cg_id
+                FROM `:db`.contactgroup cg
+                    LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                        ON gcgr.cg_cg_id = cg.cg_id
+                    LEFT JOIN `:db`.acl_group_topology_relations agtr
+                        ON agtr.acl_group_id = gcgr.acl_group_id
+                    LEFT JOIN `:db`.acl_topology_relations acltr
+                        ON acltr.acl_topo_id = agtr.acl_topology_id
+                    INNER JOIN `:db`.topology
+                        ON topology.topology_id = acltr.topology_topology_id
+                    INNER JOIN `:db`.topology parent
+                        ON topology.topology_parent = parent.topology_page
+                    WHERE parent.topology_name = 'Dashboards'
+                        AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                        AND acltr.access_right IS NOT NULL
+                        AND cg.cg_id IN ({$bindTokenAsString})
+                    GROUP BY cg.cg_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($bind as $token => $contactGroupId) {
+            $statement->bindValue($token, $contactGroupId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $dashboardContactGroupRoles = [];
+        foreach ($statement as $contactGroupRole) {
+            /** @var array{
+             *     topologies: string,
+             *     cg_name: string,
+             *     cg_id: int,
+             * } $contactGroupRole
+             */
+            $dashboardContactGroupRoles[] = $this->createDashboardContactGroupRole($contactGroupRole);
+        }
+
+        return $dashboardContactGroupRoles;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactsWithAccessRightsByContactGroupsAndRequestParameters(
+        array $contactGroups,
+        RequestParametersInterface $requestParameters
+    ): array {
+        try {
+            if ($contactGroups === []) {
+                return [];
+            }
+
+            $contactGroupIds = array_map(
+                static fn(ContactGroup $contactGroup): int => $contactGroup->getId(),
+                $contactGroups
+            );
+
+            $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
+                RequestParameters::CONCORDANCE_MODE_STRICT
+            );
+
+            $sqlTranslator->setConcordanceArray([
+                'name' => 'c.contact_name',
+            ]);
+
+            [$bindValues, $bindQuery] = $this->createMultipleBindQuery($contactGroupIds, ':contact_group_id');
+
+            $query = <<<SQL
+                    SELECT
+                        GROUP_CONCAT(topology.topology_name) as topologies,
+                        c.contact_name,
+                        c.contact_id,
+                        c.contact_email
+                    FROM `:db`.contact c
+                    LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                        ON cgcr.contact_contact_id = c.contact_id
+                    LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                        ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
+                    LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                        ON gcr.contact_contact_id = c.contact_id
+                    LEFT JOIN `:db`.acl_group_topology_relations agtr
+                        ON agtr.acl_group_id = gcr.acl_group_id
+                        OR agtr.acl_group_id = gcgr.acl_group_id
+                    LEFT JOIN `:db`.acl_topology_relations acltr
+                        ON acltr.acl_topo_id = agtr.acl_topology_id
+                    INNER JOIN `:db`.topology
+                        ON topology.topology_id = acltr.topology_topology_id
+                    INNER JOIN `:db`.topology parent
+                        ON topology.topology_parent = parent.topology_page
+                    WHERE
+                        c.contact_oreon = '1'
+                        AND parent.topology_name = 'Dashboards'
+                        AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                        AND cgcr.contactgroup_cg_id IN ({$bindQuery})
+                        AND acltr.access_right IS NOT NULL
+                SQL;
+
+            $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+            $query .= $searchRequest !== null ? ' AND ' . $searchRequest : '';
+
+            $query .= ' GROUP BY c.contact_id';
+
+            $statement = $this->db->prepare($this->translateDbName($query));
+
+            foreach ($bindValues as $token => $contactGroupId) {
+                $statement->bindValue($token, $contactGroupId, \PDO::PARAM_INT);
+            }
+
+            $sqlTranslator->bindSearchValues($statement);
+            $statement->execute();
+
+            $result = $this->db->query('SELECT FOUND_ROWS()');
+            if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+                $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+            }
+
+            $dashboardContactRoles = [];
+            foreach ($statement as $contactRole) {
+                /** @var array{
+                 *     topologies: string,
+                 *     contact_name: string,
+                 *     contact_id: int,
+                 *     contact_email: string
+                 * } $contactRole
+                 */
+                $dashboardContactRoles[] = $this->createDashboardContactRole($contactRole);
+            }
+
+            return $dashboardContactRoles;
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: "Error while retrieving contacts allowed to receive a dashboard share : {$exception->getMessage()}",
+                previous: $exception,
+            );
+        }
     }
 
     /**
@@ -478,7 +879,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                         ON gcr.contact_contact_id = c.contact_id
                     LEFT JOIN `:db`.acl_group_topology_relations agtr
                         ON agtr.acl_group_id = gcr.acl_group_id
-                            OR agtr.acl_group_id = gcgr.acl_group_id
+                        OR agtr.acl_group_id = gcgr.acl_group_id
                     LEFT JOIN `:db`.acl_topology_relations acltr
                         ON acltr.acl_topo_id = agtr.acl_topology_id
                     INNER JOIN `:db`.topology
@@ -494,7 +895,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $query .= <<<SQL
             parent.topology_name = 'Dashboards'
-                AND topology.topology_name IN ('Viewer','Editor','Creator')
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
                 AND gcr.acl_group_id IN ({$bindTokenAsString})
                 AND acltr.access_right IS NOT NULL
                 AND c.contact_oreon = '1'
@@ -536,12 +937,181 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findContactGroupsByUserAndRequestParameters(
+        RequestParametersInterface $requestParameters,
+        int $contactId
+    ): array {
+        try {
+            $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
+                RequestParameters::CONCORDANCE_MODE_STRICT
+            );
+            $sqlTranslator->setConcordanceArray([
+                'name' => 'cg.cg_name',
+            ]);
+
+            $query = <<<'SQL_WRAP'
+                    SELECT SQL_CALC_FOUND_ROWS
+                        'Viewer' as topologies,
+                        cg.cg_name,
+                        cg.cg_id
+                    FROM `:db`.contactgroup cg
+                    LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                        ON cgcr.contactgroup_cg_id = cg.cg_id
+                    WHERE cgcr.contact_contact_id = :contactId
+                SQL_WRAP;
+
+            $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+            $query .= $searchRequest !== null ? ' AND ' . $searchRequest : '';
+
+            $query .= ' GROUP BY cg.cg_id';
+
+            $statement = $this->db->prepare($this->translateDbName($query));
+            $statement->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
+            $sqlTranslator->bindSearchValues($statement);
+            $statement->execute();
+
+            $result = $this->db->query('SELECT FOUND_ROWS()');
+            if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+                $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+            }
+
+            $dashboardContactGroupRoles = [];
+            foreach ($statement as $contactGroupRole) {
+                /** @var array{
+                 *     topologies: string,
+                 *     cg_name: string,
+                 *     cg_id: int,
+                 * } $contactGroupRole
+                 */
+                $dashboardContactGroupRoles[] = $this->createDashboardContactGroupRole($contactGroupRole);
+            }
+
+            return $dashboardContactGroupRoles;
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(message: 'Error while searching contact groups by user', previous: $exception);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactGroupsWithAccessRightByUserAndRequestParameters(
+        RequestParametersInterface $requestParameters,
+        int $contactId
+    ): array {
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
+            RequestParameters::CONCORDANCE_MODE_STRICT
+        );
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'cg.cg_name',
+        ]);
+
+        $query = <<<'SQL_WRAP'
+            SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, cg.cg_name, cg.cg_id
+            FROM `:db`.contactgroup cg
+                LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                    ON cgcr.contactgroup_cg_id = cg.cg_id
+                LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                    ON gcgr.cg_cg_id = cg.cg_id
+                LEFT JOIN `:db`.acl_group_topology_relations agtr
+                    ON agtr.acl_group_id = gcgr.acl_group_id
+                LEFT JOIN `:db`.acl_topology_relations acltr
+                    ON acltr.acl_topo_id = agtr.acl_topology_id
+                INNER JOIN `:db`.topology
+                    ON topology.topology_id = acltr.topology_topology_id
+                INNER JOIN `:db`.topology parent
+                    ON topology.topology_parent = parent.topology_page
+            SQL_WRAP;
+
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        $query .= $searchRequest !== null
+            ? $searchRequest . ' AND '
+            : ' WHERE ';
+
+        $query .= <<<'SQL'
+            parent.topology_name = 'Dashboards'
+                AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                AND cgcr.contact_contact_id = :contactId
+                AND acltr.access_right IS NOT NULL
+            GROUP BY cg.cg_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            /**
+             * @var int
+             */
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+        $statement->execute();
+
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $dashboardContactGroupRoles = [];
+        foreach ($statement as $contactGroupRole) {
+            /** @var array{
+             *     topologies: string,
+             *     cg_name: string,
+             *     cg_id: int,
+             * } $contactGroupRole
+             */
+            $dashboardContactGroupRoles[] = $this->createDashboardContactGroupRole($contactGroupRole);
+        }
+
+        return $dashboardContactGroupRoles;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsAsEditor(int $dashboardId, ContactInterface $contact): bool
+    {
+        $query = <<<'SQL'
+            SELECT 1 FROM `:db`.`dashboard` d
+            LEFT JOIN  `:db`.`dashboard_contact_relation` dcr
+            ON dcr.dashboard_id = d.id
+            LEFT JOIN  `:db`.`dashboard_contactgroup_relation` dcgr
+            ON dcgr.dashboard_id = d.id
+            WHERE
+                (dcgr.dashboard_id = :dashboardId
+                AND dcgr.contactgroup_id IN (
+                    SELECT contactgroup_cg_id FROM `:db`.contactgroup_contact_relation
+                    WHERE contact_contact_id = :contactId
+                )
+                AND dcgr.role = 'editor')
+            OR (
+                dcr.dashboard_id = :dashboardId
+                AND dcr.contact_id = :contactId
+                AND dcr.role = 'editor')
+            OR d.created_by = :contactId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':contactId', $contact->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param array{
      *      contact_name: string,
      *      contact_id: int,
      *      contact_email: string,
      *      contact_admin?: string,
-     *      topologies?: string
+     *      topologies?: string,
+     *      acl_group_name?: string|null
      *  } $contactRole
      *
      * @throws \UnexpectedValueException
@@ -550,20 +1120,55 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     private function createDashboardContactRole(array $contactRole): DashboardContactRole
     {
-        $topologies = array_key_exists('topologies', $contactRole)
-            ? explode(',', $contactRole['topologies'])
-            : [];
-        $roles = array_map(
-            static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
-                $topology
-            ),
-            $topologies
-        );
+        if (
+            array_key_exists('acl_group_name', $contactRole)
+            && $contactRole['acl_group_name'] === DashboardRights::AUTHORIZED_ACL_GROUP
+        ) {
+            $roles = [DashboardGlobalRole::Administrator];
+        } else {
+            $topologies = array_key_exists('topologies', $contactRole)
+                ? explode(',', $contactRole['topologies'])
+                : [];
+            $roles = array_map(
+                static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+                    $topology
+                ),
+                $topologies
+            );
+        }
 
         return new DashboardContactRole(
             $contactRole['contact_id'],
             $contactRole['contact_name'],
             $contactRole['contact_email'],
+            $roles
+        );
+    }
+
+    /**
+     * @param array{
+     *      cg_name: string,
+     *      cg_id: int,
+     *      topologies: string
+     *  } $contactRole
+     *
+     * @throws \UnexpectedValueException
+     *
+     * @return DashboardContactGroupRole
+     */
+    private function createDashboardContactGroupRole(array $contactRole): DashboardContactGroupRole
+    {
+        $topologies = explode(',', $contactRole['topologies']);
+        $roles = array_map(
+            static fn(string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+                $topology
+            ),
+            $topologies
+        );
+
+        return new DashboardContactGroupRole(
+            $contactRole['cg_id'],
+            $contactRole['cg_name'],
             $roles
         );
     }

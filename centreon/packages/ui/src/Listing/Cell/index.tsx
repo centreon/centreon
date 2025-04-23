@@ -1,29 +1,40 @@
-import * as React from 'react';
-
-import { append, equals, includes, isNil, omit, reject } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-import { CSSObject } from 'tss-react';
 import { useAtom } from 'jotai';
+import { append, equals, includes, isNil, omit, reject } from 'ramda';
+import { CSSObject } from 'tss-react';
+import { makeStyles } from 'tss-react/mui';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  alpha,
   TableCell,
   TableCellBaseProps,
   TableCellProps,
-  Theme
+  Theme,
+  alpha
 } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
 import { IconButton } from '../..';
-import { getTextStyleByViewMode } from '../useStyleTable';
 import { subItemsPivotsAtom } from '../tableAtoms';
+import { getTextStyleByViewMode } from '../useStyleTable';
 
+import { ElementType } from 'react';
 import { Props as DataCellProps } from './DataCell';
 
 interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
   theme: Theme;
+}
+
+interface StylesProps extends Props {
+  isRowHighlighted?: boolean;
+  listingVariant?: ListingVariant;
+}
+
+interface GetRowHighlightStyleProps {
+  isRowHighlighted?: boolean;
+  theme: Theme;
+  disableRowCondition;
+  row;
 }
 
 const getBackgroundColor = ({
@@ -52,25 +63,20 @@ const getBackgroundColor = ({
   return 'unset';
 };
 
-interface StylesProps extends Props {
-  isRowHighlighted?: boolean;
-  listingVariant?: ListingVariant;
-}
-
-interface GetRowHighlightStyleProps {
-  isRowHighlighted?: boolean;
-  theme: Theme;
-}
-
-const getRowHighlightStyle = ({
+const getRowTextColor = ({
   isRowHighlighted,
-  theme
-}: GetRowHighlightStyleProps): CSSObject | undefined =>
-  isRowHighlighted
-    ? {
-        color: theme.palette.text.primary
-      }
-    : undefined;
+  theme,
+  disableRowCondition,
+  row
+}: GetRowHighlightStyleProps): CSSObject | undefined => {
+  if (isRowHighlighted) {
+    return { color: theme.palette.text.primary };
+  }
+
+  if (disableRowCondition(row)) {
+    return { color: alpha(theme.palette.text.secondary, 0.5) };
+  }
+};
 
 const useStyles = makeStyles<StylesProps>()(
   (
@@ -95,9 +101,6 @@ const useStyles = makeStyles<StylesProps>()(
     caretMore: {
       transform: 'rotate3d(0,0,1,180deg)'
     },
-    fakeCaret: {
-      marginLeft: theme.spacing(3)
-    },
     root: {
       alignItems: 'center',
       backgroundColor: getBackgroundColor({
@@ -116,7 +119,7 @@ const useStyles = makeStyles<StylesProps>()(
       height: '100%',
       overflow: 'hidden',
       ...getTextStyleByViewMode({ listingVariant, theme }),
-      p: getRowHighlightStyle({ isRowHighlighted, theme }),
+      p: getRowTextColor({ isRowHighlighted, disableRowCondition, row, theme }),
       padding: theme.spacing(0, 1),
       whiteSpace: 'nowrap'
     }
@@ -185,7 +188,7 @@ const Cell = ({
       classes={{
         root: cx(classes.root)
       }}
-      component={'div' as unknown as React.ElementType<TableCellBaseProps>}
+      component={'div' as unknown as ElementType<TableCellBaseProps>}
       {...omit(
         [
           'isRowHovered',
@@ -198,26 +201,23 @@ const Cell = ({
         props
       )}
     >
-      {displaySubItemsCaret &&
-        (hasSubItems ? (
-          <IconButton
-            ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
-              props.row.id
-            }`}
-            size="small"
-            onClick={click}
-          >
-            <ExpandMoreIcon
-              className={cx(
-                classes.caret,
-                isSubItemsExpanded ? classes.caretMore : classes.caretLess
-              )}
-              fontSize="small"
-            />
-          </IconButton>
-        ) : (
-          <div className={classes.fakeCaret} />
-        ))}
+      {displaySubItemsCaret && hasSubItems && (
+        <IconButton
+          ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
+            props.row.id
+          }`}
+          size="small"
+          onClick={click}
+        >
+          <ExpandMoreIcon
+            className={cx(
+              classes.caret,
+              isSubItemsExpanded ? classes.caretMore : classes.caretLess
+            )}
+            fontSize="small"
+          />
+        </IconButton>
+      )}
       {children}
     </TableCell>
   );

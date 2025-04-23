@@ -1,3 +1,0 @@
-name: centreon.yaml
-description: Configure Centreon Gorgone to work with Centreon Web.
-centreon: !include /etc/centreon/config.d/*.yaml

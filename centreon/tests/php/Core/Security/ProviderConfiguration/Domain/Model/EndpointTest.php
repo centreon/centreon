@@ -25,26 +25,26 @@ namespace Tests\Core\Security\ProviderConfiguration\Domain\Model;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Exception\InvalidEndpointException;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->custom_relative_url = '/info';
     $this->custom_url = 'https://domain.com/info';
 });
 
-it('should throw an exception with a bad endpoint type', function () {
+it('should throw an exception with a bad endpoint type', function (): void {
     (new Endpoint('bad_type', $this->custom_relative_url));
 })->throws(InvalidEndpointException::class, InvalidEndpointException::invalidType()->getMessage());
 
-it('should return an EndpointCondition instance with a correct relative URL', function () {
+it('should return an EndpointCondition instance with a correct relative URL', function (): void {
     $endpointCondition = new Endpoint(Endpoint::CUSTOM, $this->custom_relative_url);
     expect($endpointCondition->getUrl())->toBe($this->custom_relative_url);
 });
 
-it('should return an EndpointCondition instance with a correct URL', function () {
+it('should return an EndpointCondition instance with a correct URL', function (): void {
     $endpointCondition = new Endpoint(Endpoint::CUSTOM, $this->custom_url);
     expect($endpointCondition->getUrl())->toBe($this->custom_url);
 });
 
-it('should return an EndpointCondition instance with an empty URL if type is not custom', function () {
+it('should return an EndpointCondition instance with an empty URL if type is not custom', function (): void {
     $endpointCondition = new Endpoint(Endpoint::INTROSPECTION, $this->custom_url);
     expect($endpointCondition->getUrl())->toBeNull();
 
@@ -52,17 +52,17 @@ it('should return an EndpointCondition instance with an empty URL if type is not
     expect($endpointCondition->getUrl())->toBeNull();
 });
 
-it('should throw an exception with a null URL and a custom type', function () {
+it('should throw an exception with a null URL and a custom type', function (): void {
     (new Endpoint(Endpoint::CUSTOM, null));
 })->throws(InvalidEndpointException::class, InvalidEndpointException::invalidUrl()->getMessage());
 
-it('should throw an exception with an empty URL and a custom type', function () {
+it('should throw an exception with an empty URL and a custom type', function (): void {
     (new Endpoint(Endpoint::CUSTOM, ''));
 })->throws(InvalidEndpointException::class, InvalidEndpointException::invalidUrl()->getMessage());
 
 it(
     'should return an EndpointCondition instance when an URL type is Custom and it contains additional slashes',
-    function () {
+    function (): void {
         $urlWithAdditionalShlashes = '   //info/   ';
         $sanitizedURL = '/info';
         $endpointCondition = new Endpoint(Endpoint::CUSTOM, $urlWithAdditionalShlashes);
@@ -70,6 +70,6 @@ it(
     }
 );
 
-it('should throw an exception when a custom type URL contains only spaces and/or slashes', function () {
+it('should throw an exception when a custom type URL contains only spaces and/or slashes', function (): void {
     (new Endpoint(Endpoint::CUSTOM, '    ///  '));
 })->throws(InvalidEndpointException::class, InvalidEndpointException::invalidUrl()->getMessage());

@@ -1,13 +1,17 @@
 import { equals, isNil, propEq, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
+import {
+  MultiConnectedAutocompleteField,
+  type SelectEntry
+} from '@centreon/ui';
 
+import type { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
+import type { ChangedCriteriaParams, SectionType } from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
-import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
-import { ChangedCriteriaParams, SectionType } from '../model';
 
+import { useStyles } from './sections/sections.style';
 import useSectionsData from './sections/useSections';
 
 interface ParametersGetEndpoint {
@@ -30,6 +34,7 @@ const InputGroup = ({
   label,
   resourceType
 }: Props): JSX.Element | null => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
 
@@ -59,11 +64,14 @@ const InputGroup = ({
       : equals(option.name.toString(), selectedValue.name.toString());
   };
 
-  const getUniqueOptions = (options: Array<SelectEntry>): Array<SelectEntry> =>
-    removeDuplicateFromObjectArray({
+  const getUniqueOptions = (
+    options: Array<SelectEntry>
+  ): Array<SelectEntry> => {
+    return removeDuplicateFromObjectArray({
       array: options,
       byFields: ['name']
     });
+  };
 
   const handleChange = (_, updatedValue): void => {
     changeCriteria({
@@ -73,7 +81,7 @@ const InputGroup = ({
   };
 
   const onDelete = (_, option): void => {
-    const updatedValue = reject(propEq('name', option.name), value);
+    const updatedValue = reject(propEq(option.name, 'name'), value);
 
     changeCriteria({
       filterName,
@@ -86,6 +94,7 @@ const InputGroup = ({
       chipProps={{
         onDelete
       }}
+      className={classes.input}
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}

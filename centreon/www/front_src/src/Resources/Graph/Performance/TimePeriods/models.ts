@@ -17,7 +17,7 @@ export enum OriginVerticalEnum {
   top = 'top'
 }
 
-export enum anchorReferenceEnum {
+export enum AnchorReferenceEnum {
   anchorEl = 'anchorEl',
   anchorPosition = 'anchorPosition',
   none = 'none'

@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Link } from '@mui/material';
 
 import {
-  labelApiNotFoundNotUpToDate,
   labelApiNotFoundContactAdmin,
-  labelApiNotFoundDocumentation
+  labelApiNotFoundDocumentation,
+  labelApiNotFoundNotUpToDate
 } from '../translatedLabels';
 
 const ApiNotFoundMessage = (): JSX.Element => {

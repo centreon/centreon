@@ -67,7 +67,7 @@ final class UpdateTimePeriod
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(TimeperiodException::editNotAllowed()->getMessage())
+                    new ForbiddenResponse(TimePeriodException::editNotAllowed()->getMessage())
                 );
 
                 return;
@@ -86,6 +86,7 @@ final class UpdateTimePeriod
 
                 return;
             }
+            // TODO: add a check to prevent templates loop (see testTemplateLoop() in legacy code)
             $this->updateTimePeriodAndSave($timePeriod, $request);
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (AssertionFailedException|TimeRangeException $ex) {

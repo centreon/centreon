@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography, Theme } from '@mui/material';
+import { Theme, Typography } from '@mui/material';
 
 import Dialog from '.';
 

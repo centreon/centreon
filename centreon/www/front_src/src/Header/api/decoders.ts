@@ -1,7 +1,7 @@
 import { JsonDecoder } from 'ts.data.json';
 import type { FromDecoder } from 'ts.data.json';
 
-import type { PollersIssuesList, Alert, AlertDetails, Poller } from './models';
+import type { Alert, AlertDetails, Poller, PollersIssuesList } from './models';
 
 const counterDecoder = JsonDecoder.object(
   {

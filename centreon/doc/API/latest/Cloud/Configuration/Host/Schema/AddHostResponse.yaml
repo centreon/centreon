@@ -1,0 +1,168 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Host ID"
+    example: 1
+  monitoring_server_id:
+    type: integer
+    description: "ID of the host's monitoring server"
+    example: 1
+  name:
+    type: string
+    description: "Host name"
+    example: "generic-active-host"
+  address:
+    type: string
+    description: "IP or domain of the host"
+    example: "127.0.0.1"
+  alias:
+    type: string
+    description: "Host alias"
+    example: "generic-active-host"
+    nullable: true
+  snmp_community:
+    type: string
+    nullable: true
+    description: "Community of the SNMP agent"
+  snmp_version:
+    type: string
+    nullable: true
+    enum: [1, 2c, 3]
+    description: |
+      Version of the SNMP agent.
+
+      The value can be `1`, `2c` or `3`
+    example: "2c"
+  geo_coords:
+    type: string
+    description: "Geographic coordinates of the host"
+    example: "48.10,12.5"
+    nullable: true
+  timezone_id:
+    type: integer
+    description: "Timezone ID"
+    example: 1
+    nullable: true
+  severity_id:
+    type: integer
+    description: "Severity ID"
+    example: 1
+    nullable: true
+  check_timeperiod_id:
+    type: integer
+    description: "Check command timeperiod ID"
+    example: 1
+    nullable: true
+  max_check_attempts:
+    type: integer
+    nullable: true
+    description: "Define the number of times that the monitoring engine will retry the host check command if it returns any non-UP state"
+  normal_check_interval:
+    type: integer
+    nullable: true
+    description: |
+      Define the number of 'time units' between regularly scheduled checks of the host.
+
+      With the default time unit of 60s, this number will mean multiples of 1 minute.
+  retry_check_interval:
+    type: integer
+    nullable: true
+    description: |
+      Define the number of "time units" to wait before scheduling a re-check for this host after a non-UP state was detected.
+
+      With the default time unit of 60s, this number will mean multiples of 1 minute.
+
+      Once the host has been retried max_check_attempts times without a change in its status,
+      it will revert to being scheduled at its "normal" check interval rate.
+  note_url:
+    type: string
+    nullable: true
+    maxLength: 65535
+    description: "Define an optional URL that can be used to provide more information about the host."
+  note:
+    type: string
+    nullable: true
+    maxLength: 65535
+    description: "Define an optional note."
+  action_url:
+    type: string
+    nullable: true
+    maxLength: 65535
+    description: "Define an optional URL that can be used to provide more actions to be performed on the host."
+  icon_id:
+    type: integer
+    nullable: true
+    description: "Define the ID of the image that should be associated with this host"
+    example: 1
+  is_activated:
+    type: boolean
+    description: "Indicates whether the host is activated or not"
+  categories:
+    type: array
+    items:
+     type: object
+     properties:
+      id:
+       type: integer
+       description: "Define a host category ID that is associated with this host"
+       example: 1
+      name:
+       type: string
+       description: "Define a host category name that is associated with this host"
+       example: 'host-category-name'
+  groups:
+    type: array
+    items:
+     type: object
+     properties:
+      id:
+       type: integer
+       description: "Define a host group ID that is associated with this host"
+       example: 1
+      name:
+       type: string
+       description: "Define a host group name that is associated with this host"
+       example: 'host-group-name'
+  templates:
+    type: array
+    items:
+     type: object
+     properties:
+      id:
+       type: integer
+       description: "Define a parent host template ID that is associated with this host"
+       example: 1
+      name:
+       type: string
+       description: "Define a parent host template name that is associated with this host"
+       example: 'parent-template-name'
+  macros:
+    type: array
+    description: |
+      Host macros defined for the host.
+      Macros inherited from parent templates or commands are not listed.
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Name of the macro"
+          example: "MacroName"
+        value:
+          type: string
+          nullable: true
+          description: |
+            Value of the macro.
+
+            If the macro.is_password property is set to true, macro.value will be set to null.
+          example: "macroValue"
+        is_password:
+          type: boolean
+          description: "Indicates whether the macro value is a password or not"
+          example: false
+        description:
+          type: string
+          nullable: true
+          description: "Macro description"
+          example: "Some text to describe the macro"

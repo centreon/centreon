@@ -143,7 +143,7 @@ echo _("Status") . ";"
 
 // Getting stats on Host
 $reportingTimePeriod = getreportingTimePeriod();
-$hostgroupStats = array();
+$hostgroupStats = [];
 $hostgroupStats = getLogInDbForHostGroup($hostgroupId, $startDate, $endDate, $reportingTimePeriod);
 
 echo _("UP") . ";"
@@ -244,7 +244,9 @@ echo _("Day") . ";"
 
 while ($row = $dbResult->fetch()) {
     $duration = $row["UPTimeScheduled"] + $row["DOWNTimeScheduled"] + $row["UNREACHABLETimeScheduled"];
-
+    if ($duration === 0) {
+        continue;
+    }
     // Percentage by status
     $row["UP_MP"] = round($row["UPTimeScheduled"] * 100 / $duration, 2);
     $row["DOWN_MP"] = round($row["DOWNTimeScheduled"] * 100 / $duration, 2);

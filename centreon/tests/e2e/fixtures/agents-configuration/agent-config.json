@@ -1,0 +1,25 @@
+{
+    "telegraf1": {
+        "name": "telegraf-001",
+        "pollerName": "Central",
+        "publicCertfFileName": "my-otel-certificate-name-001.crt",
+        "caFileName": "ca-file-name-001.crt",
+        "privateKFileName": "my-otel-private-key-name-001.key",
+        "certfFileName": "my-certificate-name-001.crt"
+    },
+    "telegraf2": {
+        "name": "telegraf-001-1",
+        "pollerName": "Central",
+        "publicCertfFileName": "my-otel-certificate-name-666.crt",
+        "caFileName": "ca-file-name-666.crt",
+        "privateKFileName": "my-otel-private-key-name-666.key",
+        "certfFileName": "my-certificate-name-666.crt"
+    },
+    "CMA1": {
+        "name": "centreon-agent-001",
+        "pollerName": "Poller-1",
+        "publicCertfFileName": "my-otel-certificate-name-002.crt",
+        "caFileName": "ca-file-name-002.crt",
+        "privateKFileName": "my-otel-private-key-name-002.key"
+    }
+}

@@ -34,17 +34,19 @@
  */
 
 /**
+ * Class
  *
- * Enter description here ...
- * @author jmathis
- *
+ * @class CentreonGraphVirtualMetric
  */
 class CentreonGraphVirtualMetric
 {
+    /** @var CentreonDB */
     protected $db;
 
-    /*
-     * constructor
+    /**
+     * CentreonGraphVirtualMetric constructor
+     *
+     * @param CentreonDB $pearDB
      */
     public function __construct($pearDB)
     {
@@ -52,13 +54,12 @@ class CentreonGraphVirtualMetric
     }
     
     /**
-     *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'virtual_metrics';
         $parameters['currentObject']['id'] = 'vmetric_id';
         $parameters['currentObject']['name'] = 'vmetric_name';

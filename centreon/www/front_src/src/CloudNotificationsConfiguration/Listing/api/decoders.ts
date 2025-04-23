@@ -3,11 +3,11 @@ import { JsonDecoder } from 'ts.data.json';
 import { buildListingDecoder } from '@centreon/ui';
 
 import {
+  ChannelsEnum,
   NotificationsType,
   ResourcesType,
-  TimeperiodType,
   ResourcesTypeEnum,
-  ChannelsEnum
+  TimeperiodType
 } from '../../models';
 
 const timeperiod = JsonDecoder.object<TimeperiodType>(

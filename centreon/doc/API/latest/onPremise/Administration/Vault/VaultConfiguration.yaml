@@ -1,0 +1,51 @@
+put:
+  tags:
+    - Administration
+  summary: "Update or create vault configuration"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: './Schema/UpdateVaultConfiguration.yaml'
+  responses:
+    '204':
+      description: "OK"
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+delete:
+  tags:
+    - Administration
+  summary: "Delete vault configuration"
+  responses:
+    '204':
+      description: "OK"
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+get:
+  tags:
+    - Administration
+  summary: "Get vault configuration details"
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: './Schema/GetVaultConfiguration.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

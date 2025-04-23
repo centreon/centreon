@@ -172,10 +172,15 @@ class AddServiceTemplateValidation
      */
     public function assertIsValidSeverity(?int $severityId): void
     {
-        if ($severityId !== null && ! $this->serviceSeverityRepository->exists($severityId)) {
-            $this->error('Service severity does not exist', ['severity_id' => $severityId]);
+        if ($severityId !== null) {
+            $exists = ($this->accessGroups === [])
+                ? $this->serviceSeverityRepository->exists($severityId)
+                : $this->serviceSeverityRepository->existsByAccessGroups($severityId, $this->accessGroups);
+            if (! $exists) {
+                $this->error('Service severity does not exist', ['severity_id' => $severityId]);
 
-            throw ServiceTemplateException::idDoesNotExist('severity_id', $severityId);
+                throw ServiceTemplateException::idDoesNotExist('severity_id', $severityId);
+            }
         }
     }
 
@@ -201,7 +206,7 @@ class AddServiceTemplateValidation
      */
     public function assertIsValidHostTemplates(array $hostTemplateIds): void
     {
-        if (! empty($hostTemplateIds)) {
+        if ($hostTemplateIds !== []) {
             $hostTemplateIds = array_unique($hostTemplateIds);
             $hostTemplateIdsFound = $this->readHostTemplateRepository->findAllExistingIds($hostTemplateIds);
             if ([] !== ($diff = array_diff($hostTemplateIds, $hostTemplateIdsFound))) {
@@ -218,7 +223,7 @@ class AddServiceTemplateValidation
      */
     public function assertIsValidServiceCategories(array $serviceCategoriesIds): void
     {
-        if (empty($serviceCategoriesIds)) {
+        if ($serviceCategoriesIds === []) {
 
             return;
         }
@@ -248,7 +253,7 @@ class AddServiceTemplateValidation
      */
     public function assertIsValidServiceGroups(array $serviceGroups, array $hostTemplateIds): void
     {
-        if (empty($serviceGroups)) {
+        if ($serviceGroups === []) {
 
             return;
         }

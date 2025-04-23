@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-
 import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
@@ -45,13 +42,11 @@ interface Props {
   defaultImage: string;
   imgSource: string;
   labelNoIcon?: string;
-  onClick: () => void;
   title: string;
   uploadedImage: string;
 }
 
 const IconAttach = ({
-  onClick,
   defaultImage,
   uploadedImage,
   imgSource,
@@ -61,7 +56,7 @@ const IconAttach = ({
   const { classes } = useStyles();
 
   return (
-    <span className={classes.iconAttach} onClick={onClick}>
+    <span className={classes.iconAttach}>
       {defaultImage && (
         <span className={classes.iconAttachLabel}>{labelNoIcon}</span>
       )}

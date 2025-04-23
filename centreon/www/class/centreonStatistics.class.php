@@ -26,26 +26,44 @@ require_once __DIR__ . '/centreonVersion.class.php';
 require_once __DIR__ . '/centreonDB.class.php';
 require_once __DIR__ . '/centreonStatsModules.class.php';
 
+use App\Kernel;
+use Core\Common\Infrastructure\FeatureFlags;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
+/**
+ * Class
+ *
+ * @class CentreonStatistics
+ */
 class CentreonStatistics
 {
+    /** @var LoggerInterface */
     private LoggerInterface $logger;
 
+    /** @var CentreonDB */
     private CentreonDB $dbConfig;
 
-    private ?\Core\Common\Infrastructure\FeatureFlags $featureFlags;
+    /** @var FeatureFlags|null */
+    private ?FeatureFlags $featureFlags;
 
     /**
-     * CentreonStatistics constructor.
+     * CentreonStatistics constructor
+     *
+     * @param LoggerInterface $logger
+     *
+     * @throws LogicException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function __construct(LoggerInterface $logger)
     {
         $this->dbConfig = new CentreonDB();
         $this->logger = $logger;
 
-        $kernel = \App\Kernel::createForWeb();
-        $this->featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class);
+        $kernel = Kernel::createForWeb();
+        $this->featureFlags = $kernel->getContainer()->get(FeatureFlags::class);
     }
 
     /**
@@ -65,6 +83,7 @@ class CentreonStatistics
      * get Centreon information
      *
      * @return array
+     * @throws PDOException
      */
     public function getPlatformInfo()
     {
@@ -129,6 +148,7 @@ class CentreonStatistics
      * get LDAP configured authentications options
      *
      * @return array
+     * @throws PDOException
      */
     public function getLDAPAuthenticationOptions()
     {
@@ -170,6 +190,7 @@ class CentreonStatistics
      * get Local / SSO configured authentications options
      *
      * @return array
+     * @throws PDOException
      */
     public function getNewAuthenticationOptions()
     {
@@ -262,6 +283,7 @@ class CentreonStatistics
      * get configured authentications options
      *
      * @return array
+     * @throws PDOException
      */
     public function getAuthenticationOptions()
     {
@@ -275,6 +297,7 @@ class CentreonStatistics
      * get info about manually managed API tokens
      *
      * @return array
+     * @throws PDOException
      */
     public function getApiTokensInfo()
     {
@@ -287,7 +310,7 @@ class CentreonStatistics
                 WHERE token_type ='manual'
                 SQL
         );
-        $data['total'] = $statementNbTokens->fetch(\PDO::FETCH_COLUMN) ?: 0;
+        $data['total'] = $statementNbTokens->fetch(PDO::FETCH_COLUMN) ?: 0;
 
         $statementNbTokens = $this->dbConfig->query(
             <<<'SQL'
@@ -315,7 +338,7 @@ class CentreonStatistics
                     )
                 SQL
         );
-        $data['managers'] = $statementNbTokens->fetch(\PDO::FETCH_COLUMN) ?: 0;
+        $data['managers'] = $statementNbTokens->fetch(PDO::FETCH_COLUMN) ?: 0;
 
         return $data;
     }
@@ -349,7 +372,82 @@ class CentreonStatistics
             $data['dashboards'] = $this->getAdditionalDashboardsInformation();
         }
 
+        if ($this->featureFlags?->isEnabled('dashboard_playlist')) {
+            $data['playlists'] = $this->getAdditionalDashboardPlaylistsInformation();
+        }
+
         $data['user_filter'] = $this->getAdditionalUserFiltersInformation();
+
+        return $data;
+    }
+
+    /**
+     * Get additional connector configurations data.
+     *
+     * @return array
+     */
+    public function getAccData(): array
+    {
+        $data = ['total' => 0];
+
+        $statement = $this->dbConfig->executeQuery(
+            <<<'SQL'
+                SELECT type, count(id) as value
+                FROM additional_connector_configuration
+                GROUP BY type
+                UNION SELECT 'total' as type, count(id) as value
+                FROM additional_connector_configuration
+                SQL
+        );
+
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $data[$row['type']] = $row['value'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get poller/agent configuration data.
+     *
+     * @throws CentreonDbException
+     *
+     * @return array
+     */
+    public function getAgentConfigurationData(): array
+    {
+        $data = ['total' => 0];
+
+        $statement = $this->dbConfig->executeQuery(
+            <<<'SQL'
+                SELECT count(id)
+                FROM agent_configuration ac
+                SQL
+        );
+
+        $total =  $this->dbConfig->fetchColumn($statement);
+
+        if ($total === false) {
+            return $data;
+        }
+
+        $data['total'] = $total;
+
+        $statement = $this->dbConfig->executeQuery(
+            <<<'SQL'
+                SELECT type, count(id) as nb_ac_per_type, count(rel.poller_id) as nb_poller_per_type
+                FROM agent_configuration ac
+                JOIN ac_poller_relation rel
+                    ON ac.id = rel.ac_id
+                GROUP BY type
+                SQL
+        );
+
+        $results = $this->dbConfig->fetchAll($statement);
+        foreach ($results as $row) {
+            $data[$row['type']]['configuration'] = $row['nb_ac_per_type'];
+            $data[$row['type']]['pollers'] = $row['nb_poller_per_type'];
+        }
 
         return $data;
     }
@@ -363,6 +461,7 @@ class CentreonStatistics
      *     avg_contact_notification?: float,
      *     avg_cg_notification?: float
      * }
+     * @throws PDOException
      */
     private function getAdditionalNotificationInformation(): array
     {
@@ -396,7 +495,8 @@ class CentreonStatistics
     }
 
     /**
-     * @return array<string,array<string,array<string,int|null>>>
+     * @return array<string,array<string, array{widget_number: int, metric_number?: int}>>
+     * @throws PDOException
      */
     private function getAdditionalDashboardsInformation(): array
     {
@@ -404,33 +504,105 @@ class CentreonStatistics
         $dashboardsInformations = $this->dbConfig->query(
             <<<'SQL'
                 SELECT `dashboard_id`,
-                    `name` AS `widget_type`,
+                    `name` AS `widget_name`,
                     `widget_settings`
                 FROM
                     `dashboard_panel`
                 SQL
         );
+
+        $extractMetricInformationFromWidgetSettings = function (array $widgetSettings): int|null
+        {
+            return array_key_exists('metrics', $widgetSettings['data'])
+                ? count($widgetSettings['data']['metrics'])
+                : null;
+        };
+
         $dashboardId = '';
         foreach ($dashboardsInformations as $dashboardsInformation) {
-            $widgetType = (string) $dashboardsInformation['widget_type'];
-            $widgetSettings = \json_decode((string) $dashboardsInformation['widget_settings'], true);
+            $widgetName = (string) $dashboardsInformation['widget_name'];
+            $widgetSettings = json_decode((string) $dashboardsInformation['widget_settings'], true);
 
             if ($dashboardId !== (string) $dashboardsInformation['dashboard_id']) {
                 $dashboardId = (string) $dashboardsInformation['dashboard_id'];
                 $data[$dashboardId] = [];
             }
-            if (\array_key_exists($widgetType, $data[$dashboardId])) {
-                $data[$dashboardId][$widgetType]['widget_number'] += 1;
-                if ($data[$dashboardId][$widgetType]['metric_number'] !== null) {
-                    $data[$dashboardId][$widgetType]['metric_number'] += \count($widgetSettings['data']['metrics']);
+
+            if (array_key_exists($widgetName, $data[$dashboardId])) {
+                $data[$dashboardId][$widgetName]['widget_number'] += 1;
+
+                if ($data[$dashboardId][$widgetName]['metric_number'] !== null) {
+                    $data[$dashboardId][$widgetName]['metric_number'] += $extractMetricInformationFromWidgetSettings($widgetSettings);
                 }
             } else {
-                $data[$dashboardId][$widgetType]['widget_number'] = 1;
-                $data[$dashboardId][$widgetType]['metric_number'] =
-                (\is_array($widgetSettings['data']) && [] === $widgetSettings['data'])
-                    ? null
-                    : \count($widgetSettings['data']['metrics']);
+                $data[$dashboardId][$widgetName]['widget_number'] = 1;
+                $data[$dashboardId][$widgetName]['metric_number'] = $extractMetricInformationFromWidgetSettings($widgetSettings);
             }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return array<string,array{rotation_time: int, dashboards_count: int, shared_users_groups_count: int}>
+     * @throws PDOException
+     */
+    private function getAdditionalDashboardPlaylistsInformation(): array
+    {
+        $data = [];
+        $statement = $this->dbConfig->query(
+            <<<SQL
+                SELECT
+                    dp.name,
+                    dp.rotation_time,
+                    COALESCE(viewer_contacts.viewer_count, 0) AS viewer_contacts,
+                    COALESCE(editor_contacts.editor_count, 0) AS editor_contacts,
+                    COALESCE(viewer_contactgroups.viewer_group_count, 0) AS viewer_contactgroups,
+                    COALESCE(editor_contactgroups.editor_group_count, 0) AS editor_contactgroups,
+                    COALESCE(dashboard_rels.dashboard_count, 0) AS dashboard_count
+                FROM
+                    dashboard_playlist dp
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS viewer_count
+                    FROM dashboard_playlist_contact_relation
+                    WHERE role = 'viewer'
+                    GROUP BY playlist_id
+                ) AS viewer_contacts ON dp.id = viewer_contacts.playlist_id
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS editor_count
+                    FROM dashboard_playlist_contact_relation
+                    WHERE role = 'editor'
+                    GROUP BY playlist_id
+                ) AS editor_contacts ON dp.id = editor_contacts.playlist_id
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS viewer_group_count
+                    FROM dashboard_playlist_contactgroup_relation
+                    WHERE role = 'viewer'
+                    GROUP BY playlist_id
+                ) AS viewer_contactgroups ON dp.id = viewer_contactgroups.playlist_id
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS editor_group_count
+                    FROM dashboard_playlist_contactgroup_relation
+                    WHERE role = 'editor'
+                    GROUP BY playlist_id
+                ) AS editor_contactgroups ON dp.id = editor_contactgroups.playlist_id
+                LEFT JOIN (
+                    SELECT playlist_id, COUNT(*) AS dashboard_count
+                    FROM dashboard_playlist_relation
+                    GROUP BY playlist_id
+                ) AS dashboard_rels ON dp.id = dashboard_rels.playlist_id
+            SQL
+        );
+
+        while (false !== ($record = $statement->fetch(PDO::FETCH_ASSOC))) {
+            $data[$record['name']] = [
+                'rotation_time' => $record['rotation_time'],
+                'dashboards_count' => $record['dashboard_count'],
+                'shared_viewer_contacts' => $record['viewer_contacts'],
+                'shared_editor_contacts' => $record['editor_contacts'],
+                'shared_viewer_contactgroups' => $record['viewer_contactgroups'],
+                'shared_editor_contactgroups' => $record['editor_contactgroups'],
+            ];
         }
 
         return $data;
@@ -442,6 +614,7 @@ class CentreonStatistics
      *     avg_filters_per_user: float,
      *     max_filters_user: int
      * }
+     * @throws PDOException
      */
     private function getAdditionalUserFiltersInformation(): array
     {
@@ -455,7 +628,7 @@ class CentreonStatistics
 
         $filtersPerUser = [];
 
-        while (false !== ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+        while (false !== ($record = $statement->fetch(PDO::FETCH_ASSOC))) {
             $filtersPerUser[] = $record['count'];
         }
 
@@ -481,7 +654,7 @@ class CentreonStatistics
                 INNER JOIN provider_configuration pc on pc.id = gr.provider_configuration_id
                 WHERE pc.type = :providerType
                 SQL,
-            [':providerType', $providerType, \PDO::PARAM_STR]
+            [':providerType', $providerType, PDO::PARAM_STR]
         );
     }
 
@@ -499,7 +672,7 @@ class CentreonStatistics
                 INNER JOIN provider_configuration pc on pc.id = cg.provider_configuration_id
                 WHERE pc.type = :providerType
                 SQL,
-            [':providerType', $providerType, \PDO::PARAM_STR]
+            [':providerType', $providerType, PDO::PARAM_STR]
         );
     }
 
@@ -519,7 +692,7 @@ class CentreonStatistics
                 $statement?->bindValue(...$args);
             }
             $statement?->execute();
-            $row = $statement?->fetch(\PDO::FETCH_NUM);
+            $row = $statement?->fetch(PDO::FETCH_NUM);
             $value = is_array($row) && isset($row[0]) ? $row[0] : null;
 
             return is_string($value) || is_int($value) || is_float($value) ? $value : null;

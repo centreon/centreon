@@ -1,14 +1,8 @@
+import { alpha } from '@mui/system';
 import { makeStyles } from 'tss-react/mui';
 
 export const useResourceStyles = makeStyles()((theme) => ({
   resourceComposition: {
-    [theme.breakpoints.down('xl')]: {
-      height: '21vh'
-    },
-    [theme.breakpoints.down('lg')]: {
-      height: '20vh'
-    },
-    height: '27vh',
     overflow: 'auto',
     paddingTop: theme.spacing(1),
     width: '100%'
@@ -42,6 +36,9 @@ export const useResourceStyles = makeStyles()((theme) => ({
   resourcesHeaderDivider: {
     alignSelf: 'center',
     flexGrow: 1
+  },
+  subtitle: {
+    marginBottom: theme.spacing(0.5)
   },
   warningText: {
     color: theme.palette.warning.main
@@ -86,5 +83,30 @@ export const useThresholdStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(1)
+  }
+}));
+
+export const useTextFieldStyles = makeStyles<{ hasMarginBottom: boolean }>()(
+  (theme, { hasMarginBottom }) => ({
+    container: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: theme.spacing(0.5),
+      marginBottom: hasMarginBottom ? theme.spacing(0.5) : 0
+    },
+    inputContainer: {
+      alignItems: 'center',
+      display: 'flex',
+      flexDirection: 'row',
+      gap: theme.spacing(1)
+    }
+  })
+);
+
+export const useWarningStyles = makeStyles()((theme) => ({
+  warningBox: {
+    backgroundColor: alpha(theme.palette.warning.main, 0.3),
+    borderRadius: theme.shape.borderRadius,
+    padding: theme.spacing(1.5)
   }
 }));

@@ -13,7 +13,7 @@ export const useStyles = makeStyles()((theme) => ({
     width: theme.spacing(56)
   },
   invisible: {
-    opacity: 0
+    display: 'none'
   },
   title: {
     color: theme.palette.primary.main

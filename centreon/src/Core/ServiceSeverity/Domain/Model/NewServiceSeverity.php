@@ -28,12 +28,12 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class NewServiceSeverity
 {
-    public const MAX_NAME_LENGTH = 200,
-        MIN_NAME_LENGTH = 1,
-        MAX_ALIAS_LENGTH = 200,
-        MIN_ALIAS_LENGTH = 1,
-        MIN_LEVEL_VALUE = -128,
-        MAX_LEVEL_VALUE = 127;
+    public const MAX_NAME_LENGTH = 200;
+    public const MIN_NAME_LENGTH = 1;
+    public const MAX_ALIAS_LENGTH = 200;
+    public const MIN_ALIAS_LENGTH = 1;
+    public const MIN_LEVEL_VALUE = -128;
+    public const MAX_LEVEL_VALUE = 127;
 
     protected bool $isActivated = true;
 

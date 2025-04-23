@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add a file to a broker stream connector output configuration",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "file_content"
+    ],
+    "properties": {
+        "file_content": {
+            "type": "string"
+        }
+    }
+}

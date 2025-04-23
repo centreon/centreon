@@ -29,8 +29,8 @@ function set_pagination($tpl, $pagination, $current_page, $rows) {
     $bottom = $current_page - 1;
     $top = $current_page + 1;
 
-    $bottom_display = array();
-    $top_display = array();
+    $bottom_display = [];
+    $top_display = [];
     $arrow_first_display = 1;
     $arrow_last_display = 1;
 
@@ -58,12 +58,7 @@ function set_pagination($tpl, $pagination, $current_page, $rows) {
     $tpl->assign("arrow_last_display", $arrow_last_display);
 }
 
-$resultat = array(
-    "code" => 0,
-    "msg" => 'ok',
-    "data" => null,
-    "pagination" => null
-);
+$resultat = ["code" => 0, "msg" => 'ok', "data" => null, "pagination" => null];
 
 //$fp = fopen('/tmp/debug.txt', 'a+');
 //fwrite($fp, print_r($get_information, true));
@@ -74,8 +69,8 @@ try {
     $tickets = $ticket_log->getLog($get_information['form'], $centreon_bg, $get_information['pagination'], $get_information['current_page']);
     //fwrite($fp, print_r($tickets, true));
 
-    $tpl = new Smarty();
-    $tpl = initSmartyTplForPopup($centreon_open_tickets_path, $tpl, 'views/logs/templates', $centreon_path);
+    // Smarty template initialization
+    $tpl = SmartyBC::createSmartyTemplate($centreon_open_tickets_path, 'views/logs/templates');
 
     $tpl->assign("tickets", $tickets['tickets']);
     $resultat['data'] = $tpl->fetch('data.ihtml');

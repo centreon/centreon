@@ -1,23 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty, pick } from 'ramda';
-import { useSetAtom, useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
 import {
+  MultiAutocompleteField,
+  centreonBaseURL,
   getData,
   postData,
-  useRequest,
-  MultiAutocompleteField,
-  centreonBaseURL
+  useRequest
 } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
-import WizardButtons from '../forms/wizardButtons';
-import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
 import routeMap from '../../reactRoutes/routeMap';
+import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
+import { pollersEndpoint, wizardFormEndpoint } from '../api/endpoints';
+import WizardButtons from '../forms/wizardButtons';
+import { Poller, Props, WizardButtonsTypes } from '../models';
 import {
   remoteServerAtom,
   setRemoteServerWizardDerivedAtom
@@ -26,8 +28,6 @@ import {
   labelAdvancedServerConfiguration,
   labelRemoteServers
 } from '../translatedLabels';
-import { Props, WizardButtonsTypes, Poller } from '../models';
-import { pollersEndpoint, wizardFormEndpoint } from '../api/endpoints';
 
 const RemoteServerWizardStepTwo = ({
   goToNextStep,

@@ -66,8 +66,10 @@ class MonitoringServerController extends AbstractController
      * Entry point to find a monitoring server
      *
      * @param RequestParametersInterface $requestParameters
-     * @return View
+     *
      * @throws \Exception
+     *
+     * @return View
      */
     public function findServers(RequestParametersInterface $requestParameters): View
     {
@@ -75,6 +77,7 @@ class MonitoringServerController extends AbstractController
         $context = (new Context())->setGroups([
             MonitoringServer::SERIALIZER_GROUP_MAIN,
         ]);
+
         return $this->view(
             [
                 'result' => $this->monitoringServerService->findServers(),
@@ -94,7 +97,7 @@ class MonitoringServerController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($generateConfiguration, $monitoringServerId) {
+            function () use ($generateConfiguration, $monitoringServerId): void {
                 $generateConfiguration->execute($monitoringServerId);
             }
         );
@@ -111,7 +114,7 @@ class MonitoringServerController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($generateAllConfigurations) {
+            function () use ($generateAllConfigurations): void {
                 $generateAllConfigurations->execute();
             }
         );
@@ -129,7 +132,7 @@ class MonitoringServerController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($reloadConfiguration, $monitoringServerId) {
+            function () use ($reloadConfiguration, $monitoringServerId): void {
                 $reloadConfiguration->execute($monitoringServerId);
             }
         );
@@ -146,7 +149,7 @@ class MonitoringServerController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($reloadAllConfigurations) {
+            function () use ($reloadAllConfigurations): void {
                 $reloadAllConfigurations->execute();
             }
         );
@@ -170,7 +173,7 @@ class MonitoringServerController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($generateConfiguration, $reloadConfiguration, $monitoringServerId) {
+            function () use ($generateConfiguration, $reloadConfiguration, $monitoringServerId): void {
                 $generateConfiguration->execute($monitoringServerId);
                 $reloadConfiguration->execute($monitoringServerId);
             }
@@ -193,7 +196,7 @@ class MonitoringServerController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
-            function () use ($generateAllConfigurations, $reloadAllConfigurations) {
+            function () use ($generateAllConfigurations, $reloadAllConfigurations): void {
                 $generateAllConfigurations->execute();
                 $reloadAllConfigurations->execute();
             }
@@ -216,6 +219,7 @@ class MonitoringServerController extends AbstractController
             if (! $user->isAdmin() && ! $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION)) {
                 throw new AccessDeniedException('Insufficient rights (required: ROLE_GENERATE_CONFIGURATION)');
             }
+
             $callable();
         } catch (TimeoutException $ex) {
             $this->error($ex->getMessage());

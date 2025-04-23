@@ -1,9 +1,8 @@
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { getStatus } from './ServiceSubItemColumn/SubItem';
 import StatusChip from './ServiceSubItemColumn/StatusChip';
-
-import { useColumnStyles } from '.';
+import { getStatus } from './ServiceSubItemColumn/SubItem';
+import useColumnStyles from './colomuns.style';
 
 const ParentResourceColumn = ({
   row,

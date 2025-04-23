@@ -21,20 +21,21 @@
 
 namespace Tests\Centreon\Application\Controller\Monitoring;
 
+use Centreon\Application\Controller\Monitoring\CommentController;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Monitoring\Comment\CommentService;
+use Centreon\Domain\Monitoring\MonitoringService;
+use Centreon\Domain\Monitoring\Resource;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use FOS\RestBundle\View\View;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Centreon\Domain\Contact\Contact;
 use Psr\Container\ContainerInterface;
-use Centreon\Domain\Monitoring\Resource;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Centreon\Domain\Monitoring\MonitoringService;
-use Centreon\Domain\Monitoring\Comment\CommentService;
-use Centreon\Application\Controller\Monitoring\CommentController;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class CommentControllerTest extends TestCase
 {
@@ -51,6 +52,7 @@ class CommentControllerTest extends TestCase
     private MonitoringService $monitoringService;
     private ContainerInterface $container;
     private Request&MockObject $request;
+    private ReadAccessGroupRepositoryInterface $readAccessGroupRepository;
 
     protected function setUp(): void
     {
@@ -113,6 +115,10 @@ class CommentControllerTest extends TestCase
 
         $this->commentService = $this->createMock(CommentService::class);
         $this->monitoringService = $this->createMock(MonitoringService::class);
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+
+        $this->readAccessGroupRepository->method('findByContact')->willReturn([]);
+        $this->readAccessGroupRepository->method('hasAccessToResources')->willReturn(true);
 
         $authorizationChecker = $this->createMock(AuthorizationCheckerInterface::class);
         $authorizationChecker->expects($this->once())
@@ -155,9 +161,13 @@ class CommentControllerTest extends TestCase
     /**
      * Testing wrongly formatted JSON POST data for addResourcesComment
      */
-    public function testaddResourcesCommentBadJsonFormat()
+    public function testaddResourcesCommentBadJsonFormat(): void
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->once())
@@ -171,9 +181,13 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrong property added to the POST JSON for addResourcesComment
      */
-    public function testCommentResourcesBadJsonProperties()
+    public function testCommentResourcesBadJsonProperties(): void
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -186,13 +200,17 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with a correct JSON POST data and successfully adding a comment to a resource
      */
-    public function testAddResourcesCommentSuccess()
+    public function testAddResourcesCommentSuccess(): void
     {
         $this->commentService->expects($this->any())
             ->method('filterByContact')
             ->willReturn($this->commentService);
 
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -206,9 +224,13 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrongly formatted JSON POST data for addHostComment
      */
-    public function testAddHostCommentBadJsonFormat()
+    public function testAddHostCommentBadJsonFormat(): void
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->once())
@@ -221,9 +243,13 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrong property added to the POST JSON for addHostComment
      */
-    public function testAddHostCommentBadJsonProperties()
+    public function testAddHostCommentBadJsonProperties(): void
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -235,13 +261,17 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with a correct JSON POST data and successfully adding a comment for a host resource
      */
-    public function testAddHostCommentSuccess()
+    public function testAddHostCommentSuccess(): void
     {
         $this->commentService->expects($this->any())
             ->method('filterByContact')
             ->willReturn($this->commentService);
 
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -256,9 +286,13 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrongly formatted JSON POST data for addServiceComment
      */
-    public function testAddServiceCommentBadJsonFormat()
+    public function testAddServiceCommentBadJsonFormat(): void
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->once())
@@ -275,9 +309,13 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with wrong property added to the POST JSON for addServiceComment
      */
-    public function testAddServiceCommentBadJsonProperties()
+    public function testAddServiceCommentBadJsonProperties(): void
     {
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())
@@ -293,13 +331,17 @@ class CommentControllerTest extends TestCase
     /**
      * Testing with a correct JSON POST data and successfully adding comment for a service resource
      */
-    public function testAddServiceCommentSuccess()
+    public function testAddServiceCommentSuccess(): void
     {
         $this->commentService->expects($this->any())
         ->method('filterByContact')
         ->willReturn($this->commentService);
 
-        $commentController = new CommentController($this->commentService, $this->monitoringService);
+        $commentController = new CommentController(
+            $this->commentService,
+            $this->monitoringService,
+            $this->readAccessGroupRepository
+        );
         $commentController->setContainer($this->container);
 
         $this->request->expects($this->any())

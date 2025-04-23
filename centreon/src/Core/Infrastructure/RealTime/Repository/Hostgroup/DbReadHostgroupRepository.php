@@ -53,7 +53,7 @@ class DbReadHostgroupRepository extends AbstractRepositoryDRB implements ReadHos
     {
         $hostgroups = [];
 
-        if (empty($accessGroupIds)) {
+        if ($accessGroupIds === []) {
             return $hostgroups;
         }
 

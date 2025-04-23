@@ -5,11 +5,12 @@ import { makeStyles } from 'tss-react/mui';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { labelInDowntime, labelAcknowledged } from '../../../translatedLabels';
-import { Resource } from '../../../models';
-import HoverChip from '../HoverChip';
-import DowntimeChip from '../../../Chip/Downtime';
 import AcknowledgeChip from '../../../Chip/Acknowledge';
+import DowntimeChip from '../../../Chip/Downtime';
+import FlappingChip from '../../../Chip/Flapping';
+import { Resource } from '../../../models';
+import { labelAcknowledged, labelInDowntime } from '../../../translatedLabels';
+import HoverChip from '../HoverChip';
 
 import AcknowledgementDetailsTable from './DetailsTable/Acknowledgement';
 import DowntimeDetailsTable from './DetailsTable/Downtime';
@@ -21,14 +22,12 @@ interface StateChipProps {
   label: string;
 }
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
   container: {
     display: 'flex',
-    flexDirection: 'row',
-    gridGap: 2,
-    marginLeft: 2
+    gap: theme.spacing(0.5)
   }
-});
+}));
 
 const StateHoverChip = ({
   endpoint,
@@ -87,6 +86,7 @@ const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
     <div className={classes.container}>
       {row.is_in_downtime && <DowntimeHoverChip resource={row} />}
       {row.is_acknowledged && <AcknowledgeHoverChip resource={row} />}
+      {row.is_in_flapping && <FlappingChip />}
     </div>
   );
 };

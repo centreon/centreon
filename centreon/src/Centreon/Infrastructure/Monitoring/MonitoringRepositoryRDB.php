@@ -118,7 +118,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'host_group.id' => 'hg.hostgroup_id',
             'host.is_acknowledged' => 'h.acknowledged',
             'host.downtime' => 'h.scheduled_downtime_depth',
-            'host.criticality' => 'cv.value'
+            'host.criticality' => 'cv.value',
         ]);
 
         $accessGroupFilter = '';
@@ -300,7 +300,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
      */
     public function findHostsByHostsGroups(array $hostsGroupsIds): array
     {
-        if ($this->hasNotEnoughRightsToContinue() || empty($hostsGroupsIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $hostsGroupsIds === []) {
             return [];
         }
 
@@ -363,7 +363,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
      */
     public function findHostsByServiceGroups(array $servicesGroupsIds): array
     {
-        if ($this->hasNotEnoughRightsToContinue() || empty($servicesGroupsIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $servicesGroupsIds === []) {
             return [];
         }
 
@@ -437,6 +437,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'name' => 'hg.name'
         ];
 
+        $hostCategoryConcordanceArray = [
+            'host_category.id' => 'host_categories.id',
+            'host_category.name' => 'host_categories.name'
+        ];
+
         // To allow to find host groups relating to host information
         $hostConcordanceArray = [
             'host.id' => 'h.host_id',
@@ -456,15 +461,21 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
 
         $shouldJoinHost = false;
-        if (count(array_intersect($searchParameters, array_keys($hostConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostConcordanceArray)) !== []) {
             $shouldJoinHost = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $hostConcordanceArray);
         }
 
         $shouldJoinService = false;
-        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($serviceConcordanceArray)) !== []) {
             $shouldJoinService = true;
             $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $serviceConcordanceArray);
+        }
+
+        $shouldJoinHostCategory = false;
+        if (array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray)) !== []) {
+            $shouldJoinHostCategory = true;
+            $hostGroupConcordanceArray = array_merge($hostGroupConcordanceArray, $hostCategoryConcordanceArray);
         }
 
         //if the filter is for specific host id, remove it from search parameters
@@ -500,12 +511,11 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON gcgr.acl_group_id = grp.acl_group_id
                 LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                     ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-                    AND cgcr.contact_contact_id = :contact_id
-                    OR gcr.contact_contact_id = :contact_id';
+                    AND (cgcr.contact_contact_id = :contact_id OR gcr.contact_contact_id = :contact_id)';
         }
 
         // This join will only be added if a search parameter corresponding to one of the host or Service parameter
-        if ($shouldJoinHost || $shouldJoinService) {
+        if ($shouldJoinHost || $shouldJoinService || $shouldJoinHostCategory) {
             $subRequest .=
                 ' INNER JOIN `:dbstg`.hosts_hostgroups hhg
                     ON hhg.hostgroup_id = hg.hostgroup_id
@@ -521,6 +531,19 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                         AND srv.enabled = \'1\'';
             }
 
+            if ($shouldJoinHostCategory) {
+                // tags table because everything is resolved (templates and so on...)
+                $subRequest .=
+                    ' INNER JOIN `:dbstg`.resources
+                        ON resources.id = h.host_id
+                    INNER JOIN `:dbstg`.resources_tags
+                        ON resources_tags.resource_id = resources.resource_id
+                    INNER JOIN `:dbstg`.tags host_categories
+                        ON host_categories.tag_id = resources_tags.tag_id
+                        AND host_categories.`type` = 3';
+
+            }
+
             if (!$this->isAdmin()) {
                 $subRequest .=
                     ' INNER JOIN `:dbstg`.`centreon_acl` acl
@@ -532,6 +555,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, hg.* FROM `:dbstg`.`hostgroups` hg ' .
             $subRequest;
+
         $request = $this->translateDbName($request);
 
         // Search
@@ -658,7 +682,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 //get active acknowledgment for host
                 if ($host->getAcknowledged()) {
                     $acknowledgements = $this->findAcknowledgements($hostId, 0);
-                    if (!empty($acknowledgements)) {
+                    if ($acknowledgements !== []) {
                         $host->setAcknowledgement($acknowledgements[0]);
                     }
                 }
@@ -681,7 +705,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $collector = new StatementCollector();
 
-        if (empty($serviceIds)) {
+        if ($serviceIds === []) {
             return $services;
         }
 
@@ -749,7 +773,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     {
         $hosts = [];
 
-        if (empty($hostIds)) {
+        if ($hostIds === []) {
             return $hosts;
         }
 
@@ -797,7 +821,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     {
         $hosts = [];
 
-        if (empty($hostIds)) {
+        if ($hostIds === []) {
             return $hosts;
         }
 
@@ -938,7 +962,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         if ($service->isAcknowledged()) {
             $acknowledgements = $this->findAcknowledgements($hostId, $serviceId);
 
-            if (!empty($acknowledgements)) {
+            if ($acknowledgements !== []) {
                 $service->setAcknowledgement($acknowledgements[0]);
             }
         }
@@ -1031,7 +1055,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         if ($service->isAcknowledged()) {
             $acknowledgements = $this->findAcknowledgements($service->getHost()->getId(), $service->getId());
 
-            if (!empty($acknowledgements)) {
+            if ($acknowledgements !== []) {
                 $service->setAcknowledgement($acknowledgements[0]);
             }
         }
@@ -1048,7 +1072,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
 
         $collector = new StatementCollector();
 
-        if (empty($serviceIds)) {
+        if ($serviceIds === []) {
             return $services;
         }
 
@@ -1454,23 +1478,47 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'poller.id' => 'h.instance_id'
         ];
 
+        $hostGroupConcordanceArray = [
+            'host_group.id' => 'host_groups.id',
+            'host_group.name' => 'host_groups.name'
+        ];
+
+        $hostCategoryConcordanceArray = [
+            'host_category.id' => 'host_categories.id',
+            'host_category.name' => 'host_categories.name'
+        ];
+
         // To allow to find service groups relating to Service information
         $serviceConcordanceArray = [
+            'service.id' => 'srv.service_id',
+            'service.name' => 'srv.description',
             'service.display_name' => 'srv.display_name',
         ];
 
         $searchParameters = $this->sqlRequestTranslator->getRequestParameters()->extractSearchNames();
 
         $shouldJoinHost = false;
-        if (count(array_intersect($searchParameters, array_keys($hostConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($hostConcordanceArray)) !== []) {
             $shouldJoinHost = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostConcordanceArray);
         }
 
         $shouldJoinService = false;
-        if (count(array_intersect($searchParameters, array_keys($serviceConcordanceArray))) > 0) {
+        if (array_intersect($searchParameters, array_keys($serviceConcordanceArray)) !== []) {
             $shouldJoinService = true;
             $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $serviceConcordanceArray);
+        }
+
+        $shouldJoinHostGroup = false;
+        if (array_intersect($searchParameters, array_keys($hostGroupConcordanceArray)) !== []) {
+            $shouldJoinHostGroup = true;
+            $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostGroupConcordanceArray);
+        }
+
+        $shouldJoinHostCategory = false;
+        if (array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray)) !== []) {
+            $shouldJoinHostCategory = true;
+            $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostCategoryConcordanceArray);
         }
 
         $this->sqlRequestTranslator->setConcordanceArray($serviceGroupConcordanceArray);
@@ -1505,23 +1553,55 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         }
 
         // This join will only be added if a search parameter corresponding to one of the host or Service parameter
-        if ($shouldJoinHost || $shouldJoinService) {
+        /**
+         * 0 = service groups,
+         * 1 = host groups,
+         * 2 = service categories.
+         * 3 = host categories.
+         */
+        if (
+            $shouldJoinHost
+            || $shouldJoinService
+            || $shouldJoinHostGroup
+            || $shouldJoinHostCategory
+        ) {
             $subRequest .=
                 ' INNER JOIN `:dbstg`.services_servicegroups ssg
                     ON ssg.servicegroup_id = sg.servicegroup_id
-                    INNER JOIN `:dbstg`.hosts h
+                INNER JOIN `:dbstg`.hosts h
                     ON h.host_id = ssg.host_id
-                    AND h.enabled = \'1\'';
+                    AND h.enabled = \'1\'
+                    AND h.name NOT LIKE \'\_Module\_%\'
+                INNER JOIN `:dbstg`.resources
+                    ON resources.id = h.host_id';
 
             if ($shouldJoinService) {
                 $subRequest .=
                 ' LEFT JOIN `:dbstg`.`services` srv
-                            ON srv.service_id = ssg.service_id
-                            AND srv.host_id = h.host_id
-                            AND srv.enabled = \'1\'';
+                    ON srv.service_id = ssg.service_id
+                    AND srv.host_id = h.host_id
+                    AND srv.enabled = \'1\'';
             }
 
-            if (!$this->isAdmin()) {
+            if ($shouldJoinHostGroup) {
+                $subRequest .=
+                    ' INNER JOIN `:dbstg`.resources_tags AS rtags_host_groups
+                        ON rtags_host_groups.resource_id = resources.resource_id
+                    INNER JOIN `:dbstg`.tags host_groups
+                        ON host_groups.tag_id = rtags_host_groups.tag_id
+                        AND host_groups.`type` = 1';
+            }
+
+            if ($shouldJoinHostCategory) {
+                $subRequest .=
+                    ' INNER JOIN `:dbstg`.resources_tags AS rtags_host_categories
+                        ON rtags_host_categories.resource_id = resources.resource_id
+                    INNER JOIN `:dbstg`.tags host_categories
+                        ON host_categories.tag_id = rtags_host_categories.tag_id
+                        AND host_categories.`type` = 3';
+            }
+
+            if (! $this->isAdmin()) {
                 $subRequest .=
                     ' INNER JOIN `:dbstg`.`centreon_acl` acl
                         ON acl.host_id = h.host_id
@@ -1591,7 +1671,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             return $services;
         }
 
-        if (empty($serviceIds)) {
+        if ($serviceIds === []) {
             return $services;
         }
         $serviceIds = array_map(
@@ -1656,7 +1736,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     {
         $services = [];
 
-        if ($this->hasNotEnoughRightsToContinue() || empty($hostIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $hostIds === []) {
             return $services;
         }
 
@@ -1716,7 +1796,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
     {
         $servicesByServiceGroupId = [];
 
-        if ($this->hasNotEnoughRightsToContinue() || empty($serviceGroupIds)) {
+        if ($this->hasNotEnoughRightsToContinue() || $serviceGroupIds === []) {
             return $servicesByServiceGroupId;
         }
 

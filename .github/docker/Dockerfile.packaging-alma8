@@ -2,13 +2,17 @@ FROM almalinux:8
 
 RUN bash -e <<EOF
 
+dnf module reset -y ruby
+dnf module enable -y ruby:3.0
+dnf install -y ruby
+
 echo '[goreleaser]
 name=GoReleaser
 baseurl=https://repo.goreleaser.com/yum/
 enabled=1
 gpgcheck=0' | tee /etc/yum.repos.d/goreleaser.repo
 
-dnf install -y make rpm-build rpm-sign zstd perl-devel nfpm selinux-policy-devel
+dnf install -y make rpm-build rpm-sign zstd perl-devel nfpm-2.41.1 selinux-policy-devel
 
 dnf clean all
 

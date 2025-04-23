@@ -6,6 +6,8 @@ services:
 
     Core\ResourceAccess\:
         resource: '../../../../Core/ResourceAccess/*'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     _instanceof:
         Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterTypeInterface:
@@ -19,8 +21,13 @@ services:
         arguments:
           $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
 
+    Core\ResourceAccess\Application\UseCase\UpdateRule\UpdateRuleValidation:
+        arguments:
+          $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
+
     Core\ResourceAccess\Application\UseCase\FindRule\FindRule:
         arguments:
+          $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
           $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
 
     Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator:

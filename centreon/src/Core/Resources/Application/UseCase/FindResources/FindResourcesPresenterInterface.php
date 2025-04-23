@@ -28,7 +28,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 interface FindResourcesPresenterInterface
 {
     /**
-     * @param FindResourcesResponse|ResponseStatusInterface $data
+     * @param FindResourcesResponse|ResponseStatusInterface $response
      */
-    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $data): void;
+    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $response): void;
 }

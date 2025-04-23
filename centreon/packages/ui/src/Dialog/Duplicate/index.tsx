@@ -22,7 +22,7 @@ const Duplicate = ({
   labelInput = 'Count',
   labelConfirm = 'Duplicate',
   labelTitle = 'Duplicate',
-  limit = Infinity,
+  limit = Number.POSITIVE_INFINITY,
   onConfirm,
   ...rest
 }: Props): JSX.Element => {
@@ -37,7 +37,10 @@ const Duplicate = ({
     onConfirm(event, value);
   };
 
-  const isConfirmDisabled = or(isEmpty(value), parseInt(value, 10) > limit);
+  const isConfirmDisabled = or(
+    isEmpty(value),
+    Number.parseInt(value, 10) > limit
+  );
 
   return (
     <Dialog
@@ -53,10 +56,12 @@ const Duplicate = ({
         fullWidth
         className={classes.container}
         color="primary"
-        inputProps={{
-          'aria-label': 'Duplications',
-          max: limit,
-          min: 1
+        slotProps={{
+          htmlInput: {
+            'aria-label': 'Duplications',
+            max: limit,
+            min: 1
+          }
         }}
         label={labelInput}
         margin="dense"

@@ -2,21 +2,20 @@ import { useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 
+import { WrapperTimePeriodProps } from './models';
 import {
+  adjustTimePeriodDerivedAtom,
   customTimePeriodAtom,
-  getDatesDerivedAtom,
-  selectedTimePeriodAtom,
   errorTimePeriodAtom,
-  adjustTimePeriodDerivedAtom
+  getDatesDerivedAtom,
+  selectedTimePeriodAtom
 } from './timePeriodsAtoms';
-
-import { Props } from '.';
 
 const useTimePeriod = ({
   getParameters,
   getIsError,
   adjustTimePeriodData
-}: Omit<Props, 'extraTimePeriods' | 'disabled'>): void => {
+}: Omit<WrapperTimePeriodProps, 'extraTimePeriods' | 'disabled'>): void => {
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const getCurrentEndStartInterval = useAtomValue(getDatesDerivedAtom);

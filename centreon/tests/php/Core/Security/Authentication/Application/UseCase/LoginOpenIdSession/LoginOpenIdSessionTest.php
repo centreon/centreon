@@ -36,6 +36,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
 use Security\Domain\Authentication\Model\AuthenticationTokens;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Security\Domain\Authentication\Exceptions\ProviderException;
@@ -65,28 +66,15 @@ use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryI
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadOpenIdConfigurationRepositoryInterface::class);
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
     $this->legacyProvider = $this->createMock(OpenIdProviderInterface::class);
     $this->legacyProviderService = $this->createMock(ProviderServiceInterface::class);
-    $this->session = $this->createMock(SessionInterface::class);
-    $this->session
-        ->expects($this->any())
-        ->method('getId')
-        ->willReturn('session_abcd');
-    $this->request = $this->createMock(Request::class);
-    $this->request
-        ->expects($this->any())
-        ->method('getSession')
-        ->willReturn($this->session);
     $this->requestStack = $this->createMock(RequestStack::class);
-    $this->requestStack
-        ->expects($this->any())
-        ->method('getCurrentRequest')
-        ->willReturn($this->request);
     $this->centreonDB = $this->createMock(CentreonDB::class);
     $this->dependencyInjector = new Container(['configuration_db' => $this->centreonDB]);
     $this->authenticationService = $this->createMock(AuthenticationServiceInterface::class);
@@ -153,7 +141,7 @@ beforeEach(function () {
     $this->validOpenIdConfiguration = $configuration;
 });
 
-it('expects to return an error message in presenter when no provider configuration is found', function () {
+it('expects to return an error message in presenter when no provider configuration is found', function (): void {
     $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
     $request->providerName = 'unknown provider';
 
@@ -163,9 +151,16 @@ it('expects to return an error message in presenter when no provider configurati
         ->with('unknown provider')
         ->will($this->throwException(ProviderException::providerConfigurationNotFound('unknown provider')));
 
+    $session = new Session(new MockArraySessionStorage());
+    $session->setId('session_abcd');
+    $this->requestStack
+        ->expects($this->any())
+        ->method('getSession')
+        ->willReturn($session);
+
     $useCase = new Login(
         $this->providerFactory,
-        $this->session,
+        $this->requestStack,
         $this->dataStorageEngine,
         $this->writeSessionRepository,
         $this->readTokenRepository,
@@ -181,7 +176,7 @@ it('expects to return an error message in presenter when no provider configurati
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
 });
 
-it('expects to execute authenticateOrFail method from OpenIdProvider', function () {
+it('expects to execute authenticateOrFail method from OpenIdProvider', function (): void {
     $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
     $this->providerFactory
@@ -195,7 +190,7 @@ it('expects to execute authenticateOrFail method from OpenIdProvider', function 
 
     $useCase = new Login(
         $this->providerFactory,
-        $this->session,
+        $this->requestStack,
         $this->dataStorageEngine,
         $this->writeSessionRepository,
         $this->readTokenRepository,
@@ -211,7 +206,7 @@ it('expects to execute authenticateOrFail method from OpenIdProvider', function 
 
 it(
     'expects to return an error message in presenter when the provider can\'t find the user and can\'t create it',
-    function () {
+    function (): void {
         $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
         $this->provider
@@ -238,7 +233,7 @@ it(
 
         $useCase = new Login(
             $this->providerFactory,
-            $this->session,
+            $this->requestStack,
             $this->dataStorageEngine,
             $this->writeSessionRepository,
             $this->readTokenRepository,
@@ -257,7 +252,7 @@ it(
 it(
     'expects to return an error message in presenter when the provider ' .
     'wasn\'t be able to return a user after creating it',
-    function () {
+    function (): void {
         $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
         $this->provider
@@ -285,7 +280,7 @@ it(
 
         $useCase = new Login(
             $this->providerFactory,
-            $this->session,
+            $this->requestStack,
             $this->dataStorageEngine,
             $this->writeSessionRepository,
             $this->readTokenRepository,
@@ -302,7 +297,7 @@ it(
     }
 );
 
-it('should update access groups for the authenticated user', function () {
+it('should update access groups for the authenticated user', function (): void {
     $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
     $accessGroup1 = new AccessGroup(1, "access_group_1", "access_group_1");
@@ -336,7 +331,7 @@ it('should update access groups for the authenticated user', function () {
 
     $useCase = new Login(
         $this->providerFactory,
-        $this->session,
+        $this->requestStack,
         $this->dataStorageEngine,
         $this->writeSessionRepository,
         $this->readTokenRepository,

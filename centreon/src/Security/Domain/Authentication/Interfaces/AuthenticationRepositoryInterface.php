@@ -34,7 +34,7 @@ interface AuthenticationRepositoryInterface
      * @param int $providerConfigurationId Provider configuration id
      * @param int $contactId Contact id
      * @param ProviderToken $providerToken Provider token
-     * @param ProviderToken $providerRefreshToken Provider refresh token
+     * @param ProviderToken|null $providerRefreshToken Provider refresh token
      */
     public function addAuthenticationTokens(
         string $sessionToken,
@@ -61,11 +61,16 @@ interface AuthenticationRepositoryInterface
     public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void;
 
     /**
+     * @param ProviderToken $providerToken
+     */
+    public function updateProviderToken(ProviderToken $providerToken): void;
+
+    /**
      * Updates the provider token.
      *
      * @param NewProviderToken $providerToken
      */
-    public function updateProviderToken(NewProviderToken $providerToken): void;
+    public function updateProviderTokenExpirationDate(NewProviderToken $providerToken): void;
 
     /**
      * Delete a security token.

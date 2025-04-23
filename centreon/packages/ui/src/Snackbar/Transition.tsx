@@ -1,11 +1,10 @@
-import * as React from 'react';
-
 import {
-  TransitionProps as _TransitionProps,
-  TransitionActions
+  TransitionActions,
+  TransitionProps as _TransitionProps
 } from 'react-transition-group/Transition';
 
 import { Fade } from '@mui/material';
+import { CSSProperties, ReactNode } from 'react';
 
 type TransitionHandlerKeys =
   | 'onEnter'
@@ -24,11 +23,11 @@ type TransitionKeys =
 interface TransitionProps
   extends TransitionActions,
     Partial<Pick<_TransitionProps, TransitionKeys>> {
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
 interface Props extends TransitionProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 const Transition = ({ children, ...rest }: Props): JSX.Element => (

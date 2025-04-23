@@ -30,8 +30,8 @@ use Core\Common\Domain\TrimmedString;
 
 class SmallHost
 {
-    public const MAX_NAME_LENGTH = NewHost::MAX_NAME_LENGTH,
-        MAX_ADDRESS_LENGTH = NewHost::MAX_ADDRESS_LENGTH;
+    public const MAX_NAME_LENGTH = NewHost::MAX_NAME_LENGTH;
+    public const MAX_ADDRESS_LENGTH = NewHost::MAX_ADDRESS_LENGTH;
 
     /** @var list<int> */
     private array $categoryIds = [];
@@ -74,9 +74,6 @@ class SmallHost
         $shortName = 'Host';
         Assertion::positiveInt($id, "{$shortName}::id");
         Assertion::notEmptyString($name->value, "{$shortName}::name");
-        if ($alias !== null) {
-            Assertion::notEmptyString($alias->value, "{$shortName}::alias");
-        }
         Assertion::notEmptyString($ipAddress->value, "{$shortName}::ipAddress");
 
         if ($normalCheckInterval !== null) {

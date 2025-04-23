@@ -34,28 +34,23 @@
  */
 
 /**
- * Description of centreonPerformanceService
+ * Class
  *
+ * @class CentreonPerformanceService
+ * @description Description of centreonPerformanceService
  */
 class CentreonPerformanceService
 {
-    /**
-     *
-     * @var \CentreonDB
-     */
+    /** @var CentreonDB */
     protected $dbMon;
-
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonACL */
     protected $aclObj;
 
-
     /**
+     * CentreonPerformanceService constructor
      *
-     * @param type $dbMon
-     * @param type $aclObj
+     * @param $dbMon
+     * @param $aclObj
      */
     public function __construct($dbMon, $aclObj)
     {
@@ -64,20 +59,18 @@ class CentreonPerformanceService
     }
 
     /**
-     *
      * @param array $filters
+     *
      * @return array
+     * @throws PDOException
+     * @throws RestBadRequestException
      */
-    public function getList($filters = array())
+    public function getList($filters = [])
     {
         $additionnalTables = '';
         $additionnalCondition = '';
 
-        if (false === isset($filters['service'])) {
-            $serviceDescription = '';
-        } else {
-            $serviceDescription = $filters['service'];
-        }
+        $serviceDescription = false === isset($filters['service']) ? '' : $filters['service'];
 
         if (isset($filters['page_limit']) && isset($filters['page'])) {
             $limit = ($filters['page'] - 1) * $filters['page_limit'];
@@ -123,19 +116,19 @@ class CentreonPerformanceService
 
 
         $DBRESULT = $this->dbMon->query($query);
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $DBRESULT->fetchRow()) {
             $serviceCompleteName = $data['fullname'];
             $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
-            $serviceList[] = array('id' => $serviceCompleteId, 'text' => $serviceCompleteName);
+            $serviceList[] = ['id' => $serviceCompleteId, 'text' => $serviceCompleteName];
         }
 
         return $serviceList;
     }
 
     /**
-     *
      * @param string $additionnalCondition
+     *
      * @return string
      */
     private function getVirtualServicesCondition($additionnalCondition)
@@ -144,11 +137,11 @@ class CentreonPerformanceService
         $metaServiceCondition = '';
         if (!$this->aclObj->admin) {
             $metaServices = $this->aclObj->getMetaServices();
-            $virtualServices = array();
+            $virtualServices = [];
             foreach ($metaServices as $metaServiceId => $metaServiceName) {
                 $virtualServices[] = "'meta_" . $metaServiceId . "'";
             }
-            if (count($virtualServices)) {
+            if ($virtualServices !== []) {
                 $metaServiceCondition = 'AND s.description IN (' . implode(',', $virtualServices) . ') ';
             } else {
                 return '';

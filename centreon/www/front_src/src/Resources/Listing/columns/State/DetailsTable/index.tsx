@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { map, prop, sum, pipe } from 'ramda';
+import { map, pipe, prop, sum } from 'ramda';
 
 import {
-  TableContainer,
-  TableRow,
   Paper,
+  Skeleton,
   Table,
-  TableHead,
-  TableCell,
   TableBody,
-  Skeleton
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow
 } from '@mui/material';
 
-import { useRequest, getData } from '@centreon/ui';
-import type { ListingModel, ColumnType, Column } from '@centreon/ui';
+import { getData, useRequest } from '@centreon/ui';
+import type { Column, ColumnType, ListingModel } from '@centreon/ui';
 
 import {
+  labelNo,
   labelSomethingWentWrong,
-  labelYes,
-  labelNo
+  labelYes
 } from '../../../../translatedLabels';
 
 const getYesNoLabel = (value: boolean): string => (value ? labelYes : labelNo);

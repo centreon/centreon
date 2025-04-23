@@ -1,7 +1,8 @@
+import { Skeleton } from '@mui/material';
 import { ParentSize } from '../..';
 
-import { SingleBarProps } from './models';
 import ResponsiveSingleBar from './ResponsiveSingleBar';
+import { SingleBarProps } from './models';
 
 const SingleBar = ({ data, ...props }: SingleBarProps): JSX.Element | null => {
   if (!data) {
@@ -10,14 +11,20 @@ const SingleBar = ({ data, ...props }: SingleBarProps): JSX.Element | null => {
 
   return (
     <ParentSize>
-      {({ width, height }) => (
-        <ResponsiveSingleBar
-          {...props}
-          data={data}
-          height={height}
-          width={width}
-        />
-      )}
+      {({ width, height }) => {
+        if (!height || !width) {
+          return <Skeleton height={20} variant="rectangular" width="100%" />;
+        }
+
+        return (
+          <ResponsiveSingleBar
+            {...props}
+            data={data}
+            height={height}
+            width={width}
+          />
+        );
+      }}
     </ParentSize>
   );
 };

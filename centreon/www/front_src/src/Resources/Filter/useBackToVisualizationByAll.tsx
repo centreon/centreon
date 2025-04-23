@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 
-import { useAtomValue, useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, isNil, or } from 'ramda';
 
-import { Visualization } from '../models';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
 import { defaultSelectedColumnIds } from '../Listing/columns';
+import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
+import { Visualization } from '../models';
 
 import { applyCurrentFilterDerivedAtom, searchAtom } from './filterAtoms';
 
@@ -22,15 +22,15 @@ const useBackToVisualizationByAll = (): void => {
   const isViewByService = equals(visualization, Visualization.Service);
   const isViewByAll = or(isViewByHost, isViewByService);
 
-  const searchType = search.match(/^type:[^ ]+/);
+  const searchType = search.match(/type:[^ ]+/);
 
   const isSearchIncludesTypeHost =
     isViewByService && searchType?.[0].includes('host');
 
   const isSearchIncludesTypesService =
     isViewByHost &&
-    ['service', 'metaservice', 'anomaly-detection'].some(
-      (type) => searchType?.[0].includes(type)
+    ['service', 'metaservice', 'anomaly-detection'].some((type) =>
+      searchType?.[0].includes(type)
     );
 
   const isSearchIncludesOtherTypes = or(

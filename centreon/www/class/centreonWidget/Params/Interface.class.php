@@ -34,15 +34,46 @@
  *
  */
 
+/**
+ * Interface
+ *
+ * @class CentreonWidgetParamsInterface
+ */
 interface CentreonWidgetParamsInterface
 {
+    /**
+     * @param CentreonDB $db
+     * @param HTML_QuickForm $quickform
+     * @param string $className
+     * @param int $userId
+     *
+     * @return mixed
+     */
     public static function factory($db, $quickform, $className, $userId);
 
+    /**
+     * @param array $params
+     *
+     * @return mixed
+     */
     public function init($params);
 
+    /**
+     * @param array $params
+     *
+     * @return mixed
+     */
     public function setValue($params);
 
+    /**
+     * @return mixed
+     */
     public function getElement();
 
+    /**
+     * @param mixed $paramId
+     *
+     * @return mixed
+     */
     public function getListValues($paramId);
 }

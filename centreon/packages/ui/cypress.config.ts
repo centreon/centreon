@@ -6,6 +6,6 @@ module.exports = defineCypressConfig({
       exclude: ['cypress/**/*.*', 'node_modules', '**/*.js']
     }
   },
-  specPattern: './src/**/*.cypress.spec.tsx',
-  useVite: true
+  rspackConfig: require('../../rspack.config.cypress'),
+  specPattern: './src/**/*.cypress.spec.tsx'
 });

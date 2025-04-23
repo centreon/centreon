@@ -19,37 +19,66 @@ inputs:
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
-  github_base_ref:
-    description: "Release base ref"
+  github_ref_name:
+    description: "Release base ref name for push event"
+    required: true
+  release_type:
+    description: "Type of release (hotfix, release)"
+    required: true
+  is_cloud:
+    description: "Release context (cloud or not cloud)"
     required: true
 
 runs:
   using: "composite"
   steps:
-    - uses: jfrog/setup-jfrog-cli@0f30b43d62ccad81fba40748d2c671c4665b2d27 # v3.5.3
+    - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
+    - name: Parse distrib name
+      id: parse-distrib
+      uses: ./.github/actions/parse-distrib
+      with:
+        distrib: ${{ inputs.distrib }}
+
     - name: Promote RPM packages to stable
       if: ${{ startsWith(inputs.distrib, 'el') }}
       run: |
-        set -x
+        set -eux
+
+        # DEBUG
         echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - is_cloud: ${{ inputs.is_cloud }}"
+        echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
 
         # Cloud specific promote
         # delivery by default to onprem, override to internal if base branch is master
-        if [[ ${{ inputs.github_base_ref }} == "master" ]]; then
+        if [[ ${{ inputs.github_ref_name }} == "master" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
         else
           ROOT_REPO_PATH="rpm-standard"
         fi
 
+        # Search for testing packages candidate for promote
         for ARCH in "noarch" "x86_64"; do
+
+          # Build search path based on is_cloud and release_type values
+          # if cloud, search in testing-<release_type> path
+          # if non-cloud, search in the testing usual path
+          if [[ "${{ inputs.is_cloud }}" == "true" && "${{ inputs.release_type }}" == "hotfix" ]] || [[ "${{ inputs.is_cloud }}" == "true" && "${{ inputs.release_type }}" == "release" ]]; then
+            SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing-${{ inputs.release_type }}/$ARCH/${{ inputs.module }}"
+          elif [[ "${{ inputs.is_cloud }}" == "false" ]];then
+            SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}"
+          else
+            echo "Invalid combination of release_type and is_cloud"
+          fi
+
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
-          SRC_PATHS=$(jf rt s --include-dirs $ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}/*.rpm | jq -r '.[].path')
+          SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH/$SEARCH_REPO_PATH/*.rpm | jq -r '.[].path')
 
           if [[ ${SRC_PATHS[@]} ]]; then
             for SRC_PATH in ${SRC_PATHS[@]}; do
@@ -60,46 +89,71 @@ runs:
             continue
           fi
 
+          # Build target path based on ARCH
           echo "[DEBUG] - Build $ARCH target path."
-          TARGET_PATH="$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module }}/"
+          TARGET_PATH="$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH/RPMS/${{ inputs.module }}/"
           echo "[DEBUG] - Target path: $TARGET_PATH"
 
+          # Download candidates for promote
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
             jf rt download $ARTIFACT --flat
           done
 
+          DRY_RUN_FLAG="--dry-run"
+          if [ "${{ inputs.stability }}" == "stable" ]; then
+            DRY_RUN_FLAG=""
+          fi
+
+          # Upload previously downloaded candidates to TARGET_PATH
           for ARTIFACT_DL in $(dir|grep -E "*.rpm"); do
             echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat
+            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat $DRY_RUN_FLAG
           done
+
+          # Cleanup before next round of candidates
           rm -f *.rpm
         done
 
       shell: bash
 
-    - name: Promote DEB package to stable
-      if: ${{ startsWith(inputs.distrib, 'bullseye') }}
+    - name: Promote DEB packages to stable
+      if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) && inputs.is_cloud == 'false' }}
       run: |
+        set -eux
+
         echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
+        # Define ROOT_REPO_PATH for debian
+        # There is no cloud ROOT_REPO_PATH for debian, only onprem
+        # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
+        ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
-        SRC_PATHS=$(jf rt s --include-dirs apt-standard-${{ inputs.major_version }}-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
+
+        case "${{ inputs.major_version }}" in
+          "22.10"|"23.04"|"23.10")
+            SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
+            ;;
+          *)
+            SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ steps.parse-distrib.outputs.package_distrib_name }}*.deb | jq -r '.[].path')
+            ;;
+        esac
 
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Source path found: $SRC_PATH"
           done
         else
-          echo "[DEBUG] - No source path found."
+          echo "::warning::No source path found."
           continue
         fi
 
         echo "[DEBUG] - Build target path."
-        TARGET_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/${{ inputs.module }}/"
+        TARGET_PATH="$ROOT_REPO_PATH-stable/pool/${{ inputs.module }}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
@@ -108,12 +162,25 @@ runs:
           jf rt download $ARTIFACT --flat
         done
 
-        for ARTIFACT_DL in $(dir|grep -E "*.deb"); do
+        case "${{ inputs.major_version }}" in
+          "22.10"|"23.04"|"23.10")
+            ARTIFACT_SEARCH_PATTERN=".+\.deb"
+            ;;
+          *)
+            ARTIFACT_SEARCH_PATTERN=".+${{ steps.parse-distrib.outputs.package_distrib_name }}.+\.deb"
+            ;;
+        esac
+
+        DRY_RUN_FLAG="--dry-run"
+        if [ "${{ inputs.stability }}" == "stable" ]; then
+          DRY_RUN_FLAG=""
+        fi
+
+        for ARTIFACT_DL in $(dir -1|grep -E $ARTIFACT_SEARCH_PATTERN); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
           echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH"
+          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat $DRY_RUN_FLAG
         done
 
         rm -f *.deb
-
       shell: bash

@@ -89,20 +89,21 @@ function removeRelationLastMetaServiceDependency(int $serviceId): void
 {
     global $pearDB;
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id 
-              FROM dependency_metaserviceParent_relation 
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_metaserviceParent_relation 
-                                         WHERE meta_service_meta_id =  ' . $serviceId . ')';
+    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+              FROM dependency_metaserviceParent_relation
+              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_metaserviceParent_relation
+                                         WHERE meta_service_meta_id =  ' . $serviceId . ')
+              GROUP BY dependency_dep_id';
     $dbResult = $pearDB->query($query);
     $result = $dbResult->fetch();
 
     //is last parent
-    if ($result['nb_dependency'] == 1) {
+    if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
         $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
     }
 }
 
-function deleteMetaServiceInDB($metas = array())
+function deleteMetaServiceInDB($metas = [])
 {
     global $pearDB;
     foreach ($metas as $key => $value) {
@@ -132,7 +133,7 @@ function disableMetricInDB($msr_id = null)
     $pearDB->query("UPDATE meta_service_relation SET activate = '0' WHERE msr_id = '" . $msr_id . "'");
 }
 
-function deleteMetricInDB($metrics = array())
+function deleteMetricInDB($metrics = [])
 {
     global $pearDB;
     foreach ($metrics as $key => $value) {
@@ -140,7 +141,7 @@ function deleteMetricInDB($metrics = array())
     }
 }
 
-function multipleMetaServiceInDB($metas = array(), $nbrDup = array())
+function multipleMetaServiceInDB($metas = [], $nbrDup = [])
 {
     # Foreach Meta Service
     foreach ($metas as $key => $value) {
@@ -155,13 +156,16 @@ function multipleMetaServiceInDB($metas = array(), $nbrDup = array())
             # Create a sentence which contains all the value
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "meta_name" ? ($meta_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "meta_name") {
+                    $meta_name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
             if (testExistence($meta_name)) {
-                $val ? $rq = "INSERT INTO meta_service VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO meta_service VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(meta_id) FROM meta_service");
                 $maxId = $dbResult->fetch();
@@ -196,7 +200,9 @@ function multipleMetaServiceInDB($metas = array(), $nbrDup = array())
                         $metric["msr_id"] = null;
                         foreach ($metric as $key2 => $value2) {
                             $value2 = is_int($value2) ? (string) $value2 : $value2;
-                            $key2 == "meta_id" ? $value2 = $maxId["MAX(meta_id)"] : null;
+                            if ($key2 == "meta_id") {
+                                $value2 = $maxId["MAX(meta_id)"];
+                            }
                             $val
                                 ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                                 : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
@@ -227,7 +233,7 @@ function insertMetaServiceInDB()
     return ($meta_id);
 }
 
-function multipleMetricInDB($metrics = array(), $nbrDup = array())
+function multipleMetricInDB($metrics = [], $nbrDup = [])
 {
     # Foreach Meta Service
     foreach ($metrics as $key => $value) {
@@ -246,7 +252,7 @@ function multipleMetricInDB($metrics = array(), $nbrDup = array())
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
-            $val ? $rq = "INSERT INTO meta_service_relation VALUES (" . $val . ")" : $rq = null;
+            $rq = $val ? "INSERT INTO meta_service_relation VALUES (" . $val . ")" : null;
             $dbResult = $pearDB->query($rq);
         }
     }
@@ -273,7 +279,7 @@ function checkMetaHost()
     }
 }
 
-function insertMetaService($ret = array())
+function insertMetaService($ret = [])
 {
     global $form, $pearDB, $centreon;
 
@@ -378,7 +384,7 @@ function updateMetaService($meta_id = null)
 
     checkMetaHost();
 
-    $ret = array();
+    $ret = [];
     $ret = $form->getSubmitValues();
     $rq = "UPDATE meta_service SET ";
     $rq .= "meta_name = ";
@@ -470,11 +476,12 @@ function updateMetaServiceContact($meta_id)
     $statement->execute();
 
     /* Add relation between metaservice and contact */
-    $ret = array();
+    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cs');
     if (count($ret)) {
         $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES ";
-        for ($i = 0; $i < count($ret); $i++) {
+        $counter = count($ret);
+        for ($i = 0; $i < $counter; $i++) {
             if ($i > 0) {
                 $queryAddRelation .= ', ';
             }
@@ -495,10 +502,11 @@ function updateMetaServiceContactGroup($meta_id = null)
     $rq .= "WHERE meta_id = '" . $meta_id . "'";
     $dbResult = $pearDB->query($rq);
 
-    $ret = array();
+    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cgs');
     $cg = new CentreonContactgroup($pearDB);
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         if (!is_numeric($ret[$i])) {
             $res = $cg->insertLdapGroup($ret[$i]);
             if ($res != 0) {
@@ -530,7 +538,7 @@ function insertMetricInDB()
     return ($msr_id);
 }
 
-function insertMetric($ret = array())
+function insertMetric($ret = [])
 {
     global $form;
     global $pearDB;

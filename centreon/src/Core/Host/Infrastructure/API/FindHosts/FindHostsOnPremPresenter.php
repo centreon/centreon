@@ -30,9 +30,12 @@ use Core\Host\Application\UseCase\FindHosts\FindHostsPresenterInterface;
 use Core\Host\Application\UseCase\FindHosts\FindHostsResponse;
 use Core\Host\Application\UseCase\FindHosts\SimpleDto;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
 final class FindHostsOnPremPresenter extends AbstractPresenter implements FindHostsPresenterInterface
 {
+    use PresenterTrait;
+
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
@@ -51,7 +54,7 @@ final class FindHostsOnPremPresenter extends AbstractPresenter implements FindHo
                 $result[] = [
                     'id' => $dto->id,
                     'name' => $dto->name,
-                    'alias' => $dto->alias,
+                    'alias' => $this->emptyStringAsNull($dto->alias ?? ''),
                     'address' => $dto->ipAddress,
                     'monitoring_server' => [
                         'id' => $dto->poller->id,

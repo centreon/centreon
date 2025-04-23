@@ -1,15 +1,15 @@
 import dayjs from 'dayjs';
 import { atom } from 'jotai';
-import { always, cond, gte, isNil, not, pipe, T } from 'ramda';
+import { T, always, cond, gte, isNil, not, pipe } from 'ramda';
 
 import { dateFormat, timeFormat } from '@centreon/ui';
 
 import {
   CustomTimePeriod,
-  getTimePeriodById,
-  lastDayPeriod,
   TimePeriod,
-  TimePeriodId
+  TimePeriodId,
+  getTimePeriodById,
+  lastDayPeriod
 } from '../../../Details/tabs/Graph/models';
 import { AdjustTimePeriodProps } from '../models';
 

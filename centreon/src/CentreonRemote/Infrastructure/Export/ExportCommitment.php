@@ -29,7 +29,7 @@ final class ExportCommitment
     /** @var string */
     private $path;
 
-    /** @var \CentreonRemote\Infrastructure\Export\ExportParserInterface */
+    /** @var ExportParserInterface */
     private $parser;
 
     /** @var array<mixed> */
@@ -50,7 +50,7 @@ final class ExportCommitment
      * @param int $remote
      * @param int[] $pollers
      * @param array<mixed> $meta
-     * @param \CentreonRemote\Infrastructure\Export\ExportParserInterface $parser
+     * @param ExportParserInterface $parser
      * @param string $path
      * @param array<int,string> $exporters
      */

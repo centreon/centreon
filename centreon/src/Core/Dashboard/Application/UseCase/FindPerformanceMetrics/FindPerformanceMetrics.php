@@ -34,10 +34,12 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindPerformanceMetrics
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
      * @param ContactInterface $user
@@ -45,6 +47,7 @@ final class FindPerformanceMetrics
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository
      * @param DashboardRights $rights
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -52,6 +55,7 @@ final class FindPerformanceMetrics
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository,
         private readonly DashboardRights $rights,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -61,18 +65,11 @@ final class FindPerformanceMetrics
     public function __invoke(FindPerformanceMetricsPresenterInterface $presenter): void
     {
         try {
-            if (! $this->rights->canAccess()) {
-                $presenter->presentResponse(new ForbiddenResponse(
-                    DashboardException::accessNotAllowed()->getMessage()
-                ));
-
-                return;
-            }
-            if ($this->user->isAdmin()) {
+            if ($this->isUserAdmin()) {
                 $this->info('find metrics for admin user');
 
                 $resourceMetrics = $this->dashboardMetricRepository->findByRequestParameters($this->requestParameters);
-            } else {
+            } elseif ($this->rights->canAccess()) {
                 $this->info('find metrics for non-admin user');
 
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
@@ -80,6 +77,12 @@ final class FindPerformanceMetrics
                     $this->requestParameters,
                     $accessGroups
                 );
+            } else {
+                $presenter->presentResponse(new ForbiddenResponse(
+                    DashboardException::accessNotAllowed()->getMessage()
+                ));
+
+                return;
             }
 
             $presenter->presentResponse($this->createResponse($resourceMetrics));
@@ -126,5 +129,25 @@ final class FindPerformanceMetrics
         $response->resourceMetrics = $resourceMetricsResponse;
 
         return $response;
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->accessGroupRepository->findByContact($this->user)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

@@ -1,0 +1,61 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 4
+  name:
+    type: string
+    description: "ACC name"
+    example: "my-acc-name"
+  description:
+    type: string
+    description: "A short ACC description"
+    example: "some description"
+  type:
+    type: string
+    description: |
+      Type of ACC
+
+      Supported ACC types:
+        * vmware_v6
+    example: vmware_v6
+  pollers:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Poller ID"
+          example: 1
+        name:
+          type: string
+          description: "Poller name"
+          example: "my-poller-name"
+    description: Poller(s) associated with the ACC
+  parameters:
+    type: object
+    description: |
+      Configuration parameters, varies depending on the ACC type.
+      Credential values are not readable and will always be null.
+    example:
+      port: 4242
+      vcenters: [
+        {
+          "name": "my-vcenter",
+          "url": "http://10.10.10.10/sdk",
+          "username": null,
+          "password": null
+        }
+      ]
+  created_by:
+    type: object
+    nullable: true
+    properties:
+      id: { type: integer, description: "Creation contact ID", example: 1 }
+      name: { type: string,  description: "Creation contact name", example: "admin" }
+  created_at:
+    type: string
+    format: date-time
+    nullable: true
+    description: "Creation date (ISO8601)"

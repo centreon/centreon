@@ -23,11 +23,21 @@ namespace ConfigGenerateRemote;
 use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractHost;
 
+/**
+ * Class
+ *
+ * @class HostTemplate
+ * @package ConfigGenerateRemote
+ */
 class HostTemplate extends AbstractHost
 {
+    /** @var array|null */
     public $hosts = null;
+    /** @var string */
     protected $generateFilename = 'hostTemplates.infile';
+    /** @var string */
     protected $table = 'host';
+    /** @var string */
     protected $attributesSelect = '
         host_id,
         command_command_id,
@@ -78,6 +88,7 @@ class HostTemplate extends AbstractHost
         ehi_3d_coords,
         host_acknowledgement_timeout
     ';
+    /** @var string[] */
     protected $attributesWrite = [
         'host_id',
         'command_command_id',
@@ -111,7 +122,7 @@ class HostTemplate extends AbstractHost
      *
      * @return void
      */
-    private function getHosts()
+    private function getHosts(): void
     {
         $stmt = $this->backendInstance->db->prepare(
             "SELECT $this->attributesSelect

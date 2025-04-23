@@ -46,6 +46,19 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function findById(int $mediaId): ?Media
+    {
+        return $this->dbReadMediaRepository->findById($mediaId);
+    }
+
+    public function findByIds(array $mediaIds): array
+    {
+        return $this->dbReadMediaRepository->findByIds($mediaIds);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function existsByPath(string $path): bool
     {
         return $this->dbReadMediaRepository->existsByPath($path);

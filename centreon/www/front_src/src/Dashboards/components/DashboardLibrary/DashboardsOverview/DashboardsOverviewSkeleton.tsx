@@ -3,13 +3,13 @@ import { ReactElement } from 'react';
 
 import { DataTable } from '@centreon/ui/components';
 
-const tiles = Array(3).fill(0);
+const tiles = [0, 1, 2];
 
 const DashboardsOverviewSkeleton = (): ReactElement => {
   return (
     <DataTable>
-      {tiles.map((_, index) => (
-        <DataTable.ItemSkeleton key={index} />
+      {tiles.map((tile) => (
+        <DataTable.ItemSkeleton key={`tile-${tile}`} />
       ))}
     </DataTable>
   );

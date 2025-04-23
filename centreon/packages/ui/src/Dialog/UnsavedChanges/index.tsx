@@ -1,17 +1,16 @@
 import { not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { ConfirmDialog } from '../..';
+import { Modal } from '../../components/Modal';
 
 import {
   labelDiscard,
-  labelDoYouWantToQuitWithoutResolving,
-  labelDoYouWantToQuitWithoutSaving,
-  labelDoYouWantToResolveErrors,
+  labelDoYouWantToQuit,
   labelDoYouWantToSaveChanges,
-  labelResolve,
+  labelIfYouClickOnDiscard,
+  labelLeave,
   labelSave,
-  labelThereAreErrorsInTheForm,
+  labelStay,
   labelYourFormHasUnsavedChanges
 } from './translatedLabels';
 
@@ -33,37 +32,41 @@ const UnsavedChangesDialog = ({
   dialogOpened
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
+
   const labelTitle = isValidForm
     ? labelDoYouWantToSaveChanges
-    : labelDoYouWantToResolveErrors;
+    : labelDoYouWantToQuit;
 
-  const labelConfirm = isValidForm ? labelSave : labelResolve;
+  const lebelConfirm = isValidForm ? labelSave : labelLeave;
+  const labelCancel = isValidForm ? labelDiscard : labelStay;
 
-  const labelMessage = `${
-    isValidForm ? labelYourFormHasUnsavedChanges : labelThereAreErrorsInTheForm
-  }. ${
-    isValidForm
-      ? labelDoYouWantToQuitWithoutSaving
-      : labelDoYouWantToQuitWithoutResolving
-  }`;
+  const labelMessage = isValidForm
+    ? labelIfYouClickOnDiscard
+    : labelYourFormHasUnsavedChanges;
 
   if (not(dialogOpened)) {
     return null;
   }
 
   return (
-    <ConfirmDialog
-      confirmDisabled={isSubmitting}
-      labelCancel={t(labelDiscard)}
-      labelConfirm={t(labelConfirm)}
-      labelMessage={t(labelMessage)}
-      labelTitle={t(labelTitle)}
+    <Modal
+      hasCloseButton
       open={dialogOpened}
-      submitting={isSubmitting}
-      onBackdropClick={closeDialog}
-      onCancel={discardChanges}
-      onConfirm={isValidForm ? saveChanges : closeDialog}
-    />
+      size="medium"
+      onClose={closeDialog}
+    >
+      <Modal.Header>{t(labelTitle)}</Modal.Header>
+      <Modal.Body>{t(labelMessage)}</Modal.Body>
+      <Modal.Actions
+        disabled={isSubmitting}
+        labels={{
+          cancel: t(labelCancel),
+          confirm: t(lebelConfirm)
+        }}
+        onCancel={isValidForm ? discardChanges : closeDialog}
+        onConfirm={isValidForm ? saveChanges : discardChanges}
+      />
+    </Modal>
   );
 };
 

@@ -2,23 +2,23 @@ import { InputType } from '@centreon/ui';
 import type { InputProps } from '@centreon/ui';
 
 import {
-  labelBlacklistClientAddresses,
-  labelWebSSOOnly,
-  labelTrustedClientAddresses,
-  labelLoginHeaderAttributeName,
-  labelPatternMatchLogin,
-  labelPatternReplaceLogin,
-  labelEnableWebSSOAuthentication
-} from '../translatedLabels';
+  labelAuthenticationMode,
+  labelMixed
+} from '../../shared/translatedLabels';
 import {
   labelActivation,
   labelClientAddresses,
   labelIdentityProvider
 } from '../../translatedLabels';
 import {
-  labelAuthenticationMode,
-  labelMixed
-} from '../../shared/translatedLabels';
+  labelBlacklistClientAddresses,
+  labelEnableWebSSOAuthentication,
+  labelLoginHeaderAttributeName,
+  labelPatternMatchLogin,
+  labelPatternReplaceLogin,
+  labelTrustedClientAddresses,
+  labelWebSSOOnly
+} from '../translatedLabels';
 
 export const inputs: Array<InputProps> = [
   {

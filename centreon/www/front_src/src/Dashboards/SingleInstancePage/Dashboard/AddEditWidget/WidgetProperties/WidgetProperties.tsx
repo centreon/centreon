@@ -1,38 +1,46 @@
-import { isEmpty, isNil } from 'ramda';
+import { useAtomValue } from 'jotai';
+import { path, equals, has, isEmpty, isNil, keys, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { CollapsibleItem } from '@centreon/ui/components';
 
-import { CollapsibleItem, Tooltip } from '@centreon/ui/components';
-
+import Subtitle from '../../components/Subtitle';
 import {
   labelDescription,
   labelShowDescription,
-  labelOpenLinksInNewTab,
-  labelOpenLinksInNewTabTooltip,
-  labelWidgetProperties,
-  labelValueSettings,
-  labelTitle
+  labelTitle,
+  labelWidgetProperties
 } from '../../translatedLabels';
-import Subtitle from '../../components/Subtitle';
+import { widgetPropertiesAtom } from '../atoms';
 
+import { platformVersionsAtom } from '@centreon/ui-context';
+import CollapsibleWidgetProperties from './CollapsibleWidgetProperties';
 import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
-import { useWidgetInputs } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
-import ShowInputWrapper from './ShowInputWrapper';
 
 const WidgetProperties = (): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useWidgetPropertiesStyles();
 
-  const widgetProperties = useWidgetInputs('options');
+  const selectedWidgetProperties = useAtomValue(widgetPropertiesAtom);
+  const platformVersions = useAtomValue(platformVersionsAtom);
 
-  const isWidgetSelected = !isNil(widgetProperties);
+  const isWidgetSelected = !isNil(selectedWidgetProperties);
 
-  const hasProperties = !isEmpty(widgetProperties);
+  const additionalCategories = reject((category) => {
+    if (!category?.hasModule) {
+      return false;
+    }
+
+    return !has(category?.hasModule, platformVersions?.modules);
+  }, selectedWidgetProperties?.categories || []);
+
+  const inputCategories = isWidgetSelected
+    ? ['options', ...keys(additionalCategories)]
+    : [];
 
   return (
-    <>
+    <div className={classes.widgetPropertiesContainer}>
       {isWidgetSelected && (
         <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
           <div className={classes.widgetProperties}>
@@ -49,37 +57,35 @@ const WidgetProperties = (): JSX.Element => {
                 label={labelShowDescription}
                 propertyName="description.enabled"
               />
-              <WidgetSwitch
-                endAdornment={
-                  <Tooltip
-                    followCursor={false}
-                    label={t(labelOpenLinksInNewTabTooltip)}
-                    position="right"
-                  >
-                    <InfoOutlinedIcon color="primary" fontSize="small" />
-                  </Tooltip>
-                }
-                label={labelOpenLinksInNewTab}
-                propertyName="openLinksInNewTab"
-              />
             </div>
           </div>
         </CollapsibleItem>
       )}
-      {isWidgetSelected && hasProperties && (
-        <CollapsibleItem defaultExpanded title={t(labelValueSettings)}>
-          <div className={classes.widgetProperties}>
-            {(widgetProperties || []).map(({ Component, key, props }) => (
-              <div key={key}>
-                <ShowInputWrapper {...props}>
-                  <Component {...props} />
-                </ShowInputWrapper>
-              </div>
-            ))}
-          </div>
-        </CollapsibleItem>
-      )}
-    </>
+      {inputCategories.map((category) => (
+        <CollapsibleWidgetProperties
+          hasGroups={
+            !isEmpty(
+              path(
+                equals(category, 'options')
+                  ? [category, 'groups']
+                  : ['categories', category, 'groups'],
+                selectedWidgetProperties
+              )
+            ) &&
+            !isNil(
+              path(
+                equals(category, 'options')
+                  ? [category, 'groups']
+                  : ['categories', category, 'groups'],
+                selectedWidgetProperties
+              )
+            )
+          }
+          key={category}
+          propertyKey={category}
+        />
+      ))}
+    </div>
   );
 };
 

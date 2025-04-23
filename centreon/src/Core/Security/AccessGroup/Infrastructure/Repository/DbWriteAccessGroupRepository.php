@@ -26,11 +26,14 @@ namespace Core\Security\AccessGroup\Infrastructure\Repository;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements WriteAccessGroupRepositoryInterface
 {
+    use SqlMultipleBindTrait;
+
     /**
      * @param DatabaseConnection $db
      */
@@ -46,9 +49,16 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
-                'DELETE FROM acl_group_contacts_relations WHERE contact_contact_id = :userId'
+                <<<'SQL'
+                    DELETE FROM `:db`.`acl_group_contacts_relations`
+                    WHERE acl_group_contacts_relations.contact_contact_id = :userId
+                        AND acl_group_contacts_relations.acl_group_id NOT IN (
+                            SELECT acl_group_id FROM `:db`.acl_groups WHERE cloud_specific = 1
+                        )
+                    SQL
             )
         );
+
         $statement->bindValue(':userId', $user->getId(), \PDO::PARAM_INT);
         $statement->execute();
     }
@@ -86,13 +96,33 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
         );
 
         $aclResourceIds = $this->findEnabledAclResourceIdsByAccessGroupIds($accessGroupsIds);
-        if ([] === $aclResourceIds) {
+        $this->addLinksBetweenHostGroupAndResourceIds($hostGroupId, $aclResourceIds);
+    }
+
+    public function addLinksBetweenHostGroupAndResourceAccessGroup(int $hostGroupId, int $resourceAccessGroup): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    INSERT INTO `:db`.`acl_resources_hg_relations` (acl_res_id, hg_hg_id)
+                    VALUES (:acl_group_id, :hg_hg_id)
+                    SQL
+            )
+        );
+        $statement->bindValue(':acl_group_id', $resourceAccessGroup, \PDO::PARAM_INT);
+        $statement->bindValue(':hg_hg_id', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    public function addLinksBetweenHostGroupAndResourceIds(int $hostGroupId, array $resourceIds): void
+    {
+        if ([] === $resourceIds) {
             return;
         }
 
         // We build a multi-values INSERT query.
         $insert = 'INSERT INTO `:db`.`acl_resources_hg_relations` (acl_res_id, hg_hg_id) VALUES';
-        foreach ($aclResourceIds as $index => $aclResourceId) {
+        foreach ($resourceIds as $index => $resourceId) {
             $insert .= $index === 0
                 ? " (:acl_res_id_{$index}, :hg_hg_id)"
                 : ", (:acl_res_id_{$index}, :hg_hg_id)";
@@ -101,9 +131,47 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
         // Insert in bulk
         $statement = $this->db->prepare($this->translateDbName($insert));
         $statement->bindValue(':hg_hg_id', $hostGroupId, \PDO::PARAM_INT);
-        foreach ($aclResourceIds as $index => $aclResourceId) {
-            $statement->bindValue(":acl_res_id_{$index}", $aclResourceId, \PDO::PARAM_INT);
+        foreach ($resourceIds as $index => $resourceId) {
+            $statement->bindValue(":acl_res_id_{$index}", $resourceId, \PDO::PARAM_INT);
         }
+        $statement->execute();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function removeLinksBetweenHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): void
+    {
+        $accessGroupsIds = array_map(
+            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if ([] === $accessGroupsIds) {
+            return;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupsIds, ':group_id_');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                    DELETE FROM `:db`.`acl_resources_hg_relations`
+                    WHERE hg_hg_id = :hg_hg_id
+                    AND acl_res_id IN (
+                        SELECT acl_res_id
+                        FROM `:db`.`acl_res_group_relations`
+                        WHERE acl_group_id IN ({$bindQuery})
+                    )
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':hg_hg_id', $hostGroupId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
         $statement->execute();
     }
 
@@ -142,6 +210,54 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
             $statement->bindValue(":acl_res_id_{$index}", $aclResourceId, \PDO::PARAM_INT);
         }
         $statement->execute();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function updateAclGroupsFlag(array $accessGroups): void
+    {
+        $accessGroupsIds = array_map(
+            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if ([] === $accessGroupsIds) {
+            return;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupsIds, ':group_id_');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                    UPDATE `:db`.`acl_groups`
+                    SET acl_group_changed = '1'
+                    WHERE acl_group_id IN ({$bindQuery})
+                    SQL
+            )
+        );
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function updateAclResourcesFlag(): void
+    {
+        $this->db->query(
+            $this->translateDbName(
+                <<<'SQL'
+                    UPDATE `:db`.`acl_resources`
+                    SET changed = '1'
+                    SQL
+            )
+        );
     }
 
     /**

@@ -45,7 +45,9 @@ if (!$centreon->user->admin &&
     return null;
 }
 
-$initialValues = array();
+const PASSWORD_REPLACEMENT_VALUE_FORM = '**********';
+$initialValues = [];
+
 /*
 $instances = $acl->getPollerAclConf(array('fields' => array('id', 'name'),
     'keys' => array('id'),
@@ -60,15 +62,19 @@ if (($o == MACRO_MODIFY || $o == MACRO_WATCH) && is_int($resourceId)) {
     $DBRESULT = $pearDB->query($query);
     // Set base value
     $rs = array_map("myDecode", $DBRESULT->fetchRow());
+    if (! empty($rs['resource_line']) && $rs['is_password']) {
+        $rs['original_value'] = $rs['resource_line'];
+        $rs['resource_line'] = PASSWORD_REPLACEMENT_VALUE_FORM;
+    }
     $DBRESULT->closeCursor();
 }
 
 /**
  * Var information to format the element
  */
-$attrsText = array("size" => "35");
-$attrsTextarea = array("rows" => "5", "cols" => "40");
-$attrsAdvSelect = array("style" => "width: 220px; height: 220px;");
+$attrsText = ["size" => "35"];
+$attrsTextarea = ["rows" => "5", "cols" => "40"];
+$attrsAdvSelect = ["style" => "width: 220px; height: 220px;"];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
     '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
@@ -86,28 +92,31 @@ if ($o == MACRO_ADD) {
     $form->addElement('header', 'title', _("View Resource"));
 }
 
+$isPassword = isset($rs['is_password']) && $rs['is_password'];
+
 /**
  * Resources CFG basic information
  */
 $form->addElement('header', 'information', _("General Information"));
 $form->addElement('text', 'resource_name', _("Resource Name"), $attrsText);
-$form->addElement('text', 'resource_line', _("MACRO Expression"), $attrsText);
-
-$attrPoller = array(
-    'datasourceOrigin' => 'ajax',
-    'allowClear' => false,
-    'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list',
-    'multiple' => true,
-    'linkedObject' => 'centreonInstance'
+$form->addElement($isPassword ? 'password' : 'text', 'resource_line', _("MACRO Expression"), $attrsText);
+$form->addElement(
+    'checkbox',
+    'is_password',
+    _('Password'),
+    null,
+    $isPassword ? ['disabled' => 'disabled'] : ['onClick' => 'javascript:change_macro_input_type(this)']
 );
+
+$attrPoller = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDatasetRoute' => './api/internal.php?object=centreon_configuration_poller&action=list', 'multiple' => true, 'linkedObject' => 'centreonInstance'];
 /* Host Parents */
 $route = './api/internal.php?object=centreon_configuration_poller&action=defaultValues' .
     '&target=resources&field=instance_id&id=' . $resourceId;
 $attrPoller1 = array_merge(
     $attrPoller,
-    array('defaultDatasetRoute' => $route)
+    ['defaultDatasetRoute' => $route]
 );
-$form->addElement('select2', 'instance_id', _("Linked Instances"), array(), $attrPoller1);
+$form->addElement('select2', 'instance_id', _("Linked Instances"), [], $attrPoller1);
 
 /**
  * Further information
@@ -116,14 +125,14 @@ $form->addElement('header', 'furtherInfos', _("Additional Information"));
 $rsActivation[] = $form->createElement('radio', 'resource_activate', null, _("Enabled"), '1');
 $rsActivation[] = $form->createElement('radio', 'resource_activate', null, _("Disabled"), '0');
 $form->addGroup($rsActivation, 'resource_activate', _("Status"), '&nbsp;');
-$form->setDefaults(array('resource_activate' => '1'));
+$form->setDefaults(['resource_activate' => '1']);
 $form->addElement('textarea', 'resource_comment', _("Comment"), $attrsTextarea);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'action', null, _("List"), '1');
 $tab[] = $form->createElement('radio', 'action', null, _("Form"), '0');
 $form->addGroup($tab, 'action', _("Post Validation"), '&nbsp;');
-$form->setDefaults(array('action' => '1'));
+$form->setDefaults(['action' => '1']);
 
 $form->addElement('hidden', 'resource_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -151,9 +160,8 @@ $form->registerRule('exist', 'callback', 'testExistence');
 $form->addRule('resource_name', _("Resource used by one of the instances"), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 // Just watch a Resources CFG information
 if ($o == MACRO_WATCH) {
@@ -162,20 +170,20 @@ if ($o == MACRO_WATCH) {
             "button",
             "change",
             _("Modify"),
-            array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&resource_id=" . $resourceId . "'")
+            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&resource_id=" . $resourceId . "'"]
         );
     }
     $form->setDefaults($rs);
     $form->freeze();
 } elseif ($o == MACRO_MODIFY) {
     // Modify a Resources CFG information
-    $subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
     $form->setDefaults($rs);
 } elseif ($o == MACRO_ADD) {
     // Add a Resources CFG information
-    $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
-    $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
+    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 }
 
 $valid = false;
@@ -184,14 +192,21 @@ if ($form->validate()) {
     if ($form->getSubmitValue("submitA")) {
         $rsObj->setValue(insertResourceInDB());
     } elseif ($form->getSubmitValue("submitC")) {
-        updateResourceInDB($rsObj->getValue());
+        $submitedValues = $form->getSubmitValues();
+        if ($rs['is_password']) {
+            $submitedValues['is_password'] = $rs['is_password'];
+            if ($submitedValues['resource_line'] === PASSWORD_REPLACEMENT_VALUE_FORM) {
+                $submitedValues['resource_line'] = $rs['original_value'];
+            }
+        }
+        updateResourceInDB($rsObj->getValue(), $submitedValues);
     }
     $o = null;
     $form->addElement(
         "button",
         "change",
         _("Modify"),
-        array("onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&resource_id=" . $rsObj->getValue() . "'")
+        ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&resource_id=" . $rsObj->getValue() . "'"]
     );
     $valid = true;
 }
@@ -209,3 +224,15 @@ if ($valid) {
     $tpl->assign('o', $o);
     $tpl->display("formResources.ihtml");
 }
+
+?>
+
+<script>
+    function change_macro_input_type() {
+        if (jQuery("input[name='is_password'").is(":checked") === true) {
+            jQuery("input[name='resource_line'").attr('type', 'password');
+        } else {
+            jQuery("input[name='resource_line'").attr('type', 'text');
+        }
+    }
+</script>

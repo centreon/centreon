@@ -27,6 +27,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Application\Configuration\Notification\Repository\ReadServiceNotificationRepositoryInterface;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Pimple\Container;
 
 class LegacyReadServiceNotificationRepository extends AbstractDbReadNotificationRepository implements ReadServiceNotificationRepositoryInterface
@@ -63,6 +64,18 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
     /**
      * @inheritDoc
      */
+    public function findNotifiedContactsByIdAndAccessGroups(int $hostId, int $serviceId, array $accessGroups): array
+    {
+        if (! isset($this->notifiedContacts[$serviceId])) {
+            $this->fetchNotifiedContactsAndContactGroups($hostId, $serviceId, $accessGroups);
+        }
+
+        return $this->notifiedContacts[$serviceId];
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findNotifiedContactGroupsById(int $hostId, int $serviceId): array
     {
         if (! isset($this->notifiedContactGroups[$serviceId])) {
@@ -73,12 +86,25 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findNotifiedContactGroupsByIdAndAccessGroups(int $hostId, int $serviceId, array $accessGroups): array
+    {
+        if (! isset($this->notifiedContactGroups[$serviceId])) {
+            $this->fetchNotifiedContactsAndContactGroups($hostId, $serviceId, $accessGroups);
+        }
+
+        return $this->notifiedContactGroups[$serviceId];
+    }
+
+    /**
      * Initialize notified contacts and contactgroups for given service id.
      *
      * @param int $hostId
      * @param int $serviceId
+     * @param AccessGroup[] $accessGroups
      */
-    private function fetchNotifiedContactsAndContactGroups(int $hostId, int $serviceId): void
+    private function fetchNotifiedContactsAndContactGroups(int $hostId, int $serviceId, array $accessGroups = []): void
     {
 
         /**
@@ -93,18 +119,43 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
         ] = $serviceInstance->getCgAndContacts($serviceId);
 
         /**
-         * @var array{service_use_only_contacts_from_host: string}|null $service
+         * @var array{
+         *      service_use_only_contacts_from_host:string,
+         *      contacts_cache?: int[],
+         *      contact_groups_cache?: int[]
+         * }|null $service
          */
         $service = $serviceInstance->getServiceFromCache($serviceId);
-        if ($service !== null && $service['service_use_only_contacts_from_host'] === '1') {
+
+        if (
+            $service !== null
+            && (
+                $service['service_use_only_contacts_from_host'] === '1'
+                || (
+                    array_key_exists('contacts_cache', $service) && $service['contacts_cache'] === []
+                    && array_key_exists('contact_groups_cache', $service) && $service['contact_groups_cache'] === []
+                )
+            )
+        ) {
             $hostInstance = \Host::getInstance($this->dependencyInjector);
-            $host = ['host_id' => $hostId];
-            $hostInstance->processingFromHost($host, false);
-            $notifiedContactIds = $host['contacts_cache'] ?? [];
-            $notifiedContactGroupIds = $host['contact_groups_cache'] ?? [];
+            [
+                'contact' => $notifiedContactIds,
+                'cg' => $notifiedContactGroupIds,
+            ] = $hostInstance->getCgAndContacts($hostId);
         }
 
-        $this->notifiedContacts[$serviceId] = $this->findContactsByIds($notifiedContactIds);
-        $this->notifiedContactGroups[$serviceId] = $this->findContactGroupsByIds($notifiedContactGroupIds);
+        if ($accessGroups === []) {
+            $this->notifiedContacts[$serviceId] = $this->findContactsByIds($notifiedContactIds);
+            $this->notifiedContactGroups[$serviceId] = $this->findContactGroupsByIds($notifiedContactGroupIds);
+        } else {
+            $this->notifiedContacts[$serviceId] = $this->findContactsByIdsAndAccessGroups(
+                $notifiedContactIds,
+                $accessGroups
+            );
+            $this->notifiedContactGroups[$serviceId] = $this->findContactGroupsByIdsAndAccessGroups(
+                $notifiedContactGroupIds,
+                $accessGroups
+            );
+        }
     }
 }

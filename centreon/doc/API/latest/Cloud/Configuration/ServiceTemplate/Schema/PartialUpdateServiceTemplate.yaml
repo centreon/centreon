@@ -1,0 +1,103 @@
+type: object
+properties:
+  name:
+    type: string
+    description: "Service template name."
+    example: "generic-service"
+  alias:
+    type: string
+    description: "Service template alias."
+    example: "generic-service"
+  service_template_id:
+    type: integer
+    description: "Template ID of the service template."
+    minimum: 1
+    nullable: true
+    example: null
+  check_timeperiod_id:
+    type: integer
+    description: "Time period ID of the check command."
+    minimum: 1
+    example: 1
+  max_check_attempts:
+    type: integer
+    description: "Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state."
+  normal_check_interval:
+    type: integer
+    description: |
+      Define the number of 'time units' between regularly scheduled checks of the service.
+
+      With the default time unit of 60s, this number will mean multiples of 1 minute.
+  retry_check_interval:
+    type: integer
+    description: |
+      Define the number of "time units" to wait before scheduling a re-check for this service after a non-OK state was detected.
+
+      With the default time unit of 60s, this number will mean multiples of 1 minute.
+
+      Once the service has been retried max_check_attempts times without a change in its status,
+      it will revert to being scheduled at its "normal" check interval rate.
+  note:
+    type: string
+    description: "Define an optional note."
+    nullable: true
+    maxLength: 65535
+  note_url:
+    type: string
+    description: "Define an optional URL that can be used to provide more information about the service."
+    maxLength: 65535
+    nullable: true
+  action_url:
+    type: string
+    description: "Define an optional URL that can be used to specify actions to be performed on the service."
+    nullable: true
+    maxLength: 65535
+  icon_id:
+    type: integer
+    description: "Define the image ID that should be associated with this service template."
+    minimum: 1
+    nullable: true
+    example: null
+  severity_id:
+    type: integer
+    description: "Severity ID."
+    minimum: 1
+    nullable: true
+  host_templates:
+    type: array
+    descriptions: "IDs of host templates linked to this service template."
+    items:
+      type: integer
+      description: "Host template ID"
+    example: [ 1, 2 ]
+  service_categories:
+    type: array
+    descriptions: "IDs of service categories linked to this service template."
+    items:
+      type: integer
+      description: "Service category ID"
+    example: [ 1, 2 ]
+  macros:
+    type: array
+    description: |
+      Macros defined for the service (directly or through a template or command inheritance)
+
+      If multiple macros are defined with the same name, only the last one will be saved.
+    items:
+      $ref: 'macro.yaml'
+  service_groups:
+    type: array
+    descriptions: "Service group / host template associations to be linked to this service template."
+    items:
+      type: object
+      properties:
+        service_group_id:
+          type: integer
+          description: "Service group ID"
+          example: 1
+        host_template_id:
+          type: integer
+          description: |
+            Host template ID to be paired with the service template for the service group / template association.
+            The host template ID must be defined in the host_templates list.
+          example: 2

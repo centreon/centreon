@@ -29,9 +29,9 @@ use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\UseCase\FindNotification\FindNotificationPresenterInterface;
 use Core\Notification\Application\UseCase\FindNotification\FindNotificationResponse;
-use Core\Notification\Domain\Model\NotificationHostEvent;
+use Core\Notification\Domain\Model\HostEvent;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\NotificationServiceEvent;
+use Core\Notification\Domain\Model\ServiceEvent;
 
 /**
  * @phpstan-import-type _Resource from FindNotificationResponse
@@ -79,13 +79,13 @@ class FindNotificationPresenter extends AbstractPresenter implements FindNotific
         $formatted = [];
 
         foreach ($resources as $index => $resource) {
-            if ($resource['type'] === NotificationResource::HOSTGROUP_RESOURCE_TYPE) {
-                /** @var array<NotificationHostEvent> $events */
+            if ($resource['type'] === NotificationResource::TYPE_HOST_GROUP) {
+                /** @var array<HostEvent> $events */
                 $events = $resource['events'];
                 $eventBitFlags = NotificationHostEventConverter::toBitFlags($events);
 
             } else {
-                /** @var array<NotificationServiceEvent> $events */
+                /** @var array<ServiceEvent> $events */
                 $events = $resource['events'];
                 $eventBitFlags = NotificationServiceEventConverter::toBitFlags($events);
             }

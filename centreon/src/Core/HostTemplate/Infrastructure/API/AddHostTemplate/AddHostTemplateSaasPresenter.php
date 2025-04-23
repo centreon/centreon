@@ -51,7 +51,6 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'name' => $response->name,
                         'alias' => $response->alias,
                         'snmp_version' => $response->snmpVersion,
-                        'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'timezone_id' => $response->timezoneId,
                         'severity_id' => $response->severityId,
                         'check_timeperiod_id' => $response->checkTimeperiodId,
@@ -65,6 +64,8 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'is_locked' => $response->isLocked,
                         'categories' => $response->categories,
                         'templates' => $response->templates,
+                        'event_handler_enabled' => $response->eventHandlerEnabled,
+                        'event_handler_command_id' => $response->eventHandlerCommandId,
                         'macros' => array_map(
                             function ($macro) {
                                 return [

@@ -1,8 +1,10 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 
+import CopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import CopyIcon from '@mui/icons-material/ContentCopy';
+
+import { ActionVariants } from './models';
 
 import ActionsList from '.';
 
@@ -24,7 +26,11 @@ const actions = [
   }
 ];
 
-const actionsWithVariants = [
+const actionsWithVariants: Array<{
+  label: string;
+  onClick: () => void;
+  variant?: ActionVariants;
+}> = [
   {
     label: 'No variant',
     onClick: (): void => undefined

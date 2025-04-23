@@ -33,7 +33,7 @@
  *
  */
 
-$help = array();
+$help = [];
 
 $help["connector_name"] = dgettext("help", "Name which will be used for identifying the connector.");
 $help["connector_description"] = dgettext("help", "A short description of the connector.");

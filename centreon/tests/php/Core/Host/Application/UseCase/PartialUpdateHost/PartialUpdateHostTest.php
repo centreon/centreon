@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,6 +36,8 @@ use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -60,7 +62,7 @@ use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepository
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\PartialUpdateHost\PartialUpdateHostPresenterStub;
 
-beforeEach(function () {
+beforeEach(function (): void {
      $this->presenter = new PartialUpdateHostPresenterStub($this->createMock(PresenterFormatterInterface::class));
 
     $this->useCase = new PartialUpdateHost(
@@ -79,6 +81,8 @@ beforeEach(function () {
         optionService: $this->optionService = $this->createMock(OptionService::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         validation: $this->validation = $this->createMock(PartialUpdateHostValidation::class),
+        writeVaultRepository: $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -135,7 +139,7 @@ beforeEach(function () {
     $this->request->highFlapThreshold = 5;
     $this->request->eventHandlerEnabled = 1;
     $this->request->eventHandlerCommandId = 2;
-    $this->request->eventHandlerCommandArgs = ["arg3", "  arg4"];
+    $this->request->eventHandlerCommandArgs = ['arg3', '  arg4'];
     $this->request->noteUrl = 'noteUrl-value edit';
     $this->request->note = 'note-value edit';
     $this->request->actionUrl = 'actionUrl-value edit';
@@ -197,7 +201,7 @@ beforeEach(function () {
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [
-        $this->commandMacro->getName() => $this->commandMacro
+        $this->commandMacro->getName() => $this->commandMacro,
     ];
     $this->hostMacros = [
         $this->macroA->getName() => $this->macroA,
@@ -210,16 +214,16 @@ beforeEach(function () {
 
     $this->request->macros = [
         [
-            'name' =>   $this->macroA->getName(),
-            'value' =>  $this->macroA->getValue() . '_edit',
-            'is_password' =>  $this->macroA->isPassword(),
-            'description' =>  $this->macroA->getDescription()
+            'name' => $this->macroA->getName(),
+            'value' => $this->macroA->getValue() . '_edit',
+            'is_password' => $this->macroA->isPassword(),
+            'description' => $this->macroA->getDescription(),
         ],
         [
-            'name' =>   'macroNameC',
-            'value' =>  'macroValueC',
-            'is_password' =>  false,
-            'description' =>  null
+            'name' => 'macroNameC',
+            'value' => 'macroValueC',
+            'is_password' => false,
+            'description' => null,
         ],
     ];
 
@@ -229,13 +233,12 @@ beforeEach(function () {
 
     $this->request->categories = [$this->categoryB->getId()];
 
-    //Settup groups
+    // Settup groups
     $this->groups = [
         $this->groupA = new HostGroup(6, 'grp-name-A', 'grp-alias-A', '', '', '', null, null, null, null, '', true),
         $this->groupB = new HostGroup(7, 'grp-name-B', 'grp-alias-B', '', '', '', null, null, null, null, '', true),
     ];
     $this->request->groups = [$this->groupA->getId(), $this->groupB->getId()];
-
 });
 
 // Generic usecase tests
@@ -254,7 +257,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(HostException::editNotAllowed()->getMessage());
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -276,7 +279,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(HostException::editHost()->getMessage());
 });
 
-it('should present a NotFoundResponse when the host does not exist', function () {
+it('should present a NotFoundResponse when the host does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -508,7 +511,7 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
 
 // Tests for categories
 
-it('should present a ConflictResponse when a host category does not exist', function () {
+it('should present a ConflictResponse when a host category does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -547,7 +550,7 @@ it('should present a ConflictResponse when a host category does not exist', func
 
 // Tests for groups
 
-it('should present a ConflictResponse when a host group does not exist', function () {
+it('should present a ConflictResponse when a host group does not exist', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -592,7 +595,6 @@ it('should present a ConflictResponse when a host group does not exist', functio
         ->and($this->presenter->response->getMessage())
         ->toBe(HostException::idsDoNotExist('groups', $this->request->groups)->getMessage());
 });
-
 
 // Tests for parents templates
 
@@ -715,7 +717,7 @@ it('should present a ConflictResponse when a parent template creates a circular 
 
 // Test for successful request
 
-it('should present a NoContentResponse on success', function () {
+it('should present a NoContentResponse on success', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

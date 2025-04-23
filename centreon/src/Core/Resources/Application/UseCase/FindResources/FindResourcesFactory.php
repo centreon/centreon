@@ -40,18 +40,22 @@ final class FindResourcesFactory
 {
     /**
      * @param list<ResourceEntity> $resources
+     * @param array<string, array<mixed, mixed>> $extraData
      *
      * @return FindResourcesResponse
      */
     public static function createResponse(
         array $resources,
+        array $extraData = [],
     ): FindResourcesResponse {
         $response = new FindResourcesResponse();
+        $response->extraData = $extraData;
 
         foreach ($resources as $resource) {
             $parentResource = $resource->getParent();
 
             $resourceDto = new ResourceResponseDto();
+            $resourceDto->resourceId = $resource->getResourceId();
             $resourceDto->uuid = $resource->getUuid();
             $resourceDto->id = $resource->getId();
             $resourceDto->internalId = $resource->getInternalId();
@@ -64,6 +68,8 @@ final class FindResourcesFactory
             $resourceDto->information = $resource->getInformation();
             $resourceDto->isAcknowledged = $resource->getAcknowledged();
             $resourceDto->isInDowntime = $resource->getInDowntime();
+            $resourceDto->isInFlapping = $resource->isInFlapping();
+            $resourceDto->percentStateChange = $resource->getPercentStateChange();
             $resourceDto->withActiveChecks = $resource->getActiveChecks();
             $resourceDto->withPassiveChecks = $resource->getPassiveChecks();
             $resourceDto->monitoringServerName = $resource->getMonitoringServerName();
@@ -78,6 +84,7 @@ final class FindResourcesFactory
             $resourceDto->hasGraphData = $resource->hasGraph();
             $resourceDto->lastCheck = self::createNullableDateTimeImmutable($resource->getLastCheck());
             $resourceDto->lastStatusChange = self::createNullableDateTimeImmutable($resource->getLastStatusChange());
+            $resourceDto->areNotificationsEnabled = $resource->isNotificationEnabled();
 
             $response->resources[] = $resourceDto;
         }
@@ -129,6 +136,7 @@ final class FindResourcesFactory
         }
 
         $dto = new ParentResourceResponseDto();
+        $dto->resourceId = $parentResource->getResourceId();
         $dto->uuid = $parentResource->getUuid();
         $dto->id = $parentResource->getId();
         $dto->name = $parentResource->getName();

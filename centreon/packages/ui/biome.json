@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "../js-config/biome/base.json"
+  ],
+  "files": {
+    "ignore": [
+      "**/*{.,-}min.js",
+      "**/mockServiceWorker.js",
+      "**/*.test.tsx"
+    ]
+  }
+}

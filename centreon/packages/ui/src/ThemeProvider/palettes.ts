@@ -1,10 +1,25 @@
 import { equals } from 'ramda';
 
-import { alpha, PaletteOptions } from '@mui/material';
+import { PaletteOptions, alpha } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
-
-import * as BaseTokens from '../base/tokens/themes/base.tokens';
+import {
+  colorBlue50,
+  colorBlue400,
+  colorBlue600,
+  colorBlue900,
+  colorGrey50,
+  colorGrey100,
+  colorGrey200,
+  colorGrey300,
+  colorGrey400,
+  colorGrey500,
+  colorGrey600,
+  colorGrey700,
+  colorGrey800,
+  colorGrey900,
+  colorGrey950
+} from '../base/tokens/themes/base.tokens';
 
 declare module '@mui/material/styles/createPalette' {
   interface TypeAction {
@@ -12,6 +27,8 @@ declare module '@mui/material/styles/createPalette' {
     acknowledgedBackground: string;
     inDowntime: string;
     inDowntimeBackground: string;
+    inFlapping: string;
+    inFlappingBackground: string;
   }
 }
 
@@ -142,17 +159,19 @@ declare module '@mui/material/Badge' {
 
 export const lightPalette: PaletteOptions = {
   action: {
-    acknowledged: '#67532C',
+    acknowledged: '#745F35',
     acknowledgedBackground: '#DFD2B9',
+    inFlapping: '#064A3F',
+    inFlappingBackground: '#D8F3EF',
     activatedOpacity: 0.12,
     active: '#666666',
     disabled: '#999999',
     disabledBackground: 'rgba(0, 0, 0, 0.12)',
-    focus: 'rgba(0, 0, 0, 0.12)',
+    focus: '#dadada',
     focusOpacity: 0.12,
     hover: 'rgba(0, 0, 0, 0.06)',
     hoverOpacity: 0.06,
-    inDowntime: '#4B2352',
+    inDowntime: '#512980',
     inDowntimeBackground: '#E5D8F3',
     selected: 'rgba(102, 102, 102, 0.3)',
     selectedOpacity: 0.3
@@ -170,7 +189,7 @@ export const lightPalette: PaletteOptions = {
     color: {
       error: '#FF6666',
       info: '#1588D1',
-      neutral: BaseTokens.colorGrey300,
+      neutral: colorGrey300,
       success: '#88B922',
       warning: '#FD9B27'
     }
@@ -192,7 +211,7 @@ export const lightPalette: PaletteOptions = {
           default: '#696969'
         }
       },
-      border: '#4A4A4A',
+      border: '#EDEDED',
       description: '#4A4A4A',
       title: '#000000'
     }
@@ -214,29 +233,29 @@ export const lightPalette: PaletteOptions = {
     background: '#FFFFFF',
     button: {
       background: {
-        active: BaseTokens.colorBlue50,
+        active: colorBlue50,
         default: 'transparent',
-        hover: BaseTokens.colorGrey100
+        hover: colorGrey100
       },
       color: {
-        active: BaseTokens.colorBlue400,
-        default: BaseTokens.colorGrey400,
-        hover: BaseTokens.colorGrey500
+        active: colorBlue400,
+        default: colorGrey400,
+        hover: colorGrey500
       }
     },
     divider: {
-      border: BaseTokens.colorGrey200
+      border: colorGrey200
     },
     item: {
       background: {
-        active: BaseTokens.colorBlue50,
+        active: colorBlue50,
         default: 'transparent',
-        hover: BaseTokens.colorGrey100
+        hover: colorGrey100
       },
       color: {
-        active: BaseTokens.colorBlue400,
-        default: BaseTokens.colorGrey900,
-        hover: BaseTokens.colorGrey950
+        active: colorBlue400,
+        default: colorGrey900,
+        hover: colorGrey950
       }
     }
   },
@@ -282,17 +301,19 @@ export const lightPalette: PaletteOptions = {
 
 export const darkPalette: PaletteOptions = {
   action: {
-    acknowledged: '#67532C',
+    acknowledged: '#DFD2B9',
     acknowledgedBackground: '#745F35',
+    inFlapping: '#D8F3EF',
+    inFlappingBackground: '#064A3F',
     activatedOpacity: 0.3,
     active: '#B5B5B5',
     disabled: '#999999',
     disabledBackground: '#555555',
-    focus: 'rgba(255, 255, 255, 0.30)',
+    focus: '#6d6d6d',
     focusOpacity: 0.3,
     hover: 'rgba(255, 255, 255, 0.16)',
     hoverOpacity: 0.16,
-    inDowntime: '#4B2352',
+    inDowntime: '#E5D8F3',
     inDowntimeBackground: '#512980',
     selected: 'rgba(255, 255, 255, 0.5)',
     selectedOpacity: 0.5
@@ -310,7 +331,7 @@ export const darkPalette: PaletteOptions = {
     color: {
       error: '#D60101',
       info: '#1CA9F4',
-      neutral: BaseTokens.colorGrey700,
+      neutral: colorGrey700,
       success: '#5F8118',
       warning: '#C55400'
     }
@@ -332,7 +353,7 @@ export const darkPalette: PaletteOptions = {
           default: '#696969'
         }
       },
-      border: '#bdbdbd',
+      border: '#666666',
       description: '#bdbdbd',
       title: '#fff'
     }
@@ -351,31 +372,31 @@ export const darkPalette: PaletteOptions = {
     }
   },
   menu: {
-    background: BaseTokens.colorGrey950,
+    background: colorGrey950,
     button: {
       background: {
-        active: BaseTokens.colorBlue900,
+        active: colorBlue900,
         default: 'transparent',
-        hover: BaseTokens.colorGrey900
+        hover: colorGrey900
       },
       color: {
-        active: BaseTokens.colorBlue600,
-        default: BaseTokens.colorGrey600,
-        hover: BaseTokens.colorGrey500
+        active: colorBlue600,
+        default: colorGrey600,
+        hover: colorGrey500
       }
     },
     divider: {
-      border: BaseTokens.colorGrey800
+      border: colorGrey800
     },
     item: {
       background: {
-        active: BaseTokens.colorBlue900,
+        active: colorBlue900,
         default: 'transparent',
-        hover: BaseTokens.colorGrey900
+        hover: colorGrey900
       },
       color: {
-        active: BaseTokens.colorBlue400,
-        default: BaseTokens.colorGrey50,
+        active: colorBlue400,
+        default: colorGrey50,
         hover: '#fff'
       }
     }

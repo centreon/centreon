@@ -48,7 +48,7 @@ use Centreon\Domain\VersionHelper;
  */
 function isSqlComment($str)
 {
-    if (substr(trim($str), 0, 2) == "--") {
+    if (str_starts_with(trim($str), "--")) {
         return true;
     }
     return false;
@@ -109,7 +109,7 @@ function myConnect()
  * @param string $query
  * @return string
  */
-function replaceInstallationMacros($query, $macros = array())
+function replaceInstallationMacros($query, $macros = [])
 {
     while (preg_match('/@([a-zA-Z0-9_]+)@/', $query, $matches)) {
         $macroValue = "";
@@ -138,7 +138,7 @@ function replaceInstallationMacros($query, $macros = array())
  * @param string $tmpFile | $tmpFile will store the number of executed queries sql script
  * @return string | returns "0" if everything is ok, or returns error message
  */
-function splitQueries($file, $delimiter = ';', $connector = null, $tmpFile = "", $macros = array())
+function splitQueries($file, $delimiter = ';', $connector = null, $tmpFile = "", $macros = [])
 {
     if (is_null($connector)) {
         $connector = myConnect();
@@ -154,7 +154,7 @@ function splitQueries($file, $delimiter = ';', $connector = null, $tmpFile = "",
     if (is_file($file) === true) {
         $file = fopen($file, 'r');
         if (is_resource($file) === true) {
-            $query = array();
+            $query = [];
             $line = 0;
             while (feof($file) === false) {
                 $line++;
@@ -185,7 +185,7 @@ function splitQueries($file, $delimiter = ';', $connector = null, $tmpFile = "",
                     }
                 }
                 if (is_string($query) === true) {
-                    $query = array();
+                    $query = [];
                 }
             }
             fclose($file);
@@ -401,7 +401,7 @@ function getMariaDBVersion(\PDO $db): ?string
         }
     }
 
-    if (strpos($dbmsName, "MariaDB") !== false && $version !== null) {
+    if (str_contains($dbmsName, "MariaDB") && $version !== null) {
         return $version;
     }
 

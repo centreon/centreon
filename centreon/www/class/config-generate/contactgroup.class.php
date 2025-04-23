@@ -33,31 +33,51 @@
  *
  */
 
+use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+/**
+ * Class
+ *
+ * @class Contactgroup
+ */
 class Contactgroup extends AbstractObject
 {
+    /** @var int */
     protected $use_cache = 1;
+    /** @var int */
     private $done_cache = 0;
-    private $cg_service_linked_cache = array();
-    protected $cg_cache = array();
+    /** @var array */
+    private $cg_service_linked_cache = [];
+    /** @var array */
+    protected $cg_cache = [];
+    /** @var null */
     protected $cg = null;
+    /** @var string */
     protected $generate_filename = 'contactgroups.cfg';
-    protected $object_name = 'contactgroup';
+    /** @var string */
+    protected string $object_name = 'contactgroup';
+    /** @var string */
     protected $attributes_select = '
         cg_id,
         cg_name as contactgroup_name,
         cg_alias as alias
     ';
-    protected $attributes_write = array(
-        'contactgroup_name',
-        'alias',
-    );
-    protected $attributes_array = array(
-        'members'
-    );
+    /** @var string[] */
+    protected $attributes_write = ['contactgroup_name', 'alias'];
+    /** @var string[] */
+    protected $attributes_array = ['members'];
+    /** @var null */
     protected $stmt_cg = null;
+    /** @var null */
     protected $stmt_contact = null;
+    /** @var null */
     protected $stmt_cg_service = null;
 
+    /**
+     * @return void
+     * @throws PDOException
+     */
     protected function getCgCache()
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
@@ -85,7 +105,7 @@ class Contactgroup extends AbstractObject
             if (isset($this->cg_service_linked_cache[$value['service_service_id']])) {
                 $this->cg_service_linked_cache[$value['service_service_id']][] = $value['contactgroup_cg_id'];
             } else {
-                $this->cg_service_linked_cache[$value['service_service_id']] = array($value['contactgroup_cg_id']);
+                $this->cg_service_linked_cache[$value['service_service_id']] = [$value['contactgroup_cg_id']];
             }
         }
     }
@@ -107,7 +127,9 @@ class Contactgroup extends AbstractObject
 
     /**
      * @param int $serviceId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCgForService(int $serviceId) : array
     {
@@ -118,7 +140,7 @@ class Contactgroup extends AbstractObject
             return $this->cg_service_linked_cache[$serviceId];
         }
         if ($this->done_cache == 1) {
-            return array();
+            return [];
         }
 
         if (is_null($this->stmt_cg_service)) {
@@ -139,7 +161,9 @@ class Contactgroup extends AbstractObject
 
     /**
      * @param int $cgId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCgFromId(int $cgId): array
     {
@@ -159,6 +183,11 @@ class Contactgroup extends AbstractObject
 
     /**
      * @param int $cgId
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function getContactFromCgId(int $cgId): void
     {
@@ -176,7 +205,7 @@ class Contactgroup extends AbstractObject
         }
 
         $contact = Contact::getInstance($this->dependencyInjector);
-        $this->cg[$cgId]['members'] = array();
+        $this->cg[$cgId]['members'] = [];
         foreach ($this->cg[$cgId]['members_cache'] as $contact_id) {
             $member = $contact->generateFromContactId($contact_id);
             // Can have contact template in a contact group ???!!
@@ -188,7 +217,12 @@ class Contactgroup extends AbstractObject
 
     /**
      * @param int $cgId
+     *
      * @return string|null contactgroup_name
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
      */
     public function generateFromCgId(int $cgId): ?string
     {

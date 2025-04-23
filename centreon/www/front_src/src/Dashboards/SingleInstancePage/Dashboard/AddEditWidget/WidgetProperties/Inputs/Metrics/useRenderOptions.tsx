@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { useFormikContext } from 'formik';
 import {
   equals,
   gt,
@@ -10,16 +11,16 @@ import {
   remove,
   update
 } from 'ramda';
-import { useFormikContext } from 'formik';
 
-import { ListItem, Typography, Radio, Checkbox } from '@mui/material';
+import { Checkbox, ListItem, Radio, Typography } from '@mui/material';
 
-import { CollapsibleItem } from '@centreon/ui/components';
 import { useDeepCompare } from '@centreon/ui';
+import { CollapsibleItem } from '@centreon/ui/components';
 
 import { FormMetric, ServiceMetric } from '../../../models';
 
 import { useMetricsStyles } from './Metrics.styles';
+import { formatMetricName } from './useMetrics';
 
 interface ChangeExcludedMetricsProps {
   currentExcludedMetrics: Array<number>;
@@ -289,7 +290,7 @@ export const useRenderOptions = ({
     const resources = getResourcesByMetricName(option.name);
 
     return (
-      <ListItem disableGutters>
+      <ListItem disableGutters key={option?.id}>
         <CollapsibleItem
           compact
           dataTestId={option.name}
@@ -305,7 +306,7 @@ export const useRenderOptions = ({
                 size="small"
                 onChange={selectMetric(option)}
               />
-              <Typography>{`${option.name} (${option.unit})`}</Typography>
+              <Typography>{formatMetricName(option)}</Typography>
             </div>
           }
         >
@@ -316,7 +317,8 @@ export const useRenderOptions = ({
                 key={`${parentName}_${name}_${uuid}`}
               >
                 <Typography>
-                  {parentName}:{name}
+                  {equals('_Module_Meta', parentName) ? '' : `${parentName}:`}
+                  {name}
                 </Typography>
               </div>
             ))}
@@ -327,7 +329,7 @@ export const useRenderOptions = ({
   };
 
   const renderOptionsForMultipleMetricsAndResources = (
-    _,
+    props,
     option: FormMetric
   ): JSX.Element => {
     const resources = getResourcesByMetricName(option.name);
@@ -345,7 +347,7 @@ export const useRenderOptions = ({
       !isEmpty(currentMetricValue?.excludedMetrics);
 
     return (
-      <ListItem disableGutters>
+      <ListItem disableGutters key={option?.id}>
         <CollapsibleItem
           compact
           dataTestId={option.name}
@@ -356,11 +358,16 @@ export const useRenderOptions = ({
                 className={classes.radioCheckbox}
                 data-checked={isMetricChecked}
                 data-testid={option.name}
+                disabled={props['aria-disabled']}
                 indeterminate={isMetricIndeterminate}
                 size="small"
                 onChange={selectMetricsWithAllResources(option)}
               />
-              <Typography>{`${option.name} (${option.unit})`}</Typography>
+              <Typography
+                color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}
+              >
+                {formatMetricName(option)}
+              </Typography>
             </div>
           }
         >
@@ -390,11 +397,15 @@ export const useRenderOptions = ({
                     })
                   }
                   data-testid={`${option.name}_${parentName}:${name}`}
+                  disabled={props['aria-disabled']}
                   size="small"
                   onChange={resourceChange({ metric: option, metricId })}
                 />
-                <Typography>
-                  {parentName}:{name}
+                <Typography
+                  color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}
+                >
+                  {equals('_Module_Meta', parentName) ? '' : `${parentName}:`}
+                  {name}
                 </Typography>
               </div>
             ))}

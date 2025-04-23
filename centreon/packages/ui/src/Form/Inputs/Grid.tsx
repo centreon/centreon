@@ -2,6 +2,9 @@ import { makeStyles } from 'tss-react/mui';
 
 import { InputPropsWithoutGroup } from './models';
 
+import { Box, Typography } from '@mui/material';
+import { FormikValues, useFormikContext } from 'formik';
+import { isNotEmpty, isNotNil } from 'ramda';
 import { getInput } from '.';
 
 interface StylesProps {
@@ -22,12 +25,21 @@ const useStyles = makeStyles<StylesProps>()(
   })
 );
 
-const Grid = ({ grid }: InputPropsWithoutGroup): JSX.Element => {
+const Grid = ({
+  grid,
+  hideInput
+}: InputPropsWithoutGroup): JSX.Element | null => {
   const { classes, cx } = useStyles({
     alignItems: grid?.alignItems,
     columns: grid?.columns.length,
     gridTemplateColumns: grid?.gridTemplateColumns
   });
+
+  const { values } = useFormikContext<FormikValues>();
+
+  if (hideInput?.(values) ?? false) {
+    return null;
+  }
 
   const className = grid?.className || '';
 
@@ -36,7 +48,29 @@ const Grid = ({ grid }: InputPropsWithoutGroup): JSX.Element => {
       {grid?.columns.map((field) => {
         const Input = getInput(field.type);
 
-        return <Input key={field.fieldName} {...field} />;
+        const key =
+          isNotNil(field.label) || isNotEmpty(field.label)
+            ? field.label
+            : field.additionalLabel;
+
+        if (field.hideInput?.(values) ?? false) {
+          return null;
+        }
+
+        return (
+          <Box sx={{ width: '100%' }} key={key}>
+            {field.additionalLabel && (
+              <Typography
+                sx={{ marginBottom: 0.5, color: 'primary.main' }}
+                className={cx(field?.additionalLabelClassName)}
+                variant="h6"
+              >
+                {field.additionalLabel}
+              </Typography>
+            )}
+            <Input {...field} />
+          </Box>
+        );
       })}
     </div>
   );

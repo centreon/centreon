@@ -2,8 +2,8 @@ import { atom } from 'jotai';
 import { atomWithDefault } from 'jotai/utils';
 import { findIndex, lensPath, propEq, set as update } from 'ramda';
 
-import { Criteria } from './Criterias/models';
 import getDefaultCriterias from './Criterias/default';
+import { Criteria } from './Criterias/models';
 import { build, parse } from './Criterias/searchQueryLanguage';
 
 export const getFilterDefaultCriteriasDerivedAtom = atom(
@@ -41,7 +41,7 @@ export const getUpToDateFilterCriteriaDerivedAtom = atom(
 
 export const applyFilterDerivedAtom = atom(
   null,
-  (get, set, criterias: Array<Criteria>) => {
+  (_get, set, criterias: Array<Criteria>) => {
     set(currentFilterCriteriasAtom, criterias);
     set(appliedFilterCriteriasAtom, criterias);
     set(searchAtom, build(criterias));

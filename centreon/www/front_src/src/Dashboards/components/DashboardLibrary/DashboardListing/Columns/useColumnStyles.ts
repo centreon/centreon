@@ -18,5 +18,8 @@ export const useColumnStyles = makeStyles()((theme) => ({
   name: {
     color: 'inherit',
     textDecoration: 'none'
+  },
+  spacing: {
+    paddingLeft: theme.spacing(4.5)
   }
 }));

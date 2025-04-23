@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
-import { T, always, cond, isEmpty, isNil } from 'ramda';
+import { T, always, clamp, cond, isEmpty } from 'ramda';
 
 import TextField, { TextProps } from '../Text';
 
@@ -31,7 +31,7 @@ const NumberField = ({
     defaultValue ? `${defaultValue}` : ''
   );
 
-  const { inputProps } = props;
+  const { textFieldSlotsAndSlotProps } = props;
 
   const changeValue = (event: ChangeEvent<HTMLInputElement>): void => {
     const inputValue = event.target.value;
@@ -43,8 +43,11 @@ const NumberField = ({
       [
         T,
         always(
-          Math.max(
-            !isNil(inputProps?.min) ? inputProps?.min : -Infinity,
+          clamp(
+            textFieldSlotsAndSlotProps?.slotProps?.htmlInput?.min ||
+              Number.NEGATIVE_INFINITY,
+            textFieldSlotsAndSlotProps?.slotProps?.htmlInput?.max ||
+              Number.POSITIVE_INFINITY,
             number
           )
         )
@@ -58,12 +61,15 @@ const NumberField = ({
 
   return (
     <TextField
-      defaultValue={defaultValue}
       type="number"
       value={actualValue}
       onChange={changeValue}
       {...props}
-      inputProps={inputProps}
+      textFieldSlotsAndSlotProps={{
+        slotProps: {
+          htmlInput: { ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput }
+        }
+      }}
       placeholder={
         placeholder || (!defaultValue ? `${fallbackValue}` : undefined)
       }

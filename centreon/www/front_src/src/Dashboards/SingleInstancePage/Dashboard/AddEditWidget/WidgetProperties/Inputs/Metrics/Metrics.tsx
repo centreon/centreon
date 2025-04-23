@@ -1,39 +1,35 @@
+import { useAtomValue } from 'jotai';
+import { equals, head } from 'ramda';
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { equals, head } from 'ramda';
-import { useAtomValue } from 'jotai';
 
 import { CircularProgress, Typography } from '@mui/material';
 
-import { Avatar } from '@centreon/ui/components';
 import { MultiAutocompleteField, SingleAutocompleteField } from '@centreon/ui';
+import { Avatar } from '@centreon/ui/components';
 
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelAvailable,
   labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
   labelThresholdsAreAutomaticallyHidden,
-  labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
-import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
+import { widgetPropertiesAtom } from '../../../atoms';
+import { WidgetPropertyProps } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import {
   areResourcesFullfilled,
   isAtLeastOneResourceFullfilled
 } from '../utils';
-import {
-  singleHostPerMetricAtom,
-  singleMetricSelectionAtom
-} from '../../../atoms';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
-import useMetrics from './useMetrics';
 import { useMetricsStyles } from './Metrics.styles';
+import useMetrics from './useMetrics';
 
-const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
+const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { classes: metricsClasses } = useMetricsStyles();
@@ -52,15 +48,14 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     deleteMetricItem,
     error,
     isTouched,
-    hasReachedTheLimitOfUnits,
+    hasMultipleUnitsSelected,
     metricWithSeveralResources,
     renderOptionsForSingleMetric,
     renderOptionsForMultipleMetricsAndResources
   } = useMetrics(propertyName);
 
   const { canEditField } = useCanEditProperties();
-  const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
-  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
+  const widgetProperties = useAtomValue(widgetPropertiesAtom);
 
   const canDisplayMetricsSelection =
     areResourcesFullfilled(resources) && !hasTooManyMetrics;
@@ -72,20 +67,13 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const warningMessages = [
     error && isTouched && error,
-    hasReachedTheLimitOfUnits && (
-      <>
-        <span>{t(labelYouCanSelectUpToTwoMetricUnits)}</span>
-        <br />
-        <span>{t(labelThresholdsAreAutomaticallyHidden)}</span>
-      </>
-    ),
-    singleMetricSelection && metricWithSeveralResources && (
+    widgetProperties?.singleMetricSelection && metricWithSeveralResources && (
       <>
         <strong>{metricWithSeveralResources}</strong>{' '}
         {t(labelIsTheSelectedResource)}
       </>
     )
-  ];
+  ].filter((item) => item);
 
   const header = (
     <div className={classes.resourcesHeader}>
@@ -96,13 +84,14 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       {isLoadingMetrics && <CircularProgress size={16} />}
     </div>
   );
-
   return (
     <div className={classes.resourcesContainer}>
       {header}
       <div className={classes.resourceComposition}>
-        {singleMetricSelection && singleHostPerMetric ? (
+        {widgetProperties?.singleMetricSelection &&
+        widgetProperties?.singleResourceSelection ? (
           <SingleAutocompleteField
+            forceInputRenderValue
             className={classes.resources}
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
@@ -114,14 +103,18 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             }
             label={t(labelSelectMetric)}
             options={metrics}
-            value={head(selectedMetrics || []) || undefined}
+            value={head(selectedMetrics || []) || null}
             onChange={changeMetric}
           />
         ) : (
           <MultiAutocompleteField
             disableSortedOptions
-            ListboxProps={{
-              className: metricsClasses.listBox
+            autocompleteSlotsAndSlotProps={{
+              slotProps: {
+                listbox: {
+                  className: metricsClasses.listBox
+                }
+              }
             }}
             chipProps={{
               color: 'primary',
@@ -137,7 +130,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             label={t(labelSelectMetric)}
             options={metrics}
             renderOption={
-              singleMetricSelection
+              widgetProperties?.singleMetricSelection
                 ? renderOptionsForSingleMetric
                 : renderOptionsForMultipleMetricsAndResources
             }
@@ -164,6 +157,9 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             {content}
           </Typography>
         ))}
+        {hasMultipleUnitsSelected && (
+          <Typography>{t(labelThresholdsAreAutomaticallyHidden)}</Typography>
+        )}
       </div>
     </div>
   );

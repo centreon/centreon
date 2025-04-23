@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
 import { Provider, createStore } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
   labelCriticalThreshold,
   labelShowThresholds,
@@ -8,7 +9,6 @@ import {
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { ServiceMetric } from '../../../models';
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import Threshold from './Threshold';
 
@@ -52,6 +52,23 @@ const selectedMetrics: Array<ServiceMetric> = [
       }
     ],
     name: 'Server_Cpu'
+  }
+];
+const selectedMetricsOneUnit: Array<ServiceMetric> = [
+  {
+    id: 1,
+    metrics: [
+      {
+        criticalHighThreshold: 100,
+        criticalLowThreshold: 50,
+        id: 1,
+        name: 'rta',
+        unit: 'ms',
+        warningHighThreshold: 35,
+        warningLowThreshold: 10
+      }
+    ],
+    name: 'Server_Ping'
   }
 ];
 
@@ -110,7 +127,7 @@ describe('Threshold', () => {
   });
 
   it('displays the first metrics threshold values as default when some Resource metrics are passed', () => {
-    initializeComponent({ enabled: true, metrics: selectedMetrics });
+    initializeComponent({ enabled: true, metrics: selectedMetricsOneUnit });
 
     cy.contains('Default (10 ms - 35 ms)').should('be.visible');
     cy.contains('Default (50 ms - 100 ms)').should('be.visible');
@@ -119,7 +136,7 @@ describe('Threshold', () => {
   });
 
   it('enables the threshold fields when the Show Thresholds checkbox is checked and the Custom option is selected', () => {
-    initializeComponent({ metrics: selectedMetrics });
+    initializeComponent({ metrics: selectedMetricsOneUnit });
 
     cy.findByLabelText(labelShowThresholds).click();
     cy.findAllByTestId('custom').eq(0).click();
@@ -149,7 +166,7 @@ describe('Disabled threshold', () => {
     initializeComponent({
       canEdit: false,
       enabled: true,
-      metrics: selectedMetrics
+      metrics: selectedMetricsOneUnit
     });
   });
 

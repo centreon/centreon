@@ -73,17 +73,17 @@ const SYNC_LDAP_CONTACTS = 'sync';
 // Unblock contact
 const UNBLOCK_CONTACT = 'un';
 
-isset($_GET["contact_id"]) ? $cG = $_GET["contact_id"] : $cG = null;
-isset($_POST["contact_id"]) ? $cP = $_POST["contact_id"] : $cP = null;
-$cG ? $contactId = $cG : $contactId = $cP;
+$cG = $_GET["contact_id"] ?? null;
+$cP = $_POST["contact_id"] ?? null;
+$contactId = $cG ?: $cP;
 
-isset($_GET["select"]) ? $cG = $_GET["select"] : $cG = null;
-isset($_POST["select"]) ? $cP = $_POST["select"] : $cP = null;
-$cG ? $select = $cG : $select = $cP;
+$cG = $_GET["select"] ?? null;
+$cP = $_POST["select"] ?? null;
+$select = $cG ?: $cP;
 
-isset($_GET["dupNbr"]) ? $cG = $_GET["dupNbr"] : $cG = null;
-isset($_POST["dupNbr"]) ? $cP = $_POST["dupNbr"] : $cP = null;
-$cG ? $dupNbr = $cG : $dupNbr = $cP;
+$cG = $_GET["dupNbr"] ?? null;
+$cP = $_POST["dupNbr"] ?? null;
+$dupNbr = $cG ?: $cP;
 
 /*
  * Path to the configuration dir
@@ -134,7 +134,7 @@ $eventDispatcher->addEventHandler(
  */
 $deleteEventHandler = new EventHandler();
 $deleteEventHandler->setProcessing(
-    function ($arguments) {
+    function ($arguments): void {
         if (isset($arguments['contact_ids'])) {
             deleteContactInDB($arguments['contact_ids']);
         }
@@ -155,7 +155,7 @@ $eventDispatcher->addEventHandler(
  */
 $synchronizeEventHandler = new EventHandler();
 $synchronizeEventHandler->setProcessing(
-    function ($arguments) {
+    function ($arguments): void {
         if (isset($arguments['contact_ids'])) {
             synchronizeContactWithLdap($arguments['contact_ids']);
         }
@@ -191,7 +191,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableContactInDB(null, isset($select) ? $select : array());
+            enableContactInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }
@@ -211,7 +211,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableContactInDB(null, isset($select) ? $select : array());
+            disableContactInDB(null, $select ?? []);
         } else {
             unvalidFormMessage();
         }

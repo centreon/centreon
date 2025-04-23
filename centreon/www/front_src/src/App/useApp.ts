@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, not, pathEq, path } from 'ramda';
+import { path, equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 
 import type { Actions } from '@centreon/ui';
 import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
@@ -12,17 +12,23 @@ import {
   aclAtom,
   downtimeAtom,
   platformNameAtom,
-  refreshIntervalAtom
+  platformVersionsAtom,
+  refreshIntervalAtom,
+  statisticsRefreshIntervalAtom,
+  userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { logoutEndpoint } from '../api/endpoint';
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
+import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
-import { aclEndpoint, parametersEndpoint } from './endpoint';
+import {
+  aclEndpoint,
+  parametersEndpoint,
+  userPermissionsEndpoint
+} from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
@@ -50,9 +56,16 @@ const useApp = (): UseAppState => {
     request: getData
   });
   const { sendRequest: getParameters } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
     request: getData
   });
-  const { sendRequest: getAcl } = useRequest<Actions>({
+
+  const { sendRequest: getUserPermissions } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
+    request: getData
+  });
+
+  const { sendRequest: getResourcesAcl } = useRequest<Actions>({
     request: getData
   });
 
@@ -62,18 +75,22 @@ const useApp = (): UseAppState => {
 
   const { sendRequest: getCustomPlatformRequest } =
     useRequest<CustomLoginPlatform>({
-      httpCodesBypassErrorSnackbar: [404],
+      httpCodesBypassErrorSnackbar: [404, 401],
       request: getData
     });
 
   const [platformVersion] = useAtom(platformVersionsAtom);
   const setDowntime = useSetAtom(downtimeAtom);
   const setRefreshInterval = useSetAtom(refreshIntervalAtom);
-  const setAcl = useSetAtom(aclAtom);
+  const setStatisticsRefreshInterval = useSetAtom(
+    statisticsRefreshIntervalAtom
+  );
+  const setResourcesAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
 
   const setPlaformName = useSetAtom(platformNameAtom);
+  const setUserPermissions = useSetAtom(userPermissionsAtom);
 
   const { getNavigation } = useNavigation();
 
@@ -91,17 +108,12 @@ const useApp = (): UseAppState => {
   useEffect(() => {
     getNavigation();
 
-    Promise.all([
-      getParameters({
-        endpoint: parametersEndpoint
-      }),
-      getAcl({
-        endpoint: aclEndpoint
-      })
-    ])
-      .then(([retrievedParameters, retrievedAcl]) => {
+    getParameters({
+      endpoint: parametersEndpoint
+    })
+      .then((retrievedParameters) => {
         setDowntime({
-          duration: parseInt(
+          duration: Number.parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
             10
           ),
@@ -110,9 +122,19 @@ const useApp = (): UseAppState => {
             retrievedParameters.monitoring_default_downtime_with_services
         });
         setRefreshInterval(
-          parseInt(retrievedParameters.monitoring_default_refresh_interval, 10)
+          Number.parseInt(
+            retrievedParameters.monitoring_default_refresh_interval,
+            10
+          )
         );
-        setAcl({ actions: retrievedAcl });
+
+        setStatisticsRefreshInterval(
+          Number.parseInt(
+            retrievedParameters?.statistics_default_refresh_interval,
+            10
+          )
+        );
+
         setAcknowledgement({
           force_active_checks:
             retrievedParameters.monitoring_default_acknowledgement_force_active_checks,
@@ -129,6 +151,29 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
+
+    getUserPermissions({
+      endpoint: userPermissionsEndpoint
+    })
+      .then(setUserPermissions)
+      .catch((error) => {
+        if (pathEq(401, ['response', 'status'])(error)) {
+          logout();
+        }
+      });
+
+    getResourcesAcl({
+      endpoint: aclEndpoint
+    })
+      .then((retrievedAcl) => {
+        setResourcesAcl({ actions: retrievedAcl });
+      })
+      .catch((error) => {
+        if (pathEq(401, ['response', 'status'])(error)) {
+          logout();
+        }
+      });
+
     if (path(['modules', 'centreon-it-edition-extensions'], platformVersion)) {
       getCustomPlatformRequest({
         endpoint: loginPageCustomisationEndpoint

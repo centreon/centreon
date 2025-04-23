@@ -59,15 +59,27 @@ export type Dashboard = NamedEntity & {
   description: string | null;
   createdAt: string;
   updatedAt: string;
-  createdBy: NamedEntity;
-  updatedBy: NamedEntity;
+  createdBy: NamedEntity | null;
+  updatedBy: NamedEntity | null;
   ownRole: DashboardRole;
   panels?: Array<DashboardPanel>;
   shares: Shares;
+  thumbnail?: { id: number; name: string; directory: string } | null;
   refresh: {
     type: 'global' | 'manual';
     interval: number | null;
   };
+  isFavorite: boolean;
+};
+
+export type PublicDashboard = NamedEntity & {
+  description: string | null;
+  panels?: Array<DashboardPanel>;
+  refresh: {
+    type: 'global' | 'manual';
+    interval: number | null;
+  };
+  thumbnail?: { id: number; name: string; directory: string } | null;
 };
 
 export interface FormattedShare {

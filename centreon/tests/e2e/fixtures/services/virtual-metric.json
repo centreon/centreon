@@ -1,0 +1,38 @@
+{
+    "default":{
+        "name": "vmtestname",
+        "linkedHostServices": "Centreon-Server - Ping",
+        "knownMetric": "rta",
+        "unit": "%",
+        "warning_threshold": "200",
+        "critical_threshold": "400",
+        "comments": "comment!"
+    },
+    "vmForDuplication":{
+        "name": "vmtestnameChangedOrDuplicated_1",
+        "linkedHostServices": "Centreon-Server - Ping",
+        "knownMetric": "pl",
+        "unit": "%",
+        "warning_threshold": "100",
+        "critical_threshold": "200",
+        "comments": "Used for modification or duplication!"
+    },
+    "vmForUpdate":{
+        "name": "vmtestnameChangedOrDuplicated",
+        "linkedHostServices": "Centreon-Server - Ping",
+        "knownMetric": "pl",
+        "unit": "%",
+        "warning_threshold": "100",
+        "critical_threshold": "200",
+        "comments": "Used for modification or duplication!"
+    },
+    "vmForMemory":{
+        "name": "vmtestname",
+        "linkedHostServices": "Centreon-Server - Disk-/",
+        "knownMetric": "count",
+        "unit": "%",
+        "warning_threshold": "200",
+        "critical_threshold": "400",
+        "comments": "comment!"
+    }
+}

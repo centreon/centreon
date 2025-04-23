@@ -55,10 +55,13 @@ export const customFetch = <T>({
       ? `${baseEndpoint}${endpoint}`
       : endpoint;
 
+  const isFormData = payload instanceof FormData;
+
   const options = isMutation
     ? {
         ...defaultOptions,
-        body: payload instanceof FormData ? payload : JSON.stringify(payload)
+        body: isFormData ? payload : JSON.stringify(payload),
+        headers: isFormData ? undefined : headers
       }
     : defaultOptions;
 
@@ -88,15 +91,6 @@ export const customFetch = <T>({
               additionalInformation: data,
               isError: true,
               message: data.message || defaultFailureMessage,
-              statusCode: response.status
-            };
-          }
-
-          if (equals(response.status, 207)) {
-            return {
-              data: data.results,
-              isError: false,
-              message: '',
               statusCode: response.status
             };
           }

@@ -1,15 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import 'ulog';
 import axios from 'axios';
-import { pathOr, defaultTo, path, includes, or } from 'ramda';
-import anylogger from 'anylogger';
+import { path, defaultTo, includes, or, pathOr } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
-import useCancelTokenSource from '../useCancelTokenSource';
 import useSnackbar from '../../Snackbar/useSnackbar';
-
-const log = anylogger('API Request');
+import { errorLog, warnLog } from '../logger';
+import useCancelTokenSource from '../useCancelTokenSource';
 
 export interface RequestParams<TResult> {
   decoder?: JsonDecoder.Decoder<TResult>;
@@ -41,7 +38,7 @@ const useRequest = <TResult>({
   }, []);
 
   const showRequestErrorMessage = (error): void => {
-    log.error(error);
+    errorLog(error.message);
 
     const message = or(
       pathOr(undefined, ['response', 'data', 'message'], error),
@@ -68,7 +65,7 @@ const useRequest = <TResult>({
       .catch((error) => {
         setSending(false);
         if (axios.isCancel(error)) {
-          log.warn(error);
+          warnLog(error);
 
           throw error;
         }

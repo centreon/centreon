@@ -74,7 +74,7 @@ switch ($o) {
                         || ($ishost && $oreon->user->access->checkAction("host_schedule_downtime"))
                         || (!$ishost && $oreon->user->access->checkAction("service_schedule_downtime"))
                     ) {
-                        $ecObj->deleteDowntime($res[0], array($res[1] . ';' . $res[2] => 'on'));
+                        $ecObj->deleteDowntime($res[0], [$res[1] . ';' . $res[2] => 'on']);
                         deleteDowntimeInDb($res[2]);
                     }
                 }
@@ -82,7 +82,16 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once($path . "listDowntime.php");
+        try {
+            require_once($path . "listDowntime.php");
+        } catch (\Throwable $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: 'Error while listing downtime: ' . $ex->getMessage(),
+                exception: $ex
+            );
+            throw $ex;
+        }
         break;
     case "cs":
         purgeOutdatedCSRFTokens();
@@ -97,7 +106,7 @@ switch ($o) {
                         || ($ishost && $oreon->user->access->checkAction("host_schedule_downtime"))
                         || (!$ishost && $oreon->user->access->checkAction("service_schedule_downtime"))
                     ) {
-                        $ecObj->deleteDowntime($res[0], array($res[1] . ';' . $res[2] => 'on'));
+                        $ecObj->deleteDowntime($res[0], [$res[1] . ';' . $res[2] => 'on']);
                     }
                 }
             }
@@ -108,6 +117,15 @@ switch ($o) {
     case "vs":
     case "vh":
     default:
-        require_once($path . "listDowntime.php");
+        try {
+            require_once($path . "listDowntime.php");
+        } catch (\Throwable $ex) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: 'Error while listing downtime: ' . $ex->getMessage(),
+                exception: $ex
+            );
+            throw $ex;
+        }
         break;
 }

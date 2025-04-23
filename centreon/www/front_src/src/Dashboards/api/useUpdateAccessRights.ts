@@ -72,8 +72,10 @@ export const useUpdateAccessRights = ({
 
     const data = await mutateAsync({
       _meta: { id: dashboardId },
-      contact_groups: contactGroups,
-      contacts
+      payload: {
+        contact_groups: contactGroups,
+        contacts
+      }
     });
 
     return data?.isError;

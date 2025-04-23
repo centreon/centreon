@@ -28,18 +28,18 @@ use Core\Domain\RealTime\Model\ResourceTypes\MetaServiceResourceType;
 
 class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implements HypermediaProviderInterface
 {
-    public const ENDPOINT_TIMELINE = 'centreon_application_monitoring_gettimelinebymetaservices',
-                 ENDPOINT_TIMELINE_DOWNLOAD = 'centreon_application_monitoring_download_timeline_by_metaservice',
-                 ENDPOINT_PERFORMANCE_GRAPH = 'monitoring.metric.getMetaServicePerformanceMetrics',
-                 ENDPOINT_STATUS_GRAPH = 'monitoring.metric.getMetaServiceStatusMetrics',
-                 ENDPOINT_METRIC_LIST = 'centreon_application_find_meta_service_metrics',
-                 ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_meta_service',
-                 ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addMetaServiceDowntime',
-                 ENDPOINT_METASERVICE_CHECK = 'centreon_application_check_checkMetaService',
-                 ENDPOINT_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addmetaserviceacknowledgement',
-                 ENDPOINT_NOTIFICATION_POLICY = 'configuration.metaservice.notification-policy',
-                 URI_CONFIGURATION = '/main.php?p=60204&o=c&meta_id={metaId}',
-                 URI_EVENT_LOGS = '/main.php?p=20301&svc={hostId}_{serviceId}';
+    public const ENDPOINT_TIMELINE = 'centreon_application_monitoring_gettimelinebymetaservices';
+    public const ENDPOINT_TIMELINE_DOWNLOAD = 'centreon_application_monitoring_download_timeline_by_metaservice';
+    public const ENDPOINT_PERFORMANCE_GRAPH = 'monitoring.metric.getMetaServicePerformanceMetrics';
+    public const ENDPOINT_STATUS_GRAPH = 'monitoring.metric.getMetaServiceStatusMetrics';
+    public const ENDPOINT_METRIC_LIST = 'centreon_application_find_meta_service_metrics';
+    public const ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_meta_service';
+    public const ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addMetaServiceDowntime';
+    public const ENDPOINT_METASERVICE_CHECK = 'centreon_application_check_checkMetaService';
+    public const ENDPOINT_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addmetaserviceacknowledgement';
+    public const ENDPOINT_NOTIFICATION_POLICY = 'configuration.metaservice.notification-policy';
+    public const URI_CONFIGURATION = '/main.php?p=60204&o=c&meta_id={metaId}';
+    public const URI_EVENT_LOGS = '/main.php?p=20301&svc={hostId}_{serviceId}';
 
     /**
      * @inheritDoc

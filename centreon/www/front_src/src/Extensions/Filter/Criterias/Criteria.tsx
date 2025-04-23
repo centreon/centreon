@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { PopoverMultiAutocompleteField, useMemoComponent } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';

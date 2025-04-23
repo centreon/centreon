@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" backupGlobals="false" colors="true" failOnRisky="true" failOnWarning="false">
+  <coverage>
+    <include>
+      <directory>./src/</directory>
+    </include>
+    <report>
+      <html outputDirectory="./coverage-report" lowUpperBound="50" highLowerBound="80"/>
+    </report>
+  </coverage>
+  <php>
+    <ini name="error_reporting" value="30719"/>
+    <!-- E_ALL & ~E_STRICT -->
+    <ini name="intl.default_locale" value="en"/>
+    <ini name="intl.error_level" value="0"/>
+    <ini name="memory_limit" value="-1"/>
+    <env name="APP_ENV" value="dev"/>
+    <env name="APP_SECRET" value="96cde5b9a5c3d1cd4a4d6cca990bcc54"/>
+    <env name="CORS_ALLOW_ORIGIN" value="^https?://localhost(:[0-9]+)?$"/>
+  </php>
+  <testsuites>
+    <testsuite name="Symfony Test Suite">
+      <directory>./tests/php/*/</directory>
+    </testsuite>
+  </testsuites>
+  <groups>
+    <exclude>
+      <group>benchmark</group>
+      <group>intl-data</group>
+    </exclude>
+  </groups>
+  <logging/>
+</phpunit>

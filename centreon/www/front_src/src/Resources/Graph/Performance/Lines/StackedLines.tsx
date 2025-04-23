@@ -1,6 +1,6 @@
-import { map, nth, pipe, path, all, not, isNil, prop } from 'ramda';
-import { Shape, Curve } from '@visx/visx';
+import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { path, all, isNil, map, not, nth, pipe, prop } from 'ramda';
 
 import { Line, TimeValue } from '../models';
 import { getTime } from '../timeSeries';

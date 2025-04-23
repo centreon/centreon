@@ -21,7 +21,14 @@
 namespace ConfigGenerateRemote\Relations;
 
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use Exception;
 
+/**
+ * Class
+ *
+ * @class ServiceGroupRelation
+ * @package ConfigGenerateRemote\Relations
+ */
 class ServiceGroupRelation extends AbstractObject
 {
     protected $table = 'servicegroup_relation';
@@ -35,10 +42,12 @@ class ServiceGroupRelation extends AbstractObject
     /**
      * Add relation
      *
-     * @param integer $sgId
-     * @param integer $hostId
-     * @param integer $serviceId
+     * @param int $sgId
+     * @param int $hostId
+     * @param int $serviceId
+     *
      * @return void
+     * @throws Exception
      */
     public function addRelationHostService(int $sgId, int $hostId, int $serviceId)
     {

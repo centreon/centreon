@@ -1,20 +1,20 @@
 import {
   MutableRefObject,
+  ReactNode,
   useEffect,
   useMemo,
   useRef,
-  useState,
-  ReactNode
+  useState
 } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-import { isNil, not, or, path } from 'ramda';
+import { useAtomValue } from 'jotai';
+import { path, isNil, not, or } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Paper, Theme } from '@mui/material';
 
-import { useRequest } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
+import { getXAxisTickFormat, useRequest } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import PerformanceGraph from '..';
@@ -25,20 +25,8 @@ import { listTimelineEventsDecoder } from '../../../Details/tabs/Timeline/api/de
 import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
 import { Resource } from '../../../models';
 import MemoizedGraphActions from '../GraphActions';
-import {
-  AdditionalLines,
-  FilterLines,
-  GraphOptionId,
-  NewLines
-} from '../models';
-import {
-  adjustTimePeriodDerivedAtom,
-  customTimePeriodAtom,
-  getDatesDerivedAtom,
-  graphQueryParametersDerivedAtom,
-  resourceDetailsUpdatedAtom,
-  selectedTimePeriodAtom
-} from '../TimePeriods/timePeriodAtoms';
+import { resourceDetailsUpdatedAtom } from '../TimePeriods/timePeriodAtoms';
+import { FilterLines, GraphOptionId, LinesProps, NewLines } from '../models';
 import { useIntersection } from '../useGraphIntersection';
 
 import { graphOptionsAtom } from './graphOptionsAtoms';
@@ -56,13 +44,19 @@ const useStyles = makeStyles()((theme: Theme) => ({
   }
 }));
 
+interface Parameters {
+  end;
+  start;
+  timelineEventsLimit;
+}
+
 interface Props {
   filterLines?: ({ lines, resource }: FilterLines) => NewLines;
   graphHeight: number;
+  graphTimeParameters: Parameters;
   interactWithGraph: boolean;
   limitLegendRows?: boolean;
-  renderAdditionalGraphAction?: ReactNode;
-  renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
+  renderAdditionalLines?: (args: LinesProps) => ReactNode;
   resource?: Resource | ResourceDetails;
 }
 
@@ -71,9 +65,9 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
   graphHeight,
   limitLegendRows,
   interactWithGraph,
-  renderAdditionalGraphAction,
   renderAdditionalLines,
-  filterLines
+  filterLines,
+  graphTimeParameters
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const [timeline, setTimeline] = useState<Array<TimelineEvent>>();
@@ -89,17 +83,15 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
 
   const { alias } = useAtomValue(userAtom);
   const graphOptions = useAtomValue(graphOptionsAtom);
-  const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
-  const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const resourceDetailsUpdated = useAtomValue(resourceDetailsUpdatedAtom);
-  const getIntervalDates = useAtomValue(getDatesDerivedAtom);
   const details = useAtomValue(detailsAtom);
-  const adjustTimePeriod = useSetAtom(adjustTimePeriodDerivedAtom);
+
+  const { end, start, timelineEventsLimit } = graphTimeParameters || {};
 
   const graphContainerRef = useRef<HTMLElement | null>(null);
 
   const { setElement, isInViewport } = useIntersection();
+  const xAxisTickFormat = getXAxisTickFormat({ end, start });
 
   const displayEventAnnotations = path<boolean>(
     [GraphOptionId.displayEvents, 'value'],
@@ -119,14 +111,10 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
       return;
     }
 
-    const [start, end] = getIntervalDates(selectedTimePeriod);
-
     sendGetTimelineRequest({
       endpoint: timelineEndpoint,
       parameters: {
-        limit:
-          selectedTimePeriod?.timelineEventsLimit ||
-          customTimePeriod.timelineLimit,
+        limit: timelineEventsLimit,
         search: {
           conditions: [
             {
@@ -150,7 +138,7 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
     }
 
     retrieveTimeline();
-  }, [endpoint, selectedTimePeriod, customTimePeriod, displayEventAnnotations]);
+  }, [endpoint, displayEventAnnotations, end, start]);
 
   useEffect(() => {
     setElement(graphContainerRef.current);
@@ -161,18 +149,8 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
       return undefined;
     }
 
-    const graphQuerParameters = getGraphQueryParameters({
-      endDate: customTimePeriod.end,
-      startDate: customTimePeriod.start,
-      timePeriod: selectedTimePeriod
-    });
-
-    return `${endpoint}${graphQuerParameters}`;
-  }, [
-    customTimePeriod.start.toISOString(),
-    customTimePeriod.end.toISOString(),
-    details
-  ]);
+    return `${endpoint}?start=${start}&end=${end}`;
+  }, [details, end, start]);
 
   const addCommentToTimeline = ({ date, comment }): void => {
     const [id] = crypto.getRandomValues(new Uint16Array(1));
@@ -200,22 +178,22 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
         ref={graphContainerRef as MutableRefObject<HTMLDivElement>}
       >
         <PerformanceGraph<T>
+          canAdjustTimePeriod
           toggableLegend
-          adjustTimePeriod={adjustTimePeriod}
-          customTimePeriod={customTimePeriod}
           displayEventAnnotations={displayEventAnnotations}
+          end={end}
           endpoint={graphEndpoint}
           filterLines={filterLines}
           getPerformanceGraphRef={getPerformanceGraphRef}
           graphActions={
             <MemoizedGraphActions
-              customTimePeriod={customTimePeriod}
+              end={end}
               open={interactWithGraph}
               performanceGraphRef={
                 performanceGraphRef as unknown as MutableRefObject<HTMLDivElement | null>
               }
-              renderAdditionalGraphActions={renderAdditionalGraphAction}
               resource={resource}
+              start={start}
               timeline={timeline}
             />
           }
@@ -226,11 +204,9 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
           renderAdditionalLines={renderAdditionalLines}
           resource={resource as Resource}
           resourceDetailsUpdated={resourceDetailsUpdated}
+          start={start}
           timeline={timeline}
-          xAxisTickFormat={
-            selectedTimePeriod?.dateTimeFormat ||
-            customTimePeriod.xAxisTickFormat
-          }
+          xAxisTickFormat={xAxisTickFormat}
           onAddComment={addCommentToTimeline}
         />
       </div>

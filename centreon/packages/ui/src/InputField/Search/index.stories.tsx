@@ -1,5 +1,5 @@
-import RegexpHelpTooltip from './RegexpHelpTooltip';
 import PersistentTooltip from './PersistentTooltip';
+import RegexpHelpTooltip from './RegexpHelpTooltip';
 
 import SearchInput from '.';
 

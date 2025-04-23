@@ -35,13 +35,30 @@
 
 require_once __DIR__ . "/../Select2.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsConnectorMetricMulti
+ */
 class CentreonWidgetParamsConnectorMetricMulti extends CentreonWidgetParamsSelect2
 {
+    /**
+     * CentreonWidgetParamsConnectorMetricMulti constructor
+     *
+     * @param $db
+     * @param $quickform
+     * @param $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
+    /**
+     * @return array
+     */
     public function getParameters()
     {
         $path = './api/internal.php?object=centreon_metric&action=listByService';

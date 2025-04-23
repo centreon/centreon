@@ -27,16 +27,30 @@ namespace Centreon\Infrastructure\PlatformTopology\Repository;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformInterface;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRepositoryInterface;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\PlatformTopology\Repository\Model\PlatformTopologyFactoryRDB;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 
 /**
  * This class is designed to manage the repository of the platform topology requests
  *
  * @package Centreon\Infrastructure\PlatformTopology
+ *
+ * @phpstan-type _platformTopology array{
+ *  id: int,
+ *  address:string,
+ *  hostname: string|null,
+ *  name: string,
+ *  type: string,
+ *  parent_id: int|null,
+ *  pending: string|null,
+ *  server_id: int|null
+ * }
  */
 class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements PlatformTopologyRepositoryInterface
 {
+    use SqlMultipleBindTrait;
+
     /**
      * PlatformTopologyRepositoryRDB constructor.
      * @param DatabaseConnection $db
@@ -85,6 +99,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
         $platform = null;
 
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _platformTopology $result */
             $platform = PlatformTopologyFactoryRDB::create($result);
         }
 
@@ -108,6 +123,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
         $platform = null;
 
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _platformTopology $result */
             $platform = PlatformTopologyFactoryRDB::create($result);
         }
 
@@ -131,6 +147,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
         $platform = null;
 
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _platformTopology $result */
             $platform = PlatformTopologyFactoryRDB::create($result);
         }
 
@@ -154,6 +171,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
         $platform = null;
 
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var int[] $result */
             $platform = PlatformTopologyFactoryRDB::create($result);
         }
 
@@ -170,6 +188,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
         $platformTopology = [];
         if ($statement !== false) {
             foreach ($statement as $topology) {
+                /** @var _platformTopology $topology */
                 $platform = PlatformTopologyFactoryRDB::create($topology);
                 $platformTopology[] = $platform;
             }
@@ -181,14 +200,61 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
     /**
      * @inheritDoc
      */
-    public function findPlatform(int $serverId): ?PlatformInterface
+    public function getPlatformTopologyByAccessGroupIds(array $accessGroupIds): array
     {
-        $statement = $this->db->prepare('SELECT * FROM `platform_topology` WHERE id = :serverId');
-        $statement->bindValue(':serverId', $serverId, \PDO::PARAM_INT);
+        if ([] === $accessGroupIds) {
+
+            return [];
+        }
+
+        if (! $this->hasRestrictedAccessToPlatforms($accessGroupIds)) {
+            return $this->getPlatformTopology();
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT *
+                FROM `platform_topology` pt
+                JOIN `:db`.`acl_resources_poller_relations` arpr
+                    ON pt.server_id = arpr.poller_id
+                JOIN `:db`.`acl_res_group_relations` argr
+                    ON arpr.acl_res_id = argr.acl_res_id
+                WHERE argr.acl_group_id IN ({$bindQuery})
+                SQL
+        ));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $platformTopology = [];
+        foreach ($statement as $topology) {
+            /** @var _platformTopology $topology */
+            $platform = PlatformTopologyFactoryRDB::create($topology);
+            $platformTopology[] = $platform;
+        }
+
+        return $platformTopology;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function findPlatform(int $platformId): ?PlatformInterface
+    {
+        $statement = $this->db->prepare('SELECT * FROM `platform_topology` WHERE id = :platformId');
+        $statement->bindValue(':platformId', $platformId, \PDO::PARAM_INT);
         $statement->execute();
 
         $platform = null;
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _platformTopology $result */
             $platform = PlatformTopologyFactoryRDB::create($result);
         }
 
@@ -223,6 +289,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
         $platform = null;
 
         if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _platformTopology $result */
             $platform = PlatformTopologyFactoryRDB::create($result);
         }
 
@@ -243,6 +310,7 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
         $childrenPlatforms = [];
         if ($result = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
             foreach ($result as $platform) {
+                /** @var _platformTopology $platform */
                 $childrenPlatforms[] = PlatformTopologyFactoryRDB::create($platform);
             }
         }
@@ -297,11 +365,79 @@ class PlatformTopologyRepositoryRDB extends AbstractRepositoryDRB implements Pla
 
             if ($result = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
                 foreach ($result as $platform) {
+                    /** @var _platformTopology $platform */
                     $remoteChildren[] = PlatformTopologyFactoryRDB::create($platform);
                 }
             }
         }
 
         return $remoteChildren;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasRestrictedAccessToPlatforms(array $accessGroupIds): bool
+    {
+        if ([] === $accessGroupIds) {
+
+            return false;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`acl_res_group_relations` argr
+                JOIN `:db`.`acl_resources_poller_relations` arpr
+                    ON arpr.acl_res_id = argr.acl_res_id
+                WHERE argr.acl_group_id IN ({$bindQuery})
+                SQL
+        ));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasAccessToPlatform(array $accessGroupIds, int $platformId): bool
+    {
+        if ([] === $accessGroupIds) {
+
+            return false;
+        }
+
+        if (! $this->hasRestrictedAccessToPlatforms($accessGroupIds)) {
+            return true;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`acl_resources_poller_relations` arpr
+                JOIN `:db`.`acl_res_group_relations` argr
+                    ON arpr.acl_res_id = argr.acl_res_id
+                WHERE argr.acl_group_id IN ({$bindQuery})
+                    AND arpr.poller_id = :platformId
+                SQL
+        ));
+        $statement->bindValue(':platformId', $platformId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 }

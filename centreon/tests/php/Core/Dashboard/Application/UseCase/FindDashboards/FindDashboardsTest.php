@@ -36,7 +36,10 @@ use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\UserProfile\Application\Repository\ReadUserProfileRepositoryInterface;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\UserProfile\Domain\Model\UserProfile;
 
 beforeEach(function (): void {
     $this->presenter = new FindDashboardsPresenterStub();
@@ -46,13 +49,17 @@ beforeEach(function (): void {
         $this->createMock(RequestParametersInterface::class),
         $this->createMock(ReadContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
-        $this->contact = $this->createMock(ContactInterface::class)
+        $this->contact = $this->createMock(ContactInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->userProfileReader = $this->createMock(ReadUserProfileRepositoryInterface::class),
+        $this->iscloudPlatform = false
     );
+
+    $this->userProfile = (new UserProfile(id: 1, userId: 1))->setFavoriteDashboards([1]);
 
     $this->testedDashboard = new Dashboard(
         $this->testedDashboardId = 1,
         $this->testedDashboardName = 'dashboard-name',
-        $this->testedDashboardDescription = 'dashboard-description',
         $this->testedDashboardCreatedBy = 2,
         $this->testedDashboardUpdatedBy = 3,
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
@@ -79,27 +86,14 @@ it(
 );
 
 it(
-    'should present a ForbiddenResponse when the user does not have the correct role',
-    function (): void {
-        $this->rights->expects($this->once())
-            ->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())
-            ->method('canAccess')->willReturn(false);
-
-        ($this->useCase)($this->presenter);
-
-        expect($this->presenter->data)
-            ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->data->getMessage())
-            ->toBe(DashboardException::accessNotAllowed()->getMessage());
-    }
-);
-
-it(
     'should present a FindDashboardsResponse as admin',
     function (): void {
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(true);
+
+        $this->userProfileReader->expects($this->once())
+            ->method('findByContact')->willReturn($this->userProfile);
+
         $this->readDashboardRepository->expects($this->once())
             ->method('findByRequestParameter')->willReturn([$this->testedDashboard]);
 
@@ -112,13 +106,14 @@ it(
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
             ->and($dashboard->id ?? null)->toBe($this->testedDashboardId)
             ->and($dashboard->name ?? null)->toBe($this->testedDashboardName)
-            ->and($dashboard->description ?? null)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and(($dashboard->createdAt ?? null)?->getTimestamp())->toBe(
                 $this->testedDashboardCreatedAt->getTimestamp()
             )
             ->and(($dashboard->updatedAt ?? null)?->getTimestamp())->toBeGreaterThanOrEqual(
                 $this->testedDashboardUpdatedAt->getTimestamp()
-            );
+            )
+            ->and($dashboard->isFavorite)->toBe(true);
     }
 );
 
@@ -127,6 +122,10 @@ it(
     function (): void {
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(true);
+
+        $this->userProfileReader->expects($this->once())
+            ->method('findByContact')->willReturn($this->userProfile);
+
         $this->readDashboardRepository->expects($this->once())
             ->method('findByRequestParameter')->willReturn([$this->testedDashboard]);
 
@@ -139,11 +138,12 @@ it(
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
             ->and($dashboard->id ?? null)->toBe($this->testedDashboardId)
             ->and($dashboard->name ?? null)->toBe($this->testedDashboardName)
-            ->and($dashboard->description ?? null)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and(($dashboard->createdAt ?? null)?->getTimestamp())
             ->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and(($dashboard->updatedAt ?? null)?->getTimestamp())
-            ->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
+            ->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp())
+            ->and($dashboard->isFavorite)->toBe(true);
     }
 );
 it(
@@ -151,8 +151,7 @@ it(
     function (): void {
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())
-            ->method('canAccess')->willReturn(true);
+
         $this->readDashboardRepository->expects($this->once())
             ->method('findByRequestParameterAndContact')->willReturn([$this->testedDashboard]);
 
@@ -165,7 +164,7 @@ it(
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
             ->and($dashboard->id ?? null)->toBe($this->testedDashboardId)
             ->and($dashboard->name ?? null)->toBe($this->testedDashboardName)
-            ->and($dashboard->description ?? null)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and(($dashboard->createdAt ?? null)?->getTimestamp())
             ->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and(($dashboard->updatedAt ?? null)?->getTimestamp())

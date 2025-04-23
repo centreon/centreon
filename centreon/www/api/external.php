@@ -47,10 +47,13 @@ $user = null;
 if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
     try {
         $contactStatement = $pearDB->prepare(
-            "SELECT c.*
-            FROM security_authentication_tokens sat, contact c
-            WHERE c.contact_id = sat.user_id
-            AND sat.token = :token"
+            <<<'SQL'
+                SELECT c.*
+                FROM security_authentication_tokens sat, contact c
+                WHERE c.contact_id = sat.user_id
+                    AND sat.token = :token
+                    AND sat.is_revoked = 0
+                SQL
         );
         $contactStatement->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], \PDO::PARAM_STR);
         $contactStatement->execute();

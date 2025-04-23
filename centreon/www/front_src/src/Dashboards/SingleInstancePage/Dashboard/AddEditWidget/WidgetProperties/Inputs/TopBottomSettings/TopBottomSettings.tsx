@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -7,23 +9,25 @@ import {
   Typography
 } from '@mui/material';
 
+import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelBottom,
   labelDisplay,
   labelHosts,
-  labelTop,
+  labelNumberOfValues,
   labelShowValueLabels,
-  labelNumberOfValues
+  labelTop
 } from '../../../../translatedLabels';
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
 import WidgetSwitch from '../Switch';
 
-import useTopBottomSettings from './useTopBottomSettings';
 import { useTopBottomSettingsStyles } from './TopBottomSettings.styles';
+import useTopBottomSettings from './useTopBottomSettings';
 
 const TopBottomSettings = ({
-  propertyName
+  propertyName,
+  isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useTopBottomSettingsStyles();
@@ -33,17 +37,21 @@ const TopBottomSettings = ({
 
   const { canEditField } = useCanEditProperties();
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div>
       <div className={classes.values}>
-        <Typography>{t(labelDisplay)}</Typography>
+        <Label>{t(labelDisplay)}</Label>
         <TextField
           className={classes.input}
           disabled={!canEditField}
-          inputProps={{
-            'aria-label': t(labelNumberOfValues) as string,
-            max: 50,
-            min: 3
+          slotProps={{
+            htmlInput: {
+              'aria-label': t(labelNumberOfValues) as string,
+              max: 50,
+              min: 1
+            }
           }}
           size="compact"
           type="number"

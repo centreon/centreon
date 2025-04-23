@@ -1,15 +1,8 @@
-import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Tooltip } from '@mui/material';
-import FlappingIcon from '@mui/icons-material/SwapCalls';
-
-import {
-  labelResourceFlapping,
-  labelFlapping
-} from '../../../../translatedLabels';
 import { ResourceDetails } from '../../../models';
 
+import FlappingChip from '../../../../Chip/Flapping';
 import DetailsLine from './DetailsLine';
 
 const useStyles = makeStyles()((theme) => ({
@@ -26,20 +19,13 @@ interface Props {
 }
 const PercentStateChangeCard = ({ details }: Props): JSX.Element => {
   const { classes } = useStyles();
-  const { t } = useTranslation();
 
   return (
     <div className={classes.percentStateCard}>
-      <DetailsLine line={`${details.percent_state_change}%`} />
-      {details.flapping && (
-        <Tooltip title={t(labelResourceFlapping) as string}>
-          <FlappingIcon
-            aria-label={t(labelFlapping)}
-            color="primary"
-            fontSize="small"
-          />
-        </Tooltip>
-      )}
+      <DetailsLine
+        line={`${Number(details.percent_state_change?.toFixed(3))}%`}
+      />
+      {details.flapping && <FlappingChip />}
     </div>
   );
 };

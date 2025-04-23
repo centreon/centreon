@@ -22,24 +22,35 @@
 require_once "Centreon/Object/Object.php";
 
 /**
- * Used for interacting with dependencies
+ * Class
  *
+ * @class Centreon_Object_DependencyServiceParent
+ * @description Used for interacting with dependencies
  */
 class Centreon_Object_DependencyServiceParent extends Centreon_Object
 {
+    /** @var string */
     protected $table = "dependency_serviceParent_relation";
+    /** @var string */
     protected $primaryKey = "dependency_dep_id";
 
+    /**
+     * @param int $serviceId
+     *
+     * @return void
+     * @throws PDOException
+     */
     public function removeRelationLastServiceDependency(int $serviceId): void
     {
-        $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id 
-              FROM dependency_serviceParent_relation 
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_serviceParent_relation 
-                                         WHERE service_service_id = ?)';
-        $result = $this->getResult($query, array($serviceId), "fetch");
+        $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+              FROM dependency_serviceParent_relation
+              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_serviceParent_relation
+                                         WHERE service_service_id = ?)
+              GROUP BY dependency_dep_id';
+        $result = $this->getResult($query, [$serviceId], "fetch");
 
         //is last parent
-        if ($result['nb_dependency'] == 1) {
+        if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
             $this->db->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
         }
     }

@@ -38,7 +38,10 @@ require_once _CENTREON_PATH_ . 'www/class/centreonService.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonInstance.class.php';
 
 /**
- *  Class that contains various methods for managing services
+ * Class
+ *
+ * @class CentreonServicetemplates
+ * @description Class that contains various methods for managing services
  */
 class CentreonServicetemplates extends CentreonService
 {
@@ -46,6 +49,8 @@ class CentreonServicetemplates extends CentreonService
      *  Constructor
      *
      * @param CentreonDB $db
+     *
+     * @throws PDOException
      */
     public function __construct($db)
     {
@@ -53,13 +58,12 @@ class CentreonServicetemplates extends CentreonService
     }
 
     /**
-     *
-     * @param integer $field
+     * @param int $field
      * @return array
      */
     public static function getDefaultValuesParameters($field)
     {
-        $parameters = array();
+        $parameters = [];
         $parameters['currentObject']['table'] = 'service';
         $parameters['currentObject']['id'] = 'service_id';
         $parameters['currentObject']['name'] = 'service_description';
@@ -86,21 +90,22 @@ class CentreonServicetemplates extends CentreonService
     }
 
     /**
-     * @param array  $values
-     * @param array  $options
+     * @param array $values
+     * @param array $options
      * @param string $register
      *
-     * @return array|type
+     * @return array
+     * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array(), $register = '1')
+    public function getObjectForSelect2($values = [], $options = [], $register = '1')
     {
-        $serviceList = array();
+        $serviceList = [];
         if (isset($options['withHosttemplate']) && $options['withHosttemplate'] === true) {
             $serviceList = parent::getObjectForSelect2($values, $options, '0');
         } else {
             $selectedServices = '';
             $listValues = '';
-            $queryValues = array();
+            $queryValues = [];
             if (!empty($values)) {
                 foreach ($values as $k => $v) {
                     $listValues .= ':service' . $v . ',';
@@ -114,7 +119,7 @@ class CentreonServicetemplates extends CentreonService
                 'WHERE s.service_register = "0" ' . $selectedServices . 'ORDER BY s.service_description ';
 
             $stmt = $this->db->prepare($queryService);
-            if (!empty($queryValues)) {
+            if ($queryValues !== []) {
                 foreach ($queryValues as $key => $id) {
                     $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
                 }
@@ -122,7 +127,7 @@ class CentreonServicetemplates extends CentreonService
             $stmt->execute();
 
             while ($data = $stmt->fetch()) {
-                $serviceList[] = array('id' => $data['service_id'], 'text' => $data['service_description']);
+                $serviceList[] = ['id' => $data['service_id'], 'text' => $data['service_description']];
             }
         }
 
@@ -137,13 +142,9 @@ class CentreonServicetemplates extends CentreonService
      */
     public function getLinkedServicesByName($serviceTemplateName, $checkTemplates = true)
     {
-        if ($checkTemplates) {
-            $register = 0;
-        } else {
-            $register = 1;
-        }
+        $register = $checkTemplates ? 0 : 1;
 
-        $linkedServices = array();
+        $linkedServices = [];
         $query = 'SELECT DISTINCT s.service_description '
             . 'FROM service s, service st '
             . 'WHERE s.service_template_model_stm_id = st.service_id '
@@ -169,10 +170,11 @@ class CentreonServicetemplates extends CentreonService
      * @param string $hostTemplateName linked host template
      *
      * @return array service ids
+     * @throws PDOException
      */
     public function getServiceIdsLinkedToSTAndCreatedByHT($serviceTemplateName, $hostTemplateName)
     {
-        $serviceIds = array();
+        $serviceIds = [];
 
         $query = 'SELECT DISTINCT(s.service_id) '
             . 'FROM service s, service st, host h, host ht, host_service_relation hsr, host_service_relation hsrt,'
@@ -196,13 +198,13 @@ class CentreonServicetemplates extends CentreonService
     }
 
     /**
+     * @param bool $enable
      *
-     * @param string $q
      * @return array
      */
     public function getList($enable = false)
     {
-        $serviceTemplates = array();
+        $serviceTemplates = [];
 
         $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT service_id, service_description "
             . "FROM service "
@@ -217,10 +219,10 @@ class CentreonServicetemplates extends CentreonService
         try {
             $res = $this->db->query($query);
         } catch (\PDOException $e) {
-            return array();
+            return [];
         }
 
-        $serviceTemplates = array();
+        $serviceTemplates = [];
         while ($row = $res->fetchRow()) {
             $serviceTemplates[$row['service_id']] = $row['service_description'];
         }

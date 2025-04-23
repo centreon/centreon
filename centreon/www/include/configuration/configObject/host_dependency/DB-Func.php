@@ -65,8 +65,8 @@ function testHostDependencyCycle($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = array();
-    $childs = array();
+    $parents = [];
+    $childs = [];
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_hostParents');
         $childs = $form->getSubmitValue('dep_hostChilds');
@@ -80,7 +80,7 @@ function testHostDependencyCycle($childs = null)
     return true;
 }
 
-function deleteHostDependencyInDB($dependencies = array())
+function deleteHostDependencyInDB($dependencies = [])
 {
     global $pearDB, $centreon;
 
@@ -92,7 +92,7 @@ function deleteHostDependencyInDB($dependencies = array())
     }
 }
 
-function multipleHostDependencyInDB($dependencies = array(), $nbrDup = array())
+function multipleHostDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB, $centreon;
@@ -103,7 +103,10 @@ function multipleHostDependencyInDB($dependencies = array(), $nbrDup = array())
             $val = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $key2 == "dep_name" ? ($dep_name = $value2 = $value2 . "_" . $i) : null;
+                if ($key2 == "dep_name") {
+                    $dep_name = $value2 . "_" . $i;
+                    $value2 = $value2 . "_" . $i;
+                }
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
@@ -115,7 +118,7 @@ function multipleHostDependencyInDB($dependencies = array(), $nbrDup = array())
                 }
             }
             if (isset($dep_name) && testHostDependencyExistence($dep_name)) {
-                $val ? $rq = "INSERT INTO dependency VALUES (" . $val . ")" : $rq = null;
+                $rq = $val ? "INSERT INTO dependency VALUES (" . $val . ")" : null;
                 $pearDB->query($rq);
                 $dbResult = $pearDB->query("SELECT MAX(dep_id) FROM dependency");
                 $maxId = $dbResult->fetch();
@@ -188,7 +191,7 @@ function updateHostDependencyInDB($dep_id = null)
     updateHostDependencyServiceChildren($dep_id);
 }
 
-function insertHostDependencyInDB($ret = array())
+function insertHostDependencyInDB($ret = [])
 {
     $dep_id = insertHostDependency($ret);
     updateHostDependencyHostParents($dep_id, $ret);
@@ -203,7 +206,7 @@ function insertHostDependencyInDB($ret = array())
  * @param array<string, mixed> $ret
  * @return int
  */
-function insertHostDependency($ret = array()): int
+function insertHostDependency($ret = []): int
 {
     global $form, $pearDB, $centreon;
     if (!count($ret)) {
@@ -335,7 +338,7 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
-function updateHostDependencyHostParents($dep_id = null, $ret = array())
+function updateHostDependencyHostParents($dep_id = null, $ret = [])
 {
     if (!$dep_id) {
         exit();
@@ -350,7 +353,8 @@ function updateHostDependencyHostParents($dep_id = null, $ret = array())
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_hostParents');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_hostParent_relation ";
         $rq .= "(dependency_dep_id, host_host_id) ";
         $rq .= "VALUES ";
@@ -359,7 +363,7 @@ function updateHostDependencyHostParents($dep_id = null, $ret = array())
     }
 }
 
-function updateHostDependencyHostChilds($dep_id = null, $ret = array())
+function updateHostDependencyHostChilds($dep_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -375,7 +379,8 @@ function updateHostDependencyHostChilds($dep_id = null, $ret = array())
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_hostChilds');
     }
-    for ($i = 0; $i < count($ret); $i++) {
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $rq = "INSERT INTO dependency_hostChild_relation ";
         $rq .= "(dependency_dep_id, host_host_id) ";
         $rq .= "VALUES ";
@@ -387,7 +392,7 @@ function updateHostDependencyHostChilds($dep_id = null, $ret = array())
 /**
  * Update Host Dependency Service Children
  */
-function updateHostDependencyServiceChildren($dep_id = null, $ret = array())
+function updateHostDependencyServiceChildren($dep_id = null, $ret = [])
 {
     global $form, $pearDB;
 
@@ -398,12 +403,9 @@ function updateHostDependencyServiceChildren($dep_id = null, $ret = array())
     $rq = "DELETE FROM dependency_serviceChild_relation ";
     $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
     $dbResult = $pearDB->query($rq);
-    if (isset($ret["dep_hSvChi"])) {
-        $ret = $ret["dep_hSvChi"];
-    } else {
-        $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
-    }
-    for ($i = 0; $i < count($ret); $i++) {
+    $ret = $ret["dep_hSvChi"] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
+    $counter = count($ret);
+    for ($i = 0; $i < $counter; $i++) {
         $exp = explode("-", $ret[$i]);
         if (count($exp) == 2) {
             $rq = "INSERT INTO dependency_serviceChild_relation ";

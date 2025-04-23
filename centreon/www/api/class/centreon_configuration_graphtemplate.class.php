@@ -37,10 +37,15 @@
 require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
 require_once __DIR__ . "/centreon_configuration_objects.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonConfigurationGraphtemplate
+ */
 class CentreonConfigurationGraphtemplate extends CentreonConfigurationObjects
 {
     /**
-     * Constructor
+     * CentreonConfigurationGraphtemplate constructor
      */
     public function __construct()
     {
@@ -49,17 +54,14 @@ class CentreonConfigurationGraphtemplate extends CentreonConfigurationObjects
 
     /**
      * @return array
+     * @throws PDOException
      * @throws RestBadRequestException
      */
     public function getList()
     {
-        $queryValues = array();
+        $queryValues = [];
         // Check for select2 'q' argument
-        if (false === isset($this->arguments['q'])) {
-            $queryValues['name'] = '%%';
-        } else {
-            $queryValues['name'] = '%' . (string)$this->arguments['q'] . '%';
-        }
+        $queryValues['name'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string)$this->arguments['q'] . '%';
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT graph_id, name ' .
             'FROM giv_graphs_template ' .
@@ -87,17 +89,11 @@ class CentreonConfigurationGraphtemplate extends CentreonConfigurationObjects
             $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
         }
         $stmt->execute();
-        $serviceList = array();
+        $serviceList = [];
         while ($data = $stmt->fetch()) {
-            $serviceList[] = array(
-                'id' => $data['graph_id'],
-                'text' => $data['name']
-            );
+            $serviceList[] = ['id' => $data['graph_id'], 'text' => $data['name']];
         }
 
-        return array(
-            'items' => $serviceList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+        return ['items' => $serviceList, 'total' => (int) $this->pearDB->numberRows()];
     }
 }

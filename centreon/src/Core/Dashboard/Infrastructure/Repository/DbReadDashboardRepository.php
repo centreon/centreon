@@ -31,10 +31,12 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
+use Core\Media\Domain\Model\Media;
 use Utility\SqlConcatenator;
 
 /**
@@ -49,15 +51,100 @@ use Utility\SqlConcatenator;
  *     refresh_type: string,
  *     refresh_interval: ?int
  * }
+ * @phpstan-type _DashboardThumbnailSet array{
+ *     dashboard_id: int,
+ *     id: int,
+ *     name: string,
+ *     directory: string,
+ * }
  */
 class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDashboardRepositoryInterface
 {
     use LoggerTrait;
     use RepositoryTrait;
+    use SqlMultipleBindTrait;
 
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findThumbnailByDashboardId(int $dashboardId): ?Media
+    {
+        $query = <<<'SQL'
+                SELECT
+                    images.img_id AS `id`,
+                    images.img_path AS `name`,
+                    directories.dir_name AS `directory`
+                FROM `:db`.view_img images
+                LEFT JOIN `:db`.dashboard_thumbnail_relation dtr
+                    ON dtr.img_id = images.img_id
+                LEFT JOIN `:db`.view_img_dir_relation idr
+                    ON idr.img_img_id = dtr.img_id
+                LEFT JOIN `:db`.view_img_dir directories
+                    ON directories.dir_id = idr.dir_dir_parent_id
+                WHERE dtr.dashboard_id = :dashboardId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        /** @var null|false|_DashboardThumbnailSet $data */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createThumbnailFromArray($data) : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findThumbnailsByDashboardIds(array $dashboardIds): array
+    {
+        $thumbnails = [];
+
+        if ($dashboardIds === []) {
+            return $thumbnails;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($dashboardIds, ':dashboard');
+
+        $query = <<<SQL
+                SELECT
+                    images.img_id AS `id`,
+                    images.img_path AS `name`,
+                    directories.dir_name AS `directory`,
+                    dtr.dashboard_id
+                FROM `:db`.view_img images
+                LEFT JOIN `:db`.dashboard_thumbnail_relation dtr
+                    ON dtr.img_id = images.img_id
+                LEFT JOIN `:db`.view_img_dir_relation idr
+                    ON idr.img_img_id = dtr.img_id
+                LEFT JOIN `:db`.view_img_dir directories
+                    ON directories.dir_id = idr.dir_dir_parent_id
+                WHERE dtr.dashboard_id IN ({$bindQuery})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+
+        foreach ($bindValues as $index => $value) {
+            $statement->bindValue($index, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        foreach ($statement as $record) {
+            /** @var _DashboardThumbnailSet $record */
+            $thumbnails[(int) $record['dashboard_id']] = $this->createThumbnailFromArray($record);
+        }
+
+        return $thumbnails;
     }
 
     /**
@@ -323,6 +410,22 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
     }
 
     /**
+     * @param _DashboardThumbnailSet $record
+     *
+     * @return Media
+     */
+    private function createThumbnailFromArray(array $record): Media
+    {
+        return new Media(
+            (int) $record['id'],
+            $record['name'],
+            $record['directory'],
+            comment: null,
+            data: null
+        );
+    }
+
+    /**
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      *
@@ -339,7 +442,19 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         $sqlTranslator?->setConcordanceArray([
             'id' => 'd.id',
             'name' => 'd.name',
+            'created_at' => 'd.created_at',
+            'updated_at' => 'd.updated_at',
+            'created_by' => 'c.contact_name',
         ]);
+
+        if (array_key_exists('created_by', $requestParameters?->getSort() ?? [])) {
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    LEFT JOIN contact c
+                    ON d.created_by = c.contact_id
+                    SQL
+            );
+        }
 
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $sqlTranslator?->translateForConcatenator($concatenator);
@@ -439,10 +554,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      */
     private function createDashboardFromArray(array $result): Dashboard
     {
-        return new Dashboard(
+        $dashboard = new Dashboard(
             id: $result['id'],
             name: $result['name'],
-            description: (string) $result['description'],
             createdBy: $result['created_by'],
             updatedBy: $result['updated_by'],
             createdAt: $this->timestampToDateTimeImmutable($result['created_at']),
@@ -452,5 +566,11 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                 $result['refresh_interval'],
             )
         );
+
+        if ($result['description'] !== null) {
+            $dashboard->setDescription($result['description']);
+        }
+
+        return $dashboard;
     }
 }

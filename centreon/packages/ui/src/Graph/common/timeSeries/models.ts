@@ -1,5 +1,7 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
+import { ChartAxis } from '../../Chart/models';
+
 interface DsData {
   ds_color_area: string;
   ds_color_line: string;
@@ -17,6 +19,7 @@ export interface Metric {
   critical_high_threshold: number | null;
   critical_low_threshold: number | null;
   data: Array<number | null>;
+  displayAs?: 'line' | 'bar';
   ds_data?: DsData;
   legend: string;
   maximum_value: number | null;
@@ -39,6 +42,7 @@ export interface Line {
   average_value: number | null;
   color: string;
   display: boolean;
+  displayAs?: 'line' | 'bar';
   filled: boolean;
   highlight?: boolean;
   invert: string | null;
@@ -67,9 +71,11 @@ export interface Xscale {
   dataTime: Array<TimeValue>;
   valueWidth: number;
 }
-export interface AxeScale {
+export interface AxeScale
+  extends Pick<ChartAxis, 'isCenteredZero' | 'scale' | 'scaleLogarithmicBase'> {
   dataLines: Array<Line>;
   dataTimeSeries: Array<TimeValue>;
+  isHorizontal?: boolean;
   thresholdUnit?: string;
   thresholds: Array<number>;
   valueGraphHeight: number;

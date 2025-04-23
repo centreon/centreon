@@ -1,5 +1,5 @@
 <?php
-$help = array();
+$help = [];
 $help["name"] = dgettext(
     "help",
     "Define a short name for this category. It will be displayed with this name in the ACL configuration."

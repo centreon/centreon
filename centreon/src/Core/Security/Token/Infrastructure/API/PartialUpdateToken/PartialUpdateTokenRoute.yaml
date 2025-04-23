@@ -1,0 +1,8 @@
+PartialUpdateToken:
+  methods: PATCH
+  path: /administration/tokens/{tokenName}/users/{userId}
+  requirements:
+    tokenName: '.+'
+    userId: '\d+'
+  controller: 'Core\Security\Token\Infrastructure\API\PartialUpdateToken\PartialUpdateTokenController'
+  condition: "request.attributes.get('version') >= 23.10"

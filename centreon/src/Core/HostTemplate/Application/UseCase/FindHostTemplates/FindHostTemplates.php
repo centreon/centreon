@@ -34,6 +34,7 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class FindHostTemplates
 {
@@ -41,6 +42,7 @@ final class FindHostTemplates
 
     public function __construct(
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ContactInterface $user
     ) {
@@ -67,7 +69,16 @@ final class FindHostTemplates
                 return;
             }
 
-            $hostTemplates = $this->readHostTemplateRepository->findByRequestParameter($this->requestParameters);
+            if ($this->user->isAdmin()) {
+                $hostTemplates = $this->readHostTemplateRepository->findByRequestParameter($this->requestParameters);
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $hostTemplates = $this->readHostTemplateRepository->findByRequestParametersAndAccessGroups(
+                    $this->requestParameters,
+                    $accessGroups
+                );
+            }
+
             $presenter->presentResponse($this->createResponse($hostTemplates));
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(HostTemplateException::findHostTemplates()));

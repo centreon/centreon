@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 
-import { Listing } from '../../../api/models';
 import { SelectEntry } from '../../..';
+import { Listing } from '../../../api/models';
 
 import { AccessRightInitialValues, Labels } from './models';
 
@@ -105,9 +105,6 @@ export const buildResult = (isGroup): Listing<SelectEntry> => ({
 export const labels: Labels = {
   actions: {
     cancel: 'Cancel',
-    copyError: 'Failed to copy',
-    copyLink: 'Copy link',
-    copySuccess: 'Copied',
     save: 'Save'
   },
   add: {
@@ -139,84 +136,86 @@ export const roles = [
 ];
 
 export const removedAccessRights = [
-  {
-    email: 'Virgie14@yahoo.com',
-    id: 1,
-    isContactGroup: false,
-    name: 'Jody Blanda',
-    role: 'editor'
-  },
-  {
-    email: 'Wyman29@yahoo.com',
-    id: 2,
-    isContactGroup: false,
-    name: 'Susan Dooley',
-    role: 'viewer'
-  },
-  {
-    email: 'Merle.Schamberger@hotmail.com',
-    id: 3,
-    isContactGroup: false,
-    name: 'Lewis Buckridge PhD',
-    role: 'editor'
-  },
-  {
-    email: 'Rossie6@gmail.com',
-    id: 4,
-    isContactGroup: false,
-    name: 'Bertha Hane',
-    role: 'viewer'
-  },
-  {
-    email: 'Monty_Nienow47@gmail.com',
-    id: 5,
-    isContactGroup: true,
-    name: 'Mildred Ratke-Stanton',
-    role: 'editor'
-  }
+  [
+    {
+      email: 'Dannie_Schumm@gmail.com',
+      id: 0,
+      isContactGroup: true,
+      name: 'Desiree Hauck II',
+      role: 'viewer'
+    },
+    {
+      email: 'Dulce48@gmail.com',
+      id: 2,
+      isContactGroup: false,
+      name: 'Maryann Ferry',
+      role: 'viewer'
+    },
+    {
+      email: 'Lora.Leuschke83@yahoo.com',
+      id: 3,
+      isContactGroup: false,
+      name: 'Angelica Pagac',
+      role: 'editor'
+    },
+    {
+      email: 'Daniela38@yahoo.com',
+      id: 4,
+      isContactGroup: false,
+      name: 'Ginger Walsh I',
+      role: 'viewer'
+    },
+    {
+      email: 'Reanna9@yahoo.com',
+      id: 5,
+      isContactGroup: true,
+      name: 'Luther Heller',
+      role: 'editor'
+    }
+  ]
 ];
 
 export const updatedAccessRights = [
   {
-    email: 'Jovani.Willms74@gmail.com',
+    email: 'Kylie_Wintheiser54@hotmail.com',
     id: 0,
     isContactGroup: true,
-    name: 'Leah McGlynn',
+    name: 'Kathy Schmitt',
     role: 'editor'
   },
   {
-    email: 'Virgie14@yahoo.com',
+    email: 'Adrienne.Kassulke-Rutherford@gmail.com',
     id: 1,
     isContactGroup: false,
-    name: 'Jody Blanda',
+    name: 'Linda Schultz',
     role: 'editor'
   },
   {
-    email: 'Wyman29@yahoo.com',
+    email: 'Merle7@hotmail.com',
     id: 2,
     isContactGroup: false,
-    name: 'Susan Dooley',
+    name: 'Lewis Buckridge PhD',
     role: 'viewer'
   },
   {
-    email: 'Merle.Schamberger@hotmail.com',
+    email: 'Linda.Harris37@hotmail.com',
     id: 3,
     isContactGroup: false,
-    name: 'Lewis Buckridge PhD',
+    name: "Jodi O'Reilly",
     role: 'editor'
   },
   {
-    email: 'Rossie6@gmail.com',
+    email: 'Louvenia.Torphy@yahoo.com',
     id: 4,
     isContactGroup: false,
-    name: 'Bertha Hane',
+    name: 'Mildred Ratke-Stanton',
     role: 'viewer'
   },
   {
-    email: 'Monty_Nienow47@gmail.com',
+    email: 'Kelli.Russel4@hotmail.com',
     id: 5,
     isContactGroup: true,
-    name: 'Mildred Ratke-Stanton',
+    name: 'Rudolph Brown',
     role: 'editor'
   }
 ];

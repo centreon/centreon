@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Hypermedia;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+
 class HypermediaCreator
 {
     /** @var HypermediaProviderInterface[] */
@@ -38,6 +40,13 @@ class HypermediaCreator
             : $hypermediaProviders;
 
             $this->hypermediaProviders = $hypermediaProviders;
+    }
+
+    public function setCustomUser(ContactInterface $user): void
+    {
+        foreach ($this->hypermediaProviders as $hypermediaProvider) {
+            $hypermediaProvider->setContact($user);
+        }
     }
 
     /**

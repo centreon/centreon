@@ -24,19 +24,19 @@ namespace Tests\Security;
 use PHPUnit\Framework\TestCase;
 use Security\Encryption;
 
+/**
+ * Class
+ *
+ * @class EncryptionTest
+ * @package Tests\Security
+ */
 class EncryptionTest extends TestCase
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $firstKey;
-    /**
-     * @var string
-     */
+    /** @var string */
     private $secondKey;
-    /**
-     * @var string
-     */
+    /** @var string */
     private $falseKey;
 
     public function setUp(): void
@@ -92,10 +92,15 @@ class EncryptionTest extends TestCase
         $encryption->crypt($this->falseKey);
     }
 
-    public function testWarningOnBadHashAlgorihtmWhileEncryption(): void
+    public function testWarningOnBadHashAlgorithmWhileEncryption(): void
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
+
+        set_error_handler(function($errNo, $errStr, ...$args): void {
+            throw new \Exception($errStr);
+            restore_error_handler();
+        });
         $encryption = (new Encryption('bad-algorithm'))
             ->setFirstKey($this->secondKey)
             ->setSecondKey($this->secondKey);
@@ -140,10 +145,15 @@ class EncryptionTest extends TestCase
         $encryption->decrypt($this->falseKey);
     }
 
-    public function testWarningOnBadHashAlgorihtmWhileDecryption(): void
+    public function testWarningOnBadHashAlgorithmWhileDecryption(): void
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
+
+        set_error_handler(function($errNo, $errStr, ...$args): void {
+            throw new \Exception($errStr);
+            restore_error_handler();
+        });
         $encryption = (new Encryption('bad-algorithm'))
             ->setFirstKey($this->secondKey)
             ->setSecondKey($this->secondKey);

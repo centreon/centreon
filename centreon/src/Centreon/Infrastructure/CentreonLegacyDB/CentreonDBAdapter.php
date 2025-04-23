@@ -110,7 +110,7 @@ class CentreonDBAdapter
             throw new \Exception('Error at preparing the query.');
         }
 
-        if (is_array($params) && !empty($params)) {
+        if (is_array($params) && $params !== []) {
             $x = 1;
 
             foreach ($params as $param) {
@@ -121,7 +121,7 @@ class CentreonDBAdapter
 
         try {
             $result = $this->query->execute();
-            $isSelect = strpos(strtolower($query), 'select') !== false;
+            $isSelect = str_contains(strtolower($query), 'select');
 
             if ($result && $isSelect) {
                 $this->result = $this->query->fetchAll(\PDO::FETCH_OBJ);
@@ -192,7 +192,7 @@ class CentreonDBAdapter
      * @throws \Exception
      *
      */
-    public function loadDataInfile(string $file, string $table, array $fieldsClause, array $linesClause, array $columns)
+    public function loadDataInfile(string $file, string $table, array $fieldsClause, array $linesClause, array $columns): void
     {
         // SQL statement format:
         // LOAD DATA
@@ -286,17 +286,17 @@ class CentreonDBAdapter
         return $this->errorInfo;
     }
 
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         $this->db->beginTransaction();
     }
 
-    public function commit()
+    public function commit(): void
     {
         $this->db->commit();
     }
 
-    public function rollBack()
+    public function rollBack(): void
     {
         $this->db->rollBack();
     }

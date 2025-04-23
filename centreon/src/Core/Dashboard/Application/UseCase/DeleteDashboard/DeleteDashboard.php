@@ -35,25 +35,32 @@ use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Throwable;
 
 final class DeleteDashboard
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly WriteMediaRepositoryInterface $mediaRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
     public function __invoke(int $dashboardId, DeleteDashboardPresenterInterface $presenter): void
     {
         try {
-            if ($this->rights->hasAdminRole()) {
+            if ($this->isUserAdmin()) {
                 $presenter->presentResponse($this->deleteDashboardAsAdmin($dashboardId));
             } elseif ($this->rights->canCreate()) {
                 $presenter->presentResponse($this->deleteDashboardAsContact($dashboardId));
@@ -82,6 +89,10 @@ final class DeleteDashboard
     private function deleteDashboardAsAdmin(int $dashboardId): ResponseStatusInterface
     {
         if ($this->readDashboardRepository->existsOne($dashboardId)) {
+            if (($thumbail = $this->readDashboardRepository->findThumbnailByDashboardId($dashboardId)) !== null) {
+                $this->mediaRepository->delete($thumbail);
+            }
+
             $this->writeDashboardRepository->delete($dashboardId);
 
             return new NoContentResponse();
@@ -113,8 +124,32 @@ final class DeleteDashboard
             return new ForbiddenResponse(DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboardId));
         }
 
+        if (($thumbail = $this->readDashboardRepository->findThumbnailByDashboardId($dashboardId)) !== null) {
+            $this->mediaRepository->delete($thumbail);
+        }
+
         $this->writeDashboardRepository->delete($dashboardId);
 
         return new NoContentResponse();
+    }
+
+    /**
+     * @throws Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

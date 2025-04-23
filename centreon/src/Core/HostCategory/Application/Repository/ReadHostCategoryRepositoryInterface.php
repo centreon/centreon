@@ -45,14 +45,14 @@ interface ReadHostCategoryRepositoryInterface
     /**
      * Find all host categories by access groups.
      *
-     * @param AccessGroup[] $accessGroups
+     * @param int[] $accessGroupIds
      * @param RequestParametersInterface|null $requestParameters
      *
      * @throws \Throwable
      *
      * @return HostCategory[]
      */
-    public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array;
+    public function findAllByAccessGroupIds(array $accessGroupIds, ?RequestParametersInterface $requestParameters): array;
 
     /**
      * Check existence of a host category.
@@ -166,4 +166,13 @@ interface ReadHostCategoryRepositoryInterface
      * @return HostCategoryNamesById
      */
     public function findNames(array $hostCategoryIds): HostCategoryNamesById;
+
+    /**
+     * Determine if host categories are filtered for given access group ids.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @return bool
+     */
+    public function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool;
 }

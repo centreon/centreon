@@ -31,19 +31,19 @@ use Core\Contact\Domain\Model\ContactTemplate;
  */
 class NewUser
 {
-    public const MIN_ALIAS_LENGTH = 1,
-                 MAX_ALIAS_LENGTH = 255,
-                 MIN_NAME_LENGTH = 1,
-                 MAX_NAME_LENGTH = 255,
-                 MIN_EMAIL_LENGTH = 1,
-                 MAX_EMAIL_LENGTH = 255,
-                 MIN_THEME_LENGTH = 1,
-                 MAX_THEME_LENGTH = 100,
-                 MAX_USER_INTERFACE_DENSITY_LENGTH = 100,
-                 THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark',
-                 USER_INTERFACE_DENSITY_EXTENDED = 'extended',
-                 USER_INTERFACE_DENSITY_COMPACT = 'compact';
+    public const MIN_ALIAS_LENGTH = 1;
+    public const MAX_ALIAS_LENGTH = 255;
+    public const MIN_NAME_LENGTH = 1;
+    public const MAX_NAME_LENGTH = 255;
+    public const MIN_EMAIL_LENGTH = 1;
+    public const MAX_EMAIL_LENGTH = 255;
+    public const MIN_THEME_LENGTH = 1;
+    public const MAX_THEME_LENGTH = 100;
+    public const MAX_USER_INTERFACE_DENSITY_LENGTH = 100;
+    public const THEME_LIGHT = 'light';
+    public const THEME_DARK = 'dark';
+    public const USER_INTERFACE_DENSITY_EXTENDED = 'extended';
+    public const USER_INTERFACE_DENSITY_COMPACT = 'compact';
 
     /** @var bool */
     protected bool $isActivate = true;
@@ -60,6 +60,10 @@ class NewUser
     protected string $userInterfaceDensity = self::USER_INTERFACE_DENSITY_COMPACT;
 
     protected bool $canReachFrontend = true;
+
+    protected bool $canReachRealtimeApi = false;
+
+    protected bool $canReachConfigurationApi = false;
 
     /**
      * @param string $alias
@@ -294,5 +298,45 @@ class NewUser
         $this->canReachFrontend = $canReachFrontend;
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canReachRealtimeApi(): bool
+    {
+        return $this->canReachRealtimeApi;
+    }
+
+    /**
+     * @param bool $canReachRealtimeApi
+     *
+     * @return self
+     */
+    public function setCanReachRealtimeApi(bool $canReachRealtimeApi): self
+    {
+        $this->canReachRealtimeApi = $canReachRealtimeApi;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $canReachConfigurationApi
+     *
+     * @return self
+     */
+    public function setCanReachConfigurationApi(bool $canReachConfigurationApi): self
+    {
+        $this->canReachConfigurationApi = $canReachConfigurationApi;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canReachConfigurationApi(): bool
+    {
+        return $this->canReachConfigurationApi;
     }
 }

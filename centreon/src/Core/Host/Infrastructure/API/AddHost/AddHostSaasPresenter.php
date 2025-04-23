@@ -55,7 +55,6 @@ class AddHostSaasPresenter extends AbstractPresenter implements AddHostPresenter
                         'geo_coords' => $response->geoCoords,
                         'icon_id' => $response->iconId,
                         'alias' => $this->emptyStringAsNull($response->alias),
-                        'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'max_check_attempts' => $response->maxCheckAttempts,
                         'normal_check_interval' => $response->normalCheckInterval,
                         'retry_check_interval' => $response->retryCheckInterval,
@@ -65,6 +64,8 @@ class AddHostSaasPresenter extends AbstractPresenter implements AddHostPresenter
                         'timezone_id' => $response->timezoneId,
                         'severity_id' => $response->severityId,
                         'check_timeperiod_id' => $response->checkTimeperiodId,
+                        'event_handler_enabled' => $response->eventHandlerEnabled,
+                        'event_handler_command_args' => $response->eventHandlerCommandArgs,
                         'categories' => array_map(
                             function (array $category) {
                                 return [

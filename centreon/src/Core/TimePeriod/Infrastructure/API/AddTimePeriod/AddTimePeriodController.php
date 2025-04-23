@@ -24,98 +24,27 @@ declare(strict_types=1);
 namespace Core\TimePeriod\Infrastructure\API\AddTimePeriod;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Infrastructure\Common\Api\Router;
-use Core\TimePeriod\Application\UseCase\AddTimePeriod\{
-    AddTimePeriod, AddTimePeriodRequest
-};
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Core\TimePeriod\Application\UseCase\AddTimePeriod\{AddTimePeriod, AddTimePeriodRequest};
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 
 final class AddTimePeriodController extends AbstractController
 {
-    use LoggerTrait;
-
     /**
-     * @param Request $request
      * @param AddTimePeriod $useCase
+     * @param AddTimePeriodRequest $request
      * @param AddTimePeriodsPresenter $presenter
-     * @param Router $router
      *
-     * @throws AccessDeniedException
-     *
-     * @return object
+     * @return Response
      */
     public function __invoke(
-        Request $request,
         AddTimePeriod $useCase,
+        #[MapRequestPayload] AddTimePeriodRequest $request,
         AddTimePeriodsPresenter $presenter,
-        Router $router
-    ): object {
+    ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
-        try {
-            /**
-             * @var array{
-             *     name: string,
-             *     alias: string,
-             *     days: array<array{
-             *         day: integer,
-             *         time_range: string
-             *     }>,
-             *     templates: int[],
-             *     exceptions: array<array{
-             *         day_range: string,
-             *         time_range: string
-             *     }>
-             * } $dataSent
-             */
-            $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddTimePeriodSchema.json');
-            $dtoRequest = $this->createDtoRequest($dataSent);
-            $useCase($dtoRequest, $presenter);
-        } catch (\InvalidArgumentException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
-        }
+        $useCase($request->toDto(), $presenter);
 
         return $presenter->show();
-    }
-
-    /**
-     * @param array{
-     *     name: string,
-     *     alias: string,
-     *     days: array<array{
-     *         day: integer,
-     *         time_range: string
-     *     }>,
-     *     templates: int[],
-     *     exceptions: array<array{
-     *         day_range: string,
-     *         time_range: string
-     *     }>
-     * } $dataSent
-     *
-     * @return AddTimePeriodRequest
-     */
-    private function createDtoRequest(array $dataSent): AddTimePeriodRequest
-    {
-        $dto = new AddTimePeriodRequest();
-        $dto->name = $dataSent['name'];
-        $dto->alias = $dataSent['alias'];
-        $dto->days = array_map(
-            fn (array $day): array => ['day' => $day['day'], 'time_range' => $day['time_range']],
-            $dataSent['days']
-        );
-        $dto->templates = $dataSent['templates'];
-        $dto->exceptions = array_map(
-            fn (array $exception): array => [
-                'day_range' => $exception['day_range'],
-                'time_range' => $exception['time_range'],
-            ],
-            $dataSent['exceptions']
-        );
-
-        return $dto;
     }
 }

@@ -38,15 +38,24 @@ define("PROCEDURE_SIMPLE_MODE", 0);
 define("PROCEDURE_INHERITANCE_MODE", 1);
 require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wikiApi.class.php";
 
+/**
+ * Class
+ *
+ * @class procedures
+ */
 class procedures
 {
+    /** @var array */
     private $procList = [];
+    /** @var CentreonDB */
     public $DB;
+    /** @var CentreonDB */
     public $centreon_DB;
+    /** @var WikiApi */
     public $api;
 
     /**
-     * Constructor
+     * procedures constructor
      *
      * @param CentreonDB $pearDB
      */
@@ -78,12 +87,14 @@ class procedures
     /**
      * Get service template
      *
-     * @param int $service_id
+     * @param null $service_id
+     *
      * @return array
+     * @throws PDOException
      */
     public function getMyServiceTemplateModels($service_id = null)
     {
-        $tplArr = array();
+        $tplArr = [];
 
         $dbResult = $this->centreon_DB->query(
             "SELECT service_description, service_template_model_stm_id " .
@@ -123,8 +134,10 @@ class procedures
     /**
      * Get host template models
      *
-     * @param int $host_id
+     * @param null $host_id
+     *
      * @return array
+     * @throws PDOException
      */
     public function getMyHostMultipleTemplateModels($host_id = null)
     {
@@ -132,7 +145,7 @@ class procedures
             return [];
         }
 
-        $tplArr = array();
+        $tplArr = [];
         $dbResult = $this->centreon_DB->query(
             "SELECT host_tpl_id " .
             "FROM `host_template_relation` " .
@@ -163,7 +176,7 @@ class procedures
      * @param int $mode
      * @return bool
      */
-    public function serviceHasProcedure($key, $templates = array(), $mode = PROCEDURE_SIMPLE_MODE)
+    public function serviceHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
         if (isset($this->procList["Service_:_" . $key])) {
             return true;
@@ -189,7 +202,7 @@ class procedures
      * @param int $mode
      * @return bool
      */
-    public function hostHasProcedure($key, $templates = array(), $mode = PROCEDURE_SIMPLE_MODE)
+    public function hostHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
         if (isset($this->procList["Host_:_" . $key])) {
             return true;
@@ -216,7 +229,7 @@ class procedures
      * @param int $mode
      * @return bool
      */
-    public function serviceTemplateHasProcedure($key = "", $templates = array(), $mode = PROCEDURE_SIMPLE_MODE)
+    public function serviceTemplateHasProcedure($key = "", $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
         if (isset($this->procList["Service-Template_:_" . $key])) {
             return true;
@@ -240,7 +253,7 @@ class procedures
      * @param array $templates
      * @return bool
      */
-    public function hostTemplateHasProcedure($key = "", $templates = array(), $mode = PROCEDURE_SIMPLE_MODE)
+    public function hostTemplateHasProcedure($key = "", $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
         if (isset($this->procList["Host-Template_:_" . $key])) {
             return true;

@@ -25,6 +25,7 @@ namespace Core\Dashboard\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Core\Dashboard\Domain\Model\Validation\DashboardValidationTrait;
+use Core\Media\Domain\Model\Media;
 
 class NewDashboard
 {
@@ -32,7 +33,7 @@ class NewDashboard
 
     protected string $name;
 
-    protected string $description;
+    protected ?string $description = null;
 
     protected \DateTimeImmutable $createdAt;
 
@@ -42,16 +43,18 @@ class NewDashboard
 
     protected int $updatedBy;
 
+    protected ?Media $thumbnail = null;
+
     /**
      * @param string $name
      * @param int $createdBy
+     * @param Refresh $refresh
      *
      * @throws AssertionFailedException
      */
-    public function __construct(string $name, int $createdBy)
+    public function __construct(string $name, int $createdBy, private readonly Refresh $refresh)
     {
         $this->setName($name);
-        $this->setDescription('');
         $this->setCreatedBy($createdBy);
         $this->setUpdatedBy($createdBy);
         $this->createdAt = new \DateTimeImmutable();
@@ -83,7 +86,7 @@ class NewDashboard
         return $this->name;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -100,12 +103,17 @@ class NewDashboard
     }
 
     /**
-     * @param string $description
+     * @param string|null $description
      *
      * @throws AssertionFailedException
      */
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
+        if (! is_string($description)) {
+            $this->description = $description;
+
+            return;
+        }
         $this->description = trim($description);
         $this->ensureValidDescription($this->description);
     }
@@ -130,5 +138,26 @@ class NewDashboard
     {
         $this->updatedBy = $userId;
         $this->ensurePositiveInt($this->updatedBy, 'updatedBy');
+    }
+
+    public function getRefresh(): Refresh
+    {
+        return $this->refresh;
+    }
+
+    /**
+     * @return null|Media
+     */
+    public function getThumbnail(): ?Media
+    {
+        return $this->thumbnail;
+    }
+
+    /**
+     * @param null|Media $thumbnail
+     */
+    public function setThumbnail(?Media $thumbnail): void
+    {
+        $this->thumbnail = $thumbnail;
     }
 }

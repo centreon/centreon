@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '24.04.0');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '25.05.0');
 
 --
 -- Contenu de la table `contact`
@@ -224,7 +224,9 @@ INSERT INTO `giv_graphs_template` (`graph_id`, `name`, `vertical_label`, `width`
 --
 INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
 (1, 'Perl Connector', '', 'centreon_connector_perl --log-file=@monitoring_varlog@/connector-perl.log', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-(2, 'SSH Connector', '', 'centreon_connector_ssh --log-file=@monitoring_varlog@/connector-ssh.log', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+(2, 'SSH Connector', '', 'centreon_connector_ssh --log-file=@monitoring_varlog@/connector-ssh.log', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(3,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(4, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
 
 
 --
@@ -476,7 +478,14 @@ INSERT INTO `cb_log` (`id`, `name`) VALUES
 (7, 'tcp'),
 (8, 'tls'),
 (9, 'lua'),
-(10, 'bam');
+(10, 'bam'),
+(11, 'neb'),
+(12, 'rrd'),
+(13, 'grpc'),
+(14, 'influxdb'),
+(15, 'graphite'),
+(16, 'victoria_metrics'),
+(17, 'stats');
 
 --
 -- Contenu de la table `cb_log_level`
@@ -589,7 +598,6 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (36, 'rrd_cached_option', 'Enable RRDCached', 'Enable rrdcached option for Centreon, please see Centreon documentation to configure it.', 'radio', NULL),
 (37, 'rrd_cached', 'RRDCacheD listening socket/port', 'The absolute path to unix socket or TCP port for communicating with rrdcached daemon.', 'text', NULL),
 (38, 'max_size', 'Max file size in bytes', 'The maximum size of log file.', 'int', NULL),
-(39, 'check_replication', 'Replication enabled', 'When enabled, the broker engine will check whether or not the replication is up to date before attempting to update data.', 'radio', NULL),
 (40, 'rebuild_check_interval', 'Rebuild check interval in seconds', 'The interval between check if some metrics must be rebuild. The default value is 300s', 'int', NULL),
 (41, 'max_size', 'Maximum size of file', 'Maximum size in bytes.', 'int', NULL),
 (42, 'store_in_data_bin', 'Store in performance data in data_bin', 'It should be enabled to control whether or not Centreon Broker should insert performance data in the data_bin table.', 'radio', NULL),
@@ -610,7 +618,7 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (68, 'storage_db_port', 'Storage DB port', 'Port on which the DB server listens', 'int', NULL),
 (69, 'storage_db_type', 'Storage DB type', 'Target DBMS.', 'select', NULL),
 (74, 'path', 'Path', 'Path of the lua script.', 'text', NULL),
-(75, 'connections_count', 'Number of connection to the database', 'Usually cpus/2', 'int', NULL),
+(75, 'connections_count', 'Number of connections to the database', "1: all queries are sent through one connection\n 2: one connection for data_bin and logs, one for the rest\n 3: one connection for data_bin, one for logs, one for the rest", 'int', NULL),
 (76, 'tls_hostname', 'TLS Host name', 'Expected TLS certificate common name (CN) - leave blank if unsure.', 'text', NULL),
 (77, 'db_type', 'DB type', 'Target DBMS.', 'text', 'T=options:C=value:CK=key:K=unified_sql_db_type'),
 (78, 'host','Listening address (optional)','Fill in this field only if you want to specify the address on which Broker should listen','text', NULL),
@@ -622,7 +630,6 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (84, 'certificate','Certificate path','Full path to the file containing the certificate in PEM format (required for encryption)','text', NULL),
 (85, 'compression','Compression','Enable data compression','radio', NULL),
 (86, 'retention','Enable retention','Enable data retention until the client is connected','radio', NULL),
-(87, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL),
 (88, 'host','Server address','Address of the server to which the client should connect','text', NULL),
 (89, 'port','Server port','TCP port of the server to which the client should connect','int', NULL),
 (90, 'retry_interval','Retry interval (seconds)','Number of seconds between a lost or failed connection and the next try','int', NULL),
@@ -631,8 +638,7 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (93, 'encryption','Enable TLS encryption','Enable TLS 1.3 encryption','radio', NULL),
 (94, 'ca_certificate',"Trusted CA's certificate path (optional)","If the server's certificate is signed by an untrusted Certification Authority (CA), then specify the certificate's path.\nIf the server\s certificate is self-signed, then specify its path.\nYou can also add the certificate to the store of certificates trusted by the operating system.\nThe file must be in PEM format.",'text', NULL),
 (95, 'ca_name','Certificate Common Name (optional)','If the Common Name (CN) of the certificate is different from the value in the "Server address" field, the CN must be provided here','text', NULL),
-(96, 'compression','Compression','Enable data compression','radio', NULL),
-(97, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL);
+(96, 'compression','Compression','Enable data compression','radio', NULL);
 
 INSERT INTO `cb_fieldgroup` (`cb_fieldgroup_id`, `groupname`, `displayname`, `multiple`, `group_parent_id`) VALUES
 (1, 'filters', '', 0, NULL),
@@ -654,7 +660,9 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (62, 'is_tag', 'Tag', 'Whether or not this column is a tag', 'radio', NULL, 3),
 (71, 'name', 'Name', 'Name of the metric.', 'text', NULL, 4),
 (72, 'value', 'Value', 'Value of the metric.', 'text', NULL, 4),
-(73, 'type', 'Type', 'Type of the metric.', 'select', NULL, 4);
+(73, 'type', 'Type', 'Type of the metric.', 'select', NULL, 4),
+(87, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL, 1),
+(97, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL, 1);
 
 --
 -- Contenu de la table `cb_list`
@@ -671,7 +679,6 @@ INSERT INTO `cb_list` (`cb_list_id`, `cb_field_id`, `default_value`) VALUES
 (3, 15, NULL),
 (3, 69, NULL),
 (4, 24, NULL),
-(1, 39, 'no'),
 (1, 42, 'yes'),
 (1, 44, 'yes'),
 (1, 45, 'yes'),
@@ -854,8 +861,6 @@ INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`
 (24, 22, 1, 4),
 (24, 23, 1, 5),
 (24, 24, 1, 6),
-(14, 39, 0, 11),
-(16, 39, 0, 8),
 (14, 40, 0, 12),
 (13, 42, 1, 5),
 (13, 43, 1, 6),
@@ -924,7 +929,6 @@ INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`
 (34, 10, 1, 8),
 (34, 34, 0, 9),
 (34, 35, 0, 10),
-(34, 39, 0, 11),
 (34, 40, 0, 12),
 (34, 42, 1, 13),
 (34, 43, 1, 14),
@@ -1486,7 +1490,7 @@ INSERT INTO `password_expiration_excluded_users` (provider_configuration_id, use
 VALUES (1, 4);
 
 INSERT INTO provider_configuration (`type`, `name`, `custom_configuration`, `is_active`, `is_forced`)
-VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
+VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","requested_authn_context":"minimum","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
 
 INSERT INTO dashboard_widgets (`name`)
 VALUES ('centreon-widget-generictext');
@@ -1503,5 +1507,9 @@ VALUES ('centreon-widget-topbottom');
 INSERT INTO dashboard_widgets (`name`)
 VALUES ('centreon-widget-statusgrid');
 
-INSERT INTO dashboard_widgets (`name`)
-VALUES ('centreon-widget-resourcestable');
+INSERT INTO dashboard_widgets (`name`) VALUES
+('centreon-widget-resourcestable'),
+('centreon-widget-groupmonitoring'),
+('centreon-widget-statuschart'),
+('centreon-widget-clock'),
+('centreon-widget-webpage');

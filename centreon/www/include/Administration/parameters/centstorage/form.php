@@ -86,8 +86,8 @@ while ($data = $DBRESULT3->fetchRow()) {
 /*
  * Format of text input
  */
-$attrsText        = array("size"=>"40");
-$attrsText2        = array("size"=>"5");
+$attrsText        = ["size"=>"40"];
+$attrsText2        = ["size"=>"5"];
 $attrsAdvSelect = null;
 
 /*
@@ -134,6 +134,9 @@ $form->addElement('text', 'reporting_retention', _("Retention duration for repor
 $form->addElement('checkbox', 'audit_log_option', _("Enable/Disable audit logs"));
 $form->addElement('text', 'audit_log_retention', _("Retention duration for audit logs"), $attrsText2);
 
+$form->addRule('len_storage_downtimes', _("Mandatory field"), 'required');
+$form->addRule('len_storage_downtimes', _("Must be a number"), 'numeric');
+
 // Parameters for Partitioning
 $form->addElement('text', 'partitioning_retention', _("Retention duration for partitioning"), $attrsText2);
 $form->addElement('text', 'partitioning_retention_forward', _("Forward provisioning"), $attrsText2);
@@ -150,16 +153,14 @@ $form->applyFilter('RRDdatabase_path', 'slash');
 $form->applyFilter('RRDdatabase_status_path', 'slash');
 $form->applyFilter('RRDdatabase_nagios_stats_path', 'slash');
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path.'centstorage/', $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path.'centstorage/');
+
 $form->setDefaults($gopt);
 $centreon->initOptGen($pearDB);
 
-$subC = $form->addElement('submit', 'submitC', _("Save"), array("class" => "btc bt_success"));
-$form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+$subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
+$form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
 $valid = false;
 
 if ($form->validate()) {
@@ -184,7 +185,7 @@ $form->addElement(
     "button",
     "change",
     _("Modify"),
-    array("onClick"=>"javascript:window.location.href='?p=".$p."&o=storage'", 'class' => 'btc bt_info')
+    ["onClick"=>"javascript:window.location.href='?p=".$p."&o=storage'", 'class' => 'btc bt_info']
 );
 
 /*

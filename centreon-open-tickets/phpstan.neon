@@ -42,14 +42,10 @@ parameters:
                 - www/modules/centreon-open-tickets/views
                 - www/modules/centreon-open-tickets/providers/EasyVistaRest/ajax/call.php
                 - www/modules/centreon-open-tickets/providers/Itop/ajax/call.php
+                - www/modules/centreon-open-tickets/upgrade/
             message: "#^Variable \\$\\w+ might not be defined.$#"
 
         -
             message: "#^Variable \\$centreon_path might not be defined\\.$#"
             count: 1
             path: www/modules/centreon-open-tickets/class/centreonDBManager.class.php
-
-        -
-            message: "#^Variable \\$read in empty\\(\\) always exists and is not falsy\\.$#"
-            count: 1
-            path: www/modules/centreon-open-tickets/providers/Abstract/AbstractProvider.class.php

@@ -117,12 +117,13 @@ class SAML implements ProviderAuthenticationInterface
         $this->loginLogger->info(Provider::SAML, 'authenticate the user through SAML');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->auth = $auth = new Auth($this->formatter->format($customConfiguration));
+        $this->auth = new Auth($this->formatter->format($customConfiguration));
+        $auth = $this->auth;
         $auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
         $errors = $auth->getErrors();
         if (! empty($errors)) {
             $ex = ProcessAuthenticationResponseException::create();
-            $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors)]);
+            $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors), 'error' => $this->auth->getLastErrorReason()]);
 
             throw $ex;
         }
@@ -443,19 +444,13 @@ class SAML implements ProviderAuthenticationInterface
         $this->info('SAML SLS invoked');
 
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        if (isset($_SESSION, $_SESSION['LogoutRequestID'])) {
-            $requestID = $_SESSION['LogoutRequestID'];
-        } else {
-            $requestID = null;
-        }
+        $requestID = isset($_SESSION, $_SESSION['LogoutRequestID']) ? $_SESSION['LogoutRequestID'] : null;
 
-        $auth->processSLO(true, $requestID);
+        $auth->processSLO(true, $requestID, false, null, true);
 
         // Avoid 'Open Redirect' attacks
         if (isset($_GET['RelayState']) && Utils::getSelfURL() !== $_GET['RelayState']) {
             $auth->redirectTo($_GET['RelayState']);
-
-            exit;
         }
     }
 
@@ -494,6 +489,9 @@ class SAML implements ProviderAuthenticationInterface
 
         $alias = $this->username;
         $user = new NewUser($alias, $fullname, $email);
+        if ($user->canReachFrontend()) {
+            $user->setCanReachRealtimeApi(true);
+        }
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
         $this->info('Auto import complete', [

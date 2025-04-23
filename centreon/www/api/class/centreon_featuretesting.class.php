@@ -33,15 +33,21 @@
  *
  */
 
-require_once dirname(__FILE__) . '/webService.class.php';
+require_once __DIR__ . '/webService.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonFeature.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonFeaturetesting
+ */
 class CentreonFeaturetesting extends CentreonWebService
 {
+    /** @var CentreonFeature */
     protected $obj;
 
     /**
-     * Constructor
+     * CentreonFeaturetesting constructor
      */
     public function __construct()
     {
@@ -53,8 +59,13 @@ class CentreonFeaturetesting extends CentreonWebService
      * Enabled or disabled a feature flipping for an user
      *
      * METHOD POST
+     *
+     * @return void
+     * @throws PDOException
+     * @throws RestBadRequestException
+     * @throws RestUnauthorizedException
      */
-    public function postEnabled()
+    public function postEnabled(): void
     {
         if (!isset($this->arguments['name']) ||
             !isset($this->arguments['version']) ||
@@ -65,8 +76,8 @@ class CentreonFeaturetesting extends CentreonWebService
             throw new \RestUnauthorizedException('Session does not exists.');
         }
         $userId = $_SESSION['centreon']->user->user_id;
-        $features = array();
-        $features[$this->arguments['name']] = array();
+        $features = [];
+        $features[$this->arguments['name']] = [];
         $features[$this->arguments['name']][$this->arguments['version']] = $this->arguments['enabled'] ? 1 : 0;
 
         $this->obj->saveUserFeaturesValue(

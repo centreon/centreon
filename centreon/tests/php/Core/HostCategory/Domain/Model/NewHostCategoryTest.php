@@ -26,19 +26,19 @@ namespace Tests\Core\HostCategory\Domain\Model;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\HostCategory\Domain\Model\NewHostCategory;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->categoryName = 'host-name';
     $this->categoryAlias = 'host-alias';
 });
 
-it('should return properly set host category instance', function () {
+it('should return properly set host category instance', function (): void {
     $hostCategory = new NewHostCategory($this->categoryName, $this->categoryAlias);
 
     expect($hostCategory->getName())->toBe($this->categoryName)
         ->and($hostCategory->getAlias())->toBe($this->categoryAlias);
 });
 
-it('should throw an exception when host category name is empty', function () {
+it('should throw an exception when host category name is empty', function (): void {
     new NewHostCategory('', $this->categoryAlias);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -46,7 +46,7 @@ it('should throw an exception when host category name is empty', function () {
         ->getMessage()
 );
 
-it('should throw an exception when host category name is too long', function () {
+it('should throw an exception when host category name is too long', function (): void {
     new NewHostCategory(str_repeat('a', NewHostCategory::MAX_NAME_LENGTH + 1), $this->categoryAlias);
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -58,7 +58,7 @@ it('should throw an exception when host category name is too long', function () 
     )->getMessage()
 );
 
-it('should throw an exception when host category alias is empty', function () {
+it('should throw an exception when host category alias is empty', function (): void {
     new NewHostCategory($this->categoryName, '');
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -66,7 +66,7 @@ it('should throw an exception when host category alias is empty', function () {
         ->getMessage()
 );
 
-it('should throw an exception when host category alias is too long', function () {
+it('should throw an exception when host category alias is too long', function (): void {
     new NewHostCategory($this->categoryName, str_repeat('a', NewHostCategory::MAX_ALIAS_LENGTH + 1));
 })->throws(
     \Assert\InvalidArgumentException::class,
@@ -78,7 +78,7 @@ it('should throw an exception when host category alias is too long', function ()
     )->getMessage()
 );
 
-it('should throw an exception when host category comment is too long', function () {
+it('should throw an exception when host category comment is too long', function (): void {
     $hostCategory = new NewHostCategory($this->categoryName, $this->categoryAlias);
     $hostCategory->setComment(str_repeat('a', NewHostCategory::MAX_COMMENT_LENGTH + 1));
 })->throws(

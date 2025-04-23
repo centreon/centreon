@@ -25,53 +25,24 @@ namespace Core\Security\Vault\Infrastructure\API\DeleteVaultConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\{
-    DeleteVaultConfiguration,
-    DeleteVaultConfigurationRequest
-};
+use Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration\DeleteVaultConfiguration;
 
 final class DeleteVaultConfigurationController extends AbstractController
 {
     /**
-     * @param int $vaultId
-     * @param int $vaultConfigurationId
      * @param DeleteVaultConfiguration $useCase
      * @param DefaultPresenter $presenter
      *
      * @return object
      */
     public function __invoke(
-        int $vaultId,
-        int $vaultConfigurationId,
         DeleteVaultConfiguration $useCase,
         DefaultPresenter $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $deleteVaultConfigurationRequest = $this->createDtoRequest(
-            $vaultId,
-            $vaultConfigurationId
-        );
-
-        $useCase($presenter, $deleteVaultConfigurationRequest);
+        $useCase($presenter);
 
         return $presenter->show();
-    }
-
-    /**
-     * @param int $vaultId
-     * @param int $vaultConfigurationId
-     *
-     * @return DeleteVaultConfigurationRequest
-     */
-    private function createDtoRequest(
-        int $vaultId,
-        int $vaultConfigurationId
-    ): DeleteVaultConfigurationRequest {
-        $deleteVaultConfigurationRequest = new DeleteVaultConfigurationRequest();
-        $deleteVaultConfigurationRequest->vaultConfigurationId = $vaultConfigurationId;
-        $deleteVaultConfigurationRequest->typeId = $vaultId;
-
-        return $deleteVaultConfigurationRequest;
     }
 }

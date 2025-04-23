@@ -34,7 +34,9 @@ class NewRule
     /**
      * @param string $name
      * @param null|string $description
+     * @param bool $applyToAllContacts
      * @param int[] $linkedContactIds
+     * @param bool $applyToAllContactGroups
      * @param int[] $linkedContactGroupIds
      * @param DatasetFilter[] $datasetFilters
      * @param bool $isEnabled
@@ -44,10 +46,12 @@ class NewRule
     public function __construct(
         protected string $name,
         protected ?string $description = null,
+        protected bool $applyToAllContacts = false,
         protected array $linkedContactIds = [],
+        protected bool $applyToAllContactGroups = false,
         protected array $linkedContactGroupIds = [],
         protected array $datasetFilters = [],
-        protected bool $isEnabled = true
+        protected bool $isEnabled = true,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
@@ -65,8 +69,6 @@ class NewRule
         }
 
         Assertion::notEmpty($this->datasetFilters, "{$shortName}::datasetFilters");
-
-        $this->assertContactAndOrContactGroup();
     }
 
     /**
@@ -128,16 +130,19 @@ class NewRule
     }
 
     /**
-     * @throws \InvalidArgumentException
+     * @return bool
      */
-    private function assertContactAndOrContactGroup(): void
+    public function doesApplyToAllContacts(): bool
     {
-        if (
-            $this->linkedContactIds === []
-            && $this->linkedContactGroupIds === []
-        ) {
-            throw new \InvalidArgumentException('At least one contact or contactgroup should be linked to the rule');
-        }
+        return $this->applyToAllContacts;
+    }
+
+    /**
+     * @return bool
+     */
+    public function doesApplyToAllContactGroups(): bool
+    {
+        return $this->applyToAllContactGroups;
     }
 }
 

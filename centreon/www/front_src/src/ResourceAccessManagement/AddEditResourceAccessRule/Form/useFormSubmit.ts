@@ -1,25 +1,24 @@
-import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import {
-  editedResourceAccessRuleIdAtom,
-  modalStateAtom,
-  resourceAccessRuleModalModeAtom
-} from '../../atom';
+import { editedResourceAccessRuleIdAtom, modalStateAtom } from '../../atom';
 import { ModalMode, ResourceAccessRule } from '../../models';
-import { resourceAccessRuleEndpoint } from '../api/endpoints';
 import {
   labelResourceAccessRuleAddedSuccess,
   labelResourceAccessRuleEditedSuccess
 } from '../../translatedLabels';
 import { adaptResourceAccessRule } from '../api/adapters';
+import { resourceAccessRuleEndpoint } from '../api/endpoints';
 
 interface UseFormState {
-  submit: (values: ResourceAccessRule, { setSubmitting }) => Promise<object>;
+  submit: (
+    values: Omit<ResourceAccessRule, 'id'>,
+    { setSubmitting }
+  ) => Promise<object>;
 }
 
 const useFormSubmit = (): UseFormState => {
@@ -27,34 +26,37 @@ const useFormSubmit = (): UseFormState => {
   const { showSuccessMessage } = useSnackbar();
   const queryClient = useQueryClient();
 
-  const modalMode = useAtomValue(resourceAccessRuleModalModeAtom);
+  const [modalState, setModalState] = useAtom(modalStateAtom);
   const editedRuleId = useAtomValue(editedResourceAccessRuleIdAtom);
-  const setModalState = useSetAtom(modalStateAtom);
 
-  const labelMessage = equals(modalMode, ModalMode.Create)
-    ? t(labelResourceAccessRuleAddedSuccess)
-    : t(labelResourceAccessRuleEditedSuccess);
+  const labelMessage = equals(modalState.mode, ModalMode.Create)
+    ? labelResourceAccessRuleAddedSuccess
+    : labelResourceAccessRuleEditedSuccess;
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () =>
-      equals(modalMode, ModalMode.Create)
+      equals(modalState.mode, ModalMode.Create)
         ? resourceAccessRuleEndpoint({})
         : resourceAccessRuleEndpoint({ id: editedRuleId }),
-    method: equals(modalMode, ModalMode.Create) ? Method.POST : Method.PUT,
+    method: equals(modalState.mode, ModalMode.Create)
+      ? Method.POST
+      : Method.PUT,
     onSettled: () => {
-      setModalState({ isOpen: false, mode: ModalMode.Create });
+      setModalState({ isOpen: false, mode: modalState.mode });
       queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
     },
     onSuccess: () => showSuccessMessage(t(labelMessage))
   });
 
   const submit = (
-    values: ResourceAccessRule,
+    values: Omit<ResourceAccessRule, 'id'>,
     { setSubmitting }
   ): Promise<object> => {
     const payload = adaptResourceAccessRule({ ...values });
 
-    return mutateAsync(payload).finally(() => setSubmitting(false));
+    return mutateAsync({
+      payload
+    }).finally(() => setSubmitting(false));
   };
 
   return { submit };

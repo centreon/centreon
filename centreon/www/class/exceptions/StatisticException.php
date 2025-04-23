@@ -19,6 +19,10 @@
  * For more information : contact@centreon.com
  *
  */
-class StatisticException extends Exception
-{
-}
+
+/**
+ * Class
+ *
+ * @class StatisticException
+ */
+class StatisticException extends Exception {}

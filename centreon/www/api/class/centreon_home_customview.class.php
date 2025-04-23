@@ -33,13 +33,18 @@
  *
  */
 
-require_once dirname(__FILE__) . "/webService.class.php";
+require_once __DIR__ . "/webService.class.php";
 require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
 
+/**
+ * Class
+ *
+ * @class CentreonHomeCustomview
+ */
 class CentreonHomeCustomview extends CentreonWebService
 {
     /**
-     * CentreonHomeCustomview constructor.
+     * CentreonHomeCustomview constructor
      */
     public function __construct()
     {
@@ -48,12 +53,13 @@ class CentreonHomeCustomview extends CentreonWebService
 
     /**
      * @return array
+     * @throws PDOException
      */
     public function getListSharedViews()
     {
         global $centreon;
-        $views = array();
-        $q = array();
+        $views = [];
+        $q = [];
         if (isset($this->arguments['q']) && $this->arguments['q'] != '') {
             $q[] = '%' . $this->arguments['q'] . '%';
         }
@@ -75,22 +81,16 @@ class CentreonHomeCustomview extends CentreonWebService
             'SELECT cvur2.custom_view_id FROM custom_view_user_relation cvur2 ' .
             'WHERE cvur2.user_id = ' . $centreon->user->user_id . ' ' .
             'AND cvur2.is_consumed = 1) ' .
-            (count($q) > 0 ? 'AND d.name like ? ' : '') .
+            ($q !== [] ? 'AND d.name like ? ' : '') .
             'ORDER BY name';
 
         $stmt = $this->pearDB->prepare($query);
         $stmt->execute($q);
 
         while ($row = $stmt->fetch()) {
-            $views[] = array(
-                'id' => $row['custom_view_id'],
-                'text' => $row['name']
-            );
+            $views[] = ['id' => $row['custom_view_id'], 'text' => $row['name']];
         }
-        return array(
-            'items' => $views,
-            'total' => count($views)
-        );
+        return ['items' => $views, 'total' => count($views)];
     }
 
     /**
@@ -102,7 +102,7 @@ class CentreonHomeCustomview extends CentreonWebService
         // Check for select2 'q' argument
         if (isset($this->arguments['q'])) {
             if (!is_numeric($this->arguments['q'])) {
-                throw new \RestBadRequestException('Error, custom view id must be numerical');
+                throw new RestBadRequestException('Error, custom view id must be numerical');
             }
             $customViewId = $this->arguments['q'];
         } else {
@@ -124,7 +124,7 @@ class CentreonHomeCustomview extends CentreonWebService
         // Check for select2 'q' argument
         if (isset($this->arguments['q'])) {
             if (!is_numeric($this->arguments['q'])) {
-                throw new \RestBadRequestException('Error, custom view id must be numerical');
+                throw new RestBadRequestException('Error, custom view id must be numerical');
             }
             $customViewId = $this->arguments['q'];
         } else {
@@ -141,32 +141,24 @@ class CentreonHomeCustomview extends CentreonWebService
      * Get the list of views
      *
      * @return array
+     * @throws Exception
      */
     public function getListViews()
     {
         global $centreon;
         $viewObj = new CentreonCustomView($centreon, $this->pearDB);
 
-        $tabs = array();
+        $tabs = [];
         $tabsDb = $viewObj->getCustomViews();
         foreach ($tabsDb as $key => $tab) {
-            $tabs[] = array(
-                'default' => false,
-                'name' => $tab['name'],
-                'custom_view_id' => $tab['custom_view_id'],
-                'public' => $tab['public'],
-                'nbCols' => $tab['layout']
-            );
+            $tabs[] = ['default' => false, 'name' => $tab['name'], 'custom_view_id' => $tab['custom_view_id'], 'public' => $tab['public'], 'nbCols' => $tab['layout']];
         }
-        return array(
-            'current' => $viewObj->getCurrentView(),
-            'tabs' => $tabs
-        );
+        return ['current' => $viewObj->getCurrentView(), 'tabs' => $tabs];
     }
 
     /**
      * Get the list of preferences
-     * @return array
+     * @return false|string
      * @throws Exception
      */
     public function getPreferences()
@@ -175,7 +167,7 @@ class CentreonHomeCustomview extends CentreonWebService
             filter_var(($widgetId = $this->arguments['widgetId'] ?? false), FILTER_VALIDATE_INT) === false
             || filter_var(($viewId = $this->arguments['viewId'] ?? false), FILTER_VALIDATE_INT) === false
         ) {
-            throw new \InvalidArgumentException('Bad argument format');
+            throw new InvalidArgumentException('Bad argument format');
         }
 
         require_once _CENTREON_PATH_ . "www/class/centreonWidget.class.php";
@@ -198,14 +190,10 @@ class CentreonHomeCustomview extends CentreonWebService
         $viewObj = new CentreonCustomView($centreon, $this->pearDB);
         $widgetObj = new CentreonWidget($centreon, $this->pearDB);
         $title = "";
-        $defaultTab = array();
+        $defaultTab = [];
 
         $widgetTitle = $widgetObj->getWidgetTitle($widgetId);
-        if ($widgetTitle != '') {
-            $title = sprintf(_("Widget Preferences for %s"), $widgetTitle);
-        } else {
-            $title = _("Widget Preferences");
-        }
+        $title = $widgetTitle != '' ? sprintf(_("Widget Preferences for %s"), $widgetTitle) : _("Widget Preferences");
 
         $info = $widgetObj->getWidgetDirectory($widgetObj->getWidgetType($widgetId));
         $title .= " [" . $info . "]";
@@ -219,7 +207,7 @@ class CentreonHomeCustomview extends CentreonWebService
          * Smarty template Init
          */
         $libDir = __DIR__ . "/../../../GPL_LIB";
-        $tpl = new \SmartyBC();
+        $tpl = new SmartyBC();
         $tpl->setTemplateDir(_CENTREON_PATH_ . '/www/include/home/customViews/');
         $tpl->setCompileDir($libDir . '/SmartyCache/compile');
         $tpl->setConfigDir($libDir . '/SmartyCache/config');
@@ -234,7 +222,7 @@ class CentreonHomeCustomview extends CentreonWebService
         $form->addElement('header', 'information', _("General Information"));
 
         /* Prepare list of installed modules and have widget connectors */
-        $loadConnectorPaths = array();
+        $loadConnectorPaths = [];
         /* Add core path */
         $loadConnectorPaths[] = _CENTREON_PATH_ . "www/class/centreonWidget/Params/Connector";
         $query = 'SELECT name FROM modules_informations ORDER BY name';
@@ -269,7 +257,7 @@ class CentreonHomeCustomview extends CentreonWebService
                 }
                 if (class_exists($className)) {
                     $currentParam = call_user_func(
-                        array($className, 'factory'),
+                        [$className, 'factory'],
                         $this->pearDB,
                         $form,
                         $className,
@@ -298,9 +286,9 @@ class CentreonHomeCustomview extends CentreonWebService
             'button',
             'submit',
             _("Apply"),
-            array("class" => "btc bt_success", "onClick" => "submitData();")
+            ["class" => "btc bt_success", "onClick" => "submitData();"]
         );
-        $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
+        $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
         $form->addElement('hidden', 'custom_view_id');
         $form->addElement('hidden', 'widget_id');
         $form->addElement('hidden', 'action');
@@ -326,14 +314,14 @@ class CentreonHomeCustomview extends CentreonWebService
      * Get preferences by widget id
      *
      * @return array The widget preferences
-     * @throws \Exception When missing argument
+     * @throws Exception When missing argument
      */
     public function getPreferencesByWidgetId()
     {
         global $centreon;
 
         if (!isset($this->arguments['widgetId'])) {
-            throw new \Exception('Missing argument : widgetId');
+            throw new Exception('Missing argument : widgetId');
         }
         $widgetId = $this->arguments['widgetId'];
         $widgetObj = new CentreonWidget($centreon, $this->pearDB);
@@ -345,9 +333,9 @@ class CentreonHomeCustomview extends CentreonWebService
      * Authorize to access to the action
      *
      * @param string $action The action name
-     * @param array $user The current user
-     * @param boolean $isInternal If the api is call in internal
-     * @return boolean If the user has access to the action
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
      */
     public function authorize($action, $user, $isInternal = false)
     {

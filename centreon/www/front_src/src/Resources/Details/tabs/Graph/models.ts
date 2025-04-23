@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
 import { find, propEq } from 'ramda';
 
-import { timeFormat, dateFormat } from '@centreon/ui';
+import { dateFormat, timeFormat } from '@centreon/ui';
 
 import {
-  label31Days,
-  labelLast31Days,
-  label7Days,
-  labelLast7Days,
   label1Day,
+  label7Days,
+  label31Days,
+  labelLast7Days,
+  labelLast31Days,
   labelLastDay
 } from '../../../translatedLabels';
 
@@ -78,3 +78,9 @@ const getTimePeriodById = (id: TimePeriodId): TimePeriod =>
   find<TimePeriod>(propEq(id, 'id'))(timePeriods) as TimePeriod;
 
 export { timePeriods, getTimePeriodById, lastDayPeriod, last7Days, last31Days };
+
+export interface GraphTimeParameters {
+  end: string;
+  start: string;
+  timelineEventsLimit: number;
+}

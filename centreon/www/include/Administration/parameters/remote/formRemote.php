@@ -91,10 +91,12 @@ try {
 /**
  * form
  */
-$attrsText = array("size" => "40");
+$attrsText = ["size" => "40"];
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path . "remote", $tpl);
+
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path . 'remote');
+
 $form->addElement('header', 'title', _("Remote access"));
 $form->addElement('header', 'information', _("Central's API credentials"));
 $form->addElement(

@@ -33,10 +33,10 @@
  *
  */
 
-require_once dirname(__FILE__) . '/../../bootstrap.php';
+require_once __DIR__ . '/../../bootstrap.php';
 require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
-require_once dirname(__FILE__) . '/class/webService.class.php';
-require_once dirname(__FILE__) . '/interface/di.interface.php';
+require_once __DIR__ . '/class/webService.class.php';
+require_once __DIR__ . '/interface/di.interface.php';
 
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 
@@ -91,11 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     } else {
         CentreonWebService::sendResult('Invalid credentials', 401);
     }
-} else { // Purge old tokens
-    $authenticationService = $kernel->getContainer()->get(
-        \Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface::class
-    );
-    $authenticationService->deleteExpiredSecurityTokens();
 }
 
 /* Test authentication */

@@ -99,7 +99,7 @@ class EngineServiceTest extends TestCase
     /**
      * Testing the addHostComment EngineService function in a nominal case.
      */
-    public function testAddHostComment()
+    public function testAddHostComment(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -138,7 +138,7 @@ class EngineServiceTest extends TestCase
     /**
     * Testing the addServiceComment EngineService function in a nominal case.
     */
-    public function testServiceComment()
+    public function testServiceComment(): void
     {
         $this->entityValidator->expects($this->once())
            ->method('validate')
@@ -178,7 +178,7 @@ class EngineServiceTest extends TestCase
     /**
      * Testing the submitHostResult EngineService function in a nominal case.
      */
-    public function testSubmitHostResult()
+    public function testSubmitHostResult(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -219,7 +219,7 @@ class EngineServiceTest extends TestCase
     /**
      * Testing the submitServiceResult EngineService function in a nominal case.
      */
-    public function testSubmitServiceResult()
+    public function testSubmitServiceResult(): void
     {
         $this->entityValidator->expects($this->once())
             ->method('validate')
@@ -261,7 +261,7 @@ class EngineServiceTest extends TestCase
     /**
      * Testing the disacknowledgeHost EngineService method in a nominal case.
      */
-    public function testDisacknowledgeHost()
+    public function testDisacknowledgeHost(): void
     {
         /**
          * Creating the command to check that the code
@@ -291,7 +291,7 @@ class EngineServiceTest extends TestCase
     /**
      * Testing the disacknowledgeService EngineService method in a nominal case.
      */
-    public function testDisacknowledgeService()
+    public function testDisacknowledgeService(): void
     {
         /**
          * Creating the command to check that the code

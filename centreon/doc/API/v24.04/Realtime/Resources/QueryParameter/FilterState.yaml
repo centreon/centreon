@@ -1,9 +1,0 @@
-in: query
-name: states
-required: false
-description: "Filter the resources by state"
-schema:
-  type: string
-  pattern: '^\["[^"]+"(,"[^"]+")*\]$'
-  description: should be in form ["<str1>","<str2>"] where strings can be one of "unhandled_problems", "resources_problems", "in_downtime", "acknowledged", "all"
-  example: '["in_downtime", "acknowledged"]'

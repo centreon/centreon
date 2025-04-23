@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Macro\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
-use Utility\SqlConcatenator;
 
 class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHostMacroRepositoryInterface
 {
@@ -54,25 +54,28 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
             return [];
         }
 
-        $concatenator = new SqlConcatenator();
-        $concatenator
-            ->defineSelect(
-                <<<'SQL'
-                    SELECT
-                        m.host_macro_name,
-                        m.host_macro_value,
-                        m.is_password,
-                        m.host_host_id,
-                        m.description,
-                        m.macro_order
-                    FROM `:db`.on_demand_macro_host m
-                    SQL
-            )
-            ->appendWhere('WHERE m.host_host_id IN (:host_ids)')
-            ->storeBindValueMultiple(':host_ids', $hostIds, \PDO::PARAM_INT);
+        $bindValues = [];
+        foreach ($hostIds as $index => $hostId) {
+            $bindValues[':host_id' . $index] = $hostId;
+        }
+        $hostIdsAsString = implode(',', array_keys($bindValues));
 
-        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
-        $concatenator->bindValuesToStatement($statement);
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT
+                    m.host_macro_name,
+                    m.host_macro_value,
+                    m.is_password,
+                    m.host_host_id,
+                    m.description,
+                    m.macro_order
+                FROM `:db`.on_demand_macro_host m
+                WHERE m.host_host_id IN ({$hostIdsAsString})
+                SQL
+        ));
+        foreach ($bindValues as $token => $hostId) {
+            $statement->bindValue($token, $hostId, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         $macros = [];
@@ -133,6 +136,43 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findPasswords(): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    m.host_macro_name,
+                    m.host_macro_value,
+                    m.is_password,
+                    m.host_host_id,
+                    m.description,
+                    m.macro_order
+                FROM `:db`.on_demand_macro_host m
+                WHERE m.is_password = 1
+                SQL
+        ));
+        $statement->execute();
+
+        $macros = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+
+            /** @var array{
+             *    host_host_id:int,
+             *    host_macro_name:string,
+             *    host_macro_value:string,
+             *    is_password:int|null,
+             *    description:string|null,
+             *    macro_order:int
+             * } $result */
+            $macros[] = $this->createHostMacroFromArray($result);
+        }
+
+        return $macros;
+    }
+
+    /**
      * @param array{
      *    host_host_id:int,
      *    host_macro_name:string,
@@ -142,15 +182,19 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      *    macro_order:int
      * } $data
      *
+     * @throws AssertionFailedException
+     *
      * @return Macro
      */
     private function createHostMacroFromArray(array $data): Macro
     {
         preg_match('/^\$_HOST(?<macro_name>.*)\$$/', $data['host_macro_name'], $matches);
 
+        $macroName = $matches['macro_name'] ?? '';
+
         $macro = new Macro(
             (int) $data['host_host_id'],
-            $matches['macro_name'],
+            $macroName,
             $data['host_macro_value'],
         );
         $macro->setIsPassword((bool) $data['is_password']);

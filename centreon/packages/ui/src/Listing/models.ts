@@ -15,6 +15,7 @@ export interface ComponentColumnProps {
 
 export interface Column {
   Component?: (props: ComponentColumnProps) => JSX.Element | null;
+  align?: 'start' | 'end' | 'center';
   clickable?: boolean;
   compact?: boolean;
   disablePadding?: boolean;
@@ -74,4 +75,12 @@ export interface TableStyleAtom {
     height: number;
     width: number;
   };
+}
+
+export interface ListingSubItems {
+  canCheckSubItems: boolean;
+  enable: boolean;
+  getRowProperty: (row?) => string;
+  labelCollapse: string;
+  labelExpand: string;
 }

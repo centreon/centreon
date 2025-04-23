@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import { FallbackPage } from '../../../FallbackPage/FallbackPage';
 import { MenuSkeleton, PageSkeleton, useFetchQuery } from '../../..';
+import { FallbackPage } from '../../../FallbackPage/FallbackPage';
 import { getModuleLicenseCheckEndpoint } from '../api';
 
 import { licenseDecoder } from './decoder';

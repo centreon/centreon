@@ -1,24 +1,27 @@
 import { ReactNode } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { Variant } from '@mui/material/styles/createTypography';
 import { Typography } from '@mui/material';
+import { Variant } from '@mui/material/styles/createTypography';
 
 import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 
 import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 
 import { useStyles } from './basicFilter/checkBox/checkBox.style';
-import { ChangedCriteriaParams } from './model';
+import {
+  BasicCriteria,
+  ChangedCriteriaParams,
+  ExtendedCriteria
+} from './model';
 import useInputData from './useInputsData';
-import { findData } from './utils';
 
 interface Props {
   changeCriteria: (data: ChangedCriteriaParams) => void;
   data: Array<Criteria & CriteriaDisplayProps>;
-  filterName: string;
+  filterName: BasicCriteria | ExtendedCriteria;
   title?: ReactNode;
 }
 
@@ -45,6 +48,8 @@ export const CheckBoxWrapper = ({
     return null;
   }
 
+  const options = dataByFilterName?.options as Array<SelectEntry>;
+
   const transformData = (input: Array<SelectEntry>): Array<string> => {
     return input?.map((item) => item?.name);
   };
@@ -56,9 +61,7 @@ export const CheckBoxWrapper = ({
     }));
   };
 
-  const translatedOptions = getTranslated(
-    dataByFilterName?.options as Array<SelectEntry>
-  );
+  const translatedOptions = getTranslated(options);
   const translatedValues = getTranslated(
     dataByFilterName?.value as Array<SelectEntry>
   );
@@ -66,15 +69,12 @@ export const CheckBoxWrapper = ({
   const handleChangeStatus = (event): void => {
     const originalValue = translatedOptions.find(({ name }) =>
       equals(name, event.target.id)
-    );
-    const item = findData({
-      data: dataByFilterName?.options,
-      filterName: originalValue?.id,
-      findBy: 'id'
-    });
+    ) as SelectEntry;
+
+    const item = options.find(({ id }) => equals(id, originalValue.id));
 
     if (event.target.checked) {
-      const dataByFilterNameValue = dataByFilterName?.value;
+      const dataByFilterNameValue = dataByFilterName.value;
 
       changeCriteria({
         filterName,
@@ -85,9 +85,10 @@ export const CheckBoxWrapper = ({
 
       return;
     }
-    const result = dataByFilterName?.value?.filter(
-      (v) => v.id !== originalValue?.id
+    const result = dataByFilterName.value.filter(
+      ({ id }) => !equals(id, originalValue?.id)
     );
+
     changeCriteria({
       filterName,
       updatedValue: result
@@ -102,6 +103,7 @@ export const CheckBoxWrapper = ({
 
       <CheckboxGroup
         className={classes.checkbox}
+        dataTestId={filterName}
         direction="horizontal"
         formGroupProps={formGroupProps}
         labelProps={labelProps}

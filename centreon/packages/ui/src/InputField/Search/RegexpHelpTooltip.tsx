@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 
-import { ifElse, always, isNil } from 'ramda';
+import { always, ifElse, isNil } from 'ramda';
 
 import { Box, Link } from '@mui/material';
 

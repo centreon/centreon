@@ -1,0 +1,60 @@
+type: object
+required: ["name", "type", "parameters"]
+properties:
+  name:
+    type: string
+    description: "input/output name"
+    example: "central-broker-master-unified-sql"
+  type:
+    type: integer
+    description: |
+      Input/Output type ID
+
+      Must be one of the following for outputs:
+        *  3 - IPv4 (ipv4)
+        * 10 - IPv6 (ipv6)
+        * 11 - File (file)
+        * 13 - RRD file generator (rrd)
+        * 14 - Perfdata Generator (Centreon Storage) - DEPRECATED (storage)
+        * 16 - Broker SQL database - DEPRECATED (sql)
+        * 28 - Database configuration reader (db_cfg_reader)
+        * 29 - Database configuration writer (db_cfg_writer)
+        * 30 - Storage - Graphite (graphite)
+        * 31 - Storage - InfluxDB (influxdb)
+        * 33 - Stream connector (lua)
+        * 34 - Unified SQL (unified_sql)
+        * 35 - BBDO Server (bbdo_server)
+        * 36 - BBDO Client (bbdo_client)
+
+      Must be one of the following for inputs:
+        *  3 - IPv4 (ipv4)
+        * 10 - IPv6 (ipv6)
+        * 11 - File (file)
+        * 35 - BBDO Server (bbdo_server)
+        * 36 - BBDO Client (bbdo_client)
+    example: 33
+  parameters:
+    type: object
+    description: |
+      Output parameters specific to the output type.
+
+      For multiselect fields the property name is a combination of
+      the group field name and the sub field name as "{fieldName}_{subfieldName}" (ex: "filters_category")
+
+      All fields must be provided, but can be null/empty if they are optional.
+
+    example:
+      path: "some/test/path"
+      filters_category: ["storage", "neb"]
+      lua_parameter: [
+        {
+          "type": "string",
+          "name": "my-lua-param-1",
+          "value": "azerty"
+        },
+        {
+          "type": "string",
+          "name": "my-lua-param-2",
+          "value": "qwerty"
+        }
+      ]

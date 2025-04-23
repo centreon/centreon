@@ -43,7 +43,7 @@ class WebSSO implements ProviderAuthenticationInterface
 {
     use Centreon\Domain\Log\LoggerTrait;
 
-    private ?ContactInterface $authenticatedUser;
+    private ?ContactInterface $authenticatedUser = null;
 
     /**
      * @param Container $dependencyInjector
@@ -95,7 +95,7 @@ class WebSSO implements ProviderAuthenticationInterface
             'auth_type' => Provider::WEB_SSO,
         ];
 
-        $this->provider->setLegacySession(new \Centreon($sessionUserInfos));
+        $this->provider->setLegacySession(new Centreon($sessionUserInfos));
 
         $this->authenticatedUser = $user;
 

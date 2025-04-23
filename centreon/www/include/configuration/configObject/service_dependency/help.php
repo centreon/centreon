@@ -1,5 +1,5 @@
 <?php
-$help = array();
+$help = [];
 
 $help["name"] = dgettext("help", "Define a short name for this dependency.");
 $help["description"] = dgettext(

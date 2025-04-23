@@ -1,5 +1,5 @@
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 

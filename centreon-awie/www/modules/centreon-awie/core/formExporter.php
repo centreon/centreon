@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
 require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
 
 $export = './modules/centreon-awie/core/submitExport.php';
-// Smarty template Init
-$path = _MODULE_PATH_ . "/core/templates/";
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+
+// Smarty template initialization
+$path = _MODULE_PATH_ . '/core/templates/';
+$tpl = SmartyBC::createSmartyTemplate($path);
+
 $tpl->assign('formPath', $export);
 $tpl->display('formExport.tpl');

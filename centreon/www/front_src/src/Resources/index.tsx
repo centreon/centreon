@@ -1,19 +1,19 @@
-import { lazy, useEffect, Suspense } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 
-import { isNil } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { isNil } from 'ramda';
 
 import {
   ListingPage,
   LoadingSkeleton,
-  useMemoComponent,
-  WithPanel
+  WithPanel,
+  useMemoComponent
 } from '@centreon/ui';
 
 import Details from './Details';
 import {
-  selectedResourcesDetailsAtom,
-  clearSelectedResourceDerivedAtom
+  clearSelectedResourceDerivedAtom,
+  selectedResourcesDetailsAtom
 } from './Details/detailsAtoms';
 import useDetails from './Details/useDetails';
 import { editPanelOpenAtom } from './Filter/filterAtoms';

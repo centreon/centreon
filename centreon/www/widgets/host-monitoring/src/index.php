@@ -34,6 +34,10 @@
  *
  */
 
+use App\Kernel;
+use Centreon\Application\Controller\MonitoringResourceController;
+use Centreon\Domain\Log\Logger;
+
 require_once '../../require.php';
 require_once './DB-Func.php';
 require_once $centreon_path . 'bootstrap.php';
@@ -66,11 +70,15 @@ $dbb = $dependencyInjector['realtime_db'];
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
+// Smarty template initialization
 $path = $centreon_path . 'www/widgets/host-monitoring/src/';
-$template = new Smarty();
-$template = initSmartyTplForPopup($path, $template, './', $centreon_path);
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
+
+$kernel = Kernel::createForWeb();
+/** @var Logger $logger */
+$logger = $kernel->getContainer()->get(Logger::class);
 
 /**
  * true: URIs will correspond to deprecated pages
@@ -83,8 +91,18 @@ $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['def
 
 $mainQueryParameters = [];
 
-$widgetObj = new CentreonWidget($centreon, $db);
-$preferences = $widgetObj->getWidgetPreferences($widgetId);
+try {
+    $widgetObj = new CentreonWidget($centreon, $db);
+    $preferences = $widgetObj->getWidgetPreferences($widgetId);
+} catch (Exception $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while getting widget preferences for the host monitoring custom view',
+        ['widget_id' => $widgetId],
+        $e
+    );
+    throw $e;
+}
 
 // Default colors
 $stateColors = getColors($db);
@@ -162,7 +180,7 @@ if (isset($preferences['host_down']) && $preferences['host_down']) {
 if (isset($preferences['host_unreachable']) && $preferences['host_unreachable']) {
     $stateTab[] = 2;
 }
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, ' state IN (' . implode(',', $stateTab) . ')');
 }
 if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
@@ -208,11 +226,11 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
         ];
     }
     $hostgroupHgIdCondition = <<<SQL
-h.host_id IN (
-      SELECT host_id
-      FROM hosts_hostgroups
-      WHERE hostgroup_id IN ({$queryHg}))
-SQL;
+        h.host_id IN (
+              SELECT host_id
+              FROM hosts_hostgroups
+              WHERE hostgroup_id IN ({$queryHg}))
+        SQL;
     $query = CentreonUtils::conditionBuilder($query, $hostgroupHgIdCondition);
 }
 if (!empty($preferences['criticality_filter'])) {
@@ -238,32 +256,111 @@ if (!$centreon->user->admin) {
     $query .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $dbb));
 }
 
-$orderBy = 'host_name ASC';
-if (isset($preferences['order_by']) && trim($preferences['order_by']) != '') {
-    $orderBy = $preferences['order_by'];
+// prepare order_by
+$orderBy = 'h.name ASC';
+
+// Define allowed columns and directions
+$allowedOrderColumns = [
+    'h.name',
+    'h.alias',
+    'criticality',
+    'address',
+    'state',
+    'output',
+    'check_attempt',
+    'last_check',
+    'last_state_change',
+    'last_hard_state_change',
+    'scheduled_downtime_depth',
+    'acknowledged',
+    'notify',
+    'active_checks',
+    'passive_checks'
+];
+
+const ORDER_DIRECTION_ASC = 'ASC';
+const ORDER_DIRECTION_DESC = 'DESC';
+
+$allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
+$defaultDirection = ORDER_DIRECTION_ASC;
+
+$orderByToAnalyse = isset($preferences['order_by'])
+    ? trim($preferences['order_by'])
+    : null;
+
+if ($orderByToAnalyse !== null) {
+    $orderByToAnalyse .= " $defaultDirection";
+    [$column, $direction] = explode(' ', $orderByToAnalyse);
+
+    if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
+        $orderBy = $column . ' ' . $direction;
+    }
 }
 
-$query .= " ORDER BY {$orderBy}";
+// concatenate order by + limit + offset  to the query
+$query .= "ORDER BY " . $orderBy . " LIMIT :limit OFFSET :offset";
+
 $num = filter_var($preferences['entries'], FILTER_VALIDATE_INT) ?: 10;
-$query .= ' LIMIT ' . ($page * $num) . ',' . $num;
-$res = $dbb->prepare($query);
+$mainQueryParameters[] = [
+    'parameter' => "limit",
+    'value' => $num,
+    'type' => PDO::PARAM_INT
+];
+$mainQueryParameters[] = [
+    'parameter' => "offset",
+    'value' => ($page * $num),
+    'type' => PDO::PARAM_INT
+];
 
-foreach ($mainQueryParameters as $parameter) {
-    $res->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
+try {
+    $res = $dbb->prepare($query);
+    foreach ($mainQueryParameters as $parameter) {
+        $res->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
+    }
+    $res->execute();
+} catch (PDOException $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while getting hosts for the host monitoring custom view',
+        ['pdo_info' => $e->errorInfo, 'query_parameters' => $mainQueryParameters],
+        $e
+    );
+    throw $e;
 }
 
-unset($parameter, $mainQueryParameters);
-$res->execute();
+unset($mainQueryParameters);
 
-$nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
 
-$data = array();
+try {
+    $nbRows = (int) $dbb->query('SELECT FOUND_ROWS() AS REALTIME')->fetchColumn();
+} catch (PDOException $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while counting hosts for the host monitoring custom view',
+        ['pdo_info' => $e->errorInfo],
+        $e
+    );
+    throw $e;
+}
+
+$data = [];
 $outputLength = $preferences['output_length'] ?: 50;
 $commentLength = $preferences['comment_length'] ?: 50;
 
-$hostObj = new CentreonHost($db);
-$gmt = new CentreonGMT($db);
-$gmt->getMyGMTFromSession(session_id(), $db);
+try {
+    $hostObj = new CentreonHost($db);
+} catch (PDOException $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error when CentreonHost called for the host monitoring custom view',
+        ['pdo_info' => $e->errorInfo],
+        $e
+    );
+    throw $e;
+}
+
+$gmt = new CentreonGMT();
+$gmt->getMyGMTFromSession(session_id());
 $allowedActionProtocols = ['http[s]?', '//', 'ssh', 'rdp', 'ftp', 'sftp'];
 $allowedProtocolsRegex = '#(^' . implode(')|(^', $allowedActionProtocols) . ')#';
 // String starting with one of these protocols
@@ -317,10 +414,8 @@ while ($row = $res->fetch()) {
     // output
     $data[$row['host_id']]['output'] = substr($row['output'], 0, $outputLength);
 
-    $kernel = \App\Kernel::createForWeb();
-    $resourceController = $kernel->getContainer()->get(
-        \Centreon\Application\Controller\MonitoringResourceController::class
-    );
+
+    $resourceController = $kernel->getContainer()->get(MonitoringResourceController::class);
     $data[$row['host_id']]['details_uri'] = $useDeprecatedPages
         ? '../../main.php?p=20202&o=hd&host_name=' . $row['host_name']
         : $resourceController->buildHostDetailsUri($row['host_id']);
@@ -366,16 +461,24 @@ while ($row = $res->fetch()) {
     }
 
     if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
-        $res2 = $dbb->prepare(
-            'SELECT data FROM comments where host_id = :hostId
-            AND service_id = 0 ORDER BY entry_time DESC LIMIT 1'
-        );
-        $res2->bindValue(':hostId', $row['host_id'], \PDO::PARAM_INT);
-        $res2->execute();
-        if ($row2 = $res2->fetch()) {
-            $data[$row['host_id']]['comment'] = substr($row2['data'], 0, $commentLength);
-        } else {
-            $data[$row['host_id']]['comment'] = '-';
+        try {
+            $query = <<<SQL
+                SELECT data FROM comments where host_id = :hostId
+                AND service_id = 0 ORDER BY entry_time DESC LIMIT 1
+            SQL;
+            $res2 = $dbb->prepare($query);
+            $res2->bindValue(':hostId', $row['host_id'], PDO::PARAM_INT);
+            $res2->execute();
+            $data[$row['host_id']]['comment'] = ($row2 = $res2->fetch()) ? substr($row2['data'], 0, $commentLength) : '-';
+            $res2->closeCursor();
+        } catch (PDOException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while getting data from comments for the host monitoring custom view',
+                ['pdo_info' => $e->errorInfo, 'host_id' => $row['host_id'] ?? null],
+                $e
+            );
+            throw $e;
         }
     }
 
@@ -385,14 +488,14 @@ while ($row = $res->fetch()) {
     if ($row['scheduled_downtime_depth'] > 0) {
         $class = 'line_downtime';
     } elseif ($row['state'] == 1) {
-        $row['acknowledged'] == 1 ? $class = 'line_ack' : $class = 'list_down';
-    } else {
-        if ($row['acknowledged'] == 1) {
-            $class = 'line_ack';
-        }
+        $class = $row['acknowledged'] == 1 ? 'line_ack' : 'list_down';
+    } elseif ($row['acknowledged'] == 1) {
+        $class = 'line_ack';
     }
     $data[$row['host_id']]['class_tr'] = $class;
 }
+
+$res->closeCursor();
 
 $aColorHost = [
     0 => 'host_up',
@@ -424,4 +527,18 @@ if ($preferences['more_views']) {
 }
 
 $template->assign('more_views', $bMoreViews);
-$template->display('table.ihtml');
+
+try {
+    $template->display('table.ihtml');
+} catch (Exception $e) {
+    $logger->error(
+        "Error while displaying the host monitoring custom view",
+        [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'exception_type' => $e::class,
+            'exception_message' => $e->getMessage()
+        ]
+    );
+    throw $e;
+}

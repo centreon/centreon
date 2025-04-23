@@ -22,10 +22,13 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Contact;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Database repository for the contacts.
@@ -34,6 +37,8 @@ use Centreon\Infrastructure\DatabaseConnection;
  */
 final class ContactRepositoryRDB implements ContactRepositoryInterface
 {
+    use SqlMultipleBindTrait;
+
     /**
      * @var DatabaseConnection
      */
@@ -192,23 +197,26 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
-                "SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
-                t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
-                FROM `:db`.contact
-                LEFT JOIN `:db`.contact as template
-                    ON contact.contact_template_id = template.contact_id
-                LEFT JOIN `:db`.contact_password cp
-                    ON cp.contact_id = contact.contact_id
-                LEFT JOIN `:db`.timezone tz
-                    ON tz.timezone_id = contact.contact_location
-                LEFT JOIN `:db`.topology t
-                    ON t.topology_page = COALESCE(contact.default_page, template.default_page)
-                INNER JOIN `:db`.security_authentication_tokens sat
-                    ON sat.user_id = contact.contact_id
-                INNER JOIN `:db`.security_token st
-                    ON st.id = sat.provider_token_id
-                WHERE (sat.token = :token OR st.token = :token)
-                ORDER BY cp.creation_date DESC LIMIT 1"
+                <<<'SQL'
+                    SELECT contact.*, cp.password AS contact_passwd, t.topology_url,
+                    t.topology_url_opt, t.is_react, t.topology_id, tz.timezone_name, t.topology_page as default_page
+                    FROM `:db`.contact
+                    LEFT JOIN `:db`.contact as template
+                        ON contact.contact_template_id = template.contact_id
+                    LEFT JOIN `:db`.contact_password cp
+                        ON cp.contact_id = contact.contact_id
+                    LEFT JOIN `:db`.timezone tz
+                        ON tz.timezone_id = contact.contact_location
+                    LEFT JOIN `:db`.topology t
+                        ON t.topology_page = COALESCE(contact.default_page, template.default_page)
+                    INNER JOIN `:db`.security_authentication_tokens sat
+                        ON sat.user_id = contact.contact_id
+                    INNER JOIN `:db`.security_token st
+                        ON st.id = sat.provider_token_id
+                    WHERE (sat.token = :token OR st.token = :token)
+                        AND sat.is_revoked = 0
+                    ORDER BY cp.creation_date DESC LIMIT 1
+                    SQL
             )
         );
         $statement->bindValue(':token', $token, \PDO::PARAM_STR);
@@ -223,31 +231,6 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    public function exist(array $userIds): array
-    {
-        $bind = [];
-        foreach($userIds as $key => $userId) {
-            $bind[":user_$key"] = $userId;
-        }
-        if ($bind === []) {
-            return [];
-        }
-        $request = $this->translateDbName(
-           'SELECT contact_id FROM `:db`.contact
-            WHERE contact_id IN ( ' . implode(', ', array_keys($bind)) . ')'
-        );
-        $statement = $this->db->prepare($request);
-        foreach ($bind as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
-    }
-
-    /**
      * Find and add all topology rules defined by all menus access defined for this contact.
      * The purpose is to limit access to the API based on menus access.
      *
@@ -255,7 +238,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      */
     private function addTopologyRules(Contact $contact): void
     {
-        $toplogySubquery =
+        $topologySubquery =
             $contact->isAdmin()
             ? 'SELECT topology.topology_id, 1 AS access_right
                 FROM `:db`.topology'
@@ -280,7 +263,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             'SELECT topology.topology_name, topology.topology_page,
                     topology.topology_parent, access.access_right
             FROM `:db`.topology
-            LEFT JOIN (' . $toplogySubquery . ') AS access
+            LEFT JOIN (' . $topologySubquery . ') AS access
             ON access.topology_id = topology.topology_id
             WHERE topology.topology_page IS NOT NULL
             ORDER BY topology.topology_page';
@@ -443,6 +426,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      * Create a contact based on the data.
      *
      * @param mixed[] $contact Array of values representing the contact information
+     *
+     * @throws \Exception
      * @return Contact Returns a new instance of contact
      */
     private function createContact(array $contact): Contact
@@ -564,6 +549,17 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 break;
             case 'manage_tokens':
                 $contact->addRole(Contact::ROLE_MANAGE_TOKENS);
+            case 'create_edit_poller_cfg':
+                $contact->addRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG);
+                break;
+            case 'delete_poller_cfg':
+                $contact->addRole(Contact::ROLE_DELETE_POLLER_CFG);
+                break;
+            case 'top_counter':
+                $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER);
+                break;
+            case 'poller_stats':
+                $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS);
                 break;
         }
     }
@@ -579,8 +575,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     protected function translateDbName(string $request): string
     {
         return str_replace(
-            array(':dbstg', ':db'),
-            array($this->db->getStorageDbName(), $this->db->getCentreonDbName()),
+            [':dbstg', ':db'],
+            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
             $request
         );
     }

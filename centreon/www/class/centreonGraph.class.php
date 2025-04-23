@@ -45,16 +45,16 @@ require_once _CENTREON_PATH_ . "www/class/centreonService.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
 
-/*
- * Class for XML/Ajax request
+/**
+ * Class
  *
+ * @class CentreonGraph
+ * @description Class for XML/Ajax request
  */
-
 class CentreonGraph
 {
-    /**
+    /*
      * Percentage over Max limit
-     *
      */
     const OVER_MAX_LIMIT_PCT = 3;
 
@@ -64,73 +64,121 @@ class CentreonGraph
     const ENGINE_HIGH_INFINITE = 340282346638528860000000000000000000000;
     const ENGINE_LOW_INFINITE = -340282346638528860000000000000000000000;
 
+    /** @var array|null */
+    public $colorCache;
+    /** @var array */
+    public $listMetricsId;
+    /** @var int */
+    public $areaNb;
+
     /*
      * Objects
      */
+    /** @var CentreonDB */
     protected $DB;
+    /** @var CentreonDB */
     protected $DBC;
 
+    /** @var SimpleXMLElement */
     public $XML;
+    /** @var CentreonGMT */
     public $GMT;
 
+    /** @var CentreonHost */
     protected $hostObj;
+    /** @var CentreonService */
     protected $serviceObj;
 
     /*
      * private vars
      */
+    /** @var array */
     protected $RRDoptions;
+    /** @var array */
     protected $arguments;
+    /** @var int */
     protected $argcount;
+    /** @var array */
     protected $options;
+    /** @var array */
     protected $colors;
+    /** @var array */
     protected $fonts;
+    /** @var int */
     protected $flag;
+    /** @var */
     protected $maxLimit;
 
     /*
      * Variables
      */
+    /** @var int */
     protected $debug;
+    /** @var int|mixed */
     protected $compress;
+    /** @var string */
     public $user_id;
+    /** @var array */
     protected $generalOpt;
+    /** @var array|string|string[] */
     protected $filename;
+    /** @var string */
     protected $commandLine;
+    /** @var mixed */
     protected $dbPath;
+    /** @var mixed */
     protected $dbStatusPath;
+    /** @var string */
     protected $index;
+    /** @var string[] */
     protected $indexData = [
         "host_name" => "",
         "service_description" => ""
     ];
+    /** @var string|int*/
     protected $templateId;
+    /** @var array */
     protected $templateInformations;
+    /** @var string */
     protected $gprintScaleOption;
+    /** @var string|int */
     protected $graphID;
+    /** @var array */
     protected $metricsEnabled;
+    /** @var array */
     protected $rmetrics;
+    /** @var array */
     protected $vmetrics;
+    /** @var int[] */
     protected $mpointer;
+    /** @var array */
     protected $mlist;
+    /** @var array */
     protected $vname;
+    /** @var array */
     protected $metrics;
+    /** @var int */
     protected $longer;
+    /** @var array */
     protected $rrdCachedOptions;
+    /** @var bool */
     public $onecurve;
+    /** @var bool */
     public $checkcurve;
 
-    /*
-     * Class constructor
+    /**
+     * CentreonGraph constructor
      *
      * <code>
-     * $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
+     *  $obj = new CentreonBGRequest($_GET["session_id"], 1, 1, 0, 1);
      * </code>
      *
-     * $user_id     char    The user id
-     * $dbneeds     bool    flag for enable ndo connexion
-     * $headType    bool    send XML header
-     * $debug       bool    debug flag.
+     * @param string $user_id
+     * @param int $index
+     * @param int $debug
+     * @param int $compress
+     *
+     * @throws PDOException
      */
     public function __construct($user_id, $index = null, $debug = 0, $compress = null)
     {
@@ -165,11 +213,11 @@ class CentreonGraph
         $this->GMT = new CentreonGMT($this->DB);
         $this->GMT->getMyGTMFromUser($this->user_id, $this->DB);
 
-        $this->RRDoptions = array();
-        $this->arguments = array();
-        $this->options = array();
-        $this->colors = array();
-        $this->fonts = array();
+        $this->RRDoptions = [];
+        $this->arguments = [];
+        $this->options = [];
+        $this->colors = [];
+        $this->fonts = [];
         $this->argcount = 0;
         $this->flag = 0;
 
@@ -182,22 +230,23 @@ class CentreonGraph
         $this->getIndexData();
 
         $this->filename = $this->indexData["host_name"] . "-" . $this->indexData["service_description"];
-        $this->filename = str_replace(array("/", "\\"), array("-", "-"), $this->filename);
+        $this->filename = str_replace(["/", "\\"], ["-", "-"], $this->filename);
 
         $this->colorCache = null;
-        $this->templateInformations = array();
-        $this->metricsEnabled = array();
-        $this->rmetrics = array();
-        $this->vmetrics = array();
-        $this->mpointer = array(0, 0);
-        $this->mlist = array();
-        $this->vname = array();
-        $this->metrics = array();
+        $this->templateInformations = [];
+        $this->metricsEnabled = [];
+        $this->rmetrics = [];
+        $this->vmetrics = [];
+        $this->mpointer = [0, 0];
+        $this->mlist = [];
+        $this->vname = [];
+        $this->metrics = [];
         $this->onecurve = false;
         $this->checkcurve = false;
 
         $DBRESULT = $this->DBC->query("SELECT RRDdatabase_path, RRDdatabase_status_path FROM config LIMIT 1");
         $config = $DBRESULT->fetch();
+
         $this->dbPath = $config["RRDdatabase_path"];
         $this->dbStatusPath = $config['RRDdatabase_status_path'];
         unset($config);
@@ -224,24 +273,30 @@ class CentreonGraph
         }
 
         if (isset($index)) {
-            $DBRESULT = $this->DB->query("SELECT `metric_id`
-                                          FROM `ods_view_details`
-                                          WHERE `index_id` = '" . $this->index . "'
-                                          AND `contact_id` = '" . $this->user_id . "'");
-            $metrics_cache = array();
+            $DBRESULT = $this->DB->prepare("SELECT `metric_id`
+              FROM `ods_view_details`
+              WHERE `index_id` = :index_id
+              AND `contact_id` = :user_id");
+            $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->bindValue(':user_id', $this->user_id, PDO::PARAM_INT);
+            $DBRESULT->execute();
+            $metrics_cache = [];
             if ($DBRESULT->rowCount()) {
                 while ($tmp_metrics = $DBRESULT->fetch()) {
                     $metrics_cache[$tmp_metrics['metric_id']] = 1;
                 }
             }
             $DBRESULT->closeCursor();
-            $DBRESULT = $this->DBC->query("SELECT metric_id
-                                           FROM metrics
-                                           WHERE index_id = '" . $this->index . "'
-                                           AND `hidden` = '0'
-                                           ORDER BY `metric_name`");
+
+            $DBRESULT = $this->DBC->prepare("SELECT metric_id
+              FROM metrics
+              WHERE index_id = :index_id
+              AND `hidden` = '0'
+              ORDER BY `metric_name`");
+            $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->execute();
             $count = 0;
-            $odsm = array();
+            $odsm = [];
             while ($milist = $DBRESULT->fetch()) {
                 $odsm[$milist["metric_id"]] = 1;
                 $count++;
@@ -251,25 +306,34 @@ class CentreonGraph
                 $this->onecurve = true;
             }
             $DBRESULT->closeCursor();
-            $DBRESULT = $this->DB->query("SELECT vmetric_id metric_id
-                                          FROM virtual_metrics
-                                          WHERE index_id = '" . $this->index . "'
-                                          AND ( `hidden` = '0' OR `hidden` IS NULL )
-                                          AND vmetric_activate = '1'
-                                          ORDER BY 'metric_name'");
+            $DBRESULT = $this->DB->prepare("SELECT vmetric_id metric_id
+              FROM virtual_metrics
+              WHERE index_id = :index_id
+              AND (`hidden` = '0' OR `hidden` IS NULL)
+              AND vmetric_activate = '1'
+              ORDER BY `vmetric_name`");
+            $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->execute();
             while ($milist = $DBRESULT->fetch()) {
                 $vmilist = "v" . $milist["metric_id"];
                 $odsm[$vmilist] = 1;
             }
             $DBRESULT->closeCursor();
 
-            foreach ($odsm as $mid => $val) {
-                if (!isset($metrics_cache[$mid])) {
-                    $DBRESULT = $this->DB->query(
-                        "INSERT INTO `ods_view_details`
-                            (`metric_id`, `contact_id`, `all_user`, `index_id`)
-                            VALUES ('" . $mid . "', '" . $this->user_id . "', '0', '" . $this->index . "');"
-                    );
+            $insertViewDetailsStatement = $this->DB->prepareQuery(
+                <<<SQL
+                    INSERT INTO `ods_view_details`
+                    (`metric_id`, `contact_id`, `all_user`, `index_id`)
+                    VALUES (:metric_id, :user_id, '0', :index_id)
+                    SQL
+            );
+            foreach (array_keys($odsm) as $mid) {
+                if (! isset($metrics_cache[$mid])) {
+                    $this->DB->executePreparedQuery($insertViewDetailsStatement, [
+                        ':metric_id' => $mid,
+                        ':user_id' => $this->user_id,
+                        ':index_id' => $this->index
+                    ]);
                 }
             }
         }
@@ -285,9 +349,9 @@ class CentreonGraph
     protected function cleanupDsName($dsname, $reverse = false)
     {
         if ($reverse === true) {
-            $newDsName = str_replace(array("slash_", "bslash_", "pct_", "\\#"), array("/", "\\", "%", "#"), $dsname);
+            $newDsName = str_replace(["slash_", "bslash_", "pct_", "\\#"], ["/", "\\", "%", "#"], $dsname);
         } else {
-            $newDsName = str_replace(array("/", "\\", "%", "#"), array("slash_", "bslash_", "pct_", "\\#"), $dsname);
+            $newDsName = str_replace(["/", "\\", "%", "#"], ["slash_", "bslash_", "pct_", "\\#"], $dsname);
         }
         $newDsName = preg_replace("/[^\w\-_]/", "-", $newDsName);
         return $newDsName;
@@ -303,8 +367,8 @@ class CentreonGraph
     protected function cleanupDsNameForLegend($dsname, $reverse = false)
     {
         $newDsName = str_replace(
-            array("slash_", "bslash_", "pct_", "'", "\\"),
-            array("/", "\\", "%", " ", "\\\\"),
+            ["slash_", "bslash_", "pct_", "'", "\\"],
+            ["/", "\\", "%", " ", "\\\\"],
             $dsname
         );
         $newDsName = mb_convert_encoding($newDsName, "UTF-8");
@@ -312,16 +376,16 @@ class CentreonGraph
     }
 
     /**
+     * @param string|array $metrics
      *
-     * Enter description here ...
-     * @param unknown_type $metrics
+     * @return void
      */
-    public function setMetricList($metrics)
+    public function setMetricList($metrics): void
     {
         if (is_array($metrics) && count($metrics)) {
             $this->metricsEnabled = array_keys($metrics);
         } elseif ($metrics != "") {
-            $this->metricsEnabled = array($metrics);
+            $this->metricsEnabled = [$metrics];
         }
         if (is_array($this->metricsEnabled) && (count($this->metricsEnabled) == 1)) {
             $this->onecurve = true;
@@ -329,10 +393,11 @@ class CentreonGraph
     }
 
     /**
-     *
      * Initiate the Graph objects
+     *
+     * @return void
      */
-    public function init()
+    public function init(): void
     {
         $this->setRRDOption("interlaced");
         $this->setRRDOption("imgformat", "PNG");
@@ -383,29 +448,32 @@ class CentreonGraph
     }
 
     /**
+     * @param $elem
      *
-     * Enter description here ...
-     * @param unknown_type $elem
+     * @return mixed
      */
     private static function quote($elem)
     {
-        return "'" . $elem . "'";
+        return $elem;
     }
 
     /**
+     * @param $elem
      *
-     * Enter description here ...
-     * @param unknown_type $elem
+     * @return string
      */
     private static function vquote($elem)
     {
-        return "'" . substr($elem, 1, strlen($elem) - 1) . "'";
+        return substr($elem, 1, strlen($elem) - 1);
     }
 
 
     /**
      * Return the appropriate comparison operator (GT or LT).
-     * @param $tm a reference to a curve definition
+     * $tm   a reference to a curve definition
+     * @param array $tm
+     *
+     * @return string
      */
     private static function getCmpOperator(&$tm)
     {
@@ -413,16 +481,18 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return void
+     * @throws PDOException
      */
-    public function initCurveList()
+    public function initCurveList(): void
     {
 
+        // Check if metrics are enabled
         if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
-            /* Zoom or Metric Image */
-            $l_rmEnabled = array();
-            $l_vmEnabled = array();
+            $l_rmEnabled = [];
+            $l_vmEnabled = [];
+
+            // Separate real and virtual metrics
             foreach ($this->metricsEnabled as $l_id) {
                 if (preg_match("/^v/", $l_id)) {
                     $l_vmEnabled[] = $l_id;
@@ -431,41 +501,62 @@ class CentreonGraph
                 }
             }
             /* Create selector for reals metrics */
-            if (count($l_rmEnabled)) {
+            if ($l_rmEnabled !== []) {
                 $l_rselector =
-                    "metric_id IN (" . implode(
+                    implode(
                         ",",
-                        array_map(array("CentreonGraph", "quote"), $l_rmEnabled)
-                    ) . ")";
+                        array_map(["CentreonGraph", "quote"], $l_rmEnabled)
+                    );
                 $this->log("initCurveList with selector [real]= " . $l_rselector);
             }
-            if (count($l_vmEnabled)) {
+            if ($l_vmEnabled !== []) {
                 $l_vselector =
-                    "vmetric_id IN (" . implode(
+                    implode(
                         ",",
-                        array_map(array("CentreonGraph", "vquote"), $l_vmEnabled)
-                    ) . ")";
+                        array_map(["CentreonGraph", "vquote"], $l_vmEnabled)
+                    );
                 $this->log("initCurveList with selector [virtual]= " . $l_vselector);
             }
         } else {
-            /* Full Image */
             $l_rselector = "index_id = '" . $this->index . "'";
             $l_vselector = $l_rselector;
-            $this->log("initCurveList with selector= " . $l_rselector);
+            $this->log("initCurveList with selector= $l_rselector");
         }
 
         /* Manage reals metrics */
         if (isset($l_rselector)) {
-            $DBRESULT = $this->DBC->query(
-                "SELECT host_id, service_id, metric_id, metric_name, unit_name, replace(format(warn,9),',','') warn,
+            $queryCondition = "metric_id IN (:l_rselector)";
+            if (!isset($this->metricsEnabled) || count($this->metricsEnabled) <= 0) {
+                $queryCondition = "index_id = :index_id";
+            }
+
+            $query = <<<SQL
+                SELECT 
+                    host_id, 
+                    service_id, 
+                    metric_id, 
+                    metric_name, 
+                    unit_name, 
+                    replace(format(warn,9),',','') warn,
                     replace(format(crit,9),',','') crit
-                    FROM metrics AS m, index_data AS i
-                    WHERE index_id = id
-                    AND " . $l_rselector . "
+                FROM metrics AS m, index_data AS i
+                WHERE index_id = id
+                    AND {$queryCondition}
                     AND m.hidden = '0'
-                    ORDER BY m.metric_name"
-            );
-            while ($rmetric = $DBRESULT->fetch()) {
+                ORDER BY m.metric_name
+                SQL;
+
+            $DBRESULT = $this->DBC->prepare($query);
+            if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
+                $DBRESULT->bindParam(':l_rselector', $l_rselector);
+            } else {
+                $DBRESULT->bindParam(':index_id', $this->index);
+            }
+
+            $DBRESULT->execute();
+            $rmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($rmetrics as $rmetric) {
                 $this->mlist[$rmetric["metric_id"]] = $this->mpointer[0]++;
                 $this->rmetrics[] = $rmetric;
             }
@@ -474,11 +565,30 @@ class CentreonGraph
 
         /* Manage virtuals metrics */
         if (isset($l_vselector)) {
-            $DBRESULT = $this->DB->query("SELECT vmetric_id
-                                          FROM virtual_metrics
-                                          WHERE " . $l_vselector . "
-                                          ORDER BY vmetric_name");
-            while ($vmetric = $DBRESULT->fetch()) {
+            $queryCondition = "vmetric_id IN (:l_vselector)";
+            if (!isset($this->metricsEnabled) || count($this->metricsEnabled) <= 0) {
+                $queryCondition = "index_id = :index_id";
+            }
+
+            $query = <<<SQL
+                SELECT 
+                    vmetric_id
+                FROM virtual_metrics
+                WHERE {$queryCondition}
+                ORDER BY vmetric_name
+                SQL;
+
+            $DBRESULT = $this->DB->prepare($query);
+            if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
+                $DBRESULT->bindParam(':l_vselector', $l_vselector);
+            } else {
+                $DBRESULT->bindParam(':index_id', $this->index);
+            }
+
+            $DBRESULT->execute();
+            $vmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($vmetrics as $vmetric) {
                 $this->manageVMetric($vmetric["vmetric_id"], null, null);
             }
             $DBRESULT->closeCursor();
@@ -487,7 +597,7 @@ class CentreonGraph
         /* Merge all metrics */
         $mmetrics = array_merge($this->rmetrics, $this->vmetrics);
         $DBRESULT->closeCursor();
-        $this->listMetricsId = array();
+        $this->listMetricsId = [];
         $components_ds_cache = null;
 
         foreach ($mmetrics as $key => $metric) {
@@ -539,20 +649,16 @@ class CentreonGraph
                         $metricPattern = str_replace('\\*', '.*', $metricPattern);
 
                         # Check associated
-                        if (
-                            ($dsVal['host_id'] == $metric['host_id'] || $dsVal['host_id'] == '') &&
-                            ($dsVal['service_id'] == $metric['service_id'] || $dsVal['service_id'] == '') &&
-                            preg_match($metricPattern, $metric['metric_name'])
-                        ) {
+                        if (($dsVal['host_id'] == $metric['host_id'] || $dsVal['host_id'] == '') &&
+                        ($dsVal['service_id'] == $metric['service_id'] || $dsVal['service_id'] == '') &&
+                        preg_match($metricPattern, $metric['metric_name'])) {
                             $ds_data_associated = $dsVal;
                             if ($dsVal['ds_legend'] != '') {
                                 $this->metrics[$metric["metric_id"]]["metric_legend"] = $dsVal['ds_legend'];
                             }
                             break;
-                        } else {
-                            if (preg_match($metricPattern, $metric['metric_name']) && $dsVal['ds_legend'] != '') {
-                                $this->metrics[$metric["metric_id"]]["metric_legend"] = $dsVal['ds_legend'];
-                            }
+                        } elseif (preg_match($metricPattern, $metric['metric_name']) && $dsVal['ds_legend'] != '') {
+                            $this->metrics[$metric["metric_id"]]["metric_legend"] = $dsVal['ds_legend'];
                         }
 
                         /* Check regular */
@@ -576,12 +682,13 @@ class CentreonGraph
                         /** *******************************************
                          * Get default info in default template
                          */
-                        $DBRESULT3 = $this->DB->query(
+                        $DBRESULT3 = $this->DB->prepare(
                             "SELECT ds_min, ds_max, ds_minmax_int, ds_last, ds_average, ds_total, ds_tickness,
-                                ds_color_line_mode, ds_color_line
-                                FROM giv_components_template
-                                WHERE default_tpl1 = '1' LIMIT 1"
+                              ds_color_line_mode, ds_color_line
+                              FROM giv_components_template
+                              WHERE default_tpl1 = '1' LIMIT 1"
                         );
+                        $DBRESULT3->execute();
                         if ($DBRESULT3->rowCount()) {
                             foreach ($DBRESULT3->fetch() as $key => $ds_val) {
                                 $ds[$key] = $ds_val;
@@ -630,7 +737,7 @@ class CentreonGraph
                             );
                         } else {
                             $this->metrics[$metric["metric_id"]]["legend"] = (
-                            isset($ds_data["ds_name"]) ? $ds_data["ds_name"] : ""
+                            $ds_data["ds_name"] ?? ""
                             );
                         }
                         $this->metrics[$metric["metric_id"]]["legend"] = str_replace(
@@ -648,8 +755,8 @@ class CentreonGraph
 
                     /* Checks whether or not string must be decoded */
                     $lgd = $this->metrics[$metric["metric_id"]]["legend"];
-                    if (preg_match('!!u', utf8_decode($lgd))) {
-                        $this->metrics[$metric["metric_id"]]["legend"] = utf8_decode($lgd);
+                    if (preg_match('!!u', mb_convert_encoding($lgd, 'ISO-8859-1'))) {
+                        $this->metrics[$metric["metric_id"]]["legend"] = mb_convert_encoding($lgd, 'ISO-8859-1');
                     }
 
                     $this->metrics[$metric["metric_id"]]["legend_len"] =
@@ -712,13 +819,13 @@ class CentreonGraph
         /*
          * Sort by ds_order,then legend
          */
-        uasort($this->metrics, array("CentreonGraph", "cmpmultiple"));
+        uasort($this->metrics, ["CentreonGraph", "cmpmultiple"]);
 
         /*
          * add data definitions for each metric
          */
         $cpt = 0;
-        $lcdef = array();
+        $lcdef = [];
         $this->longer = 0;
         if (isset($this->metrics)) {
             foreach ($this->metrics as $key => &$tm) {
@@ -760,7 +867,7 @@ class CentreonGraph
                     if ($this->onecurve && isset($tm["warn"]) && $tm["warn"] != 0 &&
                         isset($tm["crit"]) && $tm["crit"] != 0
                     ) {
-                        $l_CMP = "," . $this->getCmpOperator($tm) . ",";
+                        $l_CMP = "," . self::getCmpOperator($tm) . ",";
                         $this->addArgument(
                             "CDEF:ok" . $cpt . "=v" . $cpt . "," . $tm["warn"] . $l_CMP . $tm["warn"] . ",v" .
                             $cpt . ",IF"
@@ -785,8 +892,8 @@ class CentreonGraph
                 }
             }
         }
-        $deftype = array(0 => "CDEF", 1 => "VDEF");
-        uasort($lcdef, array("CentreonGraph", "cmpcdeforder"));
+        $deftype = [0 => "CDEF", 1 => "VDEF"];
+        uasort($lcdef, ["CentreonGraph", "cmpcdeforder"]);
         foreach ($lcdef as $key => &$tm) {
             $rpn = $this->subsRPN($tm["rpn_function"], $this->vname);
             $arg = $deftype[$tm["def_type"]] . ":" . $this->vname[$tm["metric"]] . "=" . $rpn;
@@ -806,7 +913,7 @@ class CentreonGraph
                 $this->addArgument($arg);
             }
             if ($this->onecurve && isset($tm["warn"]) && $tm["warn"] != 0 && isset($tm["crit"]) && $tm["crit"] != 0) {
-                $l_CMP = "," . $this->getCmpOperator($tm) . ",";
+                $l_CMP = "," . self::getCmpOperator($tm) . ",";
                 $nb = substr($this->vname[$tm["metric"]], 2, strlen($this->vname[$tm["metric"]]) - 2);
                 $this->addArgument(
                     "CDEF:ok" . $nb . "=" . $this->vname[$tm["metric"]] . "," . $tm["warn"] .
@@ -825,30 +932,13 @@ class CentreonGraph
     }
 
     /**
-     *
      * Create Legend on the graph
+     *
+     * @return void
      */
-    public function createLegend()
+    public function createLegend(): void
     {
-        $currentColors = array(
-            "Min" => "#19EE11",
-            "Max" => "#F91E05",
-            "Average" => "#2AD1D4",
-            "Last_Min" => "#2AD1D4",
-            "Last_5_Min" => "#13EB3A",
-            "Last_15_Min" => "#F8C706",
-            "Last_Hour" => "#F91D05",
-            "Up" => "#19EE11",
-            "Down" => "#F91E05",
-            "Unreach" => "#2AD1D4",
-            "Ok" => "#13EB3A",
-            "Warn" => "#F8C706",
-            "Crit" => "#F91D05",
-            "Unk" => "#2AD1D4",
-            "In_Use" => "#13EB3A",
-            "Max_Used" => "#F91D05",
-            "Total_Available" => "#2AD1D4"
-        );
+        $currentColors = ["Min" => "#19EE11", "Max" => "#F91E05", "Average" => "#2AD1D4", "Last_Min" => "#2AD1D4", "Last_5_Min" => "#13EB3A", "Last_15_Min" => "#F8C706", "Last_Hour" => "#F91D05", "Up" => "#19EE11", "Down" => "#F91E05", "Unreach" => "#2AD1D4", "Ok" => "#13EB3A", "Warn" => "#F8C706", "Crit" => "#F91D05", "Unk" => "#2AD1D4", "In_Use" => "#13EB3A", "Max_Used" => "#F91D05", "Total_Available" => "#2AD1D4"];
 
         $cpt = 0;
         $rpn_values = "";
@@ -889,7 +979,7 @@ class CentreonGraph
                     }
                     $rpn_values .= $this->vname[$tm["metric"]] . ",UN,0," . $this->vname[$tm["metric"]] . ",IF,";
                     $rpn_expr .= ",+";
-                    if (strpos($arg, ' ') === false) {
+                    if (!str_contains($arg, ' ')) {
                         $this->addArgument($arg);
                     } else {
                         $args = explode(' ', $arg);
@@ -925,8 +1015,8 @@ class CentreonGraph
                 }
                 $this->addArgument($arg);
 
-                $vdefs = array();
-                $prints = array();
+                $vdefs = [];
+                $prints = [];
 
                 $cfNames = [
                     "last" => "LAST",
@@ -993,10 +1083,10 @@ class CentreonGraph
     }
 
     /**
+     * @param int|null $l_value
+     * @param string|null $l_unit
      *
-     * Enter description here ...
-     * @param unknown_type $l_value
-     * @param unknown_type $l_unit
+     * @return string|void
      */
     private function humanReadable($l_value = null, $l_unit = null)
     {
@@ -1005,46 +1095,9 @@ class CentreonGraph
         }
 
         if ($l_unit == 'B' || $l_unit == 'o' || $l_unit == 'b/s') {
-            if (isset($this->RRDoptions["base"])) {
-                $l_base = $this->RRDoptions["base"];
-            } else {
-                $l_base = 1000;
-            }
+            $l_base = $this->RRDoptions["base"] ?? 1000;
 
-            $l_px = array(
-                "8" => array(
-                    "1000" => "Y",
-                    "1024" => "Yi"
-                ),
-                "7" => array(
-                    "1000" => "Z",
-                    "1024" => "Zi"
-                ),
-                "6" => array(
-                    "1000" => "E",
-                    "1024" => "Ei"
-                ),
-                "5" => array(
-                    "1000" => "P",
-                    "1024" => "Pi"
-                ),
-                "4" => array(
-                    "1000" => "T",
-                    "1024" => "Ti"
-                ),
-                "3" => array(
-                    "1000" => "G",
-                    "1024" => "Gi"
-                ),
-                "2" => array(
-                    "1000" => "M",
-                    "1024" => "Mi"
-                ),
-                "1" => array(
-                    "1000" => "K",
-                    "1024" => "Ki"
-                )
-            );
+            $l_px = ["8" => ["1000" => "Y", "1024" => "Yi"], "7" => ["1000" => "Z", "1024" => "Zi"], "6" => ["1000" => "E", "1024" => "Ei"], "5" => ["1000" => "P", "1024" => "Pi"], "4" => ["1000" => "T", "1024" => "Ti"], "3" => ["1000" => "G", "1024" => "Gi"], "2" => ["1000" => "M", "1024" => "Mi"], "1" => ["1000" => "K", "1024" => "Ki"]];
             $l_sign = "";
             if ($l_value < 0) {
                 $l_sign = "-";
@@ -1063,10 +1116,10 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return void
+     * @throws PDOException
      */
-    private function getDefaultGraphTemplate()
+    private function getDefaultGraphTemplate(): void
     {
         $template_id = $this->getServiceGraphID();
         if ($template_id != "") {
@@ -1099,11 +1152,12 @@ class CentreonGraph
     }
 
     /**
+     * @param string|null $template_id
      *
-     * Enter description here ...
-     * @param unknown_type $template_id
+     * @return void
+     * @throws PDOException
      */
-    public function setTemplate($template_id = null)
+    public function setTemplate($template_id = null): void
     {
         if (isset($template_id)) {
             $template_id = htmlentities($template_id, ENT_QUOTES, "UTF-8");
@@ -1143,14 +1197,14 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return int|mixed|string
+     * @throws PDOException
      */
     private function getServiceGraphID()
     {
         $service_id = $this->indexData["service_id"];
 
-        $tab = array();
+        $tab = [];
         $statement = $this->DB->prepare("SELECT esi.graph_id, service_template_model_stm_id
                     FROM service
                     LEFT JOIN extended_service_information esi ON esi.service_service_id = service_id
@@ -1176,28 +1230,28 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Get index Data
+     * @return void
+     * @throws PDOException
      */
-    private function getIndexData()
+    private function getIndexData(): void
     {
-        if (isset($this->metricsEnabled)) {
-            $svc_instance = $this->metrics[$this->metricsEnabled[0]]["index_id"];
-        } else {
-            $svc_instance = $this->index;
-        }
+        $svc_instance = isset($this->metricsEnabled) ? $this->metrics[$this->metricsEnabled[0]]["index_id"] : $this->index;
 
         $this->log("index_data for " . $svc_instance);
-        $DBRESULT = $this->DBC->query("SELECT * FROM index_data WHERE id = '" . $svc_instance . "' LIMIT 1");
+        $DBRESULT = $this->DBC->prepare("SELECT * FROM index_data WHERE id = :svc_instance LIMIT 1");
+        $DBRESULT->bindParam(':svc_instance', $svc_instance, PDO::PARAM_INT);
+        $DBRESULT->execute();
+
         if ($DBRESULT->rowCount()) {
             $this->indexData = $DBRESULT->fetch();
             /*
              * Check Meta Service description
              */
             if (preg_match("/meta_([0-9]*)/", $this->indexData["service_description"], $matches)) {
-                $DBRESULT_meta = $this->DB->query(
-                    "SELECT meta_name FROM meta_service WHERE `meta_id` = '" . $matches[1] . "'"
-                );
+                $DBRESULT_meta = $this->DB->prepare("SELECT meta_name FROM meta_service WHERE `meta_id` = :meta_id");
+                $DBRESULT_meta->bindParam(':meta_id', $matches[1], PDO::PARAM_INT);
+                $DBRESULT_meta->execute();
+
                 $meta = $DBRESULT_meta->fetch();
                 $this->indexData["service_description"] = $meta["meta_name"];
                 unset($meta);
@@ -1207,7 +1261,7 @@ class CentreonGraph
         $DBRESULT->closeCursor();
 
         if (isset($this->metricsEnabled)) {
-            $metrictitle = " metric " . $this->metrics[$this->metricsEnabled]["metric_name"];
+            $metrictitle = " metric " . $this->metrics[$this->metricsEnabled]["metric_name"];// FIXME metricsEnabled is an array ??
         } else {
             $metrictitle = "";
         }
@@ -1216,10 +1270,10 @@ class CentreonGraph
             $sdesc = $this->indexData['service_description'];
             $hname = $this->indexData['host_name'];
             if (!mb_detect_encoding($sdesc, 'UTF-8', true)) {
-                $sdesc = utf8_encode($sdesc);
+                $sdesc = mb_convert_encoding($sdesc, 'UTF-8', 'ISO-8859-1');
             }
             if (!mb_detect_encoding($hname, 'UTF-8', true)) {
-                $hname = utf8_encode($hname);
+                $hname = mb_convert_encoding($hname, 'UTF-8', 'ISO-8859-1');
             }
             $this->setRRDOption("title", _("Graph") . " " . $hname . '/' . $sdesc . $metrictitle);
         } else {
@@ -1228,19 +1282,20 @@ class CentreonGraph
     }
 
     /**
-     *
      * Display Start and end time on graph
      * @param $arg
+     *
+     * @return void
      */
-    public function addArgument($arg)
+    public function addArgument($arg): void
     {
         $this->arguments[$this->argcount++] = $arg;
     }
 
     /**
-     * Geneate image...
+     * @return void
      */
-    public static function displayError()
+    public static function displayError(): void
     {
         $image = imagecreate(250, 100);
         $fond = imagecolorallocate($image, 0xEF, 0xF2, 0xFB);
@@ -1257,45 +1312,45 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
-     * @param $name
+     * @param string $name
      * @param $value
+     *
+     * @return void
      */
-    public function setFont($name, $value)
+    public function setFont($name, $value): void
     {
         $this->fonts[$name] = $value;
     }
 
     /**
+     * @param string $name
+     * @param $value
      *
-     * Enter description here ...
-     * @param unknown_type $name
-     * @param unknown_type $value
+     * @return void
      */
-    public function setColor($name, $value)
+    public function setColor($name, $value): void
     {
         $this->colors[$name] = $value;
     }
 
     /**
+     * @param string $name
+     * @param $value
      *
-     * Enter description here ...
-     * @param unknown_type $name
-     * @param unknown_type $value
+     * @return void
      */
-    public function setRRDOption($name, $value = null)
+    public function setRRDOption($name, $value = null): void
     {
         $this->RRDoptions[$name] = $value;
     }
 
     /**
+     * @param $lower
+     * @param $upper
      *
-     * Enter description here ...
-     * @param unknown_type $lower
-     * @param unknown_type $upper
+     * @return void
      */
-    private function switchRRDLimitOption($lower = null, $upper = null)
+    private function switchRRDLimitOption($lower = null, $upper = null): void
     {
         if (is_null($lower)) {
             unset($this->RRDoptions["upper-limit"]);
@@ -1310,11 +1365,11 @@ class CentreonGraph
     }
 
     /**
+     * @param $flag
      *
-     * Enter description here ...
-     * @param unknown_type $flag
+     * @return void
      */
-    public function setCommandLineTimeLimit($flag)
+    public function setCommandLineTimeLimit($flag): void
     {
         if (isset($flag)) {
             $this->flag = $flag;
@@ -1322,35 +1377,33 @@ class CentreonGraph
     }
 
     /**
+     * @param string $name
+     * @param bool $bool
      *
-     * Enter description here ...
-     * @param unknown_type $name
-     * @param unknown_type $bool
+     * @return void
      */
-    public function setOption($name, $bool = true)
+    public function setOption($name, $bool = true): void
     {
         $this->options[$name] = $bool;
     }
 
     /**
+     * @param string $name
      *
-     * Enter description here ...
-     * @param unknown_type $name
+     * @return false|mixed
      */
     public function getOption($name)
     {
-        if (isset($this->options[$name])) {
-            return $this->options[$name];
-        }
-        return false;
+        return $this->options[$name] ?? false;
     }
 
     /**
+     * @param string $encoding
+     * @param string|int|false $content_length
      *
-     * Enter description here ...
-     * @param unknown_type $encoding
+     * @return void
      */
-    public function setHeaders($encoding, $content_length = false)
+    public function setHeaders($encoding, $content_length = false): void
     {
         header("Content-Type: image/png");
         header("Content-Transfer-Encoding: binary");
@@ -1359,14 +1412,14 @@ class CentreonGraph
         if ($this->compress && $encoding) {
             header('Content-Encoding: ' . $encoding);
         }
-        if ($content_length != false) {
+        if ($content_length !== false) {
             header("Content-Length: " . $content_length);
         }
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return array|string|string[]|void|null
+     * @throws Exception
      */
     public function displayImageFlow()
     {
@@ -1431,15 +1484,17 @@ class CentreonGraph
          */
         if (!$this->checkcurve) {
             if (is_writable($this->generalOpt['debug_path'])) {
-                $stderr = array('file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a');
+                $stderr = ['file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a'];
             } else {
-                $stderr = array('pipe', 'a');
+                $stderr = ['pipe', 'a'];
             }
-            $descriptorspec = array(
-                0 => array("pipe", "r"),  // stdin est un pipe processus va lire
-                1 => array("pipe", "w"),  // stdout est un pipe processus va ecrire
-                2 => $stderr // stderr est un fichier
-            );
+            $descriptorspec = [
+                0 => ["pipe", "r"],
+                // stdin est un pipe processus va lire
+                1 => ["pipe", "w"],
+                // stdout est un pipe processus va ecrire
+                2 => $stderr,
+            ];
 
             $process = proc_open(
                 $gmt_export . $this->generalOpt["rrdtool_path_bin"] . " - ",
@@ -1465,11 +1520,11 @@ class CentreonGraph
     }
 
     /**
+     * @param string $name
+     * @param array $tab
+     * @param string $defaultValue
      *
-     * Enter description here ...
-     * @param unknown_type $name
-     * @param unknown_type $tab
-     * @param unknown_type $defaultValue
+     * @return string|void
      */
     public function checkArgument($name, $tab, $defaultValue)
     {
@@ -1483,9 +1538,10 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
      * @param int $metricId
+     *
+     * @return mixed
+     * @throws PDOException
      */
     public function getOVDColor($metricId)
     {
@@ -1494,79 +1550,52 @@ class CentreonGraph
             return $this->getRandomWebColor();
         }
         if (is_null($this->colorCache)) {
-            $this->colorCache = array();
+            $this->colorCache = [];
 
-            $DBRESULT = $this->DB->query(
-                "SELECT metric_id, rnd_color FROM `ods_view_details` WHERE `index_id` = '" . $this->index . "'"
+            $DBRESULT = $this->DB->prepare(
+                "SELECT metric_id, rnd_color FROM `ods_view_details` WHERE `index_id` = :index_id"
             );
-            while (($row = $DBRESULT->fetchRow())) {
+            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->execute();
+            while (($row = $DBRESULT->fetch(PDO::FETCH_ASSOC))) {
                 $this->colorCache[$row['metric_id']] = $row['rnd_color'];
             }
         }
-        
+
         if (isset($this->colorCache[$metricId]) && preg_match("/^\#[a-f0-9]{6,6}/i", $this->colorCache[$metricId])) {
             return $this->colorCache[$metricId];
         }
         $lRndcolor = $this->getRandomWebColor();
         if (is_int($metricId)) {
-            $this->DB->query(
-                'INSERT INTO `ods_view_details` (rnd_color, index_id, metric_id) '
-                . 'VALUES ("' . $lRndcolor . '", ' . $this->index . ', ' . $metricId  . ')'
+            $insertViewDetailsStatement = $this->DB->prepareQuery(
+                <<<SQL
+                    INSERT INTO `ods_view_details` (rnd_color, index_id, metric_id)
+                    VALUES (:rnd_color, :index_id, :metric_id)
+                    SQL
             );
+            $this->DB->executePreparedQuery($insertViewDetailsStatement, [
+                'rnd_color' => $lRndcolor,
+                'index_id' => $this->index,
+                'metric_id' => $metricId,
+            ]);
         }
         return $lRndcolor;
     }
 
     /**
-     *
-     * Enter description here ...
+     * @return array
      */
     public function getRandomWebColor()
     {
-        $webSafeColors = array('#000033', '#000066', '#000099', '#0000cc',
-            '#0000ff', '#003300', '#003333', '#003366', '#003399', '#0033cc',
-            '#0033ff', '#006600', '#006633', '#006666', '#006699', '#0066cc',
-            '#0066ff', '#009900', '#009933', '#009966', '#009999', '#0099cc',
-            '#0099ff', '#00cc00', '#00cc33', '#00cc66', '#00cc99', '#00cccc',
-            '#00ccff', '#00ff00', '#00ff33', '#00ff66', '#00ff99', '#00ffcc',
-            '#00ffff', '#330000', '#330033', '#330066', '#330099', '#3300cc',
-            '#3300ff', '#333300', '#333333', '#333366', '#333399', '#3333cc',
-            '#3333ff', '#336600', '#336633', '#336666', '#336699', '#3366cc',
-            '#3366ff', '#339900', '#339933', '#339966', '#339999', '#3399cc',
-            '#3399ff', '#33cc00', '#33cc33', '#33cc66', '#33cc99', '#33cccc',
-            '#33ccff', '#33ff00', '#33ff33', '#33ff66', '#33ff99', '#33ffcc',
-            '#33ffff', '#660000', '#660033', '#660066', '#660099', '#6600cc',
-            '#6600ff', '#663300', '#663333', '#663366', '#663399', '#6633cc',
-            '#6633ff', '#666600', '#666633', '#666666', '#666699', '#6666cc',
-            '#6666ff', '#669900', '#669933', '#669966', '#669999', '#6699cc',
-            '#6699ff', '#66cc00', '#66cc33', '#66cc66', '#66cc99', '#66cccc',
-            '#66ccff', '#66ff00', '#66ff33', '#66ff66', '#66ff99', '#66ffcc',
-            '#66ffff', '#990000', '#990033', '#990066', '#990099', '#9900cc',
-            '#9900ff', '#993300', '#993333', '#993366', '#993399', '#9933cc',
-            '#9933ff', '#996600', '#996633', '#996666', '#996699', '#9966cc',
-            '#9966ff', '#999900', '#999933', '#999966', '#999999', '#9999cc',
-            '#9999ff', '#99cc00', '#99cc33', '#99cc66', '#99cc99', '#99cccc',
-            '#99ccff', '#99ff00', '#99ff33', '#99ff66', '#99ff99', '#99ffcc',
-            '#99ffff', '#cc0000', '#cc0033', '#cc0066', '#cc0099', '#cc00cc',
-            '#cc00ff', '#cc3300', '#cc3333', '#cc3366', '#cc3399', '#cc33cc',
-            '#cc33ff', '#cc6600', '#cc6633', '#cc6666', '#cc6699', '#cc66cc',
-            '#cc66ff', '#cc9900', '#cc9933', '#cc9966', '#cc9999', '#cc99cc',
-            '#cc99ff', '#cccc00', '#cccc33', '#cccc66', '#cccc99', '#cccccc',
-            '#ccccff', '#ccff00', '#ccff33', '#ccff66', '#ccff99', '#ccffcc',
-            '#ccffff', '#ff0000', '#ff0033', '#ff0066', '#ff0099', '#ff00cc',
-            '#ff00ff', '#ff3300', '#ff3333', '#ff3366', '#ff3399', '#ff33cc',
-            '#ff33ff', '#ff6600', '#ff6633', '#ff6666', '#ff6699', '#ff66cc',
-            '#ff66ff', '#ff9900', '#ff9933', '#ff9966', '#ff9999', '#ff99cc',
-            '#ff99ff', '#ffcc00', '#ffcc33', '#ffcc66', '#ffcc99', '#ffcccc',
-            '#ffccff');
-            return $webSafeColors[rand(0, sizeof($webSafeColors) - 1)];
+        $webSafeColors = ['#000033', '#000066', '#000099', '#0000cc', '#0000ff', '#003300', '#003333', '#003366', '#003399', '#0033cc', '#0033ff', '#006600', '#006633', '#006666', '#006699', '#0066cc', '#0066ff', '#009900', '#009933', '#009966', '#009999', '#0099cc', '#0099ff', '#00cc00', '#00cc33', '#00cc66', '#00cc99', '#00cccc', '#00ccff', '#00ff00', '#00ff33', '#00ff66', '#00ff99', '#00ffcc', '#00ffff', '#330000', '#330033', '#330066', '#330099', '#3300cc', '#3300ff', '#333300', '#333333', '#333366', '#333399', '#3333cc', '#3333ff', '#336600', '#336633', '#336666', '#336699', '#3366cc', '#3366ff', '#339900', '#339933', '#339966', '#339999', '#3399cc', '#3399ff', '#33cc00', '#33cc33', '#33cc66', '#33cc99', '#33cccc', '#33ccff', '#33ff00', '#33ff33', '#33ff66', '#33ff99', '#33ffcc', '#33ffff', '#660000', '#660033', '#660066', '#660099', '#6600cc', '#6600ff', '#663300', '#663333', '#663366', '#663399', '#6633cc', '#6633ff', '#666600', '#666633', '#666666', '#666699', '#6666cc', '#6666ff', '#669900', '#669933', '#669966', '#669999', '#6699cc', '#6699ff', '#66cc00', '#66cc33', '#66cc66', '#66cc99', '#66cccc', '#66ccff', '#66ff00', '#66ff33', '#66ff66', '#66ff99', '#66ffcc', '#66ffff', '#990000', '#990033', '#990066', '#990099', '#9900cc', '#9900ff', '#993300', '#993333', '#993366', '#993399', '#9933cc', '#9933ff', '#996600', '#996633', '#996666', '#996699', '#9966cc', '#9966ff', '#999900', '#999933', '#999966', '#999999', '#9999cc', '#9999ff', '#99cc00', '#99cc33', '#99cc66', '#99cc99', '#99cccc', '#99ccff', '#99ff00', '#99ff33', '#99ff66', '#99ff99', '#99ffcc', '#99ffff', '#cc0000', '#cc0033', '#cc0066', '#cc0099', '#cc00cc', '#cc00ff', '#cc3300', '#cc3333', '#cc3366', '#cc3399', '#cc33cc', '#cc33ff', '#cc6600', '#cc6633', '#cc6666', '#cc6699', '#cc66cc', '#cc66ff', '#cc9900', '#cc9933', '#cc9966', '#cc9999', '#cc99cc', '#cc99ff', '#cccc00', '#cccc33', '#cccc66', '#cccc99', '#cccccc', '#ccccff', '#ccff00', '#ccff33', '#ccff66', '#ccff99', '#ccffcc', '#ccffff', '#ff0000', '#ff0033', '#ff0066', '#ff0099', '#ff00cc', '#ff00ff', '#ff3300', '#ff3333', '#ff3366', '#ff3399', '#ff33cc', '#ff33ff', '#ff6600', '#ff6633', '#ff6666', '#ff6699', '#ff66cc', '#ff66ff', '#ff9900', '#ff9933', '#ff9966', '#ff9999', '#ff99cc', '#ff99ff', '#ffcc00', '#ffcc33', '#ffcc66', '#ffcc99', '#ffcccc', '#ffccff'];
+        return $webSafeColors[rand(0, sizeof($webSafeColors) - 1)];
     }
 
     /**
+     * @param array $a
+     * @param array $b
      *
-     * Enter description here ...
-     * @param unknown_type $a
-     * @param unknown_type $b
+     * @return int
      */
     private function cmpmultiple($a, $b)
     {
@@ -1584,10 +1613,10 @@ class CentreonGraph
     }
 
     /**
+     * @param array $a
+     * @param array $b
      *
-     * Enter description here ...
-     * @param unknown_type $a
-     * @param unknown_type $b
+     * @return int
      */
     private function cmpcdeforder($a, $b)
     {
@@ -1598,11 +1627,11 @@ class CentreonGraph
     }
 
     /**
+     * @param string $rpn
+     * @param string $vname
+     * @param string|null $suffix
      *
-     * Enter description here ...
-     * @param unknown_type $rpn
-     * @param unknown_type $vname
-     * @param unknown_type $suffix
+     * @return string
      */
     protected function subsRPN($rpn, $vname, $suffix = null)
     {
@@ -1626,13 +1655,16 @@ class CentreonGraph
     }
 
     /**
-     *
      * need : [0]->need/visible [1]->need/hidden
-     * @param unknown_type $vId
-     * @param unknown_type $vName
-     * @param unknown_type $indexId
+     *
+     * @param string|null $vId
+     * @param string $vName
+     * @param string $indexId
+     *
+     * @return void
+     * @throws PDOException
      */
-    private function manageVMetric($vId, $vName, $indexId)
+    private function manageVMetric($vId, $vName, $indexId): void
     {
         /* Recursif function */
 
@@ -1644,24 +1676,33 @@ class CentreonGraph
             $lWhidden = " AND (hidden = '0' OR hidden IS NULL) AND vmetric_activate = '1'";
         }
 
+        $bindParams = [];
         if (is_null($vId)) {
-            $lWhere = "vmetric_name = '" . $vName . "' AND index_id ='" . $indexId . "'";
+            $lWhere = " vmetric_name = :vMetricName AND index_id = :indexId";
+            $bindParams = [
+                'vMetricName' => $vName,
+                'indexId' => $indexId
+            ];
         } else {
-            $lWhere = "vmetric_id = '" . $vId . "'" . $lWhidden;
+            $lWhere = " vmetric_id = :vMetricId" . $lWhidden;
+            $bindParams = [
+                'vMetricId' => $vId
+            ];
         }
-
-
-        $lPqy = $this->DB->query(
-            "SELECT vmetric_id metric_id, index_id, vmetric_name metric_name, unit_name,
-                replace(format(warn,9),',','') warn, replace(format(crit,9),',','') crit, def_type, rpn_function
-                FROM virtual_metrics WHERE " . $lWhere . " ORDER BY metric_name"
-        );
+        $query = <<<SQL
+            SELECT vmetric_id metric_id, index_id, vmetric_name metric_name, unit_name,
+            replace(format(warn,9),',','') warn, replace(format(crit,9),',','') crit, def_type, rpn_function
+            FROM virtual_metrics WHERE
+            SQL;
+        $query .= $lWhere . " ORDER BY metric_name";
+        $statement = $this->DB->prepareQuery($query);
+        $this->DB->executePreparedQuery($statement, $bindParams);
         /*
          * There is only one metric_id
          */
-        if ($lPqy->rowCount() == 1) {
-            $lVmetric = $lPqy->fetch();
-            $lPqy->closeCursor();
+        if ($statement->rowCount() === 1) {
+            $lVmetric = $this->DB->fetch($statement);
+            $this->DB->closeQuery($statement);
             if (!isset($this->mlist["v" . $lVmetric["metric_id"]])) {
                 if (is_null($vId)) {
                     $lVmetric["need"] = 1; /* 1 : Need this virtual metric : Hidden */
@@ -1669,28 +1710,45 @@ class CentreonGraph
                 /*
                  * Find Host/Service For this metric_id
                  */
-                $l_poqy = $this->DBC->query(
-                    "SELECT host_id, service_id FROM index_data WHERE id = '" . $lVmetric["index_id"] . "'"
+                $selectIndexDataStatement = $this->DBC->prepareQuery(
+                    <<<SQL
+                    SELECT host_id, service_id FROM index_data WHERE id = :indexId
+                    SQL
                 );
-                $l_indd = $l_poqy->fetch();
-                $l_poqy->closeCursor();
+                $this->DBC->executePreparedQuery(
+                    $selectIndexDataStatement,
+                    [
+                        'indexId' => $lVmetric["index_id"]
+                    ]
+                );
+                $l_indd = $this->DBC->fetch($selectIndexDataStatement);
+                $this->DBC->closeQuery($selectIndexDataStatement);
                 /* Check for real or virtual metric(s) in the RPN function */
                 $l_mlist = preg_split("/\,/", $lVmetric["rpn_function"]);
                 foreach ($l_mlist as $l_mnane) {
                     /*
                      * Check for a real metric
                      */
-                    $l_poqy = $this->DBC->query(
-                        "SELECT host_id, service_id, metric_id, metric_name, unit_name,
+                    $checkRealMetricStatement = $this->DBC->prepareQuery(
+                        <<<SQL
+                        SELECT host_id, service_id, metric_id, metric_name, unit_name,
                             replace(format(warn,9),',','') warn, replace(format(crit,9),',','') crit
                             FROM metrics AS m, index_data as i
-                            WHERE index_id = id AND index_id = '" . $lVmetric["index_id"] . "'
-                                AND metric_name = '" . $l_mnane . "'"
+                            WHERE index_id = id AND index_id = :indexId
+                                AND metric_name = :vMetricName
+                        SQL
                     );
-                    if ($l_poqy->rowCount() == 1) {
+                    $this->DBC->executePreparedQuery(
+                        $checkRealMetricStatement,
+                        [
+                            'indexId' => $lVmetric["index_id"],
+                            'vMetricName' => $l_mnane
+                        ]
+                    );
+                    if ($checkRealMetricStatement->rowCount() === 1) {
                         /* Find a real metric in the RPN function */
-                        $l_rmetric = $l_poqy->fetchrow();
-                        $l_poqy->closeCursor();
+                        $l_rmetric = $this->DB->fetch($checkRealMetricStatement);
+                        $this->DB->closeQuery($checkRealMetricStatement);
                         $l_rmetric["need"] = 1; /* 1 : Need this real metric - hidden */
                         if (!isset($this->mlist[$l_rmetric["metric_id"]])) {
                             $this->mlist[$l_rmetric["metric_id"]] = $this->mpointer[0]++;
@@ -1703,12 +1761,12 @@ class CentreonGraph
                                 $this->rmetrics[$l_pointer]["need"] = 0;
                             }
                         }
-                    } elseif ($l_poqy->rowCount() == 0) {
+                    } elseif ($checkRealMetricStatement->rowCount() === 0) {
                         /* key : id or vname and iid */
-                        $l_poqy->closeCursor();
+                        $this->DB->closeQuery($checkRealMetricStatement);
                         $this->manageVMetric(null, $l_mnane, $lVmetric["index_id"]);
                     } else {
-                        $l_poqy->closeCursor();
+                        $this->DB->closeQuery($checkRealMetricStatement);
                     }
                 }
                 $lVmetric["metric_id"] = "v" . $lVmetric["metric_id"];
@@ -1725,24 +1783,22 @@ class CentreonGraph
                 if (is_null($vId)) {
                     if (!isset($this->vmetrics[$l_pointer]["need"]) || $this->vmetrics[$l_pointer]["need"] != 1) {
                         $this->vmetrics[$l_pointer]["need"] = 0;
-                    } else {
-                        if (!isset($this->vmetrics[$l_pointer]["need"]) || $this->vmetrics[$l_pointer]["need"] == 1) {
-                            $this->vmetrics[$l_pointer]["need"] = 0;
-                        }
+                    } elseif (!isset($this->vmetrics[$l_pointer]["need"]) || $this->vmetrics[$l_pointer]["need"] == 1) {
+                        $this->vmetrics[$l_pointer]["need"] = 0;
                     }
                 }
             }
         } else {
-            $lPqy->closeCursor();
+            $this->DB->closeQuery($statement);
         }
     }
 
     /**
+     * @param string $message
      *
-     * Enter description here ...
-     * @param unknown_type $message
+     * @return void
      */
-    private function log($message)
+    private function log($message): void
     {
         if (isset($this->generalOpt['debug_rrdtool']) && is_writable($this->generalOpt['debug_path'])) {
             error_log(
@@ -1754,9 +1810,9 @@ class CentreonGraph
     }
 
     /**
+     * @param string $metric_id
      *
-     * Enter description here ...
-     * @param unknown_type $metric_id
+     * @return int
      */
     private function checkDBAvailability($metric_id)
     {
@@ -1844,18 +1900,23 @@ class CentreonGraph
      *
      * @param int $hostId
      * @param int $serviceId
+     *
      * @return int
+     * @throws PDOException
      */
     public function getIndexDataId($hostId, $serviceId)
     {
-        $sql = "SELECT id FROM index_data
-            WHERE host_id = " . $this->DBC->escape($hostId) . "
-                AND service_id = " . $this->DBC->escape($serviceId);
-        $res = $this->DBC->query($sql);
+        $sql = "SELECT id FROM index_data WHERE host_id = :host_id AND service_id = :service_id";
+        $res = $this->DBC->prepare($sql);
+        $res->bindParam(':host_id', $hostId, PDO::PARAM_INT);
+        $res->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+        $res->execute();
+
         if ($res->rowCount()) {
             $row = $res->fetch();
             return $row['id'];
         }
+        $res->closeCursor();
         return 0;
     }
 
@@ -1864,7 +1925,9 @@ class CentreonGraph
      *
      * @param int $hostId
      * @param int $serviceId
+     *
      * @return bool
+     * @throws PDOException
      */
     public function statusGraphExists($hostId, $serviceId)
     {

@@ -25,13 +25,13 @@ namespace Core\Security\Vault\Application\Exceptions;
 
 class VaultException extends \Exception
 {
-    /**
-     * Exception thrown when vault provider does not exist.
-     *
-     * @return self
-     */
-    public static function providerDoesNotExist(): self
+    public static function unableToMigrateCredentials(): self
     {
-        return new self('Vault provider does not exist');
+        return new self(_('Unable to migrate passwords'));
+    }
+
+    public static function noVaultConfigured(): self
+    {
+        return new self(_('No vault configured'));
     }
 }

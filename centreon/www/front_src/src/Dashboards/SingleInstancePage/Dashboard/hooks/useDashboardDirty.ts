@@ -3,8 +3,8 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { equals, map, pick } from 'ramda';
 
-import { Panel } from '../models';
 import { dashboardAtom } from '../atoms';
+import { Panel } from '../models';
 
 const filterByProps = map(
   pick(['h', 'i', 'minH', 'minW', 'options', 'w', 'x', 'y', 'data'])

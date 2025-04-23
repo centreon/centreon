@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -77,9 +78,18 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
      */
     public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
     {
-        $parameters['base_uri'] = $this->getBaseUri();
+        $parameters['base_uri'] ??= $this->getBaseUri();
         if (! empty($parameters['base_uri'])) {
             $parameters['base_uri'] .= '/';
+        }
+
+        // Manage URL Generation for HTTPS and Legacy nested route generation calls
+        $context = $this->router->getContext();
+        if ($_SERVER['REQUEST_SCHEME'] === 'https') {
+                $context->setScheme($_SERVER['REQUEST_SCHEME']);
+        }
+        if ($_SERVER['SERVER_NAME'] !== 'localhost') {
+            $context->setHost($_SERVER['SERVER_NAME']);
         }
 
         $generatedRoute = $this->router->generate($name, $parameters, $referenceType);
@@ -115,7 +125,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     /**
      * @inheritDoc
      */
-    public function getRouteCollection()
+    public function getRouteCollection(): RouteCollection
     {
         return $this->router->getRouteCollection();
     }
@@ -141,10 +151,27 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @inheritDoc
+     * @param string $cacheDir
+     *
+     * @return string[]
      */
     public function warmUp(string $cacheDir)
     {
         return [];
+    }
+
+    /**
+     * Create a href to a legacy page.
+     *
+     * @param int $topologyPage
+     * @param array<string, mixed> $options
+     *
+     * @return string
+     */
+    public function generateLegacyHref(int $topologyPage, array $options = []): string
+    {
+        return $options === []
+            ? $this->getBaseUrl() . '/main.php?p=' . $topologyPage
+            : $this->getBaseUrl() . '/main.php?p=' . $topologyPage . '&' . http_build_query($options);
     }
 }

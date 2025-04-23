@@ -35,10 +35,10 @@ namespace Utility\Difference;
 final class TupleDifference implements DifferenceInterface
 {
     /** @var array<string> */
-    private array $beforeSerialized;
+    private array $beforeSerialized = [];
 
     /** @var array<string> */
-    private array $afterSerialized;
+    private array $afterSerialized = [];
 
     /**
      * @param array<T> $before
@@ -46,12 +46,9 @@ final class TupleDifference implements DifferenceInterface
      */
     public function __construct(private readonly array $before, private readonly array $after)
     {
-        $this->beforeSerialized = [];
         foreach ($this->before as $key => $value) {
             $this->beforeSerialized[$key] = serialize($value);
         }
-
-        $this->afterSerialized = [];
         foreach ($this->after as $key => $value) {
             $this->afterSerialized[$key] = serialize($value);
         }

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, Ref } from 'react';
+import { Ref, useEffect, useRef, useState } from 'react';
 
 const useHover = (): Array<Ref<Node> | boolean> => {
   const [value, setValue] = useState<boolean>(false);

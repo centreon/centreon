@@ -1,0 +1,32 @@
+get:
+  tags:
+    - User
+  summary: Get configured users
+  description: |
+    Get list of configured users
+
+    The available parameters to **search** / **sort_by** are:
+
+    * id
+    * alias
+    * name
+    * email
+    * is_admin
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/User.Listing.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

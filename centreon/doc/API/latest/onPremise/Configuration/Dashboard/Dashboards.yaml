@@ -1,0 +1,68 @@
+get:
+  tags:
+    - Dashboard
+  summary: "List all dashboards"
+  description: |
+    Return all dashboard configurations.
+
+    The available parameters to **search** / **sort_by** are:
+
+    * id
+    * name
+    * created_by
+    * created_at
+    * updated_at
+
+    `Since Centreon web 23.10`
+  parameters:
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    "200":
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items: { $ref: 'Schema/Dashboard.Listing.yaml' }
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+
+post:
+  tags:
+    - Dashboard
+  summary: "Add a dashboard"
+  description: |
+    Add a new dashboard configuration.
+
+    Mandatory body properties are:
+
+    * name
+
+    `Since Centreon web 23.10`
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/Dashboard.Add.yaml'
+  responses:
+    "201":
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/Dashboard.Listing.yaml'
+    '400': { $ref: '../../Common/Response/BadRequest.yaml' }
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '409': { $ref: '../../Common/Response/Conflict.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

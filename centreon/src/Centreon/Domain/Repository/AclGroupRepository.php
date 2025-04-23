@@ -74,9 +74,9 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
      */
     public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
     {
-        $request = <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS t.* FROM `:db`.`acl_groups` AS `t`
-            SQL;
+        $request = <<<SQL_WRAP
+                SELECT SQL_CALC_FOUND_ROWS t.* FROM `:db`.`acl_groups` AS `t`
+            SQL_WRAP;
 
         $collector = new StatementCollector();
 

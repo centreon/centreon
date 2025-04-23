@@ -96,7 +96,7 @@ class HostMacro implements MacroInterface
     public function setName(?string $name): self
     {
         if ($name !== null) {
-            if (strpos($name, '$_HOST') !== 0) {
+            if (!str_starts_with($name, '$_HOST')) {
                 $name = '$_HOST' . $name;
                 if ($name[-1] !== '$') {
                     $name .= '$';

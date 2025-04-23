@@ -1,0 +1,229 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Partial pdate OpenID configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "is_active": {
+      "type": "boolean"
+    },
+    "is_forced": {
+      "type": "boolean"
+    },
+    "base_url": {
+      "type": ["string", "null"]
+    },
+    "authorization_endpoint": {
+      "type": ["string", "null"]
+    },
+    "token_endpoint": {
+      "type": ["string", "null"]
+    },
+    "introspection_token_endpoint": {
+      "type": ["string", "null"]
+    },
+    "userinfo_endpoint": {
+      "type": ["string", "null"]
+    },
+    "endsession_endpoint": {
+      "type": ["string", "null"]
+    },
+    "connection_scopes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "login_claim": {
+      "type": ["string", "null"]
+    },
+    "client_id": {
+      "type": ["string", "null"]
+    },
+    "client_secret": {
+      "type": ["string", "null"]
+    },
+    "authentication_type": {
+      "enum": ["client_secret_post", "client_secret_basic"]
+    },
+    "verify_peer": {
+      "type": "boolean"
+    },
+    "auto_import": {
+      "type": "boolean"
+    },
+    "contact_template": {
+      "type": ["object", "null"],
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "email_bind_attribute": {
+      "type": ["string", "null"]
+    },
+    "fullname_bind_attribute": {
+      "type": ["string", "null"]
+    },
+    "authentication_conditions": {
+      "type": "object",
+      "properties": {
+        "is_enabled": {
+          "type": "boolean"
+        },
+        "attribute_path": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "object",
+          "required": [
+            "type",
+            "custom_endpoint"
+          ],
+          "properties": {
+            "type": {
+              "enum": ["introspection_endpoint", "user_information_endpoint", "custom_endpoint"]
+            },
+            "custom_endpoint": {
+              "type": ["string", "null"]
+            }
+          }
+        },
+        "authorized_values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "trusted_client_addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blacklist_client_addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "groups_mapping": {
+      "type": "object",
+      "properties": {
+        "is_enabled": {
+          "type": "boolean"
+        },
+        "attribute_path": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "object",
+          "required": [
+            "type",
+            "custom_endpoint"
+          ],
+          "properties": {
+            "type": {
+              "enum": ["introspection_endpoint", "user_information_endpoint", "custom_endpoint"]
+            },
+            "custom_endpoint": {
+              "type": ["string", "null"]
+            }
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "group_value",
+              "contact_group_id"
+            ],
+            "properties": {
+              "group_value": {
+                "type": "string"
+              },
+              "contact_group_id": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "roles_mapping": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "is_enabled": {
+          "type": "boolean"
+        },
+        "apply_only_first_role": {
+          "type": "boolean"
+        },
+        "attribute_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "endpoint": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "introspection_endpoint",
+                "user_information_endpoint",
+                "custom_endpoint"
+              ]
+            },
+            "custom_endpoint": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "relations": {
+          "type": "array",
+          "minLength": 0,
+          "items": {
+            "type": "object",
+            "required": [
+              "claim_value",
+              "access_group_id",
+              "priority"
+            ],
+            "properties": {
+              "claim_value": {
+                "type": "string"
+              },
+              "access_group_id": {
+                "type": "integer"
+              },
+              "priority": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "redirect_url": {
+      "type": ["string", "null"]
+    }
+  }
+}

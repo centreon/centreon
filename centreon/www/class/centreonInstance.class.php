@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
@@ -34,24 +34,33 @@
  */
 
 /**
- * Class for handling Instances
+ * Class
+ *
+ * @class CentreonInstance
+ * @description Class for handling Instances
  */
 class CentreonInstance
 {
+    /** @var array */
+    public $paramsByName;
+    /** @var CentreonDB */
     protected $db;
+    /** @var CentreonDB */
     protected $dbo;
+    /** @var array */
     protected $params;
+    /** @var array */
     protected $instances;
-    /**
-     * @var CentreonInstance|null $staticInstance
-     */
+    /** @var CentreonInstance|null $staticInstance */
     private static ?CentreonInstance $staticInstance = null;
 
     /**
-     * Constructor
+     * CentreonInstance constructor
      *
      * @param CentreonDB $db
-     * @return void
+     * @param CentreonDB|null $dbo
+     *
+     * @throws PDOException
      */
     public function __construct($db, $dbo = null)
     {
@@ -59,13 +68,14 @@ class CentreonInstance
         if (!empty($dbo)) {
             $this->dbo = $dbo;
         }
-        $this->instances = array();
+        $this->instances = [];
         $this->initParams();
     }
 
     /**
      * @param CentreonDB $db
      * @param CentreonDB|null $dbo
+     *
      * @return CentreonInstance
      * @throws PDOException
      */
@@ -78,19 +88,20 @@ class CentreonInstance
      * Initialize Parameters
      *
      * @return void
+     * @throws PDOException
      */
     protected function initParams()
     {
-        $this->params = array();
-        $this->paramsByName = array();
+        $this->params = [];
+        $this->paramsByName = [];
         $query = "SELECT id, name, localhost, last_restart, ns_ip_address FROM nagios_server";
         $res = $this->db->query($query);
         while ($row = $res->fetchRow()) {
             $instanceId = $row['id'];
             $instanceName = $row['name'];
             $this->instances[$instanceId] = $instanceName;
-            $this->params[$instanceId] = array();
-            $this->paramsByName[$instanceName] = array();
+            $this->params[$instanceId] = [];
+            $this->paramsByName[$instanceName] = [];
             foreach ($row as $key => $value) {
                 $this->params[$instanceId][$key] = $value;
                 $this->paramsByName[$instanceName][$key] = $value;
@@ -114,8 +125,10 @@ class CentreonInstance
     /**
      * Get instance_id and name from instances ids
      *
-     * @param  int[] $pollerIds
+     * @param int[] $pollerIds
+     *
      * @return array $pollers [['instance_id => integer, 'name' => string],...]
+     * @throws PDOException
      */
     public function getInstancesMonitoring($pollerIds = [])
     {
@@ -127,7 +140,7 @@ class CentreonInstance
              */
             $filteredPollerIds = $this->filteredArrayId($pollerIds);
             $pollerParams = [];
-            if (count($filteredPollerIds) > 0) {
+            if ($filteredPollerIds !== []) {
                 /*
                  * Building the pollerParams hash table in order to correctly
                  * bind ids as ints for the request.
@@ -135,7 +148,7 @@ class CentreonInstance
                 foreach ($filteredPollerIds as $index => $filteredPollerId) {
                     $pollerParams[':pollerId' . $index] = $filteredPollerId;
                 }
-                $stmt = $this->DB->prepare(
+                $stmt = $this->db->prepare(
                     'SELECT i.instance_id, i.name FROM instances i ' .
                     'WHERE i.instance_id IN ( ' . implode(',', array_keys($pollerParams)) . ' )'
                 );
@@ -156,7 +169,6 @@ class CentreonInstance
         return $pollers;
     }
 
-
     /**
      * Get Parameter
      *
@@ -170,10 +182,8 @@ class CentreonInstance
             if (isset($this->params[$instance]) && isset($this->params[$instance][$paramName])) {
                 return $this->params[$instance][$paramName];
             }
-        } else {
-            if (isset($this->paramsByName[$instance]) && isset($this->paramsByName[$instance][$paramName])) {
-                return $this->paramsByName[$instance][$paramName];
-            }
+        } elseif (isset($this->paramsByName[$instance]) && isset($this->paramsByName[$instance][$paramName])) {
+            return $this->paramsByName[$instance][$paramName];
         }
         return null;
     }
@@ -192,7 +202,9 @@ class CentreonInstance
      * Get command data from poller id
      *
      * @param int $pollerId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCommandData($pollerId)
     {
@@ -203,7 +215,7 @@ class CentreonInstance
             ORDER BY pcr.command_order";
         $res = $this->db->prepare($sql);
         $res->execute([$pollerId]);
-        $arr = array();
+        $arr = [];
         while ($row = $res->fetchRow()) {
             $arr[] = $row;
         }
@@ -213,12 +225,14 @@ class CentreonInstance
     /**
      * Return list of commands used by poller
      *
-     * @param int $pollerId
+     * @param int|null $pollerId
+     *
      * @return array
+     * @throws PDOException
      */
     public function getCommandsFromPollerId($pollerId = null)
     {
-        $arr = array();
+        $arr = [];
         $i = 0;
         if (!isset($_REQUEST['pollercmd']) && $pollerId) {
             $sql = "SELECT command_id 
@@ -245,14 +259,16 @@ class CentreonInstance
      *
      * @param int $pollerId
      * @param array $commands
+     *
      * @return void
+     * @throws PDOException
      */
-    public function setCommands($pollerId, $commands)
+    public function setCommands($pollerId, $commands): void
     {
         $this->db->query("DELETE FROM poller_command_relations
                 WHERE poller_id = " . $this->db->escape($pollerId));
 
-        $stored = array();
+        $stored = [];
         $i = 1;
         foreach ($commands as $value) {
             if ($value != "" &&
@@ -270,14 +286,16 @@ class CentreonInstance
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
 
         $selectedInstances = '';
-        $items = array();
+        $items = [];
 
         if (empty($values)) {
             return $items;
@@ -289,7 +307,7 @@ class CentreonInstance
         }
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         foreach ($values as $k => $v) {
             $multipleValues = explode(',', $v);
             foreach ($multipleValues as $item) {
@@ -321,23 +339,25 @@ class CentreonInstance
             ) {
                 $hide = true;
             }
-            $items[] = array(
+            $items[] = [
                 'id' => $data['id'],
-                'text' => $data['name'],
+                'text' => HtmlSanitizer::createFromString($data['name'])->sanitize()->getString(),
                 'hide' => $hide
-            );
+            ];
         }
 
         return $items;
     }
 
     /**
-     * @param $instanceName
+     * @param string $instanceName
+     *
      * @return array
+     * @throws PDOException
      */
     public function getHostsByInstance($instanceName)
     {
-        $instanceList = array();
+        $instanceList = [];
 
         $query = "SELECT host_name, name " .
             " FROM host h, nagios_server ns, ns_host_relation nshr " .
@@ -348,14 +368,17 @@ class CentreonInstance
         $result = $this->db->query($query);
 
         while ($elem = $result->fetchrow()) {
-            $instanceList[] = array(
-                'host' => $elem['host_name'],
-                'name' => $instanceName
-            );
+            $instanceList[] = ['host' => $elem['host_name'], 'name' => $instanceName];
         }
         return $instanceList;
     }
 
+    /**
+     * @param string $instanceName
+     *
+     * @return mixed
+     * @throws PDOException
+     */
     public function getInstanceId($instanceName)
     {
         $query = "SELECT ns.id " .

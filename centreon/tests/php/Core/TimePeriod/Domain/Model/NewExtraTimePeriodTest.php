@@ -27,7 +27,7 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\TimePeriod\Domain\Model\NewExtraTimePeriod;
 use Core\TimePeriod\Domain\Model\TimeRange;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->timeRange = new TimeRange('00:01-02:00');
 });
 

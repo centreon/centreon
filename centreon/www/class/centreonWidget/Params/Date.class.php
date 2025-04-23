@@ -35,29 +35,52 @@
 
 require_once __DIR__ . "/../Params.class.php";
 
+/**
+ * Class
+ *
+ * @class CentreonWidgetParamsDate
+ */
 class CentreonWidgetParamsDate extends CentreonWidgetParams
 {
+    /** @var HTML_QuickForm_Element */
+    public $element;
+
+    /**
+     * CentreonWidgetParamsDate Constructor
+     *
+     * @param CentreonDB $db
+     * @param HTML_Quickform $quickform
+     * @param int $userId
+     *
+     * @throws PDOException
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);
     }
 
-    public function init($params)
+    /**
+     * @param $params
+     *
+     * @return void
+     * @throws HTML_QuickForm_Error
+     */
+    public function init($params): void
     {
         parent::init($params);
         if (isset($this->quickform)) {
-            $elems = array();
+            $elems = [];
             $elems[] = $this->quickform->addElement(
                 'text',
                 'from_' . $params['parameter_id'],
                 _('From'),
-                array("size" => 10, "class" => "datepicker")
+                ["size" => 10, "class" => "datepicker"]
             );
             $elems[] = $this->quickform->addElement(
                 'text',
                 'to_' . $params['parameter_id'],
                 _('To'),
-                array("size" => 10, "class" => "datepicker")
+                ["size" => 10, "class" => "datepicker"]
             );
             $this->element = $this->quickform->addGroup(
                 $elems,
@@ -68,7 +91,15 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
         }
     }
 
-    public function setValue($params)
+    /**
+     * @param $params
+     *
+     * @return void
+     * @throws CentreonWidgetParamsException
+     * @throws HTML_QuickForm_Error
+     * @throws PDOException
+     */
+    public function setValue($params): void
     {
         $userPref = $this->getUserPreferences($params);
         if (isset($userPref)) {
@@ -81,10 +112,7 @@ class CentreonWidgetParamsDate extends CentreonWidgetParams
             if (!isset($tab[0]) || !isset($tab[1])) {
                 throw new CentreonWidgetParamsException('Incorrect date format found in database');
             }
-            $this->quickform->setDefaults(array(
-                'from_' . $params['parameter_id'] => $tab[0],
-                'to_' . $params['parameter_id'] => $tab[1]
-            ));
+            $this->quickform->setDefaults(['from_' . $params['parameter_id'] => $tab[0], 'to_' . $params['parameter_id'] => $tab[1]]);
         }
     }
 }

@@ -21,25 +21,34 @@
 
 namespace CentreonClapi\Repository;
 
+use PDO;
+use PDOException;
+
+/**
+ * Class
+ *
+ * @class SessionRepository
+ * @package CentreonClapi\Repository
+ */
 class SessionRepository
 {
     /**
-     * @param \PDO $db
+     * @param PDO $db
      */
-    public function __construct(private \PDO $db)
-    {
-    }
+    public function __construct(private PDO $db) {}
 
     /**
      * Flag that acl has been updated
      *
      * @param int[] $sessionIds
+     *
+     * @throws PDOException
      */
     public function flagUpdateAclBySessionIds(array $sessionIds): void
     {
         $statement = $this->db->prepare("UPDATE session SET update_acl = '1' WHERE session_id = :sessionId");
         foreach ($sessionIds as $sessionId) {
-            $statement->bindValue(':sessionId', $sessionId, \PDO::PARAM_STR);
+            $statement->bindValue(':sessionId', $sessionId, PDO::PARAM_STR);
             $statement->execute();
         }
     }

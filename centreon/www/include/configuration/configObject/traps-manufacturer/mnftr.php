@@ -75,7 +75,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleMnftrInDB(isset($select) ? $select : array(), $dupNbr);
+            multipleMnftrInDB($select ?? [], $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -85,7 +85,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteMnftrInDB(isset($select) ? $select : array());
+            deleteMnftrInDB($select ?? []);
         } else {
             unvalidFormMessage();
         }

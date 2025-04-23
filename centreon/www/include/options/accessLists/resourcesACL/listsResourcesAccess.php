@@ -59,8 +59,7 @@ if ($search) {
 $rq = "
     SELECT SQL_CALC_FOUND_ROWS acl_res_id, acl_res_name, acl_res_alias, all_hosts, all_hostgroups,
     all_servicegroups, acl_res_activate FROM acl_resources
-    WHERE locked = 0
-    $searchStr
+    WHERE locked = 0 AND cloud_specific = 0 $searchStr
     ORDER BY acl_res_name
     LIMIT :num, :limit
 ";
@@ -76,11 +75,8 @@ $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 
 include("./include/common/checkPagination.php");
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl(__DIR__, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate(__DIR__);
 
 /*
  * start header menu
@@ -106,7 +102,7 @@ $style = "one";
 /*
  * Fill a tab with a mutlidimensionnal Array we put in $tpl
  */
-$elemArr = array();
+$elemArr = [];
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $resources = $statement->fetchRow(); $i++) {
@@ -135,32 +131,16 @@ for ($i = 0; $resources = $statement->fetchRow(); $i++) {
         _("Yes") :
         _("No"));
 
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => $resources["acl_res_name"],
-        "RowMenu_alias" => myDecode($resources["acl_res_alias"]),
-        "RowMenu_all_hosts" => (isset($resources["all_hosts"]) && $resources["all_hosts"] == 1 ? _("Yes") : _("No")),
-        "RowMenu_all_hostgroups" => $allHostgroups,
-        "RowMenu_all_servicegroups" => $allServicegroups,
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&acl_res_id=" . $resources['acl_res_id'],
-        "RowMenu_status" => $resources["acl_res_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $resources["acl_res_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_options" => $moptions
-    );
+    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => $resources["acl_res_name"], "RowMenu_alias" => myDecode($resources["acl_res_alias"]), "RowMenu_all_hosts" => (isset($resources["all_hosts"]) && $resources["all_hosts"] == 1 ? _("Yes") : _("No")), "RowMenu_all_hostgroups" => $allHostgroups, "RowMenu_all_servicegroups" => $allServicegroups, "RowMenu_link" => "main.php?p=" . $p . "&o=c&acl_res_id=" . $resources['acl_res_id'], "RowMenu_status" => $resources["acl_res_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $resources["acl_res_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
 
-    $style != "two" ? $style = "two" : $style = "one";
+    $style = $style != "two" ? "two" : "one";
 }
 $tpl->assign("elemArr", $elemArr);
 
 /*
  * Different messages we put in the template
  */
-$tpl->assign('msg', array(
-    "addL" => "main.php?p=" . $p . "&o=a",
-    "addT" => _("Add"),
-    "delConfirm" => _("Do you confirm the deletion ?")
-));
+$tpl->assign('msg', ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]);
 
 ?>
     <script type="text/javascript">
@@ -170,31 +150,23 @@ $tpl->assign('msg', array(
     </script>
 <?php
 
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: "
-            . "if (this.form.elements['$option'].selectedIndex == 1 && confirm('"
-            . _("Do you confirm the duplication ?") . "')) {"
-            . "setO(this.form.elements['$option'].value); submit();} "
-            . "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('"
-            . _("Do you confirm the deletion ?") . "')) {"
-            . "setO(this.form.elements['$option'].value); submit();} "
-            . "else if (this.form.elements['$option'].selectedIndex == 3 || "
-            . "this.form.elements['$option'].selectedIndex == 4) {"
-            . "setO(this.form.elements['$option'].value); submit();}"
-    );
+foreach (['o1', 'o2'] as $option) {
+    $attrs1 = ['onchange' => "javascript: "
+        . "if (this.form.elements['$option'].selectedIndex == 1 && confirm('"
+        . _("Do you confirm the duplication ?") . "')) {"
+        . "setO(this.form.elements['$option'].value); submit();} "
+        . "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('"
+        . _("Do you confirm the deletion ?") . "')) {"
+        . "setO(this.form.elements['$option'].value); submit();} "
+        . "else if (this.form.elements['$option'].selectedIndex == 3 || "
+        . "this.form.elements['$option'].selectedIndex == 4) {"
+        . "setO(this.form.elements['$option'].value); submit();}"];
 
     $form->addElement(
         'select',
         $option,
         null,
-        array(
-            null => _("More actions..."),
-            "m" => _("Duplicate"),
-            "d" => _("Delete"),
-            "ms" => _("Enable"),
-            "mu" => _("Disable")
-        ),
+        [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
         $attrs1
     );
     $o1 = $form->getElement($option);

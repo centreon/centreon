@@ -1,14 +1,14 @@
 import { useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
 import { not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import { Button } from '@mui/material';
 
 import SaveButton from '../Button/Save';
-import { useMemoComponent, getNormalizedId } from '../utils';
+import { getNormalizedId, useMemoComponent } from '../utils';
 
 import {
   labelReset,
@@ -66,7 +66,7 @@ const FormButtons = (): JSX.Element => {
           {t(labelReset)}
         </Button>
         <SaveButton
-          dataTestId={labelSave}
+          data-testid={labelSave}
           disabled={not(canSubmit)}
           labelLoading={labelSaving}
           labelSave={labelSave}

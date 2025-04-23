@@ -37,8 +37,8 @@ function extractErrorMessage(BufferedOutput $output): ?string
             $filteredMessages[] = $rawMessage;
         }
     }
-    if (!empty($filteredMessages)) {
-        if (substr(strtolower($filteredMessages[0]), 0, 2) == 'in') {
+    if ($filteredMessages !== []) {
+        if (str_starts_with(strtolower($filteredMessages[0]), 'in')) {
             array_shift($filteredMessages);
         }
         return implode('<br/>', $filteredMessages);
@@ -46,11 +46,7 @@ function extractErrorMessage(BufferedOutput $output): ?string
     return null;
 }
 
-$return = array(
-    'id' => 'generationCache',
-    'result' => 0,
-    'msg' => 'OK'
-);
+$return = ['id' => 'generationCache', 'result' => 0, 'msg' => 'OK'];
 
 try {
     if (!class_exists(Application::class)) {

@@ -132,11 +132,7 @@ if ($data = $dbResult->fetch()) {
         $duration = CentreonDuration::toString(time() - $data["last_state_change"]);
     }
 
-    if ($data["icon_image"] == "") {
-        $data["icon_image"] = "./img/icons/host.png";
-    } else {
-        $data["icon_image"] = "./img/media/" . $data["icon_image"];
-    }
+    $data["icon_image"] = $data["icon_image"] == "" ? "./img/icons/host.png" : "./img/media/" . $data["icon_image"];
 
     $last_notification = "N/A";
     if ($data["last_notification"] > 0) {

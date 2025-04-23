@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\PlatformInformation\UseCase;
 
-use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
-use PHPUnit\Framework\TestCase;
-use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
-use Tests\Centreon\Domain\PlatformInformation\Model\PlatformInformationTest;
-use Centreon\Domain\PlatformInformation\UseCase\V20\UpdatePartiallyPlatformInformation;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationReadRepositoryInterface;
-use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationRepositoryInterface;
 use Centreon\Domain\PlatformInformation\Interfaces\PlatformInformationWriteRepositoryInterface;
+use Centreon\Domain\PlatformInformation\Model\PlatformInformation;
+use Centreon\Domain\PlatformInformation\UseCase\V20\UpdatePartiallyPlatformInformation;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface;
+use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
 use Centreon\Domain\RemoteServer\Interfaces\RemoteServerServiceInterface;
+use PHPUnit\Framework\TestCase;
+use Tests\Centreon\Domain\PlatformInformation\Model\PlatformInformationTest;
 
 class UpdatePartiallyPlatformInformationTest extends TestCase
 {
@@ -72,6 +72,11 @@ class UpdatePartiallyPlatformInformationTest extends TestCase
     private $platformTopologyService;
 
     /**
+     * @var ContactInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $user;
+
+    /**
      * @var array<string,bool>
      */
     private $centralInformationRequest;
@@ -88,6 +93,7 @@ class UpdatePartiallyPlatformInformationTest extends TestCase
         $this->proxyService = $this->createMock(ProxyServiceInterface::class);
         $this->remoteServerService = $this->createMock(RemoteServerServiceInterface::class);
         $this->platformTopologyService = $this->createMock(PlatformTopologyServiceInterface::class);
+        $this->user = $this->createMock(ContactInterface::class);
         $this->centralInformation = PlatformInformationTest::createEntityForCentralInformation();
         $this->remoteInformation = PlatformInformationTest::createEntityForRemoteInformation();
         $this->centralInformationRequest = ['isRemote' => false];
@@ -113,7 +119,8 @@ class UpdatePartiallyPlatformInformationTest extends TestCase
             $this->readRepository,
             $this->proxyService,
             $this->remoteServerService,
-            $this->platformTopologyService
+            $this->platformTopologyService,
+            $this->user
         );
         $useCase->setEncryptionFirstKey('encryptionF0rT3st');
         return $useCase;
@@ -126,9 +133,15 @@ class UpdatePartiallyPlatformInformationTest extends TestCase
      */
     public function testExecuteUpdateToRemote(): void
     {
-        $this->readRepository->expects($this->any())
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+        $this->readRepository
+            ->expects($this->any())
             ->method('findPlatformInformation')
             ->willReturn($this->centralInformation);
+
         $updatePartiallyPlatformInformation = $this->createUpdatePartiallyPlatformUseCase();
         $this->remoteServerService->expects($this->once())->method('convertCentralToRemote');
         $updatePartiallyPlatformInformation->execute($this->remoteInformationRequest);
@@ -141,6 +154,10 @@ class UpdatePartiallyPlatformInformationTest extends TestCase
      */
     public function testExecuteUpdateToCentral(): void
     {
+        $this->user
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
         $this->readRepository->expects($this->any())
             ->method('findPlatformInformation')
             ->willReturn($this->remoteInformation);

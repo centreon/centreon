@@ -3,16 +3,16 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, includes, isNil } from 'ramda';
 
-import { ListItemText, MenuItem } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { ListItemText, MenuItem } from '@mui/material';
 
+import { SelectEntry, buildListingEndpoint } from '../../../..';
 import {
   accessRightIdsDerivedAtom,
   addAccessRightDerivedAtom,
   contactTypeAtom
 } from '../atoms';
 import { AccessRightInitialValues, ContactType, Endpoints } from '../models';
-import { SelectEntry, buildListingEndpoint } from '../../../..';
 
 interface UseShareInputState {
   add: () => void;

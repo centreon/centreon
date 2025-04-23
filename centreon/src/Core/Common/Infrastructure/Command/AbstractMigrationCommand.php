@@ -65,8 +65,7 @@ abstract class AbstractMigrationCommand extends Command
      *
      * @return string
      */
-    protected function askAuthenticationToken(int $platform, InputInterface $input, OutputInterface $output):
-    string
+    protected function askAuthenticationToken(int $platform, InputInterface $input, OutputInterface $output): string
     {
         $question = match ($platform) {
             self::LOCAL_PLATFORM => 'Local authentication token? ',

@@ -94,4 +94,14 @@ class ServiceCategoryException extends \Exception
     {
         return new self(_('Error while retrieving recently created service category'));
     }
+
+    /**
+     * @param \Throwable $exception
+     *
+     * @return ServiceCategoryException
+     */
+    public static function errorWhileRetrievingRealTimeServiceCategories(\Throwable $exception): self
+    {
+        return new self(_('Error while searching service categories in real time context'), 0, $exception);
+    }
 }

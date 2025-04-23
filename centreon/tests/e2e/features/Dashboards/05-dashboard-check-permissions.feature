@@ -70,23 +70,23 @@ Feature: Checking dashboard permissions
     When the dashboard editor user deletes the newly created dashboard
     Then the dashboard editor's dashboard is deleted and does not appear anymore in the dashboards library
 
-  # @TEST_MON-22180
-  # Scenario: Accessing the list of shared dashboards as a non-admin dashboard viewer
-  #   Given a non-admin user with the dashboard viewer role is logged in on a platform with dashboards
-  #   When the dashboard viewer user accesses the dashboards library
-  #   Then a list of the dashboards the dashboard viewer user has access to is displayed
-  #   When the dashboard viewer user clicks on a dashboard
-  #   Then the dashboard viewer user is redirected to the detail page for this dashboard
-  #   And the dashboard viewer user does not have access to any update or share-related options on a dashboard
+  @TEST_MON-22180
+  Scenario: Accessing the list of shared dashboards as a non-admin dashboard viewer
+    Given a non-admin user with the dashboard viewer role is logged in on a platform
+    When the dashboard viewer user accesses the dashboards library
+    Then a list of the dashboards the dashboard viewer user has access to is displayed
+    When the dashboard viewer user clicks on a dashboard
+    Then the dashboard viewer user is redirected to the detail page for this dashboard
+    And the dashboard viewer user does not have access to any update or share-related options on a dashboard
 
-  # @TEST_MON-22179
-  # Scenario: Inability to create a new dashboard as a non-admin dashboard viewer
-  #   Given a non-admin user with the viewer role on the dashboard feature
-  #   When the dashboard viewer accesses the dashboards library
-  #   Then the option to create a new dashboard is not displayed
+  @TEST_MON-22179
+  Scenario: Inability to create a new dashboard as a non-admin dashboard viewer
+    Given a non-admin user with the viewer role on the dashboard feature
+    When the dashboard viewer accesses the dashboards library
+    Then the option to create a new dashboard is not displayed
 
-  # @TEST_MON-22182
-  # Scenario: Inability to delete a dashboard as a non-admin dashboard viewer
-  #   Given a dashboard viewer user who could not create a dashboard
-  #   When the dashboard viewer user tries to delete a dashboard
-  #   Then the button to delete a dashboard does not appear
+  @TEST_MON-22182
+  Scenario: Inability to delete a dashboard as a non-admin dashboard viewer
+    Given a dashboard viewer user who could not create a dashboard
+    When the dashboard viewer user tries to delete a dashboard
+    Then the button to delete a dashboard does not appear

@@ -1,12 +1,13 @@
 import {
-  KeyboardEvent,
-  RefObject,
+  type KeyboardEvent,
+  type RefObject,
   Suspense,
   lazy,
   useEffect,
   useRef,
   useState
 } from 'react';
+import SelectFilter from './Fields/SelectFilter';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -49,7 +50,7 @@ import {
   LoadingSkeleton,
   Filter as MemoizedFilter,
   SearchField,
-  SelectEntry,
+  type SelectEntry,
   getData,
   useRequest
 } from '@centreon/ui';
@@ -65,9 +66,10 @@ import {
 } from '../translatedLabels';
 
 import {
-  DynamicCriteriaParametersAndValues,
+  type DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
-  getDynamicCriteriaParametersAndValue
+  getDynamicCriteriaParametersAndValue,
+  replaceMiddleSpace
 } from './Criterias/searchQueryLanguage';
 import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import SearchHelp from './SearchHelp';
@@ -91,7 +93,6 @@ import {
 } from './models';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
-import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 
 export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -141,7 +142,6 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const SaveFilter = lazy(() => import('./Edit/EditButton'));
-const SelectFilter = lazy(() => import('./Fields/SelectFilter'));
 const Criterias = lazy(() => import('./Criterias'));
 
 const debounceTimeInMs = 500;
@@ -209,7 +209,7 @@ const Filter = (): JSX.Element => {
 
     const lastValue = last(values);
 
-    const selectedValues = remove(-1, 1, values).map(escapeRegExpSpecialChars);
+    const selectedValues = remove(-1, 1, values);
 
     sendDynamicCriteriaValueRequests({
       endpoint: buildAutocompleteEndpoint({
@@ -227,7 +227,7 @@ const Filter = (): JSX.Element => {
           ],
           regex: {
             fields: ['name'],
-            value: escapeRegExpSpecialChars(lastValue || '')
+            value: lastValue || ''
           }
         }
       })
@@ -339,7 +339,9 @@ const Filter = (): JSX.Element => {
   const acceptAutocompleteSuggestionAtIndex = (index: number): void => {
     setNewFilter(t);
 
-    const acceptedSuggestion = autoCompleteSuggestions[index];
+    const acceptedSuggestion = replaceMiddleSpace(
+      autoCompleteSuggestions[index]
+    );
 
     if (equals(search[cursorPosition], ',')) {
       setSearch(search + acceptedSuggestion);
@@ -643,16 +645,14 @@ const Filter = (): JSX.Element => {
           {sendingFilter ? (
             <FilterLoadingSkeleton />
           ) : (
-            <Suspense fallback={<FilterLoadingSkeleton />}>
-              <SelectFilter
-                ariaLabel={t(labelStateFilter)}
-                options={options.map(pick(['id', 'name', 'type', 'testId']))}
-                selectedOptionId={
-                  canDisplaySelectedFilter ? currentFilter.id : ''
-                }
-                onChange={changeFilter}
-              />
-            </Suspense>
+            <SelectFilter
+              ariaLabel={t(labelStateFilter)}
+              options={options.map(pick(['id', 'name', 'type', 'testId']))}
+              selectedOptionId={
+                canDisplaySelectedFilter ? currentFilter.id : ''
+              }
+              onChange={changeFilter}
+            />
           )}
         </div>
       }

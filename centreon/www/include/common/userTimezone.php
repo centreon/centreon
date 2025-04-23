@@ -35,7 +35,7 @@
 
 ini_set("display_errors", "Off");
 
-require_once realpath(dirname(__FILE__) . "/../../../config/centreon.config.php");
+require_once realpath(__DIR__ . "/../../../config/centreon.config.php");
 require_once _CENTREON_PATH_ . "www/class/centreonSession.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreon.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonDB.class.php";
@@ -50,13 +50,14 @@ session_start();
 session_write_close();
 
 $sid = session_id();
+$centreon = null;
 
 if (isset($_SESSION['centreon'])) {
     $centreon = $_SESSION['centreon'];
     $currentTime = $centreon->CentreonGMT->getCurrentTime(time(), $centreon->user->getMyGMT());
 
     $stmt = $pearDB->prepare("SELECT user_id FROM session WHERE session_id = ?");
-    $stmt->execute(array($sid));
+    $stmt->execute([$sid]);
 
     if ($stmt->rowCount()) {
         $buffer->writeElement("state", "ok");
@@ -64,11 +65,14 @@ if (isset($_SESSION['centreon'])) {
         $buffer->writeElement("state", "nok");
     }
 } else {
-    $currentTime = date_format('%c', time());
+    $currentTime = date_format(date_create(), '%c');
     $buffer->writeElement("state", "nok");
 }
 $buffer->writeElement("time", $currentTime);
-$buffer->writeElement("timezone", $centreon->CentreonGMT->getActiveTimezone($centreon->user->getMyGMT()));
+$buffer->writeElement("timezone", $centreon !== null
+    ? $centreon->CentreonGMT->getActiveTimezone($centreon->user->getMyGMT())
+    : date_default_timezone_get()
+);
 $buffer->endElement();
 
 header('Content-Type: text/xml');

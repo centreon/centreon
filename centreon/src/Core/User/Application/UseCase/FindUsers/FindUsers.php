@@ -61,9 +61,15 @@ final class FindUsers
             if ($this->hasAccessToAllUsers()) {
                 $users = $this->readUserRepository->findAllByRequestParameters($this->requestParameters);
             } else {
+                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $accessGroupNames = array_map(
+                    fn(AccessGroup $accessGroup): string => $accessGroup->getName(),
+                    $this->accessGroups,
+                );
                 if (
                     ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_READ)
                     && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_READ_WRITE)
+                    && ! ($this->isCloudPlatform && in_array('customer_editor_acl', $accessGroupNames, true))
                 ) {
                     $this->error(
                         "User doesn't have sufficient rights to see users/contacts",
@@ -75,8 +81,9 @@ final class FindUsers
 
                     return;
                 }
-                $users = $this->readUserRepository->findByAccessGroupsAndRequestParameters(
+                $users = $this->readUserRepository->findByAccessGroupsUserAndRequestParameters(
                     $this->accessGroups,
+                    $this->user,
                     $this->requestParameters
                 );
             }
@@ -115,13 +122,19 @@ final class FindUsers
         return $response;
     }
 
+    /**
+     * @throws \Throwable
+     */
     private function hasAccessToAllUsers(): bool
     {
         if ($this->user->isAdmin()) {
             return true;
         }
         $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-        $accessGroupNames = array_map(fn(AccessGroup $accessGroup): string => $accessGroup->getName(), $this->accessGroups);
+        $accessGroupNames = array_map(
+            fn(AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->accessGroups
+        );
 
         return
             $this->user->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_ADMIN)

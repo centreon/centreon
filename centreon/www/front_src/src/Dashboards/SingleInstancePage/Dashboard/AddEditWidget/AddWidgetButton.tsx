@@ -8,8 +8,8 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { Button } from '@centreon/ui/components';
 
-import { labelAddAWidget } from '../translatedLabels';
 import { dashboardAtom, isEditingAtom } from '../atoms';
+import { labelAddAWidget } from '../translatedLabels';
 
 import useWidgetForm from './useWidgetModal';
 

@@ -21,6 +21,11 @@
 
 declare(strict_types=1);
 
+/**
+ * Interface
+ *
+ * @class ExternalModuleGenerationInterface
+ */
 interface ExternalModuleGenerationInterface
 {
     /**
@@ -43,5 +48,8 @@ interface ExternalModuleGenerationInterface
      */
     public function generateFromPollerId(int $pollerId, bool $isLocalhost): void;
 
+    /**
+     * @return void
+     */
     public function reset(): void;
 }

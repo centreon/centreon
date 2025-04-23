@@ -63,14 +63,9 @@ $form->addElement('header', 'title', _("Import SNMP traps from MIB file"));
  * Manufacturer information
  */
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_manufacturer&action=list';
-$attrManufacturer = array(
-    'datasourceOrigin' => 'ajax',
-    'availableDatasetRoute' => $route,
-    'multiple' => false,
-    'linkedObject' => 'centreonManufacturer'
-);
+$attrManufacturer = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $route, 'multiple' => false, 'linkedObject' => 'centreonManufacturer'];
 
-$form->addElement('select2', 'mnftr', _("Vendor Name"), array(), $attrManufacturer);
+$form->addElement('select2', 'mnftr', _("Vendor Name"), [], $attrManufacturer);
 
 $form->addElement('file', 'filename', _("File (.mib)"));
 
@@ -82,11 +77,8 @@ $form->addRule('mnftr', _("Compulsory Name"), 'required');
 $form->addRule('filename', _("Compulsory Name"), 'required');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 
 $tpl->assign(
@@ -106,7 +98,7 @@ $tpl->assign("helptext", $helptext);
 /*
  * Just watch a Command information
  */
-$subA = $form->addElement('submit', 'submit', _("Import"), array("class" => "btc bt_success"));
+$subA = $form->addElement('submit', 'submit', _("Import"), ["class" => "btc bt_success"]);
 $form->addElement('header', 'status', _("Status"));
 $msg = null;
 $stdout = null;

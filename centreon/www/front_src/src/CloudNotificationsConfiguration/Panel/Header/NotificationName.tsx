@@ -1,19 +1,19 @@
 import { useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, path } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { path, equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { Typography, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import { Box, Typography } from '@mui/material';
 
 import { IconButton, TextField } from '@centreon/ui';
 
 import {
   labelChangeName,
-  labelNotificationName,
-  labelName
+  labelName,
+  labelNotificationName
 } from '../../translatedLabels';
 import { panelModeAtom } from '../atom';
 import { PanelMode } from '../models';

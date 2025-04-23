@@ -27,10 +27,10 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class NewTimePeriod
 {
-    public const MIN_NAME_LENGTH = 1,
-                 MAX_NAME_LENGTH = 200,
-                 MIN_ALIAS_LENGTH = 1,
-                 MAX_ALIAS_LENGTH = 200;
+    public const MIN_NAME_LENGTH = 1;
+    public const MAX_NAME_LENGTH = 200;
+    public const MIN_ALIAS_LENGTH = 1;
+    public const MAX_ALIAS_LENGTH = 200;
 
     private string $name;
 

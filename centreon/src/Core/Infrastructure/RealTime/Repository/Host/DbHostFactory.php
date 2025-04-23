@@ -39,7 +39,7 @@ use Core\Infrastructure\RealTime\Repository\Icon\DbIconFactory;
  *     command_line: string|null,
  *     flapping: int|string|null,
  *     acknowledged: int|string|null,
- *     in_downtime: int|string|null,
+ *     nb_downtime: int|string|null,
  *     passive_checks: int|string|null,
  *     active_checks: int|string|null,
  *     latency: int|string|null,
@@ -84,7 +84,7 @@ class DbHostFactory
             ->setCommandLine($data['command_line'])
             ->setIsFlapping((int) $data['flapping'] === 1)
             ->setIsAcknowledged((int) $data['acknowledged'] === 1)
-            ->setIsInDowntime((int) $data['in_downtime'] === 1)
+            ->setIsInDowntime((int) $data['nb_downtime'] > 0)
             ->setPassiveChecks((int) $data['passive_checks'] === 1)
             ->setActiveChecks((int) $data['active_checks'] === 1)
             ->setLatency(self::getFloatOrNull($data['latency']))

@@ -1,26 +1,29 @@
-import { useRef } from 'react';
+import { Suspense, useRef } from 'react';
 
 import { useFormikContext } from 'formik';
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { equals, find, isEmpty, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Typography } from '@mui/material';
 
-import { RichTextEditor } from '@centreon/ui';
+import { LoadingSkeleton, RichTextEditor } from '@centreon/ui';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
-import { Widget } from '../models';
+import { dashboardRefreshIntervalAtom } from '../../atoms';
+import DescriptionWrapper from '../../components/DescriptionWrapper';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import {
   labelPleaseChooseAWidgetToActivatePreview,
   labelPleaseContactYourAdministrator,
   labelYourRightsOnlyAllowToView
 } from '../../translatedLabels';
-import { isGenericText } from '../../utils';
-import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
-import { dashboardRefreshIntervalAtom } from '../../atoms';
+import { isGenericText, isRichTextEditorEmpty } from '../../utils';
+import { Widget } from '../models';
 
+import { federatedWidgetsAtom } from '@centreon/ui-context';
+import { FederatedModule } from '../../../../../federatedModules/models';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const Preview = (): JSX.Element | null => {
@@ -28,6 +31,7 @@ const Preview = (): JSX.Element | null => {
   const { classes, cx } = useWidgetPropertiesStyles();
 
   const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
 
   const { canEdit } = useCanEditProperties();
 
@@ -43,10 +47,23 @@ const Preview = (): JSX.Element | null => {
     );
   }
 
-  const isGenericTextWidget = isGenericText(values.panelConfiguration?.path);
+  const { Component, remoteEntry } = find(
+    (widget) => equals(widget.moduleName, values.moduleName),
+    federatedWidgets as Array<FederatedModule>
+  ) as FederatedModule;
 
-  const changePanelOptions = (field, value): void => {
-    setFieldValue(`options.${field}`, value);
+  const isGenericTextPanel = isGenericText(values.panelConfiguration?.path);
+
+  const displayDescription =
+    !isGenericTextPanel &&
+    values.options?.description?.enabled &&
+    values.options?.description?.content &&
+    !isRichTextEditorEmpty(values.options?.description?.content);
+
+  const changePanelOptions = (partialOptions: object): void => {
+    Object.entries(partialOptions).forEach(([key, value]) => {
+      setFieldValue(`options.${key}`, value, false);
+    });
   };
 
   return (
@@ -65,32 +82,32 @@ const Preview = (): JSX.Element | null => {
         >
           {values.options?.name}
         </Typography>
-        {values.options?.description?.enabled && (
-          <RichTextEditor
-            disabled
-            contentClassName={cx(
-              classes.previewHeading,
-              classes.previewDescription
-            )}
-            editable={false}
-            editorState={
-              values.options?.description?.enabled
-                ? values.options?.description?.content || undefined
-                : undefined
-            }
-          />
+        {displayDescription && (
+          <DescriptionWrapper>
+            <RichTextEditor
+              disabled
+              contentClassName={classes.previewHeading}
+              editable={false}
+              editorState={
+                values.options?.description?.enabled
+                  ? values.options?.description?.content || undefined
+                  : undefined
+              }
+            />
+          </DescriptionWrapper>
         )}
-        {!isGenericTextWidget && (
-          <div
-            style={{
-              height: `${
-                (previewRef.current?.getBoundingClientRect().height || 0) -
-                16 -
-                46
-              }px`,
-              overflow: 'auto'
-            }}
-          >
+        <div
+          style={{
+            height: `${
+              (previewRef.current?.getBoundingClientRect().height || 0) -
+              36 -
+              46
+            }px`,
+            overflow: 'auto',
+            position: 'relative'
+          }}
+        >
+          {!isEmpty(remoteEntry) || isNil(Component) ? (
             <FederatedComponent
               isFederatedWidget
               isFromPreview
@@ -100,9 +117,30 @@ const Preview = (): JSX.Element | null => {
               panelOptions={values.options}
               path={values.panelConfiguration?.path || ''}
               setPanelOptions={changePanelOptions}
+              hasDescription={displayDescription}
             />
-          </div>
-        )}
+          ) : (
+            <Suspense
+              fallback={
+                <LoadingSkeleton
+                  variant="rectangular"
+                  width="100%"
+                  height="100%"
+                />
+              }
+            >
+              <Component
+                isFromPreview
+                globalRefreshInterval={refreshInterval}
+                panelData={values.data}
+                panelOptions={values.options}
+                path={values.panelConfiguration?.path || ''}
+                setPanelOptions={changePanelOptions}
+                hasDescription={displayDescription}
+              />
+            </Suspense>
+          )}
+        </div>
       </div>
       {!canEdit && (
         <div className={classes.previewUserRightPanel}>

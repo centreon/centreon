@@ -1,5 +1,0 @@
-configuration_contact_group_find_all:
-  methods: GET
-  path: /configuration/contacts/groups
-  controller: 'Core\Contact\Infrastructure\Api\FindContactGroups\FindContactGroupsController'
-  condition: "request.attributes.get('version') >= 22.04"

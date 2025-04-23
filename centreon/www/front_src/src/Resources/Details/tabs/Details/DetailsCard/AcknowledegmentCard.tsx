@@ -4,8 +4,8 @@ import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import AcknowledgeChip from '../../../../Chip/Acknowledge';
 import { labelAcknowledgedBy, labelAt } from '../../../../translatedLabels';
-import StateCard from '../StateCard';
 import { ResourceDetails } from '../../../models';
+import StateCard from '../StateCard';
 
 interface Props {
   details: ResourceDetails;

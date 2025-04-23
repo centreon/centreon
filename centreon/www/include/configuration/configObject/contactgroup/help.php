@@ -1,5 +1,5 @@
 <?php
-$help = array();
+$help = [];
 
 $help["contactgroup_name"] = dgettext(
     "help",

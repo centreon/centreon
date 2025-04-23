@@ -38,7 +38,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Exception;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->serviceCategoryRepository = $this->createMock(ReadServiceCategoryRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
@@ -48,7 +48,8 @@ beforeEach(function () {
         $this->serviceCategoryRepository,
         $this->accessGroupRepository,
         $this->requestParameters,
-        $this->user
+        $this->user,
+        false
     );
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
     $this->serviceCategoryName = 'sc-name';
@@ -62,7 +63,7 @@ beforeEach(function () {
     ];
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -158,7 +159,7 @@ it('should present a FindServiceGroupsResponse when a non-admin user has read/wr
 });
 
 
-it('should present a FindServiceCategoriesResponse with admin user', function () {
+it('should present a FindServiceCategoriesResponse with admin user', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')

@@ -38,7 +38,11 @@ use Core\Application\Common\UseCase\PresenterInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
@@ -64,13 +68,12 @@ use Utility\Difference\BasicDifference;
 
 final class PartialUpdateServiceTemplate
 {
-    use LoggerTrait;
+    use LoggerTrait,VaultTrait;
 
     /** @var AccessGroup[] */
     private array $accessGroups = [];
 
     public function __construct(
-        private readonly ReadServiceTemplateRepositoryInterface $readRepository,
         private readonly WriteServiceTemplateRepositoryInterface $writeRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
@@ -85,7 +88,10 @@ final class PartialUpdateServiceTemplate
         private readonly ContactInterface $user,
         private readonly DataStorageEngineInterface $storageEngine,
         private readonly OptionService $optionService,
+        private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
     ) {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
     public function __invoke(
@@ -106,16 +112,21 @@ final class PartialUpdateServiceTemplate
                 return;
             }
 
-            $serviceTemplate = $this->readRepository->findById($request->id);
+            if (! $this->user->isAdmin()) {
+                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $serviceTemplate = $this->readServiceTemplateRepository->findByIdAndAccessGroups(
+                    $request->id,
+                    $this->accessGroups
+                );
+            } else {
+                $serviceTemplate = $this->readServiceTemplateRepository->findById($request->id);
+            }
+
             if ($serviceTemplate === null) {
                 $this->error('Service template not found', ['service_template_id' => $request->id]);
                 $presenter->setResponseStatus(new NotFoundResponse('Service template'));
 
                 return;
-            }
-
-            if (! $this->user->isAdmin()) {
-                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             }
 
             $this->updatePropertiesInTransaction($request, $serviceTemplate);
@@ -267,6 +278,10 @@ final class PartialUpdateServiceTemplate
         $this->debug('Start transaction');
         $this->storageEngine->startTransaction();
         try {
+            if ($this->writeVaultRepository->isVaultConfigured()) {
+                $this->retrieveServiceUuidFromVault($serviceTemplate->getId());
+            }
+
             $this->updateServiceTemplate($serviceTemplate, $request);
             $this->linkServiceTemplateToHostTemplates($request);
             $this->linkServiceTemplateToServiceCategories($request);
@@ -320,11 +335,13 @@ final class PartialUpdateServiceTemplate
 
         foreach ($macrosDiff->removedMacros as $macro) {
             $this->info('Delete the macro ' . $macro->getName());
+            $this->updateMacroInVault($macro, 'DELETE');
             $this->writeServiceMacroRepository->delete($macro);
         }
 
         foreach ($macrosDiff->updatedMacros as $macro) {
             $this->info('Update the macro ' . $macro->getName());
+            $macro = $this->updateMacroInVault($macro, 'INSERT');
             $this->writeServiceMacroRepository->update($macro);
         }
 
@@ -337,6 +354,8 @@ final class PartialUpdateServiceTemplate
                 );
             }
             $this->info('Add the macro ' . $macro->getName());
+
+            $macro = $this->updateMacroInVault($macro, 'INSERT');
             $this->writeServiceMacroRepository->add($macro);
         }
     }
@@ -379,7 +398,15 @@ final class PartialUpdateServiceTemplate
             $commandMacros = MacroManager::resolveInheritanceForCommandMacro($existingCommandMacros);
         }
 
-        return [$directMacros, $inheritedMacros, $commandMacros];
+        return [
+            $this->writeVaultRepository->isVaultConfigured()
+                ? $this->retrieveMacrosVaultValues($directMacros)
+                : $directMacros,
+            $this->writeVaultRepository->isVaultConfigured()
+                ? $this->retrieveMacrosVaultValues($inheritedMacros)
+                : $inheritedMacros,
+            $commandMacros,
+        ];
     }
 
     /**
@@ -574,5 +601,88 @@ final class PartialUpdateServiceTemplate
         }
 
         return array_values($uniqueList);
+    }
+
+    /**
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     */
+    private function retrieveServiceUuidFromVault(int $serviceTemplateId): void
+    {
+        $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplateId);
+        foreach ($macros as $macro) {
+            if (
+                $macro->isPassword() === true
+                && null !== ($this->uuid = $this->getUuidFromPath($macro->getValue()))
+            ) {
+                break;
+            }
+        }
+    }
+
+    /**
+     * Upsert or delete macro for vault storage and return macro with updated value (aka vaultPath).
+     *
+     * @param Macro $macro
+     * @param string $action
+     *
+     * @throws \Throwable
+     *
+     * @return Macro
+     */
+    private function updateMacroInVault(Macro $macro, string $action): Macro
+    {
+        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+            $macroPrefixName = '_SERVICE' . $macro->getName();
+            $vaultPaths = $this->writeVaultRepository->upsert(
+                $this->uuid ?? null,
+                $action === 'INSERT' ? [$macroPrefixName => $macro->getValue()] : [],
+                $action === 'DELETE' ? [$macroPrefixName => $macro->getValue()] : [],
+            );
+
+            $vaultPath = $vaultPaths[$macroPrefixName];
+            $this->uuid ??= $this->getUuidFromPath($vaultPath);
+
+            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+            $inVaultMacro->setDescription($macro->getDescription());
+            $inVaultMacro->setIsPassword($macro->isPassword());
+            $inVaultMacro->setOrder($macro->getOrder());
+
+            return $inVaultMacro;
+        }
+
+        return $macro;
+    }
+
+    /**
+     * @param array<string,Macro> $macros
+     *
+     * @throws \Throwable
+     *
+     * @return array<string,Macro>
+     */
+    private function retrieveMacrosVaultValues(array $macros): array
+    {
+        $updatedMacros = [];
+        foreach ($macros as $key => $macro) {
+            if (false === $macro->isPassword()) {
+                $updatedMacros[$key] = $macro;
+                continue;
+            }
+
+            $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
+            $vaultKey = '_SERVICE' . $macro->getName();
+            if (isset($vaultData[$vaultKey])) {
+                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro->setDescription($macro->getDescription());
+                $inVaultMacro->setIsPassword($macro->isPassword());
+                $inVaultMacro->setOrder($macro->getOrder());
+
+                $updatedMacros[$key] = $inVaultMacro;
+            }
+        }
+
+        return $updatedMacros;
     }
 }

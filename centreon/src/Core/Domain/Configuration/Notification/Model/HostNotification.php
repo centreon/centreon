@@ -28,11 +28,11 @@ use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 
 class HostNotification implements NotificationInterface
 {
-    public const EVENT_HOST_RECOVERY = 'RECOVERY',
-                 EVENT_HOST_SCHEDULED_DOWNTIME = 'SCHEDULED_DOWNTIME',
-                 EVENT_HOST_FLAPPING = 'FLAPPING',
-                 EVENT_HOST_DOWN = 'DOWN',
-                 EVENT_HOST_UNREACHABLE = 'UNREACHABLE';
+    public const EVENT_HOST_RECOVERY = 'RECOVERY';
+    public const EVENT_HOST_SCHEDULED_DOWNTIME = 'SCHEDULED_DOWNTIME';
+    public const EVENT_HOST_FLAPPING = 'FLAPPING';
+    public const EVENT_HOST_DOWN = 'DOWN';
+    public const EVENT_HOST_UNREACHABLE = 'UNREACHABLE';
     public const HOST_EVENTS = [
         self::EVENT_HOST_DOWN,
         self::EVENT_HOST_FLAPPING,

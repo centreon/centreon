@@ -88,22 +88,22 @@ class GraphTemplate
         return $this->name;
     }
 
-    public function getVerticalAxisLabel():  string
+    public function getVerticalAxisLabel(): string
     {
         return $this->verticalAxisLabel;
     }
 
-    public function getWidth():  int
+    public function getWidth(): int
     {
         return $this->width;
     }
 
-    public function getHeight():  int
+    public function getHeight(): int
     {
         return $this->height;
     }
 
-    public function getBase():  int
+    public function getBase(): int
     {
         return $this->base;
     }
@@ -113,22 +113,22 @@ class GraphTemplate
         return $this->gridLowerLimit;
     }
 
-    public function getGridUpperLimit():  ?float
+    public function getGridUpperLimit(): ?float
     {
         return $this->gridUpperLimit;
     }
 
-    public function isUpperLimitSizedToMax():  bool
+    public function isUpperLimitSizedToMax(): bool
     {
         return $this->isUpperLimitSizedToMax;
     }
 
-    public function isGraphScaled():  bool
+    public function isGraphScaled(): bool
     {
         return $this->isGraphScaled;
     }
 
-    public function isDefaultCentreonTemplate():  bool
+    public function isDefaultCentreonTemplate(): bool
     {
         return $this->isDefaultCentreonTemplate;
     }

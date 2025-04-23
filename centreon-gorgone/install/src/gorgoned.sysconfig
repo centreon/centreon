@@ -1,4 +1,0 @@
-# Configuration file for Centreon Gorgone.
-
-# OPTIONS for the daemon launch
-OPTIONS="--config=@GORGONE_ETC_DIR@/config.yaml --logfile=@GORGONE_LOG_DIR@/gorgoned.log --severity=info"

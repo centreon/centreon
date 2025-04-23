@@ -20,15 +20,15 @@ interface LinkMatcherResult {
   url: string;
 }
 
-const URL_MATCHER =
+const urlMatcher =
   /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
 
-const EMAIL_MATCHER =
+const emailMatcher =
   /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
 
 const getMatchers = (openLinkInNewTab: boolean): Array<LinkMatcher> => [
   (text: string): LinkMatcherResult | null => {
-    const match = URL_MATCHER.exec(text);
+    const match = urlMatcher.exec(text);
 
     return (
       match && {
@@ -43,7 +43,7 @@ const getMatchers = (openLinkInNewTab: boolean): Array<LinkMatcher> => [
     );
   },
   (text: string): LinkMatcherResult | null => {
-    const match = EMAIL_MATCHER.exec(text);
+    const match = emailMatcher.exec(text);
 
     return (
       match && {

@@ -34,18 +34,17 @@
  */
 
 /**
+ * Class
  *
+ * @class CentreonAclGroup
  */
 class CentreonAclGroup
 {
-    /**
-     *
-     * @var type
-     */
+    /** @var CentreonDB */
     protected $db;
 
     /**
-     *  Constructor
+     *  CentreonAclGroup constructor
      *
      * @param CentreonDB $db
      */
@@ -57,14 +56,16 @@ class CentreonAclGroup
     /**
      * @param array $values
      * @param array $options
+     *
      * @return array
+     * @throws PDOException
      */
-    public function getObjectForSelect2($values = array(), $options = array())
+    public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = array();
+        $items = [];
 
         $listValues = '';
-        $queryValues = array();
+        $queryValues = [];
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':group' . $v . ',';
@@ -81,7 +82,7 @@ class CentreonAclGroup
             "ORDER BY acl_group_name ";
         $stmt = $this->db->prepare($query);
 
-        if (!empty($queryValues)) {
+        if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {
                 $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
             }
@@ -89,10 +90,7 @@ class CentreonAclGroup
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $items[] = array(
-                'id' => $row['acl_group_id'],
-                'text' => $row['acl_group_name']
-            );
+            $items[] = ['id' => $row['acl_group_id'], 'text' => $row['acl_group_name']];
         }
 
         return $items;

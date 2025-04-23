@@ -35,6 +35,28 @@
 
 namespace CentreonClapi;
 
+use Centreon_Object_Acl_Group;
+use Centreon_Object_Acl_Resource;
+use Centreon_Object_Host;
+use Centreon_Object_Host_Category;
+use Centreon_Object_Host_Group;
+use Centreon_Object_Instance;
+use Centreon_Object_Meta_Service;
+use Centreon_Object_Relation_Acl_Group_Resource;
+use Centreon_Object_Relation_Acl_Resource_Host;
+use Centreon_Object_Relation_Acl_Resource_Host_Category;
+use Centreon_Object_Relation_Acl_Resource_Host_Exclude;
+use Centreon_Object_Relation_Acl_Resource_Host_Group;
+use Centreon_Object_Relation_Acl_Resource_Instance;
+use Centreon_Object_Relation_Acl_Resource_Meta_Service;
+use Centreon_Object_Relation_Acl_Resource_Service_Category;
+use Centreon_Object_Relation_Acl_Resource_Service_Group;
+use Centreon_Object_Service_Category;
+use Centreon_Object_Service_Group;
+use Exception;
+use PDOException;
+use Pimple\Container;
+
 require_once "centreonObject.class.php";
 require_once "Centreon/Object/Acl/Group.php";
 require_once "Centreon/Object/Acl/Resource.php";
@@ -56,70 +78,55 @@ require_once "Centreon/Object/Relation/Acl/Resource/Meta/Service.php";
 require_once "Centreon/Object/Relation/Acl/Resource/Instance.php";
 
 /**
- * Class for managing ACL groups
- * @author sylvestre
+ * Class
  *
+ * @class CentreonACLResource
+ * @package CentreonClapi
+ * @description Class for managing ACL groups
  */
 class CentreonACLResource extends CentreonObject
 {
-    const ORDER_UNIQUENAME = 0;
-    const ORDER_ALIAS = 1;
-    const UNSUPPORTED_WILDCARD = "Action does not support the '*' wildcard";
+    public const ORDER_UNIQUENAME = 0;
+    public const ORDER_ALIAS = 1;
+    public const UNSUPPORTED_WILDCARD = "Action does not support the '*' wildcard";
 
-    /**
-     *
-     * @var Centreon_Object_Acl_Group
-     */
+    /** @var Centreon_Object_Acl_Group */
     protected $aclGroupObj;
 
-    /**
-     *
-     * @var Centreon_Object_Relation_Acl_Group_Resource
-     */
+    /** @var Centreon_Object_Relation_Acl_Group_Resource */
     protected $relObject;
 
     /**
      * Depends
      *
-     * @var unknown_type
+     * @var object
      */
     protected $resourceTypeObject;
 
     /**
      * Depends
      *
-     * @var unknown_type
+     * @var object
      */
     protected $resourceTypeObjectRelation;
 
-    public $aDepends = array(
-        'HOST',
-        'SERVICE',
-        'HG',
-        'SG',
-        'INSTANCE',
-        'HC',
-        'SC'
-    );
+    /** @var string[] */
+    public $aDepends = ['HOST', 'SERVICE', 'HG', 'SG', 'INSTANCE', 'HC', 'SC'];
 
     /**
-     * Constructor
+     * CentreonACLResource constructor
      *
-     * @return void
+     * @param Container $dependencyInjector
+     *
+     * @throws PDOException
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-        $this->object = new \Centreon_Object_Acl_Resource($dependencyInjector);
-        $this->aclGroupObj = new \Centreon_Object_Acl_Group($dependencyInjector);
-        $this->relObject = new \Centreon_Object_Relation_Acl_Group_Resource($dependencyInjector);
-        $this->params = array(
-            'all_hosts' => '0',
-            'all_hostgroups' => '0',
-            'all_servicegroups' => '0',
-            'acl_res_activate' => '1',
-            'changed' => '1'
-        );
+        $this->object = new Centreon_Object_Acl_Resource($dependencyInjector);
+        $this->aclGroupObj = new Centreon_Object_Acl_Group($dependencyInjector);
+        $this->relObject = new Centreon_Object_Relation_Acl_Group_Resource($dependencyInjector);
+        $this->params = ['all_hosts' => '0', 'all_hostgroups' => '0', 'all_servicegroups' => '0', 'acl_res_activate' => '1', 'changed' => '1'];
         $this->nbOfCompulsoryParams = 2;
         $this->activateField = "acl_res_activate";
         $this->action = "ACLRESOURCE";
@@ -127,16 +134,16 @@ class CentreonACLResource extends CentreonObject
 
     /**
      * @param $parameters
-     * @return mixed|void
+     * @return void
      * @throws CentreonClapiException
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): void
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $addParams = array();
+        $addParams = [];
         $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
         $addParams['acl_res_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
@@ -158,7 +165,7 @@ class CentreonACLResource extends CentreonObject
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
         if ($objectId != 0) {
             $params[1] = "acl_res_" . $params[1];
-            $updateParams = array($params[1] => $params[2]);
+            $updateParams = [$params[1] => $params[2]];
             $updateParams['objectId'] = $objectId;
             return $updateParams;
         } else {
@@ -169,14 +176,16 @@ class CentreonACLResource extends CentreonObject
     /**
      * @param null $parameters
      * @param array $filters
+     *
+     * @throws Exception
      */
-    public function show($parameters = null, $filters = array())
+    public function show($parameters = null, $filters = []): void
     {
-        $filters = array();
+        $filters = [];
         if (isset($parameters)) {
-            $filters = array($this->object->getUniqueLabelField() => "%" . $parameters . "%");
+            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
         }
-        $params = array("acl_res_id", "acl_res_name", "acl_res_alias", "acl_res_comment", "acl_res_activate");
+        $params = ["acl_res_id", "acl_res_name", "acl_res_alias", "acl_res_comment", "acl_res_activate"];
         $paramString = str_replace("acl_res_", "", implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
@@ -203,12 +212,12 @@ class CentreonACLResource extends CentreonObject
      * @param $aclResName
      * @throws CentreonClapiException
      */
-    public function getaclgroup($aclResName)
+    public function getaclgroup($aclResName): void
     {
         if (!isset($aclResName) || !$aclResName) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $aclResId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($aclResName));
+        $aclResId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$aclResName]);
         if (!count($aclResId)) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $aclResName);
         }
@@ -236,53 +245,53 @@ class CentreonACLResource extends CentreonObject
         if (count($params) < 2) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
-        $aclResId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), array($params[0]));
+        $aclResId = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$params[0]]);
         if (!count($aclResId)) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[0]);
         }
         $resources = explode("|", $params[1]);
-        $resourceIds = array();
+        $resourceIds = [];
 
         switch ($type) {
             case "host":
-                $this->resourceTypeObject = new \Centreon_Object_Host($this->dependencyInjector);
+                $this->resourceTypeObject = new Centreon_Object_Host($this->dependencyInjector);
                 $this->resourceTypeObjectRelation =
-                    new \Centreon_Object_Relation_Acl_Resource_Host($this->dependencyInjector);
+                    new Centreon_Object_Relation_Acl_Resource_Host($this->dependencyInjector);
                 break;
             case "hostgroup":
-                $this->resourceTypeObject = new \Centreon_Object_Host_Group($this->dependencyInjector);
+                $this->resourceTypeObject = new Centreon_Object_Host_Group($this->dependencyInjector);
                 $this->resourceTypeObjectRelation =
-                    new \Centreon_Object_Relation_Acl_Resource_Host_Group($this->dependencyInjector);
+                    new Centreon_Object_Relation_Acl_Resource_Host_Group($this->dependencyInjector);
                 break;
             case "hostcategory":
-                $this->resourceTypeObject = new \Centreon_Object_Host_Category($this->dependencyInjector);
+                $this->resourceTypeObject = new Centreon_Object_Host_Category($this->dependencyInjector);
                 $this->resourceTypeObjectRelation =
-                    new \Centreon_Object_Relation_Acl_Resource_Host_Category($this->dependencyInjector);
+                    new Centreon_Object_Relation_Acl_Resource_Host_Category($this->dependencyInjector);
                 break;
             case "servicegroup":
-                $this->resourceTypeObject = new \Centreon_Object_Service_Group($this->dependencyInjector);
+                $this->resourceTypeObject = new Centreon_Object_Service_Group($this->dependencyInjector);
                 $this->resourceTypeObjectRelation =
-                    new \Centreon_Object_Relation_Acl_Resource_Service_Group($this->dependencyInjector);
+                    new Centreon_Object_Relation_Acl_Resource_Service_Group($this->dependencyInjector);
                 break;
             case "servicecategory":
-                $this->resourceTypeObject = new \Centreon_Object_Service_Category($this->dependencyInjector);
+                $this->resourceTypeObject = new Centreon_Object_Service_Category($this->dependencyInjector);
                 $this->resourceTypeObjectRelation =
-                    new \Centreon_Object_Relation_Acl_Resource_Service_Category($this->dependencyInjector);
+                    new Centreon_Object_Relation_Acl_Resource_Service_Category($this->dependencyInjector);
                 break;
             case "metaservice":
-                $this->resourceTypeObject = new \Centreon_Object_Meta_Service($this->dependencyInjector);
+                $this->resourceTypeObject = new Centreon_Object_Meta_Service($this->dependencyInjector);
                 $this->resourceTypeObjectRelation =
-                    new \Centreon_Object_Relation_Acl_Resource_Meta_Service($this->dependencyInjector);
+                    new Centreon_Object_Relation_Acl_Resource_Meta_Service($this->dependencyInjector);
                 break;
             case "instance":
-                $this->resourceTypeObject = new \Centreon_Object_Instance($this->dependencyInjector);
+                $this->resourceTypeObject = new Centreon_Object_Instance($this->dependencyInjector);
                 $this->resourceTypeObjectRelation =
-                    new \Centreon_Object_Relation_Acl_Resource_Instance($this->dependencyInjector);
+                    new Centreon_Object_Relation_Acl_Resource_Instance($this->dependencyInjector);
                 break;
             case "excludehost":
-                $this->resourceTypeObject = new \Centreon_Object_Host($this->dependencyInjector);
+                $this->resourceTypeObject = new Centreon_Object_Host($this->dependencyInjector);
                 $this->resourceTypeObjectRelation =
-                    new \Centreon_Object_Relation_Acl_Resource_Host_Exclude($this->dependencyInjector);
+                    new Centreon_Object_Relation_Acl_Resource_Host_Exclude($this->dependencyInjector);
                 break;
             default:
                 throw new CentreonClapiException(self::UNKNOWN_METHOD);
@@ -293,7 +302,7 @@ class CentreonACLResource extends CentreonObject
             if ($resource != "*") {
                 $ids = $this->resourceTypeObject->getIdByParameter(
                     $this->resourceTypeObject->getUniqueLabelField(),
-                    array($resource)
+                    [$resource]
                 );
                 if (!count($ids)) {
                     throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $resource);
@@ -303,7 +312,7 @@ class CentreonACLResource extends CentreonObject
                 $resourceIds[] = $resource;
             }
         }
-        return array($aclResId[0], $resourceIds);
+        return [$aclResId[0], $resourceIds];
     }
 
     /**
@@ -313,7 +322,7 @@ class CentreonACLResource extends CentreonObject
      */
     protected function grant($type, $arg)
     {
-        list($aclResourceId, $resourceIds) = $this->splitParams($type, $arg);
+        [$aclResourceId, $resourceIds] = $this->splitParams($type, $arg);
 
         if (isset($this->resourceTypeObjectRelation)) {
             $results = $this->resourceTypeObjectRelation->getTargetIdFromSourceId(
@@ -329,7 +338,7 @@ class CentreonACLResource extends CentreonObject
                         throw new CentreonClapiException(self::UNSUPPORTED_WILDCARD);
                     }
                     $field = "all_" . $type . "s";
-                    $this->object->update($aclResourceId, array($field => '1', 'changed' => '1'));
+                    $this->object->update($aclResourceId, [$field => '1', 'changed' => '1']);
                 }
             }
         }
@@ -340,11 +349,13 @@ class CentreonACLResource extends CentreonObject
      *
      * @param string $type
      * @param string $arg
+     *
      * @return void
+     * @throws CentreonClapiException
      */
     protected function revoke($type, $arg)
     {
-        list($aclResourceId, $resourceIds) = $this->splitParams($type, $arg);
+        [$aclResourceId, $resourceIds] = $this->splitParams($type, $arg);
 
         if (isset($this->resourceTypeObjectRelation)) {
             foreach ($resourceIds as $resourceId) {
@@ -356,7 +367,7 @@ class CentreonACLResource extends CentreonObject
             }
             if ($type == "host" || $type == "hostgroup" || $type == "servicegroup") {
                 $field = "all_" . $type . "s";
-                $this->object->update($aclResourceId, array($field => '0', 'changed' => '1'));
+                $this->object->update($aclResourceId, [$field => '0', 'changed' => '1']);
             }
         }
     }
@@ -366,7 +377,9 @@ class CentreonACLResource extends CentreonObject
      *
      * @param string $type
      * @param string $arg
+     *
      * @return void
+     * @throws CentreonClapiException
      */
     protected function addfilter($type, $arg)
     {
@@ -378,7 +391,9 @@ class CentreonACLResource extends CentreonObject
      *
      * @param string $type
      * @param string $arg
+     *
      * @return void
+     * @throws CentreonClapiException
      */
     protected function delfilter($type, $arg)
     {
@@ -389,9 +404,11 @@ class CentreonACLResource extends CentreonObject
      * Add host exclusion
      *
      * @param string $parameters
+     *
      * @return void
+     * @throws CentreonClapiException
      */
-    public function addhostexclusion($parameters)
+    public function addhostexclusion($parameters): void
     {
         $this->grant("excludehost", $parameters);
     }
@@ -400,9 +417,11 @@ class CentreonACLResource extends CentreonObject
      * Delete host exclusion
      *
      * @param string $parameters
+     *
      * @return void
+     * @throws CentreonClapiException
      */
-    public function delhostexclusion($parameters)
+    public function delhostexclusion($parameters): void
     {
         $this->revoke("excludehost", $parameters);
     }
@@ -412,7 +431,7 @@ class CentreonACLResource extends CentreonObject
      * Magic method
      *
      * @param string $name
-     * @param array $args
+     * @param array $arg
      * @return void
      * @throws CentreonClapiException
      */
@@ -432,7 +451,9 @@ class CentreonACLResource extends CentreonObject
 
     /**
      * @param null $filterName
+     *
      * @return bool|void
+     * @throws Exception
      */
     public function export($filterName = null)
     {
@@ -441,7 +462,7 @@ class CentreonACLResource extends CentreonObject
         }
 
         $labelField = $this->object->getUniqueLabelField();
-        $filters = array();
+        $filters = [];
         if (!is_null($filterName)) {
             $filters[$labelField] = $filterName;
         }
@@ -524,7 +545,9 @@ class CentreonACLResource extends CentreonObject
      * @param string $aclResName
      * @param int $allHosts
      * @param bool $withExclusion
+     *
      * @return string
+     * @throws PDOException
      */
     private function exportGrantHostResources($aclResId, $aclResName, $allHosts = 1, $withExclusion = true)
     {
@@ -567,7 +590,9 @@ class CentreonACLResource extends CentreonObject
      * @param $aclResId
      * @param $aclResName
      * @param int $allHostgroups
+     *
      * @return string
+     * @throws PDOException
      */
     private function exportGrantHostgroupResources($aclResId, $aclResName, $allHostgroups = 1)
     {
@@ -600,7 +625,9 @@ class CentreonACLResource extends CentreonObject
      * @param $aclResId
      * @param $aclResName
      * @param int $allServicegroups
+     *
      * @return string
+     * @throws PDOException
      */
     private function exportGrantServicegroupResources($aclResId, $aclResName, $allServicegroups = 1)
     {
@@ -631,7 +658,9 @@ class CentreonACLResource extends CentreonObject
     /**
      * @param $aclResId
      * @param $aclResName
+     *
      * @return string
+     * @throws PDOException
      */
     private function exportGrantMetaserviceResources($aclResId, $aclResName)
     {
@@ -658,7 +687,9 @@ class CentreonACLResource extends CentreonObject
     /**
      * @param $aclResId
      * @param $aclResName
+     *
      * @return string
+     * @throws PDOException
      */
     private function exportFilterInstance($aclResId, $aclResName)
     {
@@ -680,7 +711,9 @@ class CentreonACLResource extends CentreonObject
     /**
      * @param $aclResId
      * @param $aclResName
+     *
      * @return string
+     * @throws PDOException
      */
     private function exportFilterHostCategory($aclResId, $aclResName)
     {
@@ -707,7 +740,9 @@ class CentreonACLResource extends CentreonObject
     /**
      * @param $aclResId
      * @param $aclResName
+     *
      * @return string
+     * @throws PDOException
      */
     private function exportFilterServiceCategory($aclResId, $aclResName)
     {

@@ -1,10 +1,10 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import {
-  ContactGroup,
   Contact,
-  ContactsResult,
-  ContactGroupsResult
+  ContactGroup,
+  ContactGroupsResult,
+  ContactsResult
 } from '../models';
 
 const contactDecoder = JsonDecoder.object<Contact>(

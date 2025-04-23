@@ -31,8 +31,8 @@ class FindResourcesPresenterStub implements FindResourcesPresenterInterface
 {
     public FindResourcesResponse|ResponseStatusInterface $data;
 
-    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $data): void
+    public function presentResponse(FindResourcesResponse|ResponseStatusInterface $response): void
     {
-        $this->data = $data;
+        $this->data = $response;
     }
 }

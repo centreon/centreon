@@ -5,7 +5,7 @@
             <th colspan='2'>{t}Database information{/t}</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id ="database_information_form_body">
         <tr>
             <td class='formlabel'>{t}Database Host Address (default: localhost){/t}</td>
             <td class='formvalue'>
@@ -77,6 +77,30 @@
 
     {literal}
 
+    jQuery.ajax({
+        type: 'GET',
+        url: './steps/process/getFeatureFlags.php',
+        success: (data) => {
+            const result = JSON.parse(data);
+            if (result.vault === true) {
+                jQuery('#database_information_form_body').append(`
+                    <tr>
+                        <td class='formlabel'>
+                            {/literal}{t}{literal}
+                                Use a vault to store sensitive data
+                            {/literal}{/t}{literal}
+                        </td>
+                        <td class='formvalue'>
+                            <input type='checkbox' name='use_vault' value="{$parameters.use_vault}"/>
+                            <label class='field_msg'></label>
+                        </td>
+                    </tr>
+                `);
+            }
+        }
+    });
+
+
     function validation() {
         jQuery('.field_msg').empty();
 
@@ -86,8 +110,12 @@
             data: jQuery('#form_step6').serialize(),
             success: (data) => {
                 var result = JSON.parse(data);
-                if (!result.required.length && result.password && result.connection == '') {
-                    loadStep("nextStep");
+                if (!result.required.length && result.password && result.connection === '' && result.vault_error === '') {
+                    if (result.use_vault) {
+                        loadStep("vaultStep");
+                    } else {
+                        loadStep("nextStep");
+                    }
                 } else {
                     result.required.forEach(function (element) {
                         jQuery("input[name=" + element + "]").next().html("Parameter is required");
@@ -95,8 +123,11 @@
                     if (!result.password) {
                         jQuery('input[name="db_password_confirm"]').next().html("Password does not match");
                     }
-                    if (result.connection != '') {
+                    if (result.connection !== '') {
                         jQuery('input[name="address"]').next().html(result.connection);
+                    }
+                    if (result.vault_error !== '') {
+                        jQuery('input[name="use_vault"]').next().html(result.vault_error);
                     }
                 }
             }

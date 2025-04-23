@@ -5,7 +5,7 @@ inputs:
     description: The major version
     required: true
   xray_token:
-    description: The minor version
+    description: The Xray Token
     required: true
 outputs:
   test_plan_key:

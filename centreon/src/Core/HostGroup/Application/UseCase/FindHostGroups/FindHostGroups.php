@@ -23,19 +23,19 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\UseCase\FindHostGroups;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
-use Core\HostGroup\Infrastructure\API\FindHostGroups\FindHostGroupsPresenterOnPrem;
-use Core\HostGroup\Infrastructure\API\FindHostGroups\FindHostGroupsPresenterSaas;
+use Core\HostGroup\Domain\Model\HostGroupRelationCount;
+use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
+use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindHostGroups
 {
@@ -44,35 +44,29 @@ final class FindHostGroups
     public function __construct(
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadMediaRepositoryInterface $readMediaRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 
-    /**
-     * @param FindHostGroupsPresenterOnPrem|FindHostGroupsPresenterSaas $presenter
-     */
-    public function __invoke(PresenterInterface $presenter): void
+    public function __invoke(): FindHostGroupsResponse|ResponseStatusInterface
     {
         try {
-            if ($this->contact->isAdmin()) {
-                $presenter->present($this->findHostGroupAsAdmin());
-                $this->info('Find host group', ['request' => $this->requestParameters->toArray()]);
-            } elseif ($this->contactCanExecuteThisUseCase()) {
-                $presenter->present($this->findHostGroupAsContact());
-                $this->info('Find host group', ['request' => $this->requestParameters->toArray()]);
-            } else {
-                $this->error(
-                    "User doesn't have sufficient rights to see host groups",
-                    ['user_id' => $this->contact->getId()]
-                );
-                $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostGroupException::accessNotAllowed()->getMessage())
-                );
-            }
+            return $this->contact->isAdmin()
+                ? $this->findHostGroupAsAdmin()
+                : $this->findHostGroupAsContact();
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse(HostGroupException::errorWhileSearching()->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while listing host groups : {$ex->getMessage()}",
+                [
+                    'contact_id' => $this->contact->getId(),
+                    'request_parameters' => $this->requestParameters->toArray(),
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
+
+            return new ErrorResponse(HostGroupException::errorWhileSearching()->getMessage());
         }
     }
 
@@ -84,8 +78,27 @@ final class FindHostGroups
     private function findHostGroupAsAdmin(): FindHostGroupsResponse
     {
         $hostGroups = $this->readHostGroupRepository->findAll($this->requestParameters);
+        $hostGroupIds = array_map(
+            fn (HostGroup $hostGroup): int => $hostGroup->getId(),
+            iterator_to_array($hostGroups)
+        );
+        $iconIds = array_filter(
+            array_map(
+                fn (HostGroup $hostGroup): ?int => $hostGroup->getIconId(),
+                iterator_to_array($hostGroups)
+            ),
+            fn (?int $iconId): bool => $iconId !== null,
+        );
 
-        return $this->createResponse($hostGroups);
+        return $this->createResponse(
+            $hostGroups,
+            $hostGroupIds
+                ? $this->readHostGroupRepository->findHostsCountByIds($hostGroupIds)
+                : [],
+            $iconIds !== []
+                ? $this->readMediaRepository->findByIds($iconIds)
+                : [],
+        );
     }
 
     /**
@@ -95,48 +108,75 @@ final class FindHostGroups
      */
     private function findHostGroupAsContact(): FindHostGroupsResponse
     {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $hostGroups = $this->readHostGroupRepository->findAllByAccessGroups(
-            $this->requestParameters,
-            $accessGroups
+        $hostGroups = [];
+        $accessGroupIds = array_map(
+            fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
         );
 
-        return $this->createResponse($hostGroups);
-    }
+        if ($accessGroupIds !== []) {
+            // if user has access to all hostgroups then use admin workflow
+            if ($this->readHostGroupRepository->hasAccessToAllHostGroups($accessGroupIds)) {
+                $this->debug(
+                    'ACL configuration for user gives access to all host groups',
+                    ['user_id' => $this->contact->getId()]
+                );
 
-    /**
-     * @return bool
-     */
-    private function contactCanExecuteThisUseCase(): bool
-    {
-        return $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ)
-            || $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE);
+                $hostGroups = $this->readHostGroupRepository->findAll($this->requestParameters);
+            } else {
+                $this->debug(
+                    'Using users ACL configured on host groups',
+                    ['user_id' => $this->contact->getId()]
+                );
+
+                $hostGroups = $this->readHostGroupRepository->findAllByAccessGroupIds(
+                    $this->requestParameters,
+                    $accessGroupIds
+                );
+            }
+        }
+
+        $hostGroupIds = array_map(
+            fn (HostGroup $hostGroup): int => $hostGroup->getId(),
+            iterator_to_array($hostGroups)
+        );
+
+        $iconIds = array_filter(
+            array_map(
+                fn (HostGroup $hostGroup): ?int => $hostGroup->getIconId(),
+                iterator_to_array($hostGroups)
+            ),
+            fn (?int $iconId): bool => $iconId !== null,
+        );
+
+        return $this->createResponse(
+            $hostGroups,
+            $accessGroupIds !== [] && $hostGroupIds !== []
+                ? $this->readHostGroupRepository->findHostsCountByAccessGroupsIds($hostGroupIds, $accessGroupIds)
+                : [],
+            $iconIds !== []
+                ? $this->readMediaRepository->findByIds($iconIds)
+                : [],
+        );
     }
 
     /**
      * @param iterable<HostGroup> $hostGroups
+     * @param array<int,HostGroupRelationCount> $hostsCount
+     * @param array<int,Media> $icons
      *
      * @return FindHostGroupsResponse
      */
-    private function createResponse(iterable $hostGroups): FindHostGroupsResponse
+    private function createResponse(iterable $hostGroups, array $hostsCount, array $icons): FindHostGroupsResponse
     {
         $response = new FindHostGroupsResponse();
 
-        foreach ($hostGroups as $hostGroup) {
-            $response->hostgroups[] = [
-                'id' => $hostGroup->getId(),
-                'name' => $hostGroup->getName(),
-                'alias' => $hostGroup->getAlias(),
-                'notes' => $hostGroup->getNotes(),
-                'notesUrl' => $hostGroup->getNotesUrl(),
-                'actionUrl' => $hostGroup->getActionUrl(),
-                'iconId' => $hostGroup->getIconId(),
-                'iconMapId' => $hostGroup->getIconMapId(),
-                'rrdRetention' => $hostGroup->getRrdRetention(),
-                'geoCoords' => $hostGroup->getGeoCoords()?->__toString(),
-                'comment' => $hostGroup->getComment(),
-                'isActivated' => $hostGroup->isActivated(),
-            ];
+        foreach ($hostGroups as $hostgroup) {
+            $response->hostgroups[] = new HostGroupResponse(
+                hostgroup: $hostgroup,
+                hostsCount: $hostsCount[$hostgroup->getId()] ?? null,
+                icon: $icons[$hostgroup->getIconId()] ?? null,
+            );
         }
 
         return $response;

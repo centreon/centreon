@@ -39,7 +39,7 @@
 
 function microtime_float2()
 {
-    list($usec, $sec) = explode(" ", microtime());
+    [$usec, $sec] = explode(" ", microtime());
     return ((float) $usec + (float) $sec);
 }
 
@@ -153,17 +153,15 @@ function getFilteredPollers($host, $resId)
     $dbResult->execute();
 
     if ($dbResult->rowCount()) {
-        $host = array();
+        $host = [];
         while ($row = $dbResult->fetch()) {
             if (isset($hostTmp[$row['host_host_id']])) {
                 $host[$row['host_host_id']] = 1;
             }
         }
-    } else {
+    } elseif ($isPollerFilter) {
         // If result of query is empty and user have poller restrictions, clean host table.
-        if ($isPollerFilter) {
-            $host = array();
-        }
+        $host = [];
     }
     return $host;
 }
@@ -266,7 +264,7 @@ function getServiceTemplateCategoryList($serviceId = null)
 {
     global $svcTplCache, $svcCatCache;
 
-    $tabCategory = array();
+    $tabCategory = [];
 
     if (!$serviceId) {
         return;
@@ -282,7 +280,7 @@ function getServiceTemplateCategoryList($serviceId = null)
     /*
      * Init Table of template
      */
-    $loopBreak = array();
+    $loopBreak = [];
     while (1) {
         if (isset($svcTplCache[$serviceId]) && !isset($loopBreak[$serviceId])) {
             $serviceId = $svcTplCache[$serviceId];
@@ -310,7 +308,7 @@ function getACLSGForHost($pearDB, $hostId, $resId)
         return;
     }
 
-    $svc = array();
+    $svc = [];
     if (isset($sgCache[$resId])) {
         foreach ($sgCache[$resId] as $sgHostId => $tab) {
             if ($hostId == $sgHostId) {
@@ -425,7 +423,7 @@ function getAuthorizedServicesHost($hostId, $resId, $authorizedCategories)
      */
     $svcSg = getACLSGForHost($pearDB, $hostId, $resId);
 
-    $tabServices = array();
+    $tabServices = [];
     if (count($authorizedCategories)) {
         if ($tabSvc) {
             foreach (array_keys($tabSvc) as $serviceId) {
@@ -506,7 +504,7 @@ function getMyHostServicesByName($hostId = null)
         return;
     }
 
-    $hSvs = array();
+    $hSvs = [];
     if (isset($hsRelation[$hostId])) {
         foreach ($hsRelation[$hostId] as $serviceId => $flag) {
             if (isset($svcCache[$serviceId])) {
@@ -529,7 +527,7 @@ function getMetaServices($resId, $db, $metaObj)
 {
     $sql = "SELECT meta_id FROM acl_resources_meta_relations WHERE acl_res_id = " . (int) $resId;
     $res = $db->query($sql);
-    $arr = array();
+    $arr = [];
     if ($res->rowCount()) {
         $hostId = $metaObj->getRealHostId();
         while ($row = $res->fetch()) {
@@ -542,7 +540,7 @@ function getMetaServices($resId, $db, $metaObj)
 
 function getModulesExtensionsPaths($db)
 {
-    $extensionsPaths = array();
+    $extensionsPaths = [];
     $res = $db->query("SELECT name FROM modules_informations");
     while ($row = $res->fetch()) {
         $extensionsPaths = array_merge(
@@ -552,4 +550,134 @@ function getModulesExtensionsPaths($db)
     }
 
     return $extensionsPaths;
+}
+
+/**
+ * Get the list of contacts (ids) that are not linked to the acl group id provided.
+ * This method excludes 'service' contacts
+ *
+ * @param int $aclGroupId
+ * @return int[]
+ */
+function getContactsNotLinkedToAclGroup(int $aclGroupId): array
+{
+    global $pearDB;
+
+    $request = <<<'SQL'
+        SELECT
+            contact_id
+        FROM contact
+        WHERE
+            contact_name != 'centreon-gorgone'
+            AND contact_register = '1'
+            AND contact_activate = '1'
+            AND contact_admin = '0'
+            AND contact_id NOT IN (
+                SELECT DISTINCT contact_contact_id FROM acl_group_contacts_relations WHERE acl_group_id = :aclGroupId
+            )
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':aclGroupId', $aclGroupId, \PDO::PARAM_INT);
+    $statement->execute();
+
+    return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+}
+
+/**
+ * Get the list of contact groups (ids) that are not linked to the acl group id provided.
+ *
+ * @param int $aclGroupId
+ * @return int[]
+ */
+function getContactGroupsNotLinkedToAclGroup(int $aclGroupId): array
+{
+    global $pearDB;
+
+    $request = <<<'SQL'
+        SELECT
+            cg_id
+        FROM contactgroup
+        WHERE cg_activate = '1'
+            AND cg_id NOT IN (
+                SELECT DISTINCT cg_cg_id FROM acl_group_contactgroups_relations WHERE acl_group_id = :aclGroupId
+            )
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':aclGroupId', $aclGroupId, \PDO::PARAM_INT);
+    $statement->execute();
+
+    return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+}
+
+/**
+ * @param int $accessGroupId
+ * @param int[] $contactIds
+ */
+function linkContactsToAccessGroup(int $accessGroupId, array $contactIds): void
+{
+    global $pearDB;
+
+    if ([] === $contactIds) {
+        return;
+    }
+
+    $bindValues = [];
+    $subValues = [];
+    foreach ($contactIds as $index => $contactId) {
+        $bindValues[":contact_id_{$index}"] = $contactId;
+        $subValues[] = "(:contact_id_{$index}, :accessGroupId)";
+    }
+
+    $subQueries = implode(', ', $subValues);
+
+    $request = <<<SQL
+        INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id) VALUES $subQueries
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':accessGroupId', $accessGroupId, \PDO::PARAM_INT);
+
+    foreach ($bindValues as $bindKey => $bindValue) {
+        $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+    }
+
+    $statement->execute();
+}
+
+/**
+ * @param int $accessGroupId
+ * @param int[] $contactGroupIds
+ */
+function linkContactGroupsToAccessGroup(int $accessGroupId, array $contactGroupIds): void
+{
+    global $pearDB;
+
+    if ([] === $contactGroupIds) {
+        return;
+    }
+
+    $bindValues = [];
+    $subValues = [];
+    foreach ($contactGroupIds as $index => $contactGroupId) {
+        $bindValues[":contact_group_id_{$index}"] = $contactGroupId;
+        $subValues[] = "(:contact_group_id_{$index}, :accessGroupId)";
+    }
+
+    $subQueries = implode(', ', $subValues);
+
+    $request = <<<SQL
+        INSERT INTO acl_group_contactgroups_relations (cg_cg_id, acl_group_id) VALUES $subQueries
+    SQL;
+
+    $statement = $pearDB->prepare($request);
+
+    $statement->bindValue(':accessGroupId', $accessGroupId, \PDO::PARAM_INT);
+
+    foreach ($bindValues as $bindKey => $bindValue) {
+        $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+    }
+
+    $statement->execute();
 }

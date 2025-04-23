@@ -90,9 +90,9 @@ it('should throw an exception when dataset type is not part of allowed types', f
     'Value provided is not supported for dataset filter type (was: typo)'
 );
 
-it('should throw an exception when resources is an empty array', function (): void {
+it('should throw an exception when resources is an empty array with type not compatible with all_<type> feature', function (): void {
     new DatasetFilter(
-        type: 'host',
+        type: 'service_category',
         resourceIds: [],
         validator: $this->validator
     );

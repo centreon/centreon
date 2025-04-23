@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import dataLastWeek from '../LineChart/mockedData/lastWeek.json';
+import dataLastWeek from '../mockedData/lastWeek.json';
 
 import { SingleBar } from '.';
 
@@ -13,6 +13,12 @@ type Story = StoryObj<typeof SingleBar>;
 
 const Template = (props): JSX.Element => (
   <div style={{ height: '500px', width: '500px' }}>
+    <SingleBar {...props} />
+  </div>
+);
+
+const SmallTemplate = (props): JSX.Element => (
+  <div style={{ height: '130px', width: '130px' }}>
     <SingleBar {...props} />
   </div>
 );
@@ -201,4 +207,26 @@ export const Small: Story = {
     }
   },
   render: Template
+};
+
+export const smallDisplay: Story = {
+  args: {
+    data: dataLastWeek,
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.6
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
+  },
+  render: SmallTemplate
 };

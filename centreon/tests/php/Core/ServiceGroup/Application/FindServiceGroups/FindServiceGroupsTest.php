@@ -29,25 +29,25 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Domain\Common\GeoCoords;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Application\Exception\ServiceGroupException;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\UseCase\FindServiceGroups\FindServiceGroups;
 use Core\ServiceGroup\Application\UseCase\FindServiceGroups\FindServiceGroupsResponse;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
-    $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class);
-    $this->contact = $this->createMock(ContactInterface::class);
-
     $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
+
     $this->useCase = new FindServiceGroups(
-        $this->readServiceGroupRepository,
-        $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->createMock(RequestParametersInterface::class),
-        $this->contact
+        readServiceGroupRepository: $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
+        readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        requestParameters: $this->createMock(RequestParametersInterface::class),
+        contact: $this->contact = $this->createMock(ContactInterface::class),
+        isCloudPlatform: false
     );
 
     $this->testedServiceGroup = new ServiceGroup(
@@ -143,6 +143,7 @@ it(
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);
+
         $this->contact
             ->expects($this->atMost(2))
             ->method('hasTopologyRole')
@@ -152,9 +153,20 @@ it(
                     [Contact::ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_READ_WRITE, false],
                 ]
             );
+
+        $this->readAccessGroupRepository
+            ->expects($this->any())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(id: 1, name: 'TestName', alias: 'TestAlias')]);
+
         $this->readServiceGroupRepository
             ->expects($this->once())
-            ->method('findAllByAccessGroups')
+            ->method('hasAccessToAllServiceGroups')
+            ->willReturn(false);
+
+        $this->readServiceGroupRepository
+            ->expects($this->once())
+            ->method('findAllByAccessGroupIds')
             ->willReturn(new \ArrayIterator([$this->testedServiceGroup]));
 
         ($this->useCase)($this->presenter);
@@ -173,6 +185,7 @@ it(
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);
+
         $this->contact
             ->expects($this->atMost(2))
             ->method('hasTopologyRole')
@@ -182,9 +195,20 @@ it(
                     [Contact::ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_READ_WRITE, true],
                 ]
             );
+
+        $this->readAccessGroupRepository
+            ->expects($this->any())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(id: 1, name: 'TestName', alias: 'TestAlias')]);
+
         $this->readServiceGroupRepository
             ->expects($this->once())
-            ->method('findAllByAccessGroups')
+            ->method('hasAccessToAllServiceGroups')
+            ->willReturn(false);
+
+        $this->readServiceGroupRepository
+            ->expects($this->once())
+            ->method('findAllByAccessGroupIds')
             ->willReturn(new \ArrayIterator([$this->testedServiceGroup]));
 
         ($this->useCase)($this->presenter);

@@ -91,11 +91,7 @@ final class FeatureFlags implements FeatureFlagsInterface
     }
 
     /**
-     * Tells if the feature is enabled for this platform (on-prem or saas).
-     *
-     * @param string $feature
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function isEnabled(string $feature): bool
     {

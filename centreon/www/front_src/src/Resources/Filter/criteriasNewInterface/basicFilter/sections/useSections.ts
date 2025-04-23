@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
-import { handleDataByCategoryFilter } from '../../utils';
-import { SectionType } from '../../model';
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
+import { SectionType } from '../../model';
+import { handleDataByCategoryFilter } from '../../utils';
 
 interface Parameters {
   data: Array<Criteria & CriteriaDisplayProps>;

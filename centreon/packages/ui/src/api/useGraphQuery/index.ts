@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 
+import dayjs from 'dayjs';
 import {
   equals,
   flatten,
@@ -10,7 +11,6 @@ import {
   pipe,
   pluck
 } from 'ramda';
-import dayjs from 'dayjs';
 
 import { LineChartData, buildListingEndpoint, useFetchQuery } from '../..';
 
@@ -24,8 +24,10 @@ interface CustomTimePeriod {
 interface UseMetricsQueryProps {
   baseEndpoint: string;
   bypassMetricsExclusion?: boolean;
+  bypassQueryParams?: boolean;
   includeAllResources?: boolean;
   metrics: Array<Metric>;
+  prefix?: string;
   refreshCount?: number;
   refreshInterval?: number | false;
   resources?: Array<Resource>;
@@ -72,7 +74,8 @@ export const resourceTypeQueryParameter = {
   [WidgetResourceType.hostGroup]: 'hostgroup.id',
   [WidgetResourceType.serviceCategory]: 'servicecategory.id',
   [WidgetResourceType.serviceGroup]: 'servicegroup.id',
-  [WidgetResourceType.service]: 'service.name'
+  [WidgetResourceType.service]: 'service.name',
+  [WidgetResourceType.metaService]: 'metaservice.id'
 };
 
 const areResourcesFullfilled = (value: Array<Resource>): boolean =>
@@ -90,7 +93,9 @@ const useGraphQuery = ({
     timePeriodType: 1
   },
   refreshInterval = false,
-  refreshCount
+  refreshCount,
+  bypassQueryParams = false,
+  prefix
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
@@ -104,9 +109,11 @@ const useGraphQuery = ({
     : getStartEndFromTimePeriod(timePeriodToUse as number);
 
   const definedMetrics = metrics.filter((metric) => metric);
-  const formattedDefinedMetrics = definedMetrics.map((metric) =>
-    encodeURIComponent(metric.name)
-  );
+  const formattedDefinedMetrics = definedMetrics
+    .map((metric) => `metric_names[]=${encodeURIComponent(metric.name)}`)
+    .join('&');
+
+  const prefixQuery = prefix ? [prefix] : [];
 
   const {
     data: graphData,
@@ -114,12 +121,18 @@ const useGraphQuery = ({
     isLoading
   } = useFetchQuery<PerformanceGraphData>({
     getEndpoint: () => {
+      if (bypassQueryParams) {
+        return baseEndpoint;
+      }
+
       const endpoint = buildListingEndpoint({
         baseEndpoint,
         parameters: {
           search: {
             lists: resources.map((resource) => ({
-              field: resourceTypeQueryParameter[resource.resourceType],
+              field: equals(resource.resourceType, 'hostgroup')
+                ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                : resourceTypeQueryParameter[resource.resourceType],
               values: equals(resource.resourceType, 'service')
                 ? pluck('name', resource.resources)
                 : pluck('id', resource.resources)
@@ -128,11 +141,10 @@ const useGraphQuery = ({
         }
       });
 
-      return `${endpoint}&start=${startAndEnd.start}&end=${
-        startAndEnd.end
-      }&metric_names=[${formattedDefinedMetrics.join(',')}]`;
+      return `${endpoint}&start=${startAndEnd.start}&end=${startAndEnd.end}&${formattedDefinedMetrics}`;
     },
     getQueryKey: () => [
+      ...prefixQuery,
       'graph',
       JSON.stringify(definedMetrics),
       JSON.stringify(resources),
@@ -143,7 +155,8 @@ const useGraphQuery = ({
       enabled: areResourcesFullfilled(resources) && !isEmpty(definedMetrics),
       refetchInterval: refreshInterval,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const data = useRef<PerformanceGraphData | undefined>(undefined);

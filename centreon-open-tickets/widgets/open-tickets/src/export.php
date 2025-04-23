@@ -50,9 +50,8 @@ if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit();
 }
 
-// Init Smarty
-$template = new Smarty();
-$template = initSmartyTplForPopup($centreon_path . "www/widgets/open-tickets/src/", $template, "./", $centreon_path);
+// Smarty template initialization
+$template = SmartyBC::createSmartyTemplate($centreon_path . "www/widgets/open-tickets/src/", './');
 
 /* Init Objects */
 $criticality = new CentreonCriticality($db);
@@ -165,7 +164,7 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
         );
     }
 }
-$stateTab = array();
+$stateTab = [];
 if (isset($preferences['svc_ok']) && $preferences['svc_ok']) {
     $stateTab[] = 0;
 }
@@ -182,7 +181,7 @@ if (isset($preferences['svc_pending']) && $preferences['svc_pending']) {
     $stateTab[] = 4;
 }
 
-if (count($stateTab)) {
+if ($stateTab !== []) {
     $query = CentreonUtils::conditionBuilder($query, " s.state IN (" . implode(',', $stateTab) . ")");
 }
 
@@ -344,9 +343,9 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 $query .= "ORDER BY $orderby";
 $res = $dbb->query($query);
 $nbRows = $dbb->numberRows();
-$data = array();
-$outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;
-$commentLength = $preferences['comment_length'] ? $preferences['comment_length'] : 50;
+$data = [];
+$outputLength = $preferences['output_length'] ?: 50;
+$commentLength = $preferences['comment_length'] ?: 50;
 
 $hostObj = new CentreonHost($db);
 $svcObj = new CentreonService($db);

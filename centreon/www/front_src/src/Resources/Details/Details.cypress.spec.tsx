@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import {
   Method,
@@ -56,13 +56,14 @@ import {
   labelSetDowntime,
   labelStatusChangePercentage,
   labelStatusInformation,
-  labelSticky,
+  labelStickyForAnyNonOkStatus,
   labelTimezone,
   labelTo,
   labelYourCommentSent
 } from '../translatedLabels';
 
 import {
+  openDetailsTabIdAtom,
   panelWidthStorageAtom,
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
@@ -71,6 +72,7 @@ import useDetails from './useDetails';
 import useLoadDetails from './useLoadDetails';
 
 import Details from '.';
+import { router } from './tabs/Details/DetailsCard/GroupChip';
 
 const resourceServiceId = 1;
 
@@ -101,9 +103,19 @@ const serviceDetailsUrlParameters = {
   type: 'service',
   uuid: 'h1-s1'
 };
+
 const mockAcl = {
   actions: {
     host: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    },
+    metaservice: {
       acknowledgement: true,
       check: true,
       comment: true,
@@ -126,6 +138,14 @@ const mockAcl = {
 
 const mockRefreshInterval = 60;
 
+const cardsProperties = [
+  { property: 'last_status_change', label: labelLastStatusChange },
+  { property: 'last_check', label: labelLastCheck },
+  { property: 'last_time_with_no_issue', label: labelLastCheckWithOkStatus },
+  { property: 'next_check', label: labelNextCheck },
+  { property: 'last_notification', label: labelLastNotification }
+];
+
 const DetailsTest = (): JSX.Element => {
   useDetails();
   useLoadDetails();
@@ -137,12 +157,22 @@ const DetailsTest = (): JSX.Element => {
   );
 };
 
-const getStore = (): unknown => {
+const getStore = ({
+  detailsTab = serviceDetailsUrlParameters,
+  tabId = 0
+} = {}): unknown => {
   const store = createStore();
   store.set(userAtom, retrievedUser);
   store.set(aclAtom, mockAcl);
   store.set(refreshIntervalAtom, mockRefreshInterval);
   store.set(selectedResourcesDetailsAtom, selectedResource);
+  store.set(openDetailsTabIdAtom, tabId);
+  setUrlQueryParameters([
+    {
+      name: 'details',
+      value: detailsTab
+    }
+  ]);
 
   return store;
 };
@@ -162,15 +192,11 @@ const interceptDetailsRequest = ({ store, dataPath, alias }): void => {
   });
 };
 
-const initialize = (store): void => {
+const initialize = (store) => {
   cy.viewport('macbook-13');
 
-  setUrlQueryParameters([
-    {
-      name: 'details',
-      value: serviceDetailsUrlParameters
-    }
-  ]);
+  const navigate = cy.stub();
+  cy.stub(router, 'useNavigate').returns(navigate);
 
   cy.mount({
     Component: (
@@ -185,13 +211,23 @@ const initialize = (store): void => {
       </SnackbarProvider>
     )
   });
+
+  return {
+    navigate
+  };
 };
 
-const initializeTimeLine = (): void => {
-  const store = getStore();
+const initializeTimeLineTab = ({
+  fixtureDetails = 'resources/details/tabs/details/details.json'
+}): void => {
+  const store = getStore({
+    detailsTab: { ...serviceDetailsUrlParameters, tab: 'timeline' },
+    tabId: 2
+  });
+
   interceptDetailsRequest({
     alias: 'getDetails',
-    dataPath: 'resources/details/tabs/details/details.json',
+    dataPath: fixtureDetails,
     store
   });
 
@@ -199,7 +235,7 @@ const initializeTimeLine = (): void => {
     cy.interceptAPIRequest({
       alias: 'getTimeLine',
       method: Method.GET,
-      path: `**/timeline**`,
+      path: '**/timeline**',
       response: data
     });
   });
@@ -284,6 +320,7 @@ describe('Details', () => {
 
     cy.contains(labelStatusChangePercentage).should('exist');
     cy.contains('3.5%').should('exist');
+    cy.findByTestId('FlappingIcon').should('exist');
 
     cy.contains(labelLastNotification).should('exist');
     cy.contains('07/18/2020 7:30 PM').should('exist');
@@ -302,7 +339,16 @@ describe('Details', () => {
     ).should('exist');
 
     cy.contains(labelCommand).should('exist');
-    cy.contains('base_host_alive').should('exist');
+    cy.contains(/^base_host_alive$/).should('exist');
+    cy.contains('--test').should('exist');
+    cy.contains('-n').should('exist');
+    cy.contains('-w').should('exist');
+    cy.contains('3000,80').should('exist');
+    cy.contains('-c').should('exist');
+    cy.contains('5000,100').should('exist');
+    cy.contains('-t').should('exist');
+    cy.contains('host').should('exist');
+    cy.contains(/^--test2="ok"$/).should('exist');
     cy.makeSnapshot();
   });
   it('displays actions as icons when the panel width is less than 615 px', () => {
@@ -362,7 +408,7 @@ describe('Details', () => {
     cy.contains(labelComment).should('be.visible');
     cy.contains(labelNotify).should('be.visible');
     cy.contains(labelNotifyHelpCaption).should('be.visible');
-    cy.contains(labelSticky);
+    cy.contains(labelStickyForAnyNonOkStatus);
 
     cy.makeSnapshot(
       'displays the acknowledgment modal when the "Acknowledge" button is clicked'
@@ -566,9 +612,8 @@ describe('Details', () => {
   });
 
   it('displays the comment area when the corresponding button is clicked', () => {
-    initializeTimeLine();
-    cy.waitForRequest('@getDetails');
-    cy.findByTestId(2).click();
+    initializeTimeLineTab({});
+
     cy.waitForRequest('@getTimeLine');
     cy.contains('Critical').should('be.visible');
 
@@ -585,48 +630,61 @@ describe('Details', () => {
     cy.makeSnapshot();
   });
 
-  it('submits the comment when the comment textfield is typed into and the corresponding button is clicked', () => {
-    initializeTimeLine();
-    cy.interceptAPIRequest({
-      alias: 'sendsCommentRequest',
-      method: Method.POST,
-      path: commentEndpoint,
-      statusCode: 204
+  [
+    {
+      fixtureDetails: 'resources/details/tabs/details/detailsByHostType.json',
+      resourceType: 'host'
+    },
+    {
+      fixtureDetails: 'resources/details/tabs/details/details.json',
+      resourceType: 'service'
+    },
+    {
+      fixtureDetails:
+        'resources/details/tabs/details/detailsByMetaServiceType.json',
+      resourceType: 'meta-service'
+    }
+  ].forEach(({ resourceType, fixtureDetails }) => {
+    it(`submits the comment  for the resource of type ${resourceType} when the comment textfield is typed into and the corresponding button is clicked`, () => {
+      initializeTimeLineTab({ fixtureDetails });
+
+      cy.interceptAPIRequest({
+        alias: 'sendsCommentRequest',
+        method: Method.POST,
+        path: commentEndpoint,
+        statusCode: 204
+      });
+
+      cy.waitForRequest('@getTimeLine');
+      cy.contains('Critical').should('be.visible');
+
+      cy.findByTestId('addComment')
+        .should('be.visible')
+        .should('be.enabled')
+        .click();
+
+      cy.findByTestId('commentArea').type('comment from centreon web');
+      cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
+      cy.findByTestId(labelSave)
+        .should('be.visible')
+        .should('be.enabled')
+        .click();
+
+      cy.waitForRequest('@sendsCommentRequest');
+
+      cy.getRequestCalls('@sendsCommentRequest').then((calls) => {
+        expect(calls).to.have.length(1);
+      });
+
+      cy.contains(labelYourCommentSent);
+      cy.findByTestId('headerWrapper').scrollIntoView();
+
+      cy.makeSnapshot();
     });
-    cy.waitForRequest('@getDetails');
-    cy.findByTestId(2).click();
-
-    cy.waitForRequest('@getTimeLine');
-    cy.contains('Critical').should('be.visible');
-
-    cy.findByTestId('addComment')
-      .should('be.visible')
-      .should('be.enabled')
-      .click();
-
-    cy.findByTestId('commentArea').type('comment from centreon web');
-    cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
-    cy.findByTestId(labelSave)
-      .should('be.visible')
-      .should('be.enabled')
-      .click();
-
-    cy.waitForRequest('@sendsCommentRequest');
-
-    cy.getRequestCalls('@sendsCommentRequest').then((calls) => {
-      expect(calls).to.have.length(1);
-    });
-
-    cy.contains(labelYourCommentSent);
-    cy.findByTestId('headerWrapper').scrollIntoView();
-
-    cy.makeSnapshot();
   });
 
   it('hides the comment area when the cancel button is clicked', () => {
-    initializeTimeLine();
-    cy.waitForRequest('@getDetails');
-    cy.findByTestId(2).click();
+    initializeTimeLineTab({});
 
     cy.waitForRequest('@getTimeLine');
     cy.contains('Critical').should('be.visible');
@@ -644,5 +702,61 @@ describe('Details', () => {
       .should('be.enabled')
       .click();
     cy.findByTestId('commentArea').should('not.exist');
+  });
+
+  for (const data of cardsProperties) {
+    const { property, label } = data;
+
+    it(`masks the card for ${property} when the returned value is 0`, () => {
+      const store = getStore();
+
+      interceptDetailsRequest({
+        alias: 'getDetailsCards',
+        dataPath: 'resources/details/tabs/details/cards.json',
+        store
+      });
+      initialize(store);
+      cy.waitForRequest('@getDetailsCards');
+      cy.contains('Details');
+      cy.contains('Downtime duration');
+      cy.findByText(label).should('not.exist');
+
+      cy.makeSnapshot();
+    });
+  }
+
+  it('redirects the user to the host groups configuration page when the host group chip is clicked', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithoutAcknowledgement',
+      dataPath: 'resources/details/tabs/details/detailsHost.json',
+      store
+    });
+    const { navigate } = initialize(store);
+
+    cy.contains('Linux-servers').realHover();
+    cy.findByLabelText('Linux-servers Configure')
+      .click()
+      .then(() => {
+        expect(navigate).to.be.calledWith(
+          '/configuration/hosts/groups?mode=edit&id=0'
+        );
+      });
+  });
+
+  it('does not display the configuration icon when the endpoint is not available for the current user', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithoutAcknowledgement',
+      dataPath:
+        'resources/details/tabs/details/detailsHostWithoutGroupConfiguration.json',
+      store
+    });
+    initialize(store);
+
+    cy.contains('Linux-servers').realHover();
+    cy.findByLabelText('Linux-servers Configure').should('not.exist');
   });
 });

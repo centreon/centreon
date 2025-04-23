@@ -4,8 +4,8 @@ import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { WizardContentProps } from './models';
 import ActionsBar from './ActionsBar';
+import { WizardContentProps } from './models';
 
 const useStyles = makeStyles()(() => ({
   content: {

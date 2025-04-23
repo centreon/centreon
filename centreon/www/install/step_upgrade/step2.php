@@ -60,7 +60,7 @@ foreach ($requiredLib as $line) {
         continue;
     }
     $contents .= "<tr>";
-    list($name, $lib) = explode(":", $line);
+    [$name, $lib] = explode(":", $line);
     $contents .= "<td>" . $name . "</td>";
     $contents .= "<td>" . $lib . "</td>";
     $contents .= "<td>";

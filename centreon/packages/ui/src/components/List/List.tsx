@@ -4,9 +4,9 @@ import { List as MuiList } from '@mui/material';
 
 import { useStyles } from './List.styles';
 
-type Props = {
+interface Props {
   children: ReactNode;
-};
+}
 
 export const List = ({ children }: Props): ReactElement => {
   const { classes } = useStyles();
