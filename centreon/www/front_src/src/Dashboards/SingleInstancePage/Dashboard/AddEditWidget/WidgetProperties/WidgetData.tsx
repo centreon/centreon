@@ -28,6 +28,7 @@ const WidgetData = (): JSX.Element => {
           <div className={classes.widgetDataItem} key={key}>
             <SubInputs
               subInputs={props.subInputs}
+              subInputsDelimiter={props.subInputsDelimiter}
               value={getDataProperty({
                 obj: values,
                 propertyName: props.propertyName

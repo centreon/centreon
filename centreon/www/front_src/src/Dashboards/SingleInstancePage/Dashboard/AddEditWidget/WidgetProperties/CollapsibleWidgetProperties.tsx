@@ -93,6 +93,7 @@ const CollapsibleWidgetProperties = ({
                     <ShowInputWrapper {...props}>
                       <SubInputs
                         subInputs={props.subInputs}
+                        subInputsDelimiter={props.subInputsDelimiter}
                         value={getProperty({
                           obj: values,
                           propertyName: props.propertyName

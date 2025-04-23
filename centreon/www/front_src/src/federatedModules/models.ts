@@ -109,6 +109,7 @@ export interface FederatedWidgetOption {
   required?: boolean;
   secondaryLabel: string;
   subInputs?: Array<SubInput>;
+  subInputsDelimiter?: string;
   type: FederatedWidgetOptionType;
 }
 

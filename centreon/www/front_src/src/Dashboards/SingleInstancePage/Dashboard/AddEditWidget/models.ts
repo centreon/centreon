@@ -65,6 +65,7 @@ export interface WidgetPropertyProps {
   useAdditionalResources?: boolean;
   isRequiredProperty?: boolean;
   tooltipLabel?: string;
+  subInputsDelimiter?: string;
 }
 
 export interface WidgetDataResource {

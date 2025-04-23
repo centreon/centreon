@@ -14,12 +14,14 @@ interface SubInputsProps {
   children: JSX.Element;
   subInputs?: Array<SubInput>;
   value?: unknown;
+  subInputsDelimiter?: string;
 }
 
 const SubInputs = ({
   subInputs,
   value,
-  children
+  children,
+  subInputsDelimiter
 }: SubInputsProps): JSX.Element => {
   const previousSubInputsToDisplayRef = useRef<Array<SubInput> | undefined>();
   const { setFieldValue, values } = useFormikContext<Widget>();
@@ -66,6 +68,7 @@ const SubInputs = ({
       alignItems={hasRowDirection ? 'flex-end' : undefined}
       direction={hasRowDirection ? 'row' : 'column'}
       gap={hasSubInputs ? 1.5 : 0}
+      sx={{ pr: 1, justifyContent: 'space-between', flexWrap: 'wrap' }}
     >
       <Box sx={{ pr: 6 }}>{children}</Box>
       {hasSubInputs && (
@@ -74,17 +77,21 @@ const SubInputs = ({
           direction={hasRowDirection ? 'row' : 'column'}
           gap={1.5}
         >
-          {subInputsToDisplay?.map(({ input, name }) => {
+          {subInputsToDisplay?.map(({ input, name }, index) => {
+            const isLast = equals(index, subInputsToDisplay.length - 1);
             const Component =
               propertiesInputType[input.type] || DefaultComponent;
 
             return (
-              <Component
-                key={input.label}
-                propertyName={name}
-                {...input}
-                isInGroup
-              />
+              <>
+                <Component
+                  key={input.label}
+                  propertyName={name}
+                  {...input}
+                  isInGroup
+                />
+                {!isLast && subInputsDelimiter}
+              </>
             );
           })}
         </Stack>

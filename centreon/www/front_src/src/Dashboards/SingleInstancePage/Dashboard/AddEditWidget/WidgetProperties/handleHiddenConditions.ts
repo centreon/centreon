@@ -32,10 +32,9 @@ const checkHiddenCondition = ({
   values
 }: CheckHiddenConditionProps): boolean => {
   const { target, method, when, matches } = hiddenCondition;
-  console.log(method, when);
 
   if (equals(target, 'featureFlags')) {
-    return hasModule && !equals(featureFlags?.[hiddenCondition.when], matches);
+    return !hasModule || equals(featureFlags?.[hiddenCondition.when], matches);
   }
 
   if (equals(method, 'includes')) {
@@ -45,11 +44,11 @@ const checkHiddenCondition = ({
     const areItemsString = equals(type(items), 'String');
 
     return (
-      hasModule &&
-      (isEmpty(reject(equals(''), items)) ||
+      !hasModule ||
+      (!isEmpty(reject(equals(''), items)) &&
         (areItemsString
-          ? !includes(items, matches)
-          : !isEmpty(difference(reject(equals(''), items), matches))))
+          ? includes(items, matches)
+          : isEmpty(difference(reject(equals(''), items), matches))))
     );
   }
 
@@ -59,9 +58,9 @@ const checkHiddenCondition = ({
     const items = property ? pluck(property, formValue) : formValue;
 
     return (
-      hasModule &&
-      (isEmpty(reject(equals(''), items)) ||
-        !equals(
+      !hasModule ||
+      (!isEmpty(reject(equals(''), items)) &&
+        equals(
           items.filter((v) => v),
           matches
         ))
@@ -71,10 +70,10 @@ const checkHiddenCondition = ({
   if (equals(method, 'isNil')) {
     const formValue = path(when.split('.'), values);
 
-    return hasModule && !isEmpty(formValue) && !isNil(formValue);
+    return !hasModule || isEmpty(formValue) || isNil(formValue);
   }
 
-  return hasModule && !equals(path(when.split('.'), values), matches);
+  return !hasModule || equals(path(when.split('.'), values), matches);
 };
 
 interface Props {
@@ -90,16 +89,14 @@ export const handleHiddenConditions = ({
   featureFlags,
   values
 }: Props) => {
-  return Object.entries(widgetProperties).filter(([, value]) => {
+  return reject(([, value]) => {
+    if (!value.hiddenCondition) {
+      return false;
+    }
     const hasModule = value.hasModule ? has(value.hasModule, modules) : true;
 
-    if (!value.hiddenCondition) {
-      return true;
-    }
-
     if (equals(type(value.hiddenCondition), 'Array')) {
-      // Applies a OR logical condition as the checkHiddenCondition. As it is a filter we have to use a every function.
-      return (value.hiddenCondition as Array<WidgetHiddenCondition>).every(
+      return (value.hiddenCondition as Array<WidgetHiddenCondition>).some(
         (hiddenCondition) =>
           checkHiddenCondition({
             hasModule,
@@ -116,5 +113,5 @@ export const handleHiddenConditions = ({
       hiddenCondition: value.hiddenCondition as WidgetHiddenCondition,
       values
     });
-  });
+  }, Object.entries(widgetProperties));
 };
