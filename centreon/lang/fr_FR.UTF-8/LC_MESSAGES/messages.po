@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-23 14:42+0000\n"
+"POT-Creation-Date: 2025-04-23 14:45+0000\n"
 "PO-Revision-Date: 2017-03-17 09:57+0100\n"
 "Last-Translator: Laurent Pinsivy <lpinsivy@centreon.com>\n"
 "Language-Team: Centreon Team\n"
@@ -18376,6 +18376,10 @@ msgstr ""
 
 #: centreon/www/install/php/index.php
 msgid "gfdgfdgfdg"
+msgstr ""
+
+#: centreon/www/install/php/index.php
+msgid "bobo"
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step5.php
