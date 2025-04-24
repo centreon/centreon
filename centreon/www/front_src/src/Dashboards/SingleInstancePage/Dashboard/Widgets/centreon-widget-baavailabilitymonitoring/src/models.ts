@@ -10,38 +10,6 @@ export interface FormTimePeriod {
   timePeriodType: number;
 }
 
-interface PanelOptionsOld {
-  areaOpacity: number;
-  barOpacity: number;
-  barRadius: number;
-  curveType: 'linear' | 'step' | 'natural';
-  dashLength?: number;
-  dashOffset?: number;
-  displayType: 'line' | 'bar';
-  dotOffset?: number;
-  globalRefreshInterval?: number;
-  gridLinesType: 'horizontal' | 'vertical' | 'all';
-  legendDisplayMode: 'grid' | 'list';
-  legendPlacement: 'right' | 'bottom' | 'left';
-  lineStyleMode: 'solid' | 'dash' | 'dots';
-  lineWidth?: number;
-  lineWidthMode: 'auto' | 'custom';
-  orientation: 'auto' | 'horizontal' | 'vertical';
-  refreshInterval: 'default' | 'custom' | 'manual';
-  refreshIntervalCustom?: number;
-  scale: 'linear' | 'logarithmic';
-  scaleLogarithmicBase: string;
-  showArea: 'auto' | 'show' | 'hide';
-  showAxisBorder: boolean;
-  showGridLines: boolean;
-  showLegend: boolean;
-  showPoints: boolean;
-  timePeriod: string;
-  nbDays: number;
-  yAxisTickLabelRotation: number;
-  showThresholds: boolean;
-}
-
 interface PanelOptions {
   globalRefreshInterval?: number;
   refreshInterval: 'default' | 'custom' | 'manual';
