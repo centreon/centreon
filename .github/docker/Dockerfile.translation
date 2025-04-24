@@ -3,7 +3,7 @@ FROM debian:bookworm
 RUN bash -e <<EOF
 
 apt-get update
-apt-get install -y git locales php-cli gettext zstd sudo
+apt-get install -y git locales php-cli gettext zstd
 apt-get clean
 
 locale-gen en_US.UTF-8
@@ -16,5 +16,3 @@ locale-gen pt_BR.UTF-8
 EOF
 
 ENV LANG=en_US.utf8
-
-USER 1001:1001
