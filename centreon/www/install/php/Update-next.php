@@ -64,9 +64,10 @@ $updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage)
     $pearDB->executeQuery(
         <<<'SQL'
             UPDATE `topology`
-            SET `topology_name` = 'Host Groups (deprecated)',
-                `topology_show` =  '0'
-            WHERE `topology_page` = 60102
+            SET `is_react` = '1',
+                `topology_url` = '/configuration/hosts/groups',
+            WHERE `topology_name` = 'Host Groups'
+                AND `topology_page` = 60102
         SQL
     );
 };
@@ -186,10 +187,29 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
     }
 };
 
+/**
+  * Add Column connection_mode to agent_configuration table.
+  * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
+  *
+  * @param CentreonDB $pearDB
+  *
+  * @throws CentreonDbException
+  */
+  $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `agent_configuration`
+            ADD COLUMN `connection_mode` ENUM('no-tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
+        SQL
+    );
+};
+
 try {
     // TODO add your function calls to update the real time database structure here
 
     // TODO add your function calls to update the configuration database structure here
+    $addConnectionModeColumnToAgentConfiguration();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {

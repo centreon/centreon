@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "b68283e0-757f-4cc4-a38b-c414c446d6dc",
+		"_postman_id": "d49e9fed-214c-4b25-8beb-1440b87263c1",
 		"name": "Host",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-d49e9fed-214c-4b25-8beb-1440b87263c1?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -2177,6 +2178,84 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Logout from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
 				}
 			]
 		},
@@ -2200,7 +2279,8 @@
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2301,7 +2381,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostSeverity1Name}}\",\n    \"alias\": \"{{HostSeverity1Alias}}\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}"
+							"raw": "{\n    \"name\": \"{{HostSeverity1Name}}\",\n    \"alias\": \"{{HostSeverity1Alias}}\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false,\n    \"comment\": \"I look like a category but with something more\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/severities",
@@ -2388,7 +2473,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostSeverity2Name}}\", \n    \"alias\": \"{{HostSeverity2Alias}}\",\n    \"level\": 4,\n    \"icon_id\": 2,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}"
+							"raw": "{\n    \"name\": \"{{HostSeverity2Name}}\", \n    \"alias\": \"{{HostSeverity2Alias}}\",\n    \"level\": 4,\n    \"icon_id\": 2,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/severities",
@@ -2470,7 +2560,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{HostCategory1Name}}\",\n    \"alias\":\"{{HostCategory1Alias}}\",\n    \"is_activated\": false,\n    \"comment\":\"Created by Admin\"\n}"
+							"raw": "{\n    \"name\":\"{{HostCategory1Name}}\",\n    \"alias\":\"{{HostCategory1Alias}}\",\n    \"is_activated\": false,\n    \"comment\":\"Created by Admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/categories",
@@ -2552,7 +2647,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{HostCategory2Name}}\",\n    \"alias\":\"{{HostCategory2Alias}}\",\n    \"is_activated\": true,\n    \"comment\":\"Created by Admin\"\n}"
+							"raw": "{\n    \"name\":\"{{HostCategory2Name}}\",\n    \"alias\":\"{{HostCategory2Alias}}\",\n    \"is_activated\": true,\n    \"comment\":\"Created by Admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/categories",
@@ -2586,44 +2686,12 @@
 									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
-									"        \"notes\": \"I am Groot\",\r",
-									"        \"notes_url\": \"www.google.fr\",\r",
-									"        \"action_url\": \"www.google.com\",\r",
 									"        \"icon_id\": null,\r",
-									"        \"icon_map_id\": null,\r",
-									"        \"rrd\": 3,\r",
 									"        \"geo_coords\": null,\r",
 									"        \"comment\": \"Hello world ! 1\",\r",
-									"        \"is_activated\": false\r",
+									"        \"hosts\": []\r",
 									"    });\r",
-									"});\r",
-									"\r",
-									"pm.test(\"The Location parameter is in the header.\", function () {\r",
-									"    pm.response.to.have.header(\"Location\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation for host group creation response\", function () {\r",
-									"    const schema = {\r",
-									"        type: \"object\",\r",
-									"        properties: {\r",
-									"            id: { type: \"integer\" },\r",
-									"            name: { type: \"string\" },\r",
-									"            alias: { type: [\"string\", \"null\"] },\r",
-									"            notes: { type: [\"string\", \"null\"] },\r",
-									"            notes_url: { type: [\"string\", \"null\"] },\r",
-									"            action_url: { type: [\"string\", \"null\"] },\r",
-									"            icon_id: { type: [\"integer\", \"null\"] },\r",
-									"            icon_map_id: { type: [\"integer\", \"null\"] },\r",
-									"            rrd: { type: [\"integer\", \"null\"] },\r",
-									"            geo_coords: { type: [\"string\", \"null\"] },\r",
-									"            comment: { type: [\"string\", \"null\"] },\r",
-									"            is_activated: { type: \"boolean\" }\r",
-									"        },\r",
-									"        required: [\"id\", \"name\", \"alias\", \"notes\", \"notes_url\", \"action_url\", \"icon_id\", \"icon_map_id\", \"rrd\", \"geo_coords\", \"comment\", \"is_activated\"]\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});"
+									"});\r"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2652,7 +2720,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"comment\": \"Hello world ! 1\",\n    \"hosts\":[]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/groups",
@@ -2748,7 +2821,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -2954,7 +3032,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"severity_id\": {{HostSeverity2Id}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"severity_id\": {{HostSeverity2Id}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -3184,7 +3267,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT2\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"geo_coords\": \"48.51,2.20\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameC\",\r\n        \"value\": \"valueC\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameD\",\r\n        \"value\": \"valueD\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT2\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"geo_coords\": \"48.51,2.20\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameC\",\r\n        \"value\": \"valueC\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameD\",\r\n        \"value\": \"valueD\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -3219,6 +3307,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The hosts retrieved are listed with all parameters\", function () {\r",
 									"    // Check the number of hosts (1)\r",
+									"    console.log(\"Number of hosts retrieved:\", responseJson.result.length);\r",
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
 									"    // Check the properties of each host\r",
@@ -3260,7 +3349,6 @@
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    }]);\r",
-									"\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the host listing response\", function () {\r",
@@ -3371,9 +3459,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -3383,15 +3468,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
 							"host": [
@@ -3598,7 +3674,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"name\": \"{{Host2Name}}\",\r\n\"address\": \"127.0.0.1\",\r\n\"monitoring_server_id\": 1\r\n}\r\n"
+							"raw": "{\r\n\"name\": \"{{Host2Name}}\",\r\n\"address\": \"127.0.0.1\",\r\n\"monitoring_server_id\": 1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -3807,9 +3888,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -3819,15 +3897,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
 							"host": [
@@ -3895,7 +3964,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"alias\": \"hey\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"alias\": \"hey\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -3964,7 +4038,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host--1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host--1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -4033,7 +4112,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host--1\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host--1\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -4102,7 +4186,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"\",\r\n    \"alias\": \"test without name\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"alias\": \"test without name\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -4171,7 +4260,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Test without alias\",\r\n    \"alias\": \"\",\r\n    \"address\":\"\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"Test without alias\",\r\n    \"alias\": \"\",\r\n    \"address\":\"\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -4240,7 +4334,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": true,\r\n    \"alias\": 0,\r\n    \"address\": 1,\r\n    \"monitoring_server_id\": \"1\",\r\n    \"snmp_version\": false,\r\n    \"snmp_community\": 5,\r\n    \"timezone_id\": \"1\",\r\n    \"severity_id\": \"{{HostSeverity1Id}}\",\r\n    \"check_command_id\": \"{{CommandId}}\",\r\n    \"check_command_args\": [1],\r\n    \"check_timeperiod_id\": \"1\",\r\n    \"note_url\": true,\r\n    \"note\": 0,\r\n    \"action_url\": false,\r\n    \"max_check_attempts\": \"3\",\r\n    \"normal_check_interval\": true,\r\n    \"retry_check_interval\": false,\r\n    \"active_check_enabled\": 5,\r\n    \"passive_check_enabled\": true,\r\n    \"notification_enabled\": \"2\",\r\n    \"notification_options\": \"31\",\r\n    \"notification_interval\": \"5\",\r\n    \"notification_timeperiod_id\": \"2\",\r\n    \"add_inherited_contact_group\": \"true\",\r\n    \"add_inherited_contact\": 0,\r\n    \"first_notification_delay\": \"2\",\r\n    \"recovery_notification_delay\": \"1\",\r\n    \"acknowledgement_timeout\": \"5\",\r\n    \"freshness_checked\": 6,\r\n    \"freshness_threshold\": \"2\",\r\n    \"flap_detection_enabled\": \"1\",\r\n    \"low_flap_threshold\": \"25\",\r\n    \"high_flap_threshold\": \"75\",\r\n    \"event_handler_enabled\": \"2\",\r\n    \"event_handler_command_id\": \"{{CommandId}}\",\r\n    \"event_handler_command_args\": [3],\r\n    \"icon_id\": \"1\",\r\n    \"icon_alternative\": 3,\r\n    \"categories\": [ \"{{HostCategory1Id}}\" ],\r\n    \"templates\": [\"4\"],\r\n    \"comment\": true,\r\n    \"macros\": [\r\n        {\r\n        \"name\": 1,\r\n        \"value\": true,\r\n        \"is_password\": 0,\r\n        \"description\": 5\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": true,\r\n    \"alias\": 0,\r\n    \"address\": 1,\r\n    \"monitoring_server_id\": \"1\",\r\n    \"snmp_version\": false,\r\n    \"snmp_community\": 5,\r\n    \"timezone_id\": \"1\",\r\n    \"severity_id\": \"{{HostSeverity1Id}}\",\r\n    \"check_command_id\": \"{{CommandId}}\",\r\n    \"check_command_args\": [1],\r\n    \"check_timeperiod_id\": \"1\",\r\n    \"note_url\": true,\r\n    \"note\": 0,\r\n    \"action_url\": false,\r\n    \"max_check_attempts\": \"3\",\r\n    \"normal_check_interval\": true,\r\n    \"retry_check_interval\": false,\r\n    \"active_check_enabled\": 5,\r\n    \"passive_check_enabled\": true,\r\n    \"notification_enabled\": \"2\",\r\n    \"notification_options\": \"31\",\r\n    \"notification_interval\": \"5\",\r\n    \"notification_timeperiod_id\": \"2\",\r\n    \"add_inherited_contact_group\": \"true\",\r\n    \"add_inherited_contact\": 0,\r\n    \"first_notification_delay\": \"2\",\r\n    \"recovery_notification_delay\": \"1\",\r\n    \"acknowledgement_timeout\": \"5\",\r\n    \"freshness_checked\": 6,\r\n    \"freshness_threshold\": \"2\",\r\n    \"flap_detection_enabled\": \"1\",\r\n    \"low_flap_threshold\": \"25\",\r\n    \"high_flap_threshold\": \"75\",\r\n    \"event_handler_enabled\": \"2\",\r\n    \"event_handler_command_id\": \"{{CommandId}}\",\r\n    \"event_handler_command_args\": [3],\r\n    \"icon_id\": \"1\",\r\n    \"icon_alternative\": 3,\r\n    \"categories\": [ \"{{HostCategory1Id}}\" ],\r\n    \"templates\": [\"4\"],\r\n    \"comment\": true,\r\n    \"macros\": [\r\n        {\r\n        \"name\": 1,\r\n        \"value\": true,\r\n        \"is_password\": 0,\r\n        \"description\": 5\r\n        }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -4458,7 +4557,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Host3Name}}\",\r\n    \"alias\": \"{{Host3Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-tést\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"timezone_id\": 2,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl!!!!\",\r\n    \"note\": \"notéé\",\r\n    \"action_url\": \"actionUrl-ouêp\",\r\n    \"max_check_attempts\": 6,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"I am an other test\"\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Host3Name}}\",\r\n    \"alias\": \"{{Host3Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-tést\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"timezone_id\": 2,\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl!!!!\",\r\n    \"note\": \"notéé\",\r\n    \"action_url\": \"actionUrl-ouêp\",\r\n    \"max_check_attempts\": 6,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"I am an other test\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -4530,7 +4634,7 @@
 									"        id: pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    }]);\r",
-									"        pm.expect(responseJson.result[0].groups).to.eql([{\r",
+									"    pm.expect(responseJson.result[0].groups).to.eql([{\r",
 									"        id: pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        name: pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    }]);\r",
@@ -4702,9 +4806,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -4714,15 +4815,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
 							"host": [
@@ -4753,7 +4845,8 @@
 									"    pm.collectionVariables.unset(\"Host1Id\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -4766,15 +4859,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/{{Host1Id}}",
 							"host": [
@@ -5046,9 +5130,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -5058,15 +5139,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
 							"host": [
@@ -5418,7 +5490,12 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{Host4Name}}\",\r\n    \"alias\": \"{{Host4Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+									"raw": "{\r\n    \"name\": \"{{Host4Name}}\",\r\n    \"alias\": \"{{Host4Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
@@ -5979,9 +6056,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -5991,15 +6065,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -6303,9 +6368,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -6315,15 +6377,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -6354,7 +6407,8 @@
 											"    pm.collectionVariables.unset(\"Host4Id\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -6367,15 +6421,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/{{Host4Id}}",
 									"host": [
@@ -6597,9 +6642,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -6609,15 +6651,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -6837,7 +6870,12 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{Host5Name}}\",\r\n    \"alias\": \"{{Host5Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+									"raw": "{\r\n    \"name\": \"{{Host5Name}}\",\r\n    \"alias\": \"{{Host5Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
@@ -7056,7 +7094,12 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{Host6Name}}\",\r\n    \"alias\": \"{{Host6Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"categories\": [ {{HostCategory2Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"BLIBLOUBLI\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": false,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+									"raw": "{\r\n    \"name\": \"{{Host6Name}}\",\r\n    \"alias\": \"{{Host6Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"categories\": [ {{HostCategory2Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"BLIBLOUBLI\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": false,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
@@ -7691,9 +7734,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -7703,15 +7743,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -7742,7 +7773,8 @@
 											"    pm.collectionVariables.unset(\"Host5Id\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -7755,15 +7787,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/{{Host5Id}}",
 									"host": [
@@ -8380,9 +8403,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -8392,15 +8412,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -8431,7 +8442,8 @@
 											"    pm.collectionVariables.unset(\"Host6Id\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -8444,15 +8456,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/{{Host6Id}}",
 									"host": [
@@ -8667,9 +8670,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -8679,15 +8679,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -9241,9 +9232,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -9253,15 +9241,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -9345,7 +9324,8 @@
 											"    pm.expect(responseJson.message).to.eql(\"Host not found\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -9358,15 +9338,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/{{Host3Id}}",
 									"host": [
@@ -10023,7 +9994,12 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{Host7Name}}\",\r\n    \"alias\": \"{{Host7Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
+									"raw": "{\r\n    \"name\": \"{{Host7Name}}\",\r\n    \"alias\": \"{{Host7Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
@@ -10241,7 +10217,12 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{Host8Name}}\",\r\n    \"alias\": \"{{Host8Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
+									"raw": "{\r\n    \"name\": \"{{Host8Name}}\",\r\n    \"alias\": \"{{Host8Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
@@ -10514,9 +10495,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -10526,15 +10504,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -10565,7 +10534,8 @@
 											"    pm.expect(responseJson.message).to.eql(\"Host not found\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -10578,15 +10548,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/{{Host7Id}}",
 									"host": [
@@ -11266,9 +11227,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -11278,15 +11236,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -11316,7 +11265,8 @@
 											"    pm.collectionVariables.unset(\"Host2Id\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -11329,15 +11279,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/{{Host2Id}}",
 									"host": [
@@ -11484,9 +11425,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -11496,15 +11434,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -12121,9 +12050,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -12133,15 +12059,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -12172,7 +12089,8 @@
 											"    pm.collectionVariables.unset(\"Host8Id\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -12185,15 +12103,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/{{Host8Id}}",
 									"host": [
@@ -12405,9 +12314,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -12417,15 +12323,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -12977,9 +12874,6 @@
 									}
 								}
 							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
@@ -12989,15 +12883,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts",
 									"host": [
@@ -13028,7 +12913,8 @@
 											"    pm.expect(responseJson.message).to.eql(\"Host not found\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -13041,15 +12927,6 @@
 										"type": "text"
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/hosts/{{Host3Id}}",
 									"host": [
@@ -13217,6 +13094,9 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The hosts retrieved are listed with all parameters\", function() {\r",
 									"    // Check the number of hosts (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    // Check the properties of each host\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host3Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host3Name\"),\r",
@@ -13391,9 +13271,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -13403,15 +13280,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
 							"host": [
@@ -13479,7 +13347,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -13604,15 +13477,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/{{Host3Id}}",
 							"host": [
@@ -13791,9 +13655,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -13803,15 +13664,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
 							"host": [
@@ -13879,7 +13731,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"host-template5\",\r\n    \"alias\": \"I'm the fourth host template but I was created by user R/W\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -14004,15 +13861,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/{{Host7Id}}",
 							"host": [
