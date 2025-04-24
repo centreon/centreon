@@ -1128,7 +1128,6 @@ jobs:
       GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
     if: |
       needs.get-environment.outputs.is_nightly == 'true' &&
-      # startsWith(github.ref_name, 'dev') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
