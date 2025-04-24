@@ -11,4 +11,12 @@ apt-get install -y \
     zstd
 apt-get clean
 
+echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "fr_FR.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "es_ES.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "pt_BR.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "pt_PT.UTF-8 UTF-8" | tee -a /etc/locale.gen
+echo "de_DE.UTF-8 UTF-8" | tee -a /etc/locale.gen
+locale-gen
+
 EOF
