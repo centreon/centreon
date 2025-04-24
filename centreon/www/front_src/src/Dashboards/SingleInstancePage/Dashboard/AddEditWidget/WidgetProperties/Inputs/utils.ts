@@ -61,16 +61,16 @@ interface GetYupValidatorTypeProps {
   t: TFunction;
 }
 
-export const boundariesValidationSchema = object().shape({
-  min: number(),
-  max: number().test(
-    'isMinAboveMax',
-    labelMinMustLowerThanMax,
-    (value, context) => {
-      return Number(value || 0) > context.parent.min;
-    }
-  )
-});
+export const boundariesValidationSchema = object()
+  .shape({
+    min: number().optional(),
+    max: number()
+      .test('isMinAboveMax', labelMinMustLowerThanMax, (value, context) => {
+        return Number(value || 0) > context.parent.min;
+      })
+      .optional()
+  })
+  .optional();
 
 const getYupValidatorType = ({
   t,
