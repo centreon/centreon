@@ -20,3 +20,5 @@ echo "de_DE.UTF-8 UTF-8" | tee -a /etc/locale.gen
 locale-gen
 
 EOF
+
+ENV LANG=en_US.utf8
