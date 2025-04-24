@@ -29,10 +29,11 @@ const columns = ['Name', 'Creation Date', 'Expiration Date', 'User', 'Creator'];
 
 const columnsFromLabels = [
   'Name',
+  'Type',
+  'User',
+  'Creator',
   'Creation date',
   'Expiration date',
-  'User',
-  'Creator'
 ];
 
 export { Contact, durationMap, Token, columns, columnsFromLabels };

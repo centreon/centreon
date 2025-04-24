@@ -32,12 +32,12 @@ Given('I am logged in as an administrator', () => {
   cy.get('.MuiAlert-message').should('not.exist');
 });
 
-Given('I am on the API tokens page', () => {
+Given('I am on the Authentication tokens page', () => {
   cy.visitApiTokens();
 });
 
-When('I click on the "Create new token" button', () => {
-  cy.getByTestId({ testId: 'Create new token' }).click();
+When('I click on the "Add" button', () => {
+  cy.getByTestId({ testId: 'Add' }).click();
 });
 
 When('I fill in the following required fields', (dataTable: any) => {
@@ -46,7 +46,7 @@ When('I fill in the following required fields', (dataTable: any) => {
     const value = element.Value;
 
     if (field === 'Name') {
-      cy.get('#tokenName').type(value);
+      cy.get('#Name').type(value);
     }
 
     if (field === 'User') {
@@ -69,19 +69,19 @@ When('I select the duration as {string}', (duration: string) => {
 });
 
 When('I click on the "Generate token" button', () => {
-  cy.getByTestId({ testId: 'Confirm' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
 });
 
-Then('a new basic API token with hidden display is generated', () => {
+Then('a new basic Authentication token with hidden display is generated', () => {
   cy.wait('@getTokens');
   cy.getByTestId({ testId: 'tokenInput' }).as('generatedToken').should('exist');
   cy.get('@generatedToken').should('have.attr', 'type', 'password');
 });
 
-Given('a basic API token is generated', () => {
-  cy.getByTestId({ testId: 'Create new token' }).click();
+Given('a basic Authentication token is generated', () => {
+  cy.getByTestId({ testId: 'Add' }).click();
 
-  cy.get('#tokenName').type(token.name);
+  cy.get('#Name').type(token.name);
 
   cy.get('#User').click();
   cy.wait('@getUsers');
@@ -90,7 +90,7 @@ Given('a basic API token is generated', () => {
   cy.get('#Duration').click();
   cy.contains(token.duration).click();
 
-  cy.getByTestId({ testId: 'Confirm' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
 
   cy.wait('@getTokens');
 });
