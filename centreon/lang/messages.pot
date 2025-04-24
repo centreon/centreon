@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-24 07:20+0000\n"
+"POT-Creation-Date: 2025-04-24 07:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19341,20 +19341,11 @@ msgid "Drop or select a file"
 msgstr ""
 
 #: centreon/www/install/php/index.php
-#: centreon/www/install/php/index.php
 msgid "titi"
 msgstr ""
 
 #: centreon/www/install/php/index.php
 msgid "gfdgfdgfdg"
-msgstr ""
-
-#: centreon/www/install/php/index.php
-msgid "bobo"
-msgstr ""
-
-#: centreon/www/install/php/index.php
-msgid "tete"
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step5.php

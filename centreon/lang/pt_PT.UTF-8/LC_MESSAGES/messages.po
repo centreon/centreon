@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web 10.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-24 07:20+0000\n"
+"POT-Creation-Date: 2025-04-24 07:48+0000\n"
 "PO-Revision-Date: 2018-10-24 11:53+0100\n"
 "Last-Translator: Luiz Costa <me@luizgustavo.pro.br>\n"
 "Language-Team: Centreon team\n"
@@ -21071,14 +21071,6 @@ msgstr ""
 
 #: centreon/www/install/php/index.php
 msgid "gfdgfdgfdg"
-msgstr ""
-
-#: centreon/www/install/php/index.php
-msgid "bobo"
-msgstr ""
-
-#: centreon/www/install/php/index.php
-msgid "tete"
 msgstr ""
 
 #: centreon/www/install/step_upgrade/step5.php
