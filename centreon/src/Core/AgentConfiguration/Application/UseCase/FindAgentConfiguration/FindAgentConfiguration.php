@@ -26,9 +26,11 @@ namespace Core\AgentConfiguration\Application\UseCase\FindAgentConfiguration;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
+use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 
 final class FindAgentConfiguration
 {
@@ -39,8 +41,10 @@ final class FindAgentConfiguration
      *
      * @param ReadAgentConfigurationRepositoryInterface $readRepository repository to read agent configurations
      */
-    public function __construct(private readonly ReadAgentConfigurationRepositoryInterface $readRepository)
-    {
+    public function __construct(
+        private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
+        private readonly ReadHostRepositoryInterface $readHostRepository,
+    ) {
     }
 
     /**
@@ -67,8 +71,13 @@ final class FindAgentConfiguration
             );
 
             $pollers = $this->readRepository->findPollersByAcId($agentConfigurationId);
+            $configuration = $agentConfiguration->getConfiguration()->getData();
+            if ($agentConfiguration->getType() === Type::CMA) {
+                $hostIds = array_map(static fn (array $host): int => $host['id'], $configuration['hosts']);
+                $hostNamesById = $this->readHostRepository->findNames($hostIds);
+            }
 
-            return new FindAgentConfigurationResponse($agentConfiguration, $pollers);
+            return new FindAgentConfigurationResponse($agentConfiguration, $hostNamesById ?? null, $pollers);
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), [
                 'exception' => [

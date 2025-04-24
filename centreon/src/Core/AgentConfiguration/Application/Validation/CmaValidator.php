@@ -28,12 +28,16 @@ use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentCo
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\Type;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 
 /**
  * @phpstan-import-type _CmaParameters from CmaConfigurationParameters
  */
 class CmaValidator implements TypeValidatorInterface
 {
+    public function __construct(private readonly ReadHostRepositoryInterface $readHostRepository)
+    {
+    }
     /**
      * @inheritDoc
      */
@@ -62,6 +66,7 @@ class CmaValidator implements TypeValidatorInterface
             if ($key === 'hosts') {
                 foreach ($value as $host) {
                     /** @var array{
+                     *      id: int,
                      *		address: string,
                      *		port: int,
                      *		poller_ca_certificate: ?string,
@@ -71,6 +76,10 @@ class CmaValidator implements TypeValidatorInterface
                     if ($host['poller_ca_certificate'] !== null) {
                         $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
                     }
+                    if(! $this->readHostRepository->exists($host['id'])) {
+                        throw AgentConfigurationException::invalidHostId($host['id']);
+                    }
+
                 }
             }
         }
