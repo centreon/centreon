@@ -359,7 +359,7 @@ jobs:
         working-directory: centreon
         shell: bash
 
-      - name: Creating configuration file
+      - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
