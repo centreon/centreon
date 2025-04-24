@@ -136,7 +136,7 @@ function disableMetaServiceInDB($metaId = null)
         ->getQuery();
     try {
         $pearDB->update($query, QueryParameters::create([
-            QueryParameter::int('meta_id', (int)$metaId)
+            QueryParameter::int('meta_id', (int) $metaId)
         ]));
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
@@ -193,7 +193,7 @@ function removeRelationLastMetaServiceDependency(int $serviceId): void
                   ->getQuery();
         try {
             $pearDB->delete($queryDel, QueryParameters::create([
-                QueryParameter::int('dep_id', (int)$result['id'])
+                QueryParameter::int('dep_id', (int) $result['id'])
             ]));
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
@@ -278,7 +278,7 @@ function enableMetricInDB($msrId = null)
                 ->getQuery();
     try {
         $pearDB->update($query, QueryParameters::create([
-            QueryParameter::int('msr_id', (int)$msrId)
+            QueryParameter::int('msr_id', (int) $msrId)
         ]));
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
@@ -311,7 +311,7 @@ function disableMetricInDB($msrId = null)
                 ->getQuery();
     try {
         $pearDB->update($query, QueryParameters::create([
-            QueryParameter::int('msr_id', (int)$msrId)
+            QueryParameter::int('msr_id', (int) $msrId)
         ]));
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
@@ -341,7 +341,7 @@ function deleteMetricInDB($metrics = [])
                     ->getQuery();
         try {
             $pearDB->delete($query, QueryParameters::create([
-                QueryParameter::int('msr_id', (int)$msrId)
+                QueryParameter::int('msr_id', (int) $msrId)
             ]));
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
@@ -707,7 +707,7 @@ function insertMetaService($ret = [])
             QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
             QueryParameter::string('meta_display', getParamValue($ret, "meta_display", sanitize: true)),
             QueryParameter::string('check_period', getParamValue($ret, "check_period")),
-            QueryParameter::int('max_check_attempts', getParamValue($ret, "max_check_attempts")),
+            QueryParameter::int('max_check_attempts', (int) getParamValue($ret, "max_check_attempts")),
             QueryParameter::string('normal_check_interval', getParamValue($ret, "normal_check_interval")),
             QueryParameter::string('retry_check_interval', getParamValue($ret, "retry_check_interval")),
             QueryParameter::string('notification_interval', getParamValue($ret, "notification_interval")),
@@ -715,7 +715,7 @@ function insertMetaService($ret = [])
             QueryParameter::string('notification_options', isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null),
             QueryParameter::string('notifications_enabled', getParamValue($ret, "notifications_enabled", "notifications_enabled", default: '2')),
             QueryParameter::string('calcul_type', $ret["calcul_type"] ?? null),
-            QueryParameter::int('data_source_type', getParamValue($ret, "data_source_type", default: 0)),
+            QueryParameter::int('data_source_type', (int) getParamValue($ret, "data_source_type", default: 0)),
             QueryParameter::string('meta_select_mode', getParamValue($ret, "meta_select_mode", "meta_select_mode")),
             QueryParameter::string('regexp_str', getParamValue($ret, "regexp_str", sanitize: true)),
             QueryParameter::string('metric', getParamValue($ret, "metric", sanitize: true)),
@@ -793,7 +793,7 @@ function updateMetaService($metaId = null)
             QueryParameter::string('meta_name', getParamValue($ret, "meta_name", sanitize: true)),
             QueryParameter::string('meta_display', getParamValue($ret, "meta_display", sanitize: true)),
             QueryParameter::string('check_period', getParamValue($ret, "check_period")),
-            QueryParameter::int('max_check_attempts', getParamValue($ret, "max_check_attempts")),
+            QueryParameter::int('max_check_attempts', (int) getParamValue($ret, "max_check_attempts")),
             QueryParameter::string('normal_check_interval', getParamValue($ret, "normal_check_interval")),
             QueryParameter::string('retry_check_interval', getParamValue($ret, "retry_check_interval")),
             QueryParameter::string('notification_interval', getParamValue($ret, "notification_interval")),
@@ -801,7 +801,7 @@ function updateMetaService($metaId = null)
             QueryParameter::string('notification_options', isset($ret["ms_notifOpts"]) ? implode(",", array_keys($ret["ms_notifOpts"])) : null),
             QueryParameter::string('notifications_enabled', getParamValue($ret, "notifications_enabled", "notifications_enabled", false, '2')),
             QueryParameter::string('calcul_type', $ret["calcul_type"] ?? null),
-            QueryParameter::int('data_source_type', getParamValue($ret, "data_source_type", null, false, 0)),
+            QueryParameter::int('data_source_type', (int) getParamValue($ret, "data_source_type", null, false, 0)),
             QueryParameter::string('meta_select_mode', getParamValue($ret, "meta_select_mode", "meta_select_mode")),
             QueryParameter::string('regexp_str', getParamValue($ret, "regexp_str", sanitize: true)),
             QueryParameter::string('metric', getParamValue($ret, "metric", sanitize: true)),
@@ -1004,9 +1004,9 @@ function insertMetric($ret = [])
         ->getQuery();
     try {
         $params = [
-            QueryParameter::int('meta_id', getParamValue($ret, "meta_id")),
-            QueryParameter::int('host_id', getParamValue($ret, "host_id")),
-            QueryParameter::int('metric_id', getParamValue($ret, "metric_sel", 1)),
+            QueryParameter::int('meta_id', (int) getParamValue($ret, "meta_id")),
+            QueryParameter::int('host_id', (int) getParamValue($ret, "host_id")),
+            QueryParameter::int('metric_id', (int) getParamValue($ret, "metric_sel", 1)),
             QueryParameter::string('msr_comment', getParamValue($ret, "msr_comment", sanitize: true)),
             QueryParameter::string('activate', getParamValue($ret, "activate", "activate")),
         ];
@@ -1049,9 +1049,9 @@ function updateMetric($msrId = null)
                 ->getQuery();
     try {
         $params = [
-            QueryParameter::int('meta_id', getParamValue($ret, "meta_id")),
-            QueryParameter::int('host_id', getParamValue($ret, "host_id")),
-            QueryParameter::int('metric_id', getParamValue($ret,"metric_sel", 1)),
+            QueryParameter::int('meta_id', (int) getParamValue($ret, "meta_id")),
+            QueryParameter::int('host_id', (int) getParamValue($ret, "host_id")),
+            QueryParameter::int('metric_id', (int) getParamValue($ret,"metric_sel", 1)),
             QueryParameter::string('msr_comment', getParamValue($ret, "msr_comment", sanitize: true)),
             QueryParameter::string('activate', getParamValue($ret, "activate", "activate")),
             QueryParameter::int('msr_id', (int) $msrId),
