@@ -212,6 +212,7 @@ jobs:
     container:
       # image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-environment.outputs.major_version }}
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ github.head_ref || github.ref_name }}
+      options: --user 1001
       credentials:
         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -223,7 +224,6 @@ jobs:
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
       - run: |
-          git config --system --add safe.directory .
           git status
           cd centreon
 
