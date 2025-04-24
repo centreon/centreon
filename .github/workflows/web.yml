@@ -223,7 +223,9 @@ jobs:
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
       - run: |
+          git status
           cd centreon
+
           pwd
           git status
 
