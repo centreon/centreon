@@ -5641,9 +5641,9 @@ msgstr ""
 "pour les pages \"Supervision -> Hôtes\" et \"Supervision -> Services\"."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
-#, fuzzy
 msgid ""
-"Allows user to perform Add, Add (advanced) and Duplicate actions on pollers."
+"Allows user to perform “Add”, “Add (advanced)” and “Duplicate” actions on "
+"pollers."
 msgstr ""
 "Permet à l'utilisateur de créer des collecteurs (boutons Ajouter, Ajouter "
 "(avancé) et Dupliquer)."
