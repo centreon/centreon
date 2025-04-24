@@ -379,6 +379,10 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
         working-directory: centreon
 
+      - name: Checking Symfony configuration
+        run: composer symfony:check
+        working-directory: centreon
+
   package:
     needs:
       [

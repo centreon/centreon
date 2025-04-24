@@ -170,8 +170,12 @@
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "rector process --dry-run --debug",
     "rector:exec": "rector process --debug",
-    "symfony:check:yaml": "sudo -u apache /usr/share/centreon/bin/console lint:yaml config src --parse-tags",
-    "symfony:check:container": "sudo -u apache /usr/share/centreon/bin/console lint:container"
+    "symfony:check:yaml": "php bin/console lint:yaml config src --parse-tags",
+    "symfony:check:container": "php bin/console lint:container",
+    "symfony:check": [
+        "@symfony:check:yaml",
+        "@symfony:check:container"
+    ]
   },
   "extra": {
     "symfony": {
