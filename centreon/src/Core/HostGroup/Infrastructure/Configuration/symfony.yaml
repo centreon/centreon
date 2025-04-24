@@ -32,6 +32,11 @@ services:
     arguments:
       $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
 
-  Core\HostGroup\Infrastructure\Serializer\HostGroupResponseNormalizer:
+  Core\HostGroup\Application\UseCase\GetHostGroup\GetHostGroup:
+    arguments:
+      $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
+      $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+  Core\HostGroup\Infrastructure\Serializer\HostGroupNormalizer:
     arguments:
       $mediaPath: '%media_path%'

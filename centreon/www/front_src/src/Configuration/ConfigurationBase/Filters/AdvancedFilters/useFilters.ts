@@ -3,8 +3,9 @@ import { equals } from 'ramda';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
-import { configurationAtom, filtersAtom } from '../../../atoms';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { FilterConfiguration, Filters } from '../../../models';
+import { configurationAtom, filtersAtom } from '../../atoms';
 
 interface UseFilters {
   reset: () => void;
@@ -12,8 +13,8 @@ interface UseFilters {
   change: (key) => (event) => void;
   changeCheckbox: (key) => (event) => void;
   reload: () => void;
-  filters;
-  filtersConfiguration;
+  filters: Filters;
+  filtersConfiguration: Array<FilterConfiguration>;
 }
 
 const useFilters = (): UseFilters => {
@@ -24,30 +25,31 @@ const useFilters = (): UseFilters => {
   const [filters, setFilters] = useAtom(filtersAtom);
   const configuration = useAtomValue(configurationAtom);
 
-  const filtersConfiguration = configuration?.filtersConfiguration;
+  const filtersConfiguration =
+    configuration?.filtersConfiguration as FilterConfiguration[];
 
-  const initialValues = configuration?.filtersInitialValues;
+  const initialValues = configuration?.filtersInitialValues as Filters;
 
   const change =
-    (key) =>
-    (event): void => {
+    (key: string) =>
+    (event: ChangeEvent<HTMLInputElement>): void => {
       setFilters({ ...filters, [key]: event.target.value });
     };
 
   const changeCheckbox =
-    (key) =>
-    (event): void => {
+    (key: string) =>
+    (event: ChangeEvent<HTMLInputElement>): void => {
       setFilters({ ...filters, [key]: event.target.checked });
     };
 
   const isClearDisabled = equals(filters, initialValues);
 
   const reload = (): void => {
-    queryClient.invalidateQueries({ queryKey: ['listHostGroups'] });
+    queryClient.invalidateQueries({ queryKey: ['listResources'] });
   };
 
   const reset = (): void => {
-    setFilters(() => initialValues);
+    setFilters(initialValues);
     setIsClearClicked(true);
   };
 

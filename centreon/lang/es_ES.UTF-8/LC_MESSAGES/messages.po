@@ -17938,15 +17938,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "No hosts in this group are currently disabled."
 # msgstr ""
 
-# msgid "Delete host group"
-# msgstr ""
-
-# msgid "Delete host groups"
-# msgstr ""
-
-# msgid "Host group deleted"
-# msgstr ""
-
 # msgid "Duplicate host group"
 # msgstr ""
 
@@ -17957,18 +17948,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgstr ""
 
 # msgid "Duplications"
-# msgstr ""
-
-# msgid "Host group disabled"
-# msgstr ""
-
-# msgid "Host group enabled"
-# msgstr ""
-
-# msgid "Host groups disabled"
-# msgstr ""
-
-# msgid "Host groups enabled"
 # msgstr ""
 
 # msgid "You are about to delete the <strong>{{ name }}</strong> host group. This action cannot be undone. Do you want to delete it?"
@@ -18025,7 +18004,6 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Failed to disable the host group"
 # msgstr ""
 
-
 # msgid "Workhours"
 # msgstr ""
 
@@ -18047,10 +18025,31 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Displays availability and alerts of a Business Activity for a given period."
 # msgstr ""
 
+# msgid "Host group created"
+# msgstr ""
+
+# msgid "Host group updated"
+# msgstr ""
+
+# msgid "Group members"
+# msgstr ""
+
+# msgid "Select hosts"
+# msgstr ""
+
+# msgid "Apply resource access rules to the host group"
+# msgstr ""
+
+# msgid "Geographic coordinates for MAP"
+# msgstr ""
+
+# msgid "Invalid geo-coordinate format"
+# msgstr ""
+
 # msgid "Requested authentication context"
 # msgstr ""
 
-# msgid "Minimum"
+# msgid "Minimum"
 # msgstr ""
 
 # msgid "Exact"
@@ -18061,3 +18060,12 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "Maximum"
 # msgstr ""
+
+# msgid "Encryption level"
+# msgstr "Nivel de encriptación"
+
+# msgid "You have selected No TLS for the encryption level."
+# msgstr "Ustéd ha seleccionado No TLS como su nivel de encriptación"
+
+# msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
+# msgstr "Ustéd ha seleccionado No TLS como su nivel de encriptación. Este parametro está pensado exclusivamente para uso de prueba y no puede ser utilizado en producción. El agente de supervisión se detendrá después de una hora."

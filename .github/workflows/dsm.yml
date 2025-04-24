@@ -110,6 +110,7 @@ jobs:
         uses: ./.github/actions/package-nfpm
         with:
           nfpm_file_pattern: "centreon-dsm/packaging/*.yaml"
+          module_name: centreon-dsm
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
