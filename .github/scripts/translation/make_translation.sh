@@ -133,7 +133,7 @@ if [ "$PROJECT" = "centreon" ]; then
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
-        echo "::warning:: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
+        echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
     fi
 
     echo "List all help.php files"
@@ -157,7 +157,7 @@ if [ "$PROJECT" = "centreon" ]; then
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
     if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
-        echo "::warning:: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
+        echo "::warning::$missing_translation strings are not translated in $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
     fi
 fi
 
