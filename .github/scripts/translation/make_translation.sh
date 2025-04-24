@@ -93,7 +93,7 @@ fi
 BASE_DIR_PROJECT="$BASE_DIR/../../../$PROJECT"
 
 if [ "$PROJECT" = "centreon" ]; then
-    echo "Extracting trnslation for project $PROJECT and language $LANG"
+    echo "Extracting translation for project $PROJECT and language $LANG"
 
     echo "Extracting strings to translate the menus"
     $PHP $BASE_DIR/extractTranslationFromSql.php $BASE_DIR_PROJECT/www/install/insertTopology.sql > $BASE_DIR_PROJECT/www/install/menu_translation.php
@@ -110,7 +110,7 @@ if [ "$PROJECT" = "centreon" ]; then
     find $BASE_DIR_PROJECT -name '*.php' | grep -v "help" > $PO_SRC
     echo "Generate messages.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/messages.pot")
-    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
+    $XGETTEXT --omit-header --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
     sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
@@ -140,7 +140,7 @@ if [ "$PROJECT" = "centreon" ]; then
     find $BASE_DIR_PROJECT/www -name 'help.php' > $PO_SRC
     echo "Generate help.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/help.pot")
-    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
+    $XGETTEXT --omit-header --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
     sed -i -r 's/#:.+\.\.\//#: /g' $POT_FILE_PATH
     # remove line number from comments
