@@ -223,6 +223,7 @@ jobs:
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
       - run: |
+          git config --system --add safe.directory .
           git status
           cd centreon
 
