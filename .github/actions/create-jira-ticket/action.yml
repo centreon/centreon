@@ -331,14 +331,3 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-
-    - name: Notify Slack
-      uses: slackapi/slack-github-action@v1.24.0
-      with:
-        payload: |
-          {
-            "channel": "#test_slack_integration",
-            "text": "✅ *${{ github.workflow }}* succeeded on *${{ github.ref_name }}*!"
-          }
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
