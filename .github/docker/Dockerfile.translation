@@ -3,7 +3,12 @@ FROM debian:bookworm
 RUN bash -e <<EOF
 
 apt-get update
-apt-get install -y git locales php-cli gettext zstd
+apt-get install -y \
+    gettext \
+    git \
+    locales \
+    php-cli \
+    zstd
 apt-get clean
 
 locale-gen en_US.UTF-8
