@@ -83,6 +83,7 @@ final class AddAgentConfiguration
             $newAc = AgentConfigurationFactory::createNewAgentConfiguration(
                 name: $request->name,
                 type: $type,
+                connectionMode: $request->connectionMode,
                 parameters: $request->configuration,
             );
 
@@ -209,6 +210,7 @@ final class AddAgentConfiguration
         return new AddAgentConfigurationResponse(
             id: $agentConfiguration->getId(),
             type: $agentConfiguration->getType(),
+            connectionMode: $agentConfiguration->getConnectionMode(),
             name: $agentConfiguration->getName(),
             configuration: $agentConfiguration->getConfiguration()->getData(),
             pollers: $pollers

@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "7a4a5e81-a3a7-4855-9383-885e133c3408",
+		"_postman_id": "10fcc03e-cb3d-4b78-b2a0-4a4cb7752cb1",
 		"name": "Local_Authentication",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7a4a5e81-a3a7-4855-9383-885e133c3408?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
@@ -25,9 +24,40 @@
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the login response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            contact: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    id: { type: \"integer\" },\r",
+									"                    name: { type: \"string\" },\r",
+									"                    alias: { type: \"string\" },\r",
+									"                    email: { type: \"string\", format: \"email\" },\r",
+									"                    is_admin: { type: \"boolean\" }\r",
+									"                },\r",
+									"                required: [\"id\", \"name\", \"alias\", \"email\", \"is_admin\"]\r",
+									"            },\r",
+									"            security: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    token: { type: \"string\" }\r",
+									"                },\r",
+									"                required: [\"token\"]\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"contact\", \"security\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -307,9 +337,24 @@
 									"    pm.response.to.have.status(401);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the login response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -360,9 +405,40 @@
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the login response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            contact: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    id: { type: \"integer\" },\r",
+									"                    name: { type: \"string\" },\r",
+									"                    alias: { type: \"string\" },\r",
+									"                    email: { type: \"string\", format: \"email\" },\r",
+									"                    is_admin: { type: \"boolean\" }\r",
+									"                },\r",
+									"                required: [\"id\", \"name\", \"alias\", \"email\", \"is_admin\"]\r",
+									"            },\r",
+									"            security: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    token: { type: \"string\" }\r",
+									"                },\r",
+									"                required: [\"token\"]\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"contact\", \"security\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -491,6 +567,20 @@
 									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
 									"});\r",
 									"\r",
+									"pm.test(\"Schema validation test for the login response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"\r",
 									"if (!pm.environment.get(\"tries\")) {\r",
 									"    pm.environment.set(\"tries\", 1);\r",
 									"}\r",
@@ -506,7 +596,8 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -549,9 +640,24 @@
 									"    pm.response.to.have.status(401);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the login response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -599,9 +705,24 @@
 									"    pm.response.to.have.status(401);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the login response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -652,9 +773,40 @@
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the login response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            contact: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    id: { type: \"integer\" },\r",
+									"                    name: { type: \"string\" },\r",
+									"                    alias: { type: \"string\" },\r",
+									"                    email: { type: \"string\", format: \"email\" },\r",
+									"                    is_admin: { type: \"boolean\" }\r",
+									"                },\r",
+									"                required: [\"id\", \"name\", \"alias\", \"email\", \"is_admin\"]\r",
+									"            },\r",
+									"            security: {\r",
+									"                type: \"object\",\r",
+									"                properties: {\r",
+									"                    token: { type: \"string\" }\r",
+									"                },\r",
+									"                required: [\"token\"]\r",
+									"            }\r",
+									"        },\r",
+									"        required: [\"contact\", \"security\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -783,6 +935,20 @@
 									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
 									"});\r",
 									"\r",
+									"pm.test(\"Schema validation test for the login response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"\r",
 									"if (!pm.environment.get(\"tries\")) {\r",
 									"    pm.environment.set(\"tries\", 1);\r",
 									"}\r",
@@ -798,7 +964,8 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -841,9 +1008,24 @@
 									"    pm.response.to.have.status(401);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"Authentication failed\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the login response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -910,12 +1092,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "api_login_user_non_admin",
-			"value": ""
 		}
 	]
 }
