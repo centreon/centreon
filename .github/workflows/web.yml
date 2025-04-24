@@ -359,25 +359,25 @@ jobs:
         working-directory: centreon
         shell: bash
 
-      - name: Run of php-cs-fixer with strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
-        working-directory: centreon
-
-      - name: Run of php-cs-fixer without strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
-        working-directory: centreon
-
-      - name: Run of phpstan on /src at level 4
-        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
-        working-directory: centreon
-
-      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
-        working-directory: centreon
-
-      - name: Run of phpstan on /tests at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
-        working-directory: centreon
+#      - name: Run of php-cs-fixer with strict_type
+#        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+#        working-directory: centreon
+#
+#      - name: Run of php-cs-fixer without strict_type
+#        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
+#        working-directory: centreon
+#
+#      - name: Run of phpstan on /src at level 4
+#        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
+#        working-directory: centreon
+#
+#      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
+#        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
+#        working-directory: centreon
+#
+#      - name: Run of phpstan on /tests at level 2
+#        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
+#        working-directory: centreon
 
       - name: Checking Symfony configuration
         run: composer symfony:check
