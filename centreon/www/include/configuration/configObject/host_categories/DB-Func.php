@@ -435,7 +435,7 @@ function insertHostCategories(array $ret = []): int
     $insQuery = $qb->getQuery();
 
     // Enforce '0' or '1' on activation
-    $rawAct  = $ret['hc_activate'] ?? '';
+    $rawAct  = $ret['hc_activate']['hc_activate'] ?? '';
     $activate = preg_match('/^[01]$/', $rawAct) ? $rawAct : '0';
 
     $params = [
@@ -524,7 +524,7 @@ function updateHostCategories(int $hcId)
         ->getQuery();
 
     // Prepare params with conditional binding
-    $rawAct   = $ret['hc_activate'] ?? '';
+    $rawAct   = $ret['hc_activate']['hc_activate'] ?? '';
     $act      = preg_match('/^[01]$/', $rawAct) ? $rawAct : '0';
     $params   = [
         QueryParameter::string('hc_name',    $ret['hc_name']),
