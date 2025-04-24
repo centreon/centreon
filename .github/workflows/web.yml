@@ -224,6 +224,14 @@ jobs:
       - run: |
           git config --global --add safe.directory $GITHUB_WORKSPACE
 
+          echo "en_US.UTF-8 UTF-8" | tee -a /etc/locale.gen
+          echo "fr_FR.UTF-8 UTF-8" | tee -a /etc/locale.gen
+          echo "es_ES.UTF-8 UTF-8" | tee -a /etc/locale.gen
+          echo "pt_BR.UTF-8 UTF-8" | tee -a /etc/locale.gen
+          echo "pt_PT.UTF-8 UTF-8" | tee -a /etc/locale.gen
+          echo "de_DE.UTF-8 UTF-8" | tee -a /etc/locale.gen
+          locale-gen
+
           cd centreon
 
           for i in lang/*.UTF-8 ; do
