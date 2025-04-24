@@ -5707,8 +5707,7 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
-"Allows user to perform “Add”, “Add (advanced)” and “Duplicate” actions on "
-"pollers."
+"Allows user to perform Add, Add (advanced) and Duplicate actions on pollers."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
