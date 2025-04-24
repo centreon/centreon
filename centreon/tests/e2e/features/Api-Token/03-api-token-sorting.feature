@@ -19,5 +19,5 @@ Feature: Sorting Authentication Tokens List
       | Name            |
       | Creator         |
       | User            |
-      | Creation Date   |
-      | Expiration Date |
+      | Creation date   |
+      | Expiration date |
