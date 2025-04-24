@@ -93,6 +93,8 @@ fi
 BASE_DIR_PROJECT="$BASE_DIR/../../../$PROJECT"
 
 if [ "$PROJECT" = "centreon" ]; then
+    echo "Extracting trnslation for project $PROJECT and language $LANG"
+
     echo "Extracting strings to translate the menus"
     $PHP $BASE_DIR/extractTranslationFromSql.php $BASE_DIR_PROJECT/www/install/insertTopology.sql > $BASE_DIR_PROJECT/www/install/menu_translation.php
     echo "Extracting strings to translate from Centreon Broker forms"
@@ -115,7 +117,6 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
     COUNT_ADDED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $1;}')
     COUNT_REMOVED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $2;}')
-    git diff --numstat | grep "$POT_FILE_PATH"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $POT_FILE_PATH
     fi
@@ -127,7 +128,7 @@ if [ "$PROJECT" = "centreon" ]; then
     rm -f $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
 
     # Merge existing translation file with new POT file
-    $MSGMERGE $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po
+    $MSGMERGE -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/lang/messages.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
@@ -144,13 +145,12 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
     COUNT_ADDED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $1;}')
     COUNT_REMOVED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $2;}')
-    git diff --numstat | grep "$POT_FILE_PATH"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $POT_FILE_PATH
     fi
 
     # Merge existing translation file with new POT file
-    $MSGMERGE $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
+    $MSGMERGE -q $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
@@ -174,7 +174,7 @@ if [ "$PROJECT" = "centreon-bam" ]; then
 
     if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po" ]; then
         # Merge existing translation file with new POT file
-        $MSGMERGE $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/messages.pot -o $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages_new.po
+        $MSGMERGE -q $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/messages.pot -o $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages_new.po
         mv -f $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po
 
         missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
@@ -188,7 +188,7 @@ if [ "$PROJECT" = "centreon-bam" ]; then
 
     if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po" ]; then
         # Merge existing translation file with new POT file
-        $MSGMERGE $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/help.pot -o $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help_new.po
+        $MSGMERGE -q $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/help.pot -o $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help_new.po
         mv -f $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po
 
         missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
