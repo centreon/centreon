@@ -24,7 +24,7 @@ const useLoadData = (): LoadDataState => {
       : filters.users.map((user) => ({
           field: 'user.id',
           values: {
-            $rg: user.id
+            $eq: user.id
           }
         }))),
     ...(!filters.creators
@@ -32,7 +32,7 @@ const useLoadData = (): LoadDataState => {
       : filters.creators.map((creator) => ({
           field: 'creator.id',
           values: {
-            $rg: creator.id
+            $eq: creator.id
           }
         }))),
     ...(!filters.types
