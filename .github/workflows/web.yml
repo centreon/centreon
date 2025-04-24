@@ -221,8 +221,6 @@ jobs:
           sudo apt-get install -y gettext
 
           cd centreon
-          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
-          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
 
           for i in lang/*.UTF-8 ; do
             localefull=`basename $i`
@@ -235,6 +233,9 @@ jobs:
             msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
             php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
           done
+
+          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
+          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
 
           if [[ '${{ github.event_name }}' == 'pull_request' && `git status --porcelain` ]]; then
             git config user.name "technique-ci"
