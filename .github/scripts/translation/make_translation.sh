@@ -31,12 +31,6 @@ fi
 # Define projects
 PROJECTS=(
     "centreon"
-    "centreon-license-manager"
-    "centreon-autodiscovery"
-    "centreon-pp-manager"
-    "centreon-bam"
-    "centreon-map"
-    "centreon-mbi"
 )
 
 # Define language
@@ -99,33 +93,20 @@ fi
 BASE_DIR_PROJECT="$BASE_DIR/../../../$PROJECT"
 
 if [ "$PROJECT" = "centreon" ]; then
-    echo -n "Extracting strings to translate the menus"
-    $PHP $BASE_DIR/parseSQLDatabaseConfigurationForTranslation.php $BASE_DIR_PROJECT/www/install/insertTopology.sql > $BASE_DIR_PROJECT/www/install/menu_translation.php
-    echo -n " - 0K"
-    echo
-    echo -n "Extracting strings to translate from Centreon Broker forms"
-    $PHP $BASE_DIR/parseSQLDatabaseConfigurationForTranslation.php $BASE_DIR_PROJECT/www/install/insertBaseConf.sql > $BASE_DIR_PROJECT/www/install/centreon_broker_translation.php
-    echo -n " - 0K"
-    echo
-    echo -n "Extracting strings to translate from legacy pages"
-    $PHP $BASE_DIR/tsmarty2centreon.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/smarty_translate.php
-    echo -n " - 0K"
-    echo
-    echo -n "Extracting strings to translate from ReactJS pages"
-    $PHP $BASE_DIR/reachjs2centreon.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/front_translate.php
-    echo -n " - 0K"
-    echo
-    echo -n "Extracting strings to translate from Dashboard widgets"
-    $PHP $BASE_DIR/parseDashboardWidgets.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
-    echo -n " - 0K"
-    echo
+    echo "Extracting strings to translate the menus"
+    $PHP $BASE_DIR/extractTranslationFromSql.php $BASE_DIR_PROJECT/www/install/insertTopology.sql > $BASE_DIR_PROJECT/www/install/menu_translation.php
+    echo "Extracting strings to translate from Centreon Broker forms"
+    $PHP $BASE_DIR/extractTranslationFromSql.php $BASE_DIR_PROJECT/www/install/insertBaseConf.sql > $BASE_DIR_PROJECT/www/install/centreon_broker_translation.php
+    echo "Extracting strings to translate from legacy pages"
+    $PHP $BASE_DIR/extractTranslationFromSmartyTemplate.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/smarty_translate.php
+    echo "Extracting strings to translate from ReactJS pages"
+    $PHP $BASE_DIR/extractTranslationFromTypescript.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/front_translate.php
+    echo "Extracting strings to translate from Dashboard widgets"
+    $PHP $BASE_DIR/extractTranslationFromDashboardProperties.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/install/dashboard_widgets.php
 
-    echo -e ""
-    echo -n "List all PHP files excluding help.php files"
+    echo "List all PHP files excluding help.php files"
     find $BASE_DIR_PROJECT -name '*.php' | grep -v "help" > $PO_SRC
-    echo -n " - 0K"
-    echo
-    echo -n "Generate messages.pot file including all strings to translate"
+    echo "Generate messages.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/messages.pot")
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
@@ -134,14 +115,10 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
     COUNT_ADDED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $1;}')
     COUNT_REMOVED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $2;}')
-    echo
-    echo "$POT_FILE_PATH"
     git diff --numstat | grep "$POT_FILE_PATH"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $POT_FILE_PATH
     fi
-    echo -n " - 0K"
-    echo
 
     rm -f $BASE_DIR_PROJECT/www/install/menu_translation.php
     rm -f $BASE_DIR_PROJECT/www/install/centreon_broker_translation.php
@@ -154,14 +131,11 @@ if [ "$PROJECT" = "centreon" ]; then
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
-    echo -e "Warning: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
+    echo "Warning: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
 
-    echo -e ""
-    echo -n "List all help.php files"
+    echo "List all help.php files"
     find $BASE_DIR_PROJECT/www -name 'help.php' > $PO_SRC
-    echo -n " - 0K"
-    echo
-    echo -n "Generate help.pot file including all strings to translate"
+    echo "Generate help.pot file including all strings to translate"
     POT_FILE_PATH=$(realpath --relative-to="${PWD}" "$BASE_DIR_PROJECT/lang/help.pot")
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$POT_FILE_PATH > /dev/null 2>&1
     # remove absolute path from comments
@@ -170,50 +144,33 @@ if [ "$PROJECT" = "centreon" ]; then
     sed -i -r 's/:[0-9]+$//g' $POT_FILE_PATH
     COUNT_ADDED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $1;}')
     COUNT_REMOVED_LINES=$(git diff --numstat | grep "$POT_FILE_PATH" | awk '{print $2;}')
-    echo
-    echo "$POT_FILE_PATH"
     git diff --numstat | grep "$POT_FILE_PATH"
     if [[ "$COUNT_ADDED_LINES" == "1" && $COUNT_REMOVED_LINES == "1" ]]; then
         git checkout $POT_FILE_PATH
     fi
-    echo -n " - 0K"
-    echo
 
     # Merge existing translation file with new POT file
     $MSGMERGE $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/lang/help.pot -o $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
-    echo -e "Warning: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
+    echo "Warning: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
 fi
 if [ "$PROJECT" = "centreon-bam" ]; then
-    echo -n "Extracting strings to translate the menus"
-    $PHP $BASE_DIR/parseSQLDatabaseConfigurationForTranslation.php $BASE_DIR_PROJECT/www/modules/centreon-bam-server/sql/install.sql > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/menu_translation.php
-    echo -n " - 0K"
-    echo
-    echo -n "Extracting strings to translate from legacy pages"
-    $PHP $BASE_DIR/tsmarty2centreon.php $BASE_DIR_PROJECT/www/modules/centreon-bam-server > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/smarty_translate.php
-    echo -n " - 0K"
-    echo
-    echo -n "Extracting strings to translate from ReactJS pages"
-    $PHP $BASE_DIR/reachjs2centreon.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/front_translate.php
-    echo -n " - 0K"
-    echo
+    echo "Extracting strings to translate the menus"
+    $PHP $BASE_DIR/extractTranslationFromSql.php $BASE_DIR_PROJECT/www/modules/centreon-bam-server/sql/install.sql > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/menu_translation.php
+    echo "Extracting strings to translate from legacy pages"
+    $PHP $BASE_DIR/extractTranslationFromSmartyTemplate.php $BASE_DIR_PROJECT/www/modules/centreon-bam-server > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/smarty_translate.php
+    echo "Extracting strings to translate from ReactJS pages"
+    $PHP $BASE_DIR/extractTranslationFromTypescript.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/front_translate.php
 
-    echo -e ""
-    echo -n "List all PHP files excluding help.php files"
+    echo "List all PHP files excluding help.php files"
     find $BASE_DIR_PROJECT -name '*.php' | egrep -v "(help|feature|test)" > $PO_SRC
-    echo -n " - 0K"
-    echo
-    echo -n "Generate messages.pot file including all strings to translate"
+    echo "Generate messages.pot file including all strings to translate"
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/messages.pot > /dev/null 2>&1
-    echo -n " - 0K"
-    echo
 
-    echo
-    echo -n "Remove translation already present in Centreon: "
+    echo "Remove translation already present in Centreon: "
     $PHP translationDuplicationRemoval.php $BASE_DIR $PROJECT
-    echo
 
     if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po" ]; then
         # Merge existing translation file with new POT file
@@ -221,18 +178,13 @@ if [ "$PROJECT" = "centreon-bam" ]; then
         mv -f $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po
 
         missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
-        echo -e "Missing $missing_translation strings to translate from $PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po"
+        echo "Missing $missing_translation strings to translate from $PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po"
     fi
 
-    echo -e ""
-    echo -n "List all help.php files"
+    echo "List all help.php files"
     find $BASE_DIR_PROJECT/www -name 'help.php' > $PO_SRC
-    echo -n " - 0K"
-    echo
-    echo -n "Generate help.pot file including all strings to translate"
+    echo "Generate help.pot file including all strings to translate"
     $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/help.pot > /dev/null 2>&1
-    echo -n " - 0K"
-    echo
 
     if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po" ]; then
         # Merge existing translation file with new POT file
@@ -240,13 +192,11 @@ if [ "$PROJECT" = "centreon-bam" ]; then
         mv -f $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po
 
         missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
-        echo -e "Missing $missing_translation strings to translate from $PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po"
+        echo "Missing $missing_translation strings to translate from $PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po"
     fi
     if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/menu_translation.php" ]; then
-        echo -n "Removing temporary files"
+        echo "Removing temporary files"
         rm $BASE_DIR_PROJECT/www/modules/centreon-bam-server/menu_translation.php -f >> /dev/null 2>&1
-        echo -n " - 0K"
-        echo
     fi
 fi
 
