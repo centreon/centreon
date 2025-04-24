@@ -210,7 +210,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
         ...options,
         ...properties,
         description:
-          shouldResetDescription || isNil(currentValues.options.description)
+          shouldResetDescription ||
+          isNil(currentValues.options.description) ||
+          isEmpty(currentValues.options.description)
             ? {
                 content: null,
                 enabled: true

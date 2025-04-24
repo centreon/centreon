@@ -12,7 +12,8 @@ interface Props {
 const Actions = ({ closeModal }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const { handleSubmit, isValid, dirty, isSubmitting } = useFormikContext();
+  const { handleSubmit, isValid, dirty, isSubmitting, errors, values } =
+    useFormikContext();
 
   const { canEdit, canEditField } = useCanEditProperties();
 

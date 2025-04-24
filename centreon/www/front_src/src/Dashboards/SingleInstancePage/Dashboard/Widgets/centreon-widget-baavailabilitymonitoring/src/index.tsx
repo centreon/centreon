@@ -20,6 +20,7 @@ const Widget = ({
   if (!areResourcesFullfilled(panelData.resources)) {
     return <NoResources />;
   }
+
   return (
     <FederatedComponent
       path="/bi/widget/baavailabilitymonitoring"

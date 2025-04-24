@@ -1,6 +1,6 @@
 import { FormHelperText, Stack } from '@mui/material';
 import { useFormikContext } from 'formik';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { labelMaxValue, labelMinValue } from '../../../translatedLabels';
 import { WidgetPropertyProps } from '../../models';
@@ -9,7 +9,7 @@ import { getProperty } from './utils';
 
 const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
   const { t } = useTranslation();
-  const { errors, touched } = useFormikContext();
+  const { errors, touched, setFieldValue } = useFormikContext();
 
   const error = useMemo<string | undefined>(
     () => getProperty({ obj: errors, propertyName: `${propertyName}.max` }),
@@ -20,6 +20,12 @@ const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
     () => getProperty({ obj: touched, propertyName: `${propertyName}.max` }),
     [getProperty({ obj: touched, propertyName: `${propertyName}.max` })]
   );
+
+  useEffect(() => {
+    return () => {
+      setFieldValue(`options.${propertyName}`, undefined);
+    };
+  }, []);
 
   return (
     <div>

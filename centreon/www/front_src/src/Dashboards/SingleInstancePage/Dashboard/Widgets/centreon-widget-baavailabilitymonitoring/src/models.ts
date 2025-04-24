@@ -41,6 +41,8 @@ interface PanelOptions {
     min?: number;
     max?: number;
   };
+  showLegend: boolean;
+  legendPlacement: 'left' | 'bottom' | 'right';
 }
 
 export interface WidgetProps extends CommonWidgetProps<PanelOptions> {

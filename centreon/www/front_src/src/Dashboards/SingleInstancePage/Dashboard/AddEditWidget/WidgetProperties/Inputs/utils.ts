@@ -8,7 +8,8 @@ import {
   includes,
   isEmpty,
   pluck,
-  split
+  split,
+  isNil
 } from 'ramda';
 
 import {
@@ -64,11 +65,17 @@ interface GetYupValidatorTypeProps {
 export const boundariesValidationSchema = object()
   .shape({
     min: number().optional(),
-    max: number()
-      .test('isMinAboveMax', labelMinMustLowerThanMax, (value, context) => {
+    max: number().test(
+      'isMinAboveMax',
+      labelMinMustLowerThanMax,
+      (value, context) => {
+        console.log(value, context.parent.min);
+        if (isNil(value) || isNil(context.parent.min)) {
+          return true;
+        }
         return Number(value || 0) > context.parent.min;
-      })
-      .optional()
+      }
+    )
   })
   .optional();
 
