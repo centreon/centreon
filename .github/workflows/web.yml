@@ -224,6 +224,8 @@ jobs:
 
       - run: |
           cd centreon
+          pwd
+          git status
 
           for i in lang/*.UTF-8 ; do
             localefull=`basename $i`
