@@ -380,7 +380,7 @@ jobs:
 #        working-directory: centreon
 
       - name: Checking Symfony configuration
-        run: composer symfony:check
+        run: cp config/centreon.config.php.template config/centreon.config.php && composer symfony:check
         working-directory: centreon
 
   package:
