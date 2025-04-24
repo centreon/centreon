@@ -10,4 +10,6 @@ EOF
 
 ENV LANG=en_US.utf8
 
+USER 1001:1001
+
 WORKDIR /src

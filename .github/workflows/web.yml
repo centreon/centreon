@@ -212,7 +212,7 @@ jobs:
     container:
       # image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-environment.outputs.major_version }}
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ github.head_ref || github.ref_name }}
-      options: --user 1001
+      # options: --user 1001 # user id to use git inside the container
       credentials:
         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
