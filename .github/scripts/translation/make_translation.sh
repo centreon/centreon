@@ -132,7 +132,9 @@ if [ "$PROJECT" = "centreon" ]; then
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
-    echo "Warning: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
+    if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
+        echo "::warning:: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/messages.po"
+    fi
 
     echo "List all help.php files"
     find $BASE_DIR_PROJECT/www -name 'help.php' > $PO_SRC
@@ -154,49 +156,8 @@ if [ "$PROJECT" = "centreon" ]; then
     mv -f $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po
 
     missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
-    echo "Warning: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
-fi
-if [ "$PROJECT" = "centreon-bam" ]; then
-    echo "Extracting strings to translate the menus"
-    $PHP $BASE_DIR/extractTranslationFromSql.php $BASE_DIR_PROJECT/www/modules/centreon-bam-server/sql/install.sql > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/menu_translation.php
-    echo "Extracting strings to translate from legacy pages"
-    $PHP $BASE_DIR/extractTranslationFromSmartyTemplate.php $BASE_DIR_PROJECT/www/modules/centreon-bam-server > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/smarty_translate.php
-    echo "Extracting strings to translate from ReactJS pages"
-    $PHP $BASE_DIR/extractTranslationFromTypescript.php $BASE_DIR_PROJECT > $BASE_DIR_PROJECT/www/modules/centreon-bam-server/front_translate.php
-
-    echo "List all PHP files excluding help.php files"
-    find $BASE_DIR_PROJECT -name '*.php' | egrep -v "(help|feature|test)" > $PO_SRC
-    echo "Generate messages.pot file including all strings to translate"
-    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/messages.pot > /dev/null 2>&1
-
-    echo "Remove translation already present in Centreon: "
-    $PHP translationDuplicationRemoval.php $BASE_DIR $PROJECT
-
-    if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po" ]; then
-        # Merge existing translation file with new POT file
-        $MSGMERGE -q $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/messages.pot -o $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages_new.po
-        mv -f $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages_new.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po
-
-        missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po | grep -c ^msgstr)
-        echo "Missing $missing_translation strings to translate from $PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/messages.po"
-    fi
-
-    echo "List all help.php files"
-    find $BASE_DIR_PROJECT/www -name 'help.php' > $PO_SRC
-    echo "Generate help.pot file including all strings to translate"
-    $XGETTEXT --from-code=UTF-8 --default-domain=messages -k_ --files-from=$PO_SRC --output=$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/help.pot > /dev/null 2>&1
-
-    if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po" ]; then
-        # Merge existing translation file with new POT file
-        $MSGMERGE -q $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/help.pot -o $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help_new.po
-        mv -f $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help_new.po $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po
-
-        missing_translation=$(msggrep -v -T -e "." $BASE_DIR_PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po | grep -c ^msgstr)
-        echo "Missing $missing_translation strings to translate from $PROJECT/www/modules/centreon-bam-server/locale/$LANG.UTF-8/LC_MESSAGES/help.po"
-    fi
-    if [ -f "$BASE_DIR_PROJECT/www/modules/centreon-bam-server/menu_translation.php" ]; then
-        echo "Removing temporary files"
-        rm $BASE_DIR_PROJECT/www/modules/centreon-bam-server/menu_translation.php -f >> /dev/null 2>&1
+    if [[ $missing_translation -gt 0 && "$LANG" == "fr_FR" ]]; then
+        echo "::warning:: Missing $missing_translation strings to translate from $PROJECT/lang/$LANG.UTF-8/LC_MESSAGES/help.po"
     fi
 fi
 
