@@ -11,13 +11,4 @@ apt-get install -y \
     zstd
 apt-get clean
 
-locale-gen en_US.UTF-8
-locale-gen fr_FR.UTF-8
-locale-gen de_DE.UTF-8
-locale-gen es_ES.UTF-8
-locale-gen pt_PT.UTF-8
-locale-gen pt_BR.UTF-8
-
 EOF
-
-ENV LANG=en_US.utf8
