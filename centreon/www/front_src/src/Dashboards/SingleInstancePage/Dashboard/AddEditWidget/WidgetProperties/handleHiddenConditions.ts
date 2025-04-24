@@ -1,4 +1,5 @@
 import { FeatureFlags } from '@centreon/ui-context';
+import { FormikValues } from 'formik';
 import {
   path,
   difference,
@@ -9,14 +10,12 @@ import {
   isNil,
   pluck,
   reject,
-  type,
-  T
+  type
 } from 'ramda';
 import {
   FederatedWidgetOption,
   WidgetHiddenCondition
 } from '../../../../../federatedModules/models';
-import { FormikValues } from 'formik';
 
 interface CheckHiddenConditionProps {
   hiddenCondition: WidgetHiddenCondition;

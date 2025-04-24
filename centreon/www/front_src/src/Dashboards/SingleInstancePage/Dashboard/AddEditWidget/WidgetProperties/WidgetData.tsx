@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import Title from '../../../../components/Title';
 import { labelDatasetSelection } from '../../translatedLabels';
 
+import { FormikValues, useFormikContext } from 'formik';
+import { getDataProperty } from './Inputs/utils';
+import SubInputs from './SubInputs';
 import { useWidgetInputs } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
-import { getDataProperty } from './Inputs/utils';
-import { FormikValues, useFormikContext } from 'formik';
-import SubInputs from './SubInputs';
 
 const WidgetData = (): JSX.Element => {
   const { t } = useTranslation();

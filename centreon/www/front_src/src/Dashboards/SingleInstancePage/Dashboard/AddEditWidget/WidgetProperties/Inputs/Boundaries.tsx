@@ -1,11 +1,11 @@
 import { FormHelperText, Stack } from '@mui/material';
-import { WidgetPropertyProps } from '../../models';
-import WidgetTextField from './TextField';
-import { labelMaxValue, labelMinValue } from '../../../translatedLabels';
 import { useFormikContext } from 'formik';
 import { useMemo } from 'react';
-import { getProperty } from './utils';
 import { useTranslation } from 'react-i18next';
+import { labelMaxValue, labelMinValue } from '../../../translatedLabels';
+import { WidgetPropertyProps } from '../../models';
+import WidgetTextField from './TextField';
+import { getProperty } from './utils';
 
 const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
   const { t } = useTranslation();
@@ -28,7 +28,7 @@ const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
           ignoreError
           propertyName={`${propertyName}.min`}
           label={labelMinValue}
-          text={text}
+          text={{ type: 'number', ...text }}
           isInGroup={false}
           isSingleAutocomplete={false}
         />
@@ -37,7 +37,7 @@ const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
           ignoreError
           propertyName={`${propertyName}.max`}
           label={labelMaxValue}
-          text={text}
+          text={{ type: 'number', ...text }}
           isInGroup={false}
           isSingleAutocomplete={false}
         />

@@ -1,6 +1,6 @@
 import { TFunction } from 'i18next';
 import { useAtomValue } from 'jotai';
-import { path, isEmpty, keys, toPairs, pluck } from 'ramda';
+import { path, isEmpty, keys, toPairs } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {

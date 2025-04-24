@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 
 import { useFormikContext } from 'formik';
-import { equals, isEmpty, isNil, isNotNil, path, pluck } from 'ramda';
+import { equals, isEmpty, isNil, isNotNil, pluck } from 'ramda';
 
 import { Box, Stack } from '@mui/material';
 

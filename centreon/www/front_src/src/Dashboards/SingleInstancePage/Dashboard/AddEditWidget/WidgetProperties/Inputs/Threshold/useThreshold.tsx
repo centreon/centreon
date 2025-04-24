@@ -7,6 +7,7 @@ import {
   flatten,
   has,
   head,
+  isNotNil,
   length,
   pipe,
   pluck,
@@ -137,6 +138,7 @@ const useThreshold = ({
     : (metrics as Array<Metric>) || [];
 
   const metric = head(formattedMetrics as Array<Metric>);
+  const hasMetric = isNotNil(metric);
 
   const formatThreshold = (threshold: number | null): string => {
     if (!threshold) {
@@ -192,7 +194,7 @@ const useThreshold = ({
               position="bottom"
             >
               <Typography>
-                {`${t(labelDefault)} ${warningDefaultThresholdLabel}`}
+                {`${t(labelDefault)} ${hasMetric ? warningDefaultThresholdLabel : ''}`}
               </Typography>
             </Tooltip>
           ),
@@ -243,7 +245,7 @@ const useThreshold = ({
               position="bottom"
             >
               <Typography>
-                {`${t(labelDefault)} ${criticalDefaultThresholdLabel}`}
+                {`${t(labelDefault)} ${hasMetric ? criticalDefaultThresholdLabel : ''}`}
               </Typography>
             </Tooltip>
           ),
