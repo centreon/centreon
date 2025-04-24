@@ -28,6 +28,6 @@
   },
   "singleResourceSelection": true,
   "moduleName": "centreon-widget-batimeline",
-  "widgetType": "Real time widgets",
+  "widgetType": "realtime",
   "canExpand": true
 }
