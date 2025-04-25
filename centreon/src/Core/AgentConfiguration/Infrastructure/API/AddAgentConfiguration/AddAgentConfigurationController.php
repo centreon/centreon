@@ -92,6 +92,7 @@ final class AddAgentConfigurationController extends AbstractController
         $addRequest->connectionMode = match ($data['connection_mode']) {
             'no-tls' => ConnectionModeEnum::NO_TLS,
             'insecure' => ConnectionModeEnum::INSECURE,
+            'secure' => ConnectionModeEnum::SECURE,
             default => ConnectionModeEnum::SECURE,
         };
         $addRequest->pollerIds = $data['poller_ids'];

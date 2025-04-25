@@ -82,7 +82,12 @@ class AgentConfiguration extends AbstractObjectJSON
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
             'port' => ModelAgentConfiguration::DEFAULT_PORT,
-            'encryption' => ConnectionModeEnum::SECURE === $connectionMode,
+            'encryption' => match ($connectionMode) {
+                ConnectionModeEnum::SECURE => 'full',
+                ConnectionModeEnum::INSECURE => 'insecure',
+                ConnectionModeEnum::NO_TLS => 'no',
+                default => 'full',
+            },
             'public_cert' => ! empty($data['otel_public_certificate'])
                 ? $data['otel_public_certificate']
                 : '',
