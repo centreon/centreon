@@ -189,7 +189,7 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
 
 /**
   * Add Column connection_mode to agent_configuration table.
-  * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
+  * This Column is used to define the connection mode of the agent between ("no-tls","secure","insecure").
   *
   * @param CentreonDB $pearDB
   *

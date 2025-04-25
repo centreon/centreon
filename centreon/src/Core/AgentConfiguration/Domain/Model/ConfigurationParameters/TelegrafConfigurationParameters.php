@@ -66,6 +66,7 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
             $this->validateCertificate($parameters['conf_certificate'], 'configuration.conf_certificate');
             $this->validateCertificate($parameters['conf_private_key'], 'configuration.conf_private_key');
             $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+        // For NO-TLS and INSECURE modes
         } else {
             $this->validateOptionalCertificate(
                 $parameters['otel_public_certificate'],

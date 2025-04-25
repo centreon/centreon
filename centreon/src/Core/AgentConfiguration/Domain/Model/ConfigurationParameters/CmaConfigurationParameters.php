@@ -68,6 +68,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
             $this->validateCertificate($parameters['otel_public_certificate'], 'configuration.otel_public_certificate');
             $this->validateCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
             $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
+        // For NO-TLS and INSECURE modes
         } else {
             $this->validateOptionalCertificate(
                 $parameters['otel_public_certificate'],
