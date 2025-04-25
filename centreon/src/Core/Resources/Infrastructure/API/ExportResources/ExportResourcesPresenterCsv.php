@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\API\ExportResources;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Core\Application\Common\UseCase\AbstractPresenter;
@@ -55,11 +54,9 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      * ExportResourcesPresenterCsv constructor
      *
      * @param CsvFormatter $presenterFormatter
-     * @param ContactInterface $contact
      */
     public function __construct(
-        PresenterFormatterInterface $presenterFormatter,
-        private readonly ContactInterface $contact
+        PresenterFormatterInterface $presenterFormatter
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -158,7 +155,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                     $this->formatLabel($resource->getParent()?->getStatus()?->getName() ?? '')
                 ),
                 _('Duration') => $resource->getDuration() ?? '',
-                _('Last Check') => $this->formatDate($resource->getLastCheck()),
+                _('Last Check') => $resource->getLastCheckAsString() ?? '',
                 _('Information') => $resource->getInformation() ?? '',
                 _('Tries') => $resource->getTries() ?? '',
                 _('Severity') => $resource->getSeverity()?->getLevel() ?? '',
@@ -337,16 +334,6 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         }
 
         return $check;
-    }
-
-    /**
-     * @param \DateTime|null $date
-     *
-     * @return string
-     */
-    private function formatDate(?\DateTime $date): string
-    {
-        return ! is_null($date) ? $date->format($this->contact->getFormatDate()) : '';
     }
 
     /**
