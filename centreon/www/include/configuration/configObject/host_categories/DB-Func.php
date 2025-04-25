@@ -26,6 +26,7 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\ActionLog\Domain\Model\ActionLog;
 use CentreonLog;
 
@@ -81,13 +82,15 @@ function checkSeverity(array $fields)
 
 /**
  * Check existence of a host category name
+ *
+ * @throws RepositoryException
  */
-function testHostCategorieExistence(?string $name = null)
+function testHostCategorieExistence(?string $name = null): bool
 {
     global $pearDB, $form;
 
     if (empty($name)) {
-        return false;
+        throw new RepositoryException('Host category name is required for existence check');
     }
 
     $currentId = $form ? $form->getSubmitValue('hc_id') : null;
@@ -98,16 +101,14 @@ function testHostCategorieExistence(?string $name = null)
         ->getQuery();
 
     try {
+        $cleanName = \HtmlSanitizer::createFromString($name)
+            ->removeTags()
+            ->sanitize()
+            ->getString();
         $result = $pearDB->fetchAssociative(
             $query,
             QueryParameters::create([
-                QueryParameter::string(
-                    'hc_name',
-                    \HtmlSanitizer::createFromString($name)
-                        ->removeTags()
-                        ->sanitize()
-                        ->getString()
-                )
+                QueryParameter::string('hc_name', $cleanName)
             ])
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
@@ -117,7 +118,7 @@ function testHostCategorieExistence(?string $name = null)
             ['hcName' => $name],
             $exception
         );
-        return false;
+        throw new RepositoryException('Unable to check host category existence', ['hcName' => $name]);
     }
 
     return !($result && isset($result['hc_id']) && $result['hc_id'] != $currentId);
@@ -133,8 +134,10 @@ function shouldNotBeEqTo0($value)
 
 /**
  * Enable one or multiple host categories
+ *
+ * @throws RepositoryException
  */
-function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = [])
+function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
     global $pearDB, $centreon;
 
@@ -156,16 +159,16 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = [])
         ->where('hc_id = :hc_id')
         ->getQuery();
 
-    foreach (array_keys($hcArr) as $key) {
-        $id = filter_var($key, FILTER_VALIDATE_INT);
-        try {
+    try {
+        foreach (array_keys($hcArr) as $key) {
+            $id = filter_var($key, FILTER_VALIDATE_INT);
             $pearDB->update(
                 $updQuery,
-                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+                QueryParameters::create([QueryParameter::int('hc_id', $id)])
             );
             $row = $pearDB->fetchAssociative(
                 $selQuery,
-                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+                QueryParameters::create([QueryParameter::int('hc_id', $id)])
             );
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
@@ -173,21 +176,24 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = [])
                 object_name: $row['hc_name'] ?? '',
                 action_type: ActionLog::ACTION_TYPE_ENABLE
             );
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error enabling host category',
-                ['hcId' => $id],
-                $exception
-            );
         }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error enabling host categories',
+            [],
+            $exception
+        );
+        throw new RepositoryException('Unable to enable host categories', []);
     }
 }
 
 /**
  * Disable one or multiple host categories
+ *
+ * @throws RepositoryException
  */
-function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = [])
+function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
     global $pearDB, $centreon;
 
@@ -209,9 +215,9 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = [])
         ->where('hc_id = :hc_id')
         ->getQuery();
 
-    foreach (array_keys($hcArr) as $key) {
-        $id = filter_var($key, FILTER_VALIDATE_INT);
-        try {
+    try {
+        foreach (array_keys($hcArr) as $key) {
+            $id = filter_var($key, FILTER_VALIDATE_INT);
             $pearDB->update(
                 $updQuery,
                 QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
@@ -226,21 +232,24 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = [])
                 object_name: $row['hc_name'] ?? '',
                 action_type: ActionLog::ACTION_TYPE_DISABLE
             );
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error disabling host category',
-                ['hcId' => $id],
-                $exception
-            );
         }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error disabling host categories',
+            [],
+            $exception
+        );
+        throw new RepositoryException('Unable to disable host categories', []);
     }
 }
 
 /**
  * Delete one or multiple host categories
+ *
+ * @throws RepositoryException
  */
-function deleteHostCategoriesInDB(array $hostCategories = [])
+function deleteHostCategoriesInDB(array $hostCategories = []): void
 {
     global $pearDB, $centreon;
 
@@ -258,9 +267,9 @@ function deleteHostCategoriesInDB(array $hostCategories = [])
         ->where('hc_id = :hc_id')
         ->getQuery();
 
-    foreach (array_keys($hostCategories) as $key) {
-        $id = filter_var($key, FILTER_VALIDATE_INT);
-        try {
+    try {
+        foreach (array_keys($hostCategories) as $key) {
+            $id = filter_var($key, FILTER_VALIDATE_INT);
             $row = $pearDB->fetchAssociative(
                 $selQuery,
                 QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
@@ -275,87 +284,86 @@ function deleteHostCategoriesInDB(array $hostCategories = [])
                 object_name: $row['hc_name'] ?? '',
                 action_type: ActionLog::ACTION_TYPE_DELETE
             );
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception){
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error deleting host category',
-                ['hcId' => $id],
-                $exception
-            );
         }
+        $centreon->user->access->updateACL();
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error deleting host categories',
+            [],
+            $exception
+        );
+        throw new RepositoryException('Unable to delete host categories');
     }
-
-    $centreon->user->access->updateACL();
 }
 
 /**
  * Duplicate host categories N times
+ *
+ * @throws RepositoryException
  */
-function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = [])
+function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = []): void
 {
     global $pearDB, $centreon;
 
     $aclMap = [];
 
-    foreach (array_keys($hostCategories) as $key) {
-        $hcId = (int) filter_var($key, FILTER_VALIDATE_INT);
+    try {
+        foreach (array_keys($hostCategories) as $key) {
+            $hcId = (int)filter_var($key, FILTER_VALIDATE_INT);
 
-        $selectQ = $pearDB->createQueryBuilder()
-            ->select('*')
-            ->from('hostcategories')
-            ->where('hc_id = :hc_id')
-            ->limit(1)
-            ->getQuery();
-        $row = $pearDB->fetchAssociative(
-            $selectQ,
-            QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
-        );
-        if (!$row) {
-            continue;
-        }
-
-        // Duplicate N times
-        for ($i = 1; $i <= ($nbrDup[$key] ?? 0); $i++) {
-            $newName = \HtmlSanitizer::createFromString($row['hc_name'])
-                ->removeTags()
-                ->sanitize()
-                ->getString() . "_$i";
-            if (! testHostCategorieExistence($newName)) {
+            $selectQ = $pearDB->createQueryBuilder()
+                ->select('*')
+                ->from('hostcategories')
+                ->where('hc_id = :hc_id')
+                ->limit(1)
+                ->getQuery();
+            $row = $pearDB->fetchAssociative(
+                $selectQ,
+                QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
+            );
+            if (!$row) {
                 continue;
             }
 
-            $qbInsert = $pearDB->createQueryBuilder()
-                ->insert('hostcategories')
-                ->values([
-                    'hc_name' => ':hc_name',
-                    'hc_alias' => ':hc_alias',
-                    'level' => ':level',
-                    'icon_id' => ':icon_id',
-                    'hc_comment' => ':hc_comment',
-                    'hc_activate' => ':hc_activate',
-                ]);
-            $insQuery = $qbInsert->getQuery();
+            for ($i = 1; $i <= ($nbrDup[$key] ?? 0); $i++) {
+                $newName = \HtmlSanitizer::createFromString($row['hc_name'])
+                    ->removeTags()
+                    ->sanitize()
+                    ->getString() . "_$i";
+                if (! testHostCategorieExistence($newName)) {
+                    continue;
+                }
 
-            $params = [
-                QueryParameter::string('hc_name', $newName),
-                QueryParameter::string('hc_alias', \HtmlSanitizer::createFromString($row['hc_alias'])
-                    ->removeTags()->sanitize()->getString()),
-                QueryParameter::int('level', $row['level'] !== null ? (int) $row['level'] : null),
-                QueryParameter::int('icon_id', $row['icon_id'] !== null ? (int) $row['icon_id'] : null),
-                $row['hc_comment']
-                    ? QueryParameter::string('hc_comment', \HtmlSanitizer::createFromString($row['hc_comment'])
-                        ->removeTags()->sanitize()->getString())
-                    : QueryParameter::string('hc_comment', null),
-                QueryParameter::string('hc_activate', preg_match('/^[01]$/', $row['hc_activate'] ?? '') ? $row['hc_activate'] : '0')
-            ];
+                $qbInsert = $pearDB->createQueryBuilder()
+                    ->insert('hostcategories')
+                    ->values([
+                        'hc_name' => ':hc_name',
+                        'hc_alias' => ':hc_alias',
+                        'level' => ':level',
+                        'icon_id' => ':icon_id',
+                        'hc_comment' => ':hc_comment',
+                        'hc_activate' => ':hc_activate',
+                    ]);
+                $insQuery = $qbInsert->getQuery();
 
-            try {
-                // Insert duplicate
+                $params = [
+                    QueryParameter::string('hc_name', $newName),
+                    QueryParameter::string('hc_alias', \HtmlSanitizer::createFromString($row['hc_alias'])
+                        ->removeTags()->sanitize()->getString()),
+                    QueryParameter::int('level', $row['level'] !== null ? (int)$row['level'] : null),
+                    QueryParameter::int('icon_id', $row['icon_id'] !== null ? (int)$row['icon_id'] : null),
+                    $row['hc_comment']
+                        ? QueryParameter::string('hc_comment', \HtmlSanitizer::createFromString($row['hc_comment'])
+                            ->removeTags()->sanitize()->getString())
+                        : QueryParameter::string('hc_comment', null),
+                    QueryParameter::string('hc_activate', preg_match('/^[01]$/', $row['hc_activate'] ?? '') ? $row['hc_activate'] : '0')
+                ];
+
                 $pearDB->insert($insQuery, QueryParameters::create($params));
                 $newId = (int) $pearDB->getLastInsertId();
                 $aclMap[$newId] = $hcId;
 
-                // Duplicate host relations if this is not a level-based category
                 if (empty($row['level'])) {
                     $relSelect = $pearDB->createQueryBuilder()
                         ->select('host_host_id')
@@ -371,8 +379,8 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                             $pearDB->createQueryBuilder()
                                 ->insert('hostcategories_relation')
                                 ->values([
-                                    'hostcategories_hc_id'=>':new',
-                                    'host_host_id'=>':host'
+                                    'hostcategories_hc_id' => ':new',
+                                    'host_host_id' => ':host'
                                 ])
                                 ->getQuery(),
                             QueryParameters::create([
@@ -396,23 +404,26 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                     action_type: ActionLog::ACTION_TYPE_ADD,
                     fields: $fields
                 );
-            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-                CentreonLog::create()->error(
-                    CentreonLog::TYPE_SQL,
-                    'Error duplicating host category',
-                    ['originalId' => $hcId, 'dupIndex' => $i],
-                    $exception
-                );
             }
         }
-    }
 
-    CentreonACL::duplicateHcAcl($aclMap);
-    $centreon->user->access->updateACL();
+        CentreonACL::duplicateHcAcl($aclMap);
+        $centreon->user->access->updateACL();
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error duplicating host categories',
+            ['map' => $aclMap],
+            $exception
+        );
+        throw new RepositoryException('Unable to duplicate host categories', ['map' => $aclMap]);
+    }
 }
 
 /**
  * Insert host categories
+ *
+ * @throws RepositoryException
  */
 function insertHostCategories(array $ret = []): int
 {
@@ -458,6 +469,8 @@ function insertHostCategories(array $ret = []): int
             action_type: ActionLog::ACTION_TYPE_ADD,
             fields: $fields
         );
+
+        return $hcId;
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
@@ -465,47 +478,55 @@ function insertHostCategories(array $ret = []): int
             [],
             $exception
         );
-        $hcId = 0;
+        throw new RepositoryException('Unable to insert host category');
     }
-
-    return $hcId;
 }
 
 /**
- * Insert host categories via QueryBuilder + sanitized values
+ * Legacy wrapper: calls insertHostCategories(), then updates relations & ACL.
+ *
+ * @throws RepositoryException
  */
 function insertHostCategoriesInDB(array $ret = []): int
 {
     global $centreon;
+    try {
+        $hcId = insertHostCategories($ret);
+        updateHostCategoriesHosts($hcId, $ret);
+        $centreon->user->access->updateACL();
 
-    $hcId = insertHostCategories($ret);
-    if ($hcId === 0) {
-        return 0;
+        return $hcId;
+    } catch (RepositoryException $exception) {
+        throw $exception;
     }
-    updateHostCategoriesHosts($hcId, $ret);
-    $centreon->user->access->updateACL();
-
-    return $hcId;
 }
 
 /**
  * Update host categories (master entry + relations + ACL)
+ *
+ * @throws RepositoryException
  */
-function updateHostCategoriesInDB(?int $hcId = null)
+function updateHostCategoriesInDB(?int $hcId = null): void
 {
-    if (!$hcId) {
-        return;
-    }
     global $centreon;
-    updateHostCategories($hcId);
-    updateHostCategoriesHosts($hcId);
-    $centreon->user->access->updateACL();
+    if (!$hcId) {
+        throw new RepositoryException('Host category ID is required for update');
+    }
+    try {
+        updateHostCategories($hcId);
+        updateHostCategoriesHosts($hcId);
+        $centreon->user->access->updateACL();
+    } catch (RepositoryException $exception) {
+        throw $exception;
+    }
 }
 
 /**
  * Perform the UPDATE query on hostcategories.
+ *
+ * @throws RepositoryException
  */
-function updateHostCategories(int $hcId)
+function updateHostCategories(int $hcId): void
 {
     global $pearDB, $centreon;
 
@@ -524,11 +545,11 @@ function updateHostCategories(int $hcId)
         ->getQuery();
 
     // Prepare params with conditional binding
-    $rawAct   = $ret['hc_activate']['hc_activate'] ?? '';
-    $act      = preg_match('/^[01]$/', $rawAct) ? $rawAct : '0';
-    $params   = [
-        QueryParameter::string('hc_name',    $ret['hc_name']),
-        QueryParameter::string('hc_alias',   $ret['hc_alias']),
+    $rawAct = $ret['hc_activate']['hc_activate'] ?? '';
+    $activate = preg_match('/^[01]$/', $rawAct) ? $rawAct : '0';
+    $params = [
+        QueryParameter::string('hc_name', $ret['hc_name'] ?? ''),
+        QueryParameter::string('hc_alias', $ret['hc_alias'] ?? ''),
         !empty($ret['hc_type']) && isset($ret['hc_severity_level'])
             ? QueryParameter::int('level', (int) $ret['hc_severity_level'])
             : QueryParameter::string('level', null),
@@ -536,7 +557,7 @@ function updateHostCategories(int $hcId)
             ? QueryParameter::int('icon_id', (int) $ret['hc_severity_icon'])
             : QueryParameter::string('icon_id', null),
         QueryParameter::string('hc_comment', $ret['hc_comment'] ?? null),
-        QueryParameter::string('hc_activate',$act),
+        QueryParameter::string('hc_activate', $activate),
         QueryParameter::int('hc_id', $hcId),
     ];
 
@@ -549,7 +570,7 @@ function updateHostCategories(int $hcId)
         $centreon->CentreonLogAction->insertLog(
             object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
             object_id: $hcId,
-            object_name: $ret['hc_name'],
+            object_name: $ret['hc_name'] ?? '',
             action_type: ActionLog::ACTION_TYPE_CHANGE,
             fields: $fields
         );
@@ -559,7 +580,7 @@ function updateHostCategories(int $hcId)
                 object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
                 object_id: $hcId,
                 object_name: $ret['hc_name'] ?? '',
-                action_type: $act === '1'
+                action_type: $activate === '1'
                     ? ActionLog::ACTION_TYPE_ENABLE
                     : ActionLog::ACTION_TYPE_DISABLE,
                 fields: $fields
@@ -572,36 +593,43 @@ function updateHostCategories(int $hcId)
             ['hcId' => $hcId],
             $exception
         );
+        throw new RepositoryException('Unable to update host category', ['hcId' => $hcId]);
     }
 }
 
 /**
  * Update host relations: deletes old relations and inserts new ones.
+ *
+ * @throws RepositoryException
  */
-function updateHostCategoriesHosts(?int $hcId, array $ret = [])
+function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
 {
     global $pearDB, $form;
 
     if (!$hcId) {
-        return;
+        throw new RepositoryException('Host category ID is required for relation update');
     }
 
-    // Delete all prior relations
-    $pearDB->delete(
-        $pearDB->createQueryBuilder()
-            ->delete('hostcategories_relation')
-            ->where('hostcategories_hc_id = :hc_id')
-            ->getQuery(),
-        QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
-    );
+    try {
+        // Delete old relations
+        $pearDB->delete(
+            $pearDB->createQueryBuilder()
+                ->delete('hostcategories_relation')
+                ->where('hostcategories_hc_id = :hc_id')
+                ->getQuery(),
+            QueryParameters::create([QueryParameter::int('hc_id', $hcId)])
+        );
 
-    // Merge host and host-template selections
-    $hosts = array_merge(
-        $ret['hc_hosts'] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hosts'),
-        $ret['hc_hostsTemplate'] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate')
-    );
+        // Merge hosts
+        $hosts = array_merge(
+            $ret['hc_hosts'] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hosts'),
+            $ret['hc_hostsTemplate'] ?? CentreonUtils::mergeWithInitialValues($form, 'hc_hostsTemplate')
+        );
 
-    if (!empty($hosts)) {
+        if (empty($hosts)) {
+            return;
+        }
+
         $insertBuilder = $pearDB->createQueryBuilder()
             ->insert('hostcategories_relation')
             ->values([
@@ -611,22 +639,21 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = [])
         $insQuery = $insertBuilder->getQuery();
 
         foreach ($hosts as $hostId) {
-            try {
-                $pearDB->insert(
-                    $insQuery,
-                    QueryParameters::create([
-                        QueryParameter::int('hc_id', $hcId),
-                        QueryParameter::int('host', (int) $hostId)
-                    ])
-                );
-            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-                CentreonLog::create()->error(
-                    CentreonLog::TYPE_SQL,
-                    'Error updating host relations',
-                    ['hcId' => $hcId, 'hostId' => $hostId],
-                    $exception
-                );
-            }
+            $pearDB->insert(
+                $insQuery,
+                QueryParameters::create([
+                    QueryParameter::int('hc_id', $hcId),
+                    QueryParameter::int('host', (int) $hostId)
+                ])
+            );
         }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error updating host relations',
+            ['hcId' => $hcId],
+            $exception
+        );
+        throw new RepositoryException('Unable to update host relations', ['hcId' => $hcId]);
     }
 }
