@@ -47,7 +47,6 @@ import {
   TimeValueProps,
   Xscale
 } from './models';
-import { number } from 'yup';
 
 interface TimeTickWithMetrics {
   metrics: Array<Metric>;

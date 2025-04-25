@@ -138,7 +138,7 @@ const useThreshold = ({
     : (metrics as Array<Metric>) || [];
 
   const metric = head(formattedMetrics as Array<Metric>);
-  const hasMetric = isNotNil(metric);
+  const hasMetric = isNotNil(metrics);
 
   const formatThreshold = (threshold: number | null): string => {
     if (!threshold) {

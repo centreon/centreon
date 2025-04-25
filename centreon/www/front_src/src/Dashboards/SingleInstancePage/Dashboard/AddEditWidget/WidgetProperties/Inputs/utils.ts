@@ -7,9 +7,9 @@ import {
   equals,
   includes,
   isEmpty,
+  isNil,
   pluck,
-  split,
-  isNil
+  split
 } from 'ramda';
 
 import {
@@ -69,7 +69,6 @@ export const boundariesValidationSchema = object()
       'isMinAboveMax',
       labelMinMustLowerThanMax,
       (value, context) => {
-        console.log(value, context.parent.min);
         if (isNil(value) || isNil(context.parent.min)) {
           return true;
         }
