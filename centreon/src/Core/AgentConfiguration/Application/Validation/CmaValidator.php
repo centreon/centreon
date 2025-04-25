@@ -67,7 +67,7 @@ class CmaValidator implements TypeValidatorInterface
             if ($key === 'hosts') {
                 foreach ($value as $host) {
                     /** @var array{
-                     *      id: int,
+                     *		id: int,
                      *		address: string,
                      *		port: int,
                      *		poller_ca_certificate: ?string,

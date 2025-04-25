@@ -58,6 +58,13 @@ class FindAgentConfigurationResponseNormalizer implements NormalizerInterface, N
                 $object->pollers
             );
             if ($object->agentConfiguration->getType() === Type::CMA && $object->hostNamesById !== null) {
+                /** @var array{
+                 *  configuration: array{
+                 *      hosts: array{
+                 *          id: int
+                 *      }
+                 *  }
+                 * } $data */
                 foreach ($data['configuration']['hosts'] as $index => $host) {
                     $data['configuration']['hosts'][$index]['name'] = $object->hostNamesById->getName($host['id']);
                 }
