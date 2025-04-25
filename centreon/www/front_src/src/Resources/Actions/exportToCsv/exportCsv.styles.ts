@@ -46,7 +46,7 @@ const useExportCsvStyles = makeStyles()((theme) => ({
   },
   subTitle: {
     paddingBottom: 0.5,
-    color: theme.palette.header.page.title
+    color: theme.palette.text.primary
   }
 }));
 
