@@ -1155,8 +1155,9 @@ jobs:
       - name: List and delete cache
         run: |
           mapfile -t cache_keys < <(gh cache list --ref refs/heads/${{ github.ref_name }} --json key -q '.[] | .key')
+          echo $cache_keys
           while read row; do
             gh cache delete $row
             echo "Cache $row was deleted."
-          done <<< "$cache_ids"
+          done <<< "$cache_keys"
         shell: bash
