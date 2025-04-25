@@ -43,10 +43,6 @@ const useExportCsvStyles = makeStyles()((theme) => ({
   radioInput: {
     padding: theme.spacing(0.5),
     marginLeft: theme.spacing(0.5)
-  },
-  subTitle: {
-   paddingBottom: 0.5,
-   color: theme.palette.header.page.title
   }
 }));
 
