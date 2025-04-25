@@ -44,7 +44,7 @@ const RadioButtons = <T,>({ defaultChecked, options, title, getData }: Props<T>)
   return (
     <RadioGroup aria-labelledby={title}>
       <FormLabel id={title}>
-        <Typography variant="subtitle2" sx={{ paddingBottom: 0.5 }}>
+        <Typography variant="subtitle2" className={classes.subTitle}>
           {title}
         </Typography>
       </FormLabel>
