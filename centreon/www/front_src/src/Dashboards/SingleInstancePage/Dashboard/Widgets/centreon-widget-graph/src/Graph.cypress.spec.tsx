@@ -460,9 +460,6 @@ describe('Graph Widget', () => {
         cy.get('@legendContainer').scrollTo('bottom');
 
         cy.findByText('Legend 99 Centreon-Server').should('exist');
-        cy.makeSnapshot(
-          `legend with a scrollbar for placement: ${position} and mode: ${mode}.`
-        );
       });
     });
   });
