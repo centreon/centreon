@@ -1143,23 +1143,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Install Github CLI
-        run: |
-          set -eux
-
-          if ! command -v gh &> /dev/null; then
-            echo "Installing GH CLI."
-            type -p curl >/dev/null || (sudo apt-get update && sudo apt-get install curl -y)
-            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-            sudo apt-get update
-            sudo apt-get install gh -y
-          else
-            echo "GH CLI is already installed."
-          fi
-        shell: bash
-
       - name: List and delete cache
         run: |
           mapfile -t cache_keys < <(gh cache list --ref refs/heads/${{ github.ref_name }} --json key -q '.[] | .key')
