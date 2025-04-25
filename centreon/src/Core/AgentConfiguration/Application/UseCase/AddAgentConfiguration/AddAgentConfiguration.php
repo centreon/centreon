@@ -218,7 +218,6 @@ final class AddAgentConfiguration
             }
         }
 
-        // Format
         return new AddAgentConfigurationResponse(
             id: $agentConfiguration->getId(),
             type: $agentConfiguration->getType(),
