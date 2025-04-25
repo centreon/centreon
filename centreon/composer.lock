@@ -12029,7 +12029,7 @@
         "ext-openssl": "*",
         "ext-phar": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.1"
     },
