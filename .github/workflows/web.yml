@@ -1130,7 +1130,7 @@ jobs:
     uses: ./.github/workflows/set-pull-request-skip-label.yml
 
   clear-branch-cache:
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     needs: [get-environment, deliver-deb, deliver-rpm]
     env:
       GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
