@@ -57,7 +57,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     private array $parameters;
 
     /**
-     * @param _CmaParameters $parameters
+     * @param array<string,mixed> $parameters
      * @param ConnectionModeEnum $connectionMode
      *
      * @throws AssertionFailedException
