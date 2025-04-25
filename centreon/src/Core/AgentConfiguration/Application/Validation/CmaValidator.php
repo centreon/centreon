@@ -38,6 +38,7 @@ class CmaValidator implements TypeValidatorInterface
     public function __construct(private readonly ReadHostRepositoryInterface $readHostRepository)
     {
     }
+
     /**
      * @inheritDoc
      */
@@ -76,10 +77,9 @@ class CmaValidator implements TypeValidatorInterface
                     if ($host['poller_ca_certificate'] !== null) {
                         $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
                     }
-                    if(! $this->readHostRepository->exists($host['id'])) {
+                    if (! $this->readHostRepository->exists($host['id'])) {
                         throw AgentConfigurationException::invalidHostId($host['id']);
                     }
-
                 }
             }
         }

@@ -35,6 +35,7 @@ final class FindAgentConfigurationResponse implements StandardResponseInterface
      *
      * @param AgentConfiguration $agentConfiguration
      * @param Poller[] $pollers
+     * @param ?HostNamesById $hostNamesById
      */
     public function __construct(
         public readonly AgentConfiguration $agentConfiguration,

@@ -36,6 +36,7 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  *		otel_private_key: string,
  *		otel_ca_certificate: ?string,
  *		hosts: array<array{
+ *	        id: int,
  *			address: string,
  *			port: int,
  *			poller_ca_certificate: ?string,
@@ -56,7 +57,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     private array $parameters;
 
     /**
-     * @param array<string,mixed> $parameters
+     * @param _CmaParameters $parameters
      * @param ConnectionModeEnum $connectionMode
      *
      * @throws AssertionFailedException

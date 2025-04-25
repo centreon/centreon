@@ -40,6 +40,7 @@ final class FindAgentConfiguration
      * FindAgentConfiguration constructor.
      *
      * @param ReadAgentConfigurationRepositoryInterface $readRepository repository to read agent configurations
+     * @param ReadHostRepositoryInterface $readHostRepository
      */
     public function __construct(
         private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
