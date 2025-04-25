@@ -144,7 +144,9 @@ const FormCreation = ({
         dataTestId="tokenName"
         disabled={Boolean(token)}
         id="tokenName"
-        inputProps={{ 'data-testid': 'tokenNameInput' }}
+        textFieldSlotsAndSlotProps={{
+          slotProps: { htmlInput: { 'data-testid': 'tokenNameInput' } }
+        }}
         label={t(labelName)}
         required={!token}
         value={tokenName}

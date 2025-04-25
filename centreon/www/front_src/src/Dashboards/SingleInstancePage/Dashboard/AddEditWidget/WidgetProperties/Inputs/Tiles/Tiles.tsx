@@ -47,9 +47,13 @@ const WidgetTiles = ({
         defaultValue={value}
         disabled={!canEditField}
         fallbackValue={100}
-        inputProps={{
-          'aria-label': t(labelTiles),
-          min: 1
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': t(labelTiles),
+              min: 1
+            }
+          }
         }}
         size="compact"
         type="number"

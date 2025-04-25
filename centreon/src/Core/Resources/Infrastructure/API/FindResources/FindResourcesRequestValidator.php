@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Resources\Infrastructure\API\FindResources;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Domain\RealTime\ResourceTypeInterface;
 
@@ -84,28 +85,29 @@ final class FindResourcesRequestValidator
 
     /** Allowed values for statuses. */
     public const ALLOWED_STATUSES = [
-        'OK',
-        'WARNING',
-        'CRITICAL',
-        'UNKNOWN',
-        'UNREACHABLE',
-        'PENDING',
-        'UP',
-        'DOWN',
+        ResourceFilter::STATUS_OK,
+        ResourceFilter::STATUS_WARNING,
+        ResourceFilter::STATUS_CRITICAL,
+        ResourceFilter::STATUS_UNKNOWN,
+        ResourceFilter::STATUS_UNREACHABLE,
+        ResourceFilter::STATUS_PENDING,
+        ResourceFilter::STATUS_UP,
+        ResourceFilter::STATUS_DOWN,
     ];
 
     /** Allowed values for states. */
     public const ALLOWED_STATES = [
-        'unhandled_problems',
-        'resources_problems',
-        'in_downtime',
-        'acknowledged',
+        ResourceFilter::STATE_UNHANDLED_PROBLEMS,
+        ResourceFilter::STATE_RESOURCES_PROBLEMS,
+        ResourceFilter::STATE_IN_DOWNTIME,
+        ResourceFilter::STATE_ACKNOWLEDGED,
+        ResourceFilter::STATE_IN_FLAPPING,
     ];
 
     /** Allowed values for status types. */
     public const ALLOWED_STATUS_TYPES = [
-        'hard',
-        'soft',
+        ResourceFilter::HARD_STATUS_TYPE,
+        ResourceFilter::SOFT_STATUS_TYPE,
     ];
 
     /** @var _RequestParameters */

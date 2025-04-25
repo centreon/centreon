@@ -608,9 +608,14 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
         $response = $client->request('DELETE', $url, ['headers' => $headers]);
 
         if ($response->getStatusCode() !== 204) {
-            $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+            $content = json_decode($response->getContent(false), true);
+            $message = $content['message'] ?? 'Unknown error';
 
-            throw new Exception($content->message ?? 'Unexpected return status');
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: "Error while deleting timeperiod by API : {$message}",
+                customContext: ['timeperiod_id' => $id]
+            );
         }
     }
 }

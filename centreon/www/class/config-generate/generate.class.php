@@ -309,11 +309,12 @@ class Generate
         Broker::getInstance($this->dependencyInjector)->reset();
 
         (new AdditionalConnectorVmWareV6(
-            Backend::getInstance($this->dependencyInjector),
+            $this->dependencyInjector,
+            $this->backend_instance,
             $this->readAdditionalConnectorRepository
         ))->reset();
         (new AgentConfiguration(
-            Backend::getInstance($this->dependencyInjector),
+            $this->backend_instance,
             $this->readAgentConfigurationRepository
         ))->reset();
         $this->resetModuleObjects();
@@ -334,20 +335,9 @@ class Generate
         $this->backend_instance->initPath($this->current_poller['id']);
         $this->backend_instance->setPollerId($this->current_poller['id']);
         $this->resetObjectsEngine();
-        $kernel = Kernel::createForWeb();
-        $readAdditionalConnectorRepository = $kernel->getContainer()->get(ReadAccRepositoryInterface::class)
-            ?? throw new \Exception('ReadAccRepositoryInterface not found');
-        (new AdditionalConnectorVmWareV6(
-            $this->backend_instance,
-            $readAdditionalConnectorRepository
-        ))->generateFromPollerId($this->current_poller['id']);
-        $readAgentConfigurationRepository = $kernel->getContainer()->get(
-            ReadAgentConfigurationRepositoryInterface::class
-        )
-            ?? throw new \Exception('ReadAgentConfigurationRepositoryInterface not found');
         (new AgentConfiguration(
-            Backend::getInstance($this->dependencyInjector),
-            $readAgentConfigurationRepository
+            $this->backend_instance,
+            $this->readAgentConfigurationRepository
         ))->generateFromPollerId($this->current_poller['id']);
 
         Vault::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
@@ -364,9 +354,16 @@ class Generate
         $this->generateModuleObjects(self::GENERATION_FOR_BROKER);
         Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         $this->backend_instance->movePath($this->current_poller['id']);
-
         $this->generateIndexData($this->current_poller['localhost'] === '1');
         $this->generateModulesIndexData($this->current_poller['localhost'] === '1');
+
+        $this->backend_instance->initPath($this->current_poller['id'], 3);
+        (new AdditionalConnectorVmWareV6(
+            $this->dependencyInjector,
+            $this->backend_instance,
+            $this->readAdditionalConnectorRepository
+        ))->generateFromPollerId($this->current_poller['id']);
+        $this->backend_instance->movePath($this->current_poller['id']);
     }
 
     /**

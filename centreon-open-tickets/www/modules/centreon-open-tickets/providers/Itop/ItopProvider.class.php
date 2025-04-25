@@ -128,13 +128,9 @@ class ItopProvider extends AbstractProvider
     */
     protected function getConfigContainer1Extra()
     {
-        $tpl = new Smarty();
-        $tpl = initSmartyTplForPopup(
-            $this->centreon_open_tickets_path,
-            $tpl,
-            'providers/Itop/templates',
-            $this->centreon_path
-        );
+        // Smarty template initialization
+        $tpl = SmartyBC::createSmartyTemplate($this->centreon_open_tickets_path, 'providers/Itop/templates');
+
         $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
         $tpl->assign('header', ['Itop' => _("Itop Rest Api")]);

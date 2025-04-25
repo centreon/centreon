@@ -267,7 +267,10 @@ describe('Login Page', () => {
     cy.findByLabelText(labelConnect).click();
 
     cy.waitForRequest('@postLogin').then(({ request }) => {
-      expect(request.body).equal('{"login":"admin","password":"centreon"}');
+      expect(request.body).to.deep.equal({
+        login: 'admin',
+        password: 'centreon'
+      });
     });
 
     cy.waitForRequest('@getUser');
@@ -294,15 +297,15 @@ describe('Login Page', () => {
     cy.findByLabelText(labelConnect).click();
 
     cy.waitForRequest('@postLogin').then(({ request }) => {
-      expect(request.body).equal(
-        '{"login":"invalid_alias","password":"invalid_password"}'
-      );
+      expect(request.body).to.deep.equal({
+        login: 'invalid_alias',
+        password: 'invalid_password'
+      });
     });
 
     cy.contains(labelInvalidCredentials)
       .should('be.visible')
       .then(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(useNavigate).to.not.have.been.called;
       });
 
@@ -355,8 +358,6 @@ describe('Login Page', () => {
     cy.findByLabelText(labelHideThePassword).click();
 
     cy.findByLabelText(labelPassword).should('have.attr', 'type', 'password');
-
-    cy.makeSnapshot();
   });
 
   it('redirects to the reset page when the submitted password is expired', () => {
@@ -395,7 +396,6 @@ describe('Login Page', () => {
     cy.contains(labelError)
       .should('be.visible')
       .then(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(useNavigate).to.not.have.been.called;
       });
 

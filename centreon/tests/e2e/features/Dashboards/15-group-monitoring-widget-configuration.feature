@@ -10,8 +10,10 @@ Feature: Configuring group monitoring widget
     When the dashboard administrator user selects the option to add a new widget
     And the dashboard administrator user selects the widget type "Group monitoring"
     Then configuration properties for the Group monitoring widget are displayed
+    And the Save button is disabled
     When the dashboard administrator user selects resources for the widget
     Then a table representing the statuses of this list of resources are displayed in the widget preview
+    And the Save button is enabled
     When the user saves the Group monitoring widget
     Then the Group monitoring widget is added in the dashboard's layout
 

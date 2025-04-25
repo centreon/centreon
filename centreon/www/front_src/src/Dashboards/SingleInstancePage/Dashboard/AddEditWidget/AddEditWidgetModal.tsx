@@ -10,7 +10,6 @@ import { Paper, useMediaQuery, useTheme } from '@mui/material';
 import { Modal } from '@centreon/ui/components';
 
 import { isSidebarOpenAtom } from '../../../../Navigation/navigationAtoms';
-import Title from '../../../components/Title';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 import {
   labelAddWidget,
@@ -95,9 +94,7 @@ const AddWidgetModal = (): JSX.Element | null => {
           size="fullscreen"
           onClose={() => askBeforeCloseModal(dirty)}
         >
-          <Modal.Header>
-            <Title>{t(getTitle())}</Title>
-          </Modal.Header>
+          <Modal.Header variant="h6">{t(getTitle())}</Modal.Header>
           <>
             <Modal.Body>
               {isSmallDisplay ? (

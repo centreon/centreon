@@ -18,9 +18,11 @@
     "ext-posix": "*",
     "ext-simplexml": "*",
     "ext-zip": "*",
+    "amphp/http-client": "^4.6",
     "beberlei/assert": "^3.3",
     "curl/curl": "^2.3",
     "doctrine/annotations": "^1.0",
+    "doctrine/dbal": "^4.2",
     "dragonmantank/cron-expression": "3.1.0",
     "enshrined/svg-sanitize": "^0.15",
     "friendsofsymfony/rest-bundle": "^3.0",
@@ -77,6 +79,7 @@
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
     "friendsofphp/php-cs-fixer": "3.64.*",
+    "mockery/mockery": "1.6.*",
     "pestphp/pest": "1.23.*",
     "php-vfs/php-vfs": "1.4.*",
     "phpcompatibility/php-compatibility": "9.3.*",
@@ -166,7 +169,8 @@
     "phpstan:test:ci": "@phpstan:test --no-progress",
     "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
     "rector:check": "rector process --dry-run --debug",
-    "rector:exec": "rector process --debug"
+    "rector:exec": "rector process --debug",
+    "symfony:check:ci": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
   },
   "extra": {
     "symfony": {

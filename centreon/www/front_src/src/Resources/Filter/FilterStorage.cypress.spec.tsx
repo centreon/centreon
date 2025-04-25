@@ -1,8 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
-import { useAtomValue } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';
@@ -325,13 +321,6 @@ const FilterWithProvider = (): JSX.Element => (
   </TestQueryProvider>
 );
 
-before(() => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-});
-
 describe('Filter storage', () => {
   beforeEach(() => {
     cy.interceptAPIRequest({
@@ -418,7 +407,7 @@ describe('Filter storage', () => {
 
     cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByTestId(labelHost).click();
+    cy.findByTestId(labelHost.toLowerCase()).click();
 
     const hostName = cy.findByText(resourcesByHostType.name);
     hostName.should('exist');

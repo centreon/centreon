@@ -1,8 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
   cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi('resources/clapi/config-ACL/ac-acl-user.json');
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/config-ACL/ac-acl-user.json'
+  );
 });
 
 beforeEach(() => {
@@ -39,25 +42,9 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 
 Given('an already existing agent configuration', () => {
   cy.contains('button', 'Add poller/agent configuration').click();
-  cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
-  cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
-  cy.get('*[role="listbox"]').contains('Telegraf').click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('telegraf-001');
-  cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
-  cy.getByLabel({ label: 'Public certificate file name', tag: 'input' }).type('my-otel-certificate-name-001');
-  cy.getByLabel({ label: 'CA file name', tag: 'input' }).type('ca-file-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(0).type('my-otel-private-key-name-001');
-  cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Certificate file name', tag: 'input' }).type('my-certificate-name-001');
-  cy.getByLabel({ label: 'Private key file name', tag: 'input' }).eq(1).type('my-conf-private-key-name-001');
-  cy.getByTestId({ testId: 'SaveIcon' }).click();
+  cy.addTelegrafAgent(agentsConfiguration.telegraf1);
+  cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'telegraf-001');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'Telegraf');
 });
 
 When('the user deletes the agent configuration', () => {
@@ -69,18 +56,21 @@ When('the user confirms on the pop-up', () => {
   cy.wait('@deleteAgents');
 });
 
-Then('the agent configuration is no longer displayed in the listing page', () => {
-  cy.contains('Welcome to the poller/agent configuration page').should('be.visible');
-  cy.contains('telegraf-001').should('not.exist');
-});
+Then(
+  'the agent configuration is no longer displayed in the listing page',
+  () => {
+    cy.contains('Welcome to the poller/agent configuration page').should(
+      'be.visible'
+    );
+    cy.contains('telegraf-001').should('not.exist');
+  }
+);
 
 When('the user cancel on the pop-up', () => {
   cy.contains('button', 'Cancel').click();
 });
 
 Then('the agent configuration is still displayed in the listing page', () => {
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'telegraf-001');
-  cy.get('*[role="rowgroup"]')
-    .should('contain', 'Telegraf');
+  cy.get('*[role="rowgroup"]').should('contain', 'telegraf-001');
+  cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });

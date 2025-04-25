@@ -18,7 +18,6 @@ export const labelDeletePoller = 'Delete poller';
 export const labelDeleteAgent = 'Delete agent';
 export const labelCancel = 'Cancel';
 export const labelDelete = 'Delete';
-export const labelAgentConfiguration = 'Agent configuration';
 export const labelPollerConfiguration = 'Poller configuration';
 export const labelRequired = 'Required';
 export const labelAddAgentConfiguration = 'Add poller/agent configuration';
@@ -29,10 +28,9 @@ export const labelSave = 'Save';
 export const labelPortExpectedAtMost = 'Port number must be at most 65535';
 export const labelPortMustStartFrom1 = 'Port number must be at least 1';
 export const labelExtensionNotAllowed = 'Extension not allowed';
-export const labelPublicCertificate = 'Public certificate file name';
-export const labelCaCertificate = 'CA file name';
-export const labelPrivateKey = 'Private key file name';
-export const labelCertificate = 'Certificate file name';
+export const labelPublicCertificate = 'Public certificate';
+export const labelCaCertificate = 'CA';
+export const labelPrivateKey = 'Private key';
 export const labelOTLPReceiver = 'OTLP Receiver';
 export const labelAddressInvalid = 'Invalid address';
 export const labelHostConfigurations = 'Host configurations';
@@ -50,10 +48,31 @@ export const labelAgentConfigurationUpdated =
   'Poller/agent configuration updated';
 export const labelUpdateAgentConfiguration =
   'Update poller/agent configuration';
+export const labelRelativePathAreNotAllowed = 'Relative paths are not allowed';
+export const labelInvalidPath = 'Invalid path';
+export const labelInvalidExtension = 'Invalid extension';
 export const labelInvalidFilename = 'Invalid filename';
+
 export const labelWelcomeDescription =
   'An agent is a piece of software you install on the host you want to monitor, that executes the checks.';
 export const labelCMA = 'Centreon Monitoring Agent';
 export const labelPollerCaCertificateFileName =
   'Poller CA certificate file name';
 export const labelPollerCaName = 'Poller CA name';
+
+export const labelDeletePollerConfirmation =
+  'You are going to delete the configuration for the <strong>{{ poller }}</strong> poller from the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone.';
+
+export const labelDeleteAgentConfirmation =
+  'You are going to delete the <strong>{{ agent }}</strong> agent configuration. All configuration parameters for this agent will be deleted. This action cannot be undone.';
+
+export const labelCACommonName = 'CA Common Name (CN)';
+
+export const labelEncryptionLevel = 'Encryption level';
+export const labelWarningEncryptionLevelTelegraf =
+  'You have selected No TLS for the encryption level.';
+export const labelWarningEncryptionLevelCMA =
+  'You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour.';
+
+export const labelTLS = 'TLS';
+export const labelNoTLS = 'No TLS';

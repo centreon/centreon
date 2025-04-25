@@ -12,15 +12,15 @@ import { Divider } from '@mui/material';
 
 import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import type { Dashboard as DashboardType } from '../../api/models';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { type Dashboard as DashboardType, resource } from '../../api/models';
 import { isSharesOpenAtom } from '../../atoms';
 import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { DashboardConfigModal } from '../../components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
 import { useDashboardConfig } from '../../components/DashboardLibrary/DashboardConfig/useDashboardConfig';
+import FavoriteAction from '../../components/DashboardLibrary/DashboardListing/Actions/favoriteAction';
 import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
-
-import FavoriteAction from '../../components/DashboardLibrary/DashboardListing/Actions/favoriteAction';
 import { AddWidgetButton } from './AddEditWidget';
 import { useDashboardStyles } from './Dashboard.styles';
 import Layout from './Layout';
@@ -35,6 +35,9 @@ const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
 
   const { dashboardId } = routerParams.useParams();
+  const queryClient = useQueryClient();
+  const isFetchingListing = useIsFetching({ queryKey: [resource.dashboards] });
+
   const { dashboard, panels, refetch } = useDashboardDetails({
     dashboardId: dashboardId as string
   });
@@ -77,6 +80,11 @@ const Dashboard = (): ReactElement => {
     setIsSharesOpen(dashboard as DashboardType);
   };
 
+  const updateFavorites = (): void => {
+    refetch?.();
+    queryClient.invalidateQueries({ queryKey: [resource.dashboards] });
+  };
+
   useEffect(() => {
     return () => {
       setRefreshCounts({});
@@ -98,7 +106,8 @@ const Dashboard = (): ReactElement => {
                 <FavoriteAction
                   dashboardId={dashboard?.id as number}
                   isFavorite={dashboard?.isFavorite as boolean}
-                  refetch={refetch}
+                  refetch={updateFavorites}
+                  isFetching={isFetchingListing > 0}
                 />
               }
             />
@@ -107,50 +116,52 @@ const Dashboard = (): ReactElement => {
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <PageLayout.Actions rowReverse={isEditing}>
-          {!isEditing && canEdit && (
-            <span>
-              <IconButton
-                aria-label="edit"
-                data-testid="edit"
-                icon={<SettingsIcon />}
-                size="small"
-                variant="primary"
-                onClick={editDashboard(dashboard as DashboardType)}
-              />
-              <IconButton
-                aria-label="share"
-                data-testid="share"
-                icon={<ShareIcon />}
-                size="small"
-                variant="primary"
-                onClick={openAccessRights}
-              />
-              <IconButton
-                aria-label="refresh"
-                data-testid="refresh"
-                icon={<RefreshIcon />}
-                size="small"
-                variant="primary"
-                onClick={refreshAllWidgets}
-              />
-            </span>
-          )}
-          {canEdit && (
-            <div className={classes.editActions}>
-              <AddWidgetButton />
-              {isEditing && (
-                <Divider
-                  className={classes.divider}
-                  orientation="vertical"
-                  variant="middle"
+        <div className={classes.body}>
+          <PageLayout.Actions rowReverse={isEditing}>
+            {!isEditing && canEdit && (
+              <span>
+                <IconButton
+                  aria-label="edit"
+                  data-testid="edit"
+                  icon={<SettingsIcon />}
+                  size="small"
+                  variant="primary"
+                  onClick={editDashboard(dashboard as DashboardType)}
                 />
-              )}
-              <DashboardEditActions panels={panels} />
-            </div>
-          )}
-        </PageLayout.Actions>
-        <Layout dashboardId={dashboardId} />
+                <IconButton
+                  aria-label="share"
+                  data-testid="share"
+                  icon={<ShareIcon />}
+                  size="small"
+                  variant="primary"
+                  onClick={openAccessRights}
+                />
+                <IconButton
+                  aria-label="refresh"
+                  data-testid="refresh"
+                  icon={<RefreshIcon />}
+                  size="small"
+                  variant="primary"
+                  onClick={refreshAllWidgets}
+                />
+              </span>
+            )}
+            {canEdit && (
+              <div className={classes.editActions}>
+                <AddWidgetButton />
+                {isEditing && (
+                  <Divider
+                    className={classes.divider}
+                    orientation="vertical"
+                    variant="middle"
+                  />
+                )}
+                <DashboardEditActions panels={panels} />
+              </div>
+            )}
+          </PageLayout.Actions>
+        </div>
+        <Layout />
       </PageLayout.Body>
       <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />

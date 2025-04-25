@@ -31,7 +31,9 @@ import {
   labelSeeMore
 } from '../../translatedLabels';
 
+import ExpandableButton from './ExpandableButton';
 import MorePanelActions from './MorePanelActions';
+import { ExpandableData } from './models';
 import { usePanelHeaderStyles } from './usePanelStyles';
 import useRefreshWebPageWidget from './useRefreshWebPageWidget';
 
@@ -45,6 +47,7 @@ interface PanelHeaderProps {
   pageType: string | null;
   setRefreshCount?: (id) => void;
   name: string;
+  expandableData?: ExpandableData;
 }
 
 const PanelHeader = ({
@@ -56,7 +59,8 @@ const PanelHeader = ({
   pageType,
   displayShrinkRefresh,
   forceDisplayShrinkRefresh,
-  name
+  name,
+  expandableData
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
@@ -112,7 +116,7 @@ const PanelHeader = ({
   return (
     <CardHeader
       action={
-        displayMoreActions && (
+        displayMoreActions ? (
           <div className={classes.panelActionsIcons}>
             {hasQueryData && (
               <div>
@@ -179,20 +183,27 @@ const PanelHeader = ({
               </IconButton>
             )}
 
-            <IconButton
-              ariaLabel={t(labelMoreActions) as string}
-              title={t(labelMoreActions) as string}
-              onClick={openMoreActions}
-            >
-              <MoreHorizIcon fontSize="small" />
-            </IconButton>
+            {!expandableData || !expandableData?.isExpanded ? (
+              <IconButton
+                ariaLabel={t(labelMoreActions) as string}
+                title={t(labelMoreActions) as string}
+                onClick={openMoreActions}
+              >
+                <MoreHorizIcon fontSize="small" />
+              </IconButton>
+            ) : (
+              <ExpandableButton expandableData={expandableData} />
+            )}
             <MorePanelActions
               anchor={moreActionsOpen}
               close={closeMoreActions}
               duplicate={duplicate}
               id={id}
+              expandableData={expandableData}
             />
           </div>
+        ) : (
+          <ExpandableButton expandableData={expandableData} />
         )
       }
       className={classes.panelHeader}

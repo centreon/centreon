@@ -23,6 +23,8 @@ use Assert\AssertionFailedException;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, VSphereServer};
+use Core\Common\Application\UseCase\VaultTrait;
+use Pimple\Container;
 
 /**
  * Class
@@ -31,6 +33,10 @@ use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, V
  */
 class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
 {
+    use VaultTrait;
+
+    public const CENTREON_SYSTEM_USER = 'centreon';
+
     /**
      * AdditionalConnectorVmWareV6 constructor
      *
@@ -38,9 +44,14 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
      * @param ReadAccRepositoryInterface $readAdditionalConnectorRepository
      */
     public function __construct(
+        Container $dependencyInjector,
         private readonly Backend $backend,
         private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
     ) {
+        parent::__construct($dependencyInjector);
+        if (! $this->isVaultEnabled) {
+            $this->getVaultConfigurationStatus();
+        }
     }
 
     /**
@@ -60,7 +71,21 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
         if ($additionalConnectorsVMWareV6 !== null) {
             $ACCParameters = $additionalConnectorsVMWareV6->getParameters()->getDecryptedData();
 
-            $VSphereServers = array_map(function (array $parameters): VSphereServer {
+            $VSphereServers = array_map(function (array $parameters) use (&$vaultData): VSphereServer {
+                if (
+                    $this->isVaultEnabled
+                    && $this->readVaultRepository !== null
+                    && $this->isAVaultPath($parameters['password'])
+                ) {
+                    $vaultData ??= $this->readVaultRepository->findFromPath($parameters['password']);
+                    $parameters['name'] . '_' . 'password';
+                    if (array_key_exists($parameters['name'] . '_' . 'password', $vaultData)) {
+                        $parameters['password'] = $vaultData[$parameters['name'] . '_' . 'password'];
+                    }
+                    if (array_key_exists($parameters['name'] . '_' . 'username', $vaultData)) {
+                        $parameters['username'] = $vaultData[$parameters['name'] . '_' . 'username'];
+                    }
+                }
                 return new VSphereServer(
                     name: $parameters['name'],
                     url: $parameters['url'],
@@ -85,10 +110,8 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
             ];
         }
         $this->generate_filename = 'centreon_vmware.json';
-        $directory = $this->backend->generate_path . '/vmware/' . $pollerId;
-        $this->backend->createDirectories([$directory]);
         $this->generateFile($object, false);
-        $this->writeFile($directory);
+        $this->writeFile($this->backend->getPath());
     }
 
     /**
@@ -100,5 +123,33 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     public function generateFromPollerId(int $pollerId): void
     {
         $this->generate($pollerId);
+    }
+
+    /**
+     * Write the file ACC configuration centreon_vmware.json file in the given directory
+     *
+     * @param $dir
+     *
+     * @throws \RuntimeException|\Exception
+     */
+    protected function writeFile($dir)
+    {
+        $fullFile = $dir . '/' . $this->generate_filename;
+        if ($handle = fopen($fullFile, 'w')) {
+            $content = is_array($this->content) ? json_encode($this->content) : $this->content;
+            if (!fwrite($handle, $content)) {
+                throw new \RuntimeException('Cannot write to file "' . $fullFile . '"');
+            }
+            fclose($handle);
+
+            /**
+             * Change VMWare files owner to '660 apache centreon'
+             * RW for centreon group are necessary for Gorgone Daemon.
+             */
+            chmod($fullFile, 0660);
+            chgrp($fullFile, self::CENTREON_SYSTEM_USER);
+        } else {
+            throw new \Exception("Cannot open file " . $fullFile);
+        }
     }
 }

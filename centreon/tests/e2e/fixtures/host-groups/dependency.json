@@ -1,0 +1,38 @@
+{
+    "default": {
+        "name": "host-grp-dependency-name",
+        "description": "host-grp-dependency-desc",
+        "parent_relationship": 0,
+        "execution_fails_on_ok": 0,
+        "execution_fails_on_down": 1,
+        "execution_fails_on_unreachable": 0,
+        "execution_fails_on_pending": 0,
+        "execution_fails_on_none": 0,
+        "notification_fails_on_none": 0,
+        "notification_fails_on_ok": 0,
+        "notification_fails_on_down": 0,
+        "notification_fails_on_unreachable": 0,
+        "notification_fails_on_pending": 1,
+        "hostGrpsNames": ["Firewall"],
+        "dependentHostGrpsNames": ["Linux-Servers"],
+        "comment": "Comment for creation/duplication!"
+  },
+  "HostGrpDependency1": {
+        "name": "host-grp-dependency-name-changed",
+        "description": "host-grp-dependency-name-changed",
+        "parent_relationship": 0,
+        "execution_fails_on_ok": 1,
+        "execution_fails_on_down": 0,
+        "execution_fails_on_unreachable": 0,
+        "execution_fails_on_pending": 0,
+        "execution_fails_on_none": 0,
+        "notification_fails_on_none": 0,
+        "notification_fails_on_ok": 0,
+        "notification_fails_on_down": 1,
+        "notification_fails_on_unreachable": 0,
+        "notification_fails_on_pending": 0,
+        "hostGrpsNames": ["Firewall", "host_group_1"],
+        "dependentHostGrpsNames": ["host_group_2"],
+        "comment": "comment!"
+  }
+}

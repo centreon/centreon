@@ -30,23 +30,25 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       options,
       data,
       name
-    }) => ({
-      id: Number(i),
-      layout: {
-        height: h,
-        min_height: minH || 0,
-        min_width: minW || 0,
-        width: w,
-        x,
-        y
-      },
-      name: name || '',
-      widget_settings: {
-        data,
-        options
-      },
-      widget_type: panelConfiguration.path
-    })
+    }) => {
+      return {
+        id: Number(i),
+        layout: {
+          height: h,
+          min_height: minH || 0,
+          min_width: minW || 0,
+          width: w,
+          x,
+          y
+        },
+        name: name || '',
+        widget_settings: {
+          data,
+          options
+        },
+        widget_type: panelConfiguration.path
+      };
+    }
   );
 
 interface DataToFormDataProps {
@@ -118,7 +120,8 @@ const useSaveDashboard = (): UseSaveDashboardState => {
 
     toBlob(node, {
       backgroundColor: theme.palette.background.default,
-      height: 360
+      height: 360,
+      skipFonts: true
     })
       .then((blob) => {
         formData.append('thumbnail_data', blob, `dashboard-${dashboardId}.png`);

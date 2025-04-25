@@ -76,11 +76,8 @@ $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 
 include("./include/common/checkPagination.php");
 
-/*
- * Smarty template Init
- */
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 //start header menu
 $tpl->assign("headerMenu_name", _("Name"));

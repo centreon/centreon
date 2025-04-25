@@ -5,60 +5,82 @@ import { Schema, array, boolean, mixed, number, object, string } from 'yup';
 import { AgentConfigurationForm, AgentType } from '../models';
 import {
   labelAddressInvalid,
-  labelInvalidFilename,
+  labelInvalidExtension,
+  labelInvalidPath,
   labelPortExpectedAtMost,
   labelPortMustStartFrom1,
+  labelRelativePathAreNotAllowed,
   labelRequired
 } from '../translatedLabels';
 
 const ipAddressRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
 const urlRegex = /^[a-zA-Z0-9_-]+\.?[a-zA-Z0-9-_.]+\.?[a-zA-Z0-9-_]+$/;
 export const portRegex = /:[0-9]+$/;
-export const certificateFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.crt|cert|cer)$/;
 export const keyFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.key)$/;
+
+const invalidPath = /^(?!.*\/\/).+$/;
+const validExtensionRegex = /\.(crt|key|cer)$/;
+const relativePathRegex = /^\.{1,2}\//;
 
 export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const { t } = useTranslation();
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
-  const certificateValidation = useMemo(
+
+  const certificateFileValidation = useMemo(
     () =>
       string()
-        .matches(certificateFilenameRegexp, t(labelInvalidFilename))
-        .required(t(labelRequired)),
+        .test({
+          name: 'invalid-path',
+          message: t(labelInvalidPath),
+          test: (value) => !value || invalidPath.test(value)
+        })
+        .test({
+          name: 'is-not-relative-path',
+          message: t(labelRelativePathAreNotAllowed),
+          test: (value) => !value || !relativePathRegex.test(value)
+        })
+        .test({
+          name: 'has-valid-extension',
+          message: t(labelInvalidExtension),
+          test: (value) => !value || validExtensionRegex.test(value)
+        }),
     []
   );
-  const keyValidation = useMemo(
-    () =>
-      string()
-        .matches(keyFilenameRegexp, t(labelInvalidFilename))
-        .required(t(labelRequired)),
-    []
-  );
+
+  const certificateValidation = string().when('$connectionMode.id', {
+    is: 'secure',
+    // biome-ignore lint/suspicious/noThenProperty: <explanation>
+    then: () => certificateFileValidation.required(t(labelRequired)),
+    otherwise: () => string().nullable()
+  });
+
+  const certificateNullableValidation = string().when('$connectionMode.id', {
+    is: 'secure',
+    // biome-ignore lint/suspicious/noThenProperty: <explanation>
+    then: () => certificateFileValidation.nullable(),
+    otherwise: () => string().nullable()
+  });
+
   const portValidation = number()
     .min(1, t(labelPortMustStartFrom1))
     .max(65535, t(labelPortExpectedAtMost))
     .required(t(labelRequired));
-  const certificateNullableValidation = string()
-    .matches(certificateFilenameRegexp, t(labelInvalidFilename))
-    .nullable();
 
   const telegrafConfigurationSchema = {
     confServerPort: portValidation,
     otelPublicCertificate: certificateValidation,
     otelCaCertificate: certificateNullableValidation,
-    otelPrivateKey: keyValidation,
+    otelPrivateKey: certificateValidation,
     confCertificate: certificateValidation,
-    confPrivateKey: keyValidation
+    confPrivateKey: certificateValidation
   };
 
   const CMAConfigurationSchema = {
     isReverse: boolean(),
     otelPublicCertificate: certificateValidation,
-    otelCaCertificate: string()
-      .matches(certificateFilenameRegexp, t(labelInvalidFilename))
-      .nullable(),
-    otelPrivateKey: keyValidation,
+    otelCaCertificate: certificateNullableValidation,
+    otelPrivateKey: certificateValidation,
     hosts: array()
       .of(
         object({
@@ -78,7 +100,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       )
       .when('isReverse', {
         is: true,
-        // biome-ignore lint/suspicious/noThenProperty:
+        // biome-ignore lint/suspicious/noThenProperty: <explanation>
         then: (schema) => schema.min(1),
         otherwise: (schema) => schema.min(0)
       })
@@ -95,6 +117,10 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         })
       )
       .min(1, t(labelRequired)),
+    connectionMode: object({
+      id: string(),
+      name: string()
+    }).nullable(),
     configuration: object().when('type', {
       is: (type) => equals(type?.id, AgentType.Telegraf),
       // biome-ignore lint/suspicious/noThenProperty: <explanation>

@@ -23,44 +23,69 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Infrastructure\Repository;
 
-use Centreon\Infrastructure\DatabaseConnection;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\AgentConfiguration\Application\Repository\WriteAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\NewAgentConfiguration;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 
-class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB implements WriteAgentConfigurationRepositoryInterface
+/**
+ * Class
+ *
+ * @class DbWriteAgentConfigurationRepository
+ * @package Core\AgentConfiguration\Infrastructure\Repository
+ */
+class DbWriteAgentConfigurationRepository extends DatabaseRepository implements WriteAgentConfigurationRepositoryInterface
 {
     use RepositoryTrait;
-
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
 
     /**
      * @inheritDoc
      */
     public function add(NewAgentConfiguration $agentConfiguration): int
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                INSERT INTO `:db`.`agent_configuration`
-                    (type, name, configuration)
-                VALUES (:type, :name, :configuration)
-                SQL
-        ));
+        try {
+            $query = $this->queryBuilder->insert('`:db`.`agent_configuration`')
+                ->values(
+                    [
+                        'type' => ':type',
+                        'name' => ':name',
+                        'connection_mode' => ':connection_mode',
+                        'configuration' => ':configuration',
+                    ]
+                )->getQuery();
 
-        $statement->bindValue(':type', $agentConfiguration->getType()->value, \PDO::PARAM_STR);
-        $statement->bindValue(':name', $agentConfiguration->getName(), \PDO::PARAM_STR);
-        $statement->bindValue(':configuration', json_encode($agentConfiguration->getConfiguration()->getData()));
-        $statement->execute();
+            $this->connection->insert(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::string('type', $agentConfiguration->getType()->value),
+                    QueryParameter::string('name', $agentConfiguration->getName()),
+                    QueryParameter::string(
+                        ':connection_mode',
+                        match ($agentConfiguration->getConnectionMode()) {
+                            ConnectionModeEnum::NO_TLS => 'no-tls',
+                            ConnectionModeEnum::SECURE => 'secure',
+                        }
+                    ),
+                    QueryParameter::string(
+                        'configuration',
+                        json_encode($agentConfiguration->getConfiguration()->getData(), JSON_THROW_ON_ERROR)
+                    ),
+                ])
+            );
 
-        return (int) $this->db->lastInsertId();
+            return (int) $this->connection->getLastInsertId();
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while adding agent configuration',
+                context: ['type' => $agentConfiguration->getType()->value, 'name' => $agentConfiguration->getName()],
+                previous: $exception
+            );
+        }
     }
 
     /**
@@ -68,21 +93,39 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function update(AgentConfiguration $agentConfiguration): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                UPDATE `:db`.`agent_configuration`
-                SET
-                    `name` = :name,
-                    `configuration` = :configuration
-                WHERE
-                    `id` = :id
-                SQL
-        ));
+        try {
+            $query = $this->queryBuilder->update('`:db`.`agent_configuration`')
+                ->set('name', ':name')
+                ->set('configuration', ':configuration')
+                ->set('connection_mode', ':connection_mode')
+                ->where($this->queryBuilder->expr()->equal('id', ':id'))
+                ->getQuery();
 
-        $statement->bindValue(':id', $agentConfiguration->getId(), \PDO::PARAM_INT);
-        $statement->bindValue(':name', $agentConfiguration->getName(), \PDO::PARAM_STR);
-        $statement->bindValue(':configuration', json_encode($agentConfiguration->getConfiguration()->getData()));
-        $statement->execute();
+            $this->connection->update(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::int('id', $agentConfiguration->getId()),
+                    QueryParameter::string('name', $agentConfiguration->getName()),
+                    QueryParameter::string(
+                        'connection_mode',
+                        match ($agentConfiguration->getConnectionMode()) {
+                            ConnectionModeEnum::NO_TLS => 'no-tls',
+                            ConnectionModeEnum::SECURE => 'secure',
+                        }
+                    ),
+                    QueryParameter::string(
+                        'configuration',
+                        json_encode($agentConfiguration->getConfiguration()->getData(), JSON_THROW_ON_ERROR)
+                    ),
+                ])
+            );
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while updating agent configuration',
+                context: ['id' => $agentConfiguration->getId(), 'name' => $agentConfiguration->getName()],
+                previous: $exception
+            );
+        }
     }
 
     /**
@@ -90,16 +133,22 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function delete(int $id): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                DELETE FROM `:db`.`agent_configuration`
-                WHERE
-                    `id` = :id
-                SQL
-        ));
+        try {
+            $query = $this->queryBuilder->delete('`:db`.`agent_configuration`')
+                ->where($this->queryBuilder->expr()->equal('id', ':id'))
+                ->getQuery();
 
-        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
-        $statement->execute();
+            $this->connection->delete(
+                $this->translateDbName($query),
+                QueryParameters::create([QueryParameter::int('id', $id)])
+            );
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while deleting agent configuration',
+                context: ['id' => $id],
+                previous: $exception
+            );
+        }
     }
 
     /**
@@ -107,20 +156,31 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function linkToPollers(int $agentConfigurationId, array $pollerIds): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                INSERT INTO `:db`.`ac_poller_relation`
-                    (ac_id, poller_id)
-                VALUES (:ac_id, :poller_id)
-                SQL
-        ));
+        try {
+            $query = $this->queryBuilder->insert('`:db`.`ac_poller_relation`')
+                ->values(
+                    [
+                        'ac_id' => ':ac_id',
+                        'poller_id' => ':poller_id',
+                    ]
+                )->getQuery();
 
-        $pollerId = null;
-        $statement->bindValue(':ac_id', $agentConfigurationId, \PDO::PARAM_INT);
-        $statement->bindParam(':poller_id', $pollerId, \PDO::PARAM_INT);
-        foreach ($pollerIds as $poller) {
-            $pollerId = $poller;
-            $statement->execute();
+            foreach ($pollerIds as $poller) {
+                $pollerId = $poller;
+                $this->connection->insert(
+                    $this->translateDbName($query),
+                    QueryParameters::create([
+                        QueryParameter::int('ac_id', $agentConfigurationId),
+                        QueryParameter::int('poller_id', $pollerId),
+                    ])
+                );
+            }
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while linking agent configuration with pollers',
+                context: ['agentConfigurationId' => $agentConfigurationId, 'pollerIds' => $pollerIds],
+                previous: $exception
+            );
         }
     }
 
@@ -129,15 +189,22 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function removePollers(int $agentConfigurationId): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                DELETE FROM `:db`.`ac_poller_relation`
-                WHERE ac_id = :ac_id
-                SQL
-        ));
+        try {
+            $query = $this->queryBuilder->delete('`:db`.`ac_poller_relation`')
+                ->where($this->queryBuilder->expr()->equal('ac_id', ':ac_id'))
+                ->getQuery();
 
-        $statement->bindValue(':ac_id', $agentConfigurationId, \PDO::PARAM_INT);
-        $statement->execute();
+            $this->connection->delete(
+                $this->translateDbName($query),
+                QueryParameters::create([QueryParameter::int('ac_id', $agentConfigurationId)])
+            );
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while removing pollers from agent configuration',
+                context: ['ac_id' => $agentConfigurationId],
+                previous: $exception
+            );
+        }
     }
 
     /**
@@ -145,17 +212,26 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function removePoller(int $agentConfigurationId, int $pollerId): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                DELETE FROM `:db`.`ac_poller_relation`
-                WHERE ac_id = :ac_id
-                    AND poller_id = :poller_id
-                SQL
-        ));
+        try {
+            $query = $this->queryBuilder->delete('`:db`.`ac_poller_relation`')
+                ->where($this->queryBuilder->expr()->equal('ac_id', ':ac_id'))
+                ->andWhere($this->queryBuilder->expr()->equal('poller_id', ':poller_id'))
+                ->getQuery();
 
-        $statement->bindValue(':ac_id', $agentConfigurationId, \PDO::PARAM_INT);
-        $statement->bindValue(':poller_id', $pollerId, \PDO::PARAM_INT);
-        $statement->execute();
+            $this->connection->delete(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::int('ac_id', $agentConfigurationId),
+                    QueryParameter::int('poller_id', $pollerId),
+                ])
+            );
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while removing a poller from agent configuration',
+                context: ['ac_id' => $agentConfigurationId, 'poller_id' => $pollerId],
+                previous: $exception
+            );
+        }
     }
 
     /**
@@ -163,20 +239,33 @@ class DbWriteAgentConfigurationRepository  extends AbstractRepositoryRDB impleme
      */
     public function addBrokerDirective(string $module, array $pollerIds): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
-                INSERT INTO `:db`.`cfg_nagios_broker_module`
-                (bk_mod_id,cfg_nagios_id, broker_module)
-                VALUES (null, :pollerId, :module)
-                SQL
-        ));
+        try {
+            $query = $this->queryBuilder->insert('`:db`.`cfg_nagios_broker_module`')
+                ->values(
+                    [
+                        'bk_mod_id' => ':bk_mod_id',
+                        'cfg_nagios_id' => ':cfg_nagios_id',
+                        'broker_module' => ':broker_module',
+                    ]
+                )->getQuery();
 
-        $pollerId = null;
-        $statement->bindValue(':module', $module, \PDO::PARAM_STR);
-        $statement->bindParam(':pollerId', $pollerId, \PDO::PARAM_INT);
-        foreach ($pollerIds as $poller) {
-            $pollerId = $poller;
-            $statement->execute();
+            foreach ($pollerIds as $poller) {
+                $pollerId = $poller;
+                $this->connection->insert(
+                    $this->translateDbName($query),
+                    QueryParameters::create([
+                        QueryParameter::null('bk_mod_id'),
+                        QueryParameter::int('cfg_nagios_id', $pollerId),
+                        QueryParameter::string('broker_module', $module),
+                    ])
+                );
+            }
+        } catch (\Exception $exception) {
+            throw new RepositoryException(
+                message: 'Error while adding broker directive in agent configuration',
+                context: ['pollerIds' => $pollerIds, 'broker_module' => $module],
+                previous: $exception
+            );
         }
     }
 }

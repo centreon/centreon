@@ -74,9 +74,8 @@ try {
     exit;
 }
 
-/* Start Smarty Init */
-$template = new Smarty();
-$template = initSmartyTplForPopup(getcwd() . "/", $template, "./", $centreon_path);
+// Smarty template initialization
+$template = SmartyBC::createSmartyTemplate(getcwd() . "/", './');
 
 $template->assign('autoRefresh', $autoRefresh);
 $template->assign('widgetId', $widgetId);

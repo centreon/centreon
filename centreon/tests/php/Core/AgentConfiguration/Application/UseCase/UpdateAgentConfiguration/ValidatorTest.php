@@ -30,6 +30,7 @@ use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateA
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\Validator;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
@@ -48,6 +49,7 @@ beforeEach(function (): void {
         id: 1,
         name: 'my-ac',
         type: Type::TELEGRAF,
+        connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->createMock(ConfigurationParametersInterface::class)
     );
 
@@ -56,6 +58,7 @@ beforeEach(function (): void {
     $this->request->type = 'telegraf';
     $this->request->pollerIds = [1];
     $this->request->configuration = [];
+    $this->request->connectionMode = ConnectionModeEnum::SECURE;
 
     $this->poller = new Poller(1, 'poller-name');
     $this->pollerBis = new Poller(2, 'poller-name-bis');

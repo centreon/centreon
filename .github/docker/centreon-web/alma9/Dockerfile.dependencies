@@ -23,8 +23,8 @@ dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/24.11/el9/centreon-24.11-internal.repo
-  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-24.11-internal.repo
+  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/${VERSION}/el9/centreon-${VERSION}-internal.repo
+  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${VERSION}-internal.repo
 else
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el9/centreon-${VERSION}.repo
 fi
@@ -106,6 +106,19 @@ dnf install -y \
   php-pear \
   php-json
 
+###################
+# install plugins #
+###################
+
+dnf install -y centreon-plugin-Operatingsystems-Linux-Snmp
+
+######################
+# SNMP configuration #
+######################
+
+sed -i '/^agentaddress/d' /etc/snmp/snmpd.conf
+echo 'agentaddress  127.0.0.1' >> /etc/snmp/snmpd.conf
+
 dnf clean all --enablerepo=*
 
 EOF
@@ -122,7 +135,6 @@ dnf install -y \
   centreon-common \
   centreon-gorgone \
   centreon-engine \
-  centreon-broker-cbmod \
   centreon-broker-cbd \
   centreon-connector
 

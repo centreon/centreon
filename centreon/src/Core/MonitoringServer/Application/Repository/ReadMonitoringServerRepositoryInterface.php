@@ -96,4 +96,15 @@ interface ReadMonitoringServerRepositoryInterface {
      * @return MonitoringServer[]
      */
     public function findByIds(array $ids): array;
+
+    /**
+     * Retrieves monitoring servers IDs by their associated host IDs.
+     *
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[] The list of distinct server IDs
+     */
+    public function findByHostsIds(array $hostIds): array;
 }

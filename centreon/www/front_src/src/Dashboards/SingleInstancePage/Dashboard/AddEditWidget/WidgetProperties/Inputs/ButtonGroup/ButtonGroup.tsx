@@ -46,7 +46,7 @@ const ButtonGroup = ({
             <Button
               aria-label={t(name)}
               data-selected={isButtonSelected(id)}
-              data-testId={id}
+              data-testid={id}
               key={id}
               variant={isButtonSelected(id) ? 'contained' : 'outlined'}
               onClick={selectOption(id)}

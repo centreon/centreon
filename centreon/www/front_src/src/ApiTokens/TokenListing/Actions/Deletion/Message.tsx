@@ -3,8 +3,6 @@ import parse from 'html-react-parser';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
-
 import { labelMsgConfirmationDeletionToken } from '../../../translatedLabels';
 import { selectedRowAtom } from '../../atoms';
 
@@ -16,13 +14,13 @@ const Message = (): JSX.Element => {
   const selectedRow = useAtomValue(selectedRowAtom);
 
   return (
-    <Typography className={classes.labelMessage}>
+    <span className={classes.labelMessage}>
       {parse(
         DOMPurify.sanitize(
           t(labelMsgConfirmationDeletionToken, { tokenName: selectedRow?.name })
         )
       )}
-    </Typography>
+    </span>
   );
 };
 
