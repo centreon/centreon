@@ -30,6 +30,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     hostErrors,
     hostTouched,
     changePort,
+    areCertificateFieldsVisible,
     changeStringInput
   } = useHostConfiguration({
     index
@@ -82,34 +83,39 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
           max: 65535
         }}
       />
-      <TextField
-        value={host?.pollerCaCertificate || ''}
-        onChange={changeStringInput('pollerCaCertificate')}
-        label={t(labelCaCertificate)}
-        dataTestId={labelCaCertificate}
-        inputProps={{
-          'aria-label': labelCaCertificate
-        }}
-        fullWidth
-        error={
-          (hostTouched?.pollerCaCertificate &&
-            hostErrors?.pollerCaCertificate) ||
-          undefined
-        }
-      />
-      <TextField
-        value={host?.pollerCaName || ''}
-        onChange={changeStringInput('pollerCaName')}
-        label={t(labelCACommonName)}
-        inputProps={{
-          'aria-label': labelCACommonName
-        }}
-        dataTestId={labelCACommonName}
-        fullWidth
-        error={
-          (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
-        }
-      />
+      {areCertificateFieldsVisible && (
+        <TextField
+          value={host?.pollerCaCertificate || ''}
+          onChange={changeStringInput('pollerCaCertificate')}
+          label={t(labelCaCertificate)}
+          dataTestId={labelCaCertificate}
+          inputProps={{
+            'aria-label': labelCaCertificate
+          }}
+          fullWidth
+          error={
+            (hostTouched?.pollerCaCertificate &&
+              hostErrors?.pollerCaCertificate) ||
+            undefined
+          }
+        />
+      )}
+
+      {areCertificateFieldsVisible && (
+        <TextField
+          value={host?.pollerCaName || ''}
+          onChange={changeStringInput('pollerCaName')}
+          label={t(labelCACommonName)}
+          inputProps={{
+            'aria-label': labelCACommonName
+          }}
+          dataTestId={labelCACommonName}
+          fullWidth
+          error={
+            (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
+          }
+        />
+      )}
     </Box>
   );
 };

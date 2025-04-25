@@ -61,3 +61,12 @@ export const labelPollerCaCertificateFileName =
 export const labelPollerCaName = 'Poller CA name';
 
 export const labelCACommonName = 'CA Common Name (CN)';
+
+export const labelEncryptionLevel = 'Encryption level';
+export const labelWarningEncryptionLevelTelegraf =
+  'You have selected No TLS for the encryption level.';
+export const labelWarningEncryptionLevelCMA =
+  'You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour.';
+
+export const labelTLS = 'TLS';
+export const labelNoTLS = 'No TLS';
