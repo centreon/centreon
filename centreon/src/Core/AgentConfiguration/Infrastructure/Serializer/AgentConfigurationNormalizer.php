@@ -54,6 +54,7 @@ class AgentConfigurationNormalizer implements NormalizerInterface
         $data['connection_mode'] = match ($object->getConnectionMode()) {
             ConnectionModeEnum::SECURE => 'secure',
             ConnectionModeEnum::NO_TLS => 'no-tls',
+            ConnectionModeEnum::INSECURE => 'insecure',
         };
 
         return $data;
