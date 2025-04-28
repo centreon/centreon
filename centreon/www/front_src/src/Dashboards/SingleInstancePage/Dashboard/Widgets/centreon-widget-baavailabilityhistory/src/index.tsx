@@ -23,7 +23,7 @@ const Widget = ({
 
   return (
     <FederatedComponent
-      path="/bi/widget/baavailabilitymonitoring"
+      path="/bi/widget/baavailabilityhistory"
       panelData={panelData}
       store={store}
       panelOptions={panelOptions}

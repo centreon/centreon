@@ -17,7 +17,7 @@ const initialize = ({ panelData }): void => {
     )
   });
 };
-describe('BA availability monitoring widget', () => {
+describe('BA availability history widget', () => {
   it('displays a no resources message when the widget does not have selected resources', () => {
     initialize({ panelData: { resources: [] } });
 

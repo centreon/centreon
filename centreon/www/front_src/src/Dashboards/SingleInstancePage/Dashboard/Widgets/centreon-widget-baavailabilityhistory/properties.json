@@ -1,6 +1,6 @@
 {
-  "title": "BA availability monitoring",
-  "description": "Displays availability, performance and alerts for a BA",
+  "title": "Business Activity availability history",
+  "description": "Displays availability, performance and alerts for a Business Activity",
   "widgetType": "MBI",
   "canExpand": true,
   "moduleName": "centreon-widget-baavailabilitymonitoring",
@@ -135,6 +135,7 @@
         "displayType": {
           "type": "displayType",
           "defaultValue": "line",
+          "label": "Display availability as",
           "options": [
             {
               "id": "line",
