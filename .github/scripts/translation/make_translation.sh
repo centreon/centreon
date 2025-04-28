@@ -3,8 +3,8 @@
 #
 # Check working directory
 #
-BASE_DIR=$(dirname $0)
-BASE_DIR=$( cd $BASE_DIR; pwd )
+BASE_DIR="$(dirname "$0")"
+BASE_DIR="$( cd "$BASE_DIR" || exit 1; pwd )"
 export BASE_DIR
 
 #
@@ -50,7 +50,7 @@ CAN_BE_TRANSLATE=false
 
 # Check project name
 if [ "$1" ]; then
-    for PROJECT in ${PROJECTS[@]};
+    for PROJECT in "${PROJECTS[@]}";
     do
         if [ "$1" = "$PROJECT" ]; then
             CAN_BE_TRANSLATE=true
@@ -71,7 +71,7 @@ fi
 CAN_BE_TRANSLATE=false
 
 if [ "$2" ]; then
-    for LANG in ${LANGS[@]};
+    for LANG in "${LANGS[@]}";
     do
         if [ "$2" = "$LANG" ]; then
             CAN_BE_TRANSLATE=true

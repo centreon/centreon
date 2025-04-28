@@ -82,7 +82,6 @@ function do_file($file)
 		if (preg_match('/plural\s*=\s*["\']?\s*(.[^\"\']*)\s*["\']?/', $matches[2][$i], $match)) {
 			echo 'ngettext("'.fs($matches[3][$i]).'","'.fs($match[1]).'",x);'."\n";
 		} else {
-//			echo 'gettext("'.fs($matches[3][$i]).'");'."\n";
 			echo '_("'.fs($matches[3][$i]).'");'."\n";
 		}
 
