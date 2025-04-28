@@ -24,15 +24,14 @@ declare(strict_types=1);
 namespace Core\Common\Domain\Exception;
 
 /**
- * Class
+ * Class.
  *
  * @class   CollectionException
- * @package Core\Common\Domain\Exception
  */
 class CollectionException extends BusinessLogicException
 {
     /**
-     * CollectionException constructor
+     * CollectionException constructor.
      *
      * @param string $message
      * @param array<string,mixed> $context

@@ -33,10 +33,10 @@ use Centreon\Domain\Log\Logger;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBuilder;
 
 /**
- * Class
+ * Class.
  *
  * @class   ExpressionBuilder
- * @package Adaptation\Database\Adapter\Dbal
+ *
  * @see     DoctrineDbalExpressionBuilder
  *
  * To dynamically create SQL query parts.
@@ -44,14 +44,14 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder as DoctrineDbalExpressionBu
 final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderInterface
 {
     /**
-     * DbalExpressionBuilderAdapter constructor
+     * DbalExpressionBuilderAdapter constructor.
      *
      * @param DoctrineDbalExpressionBuilder $dbalExpressionBuilder
      */
     public function __construct(private DoctrineDbalExpressionBuilder $dbalExpressionBuilder) {}
 
     /**
-     * Factory
+     * Factory.
      *
      * Creates an expression builder for the connection.
      *
@@ -61,6 +61,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
      * @param ConnectionConfig $connectionConfig
      *
      * @throws ExpressionBuilderException
+     *
      * @return DbalExpressionBuilderAdapter
      */
     public static function createFromConnectionConfig(ConnectionConfig $connectionConfig): ExpressionBuilderInterface
@@ -307,7 +308,7 @@ final readonly class DbalExpressionBuilderAdapter implements ExpressionBuilderIn
     }
 
     /**
-     * Creates a NOT LIKE comparison expression
+     * Creates a NOT LIKE comparison expression.
      *
      * @param string $expression The expression to be inspected by the NOT LIKE comparison
      * @param string $pattern The pattern to compare against

@@ -32,6 +32,7 @@ interface ReadContactTemplateRepositoryInterface
      * Get all contact templates.
      *
      * @throws RepositoryException
+     *
      * @return array<ContactTemplate>
      */
     public function findAll(): array;
@@ -42,6 +43,7 @@ interface ReadContactTemplateRepositoryInterface
      * @param int $id
      *
      * @throws RepositoryException
+     *
      * @return ContactTemplate|null
      */
     public function find(int $id): ?ContactTemplate;

@@ -27,7 +27,6 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
@@ -37,16 +36,14 @@ use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
-use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactTemplate;
 
 /**
- * Class
+ * Class.
  *
  * @class DbReadContactTemplateRepository
- * @package Core\Contact\Infrastructure\Repository
  */
 class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements ReadContactTemplateRepositoryInterface
 {
@@ -75,6 +72,7 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
 
     /**
      * @throws RepositoryException
+     *
      * @return ContactTemplate[]
      */
     public function findAll(): array
@@ -131,6 +129,7 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
      * @param int $id
      *
      * @throws RepositoryException
+     *
      * @return ContactTemplate|null
      */
     public function find(int $id): ?ContactTemplate

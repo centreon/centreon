@@ -26,12 +26,9 @@ namespace Adaptation\Database\ExpressionBuilder;
 use Adaptation\Database\ExpressionBuilder\Enum\ComparisonOperatorEnum;
 
 /**
- * Interface
+ * Interface.
  *
  * @class   ExpressionBuilderInterface
- * @package Adaptation\Database
- *
- * To dynamically create SQL query parts.
  */
 interface ExpressionBuilderInterface
 {
@@ -227,7 +224,7 @@ interface ExpressionBuilderInterface
     public function like(string $expression, string $pattern, ?string $escapeChar = null): string;
 
     /**
-     * Creates a NOT LIKE comparison expression
+     * Creates a NOT LIKE comparison expression.
      *
      * @param string $expression The expression to be inspected by the NOT LIKE comparison
      * @param string $pattern The pattern to compare against

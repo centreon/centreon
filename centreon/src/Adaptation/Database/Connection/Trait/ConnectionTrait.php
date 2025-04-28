@@ -36,10 +36,9 @@ use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
- * Trait
+ * Trait.
  *
  * @class   ConnectionTrait
- * @package Adaptation\Database\Connection\Trait
  */
 trait ConnectionTrait
 {
@@ -47,6 +46,7 @@ trait ConnectionTrait
      * To create an instance of the query builder.
      *
      * @throws QueryBuilderException
+     *
      * @return QueryBuilderInterface
      */
     public function createQueryBuilder(): QueryBuilderInterface
@@ -58,6 +58,7 @@ trait ConnectionTrait
      * To create an instance of the expression builder.
      *
      * @throws ExpressionBuilderException
+     *
      * @return ExpressionBuilderInterface
      */
     public function createExpressionBuilder(): ExpressionBuilderInterface
@@ -74,6 +75,7 @@ trait ConnectionTrait
      * Return the database name if it exists.
      *
      * @throws ConnectionException
+     *
      * @return string|null
      */
     public function getDatabaseName(): ?string
@@ -110,6 +112,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
@@ -127,6 +130,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
@@ -158,6 +162,7 @@ trait ConnectionTrait
      * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $batchInsertParameters = BatchInsertParameters::create([
@@ -259,6 +264,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
@@ -289,6 +295,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -321,6 +328,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -338,6 +346,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -357,6 +366,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -388,6 +398,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -409,6 +420,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -430,6 +442,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -470,6 +483,7 @@ trait ConnectionTrait
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -499,8 +513,6 @@ trait ConnectionTrait
      * @param array $customContext
      * @param string $query
      * @param \Throwable|null $previous
-     *
-     * @return void
      */
     abstract protected function writeDbLog(
         string $message,
@@ -515,7 +527,6 @@ trait ConnectionTrait
      * @param string $query
      *
      * @throws ConnectionException
-     * @return void
      */
     private function validateSelectQuery(string $query): void
     {

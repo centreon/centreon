@@ -8,15 +8,14 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\ValueObject\LiteralString;
 
 /**
- * Class
+ * Class.
  *
  * @class   Email
- * @package Core\Common\Domain\ValueObject\Identity
  */
-final readonly class Email extends LiteralString
+final class Email extends LiteralString
 {
     /**
-     * Email constructor
+     * Email constructor.
      *
      * @param string $email
      *

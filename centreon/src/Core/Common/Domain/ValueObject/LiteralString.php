@@ -26,15 +26,14 @@ namespace Core\Common\Domain\ValueObject;
 use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
- * Class
+ * Class.
  *
  * @class   LiteralString
- * @package Core\Common\Domain\ValueObject
  */
-readonly class LiteralString implements ValueObjectInterface
+class LiteralString implements ValueObjectInterface
 {
     /**
-     * LiteralString constructor
+     * LiteralString constructor.
      *
      * @param string $value
      */
@@ -151,6 +150,7 @@ readonly class LiteralString implements ValueObjectInterface
      * @param ValueObjectInterface $object
      *
      * @throws ValueObjectException
+     *
      * @return bool
      */
     public function equals(ValueObjectInterface $object): bool

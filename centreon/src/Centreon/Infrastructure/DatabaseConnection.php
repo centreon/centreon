@@ -37,7 +37,6 @@ use Centreon\Domain\Log\Logger;
  * This class is used by all database repositories.
  *
  * @class   DatabaseConnection
- * @package Centreon\Infrastructure
  */
 class DatabaseConnection extends \PDO implements ConnectionInterface
 {
@@ -83,11 +82,12 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     }
 
     /**
-     * Factory
+     * Factory.
      *
      * @param ConnectionConfig $connectionConfig
      *
      * @throws ConnectionException
+     *
      * @return DatabaseConnection
      */
     public static function createFromConfig(ConnectionConfig $connectionConfig): self
@@ -96,7 +96,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     }
 
     /**
-     * switch connection to another database
+     * switch connection to another database.
      *
      * @param string $dbName
      *
@@ -198,6 +198,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
@@ -261,6 +262,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<int, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -295,6 +297,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<string, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -330,6 +333,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return mixed|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
@@ -364,6 +368,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -398,6 +403,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<array<int,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -432,6 +438,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -467,6 +474,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<int|string,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -503,6 +511,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -542,6 +551,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -580,6 +590,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -626,7 +637,6 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * {@see commitTransaction} or {@see rollBackTransaction}
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startTransaction(): void
     {
@@ -646,6 +656,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * To validate a transaction.
      *
      * @throws ConnectionException
+     *
      * @return bool
      */
     public function commitTransaction(): bool
@@ -670,6 +681,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * To cancel a transaction.
      *
      * @throws ConnectionException
+     *
      * @return bool
      */
     public function rollBackTransaction(): bool
@@ -716,7 +728,6 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startUnbufferedQuery(): void
     {
@@ -743,7 +754,6 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * To close an unbuffered query.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function stopUnbufferedQuery(): void
     {
@@ -770,6 +780,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param \PDOStatement $pdoStatement
      *
      * @throws ConnectionException
+     *
      * @return bool
      */
     public function closeQuery(\PDOStatement $pdoStatement): bool
@@ -790,7 +801,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
     // --------------------------------------- PROTECTED METHODS -----------------------------------------
 
     /**
-     * Write SQL errors messages
+     * Write SQL errors messages.
      *
      * @param string $message
      * @param array<string,mixed> $customContext
@@ -851,6 +862,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \PDOStatement
      */
     private function executeSelectQuery(

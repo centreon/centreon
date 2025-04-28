@@ -28,10 +28,9 @@ use Core\Common\Domain\Exception\TransformerException;
 use Doctrine\DBAL\ParameterType as DbalParameterType;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbalParameterTypeTransformer
- * @package Adaptation\Database\Adapter\Dbal\Transformer
  */
 abstract readonly class DbalParameterTypeTransformer
 {
@@ -55,6 +54,7 @@ abstract readonly class DbalParameterTypeTransformer
      * @param DbalParameterType $dbalParameterType
      *
      * @throws TransformerException
+     *
      * @return QueryParameterTypeEnum
      */
     public static function reverseToQueryParameterType(DbalParameterType $dbalParameterType): QueryParameterTypeEnum

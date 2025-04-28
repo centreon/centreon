@@ -36,10 +36,9 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbWriteActionLogRepository
- * @package Core\ActionLog\Infrastructure\Repository
  */
 class DbWriteActionLogRepository extends DatabaseRepository implements WriteActionLogRepositoryInterface
 {
@@ -49,6 +48,7 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
      * @param ActionLog $actionLog
      *
      * @throws RepositoryException
+     *
      * @return int
      */
     public function addAction(ActionLog $actionLog): int
@@ -97,7 +97,6 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
      * @param array<string,mixed> $details
      *
      * @throws RepositoryException
-     * @return void
      */
     public function addActionDetails(ActionLog $actionLog, array $details): void
     {

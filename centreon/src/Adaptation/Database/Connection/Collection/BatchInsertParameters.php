@@ -26,10 +26,10 @@ namespace Adaptation\Database\Connection\Collection;
 use Core\Common\Domain\Collection\ObjectCollection;
 
 /**
- * Class
+ * Class.
  *
  * @class   BatchInsertParameters
- * @package Adaptation\Database\Connection\Collection
+ *
  * @extends ObjectCollection<QueryParameters>
  */
 class BatchInsertParameters extends ObjectCollection

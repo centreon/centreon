@@ -29,10 +29,9 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 
 /**
- * Class
+ * Class.
  *
  * @class AbstractRepositoryRDB
- * @package Core\Common\Infrastructure\Repository
  */
 class AbstractRepositoryRDB
 {

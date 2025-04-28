@@ -25,7 +25,6 @@ namespace Adaptation\Database\Connection;
 
 use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\ExpressionBuilder\Exception\ExpressionBuilderException;
@@ -34,10 +33,9 @@ use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
- * Interface
+ * Interface.
  *
  * @class   ConnectionInterface
- * @package Adaptation\Database\Connection
  */
 interface ConnectionInterface
 {
@@ -49,11 +47,12 @@ interface ConnectionInterface
     ];
 
     /**
-     * Factory
+     * Factory.
      *
      * @param ConnectionConfig $connectionConfig
      *
      * @throws ConnectionException
+     *
      * @return ConnectionInterface
      */
     public static function createFromConfig(ConnectionConfig $connectionConfig): self;
@@ -62,6 +61,7 @@ interface ConnectionInterface
      * To create an instance of the query builder.
      *
      * @throws QueryBuilderException
+     *
      * @return QueryBuilderInterface
      */
     public function createQueryBuilder(): QueryBuilderInterface;
@@ -70,6 +70,7 @@ interface ConnectionInterface
      * To create an instance of the expression builder.
      *
      * @throws ExpressionBuilderException
+     *
      * @return ExpressionBuilderInterface
      */
     public function createExpressionBuilder(): ExpressionBuilderInterface;
@@ -83,6 +84,7 @@ interface ConnectionInterface
      * Return the database name if it exists.
      *
      * @throws ConnectionException
+     *
      * @return string|null
      */
     public function getDatabaseName(): ?string;
@@ -91,6 +93,7 @@ interface ConnectionInterface
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
      * @throws ConnectionException
+     *
      * @return object|resource
      */
     public function getNativeConnection(): mixed;
@@ -100,6 +103,7 @@ interface ConnectionInterface
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
      * @throws ConnectionException
+     *
      * @return string
      */
     public function getLastInsertId(): string;
@@ -138,6 +142,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
@@ -155,6 +160,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
@@ -173,6 +179,7 @@ interface ConnectionInterface
      * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $batchInsertParameters = BatchInsertParameters::create([
@@ -193,6 +200,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
@@ -210,6 +218,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -230,6 +239,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<int, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -247,6 +257,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<string, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -265,6 +276,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return mixed|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
@@ -282,6 +294,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -299,6 +312,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<array<int,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -316,6 +330,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -334,6 +349,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<int|string,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -353,6 +369,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -372,6 +389,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -393,6 +411,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -413,6 +432,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -434,6 +454,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -456,6 +477,7 @@ interface ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -481,7 +503,6 @@ interface ConnectionInterface
      * {@see commitTransaction} or {@see rollBackTransaction}
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startTransaction(): void;
 
@@ -489,6 +510,7 @@ interface ConnectionInterface
      * To validate a transaction.
      *
      * @throws ConnectionException
+     *
      * @return bool
      */
     public function commitTransaction(): bool;
@@ -497,6 +519,7 @@ interface ConnectionInterface
      * To cancel a transaction.
      *
      * @throws ConnectionException
+     *
      * @return bool
      */
     public function rollBackTransaction(): bool;
@@ -507,6 +530,7 @@ interface ConnectionInterface
      * Checks that the connection instance allows the use of unbuffered queries.
      *
      * @throws ConnectionException
+     *
      * @return bool
      */
     public function allowUnbufferedQuery(): bool;
@@ -515,7 +539,6 @@ interface ConnectionInterface
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startUnbufferedQuery(): void;
 
@@ -530,7 +553,6 @@ interface ConnectionInterface
      * To close an unbuffered query.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function stopUnbufferedQuery(): void;
 }

@@ -24,10 +24,9 @@ declare(strict_types=1);
 namespace Adaptation\Database\Connection\Enum;
 
 /**
- * Enum
+ * Enum.
  *
  * @class   ConnectionDriverEnum
- * @package Adaptation\Database\Connection\Enum
  */
 enum ConnectionDriverEnum: string
 {

@@ -154,6 +154,7 @@ final class PartialUpdateOpenIdConfiguration
      * @param PartialUpdateOpenIdConfigurationRequest $request
      *
      * @throws \Throwable
+     *
      * @return CustomConfiguration
      */
     private function createUpdatedCustomConfiguration(
@@ -225,6 +226,7 @@ final class PartialUpdateOpenIdConfiguration
      * @param ACLConditions $aclConditions
      *
      * @throws \Throwable
+     *
      * @return ACLConditions
      */
     private function createUpdatedAclConditions(array $paramValue, ACLConditions $aclConditions): ACLConditions

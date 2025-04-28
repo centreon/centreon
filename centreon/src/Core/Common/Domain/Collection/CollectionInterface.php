@@ -24,24 +24,25 @@ declare(strict_types=1);
 namespace Core\Common\Domain\Collection;
 
 /**
- * Interface
+ * Interface.
  *
  * @class    CollectionInterface
- * @package  Core\Common\Domain\Collection
+ *
  * @template TItem
+ *
  * @extends \IteratorAggregate<string|int,TItem>
  */
 interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
 {
     /**
-     * Return all items of collection
+     * Return all items of collection.
      *
      * @return TItem[]
      */
     public function all(): array;
 
     /**
-     * Delete all items of collection
+     * Delete all items of collection.
      *
      * @return CollectionInterface<TItem>
      */
@@ -69,7 +70,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     public function has(int|string $key): bool;
 
     /**
-     * Return an array with the keys of collection
+     * Return an array with the keys of collection.
      *
      * @return array<int|string>
      */
@@ -81,7 +82,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     public function isEmpty(): bool;
 
     /**
-     * Return the number of items of collection
+     * Return the number of items of collection.
      *
      * @return int
      */
@@ -127,7 +128,7 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
     public function remove(int|string $key): bool;
 
     /**
-     * Return an array of items of collection
+     * Return an array of items of collection.
      *
      * @return TItem[]
      */

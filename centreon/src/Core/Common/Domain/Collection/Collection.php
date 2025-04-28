@@ -26,12 +26,14 @@ namespace Core\Common\Domain\Collection;
 use Core\Common\Domain\Exception\CollectionException;
 
 /**
- * Class
+ * Class.
  *
  * @class      Collection
- * @package    Core\Common\Domain\Collection
+ *
  * @template   TItem
+ *
  * @implements CollectionInterface<TItem>
+ *
  * @phpstan-consistent-constructor
  */
 abstract class Collection implements CollectionInterface
@@ -40,7 +42,7 @@ abstract class Collection implements CollectionInterface
     protected array $items;
 
     /**
-     * Collection constructor
+     * Collection constructor.
      *
      * @param array<string|int,TItem> $items
      *
@@ -63,6 +65,7 @@ abstract class Collection implements CollectionInterface
      * @param array<string|int,TItem> $items
      *
      * @throws CollectionException
+     *
      * @return static
      *
      * @example $collection = Collection::create(['key1' => new Item(), 'key2' => new Item()]);
@@ -99,6 +102,7 @@ abstract class Collection implements CollectionInterface
      * @param int|string $key
      *
      * @throws CollectionException
+     *
      * @return TItem
      */
     public function get(int|string $key)
@@ -148,6 +152,7 @@ abstract class Collection implements CollectionInterface
      * @param callable $callable
      *
      * @throws CollectionException
+     *
      * @return static
      */
     public function filter(callable $callable): static
@@ -161,6 +166,7 @@ abstract class Collection implements CollectionInterface
      * @param CollectionInterface<TItem> ...$collections
      *
      * @throws CollectionException
+     *
      * @return static
      */
     public function mergeWith(CollectionInterface ...$collections): static
@@ -193,12 +199,13 @@ abstract class Collection implements CollectionInterface
     }
 
     /**
-     * Add new item at the collection, if key exists then adding aborted
+     * Add new item at the collection, if key exists then adding aborted.
      *
      * @param int|string $key
      * @param TItem $item
      *
      * @throws CollectionException
+     *
      * @return static
      */
     public function add(int|string $key, $item): static
@@ -217,6 +224,7 @@ abstract class Collection implements CollectionInterface
      * @param TItem $item
      *
      * @throws CollectionException
+     *
      * @return static
      */
     public function put(int|string $key, $item): static
@@ -263,6 +271,7 @@ abstract class Collection implements CollectionInterface
 
     /**
      * @throws CollectionException
+     *
      * @return string
      */
     public function toJson(): string
@@ -292,7 +301,6 @@ abstract class Collection implements CollectionInterface
      * @param TItem $item
      *
      * @throws CollectionException
-     * @return void
      */
     abstract protected function validateItem($item): void;
 }

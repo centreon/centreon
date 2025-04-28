@@ -8,15 +8,14 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Domain\ValueObject\LiteralString;
 
 /**
- * Class
+ * Class.
  *
  * @class   IpAddress
- * @package Core\Common\Domain\ValueObject\Web
  */
-final readonly class IpAddress extends LiteralString
+final class IpAddress extends LiteralString
 {
     /**
-     * IpAddress constructor
+     * IpAddress constructor.
      *
      * @param string $ip_address
      *

@@ -29,16 +29,17 @@ use Core\Common\Domain\Collection\ObjectCollection;
 use Core\Common\Domain\Exception\CollectionException;
 
 /**
- * Class
+ * Class.
  *
  * @class   QueryParameters
- * @package Adaptation\Database\Connection\Collection
+ *
  * @extends ObjectCollection<QueryParameter>
  */
 class QueryParameters extends ObjectCollection
 {
     /**
      * @throws CollectionException
+     *
      * @return static
      */
     public function getIntQueryParameters(): static
@@ -50,6 +51,7 @@ class QueryParameters extends ObjectCollection
 
     /**
      * @throws CollectionException
+     *
      * @return static
      */
     public function getStringQueryParameters(): static
@@ -61,6 +63,7 @@ class QueryParameters extends ObjectCollection
 
     /**
      * @throws CollectionException
+     *
      * @return static
      */
     public function getBoolQueryParameters(): static
@@ -72,6 +75,7 @@ class QueryParameters extends ObjectCollection
 
     /**
      * @throws CollectionException
+     *
      * @return static
      */
     public function getNullQueryParameters(): static
@@ -83,6 +87,7 @@ class QueryParameters extends ObjectCollection
 
     /**
      * @throws CollectionException
+     *
      * @return static
      */
     public function getLargeObjectQueryParameters(): static

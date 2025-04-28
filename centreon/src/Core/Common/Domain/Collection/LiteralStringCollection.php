@@ -26,10 +26,10 @@ namespace Core\Common\Domain\Collection;
 use Core\Common\Domain\ValueObject\LiteralString;
 
 /**
- * Class
+ * Class.
  *
  * @class LiteralStringCollection
- * @package Core\Common\Domain\Collection
+ *
  * @extends ObjectCollection<LiteralString>
  */
 class LiteralStringCollection extends ObjectCollection

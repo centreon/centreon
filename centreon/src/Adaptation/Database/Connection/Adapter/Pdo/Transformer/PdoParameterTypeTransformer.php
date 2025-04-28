@@ -27,10 +27,9 @@ use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Core\Common\Domain\Exception\TransformerException;
 
 /**
- * Class
+ * Class.
  *
  * @class   PdoParameterTypeTransformer
- * @package Adaptation\Database\Connection\Adapter\Pdo\Transformer
  */
 abstract readonly class PdoParameterTypeTransformer
 {
@@ -54,6 +53,7 @@ abstract readonly class PdoParameterTypeTransformer
      * @param int $pdoParameterType
      *
      * @throws TransformerException
+     *
      * @return QueryParameterTypeEnum
      */
     public static function reverseToQueryParameterType(int $pdoParameterType): QueryParameterTypeEnum

@@ -26,15 +26,14 @@ namespace Adaptation\Database\Connection\Model;
 use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
 
 /**
- * Class
+ * Class.
  *
  * @class   ConnectionConfig
- * @package Adaptation\Database\Connection\Model
  */
 final readonly class ConnectionConfig
 {
     /**
-     * ConnectionConfig constructor
+     * ConnectionConfig constructor.
      *
      * @param string $host
      * @param string $user

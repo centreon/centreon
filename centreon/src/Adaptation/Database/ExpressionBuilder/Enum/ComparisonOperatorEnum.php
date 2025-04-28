@@ -24,10 +24,9 @@ declare(strict_types=1);
 namespace Adaptation\Database\ExpressionBuilder\Enum;
 
 /**
- * Enum
+ * Enum.
  *
  * @class   ComparisonOperatorEnum
- * @package Adaptation\Database\ExpressionBuilder\Enum
  */
 enum ComparisonOperatorEnum: string {
     case EQUAL = '=';

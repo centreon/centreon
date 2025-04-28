@@ -35,10 +35,10 @@ use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbalConnectionAdapter
- * @package Adaptation\Database\Adapter\Dbal
+ *
  * @see     DoctrineDbalConnection
  */
 final class DbalConnectionAdapter implements ConnectionInterface
@@ -54,7 +54,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     private bool $isBufferedQueryActive = true;
 
     /**
-     * DbalConnectionAdapter constructor
+     * DbalConnectionAdapter constructor.
      *
      * @param DoctrineDbalConnection $dbalConnection
      * @param ConnectionConfig $connectionConfig
@@ -65,11 +65,12 @@ final class DbalConnectionAdapter implements ConnectionInterface
     ) {}
 
     /**
-     * Factory
+     * Factory.
      *
      * @param ConnectionConfig $connectionConfig
      *
      * @throws ConnectionException
+     *
      * @return DbalConnectionAdapter
      */
     public static function createFromConfig(ConnectionConfig $connectionConfig): ConnectionInterface
@@ -117,6 +118,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * To get the used native connection by DBAL (PDO, mysqli, ...).
      *
      * @throws ConnectionException
+     *
      * @return object|resource
      */
     public function getNativeConnection(): mixed
@@ -138,6 +140,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
      * @throws ConnectionException
+     *
      * @return string
      */
     public function getLastInsertId(): string
@@ -203,6 +206,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
@@ -254,6 +258,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<int, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -293,6 +298,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<string, mixed>|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
@@ -333,6 +339,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return mixed|false false is returned if no rows are found
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::string('name', 'John')]);
@@ -372,6 +379,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -411,6 +419,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<array<int,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -450,6 +459,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -490,6 +500,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return array<int|string,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -531,6 +542,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -567,6 +579,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -602,6 +615,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param QueryParameters|null $queryParameters
      *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -655,7 +669,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * @param bool $autoCommit true to enable auto-commit mode; false to disable it
      *
      * @throws ConnectionException
-     * @return void
      */
     public function setAutoCommit(bool $autoCommit): void
     {
@@ -693,7 +706,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * no data will be updated.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startTransaction(): void
     {
@@ -722,6 +734,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * To validate a transaction.
      *
      * @throws ConnectionException
+     *
      * @return bool
      */
     public function commitTransaction(): bool
@@ -744,6 +757,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * To cancel a transaction.
      *
      * @throws ConnectionException
+     *
      * @return bool
      */
     public function rollBackTransaction(): bool
@@ -768,6 +782,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * Checks that the connection instance allows the use of unbuffered queries.
      *
      * @throws ConnectionException
+     *
      * @return bool
      */
     public function allowUnbufferedQuery(): bool
@@ -797,7 +812,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * Prepares a statement to execute a query without buffering. Only works for SELECT queries.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function startUnbufferedQuery(): void
     {
@@ -827,7 +841,6 @@ final class DbalConnectionAdapter implements ConnectionInterface
      * To close an unbuffered query.
      *
      * @throws ConnectionException
-     * @return void
      */
     public function stopUnbufferedQuery(): void
     {
@@ -856,7 +869,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
 
     /**
-     * Write SQL errors messages
+     * Write SQL errors messages.
      *
      * @param string $message
      * @param array<string,mixed> $customContext

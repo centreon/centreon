@@ -26,10 +26,9 @@ namespace Core\Common\Domain\ValueObject;
 use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
- * Interface
+ * Interface.
  *
  * @class   ValueObjectInterface
- * @package Core\Common\Domain\ValueObject
  */
 interface ValueObjectInterface extends \JsonSerializable, \Stringable
 {
@@ -37,6 +36,7 @@ interface ValueObjectInterface extends \JsonSerializable, \Stringable
      * @param ValueObjectInterface $object
      *
      * @throws ValueObjectException
+     *
      * @return bool
      */
     public function equals(self $object): bool;

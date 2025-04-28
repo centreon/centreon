@@ -26,18 +26,21 @@ namespace Core\Common\Domain\Collection;
 use Core\Common\Domain\Exception\CollectionException;
 
 /**
- * Class
+ * Class.
  *
  * @class ObjectCollection
- * @package Core\Common\Domain\Collection
+ *
  * @template TItem
+ *
  * @extends Collection<TItem>
+ *
  * @phpstan-consistent-constructor
  */
 abstract class ObjectCollection extends Collection
 {
     /**
      * @throws CollectionException
+     *
      * @return array<int|string,mixed>
      */
     public function jsonSerialize(): array
@@ -58,7 +61,6 @@ abstract class ObjectCollection extends Collection
      * @param TItem $item
      *
      * @throws CollectionException
-     * @return void
      */
     protected function validateItem($item): void
     {
@@ -71,7 +73,7 @@ abstract class ObjectCollection extends Collection
     }
 
     /**
-     * Return the name of item class in the collection
+     * Return the name of item class in the collection.
      *
      * @return class-string<TItem>
      */

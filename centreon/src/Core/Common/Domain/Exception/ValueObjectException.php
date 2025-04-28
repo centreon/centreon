@@ -24,15 +24,14 @@ declare(strict_types=1);
 namespace Core\Common\Domain\Exception;
 
 /**
- * Class
+ * Class.
  *
  * @class   ValueObjectException
- * @package Core\Common\Domain\Exception
  */
 class ValueObjectException extends BusinessLogicException
 {
     /**
-     * ValueObjectException constructor
+     * ValueObjectException constructor.
      *
      * @param string $message
      * @param array<string,mixed> $context

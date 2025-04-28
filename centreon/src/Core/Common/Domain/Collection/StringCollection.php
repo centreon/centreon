@@ -26,11 +26,12 @@ namespace Core\Common\Domain\Collection;
 use Core\Common\Domain\Exception\CollectionException;
 
 /**
- * Class
+ * Class.
  *
  * @class StringCollection
- * @package Core\Common\Domain\Collection
+ *
  * @template TItem of string
+ *
  * @extends Collection<TItem>
  */
 class StringCollection extends Collection
@@ -47,7 +48,6 @@ class StringCollection extends Collection
      * @param string $item
      *
      * @throws CollectionException
-     * @return void
      */
     protected function validateItem($item): void
     {

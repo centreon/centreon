@@ -24,15 +24,14 @@ declare(strict_types=1);
 namespace Core\Common\Domain\Exception;
 
 /**
- * Class
+ * Class.
  *
  * @class   RepositoryException
- * @package Core\Common\Domain\Exception
  */
 class RepositoryException extends BusinessLogicException
 {
     /**
-     * RepositoryException constructor
+     * RepositoryException constructor.
      *
      * @param string $message
      * @param array<string,mixed> $context

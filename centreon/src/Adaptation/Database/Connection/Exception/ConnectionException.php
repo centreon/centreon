@@ -28,10 +28,9 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Exception\DatabaseException;
 
 /**
- * Class
+ * Class.
  *
  * @class   ConnectionException
- * @package Adaptation\Database\Connection\Exception
  */
 class ConnectionException extends DatabaseException
 {

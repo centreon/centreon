@@ -24,15 +24,14 @@ declare(strict_types=1);
 namespace Core\Common\Domain\Exception;
 
 /**
- * Class
+ * Class.
  *
  * @class   JsonException
- * @package Core\Common\Domain\Exception
  */
 class JsonException extends BusinessLogicException
 {
     /**
-     * JsonException constructor
+     * JsonException constructor.
      *
      * @param string $message
      * @param array<string,mixed> $context

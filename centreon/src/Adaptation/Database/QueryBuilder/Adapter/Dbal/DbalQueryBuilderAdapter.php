@@ -35,10 +35,10 @@ use Centreon\Domain\Log\Logger;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbalQueryBuilderAdapter
- * @package Adaptation\Database\Adapter\Dbal
+ *
  * @see     DoctrineDbalQueryBuilder
  *
  * To dynamically create SQL queries.
@@ -46,7 +46,7 @@ use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 {
     /**
-     * DbalQueryBuilderAdapter constructor
+     * DbalQueryBuilderAdapter constructor.
      *
      * @param DoctrineDbalQueryBuilder $dbalQueryBuilder
      * @param ConnectionConfig $connectionConfig
@@ -57,7 +57,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     ) {}
 
     /**
-     * Factory
+     * Factory.
      *
      * Creates a new instance of a SQL query builder.
      *
@@ -67,6 +67,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      * @param ConnectionConfig $connectionConfig
      *
      * @throws QueryBuilderException
+     *
      * @return DbalQueryBuilderAdapter
      */
     public static function createFromConnectionConfig(ConnectionConfig $connectionConfig): QueryBuilderInterface
@@ -86,9 +87,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     }
 
     /**
-     * To build where clauses easier
+     * To build where clauses easier.
      *
      * @throws QueryBuilderException
+     *
      * @return DbalExpressionBuilderAdapter
      */
     public function expr(): ExpressionBuilderInterface
@@ -214,7 +216,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 
     /**
      * Turns the query being built into a bulk update query that ranges over
-     * a certain table
+     * a certain table.
      *
      * <code>
      *     $qb = $db->createQueryBuilder()
@@ -237,7 +239,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 
     /**
      * Turns the query being built into an insert query that inserts into
-     * a certain table
+     * a certain table.
      *
      * <code>
      *     $qb = $db->createQueryBuilder()
@@ -482,6 +484,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return DbalQueryBuilderAdapter this QueryBuilder instance
+     *
      * @see where()
      */
     public function andWhere(string $whereClauseExpression, string ...$whereClauseExpressions): QueryBuilderInterface
@@ -501,6 +504,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return DbalQueryBuilderAdapter this QueryBuilder instance
+     *
      * @see where()
      *
      * <code>

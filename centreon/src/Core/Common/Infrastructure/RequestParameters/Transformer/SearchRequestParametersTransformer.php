@@ -32,10 +32,9 @@ use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
- * Class
+ * Class.
  *
  * @class SearchRequestParametersTransformer
- * @package Centreon\Infrastructure\RequestParameters\Transformer
  */
 readonly abstract class SearchRequestParametersTransformer
 {
@@ -62,6 +61,7 @@ readonly abstract class SearchRequestParametersTransformer
      * @param array<string,array<int,mixed>> $requestParameters
      *
      * @throws TransformerException
+     *
      * @return QueryParameters
      */
     public static function reverseToQueryParameters(array $requestParameters): QueryParameters

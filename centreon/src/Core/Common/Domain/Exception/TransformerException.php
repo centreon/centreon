@@ -24,15 +24,14 @@ declare(strict_types=1);
 namespace Core\Common\Domain\Exception;
 
 /**
- * Class
+ * Class.
  *
  * @class   TransformerException
- * @package Core\Common\Domain\Exception
  */
 class TransformerException extends BusinessLogicException
 {
     /**
-     * TransformerException constructor
+     * TransformerException constructor.
      *
      * @param string $message
      * @param array<string,mixed> $context

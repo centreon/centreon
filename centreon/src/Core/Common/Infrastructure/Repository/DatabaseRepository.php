@@ -27,15 +27,14 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
- * Class
+ * Class.
  *
  * @class DatabaseRepository
- * @package Core\Common\Infrastructure\Repository
  */
 abstract class DatabaseRepository
 {
     /**
-     * DatabaseRepository constructor
+     * DatabaseRepository constructor.
      *
      * @param ConnectionInterface $connection
      * @param QueryBuilderInterface $queryBuilder

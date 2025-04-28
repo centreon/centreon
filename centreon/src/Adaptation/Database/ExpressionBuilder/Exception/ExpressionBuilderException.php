@@ -25,10 +25,9 @@ namespace Adaptation\Database\ExpressionBuilder\Exception;
 use Adaptation\Database\Exception\DatabaseException;
 
 /**
- * Class
+ * Class.
  *
  * @class ExpressionBuilderException
- * @package Adaptation\Database\QueryBuilder\Exception
  */
 class ExpressionBuilderException extends DatabaseException
 {
