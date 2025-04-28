@@ -7,9 +7,8 @@ import {
 import { Typography, useTheme } from '@mui/material';
 
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import timezonePlugin from 'dayjs/plugin/timezone';
-
+import utc from 'dayjs/plugin/utc';
 
 import { userAtom } from '@centreon/ui-context';
 import { Axis } from '@visx/visx';
