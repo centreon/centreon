@@ -63,7 +63,7 @@ if [ "$1" ]; then
         exit 1
     fi
 else
-    echo -e "Please execute following command: $0 <project name> <locale>"
+    echo -e "Please execute the following command: $0 <project name> <locale>"
     exit 1
 fi
 
