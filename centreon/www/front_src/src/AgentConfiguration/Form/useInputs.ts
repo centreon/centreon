@@ -1,15 +1,17 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
-import { capitalize } from '@mui/material';
+import { Box, capitalize } from '@mui/material';
 import { useAtom } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { pollersEndpoint } from '../api/endpoints';
+import { listTokensDecoder } from '../api/decoders';
+import { listTokensEndpoint, pollersEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
 import { AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
   labelAgentType,
   labelCMA,
+  labelCMAauthenticationToken,
   labelCaCertificate,
   labelConfigurationServer,
   labelConnectionInitiatedByPoller,
@@ -24,11 +26,12 @@ import {
   labelPort,
   labelPrivateKey,
   labelPublicCertificate,
+  labelSelectExistingCMAToken,
   labelTLS
 } from '../translatedLabels';
 import HostConfigurations from './HostConfigurations/HostConfigurations';
-
 import { useInputsStyles } from './Modal.styles';
+import RedirectToTokensPage from './RedirectToTokensPage';
 import EncryptionLevelWarning from './Warning/Warning';
 
 interface SelectEntry {
@@ -76,7 +79,14 @@ export const useInputs = (): {
       {
         name: t(labelParameters),
         order: 2,
-        titleAttributes
+        titleAttributes,
+        isDividerHidden: true
+      },
+      {
+        name: t(labelCMAauthenticationToken),
+        order: 3,
+        titleAttributes,
+        isDividerHidden: true
       }
     ],
     inputs: [
@@ -311,6 +321,61 @@ export const useInputs = (): {
             }
           ]
         }
+      },
+      {
+        hideInput: ({ type, connectionMode }) =>
+          !equals(type?.id, AgentType.CMA) ||
+          equals(connectionMode?.id, ConnectionMode.noTLS),
+        fieldName: '',
+        label: '',
+        group: t(labelCMAauthenticationToken),
+        type: InputType.Grid,
+        grid: {
+          gridTemplateColumns: '2fr 1fr',
+          columns: [
+            {
+              type: InputType.MultiConnectedAutocomplete,
+              fieldName: 'configuration.tokens',
+              required: true,
+              label: t(labelSelectExistingCMAToken),
+              connectedAutocomplete: {
+                additionalConditionParameters: [
+                  {
+                    field: 'type',
+                    values: {
+                      $eq: 'cma'
+                    }
+                  }
+                ],
+                endpoint: listTokensEndpoint,
+                filterKey: 'token_name',
+                chipColor: 'primary',
+                limitTags: 15,
+                decoder: listTokensDecoder
+              }
+            },
+            {
+              fieldName: '',
+              label: '',
+              type: InputType.Custom,
+              custom: {
+                Component: Box
+              }
+            }
+          ]
+        }
+      },
+      {
+        group: t(labelCMAauthenticationToken),
+        fieldName: '',
+        label: '',
+        type: InputType.Custom,
+        custom: {
+          Component: RedirectToTokensPage
+        },
+        hideInput: ({ type, connectionMode }) =>
+          !equals(type?.id, AgentType.CMA) ||
+          equals(connectionMode?.id, ConnectionMode.noTLS)
       }
     ]
   };
