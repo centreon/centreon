@@ -157,7 +157,12 @@ class AgentConfiguration extends AbstractObjectJSON
                 static fn(array $host): array => [
                     'host' => $host['address'],
                     'port' => $host['port'],
-                    'encryption' => $configuration['otel_server']['encryption'],
+                    'encryption' =>  match ($connectionMode) {
+                        ConnectionModeEnum::SECURE => 'full',
+                        ConnectionModeEnum::INSECURE => 'insecure',
+                        ConnectionModeEnum::NO_TLS => 'no',
+                        default => 'full',
+                    },
                     'ca_certificate' => $host['poller_ca_certificate'] !== null
                         ? $host['poller_ca_certificate']
                         : '',
@@ -197,7 +202,12 @@ class AgentConfiguration extends AbstractObjectJSON
             'telegraf_conf_server' => [
                 'http_server' => [
                     'port' => $data['conf_server_port'],
-                    'encryption' => $otelConfiguration['encryption'],
+                    'encryption' =>  match ($connectionMode) {
+                        ConnectionModeEnum::SECURE => 'full',
+                        ConnectionModeEnum::INSECURE => 'insecure',
+                        ConnectionModeEnum::NO_TLS => 'no',
+                        default => 'full',
+                    },
                     'public_cert' => $data['conf_certificate'] !== null
                         ? $data['conf_certificate']
                         : '',
