@@ -103,14 +103,14 @@ interface CollectionInterface extends \IteratorAggregate, \JsonSerializable
      *
      * @return true
      */
-    public function sortByValues(callable $callable): true;
+    public function sortByValues(callable $callable): bool;
 
     /**
      * @param callable $callable
      *
      * @return true
      */
-    public function sortByKeys(callable $callable): true;
+    public function sortByKeys(callable $callable): bool;
 
     /**
      * Filter the collection by a callable using the item as parameter

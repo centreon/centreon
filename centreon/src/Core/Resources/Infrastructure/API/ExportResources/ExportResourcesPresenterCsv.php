@@ -115,7 +115,9 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             return;
         }
 
-        $csvHeader = $this->sortHeaderByFilteredColumns($csvHeader, $response->getFilteredColumns());
+        if (! $response->getFilteredColumns()->isEmpty()) {
+            $csvHeader = $this->sortHeaderByFilteredColumns($csvHeader, $response->getFilteredColumns());
+        }
 
         $csvResources = $this->transformToCsvByHeader($response->getResources(), $csvHeader);
 

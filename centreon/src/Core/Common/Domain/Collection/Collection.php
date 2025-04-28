@@ -166,7 +166,7 @@ abstract class Collection implements CollectionInterface
      *
      * @return true
      */
-    public function sortByValues(callable $callable): true
+    public function sortByValues(callable $callable): bool
     {
         return usort($this->items, $callable);
     }
@@ -176,7 +176,7 @@ abstract class Collection implements CollectionInterface
      *
      * @return true
      */
-    public function sortByKeys(callable $callable): true
+    public function sortByKeys(callable $callable): bool
     {
         return uksort($this->items, $callable);
     }

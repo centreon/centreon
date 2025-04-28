@@ -1702,10 +1702,10 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/resources/export:
-    $ref: './latest/onPremise/Realtime/Resources/ExportResources.yaml'
   /monitoring/resources/count:
     $ref: './latest/onPremise/Realtime/Resources/CountResources.yaml'
+  /monitoring/resources/export:
+    $ref: './latest/onPremise/Realtime/Resources/ExportResources.yaml'
   /monitoring/resources/hosts/{host_id}:
     get:
       tags:
