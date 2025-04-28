@@ -1146,3 +1146,27 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
     uses: ./.github/workflows/set-pull-request-skip-label.yml
+
+  clear-branch-cache:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, deliver-deb, deliver-rpm]
+    env:
+      GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    if: |
+      needs.get-environment.outputs.is_nightly == 'true' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: List and delete cache
+        run: |
+          mapfile -t cache_keys < <(gh cache list --ref refs/heads/${{ github.ref_name }} --json key -q '.[] | .key')
+          echo $cache_keys
+          while read row; do
+            gh cache delete $row
+            echo "Cache $row was deleted."
+          done <<< "$cache_keys"
+        shell: bash
