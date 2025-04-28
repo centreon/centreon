@@ -146,7 +146,8 @@
     "phpstan": "phpstan analyse -c phpstan.neon --level 6 --memory-limit=512M",
     "phpstan:ci": "@phpstan --error-format=absolute --no-interaction --no-progress",
     "phpstan:core": "phpstan analyse -c phpstan.core.neon --memory-limit=1G",
-    "codestyle:core": "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml"
+    "codestyle:core": "php-cs-fixer fix --dry-run --format=checkstyle > checkstyle.core.xml",
+    "symfony:check:ci": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
   },
   "extra": {
     "symfony": {
