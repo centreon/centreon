@@ -227,9 +227,9 @@ jobs:
           cd centreon
 
           for i in lang/*.UTF-8 ; do
-            localefull=`basename $i`
-            langName=`echo $localefull | cut -d . -f 1`
-            langShortName=`echo $localefull | cut -d _ -f 1`
+            localefull="$(basename "$i")"
+            langName="$(echo "$localefull" | cut -d . -f 1)"
+            langShortName="$(echo "$localefull" | cut -d _ -f 1)"
             mkdir -p "www/locale/$localefull/LC_MESSAGES"
             bash ../.github/scripts/translation/make_translation.sh centreon $langName
             msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
