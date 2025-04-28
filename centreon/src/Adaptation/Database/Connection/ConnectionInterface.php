@@ -45,7 +45,7 @@ interface ConnectionInterface
      * The list of drivers that allow the use of unbuffered queries.
      */
     public const DRIVER_ALLOWED_UNBUFFERED_QUERY = [
-        ConnectionDriverEnum::DRIVER_PDO_MYSQL->value,
+        'pdo_mysql',
     ];
 
     /**
