@@ -46,19 +46,19 @@ LANGS=(
 # Define global vars
 #
 PO_SRC=$BASE_DIR/po_src
-CAN_BE_TRANSLATE=false
+CAN_BE_TRANSLATED=false
 
 # Check project name
 if [ "$1" ]; then
     for PROJECT in "${PROJECTS[@]}";
     do
         if [ "$1" = "$PROJECT" ]; then
-            CAN_BE_TRANSLATE=true
+            CAN_BE_TRANSLATED=true
             PROJECT=$1
             break
         fi
     done
-    if [ $CAN_BE_TRANSLATE = false ]; then
+    if [ $CAN_BE_TRANSLATED = false ]; then
         echo -e "Project $1 can't be translated"
         exit 1
     fi
@@ -68,20 +68,20 @@ else
 fi
 
 # Check for locale
-CAN_BE_TRANSLATE=false
+CAN_BE_TRANSLATED=false
 
 if [ "$2" ]; then
     for LANG in "${LANGS[@]}";
     do
         if [ "$2" = "$LANG" ]; then
-            CAN_BE_TRANSLATE=true
+            CAN_BE_TRANSLATED=true
             LANG=$2
             LC_ALL=$LANG.UTF-8
             export LC_ALL
             break
         fi
     done
-    if [ $CAN_BE_TRANSLATE = false ]; then
+    if [ $CAN_BE_TRANSLATED = false ]; then
         echo -e "Project $1 can't be translated in $2 lcoale"
         exit 1
     fi
