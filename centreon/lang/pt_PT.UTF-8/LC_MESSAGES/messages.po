@@ -18479,9 +18479,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?"
 # msgstr ""
 
-# msgid "Creators"
-# msgstr ""
-
 # msgid "Never expire"
 # msgstr ""
 

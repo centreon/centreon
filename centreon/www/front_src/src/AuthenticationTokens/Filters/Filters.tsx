@@ -23,11 +23,11 @@ import useFilters from './useFilters';
 
 import {
   labelClear,
-  labelCreators,
+  labelCreator,
   labelName,
   labelSearch,
-  labelTypes,
-  labelUsers
+  labelType,
+  labelUser
 } from '../translatedLabels';
 
 const Filters = (): JSX.Element => {
@@ -67,9 +67,9 @@ const Filters = (): JSX.Element => {
           onDelete: deleteType,
           color: 'primary'
         }}
-        dataTestId={labelTypes}
+        dataTestId={labelType}
         isOptionEqualToValue={isOptionEqualToValue}
-        label={t(labelTypes)}
+        label={t(labelType)}
         options={tokenTypes}
         value={filters.types}
         onChange={changeTypes}
@@ -85,11 +85,11 @@ const Filters = (): JSX.Element => {
           onDelete: deleteUser,
           color: 'primary'
         }}
-        dataTestId={labelUsers}
+        dataTestId={labelUser}
         field="name"
         getEndpoint={getEndpointConfiguredUser}
         isOptionEqualToValue={isOptionEqualToValue}
-        label={t(labelUsers)}
+        label={t(labelUser)}
         value={filters.users}
         onChange={changeUser}
       />
@@ -101,12 +101,12 @@ const Filters = (): JSX.Element => {
           onDelete: deleteCreator,
           color: 'primary'
         }}
-        dataTestId={labelCreators}
+        dataTestId={labelCreator}
         field="creator.name"
         filterOptions={filterCreators}
         getEndpoint={getEndpointCreatorsToken}
         isOptionEqualToValue={isOptionEqualToValue}
-        label={t(labelCreators)}
+        label={t(labelCreator)}
         value={filters.creators}
         onChange={changeCreator}
       />

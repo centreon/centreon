@@ -1893,7 +1893,7 @@ msgstr "Allgemeine Informationen"
 #: centreon/www/include/eventLogs/export/data.php:127
 #: centreon/www/include/eventLogs/export/data.php:152
 msgid "Type"
-msgstr "Typ"
+msgstr "Type"
 
 #: centreon/smarty_translate.php:1005 centreon/smarty_translate.php:1014
 #: centreon/www/include/reporting/dashboard/initReport.php:319
@@ -17113,9 +17113,6 @@ msgstr "Erweiterter Modus"
 # msgid "Additional Configurations"
 # msgstr ""
 
-# msgid "Types"
-# msgstr ""
-
 # msgid "Updated by"
 # msgstr ""
 
@@ -17677,9 +17674,6 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Authentication tokens"
-# msgstr ""
-
-# msgid "Creators"
 # msgstr ""
 
 # msgid "Never expire"

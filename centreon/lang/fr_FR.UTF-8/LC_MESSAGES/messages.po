@@ -19809,9 +19809,6 @@ msgstr "Afficher la moyenne sous forme de"
 msgid "Authentication tokens"
 msgstr "Jetons d'authentification"
 
-msgid "Creators"
-msgstr "Créateurs"
-
 msgid "Never expire"
 msgstr "N'expire jamais"
 

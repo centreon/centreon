@@ -33,9 +33,6 @@ export const labelFilters = 'Filters';
 export const labelDisabled = 'Disabled';
 export const labelEnabled = 'Enabled';
 
-export const labelUsers = 'Users';
-export const labelCreators = 'Creators';
-export const labelTypes = 'Types';
 export const labelType = 'Type';
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';

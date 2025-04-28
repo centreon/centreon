@@ -1,8 +1,8 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { Contact, Token, columnsFromLabels, durationMap } from '../common';
 
-interface filterOptions {
+interface FilterOptions {
   creationDate:
     | 'Last 7 days'
     | 'Last 30 days'
@@ -21,7 +21,7 @@ interface filterOptions {
   user: string;
 }
 
-const tokensToSearch: filterOptions = {
+const tokensToSearch: FilterOptions = {
   creationDate: 'Last 7 days',
   creator: 'admin admin',
   expirationDate: 'In 7 days',
@@ -88,7 +88,8 @@ Given('Authentication tokens with predefined details are created', () => {
       const duration = durationMap[token.duration];
       expirationDate.setDate(today.getDate() + duration);
       // Get the ISO string without milliseconds
-      const expirationDateISOString = expirationDate.toISOString().split('.')[0] + "Z";
+      const expirationDateISOString =
+        expirationDate.toISOString().split('.')[0] + 'Z';
 
       const payload = {
         expiration_date: expirationDateISOString,
@@ -119,35 +120,32 @@ Given('I am on the Authentication tokens page', () => {
 });
 
 When('I filter tokens by {string} and click on Search', (filterBy: string) => {
-  cy.getByTestId({ testId: 'TuneIcon'}).click();
+  cy.getByTestId({ testId: 'TuneIcon' }).click();
   if (filterBy === 'Name') {
-    cy.getByTestId({ tag: 'input', testId: 'Name' }).type(
-      tokensToSearch.name
-    );
-    cy.getByTestId({testId: 'Search'}).click();
+    cy.getByTestId({ tag: 'input', testId: 'Name' }).type(tokensToSearch.name);
+    cy.getByTestId({ testId: 'Search' }).click();
     cy.wait('@getTokens');
-    cy.getByTestId({ testId: 'TuneIcon'}).click();
+    cy.getByTestId({ testId: 'TuneIcon' }).click();
     return;
   }
 
-
   if (filterBy === 'Status') {
     tokensToSearch.status === 'Active'
-      ? cy.getByTestId({testId: 'Enabled'}).click()
-      : cy.getByTestId({testId: 'Disabled'}).click();
+      ? cy.getByTestId({ testId: 'Enabled' }).click()
+      : cy.getByTestId({ testId: 'Disabled' }).click();
   } else {
     switch (filterBy) {
       case 'Creator':
-        cy.getByLabel({ label: 'Creators', tag: 'input' }).click();
+        cy.getByLabel({ label: 'Creator', tag: 'input' }).click();
         cy.wait('@getTokens');
         cy.contains('li', tokensToSearch.creator).click();
-        cy.getByLabel({ label: 'Creators', tag: 'input' }).click();
+        cy.getByLabel({ label: 'Creator', tag: 'input' }).click();
         break;
       case 'User':
-        cy.getByLabel({ label: 'Users', tag: 'input' }).click();
+        cy.getByLabel({ label: 'User', tag: 'input' }).click();
         cy.wait('@getUsers');
         cy.contains('li', tokensToSearch.user).click();
-        cy.getByLabel({ label: 'Users', tag: 'input' }).click();
+        cy.getByLabel({ label: 'User', tag: 'input' }).click();
         break;
       case 'Creation date':
         cy.contains('li', tokensToSearch.creationDate).click();
@@ -159,15 +157,14 @@ When('I filter tokens by {string} and click on Search', (filterBy: string) => {
         throw new Error(`${filterBy} filter is not managed`);
     }
   }
-  cy.getByTestId({testId: 'Search'}).click();
+  cy.getByTestId({ testId: 'Search' }).click();
   cy.wait('@getTokens');
-  cy.getByTestId({ testId: 'TuneIcon'}).click();
+  cy.getByTestId({ testId: 'TuneIcon' }).click();
 });
 
 Then(
   'I should see all tokens with a {string} according to the filter',
   (filterBy: string) => {
-
     cy.waitUntil(
       () => {
         const allPromisesResolved: Array<boolean> = [];
