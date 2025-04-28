@@ -384,6 +384,14 @@ jobs:
         working-directory: centreon
         shell: bash
 
+      - name: Create configuration file
+        run: cp config/centreon.config.php.template config/centreon.config.php
+        working-directory: centreon
+
+      - name: Check Symfony configuration
+        run: composer symfony:check:ci
+        working-directory: centreon
+
       - name: Run of php-cs-fixer with strict_type
         run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
         working-directory: centreon
