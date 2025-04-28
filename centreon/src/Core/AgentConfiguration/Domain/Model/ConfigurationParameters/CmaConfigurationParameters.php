@@ -35,6 +35,7 @@ use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
  *		otel_public_certificate: string,
  *		otel_private_key: string,
  *		otel_ca_certificate: ?string,
+ *      tokens?: array<array{name:string,creator_id:int}>,
  *		hosts: array<array{
  *			address: string,
  *			port: int,
@@ -79,6 +80,13 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
 
         if (! $parameters['is_reverse'] && ! empty($parameters['hosts'])) {
             $parameters['hosts'] = [];
+        }
+
+        if ($parameters['is_reverse'] === false) {
+            Assertion::notEmpty($parameters['tokens'] ?? [], 'configuration.tokens');
+            foreach ($paramters['tokens'] as $token) {
+                Assertion::notEmptyString($token)
+            }
         }
 
         foreach ($parameters['hosts'] as $host) {
