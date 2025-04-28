@@ -27,10 +27,6 @@ use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
-use Adaptation\Database\ExpressionBuilder\Exception\ExpressionBuilderException;
-use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
-use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
  * Interface.
@@ -56,24 +52,6 @@ interface ConnectionInterface
      * @return ConnectionInterface
      */
     public static function createFromConfig(ConnectionConfig $connectionConfig): self;
-
-    /**
-     * To create an instance of the query builder.
-     *
-     * @throws QueryBuilderException
-     *
-     * @return QueryBuilderInterface
-     */
-    public function createQueryBuilder(): QueryBuilderInterface;
-
-    /**
-     * To create an instance of the expression builder.
-     *
-     * @throws ExpressionBuilderException
-     *
-     * @return ExpressionBuilderInterface
-     */
-    public function createExpressionBuilder(): ExpressionBuilderInterface;
 
     /**
      * @return ConnectionConfig

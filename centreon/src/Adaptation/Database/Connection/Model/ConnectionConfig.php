@@ -30,7 +30,7 @@ use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
  *
  * @class   ConnectionConfig
  */
-final readonly class ConnectionConfig
+final class ConnectionConfig
 {
     /**
      * ConnectionConfig constructor.

@@ -28,12 +28,6 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
-use Adaptation\Database\ExpressionBuilder\Exception\ExpressionBuilderException;
-use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
-use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
-use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
  * Trait.
@@ -42,30 +36,6 @@ use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
  */
 trait ConnectionTrait
 {
-    /**
-     * To create an instance of the query builder.
-     *
-     * @throws QueryBuilderException
-     *
-     * @return QueryBuilderInterface
-     */
-    public function createQueryBuilder(): QueryBuilderInterface
-    {
-        return DbalQueryBuilderAdapter::createFromConnectionConfig($this->connectionConfig);
-    }
-
-    /**
-     * To create an instance of the expression builder.
-     *
-     * @throws ExpressionBuilderException
-     *
-     * @return ExpressionBuilderInterface
-     */
-    public function createExpressionBuilder(): ExpressionBuilderInterface
-    {
-        return DbalExpressionBuilderAdapter::createFromConnectionConfig($this->connectionConfig);
-    }
-
     /**
      * @return ConnectionConfig
      */

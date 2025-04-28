@@ -54,16 +54,25 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
     public function addAction(ActionLog $actionLog): int
     {
         try {
-            $this->queryBuilder->insert('`:dbstg`.log_action')
-                ->values([
-                    'action_log_date' => ':creation_date',
-                    'object_type' => ':object_type',
-                    'object_id' => ':object_id',
-                    'object_name' => ':object_name',
-                    'action_type' => ':action_type',
-                    'log_contact_id' => ':contact_id',
-                ]);
-            $query = $this->translateDbName($this->queryBuilder->getQuery());
+            $query = $this->translateDbName(
+                <<<'SQL'
+                    INSERT INTO `:dbstg`.`log_action` (
+                        `action_log_date`,
+                        `object_type`,
+                        `object_id`,
+                        `object_name`,
+                        `action_type`,
+                        `log_contact_id`
+                    ) VALUES (
+                        :creation_date,
+                        :object_type,
+                        :object_id,
+                        :object_name,
+                        :action_type,
+                        :contact_id
+                    )
+                    SQL
+            );
 
             $this->connection->insert($query, QueryParameters::create([
                 QueryParameter::int('creation_date', $actionLog->getCreationDate()->getTimestamp()),

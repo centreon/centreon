@@ -29,13 +29,12 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactTemplate;
@@ -45,7 +44,7 @@ use Core\Contact\Domain\Model\ContactTemplate;
  *
  * @class DbReadContactTemplateRepository
  */
-class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements ReadContactTemplateRepositoryInterface
+class DbReadContactTemplateRepository extends DatabaseRepository implements ReadContactTemplateRepositoryInterface
 {
     use LoggerTrait;
 
@@ -53,12 +52,16 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
-     * @param DatabaseConnection $db
+     * DbReadContactTemplateRepository constructor.
+     *
+     * @param ConnectionInterface $connection
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(ConnectionInterface $db, SqlRequestParametersTranslator $sqlRequestTranslator)
-    {
-        $this->db = $db;
+    public function __construct(
+        ConnectionInterface $connection,
+        SqlRequestParametersTranslator $sqlRequestTranslator
+    ) {
+        parent::__construct($connection);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
@@ -78,10 +81,7 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
     public function findAll(): array
     {
         try {
-            $query = $this->queryBuilder
-                ->select('SQL_CALC_FOUND_ROWS contact_id, contact_name')
-                ->from('contact')
-                ->getQuery();
+            $query = 'SELECT SQL_CALC_FOUND_ROWS contact_id, contact_name FROM contact';
 
             // Search
             $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -135,12 +135,7 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
     public function find(int $id): ?ContactTemplate
     {
         try {
-            $query = $this->queryBuilder
-                ->select('contact_id, contact_name')
-                ->from('contact')
-                ->where($this->queryBuilder->expr()->equal('contact_id', ':id'))
-                ->andWhere($this->queryBuilder->expr()->equal('contact_register', ':register'))
-                ->getQuery();
+            $query = 'SELECT contact_id, contact_name FROM contact WHERE contact_id = :id AND contact_register = 0';
 
             $queryParameters = QueryParameters::create([
                 QueryParameter::int('id', $id),

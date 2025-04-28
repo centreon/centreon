@@ -9,6 +9,7 @@
     "ext-iconv": "*",
     "ext-json": "*",
     "ext-openssl": "*",
+    "ext-pdo": "*",
     "ext-phar": "*",
     "ext-zip": "*",
     "beberlei/assert": "^3.3",

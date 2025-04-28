@@ -23,15 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Infrastructure;
 
-use Adaptation\Database\ExpressionBuilder\Adapter\Dbal\DbalExpressionBuilderAdapter;
-use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
-use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 
 /**
@@ -110,28 +106,6 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             $dbName = $stmt->fetchColumn();
             expect($dbName)->toBe('centreon')
                 ->and($db->getAttribute(\PDO::ATTR_STATEMENT_CLASS)[0])->toBe(\PDOStatement::class);
-        }
-    );
-
-    it(
-        'create query builder with success',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-            $queryBuilder = $db->createQueryBuilder();
-            expect($queryBuilder)
-                ->toBeInstanceOf(QueryBuilderInterface::class)
-                ->toBeInstanceOf(DbalQueryBuilderAdapter::class);
-        }
-    );
-
-    it(
-        'create expression builder with success',
-        function () use ($dbConfigCentreon): void {
-            $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
-            $expressionBuilder = $db->createExpressionBuilder();
-            expect($expressionBuilder)
-                ->toBeInstanceOf(ExpressionBuilderInterface::class)
-                ->toBeInstanceOf(DbalExpressionBuilderAdapter::class);
         }
     );
 

@@ -70,23 +70,10 @@ services:
         $port: '%database_port%'
 
     Adaptation\Database\Connection\ConnectionInterface:
-        alias: Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter
-
-    Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter:
-      factory: [ null, 'createFromConfig' ]
-      arguments:
-        $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
+        alias: Centreon\Infrastructure\DatabaseConnection
 
     Centreon\Infrastructure\DatabaseConnection:
       factory: [ null, 'createFromConfig' ]
-      arguments:
-        $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
-
-    Adaptation\Database\QueryBuilder\QueryBuilderInterface:
-      alias: Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter
-
-    Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter:
-      factory: [ null, 'createFromConnectionConfig' ]
       arguments:
         $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
 

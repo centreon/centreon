@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 
 /**
  * Class.
@@ -37,11 +36,9 @@ abstract class DatabaseRepository
      * DatabaseRepository constructor.
      *
      * @param ConnectionInterface $connection
-     * @param QueryBuilderInterface $queryBuilder
      */
     public function __construct(
         protected ConnectionInterface $connection,
-        protected QueryBuilderInterface $queryBuilder
     ) {}
 
     /**

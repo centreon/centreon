@@ -32,6 +32,8 @@ use Centreon\Infrastructure\DatabaseConnection;
  * Class.
  *
  * @class AbstractRepositoryRDB
+ *
+ * @deprecated use {@see DatabaseRepository} instead
  */
 class AbstractRepositoryRDB
 {
