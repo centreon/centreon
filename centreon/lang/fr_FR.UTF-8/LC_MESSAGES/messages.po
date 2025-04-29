@@ -16119,7 +16119,7 @@ msgid "All checks are disabled"
 msgstr "Tous les contrôles sont désactivés"
 
 msgid "Only passive checks are enabled"
-msgstr "Seulement les contrôles passifs sont activés"
+msgstr "Seuls les contrôles passifs sont activés"
 
 msgid "Only active checks are enabled"
 msgstr "Seuls les contrôles actifs sont activés"
