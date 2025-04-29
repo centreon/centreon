@@ -129,6 +129,10 @@
         {
           "id": "legend",
           "name": "Legend"
+        },
+        {
+          "id": "tooltips",
+          "name": "Tooltips"
         }
       ],
       "elements": {
@@ -551,6 +555,26 @@
                   }
                 ]
               }
+            }
+          ]
+        },
+        "tooltipMode": {
+          "group": "tooltip",
+          "type": "button-group",
+          "label": "Display",
+          "defaultValue": "all",
+          "options": [
+            {
+              "id": "all",
+              "name": "All"
+            },
+            {
+              "id": "single",
+              "name": "Only one"
+            },
+            {
+              "id": "hidden",
+              "name": "Hidden"
             }
           ]
         }

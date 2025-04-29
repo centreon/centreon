@@ -43,6 +43,7 @@ interface PanelOptions {
   };
   showLegend: boolean;
   legendPlacement: 'left' | 'bottom' | 'right';
+  tooltipMode: 'all' | 'single' | 'hidden';
 }
 
 export interface WidgetProps extends CommonWidgetProps<PanelOptions> {
