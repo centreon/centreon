@@ -72,7 +72,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false'
     uses: ./.github/workflows/checkmarx-analysis.yml
     with:
-      module_directory: centreon-open-tickets
+      module_name: centreon-open-tickets
     secrets:
       base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
       cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
