@@ -32,6 +32,8 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
  *
  * @class AbstractRepositoryDRB
  * @package Centreon\Domain\Repository
+ *
+ * @deprecated use {@see DatabaseRepository} instead
  */
 class AbstractRepositoryDRB
 {
