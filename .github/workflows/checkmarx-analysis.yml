@@ -57,4 +57,4 @@ jobs:
           cx_client_id: ${{ secrets.cx_client_id }}
           cx_client_secret: ${{ secrets.cx_client_secret }}
           additional_params: --file-source "./" --file-filter "!**/doc/**" --scan-types "sast,sca,api-security"
-          source_dir: "./${{ inputs.module_name }}"
+          source_dir: "./${{ inputs.module_directory || inputs.module_name }}"
