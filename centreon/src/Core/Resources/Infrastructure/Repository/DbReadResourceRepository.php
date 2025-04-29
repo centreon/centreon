@@ -477,7 +477,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 ->from('`:dbstg`.`resources`')
                 ->getQuery();
 
-            return $this->connection->fetchOne($this->translateDbName($query));
+            return (int) $this->connection->fetchOne($this->translateDbName($query));
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting all resources',
@@ -501,7 +501,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 ->getQuery();
             $query .= $this->addResourceAclSubRequest($accessGroupIds);
 
-            return $this->connection->fetchOne($this->translateDbName($query));
+            return (int) $this->connection->fetchOne($this->translateDbName($query));
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by access group ids and max results',
@@ -931,7 +931,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $queryParameters = $queryParametersFromRequestParameters;
         }
 
-        return $this->connection->fetchOne($queryResources, $queryParameters);
+        return (int) $this->connection->fetchOne($queryResources, $queryParameters);
     }
 
     /**

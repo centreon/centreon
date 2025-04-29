@@ -275,7 +275,7 @@ trait ConnectionTrait
 
             // Check if the query starts with a valid SQL command
             if (preg_match('/^(UPDATE|WITH)\b/i', $query) !== 1) {
-                throw ConnectionException::insertQueryBadFormat($query);
+                throw ConnectionException::updateQueryBadFormat($query);
             }
 
             return $this->executeStatement($query, $queryParameters);
@@ -307,7 +307,7 @@ trait ConnectionTrait
 
             // Check if the query starts with a valid SQL command
             if (preg_match('/^(DELETE|WITH)\b/i', $query) !== 1) {
-                throw ConnectionException::insertQueryBadFormat($query);
+                throw ConnectionException::deleteQueryBadFormat($query);
             }
 
             return $this->executeStatement($query, $queryParameters);

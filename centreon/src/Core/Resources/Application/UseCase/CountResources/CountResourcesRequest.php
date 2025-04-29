@@ -54,7 +54,7 @@ final readonly class CountResourcesRequest {
      */
     private function validateRequest(): void
     {
-        if (! $this->contactId > 0) {
+        if ( $this->contactId <= 0) {
             throw new \InvalidArgumentException("Contact ID must be greater than 0, {$this->contactId} given");
         }
     }

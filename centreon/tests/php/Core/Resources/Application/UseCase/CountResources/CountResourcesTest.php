@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Resources\Application\UseCase\ExportResources;
+namespace Tests\Core\Resources\Application\UseCase\CountResources;
 
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;

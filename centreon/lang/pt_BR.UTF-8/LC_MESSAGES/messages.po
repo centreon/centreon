@@ -18523,11 +18523,11 @@ msgstr ""
 # msgid "Requested authentication context"
 # msgstr ""
 
-#msgid "Minimum"
+# msgid "Minimum"
 # msgstr ""
 
 # msgid "Exact"
-#msgstr ""
+# msgstr ""
 
 # msgid "Better"
 # msgstr ""
