@@ -722,8 +722,8 @@ export const linesAndBarsMinMax: Story = {
   argTypes,
   args: {
     ...argumentsData,
-    min: -0.3,
-    max: 5,
+    min: 10,
+    max: 30,
     lineStyle: {
       curve: 'natural',
       lineWidth: 2,

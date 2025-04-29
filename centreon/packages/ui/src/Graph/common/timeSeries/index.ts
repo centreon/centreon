@@ -394,7 +394,7 @@ const getScale = ({
       ]);
   const minValue = Math.min(...sanitizedValuesForMinimum);
   const minValueWithMargin =
-    (hasDisplayAsBar || hasLineFilled) && minValue > 0
+    (hasDisplayAsBar || hasLineFilled) && minValue > 0 && !min
       ? 0
       : minValue - Math.abs(minValue) * 0.05;
 
