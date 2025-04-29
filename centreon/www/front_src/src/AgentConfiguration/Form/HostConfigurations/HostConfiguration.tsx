@@ -46,8 +46,8 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
       }}
     >
       <SingleConnectedAutocompleteField
+        required
         label={t(labelAddHost)}
-        value={null}
         onChange={selectHost}
         getEndpoint={(parameters) =>
           buildListingEndpoint({
@@ -55,7 +55,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
             parameters
           })
         }
-        fieldName="name"
+        value={{ id: host.id, name: host.name }}
       />
       <div />
       <TextField

@@ -654,6 +654,7 @@ describe('Agent configurations modal', () => {
           otel_private_key: 'private.key',
           hosts: [
             {
+              id: 1,
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: 'test.crt',
@@ -787,6 +788,7 @@ describe('Agent configurations modal', () => {
           otel_private_key: null,
           hosts: [
             {
+              id: 1,
               address: '127.0.0.2',
               port: 4317,
               poller_ca_name: null,
