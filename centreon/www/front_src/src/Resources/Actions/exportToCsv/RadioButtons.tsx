@@ -18,7 +18,12 @@ interface Props<T> {
   getData: (label: string) => void;
 }
 
-const RadioButtons = <T,>({ defaultChecked, options, title, getData }: Props<T>) => {
+const RadioButtons = <T extends string>({
+  defaultChecked,
+  options,
+  title,
+  getData
+}: Props<T>) => {
   const { classes } = useExportCsvStyles();
 
   const [checked, setChecked] = useAtom(defaultChecked);
@@ -37,7 +42,7 @@ const RadioButtons = <T,>({ defaultChecked, options, title, getData }: Props<T>)
   );
 
   const getCheckedValue = useCallback(
-    (id: string) => equals(checked as string, id),
+    (id: string) => equals(checked, id),
     [checked]
   );
 
