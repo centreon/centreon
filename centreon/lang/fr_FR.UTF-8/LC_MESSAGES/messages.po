@@ -19877,7 +19877,7 @@ msgid "'{{total}} element(s) found"
 msgstr "'{{total}} élément(s) trouvé(s)"
 
 msgid "The selected inherited service template does not contain any check command. You must select one here."
-msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de vérification. Vous devez en sélectionner une ici."
+msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de contrôle. Vous devez en sélectionner une ici."
 
 # ---- EXPORT CSV ----
 
