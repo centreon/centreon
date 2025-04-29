@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Checkmarx One CLI Action
-        uses: checkmarx/ast-github-action@b74e8d514feae4ad5ad2b43e72590935bd2daf5f # v.2.0.39
+        uses: checkmarx/ast-github-action@ef93013c95adc60160bc22060875e90800d3ecfc # v.2.3.19
         with:
           project_name: ${{ inputs.module_name }}
           base_uri: ${{ secrets.base_uri }}
