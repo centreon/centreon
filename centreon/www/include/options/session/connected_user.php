@@ -71,13 +71,13 @@ if ($selectedUserId) {
         case KICK_USER:
             // check if the user is allowed to kick this user
             if ($centreon->user->admin == 0) {
-                $msg->setText(_("You are not allowed to kick this user"));
+                $msg->setText(_("You are not allowed to disconnect this user"));
                 break;
             }
             $stmt = $pearDB->prepare("DELETE FROM session WHERE user_id = :userId");
             $stmt->bindValue(':userId', $selectedUserId, \PDO::PARAM_INT);
             $stmt->execute();
-            $msg->setText(_("User kicked"));
+            $msg->setText(_("User disconnected"));
             break;
     }
 }
@@ -118,7 +118,7 @@ for ($cpt = 0; $r = $res->fetch(); $cpt++) {
         // adding the link to be able to kick the user
         $session_data[$cpt]["actions"] =
             "<a href='./main.php?p=" . $p . "&o=k&user=" . $r['user_id'] . "'>" .
-                "<span title='" . _("Kick User") . "'>" .
+                "<span title='" . _("Disconnect user") . "'>" .
                     returnSvg("www/img/icons/delete.svg", "var(--icons-fill-color)", 22, 22) .
                 "</span>" .
             "</a>";

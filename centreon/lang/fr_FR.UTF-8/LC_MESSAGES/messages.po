@@ -7043,7 +7043,7 @@ msgid "User disconnected"
 msgstr "Utilisateur déconnecté"
 
 #: centreon-web/www/include/options/session/connected_user.php:86
-msgid "Disconnect User"
+msgid "Disconnect user"
 msgstr "Déconnecter l'utilisateur"
 
 #: centreon-web/www/include/options/session/connected_user.php:99
