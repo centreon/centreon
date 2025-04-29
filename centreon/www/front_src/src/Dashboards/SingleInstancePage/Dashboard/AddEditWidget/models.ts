@@ -2,7 +2,10 @@ import { ReactNode } from 'react';
 
 import { SelectEntry } from '@centreon/ui';
 
-import { SubInput } from '../../../../federatedModules/models';
+import {
+  SubInput,
+  WidgetHiddenCondition
+} from '../../../../federatedModules/models';
 import { PanelConfiguration, WidgetOptions } from '../models';
 
 export interface Widget {
@@ -17,6 +20,11 @@ export interface ShowInput {
   contains?: Array<{ key: string; value: unknown }>;
   notContains?: Array<{ key: string; value: unknown }>;
   when: string;
+}
+
+export interface ForceSingleAutocompleteConditions {
+  resourceType: string;
+  conditions: Array<WidgetHiddenCondition> | WidgetHiddenCondition;
 }
 
 export interface WidgetPropertyProps {
@@ -66,6 +74,7 @@ export interface WidgetPropertyProps {
   isRequiredProperty?: boolean;
   tooltipLabel?: string;
   subInputsDelimiter?: string;
+  forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
 }
 
 export interface WidgetDataResource {

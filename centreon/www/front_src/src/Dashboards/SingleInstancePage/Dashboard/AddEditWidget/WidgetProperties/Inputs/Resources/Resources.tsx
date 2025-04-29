@@ -41,7 +41,8 @@ const Resources = ({
   required,
   useAdditionalResources,
   forcedResourceType,
-  defaultResourceTypes
+  defaultResourceTypes,
+  forceSingleAutocompleteConditions
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
@@ -65,7 +66,8 @@ const Resources = ({
     changeIdValue,
     hasSelectedHostForSingleMetricwidget,
     isValidatingResources,
-    hideResourceDeleteButton
+    hideResourceDeleteButton,
+    checkForceSingleAutocomplete
   } = useResources({
     excludedResourceTypes,
     propertyName,
@@ -116,6 +118,11 @@ const Resources = ({
               ? WidgetResourceType.hostGroup
               : resource.resourceType;
 
+            const forceSingleAutocomplete = checkForceSingleAutocomplete({
+              resourceType: resource.resourceType,
+              forceSingleAutocompleteConditions
+            });
+
             return (
               <ItemComposition.Item
                 className={classes.resourceCompositionItem}
@@ -141,7 +148,7 @@ const Resources = ({
                   selectedOptionId={resourceTypeSelectedOptionId}
                   onChange={changeResourceType(index)}
                 />
-                {singleResourceSelection ? (
+                {singleResourceSelection || forceSingleAutocomplete ? (
                   <SingleConnectedAutocompleteField
                     exclusionOptionProperty="name"
                     changeIdValue={changeIdValue(resource.resourceType)}
