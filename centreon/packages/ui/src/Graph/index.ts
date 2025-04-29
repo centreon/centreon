@@ -1,3 +1,4 @@
+export type { ParentSizeProps } from '@visx/responsive/lib/components/ParentSize';
 export { default as LineChart } from './Chart';
 export { default as ThresholdLines } from './Chart/BasicComponents/Lines/Threshold';
 export { default as useLineChartData } from './Chart/useChartData';
@@ -16,3 +17,5 @@ export * from './common/timeSeries';
 export type { Metric } from './common/timeSeries/models';
 export * from './Chart/models';
 export * from './PieChart/models';
+
+
