@@ -19897,7 +19897,7 @@ msgid "An error occurred while filtering columns"
 msgstr "Une erreur est survenue lors du filtrage des colonnes"
 
 msgid "Error while creating export request"
-msgstr "Erreur lors de la création de la demande d'exportation"
+msgstr "Erreur lors de la création de la demande d'export"
 
 msgid "Export format not supported"
 msgstr "Format d'export non supporté"
