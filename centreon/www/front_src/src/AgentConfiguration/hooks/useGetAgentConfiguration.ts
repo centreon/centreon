@@ -22,18 +22,19 @@ const adaptAgentConfigurationToForm = (
   ),
   configuration: {
     ...agentConfiguration.configuration,
-    ...(equals(AgentType.CMA, agentConfiguration.type)
-      ? {}
-      : {
+    ...(equals(AgentType.CMA, agentConfiguration.type) &&
+    !agentConfiguration.configuration.isReverse
+      ? {
           tokens: map(
             ({ name, creatorId }) => ({
               id: `${name}_${creatorId}`,
               name,
               creatorId
             }),
-            agentConfiguration?.tokens
+            agentConfiguration?.tokens || []
           )
-        })
+        }
+      : {})
   }
 });
 

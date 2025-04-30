@@ -323,9 +323,10 @@ export const useInputs = (): {
         }
       },
       {
-        hideInput: ({ type, connectionMode }) =>
+        hideInput: ({ type, connectionMode, configuration }) =>
           !equals(type?.id, AgentType.CMA) ||
-          equals(connectionMode?.id, ConnectionMode.noTLS),
+          equals(connectionMode?.id, ConnectionMode.noTLS) ||
+          configuration?.isReverse,
         fieldName: '',
         label: '',
         group: t(labelCMAauthenticationToken),
@@ -355,6 +356,10 @@ export const useInputs = (): {
               }
             },
             {
+              hideInput: ({ type, connectionMode, configuration }) =>
+                !equals(type?.id, AgentType.CMA) ||
+                equals(connectionMode?.id, ConnectionMode.noTLS) ||
+                configuration?.isReverse,
               fieldName: '',
               label: '',
               type: InputType.Custom,
@@ -373,9 +378,10 @@ export const useInputs = (): {
         custom: {
           Component: RedirectToTokensPage
         },
-        hideInput: ({ type, connectionMode }) =>
+        hideInput: ({ type, connectionMode, configuration }) =>
           !equals(type?.id, AgentType.CMA) ||
-          equals(connectionMode?.id, ConnectionMode.noTLS)
+          equals(connectionMode?.id, ConnectionMode.noTLS) ||
+          configuration?.isReverse
       }
     ]
   };

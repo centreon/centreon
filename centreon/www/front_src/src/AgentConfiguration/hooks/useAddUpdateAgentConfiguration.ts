@@ -76,12 +76,14 @@ const adaptCMAConfigurationToAPI = (
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       is_reverse: configuration.isReverse,
-      tokens: getFieldBasedOnCertificate(
-        map(
-          ({ name, creatorId }) => ({ name, creator_id: creatorId }),
-          agentConfiguration.configuration.tokens
-        )
-      ),
+      tokens:
+        equals(agentConfiguration?.connectionMode?.id, 'no-tls') ||
+        configuration.isReverse
+          ? []
+          : map(
+              ({ name, creatorId }) => ({ name, creator_id: creatorId }),
+              agentConfiguration.configuration.tokens
+            ),
       otel_ca_certificate: getFieldBasedOnCertificate(
         configuration.otelCaCertificate
       ),
