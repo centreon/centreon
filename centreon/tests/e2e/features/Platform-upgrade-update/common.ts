@@ -175,7 +175,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
       packageDistribName = Cypress.env('WEB_IMAGE_OS');
     } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
       packageDistribPrefix = '+';
-      packageDistribName = 'deb12u1';
+      packageDistribName = "deb12u1_all";
     } else if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
       packageDistribPrefix = '-*-';
       packageDistribName = '0ubuntu.22.04';
