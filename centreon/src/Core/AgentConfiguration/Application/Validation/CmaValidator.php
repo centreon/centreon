@@ -69,22 +69,37 @@ class CmaValidator implements TypeValidatorInterface
             }
 
             if ($key === 'tokens') {
+                if ($connectionMode !== ConnectionModeEnum::INSECURE && $tokens === []) {
+                    AgentConfigurationException::tokensAreMandatory();
+                }
                 $this->validateTokens($value, $request->connection_mode);
             }
 
             if ($key === 'hosts') {
+                $tokens = [];
                 foreach ($value as $host) {
                     /** @var array{
                      *		address: string,
                      *		port: int,
                      *		poller_ca_certificate: ?string,
-                     *		poller_ca_name: ?string
+                     *		poller_ca_name: ?string,
+                     *      token?: ?array{name:string,creator_id:int}
                      *	} $host
                      */
                     if ($host['poller_ca_certificate'] !== null) {
                         $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
                     }
+
+                    if (
+                        $connectionMode !== ConnectionModeEnum::INSECURE
+                        && (! isset($host['token']) ||  $host['token'] === null)
+                    ) {
+                        AgentConfigurationException::tokensAreMandatory();
+                    }
+
+                    $tokens[] = $host['token'];
                 }
+                $this->validateTokens($tokens);
             }
         }
     }
@@ -112,10 +127,6 @@ class CmaValidator implements TypeValidatorInterface
      */
     private function validateTokens(array $tokens): void
     {
-        if ($connectionMode !== ConnectionModeEnum::INSECURE && $tokens === []) {
-            AgentConfigurationException::tokensAreMandatory();
-        }
-
         foreach ($tokens as $token) {
             $tokenObj = $this->tokenRepository->findByNameAndUserId($token['name'], $token['creatorId']);
             if ( $tokenObj === null || ! $tokenObj instanceOf CmaToken) {

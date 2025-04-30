@@ -83,6 +83,17 @@
                                     "null",
                                     "string"
                                 ]
+                            },
+                            "token": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "creator_id": {
+                                        "type": "integer"
+                                    }
+                                }
                             }
                         }
                     }
