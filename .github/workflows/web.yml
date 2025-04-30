@@ -19,7 +19,7 @@ on:
     paths:
       - ".version.centreon-web"
       - "centreon/**"
-      - "!centreon/cypress/**"
+      - "centreon/cypress/**"
       - "!centreon/features/**"
       - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
