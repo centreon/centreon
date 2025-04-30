@@ -7034,12 +7034,16 @@ msgstr "Convertir gd2 -> png :"
 msgid "Close"
 msgstr "Fermer"
 
-#: centreon-web/www/include/options/session/connected_user.php:50
-msgid "User kicked"
+#: centreon-web/www/include/options/session/connected_user.php:71
+msgid "You are not allowed to disconnect this user"
+msgstr "Vous n'êtes pas autorisé à déconnecter cet utilisateur."
+
+#: centreon-web/www/include/options/session/connected_user.php:77
+msgid "User disconnected"
 msgstr "Utilisateur déconnecté"
 
 #: centreon-web/www/include/options/session/connected_user.php:86
-msgid "Kick User"
+msgid "Disconnect user"
 msgstr "Déconnecter l'utilisateur"
 
 #: centreon-web/www/include/options/session/connected_user.php:99
@@ -19877,7 +19881,7 @@ msgid "'{{total}} element(s) found"
 msgstr "'{{total}} élément(s) trouvé(s)"
 
 msgid "The selected inherited service template does not contain any check command. You must select one here."
-msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de contrôle. Vous devez en sélectionner une ici."
+msgstr "Le modèle de service hérité sélectionné ne comporte pas de commande de vérification. Vous devez en sélectionner une ici."
 
 # ---- EXPORT CSV ----
 

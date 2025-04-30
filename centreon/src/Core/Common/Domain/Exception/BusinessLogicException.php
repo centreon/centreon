@@ -140,50 +140,14 @@ abstract class BusinessLogicException extends \Exception
             $previousContext = $this->getPrevious()->getBusinessContext();
         }
         $this->businessContext = array_merge(
-            $context,
-            ['previous' => $previousContext]
+            $context, ['previous' => $previousContext]
         );
     }
 
     /**
      * @return void
      */
-    private function setExceptionContext(): void
-    {
-        $this->exceptionContext = $this->getExceptionInfos($this);
-    }
-
-    /**
-     * @param \Throwable $throwable
-     *
-     * @return array<string, mixed>
-     */
-    private function getExceptionInfos(\Throwable $throwable): array
-    {
-        return [
-            'type' => $throwable::class,
-            'message' => $throwable->getMessage(),
-            'file' => $throwable->getFile(),
-            'line' => $throwable->getLine(),
-            'code' => $throwable->getCode(),
-            'class' => $throwable->getTrace()[0]['class'] ?? null,
-            'method' => $throwable->getTrace()[0]['function'] ?? null,
-            'previous' => self::getPreviousInfos($throwable),
-        ];
-    }
-
-    /**
-     * @param \Throwable $throwable
-     *
-     * @return array<string,mixed>|null
-     */
-    private function getPreviousInfos(\Throwable $throwable): ?array
-    {
-        $previousContext = null;
-        if ($throwable->getPrevious() !== null) {
-            $previousContext = self::getExceptionInfos($throwable->getPrevious());
-        }
-
-        return $previousContext;
+    private function setExceptionContext(): void {
+        $this->exceptionContext = ExceptionFormatter::format($this);
     }
 }

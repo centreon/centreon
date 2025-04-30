@@ -80,6 +80,7 @@ parameters:
                 - src/Core/Common/Infrastructure/RequestParameters/Transformer
                 - src/Core/AgentConfiguration/Infrastructure/Repository
                 - src/Core/Common/Infrastructure/Repository
+                - src/Core/Contact/Infrastructure/Repository
                 - src/Core/Resources/Infrastructure
                 - src/Core/Security/AccessGroup/Infrastructure/Repository
 
