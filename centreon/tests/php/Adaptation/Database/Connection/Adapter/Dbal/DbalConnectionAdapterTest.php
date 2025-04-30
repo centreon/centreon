@@ -1415,7 +1415,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     // -------------------------------------- QUERY FORMAT ---------------------------------------
 
     it(
-        'fetchAssociative with string format with indent before the query ',
+        'execute a query with string format with indent before',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $query = '    SELECT * FROM contact WHERE contact_id = :id';
@@ -1429,7 +1429,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'fetchAssociative with NowDoc format with no indent before the query',
+        'execute a query with NowDoc format with no indent before',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $query =
@@ -1446,7 +1446,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'fetchAssociative with NowDoc format with indent before the query',
+        'execute a query with NowDoc format with indent before',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $query =
@@ -1463,7 +1463,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'fetchAssociative with HereDoc format with no indent before the query',
+        'execute a query with HereDoc format with no indent before',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $query =
@@ -1480,7 +1480,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
     );
 
     it(
-        'fetchAssociative with HereDoc format with indent before the query',
+        'execute a query with HereDoc format with indent before',
         function () use ($dbConfigCentreon): void {
             $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
             $query =
