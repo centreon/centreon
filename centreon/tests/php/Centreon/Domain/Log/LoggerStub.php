@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,25 @@
  * For more information : contact@centreon.com
  *
  */
-
 declare(strict_types=1);
 
-namespace Centreon\Domain\Log;
+namespace Tests\Centreon\Domain\Log;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\ContactForDebug;
+use Centreon\Domain\Log\LoggerTrait;
+use Mockery;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 /**
- * This class is designed to be used in legacy codebase to use a logger
+ * Class
  *
- * @package Centreon\Domain\Log
+ * @class LoggerStub
+ * @package Tests\Centreon\Domain\Log
  */
-class Logger implements LoggerInterface
-{
+class LoggerStub implements LoggerInterface {
     use LoggerTrait {
         emergency as traitEmergency;
         alert as traitAlert;
@@ -43,15 +48,36 @@ class Logger implements LoggerInterface
         debug as traitDebug;
         log as traitLog;
     }
+    /** @var Logger */
+    private Logger $monolog;
+    /** @var string */
+    private string $logPathFileName;
+
+    /**
+     * LoggerStub constructor
+     *
+     * @param string $logPathFileName
+     */
+    public function __construct(string $logPathFileName)
+    {
+        $this->monolog = new Logger('test_logger');
+        $this->monolog->pushHandler(new StreamHandler($logPathFileName));
+        $this->setLogger($this->monolog);
+        $this->loggerContact = Mockery::mock(ContactInterface::class);
+        $this->loggerContactForDebug = Mockery::mock(ContactForDebug::class);
+        $this->loggerContactForDebug->shouldReceive('isValidForContact')->andReturnTrue();
+    }
 
     /**
      * Factory
      *
+     * @param string $logPathFileName
+     *
      * @return LoggerInterface
      */
-    public static function create(): LoggerInterface
+    public static function create(string $logPathFileName): LoggerInterface
     {
-        return new self();
+        return new self($logPathFileName);
     }
 
     /**
