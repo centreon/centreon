@@ -27,6 +27,7 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfiguratio
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 
 /**
  * @phpstan-import-type _TelegrafParameters from TelegrafConfigurationParameters
@@ -37,6 +38,7 @@ class AgentConfiguration extends AbstractObjectJSON
     public function __construct(
         private readonly Backend $backend,
         private readonly ReadAgentConfigurationRepositoryInterface $readAgentConfigurationRepository,
+        private readonly ReadHostRepositoryInterface $readHostRepository,
     ) {
         $this->generate_filename = 'otl_server.json';
     }
@@ -113,18 +115,20 @@ class AgentConfiguration extends AbstractObjectJSON
         ];
 
         if ($data['is_reverse']) {
-            $configuration['centreon_agent']['reverse_connections'] = array_map(
-                static fn(array $host): array => [
-                    'host' => $host['address'],
-                    'port' => $host['port'],
-                    'encryption' => $configuration['otel_server']['encryption'],
-                    'ca_certificate' => $host['poller_ca_certificate'] !== null
-                        ? $host['poller_ca_certificate']
-                        : '',
-                    'ca_name' => $host['poller_ca_name'],
-                ],
-                $data['hosts']
-            );
+            $configuration['centreon_agent']['reverse_connections'] = [];
+            foreach ($data['hosts'] as $host) {
+                if ($this->readHostRepository->exists($host['id'])) {
+                    $configuration['centreon_agent']['reverse_connections'][] = [
+                        'host' => $host['address'],
+                        'port' => $host['port'],
+                        'encryption' => $configuration['otel_server']['encryption'],
+                        'ca_certificate' => $host['poller_ca_certificate'] !== null
+                            ? $host['poller_ca_certificate']
+                            : '',
+                        'ca_name' => $host['poller_ca_name'],
+                    ];
+                }
+            }
         }
 
         return $configuration;
