@@ -1512,6 +1512,90 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
         }
     );
 
+    // -------------------------------------- QUERY FORMAT ---------------------------------------
+
+    it(
+        'fetchAssociative with string format with indent before the query ',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $query = '    SELECT * FROM contact WHERE contact_id = :id';
+            $contact = $db->fetchAssociative(
+                $query,
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact['contact_id'])->toBe(1);
+        }
+    );
+
+    it(
+        'fetchAssociative with NowDoc format with no indent before the query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $query =
+                <<<'SQL'
+                SELECT * FROM contact WHERE contact_id = :id
+                SQL;
+            $contact = $db->fetchAssociative(
+                $query,
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact['contact_id'])->toBe(1);
+        }
+    );
+
+    it(
+        'fetchAssociative with NowDoc format with indent before the query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $query =
+                <<<'SQL'
+                    SELECT * FROM contact WHERE contact_id = :id
+                SQL;
+            $contact = $db->fetchAssociative(
+                $query,
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact['contact_id'])->toBe(1);
+        }
+    );
+
+    it(
+        'fetchAssociative with HereDoc format with no indent before the query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $query =
+                <<<SQL
+                SELECT * FROM contact WHERE contact_id = :id
+                SQL;
+            $contact = $db->fetchAssociative(
+                $query,
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact['contact_id'])->toBe(1);
+        }
+    );
+
+    it(
+        'fetchAssociative with HereDoc format with indent before the query',
+        function () use ($dbConfigCentreon): void {
+            $db = CentreonDB::connectToCentreonDb($dbConfigCentreon);
+            $query =
+                <<<SQL
+                    SELECT * FROM contact WHERE contact_id = :id
+                SQL;
+            $contact = $db->fetchAssociative(
+                $query,
+                QueryParameters::create([QueryParameter::int('id', 1)])
+            );
+            expect($contact)->toBeArray()
+                ->and($contact['contact_id'])->toBe(1);
+        }
+    );
+
     // ----------------------------------------- TRANSACTIONS -----------------------------------------
 
     it('execute startTransaction with success', function () use ($dbConfigCentreon): void {
