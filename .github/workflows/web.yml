@@ -829,8 +829,6 @@ jobs:
       xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-
-
   e2e-test:
     needs: [get-environment, dockerize, create-xray-test-plan-and-test-execution]
     if: |
