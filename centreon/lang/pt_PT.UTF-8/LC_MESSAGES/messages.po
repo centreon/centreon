@@ -18522,3 +18522,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Maximum"
 # msgstr ""
+
+# msgid "CMA authentication token(s)"
+# msgstr ""
+
+# msgid "Select an existing CMA token(s)"
+# msgstr ""
+
+# msgid "Create new CMA token"
+# msgstr ""

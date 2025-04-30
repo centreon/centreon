@@ -78,6 +78,20 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
 
   const CMAConfigurationSchema = {
     isReverse: boolean(),
+    tokens: array().when('$type', {
+      is: (type) => equals(type?.id, AgentType.CMA),
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      then: (schema) =>
+        schema
+          .of(
+            object({
+              id: string(),
+              name: string(),
+              creatorId: number()
+            })
+          )
+          .min(1, t(labelRequired))
+    }),
     otelPublicCertificate: certificateValidation,
     otelCaCertificate: certificateNullableValidation,
     otelPrivateKey: certificateValidation,

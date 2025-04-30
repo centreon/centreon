@@ -2,6 +2,7 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
+import { BrowserRouter as Router } from 'react-router';
 import AgentConfigurationPage from '../Page';
 import {
   agentConfigurationPollersEndpoint,
@@ -9,6 +10,7 @@ import {
   getAgentConfigurationsEndpoint,
   getPollerAgentEndpoint,
   hostsConfigurationEndpoint,
+  listTokensEndpoint,
   pollersEndpoint
 } from '../api/endpoints';
 
@@ -93,6 +95,10 @@ const mockRequest = (isListingEmpty): void => {
         }
       ],
       configuration: {
+        tokens: [
+          { name: 'token 1', creator_id: 1 },
+          { name: 'token 2', creator_id: 2 }
+        ],
         otel_server_address: '127.0.0.1',
         otel_server_port: 8080,
         otel_public_certificate: 'test.cer',
@@ -104,7 +110,6 @@ const mockRequest = (isListingEmpty): void => {
       }
     }
   });
-
   cy.interceptAPIRequest({
     alias: 'getHosts',
     path: `./api/latest${hostsConfigurationEndpoint}**`,
@@ -112,6 +117,19 @@ const mockRequest = (isListingEmpty): void => {
     response: {
       result: [{ id: 1, name: 'central', address: '127.0.0.2' }],
       meta: { limit: 10, page: 1, total: 1 }
+    }
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getTokens',
+    path: `*${listTokensEndpoint}**`,
+    method: Method.GET,
+    response: {
+      result: [
+        { creator: { id: 1, name: 'Admin' }, name: 'token 1' },
+        { creator: { id: 1, name: 'Admin' }, name: 'token 2' }
+      ],
+      meta: { limit: 10, page: 1, total: 2 }
     }
   });
 };
@@ -130,11 +148,13 @@ const initialize = ({ isListingEmpty = false }) => {
     Component: (
       <TestQueryProvider>
         <Provider store={store}>
-          <SnackbarProvider>
-            <div style={{ height: '100vh', display: 'grid' }}>
-              <AgentConfigurationPage />
-            </div>
-          </SnackbarProvider>
+          <Router>
+            <SnackbarProvider>
+              <div style={{ height: '100vh', display: 'grid' }}>
+                <AgentConfigurationPage />
+              </div>
+            </SnackbarProvider>
+          </Router>
         </Provider>
       </TestQueryProvider>
     )
