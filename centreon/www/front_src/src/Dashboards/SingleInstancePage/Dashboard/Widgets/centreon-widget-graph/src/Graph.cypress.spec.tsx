@@ -530,4 +530,52 @@ describe('Graph Widget', () => {
       });
     });
   });
+
+  legendData.forEach(({ resourcesType, graphDataPath }) => {
+    it(`do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`, () => {
+      initializeComponent({
+        showLegend: true,
+        graphDataPath
+      });
+      cy.waitForRequest('@getLineChart');
+
+      cy.get('[class$="legend"]').as('legendContainer');
+
+      cy.get('path[data-metric=1]').realHover();
+      cy.findByRole('tooltip').as('tooltip');
+
+      cy.fixture(graphDataPath).then((data) => {
+        data.metrics.forEach(({ host_name, service_name, metric }) => {
+          if (equals(resourcesType, 'host')) {
+            cy.get('@legendContainer').should('not.contain', host_name);
+            cy.get('@legendContainer').should('contain', metric);
+            cy.get('@tooltip').should('not.contain', host_name);
+            cy.get('@tooltip').should('contain', metric);
+
+            return;
+          }
+          if (equals(resourcesType, 'service')) {
+            cy.get('@legendContainer').should('not.contain', service_name);
+            cy.get('@legendContainer').should('contain', metric);
+
+            cy.get('@tooltip').should('not.contain', service_name);
+            cy.get('@tooltip').should('contain', metric);
+
+            return;
+          }
+          cy.get('@legendContainer').should('not.contain', host_name);
+          cy.get('@legendContainer').should('not.contain', service_name);
+          cy.get('@legendContainer').should('contain', metric);
+
+          cy.get('@tooltip').should('not.contain', host_name);
+          cy.get('@tooltip').should('not.contain', service_name);
+          cy.get('@tooltip').should('contain', metric);
+        });
+
+        cy.makeSnapshot(
+          `do not display the ${resourcesType} name from the legend and tooltip when it\'s redundant`
+        );
+      });
+    });
+  });
 });
