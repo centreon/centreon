@@ -9,11 +9,11 @@ import { useTranslation } from 'react-i18next';
 import { hostsConfigurationEndpoint } from '../../api/endpoints';
 import { HostConfiguration as HostConfigurationModel } from '../../models';
 import {
-  labelAddHost,
   labelCACommonName,
   labelCaCertificate,
   labelDNSIP,
-  labelPort
+  labelPort,
+  labelSelectHost
 } from '../../translatedLabels';
 import { useHostConfiguration } from './useHostConfiguration';
 
@@ -47,7 +47,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     >
       <SingleConnectedAutocompleteField
         required
-        label={t(labelAddHost)}
+        label={t(labelSelectHost)}
         onChange={selectHost}
         getEndpoint={(parameters) =>
           buildListingEndpoint({
