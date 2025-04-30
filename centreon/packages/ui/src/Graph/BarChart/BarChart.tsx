@@ -29,7 +29,14 @@ export interface BarChartProps
   extends Partial<
     Pick<
       LineChartProps,
-      'tooltip' | 'legend' | 'height' | 'axis' | 'header' | 'min' | 'max'
+      | 'tooltip'
+      | 'legend'
+      | 'height'
+      | 'axis'
+      | 'header'
+      | 'min'
+      | 'max'
+      | 'boundariesUnit'
     >
   > {
   barStyle?: BarStyle;
@@ -64,7 +71,8 @@ const BarChart = ({
   },
   skipIntersectionObserver,
   min,
-  max
+  max,
+  boundariesUnit
 }: BarChartProps): JSX.Element => {
   const { adjustedData } = useChartData({ data, end, start, min, max });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
@@ -103,6 +111,7 @@ const BarChart = ({
               skipIntersectionObserver={skipIntersectionObserver}
               min={min}
               max={max}
+              boundariesUnit={boundariesUnit}
             />
           )}
         </ParentSize>

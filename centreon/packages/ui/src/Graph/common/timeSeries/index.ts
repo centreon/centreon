@@ -473,12 +473,14 @@ const getYScaleUnit = ({
   invert,
   min,
   max,
-  isBarChart
+  isBarChart,
+  boundariesUnit
 }: AxeScale & {
   invert?: boolean | string | null;
   unit: string;
   max?: number;
   min?: number;
+  boundariesUnit?: string;
   isBarChart?: boolean;
 }): ScaleLinear<number, number> => {
   const [firstUnit] = getUnits(dataLines);
@@ -524,9 +526,21 @@ const getYScaleUnit = ({
     scaleLogarithmicBase,
     stackedValues,
     thresholds: shouldApplyThresholds ? thresholds : [],
-    min,
-    max
+    min: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: min }),
+    max: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: max })
   });
+};
+
+const boundaryToApplyToUnit = ({
+  boundary,
+  boundariesUnit,
+  unit
+}): number | undefined => {
+  if (!boundariesUnit) {
+    return boundary;
+  }
+
+  return equals(boundariesUnit, unit) ? boundary : undefined;
 };
 
 const getYScalePerUnit = ({
@@ -541,11 +555,14 @@ const getYScalePerUnit = ({
   isHorizontal = true,
   isBarChart,
   min,
-  max
-}: AxeScale & { min?: number; max?: number; isBarChart?: boolean }): Record<
-  string,
-  ScaleLinear<number, number>
-> => {
+  max,
+  boundariesUnit
+}: AxeScale & {
+  min?: number;
+  max?: number;
+  isBarChart?: boolean;
+  boundariesUnit?: string;
+}): Record<string, ScaleLinear<number, number>> => {
   const units = getUnits(dataLines);
 
   const scalePerUnit = units.reduce((acc, unit) => {
@@ -567,7 +584,8 @@ const getYScalePerUnit = ({
         valueGraphHeight,
         min,
         max,
-        isBarChart
+        isBarChart,
+        boundariesUnit
       })
     };
   }, {});

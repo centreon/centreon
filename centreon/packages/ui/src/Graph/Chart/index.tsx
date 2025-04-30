@@ -73,6 +73,7 @@ const WrapperChart = ({
   additionalLines,
   min,
   max,
+  boundariesUnit,
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
@@ -133,6 +134,7 @@ const WrapperChart = ({
               transformMatrix={transformMatrix}
               min={min}
               max={max}
+              boundariesUnit={boundariesUnit}
             />
           );
         }}

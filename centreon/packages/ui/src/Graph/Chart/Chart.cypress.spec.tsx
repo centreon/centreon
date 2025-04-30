@@ -30,6 +30,7 @@ interface Props
     | 'additionalLines'
     | 'min'
     | 'max'
+    | 'boundariesUnit'
   > {
   data?: LineChartData;
 }
@@ -78,7 +79,8 @@ const initialize = ({
   barStyle,
   additionalLines,
   min,
-  max
+  max,
+  boundariesUnit
 }: Props): void => {
   cy.adjustViewport();
 
@@ -104,6 +106,7 @@ const initialize = ({
           additionalLines={additionalLines}
           min={min}
           max={max}
+          boundariesUnit={boundariesUnit}
         />
       </Provider>
     )
@@ -790,6 +793,26 @@ describe('Lines and bars', () => {
 
     cy.contains('0.1 ms').should('be.visible');
     cy.contains('0.1%').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays graph according to min and max boundaries for a unit', () => {
+    initialize({
+      data: dataPingServiceLines,
+      min: 0.01,
+      max: 0.1,
+      boundariesUnit: 'ms'
+    });
+
+    checkGraphWidth();
+
+    cy.get('path[data-metric="1"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+    cy.get('path[data-metric="3"]').should('be.visible');
+
+    cy.contains('0.1 ms').should('be.visible');
+    cy.contains('2%').should('be.visible');
 
     cy.makeSnapshot();
   });

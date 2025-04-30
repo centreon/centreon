@@ -737,3 +737,24 @@ export const linesAndBarsMinMax: Story = {
     />
   )
 };
+
+export const linesAndBarsMinMaxForUnit: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    min: 10,
+    max: 30,
+    boundariesUnit: '%',
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: true
+    }
+  },
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
+    />
+  )
+};
