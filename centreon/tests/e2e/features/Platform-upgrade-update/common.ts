@@ -113,19 +113,57 @@ const installCentreon = (version: string): Cypress.Chainable => {
       name: 'web'
     });
   } else {
+      const versionMatches = version.match(/(\d+)\.(\d+)\.\d+/);
+      if (!versionMatches) {
+        throw new Error('Cannot parse version number.');
+      }
+      let packageDistribPrefix;
+      let packageDistribName;
+      if (Number(versionMatches[1]) < 24) {
+        packageDistribPrefix = '-';
+        packageDistribName = Cypress.env('WEB_IMAGE_OS');
+      } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) {
+        packageDistribPrefix = '-1~';
+        packageDistribName = Cypress.env('WEB_IMAGE_OS');
+      } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
+        packageDistribPrefix = '-*+';
+        packageDistribName = 'deb12u1';
+      } else if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
+        packageDistribPrefix = '-*-';
+        packageDistribName = '0ubuntu.22.04';
+      } else {
+        throw new Error(`Distrib ${Cypress.env('WEB_IMAGE_OS')} not managed in update/upgrade tests.`);
+      }
+
+      const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
+      const packagesToInstall = [
+        `centreon-poller='${packageVersionSuffix}'`,
+        `centreon-web='${packageVersionSuffix}'`,
+        `centreon-trap='${packageVersionSuffix}'`,
+        `centreon-perl-libs='${packageVersionSuffix}'`
+      ];
+      if (Number(versionMatches[1]) < 24) {
+        packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
+      }
+     if (Number(versionMatches[1]) < 24) {
+      packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
+    }
+    const phpVersion = Number(versionMatches[1]) <= 24 && Number(versionMatches[2]) < 10 ? '8.1' : '8.2';
+
     cy.execInContainer({
       command: [
         `mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak`,
         `mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak`,
         `apt-get update`,
-        `apt-get install -y centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web-apache=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-web=${version}-${Cypress.env('WEB_IMAGE_OS')} centreon-common=${version}-${Cypress.env('WEB_IMAGE_OS')}`,
+        `apt-get install -y ${packagesToInstall.join(' ')}`,
         `mkdir -p /usr/lib/centreon-connector`,
-        `echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini`,
+        `echo "date.timezone = Europe/Paris" > /etc/php/${phpVersion}/mods-available/timezone.ini`,
+        `phpenmod -v ${phpVersion} timezone`,
         `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
         `service mysql start`,
         `mkdir -p /run/php`,
-        `systemctl start php8.1-fpm`,
-        `systemctl start apache2`,
+        `systemctl restart php${phpVersion}-fpm`,
+        `systemctl restart apache2`,
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         `mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list`,
         `mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list`,
@@ -304,7 +342,7 @@ const insertResources = (): Cypress.Chainable => {
 const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
   return cy.getWebVersion().then(({ major_version, minor_version }) => {
     const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
-    
+
     // Check if the version-specific file already exists
     return cy.execInContainer({
       command: `ls ${targetUpdateFile} || echo "File not found"`,
@@ -315,7 +353,7 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
         cy.log(`Version-specific update file already exists in container: ${targetUpdateFile}`);
         return cy.wrap(null);
       }
-      
+
       // If version-specific file does not exist => copy content from Update-next.php
       return cy.exec(`ls ../../www/install/php/Update-next.php || echo ""`)
       .then((result) => {
