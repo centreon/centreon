@@ -174,8 +174,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
       packageDistribPrefix = '-';
       packageDistribName = Cypress.env('WEB_IMAGE_OS');
     } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) {
-      packageDistribPrefix = '-1+deb12u1_all';
-      packageDistribName = Cypress.env('WEB_IMAGE_OS');
+      packageDistribPrefix = '-1+';
+      packageDistribName = 'deb12u1_all'
     } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
       packageDistribPrefix = '-*+';
       packageDistribName = 'deb12u1_all';
@@ -187,6 +187,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
     }
 
     const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
+    cy.log(`packageVersionSuffix: ${packageVersionSuffix}`);
     const packagesToInstall = [
       `centreon-poller='${packageVersionSuffix}'`,
       `centreon-web='${packageVersionSuffix}'`,
