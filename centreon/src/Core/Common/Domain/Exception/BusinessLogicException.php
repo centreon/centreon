@@ -24,9 +24,10 @@ declare(strict_types=1);
 namespace Core\Common\Domain\Exception;
 
 /**
- * Class.
+ * Class
  *
  * @class   BusinessLogicException
+ * @package Core\Common\Domain\Exception
  */
 abstract class BusinessLogicException extends \Exception
 {
@@ -44,7 +45,7 @@ abstract class BusinessLogicException extends \Exception
     private array $exceptionContext;
 
     /**
-     * BusinessLogicException constructor.
+     * BusinessLogicException constructor
      *
      * @param string $message
      * @param int $code
@@ -69,6 +70,8 @@ abstract class BusinessLogicException extends \Exception
 
     /**
      * @param array<string,mixed> $context
+     *
+     * @return void
      */
     public function setContext(array $context): void
     {
@@ -78,6 +81,8 @@ abstract class BusinessLogicException extends \Exception
     /**
      * @param string $name
      * @param mixed $value
+     *
+     * @return void
      */
     public function addContextItem(string $name, mixed $value): void
     {
@@ -86,6 +91,8 @@ abstract class BusinessLogicException extends \Exception
 
     /**
      * @param array<string,mixed> $newContext
+     *
+     * @return void
      */
     public function addContext(array $newContext): void
     {
@@ -110,17 +117,21 @@ abstract class BusinessLogicException extends \Exception
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
 
+    /**
+     * @return void
+     */
     private function setGlobalContext(): void
     {
         $this->context = array_merge(
-            $this->getExceptionInfos($this),
-            ['previous' => $this->getPreviousInfos()],
+            $this->getExceptionContext(),
             ['context' => $this->getBusinessContext()]
         );
     }
 
     /**
      * @param array<string,mixed> $context
+     *
+     * @return void
      */
     private function setBusinessContext(array $context): void
     {
@@ -133,55 +144,10 @@ abstract class BusinessLogicException extends \Exception
         );
     }
 
-    private function setExceptionContext(): void
-    {
-        $this->exceptionContext = array_merge(
-            $this->getExceptionInfos($this),
-            ['previous' => $this->getPreviousInfos()]
-        );
-    }
-
     /**
-     * @param \Throwable $throwable
-     *
-     * @return array<string,mixed>
+     * @return void
      */
-    private function getExceptionInfos(\Throwable $throwable): array
-    {
-        $exceptionContext = [
-            'type' => $throwable::class,
-            'message' => $throwable->getMessage(),
-            'file' => $throwable->getFile(),
-            'line' => $throwable->getLine(),
-            'code' => $throwable->getCode(),
-        ];
-
-        if (! empty($throwable->getTrace())) {
-            if (isset($throwable->getTrace()[0]['class'])) {
-                $exceptionContext['class'] = $throwable->getTrace()[0]['class'];
-            }
-            if (isset($throwable->getTrace()[0]['function'])) {
-                $exceptionContext['method'] = $throwable->getTrace()[0]['function'];
-            }
-        }
-
-        return $exceptionContext;
-    }
-
-    /**
-     * @return array<string,mixed>|null
-     */
-    private function getPreviousInfos(): ?array
-    {
-        $previousContext = null;
-        if ($this->getPrevious() !== null) {
-            if ($this->getPrevious() instanceof self) {
-                $previousContext = $this->getPrevious()->getExceptionContext();
-            } else {
-                $previousContext = $this->getExceptionInfos($this->getPrevious());
-            }
-        }
-
-        return $previousContext;
+    private function setExceptionContext(): void {
+        $this->exceptionContext = ExceptionFormatter::format($this);
     }
 }
