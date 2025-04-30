@@ -3497,3 +3497,30 @@ function findHostsOfService(int $serviceId): array
     }
     return $hostIds;
 }
+
+/**
+ * Will check if the service template inherited by the service has a command.
+ *
+ * @param array<string, mixed> $fields The fields of the service
+ *
+ * @return array<string, string>|bool
+ */
+function checkServiceTemplateHasCommand(array $fields): array|bool
+{
+    global $pearDB;
+    $errors = [];
+    if (isset($fields['service_template_model_stm_id']) && empty($fields['command_command_id'])) {
+        $serviceTemplateId = $fields['service_template_model_stm_id'];
+        $statement = $pearDB->prepare('SELECT command_command_id FROM service WHERE service_id = :service_id');
+        $statement->bindValue(':service_id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+        $serviceTemplateCommand = $statement->fetchColumn();
+        if ((bool) $serviceTemplateCommand === false) {
+            $errors['command_command_id'] = _('The selected inherited service template does not contain any '
+                . 'check command. You must select one here.'
+            );
+        }
+    }
+
+    return $errors !== [] ? $errors : true;
+}

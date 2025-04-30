@@ -295,18 +295,42 @@ class CentreonLDAP
     }
 
     /**
+     * Escape special characters in LDAP filter value for username and group
+     * @see https://datatracker.ietf.org/doc/html/rfc4515#section-3
+     *
+     * @param string $name The attribute to escape
+     * @return string The escaped string
+     */
+    public function escapeLdapFilterSpecialChars($name): string
+    {
+        $specialChars = [
+            '\\' => '\\5C',
+            '*' => '\\2A',
+            '(' => '\\28',
+            ')' => '\\29',
+            '\0' => '\\00',
+        ];
+
+        foreach ($specialChars as $char => $replace) {
+            $name = str_replace($char, $replace, $name);
+        }
+
+        return $name;
+    }
+
+    /**
      * Get the dn for a user
      *
      * @param string $username The username
      * @return string|bool The dn string or false if not found
      */
-    public function findUserDn($username)
+    public function findUserDn($username): ?string
     {
         if (trim($this->userSearchInfo['filter']) == '') {
             return false;
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $this->replaceFilter($username), $this->userSearchInfo['filter']);
+        $filter = preg_replace('/%s/', $this->escapeLdapFilterSpecialChars($username), $this->userSearchInfo['filter']);
         $result = ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
         // no results were returned using this base_search
         if ($result === false) {
@@ -326,13 +350,13 @@ class CentreonLDAP
      * @param string $group The group
      * @return string|bool The dn string or false if not found
      */
-    public function findGroupDn($group)
+    public function findGroupDn($group): ?string
     {
         if (trim($this->groupSearchInfo['filter']) == '') {
             return false;
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $this->replaceFilter($group), $this->groupSearchInfo['filter']);
+        $filter = preg_replace('/%s/', $this->escapeLdapFilterSpecialChars($group), $this->groupSearchInfo['filter']);
         $result = ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         restore_error_handler();
