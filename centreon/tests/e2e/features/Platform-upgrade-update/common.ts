@@ -201,24 +201,15 @@ const installCentreon = (version: string): Cypress.Chainable => {
     const packagesToInstall = [
       `centreon='${packageVersionSuffix}'`,
       `centreon-central='${packageVersionSuffix}'`,
-      `centreon-database='${packageVersionSuffix}'`,
-      `centreon-poller-centreon-engine='${packageVersionSuffix}'`,
       `centreon-web='${packageVersionSuffix}'`,
-      `centreon-web-apache='${packageVersionSuffix}'`,
-      `centreon-gorgone='${packageVersionSuffix}'`,
       `centreon-broker='${packageVersionSuffix}'`,
       `centreon-broker-cbmod='${packageVersionSuffix}'`,
       `centreon-broker-core='${packageVersionSuffix}'`,
-      `centreon-broker-storage='${packageVersionSuffix}'`,
       `centreon-clib='${packageVersionSuffix}'`,
       `centreon-common='${packageVersionSuffix}'`,
       `centreon-engine='${packageVersionSuffix}'`,
       `centreon-perl-libs='${packageVersionSuffix}'`,
       `centreon-trap='${packageVersionSuffix}'`,
-      `centreon-web-common='${packageVersionSuffix}'`,
-      `centreon-pp-manager='${packageVersionSuffix}'`,
-      `centreon-auto-discovery-server='${packageVersionSuffix}'`,
-      `centreon-license-manager='${packageVersionSuffix}'`,
     ];
 
     const phpVersion = Number(versionMatches[1]) <= 24 && Number(versionMatches[2]) < 10 ? '8.1' : '8.2';
