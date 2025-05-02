@@ -199,19 +199,16 @@ const installCentreon = (version: string): Cypress.Chainable => {
 
     // ✅ Tous les paquets doivent avoir une version explicite :
     const packagesToInstall = [
-      `centreon='${packageVersionSuffix}'`,
-      `centreon-central='${packageVersionSuffix}'`,
-      `centreon-web='${packageVersionSuffix}'`,
-      `centreon-broker='${packageVersionSuffix}'`,
-      `centreon-broker-cbmod='${packageVersionSuffix}'`,
-      `centreon-broker-core='${packageVersionSuffix}'`,
-      `centreon-clib='${packageVersionSuffix}'`,
       `centreon-common='${packageVersionSuffix}'`,
-      `centreon-engine='${packageVersionSuffix}'`,
+      `centreon-poller='${packageVersionSuffix}'`,
+      `centreon-web='${packageVersionSuffix}'`,
       `centreon-perl-libs='${packageVersionSuffix}'`,
       `centreon-trap='${packageVersionSuffix}'`,
     ];
 
+    if (Number(versionMatches[1]) < 24) {
+      packagesToInstall.push(`centreon-web-apache=${packageVersionSuffix}`);
+    }
     const phpVersion = Number(versionMatches[1]) <= 24 && Number(versionMatches[2]) < 10 ? '8.1' : '8.2';
 
     cy.execInContainer({
