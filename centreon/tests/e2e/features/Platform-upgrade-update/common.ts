@@ -154,19 +154,19 @@ const installCentreon = (version: string): Cypress.Chainable => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.execInContainer({
       command: [
-        `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*'`,
+        `dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'`,
         `dnf install -y centreon-web-${version}`,
         `dnf install -y centreon-broker-cbd`,
         `echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini`,
         `/etc/init.d/mysql start`,
         `mkdir -p /run/php-fpm`,
-        `systemctl restart php-fpm`,
-        `systemctl restart httpd`,
+        `systemctl start php-fpm || systemctl restart php-fpm`,
+        `systemctl start httpd || systemctl restart httpd`,
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         `dnf config-manager --set-enabled 'centreon-*'`
       ],
       name: 'web'
-    });
+  });
   } else {
     let packageDistribPrefix;
     let packageDistribName;
