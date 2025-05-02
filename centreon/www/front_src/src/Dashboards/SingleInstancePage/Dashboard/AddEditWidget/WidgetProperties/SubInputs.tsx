@@ -70,7 +70,7 @@ const SubInputs = ({
       gap={hasSubInputs ? 1.5 : 0}
       sx={{ pr: 1, justifyContent: 'space-between', flexWrap: 'wrap' }}
     >
-      <Box sx={{ pr: 6 }}>{children}</Box>
+      <Box sx={{ pr: 2 }}>{children}</Box>
       {hasSubInputs && (
         <Stack
           alignItems={hasRowDirection ? 'center' : undefined}

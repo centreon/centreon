@@ -9,7 +9,17 @@ import { getProperty } from './utils';
 
 const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
   const { t } = useTranslation();
-  const { errors, touched, setFieldValue } = useFormikContext();
+  const { errors, touched, setFieldValue, values } = useFormikContext();
+
+  const boundaryMin = useMemo<number | undefined>(
+    () => getProperty({ obj: values, propertyName: `${propertyName}.min` }),
+    [getProperty({ obj: values, propertyName: `${propertyName}.min` })]
+  );
+
+  const boundaryMax = useMemo<number | undefined>(
+    () => getProperty({ obj: values, propertyName: `${propertyName}.max` }),
+    [getProperty({ obj: values, propertyName: `${propertyName}.max` })]
+  );
 
   const error = useMemo<string | undefined>(
     () => getProperty({ obj: errors, propertyName: `${propertyName}.max` }),
@@ -22,9 +32,10 @@ const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
   );
 
   useEffect(() => {
-    return () => {
-      setFieldValue(`options.${propertyName}`, undefined);
-    };
+    if (boundaryMin && boundaryMax) {
+      return;
+    }
+    setFieldValue(`options.${propertyName}`, { min: 0, max: 100 });
   }, []);
 
   return (
