@@ -168,26 +168,38 @@ const installCentreon = (version: string): Cypress.Chainable => {
       name: 'web'
     });
   } else {
-    let packageDistribPrefix;
-    let packageDistribName;
-    if (Number(versionMatches[1]) < 24) {
-      packageDistribPrefix = '-';
-      packageDistribName = Cypress.env('WEB_IMAGE_OS');
-    } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) {
-      packageDistribPrefix = '-1~';
-      packageDistribName = 'bookworm'
-    } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10 && Number(versionMatches[3]) >= 10) {
-      packageDistribPrefix = '-*+';
-      packageDistribName = 'deb12u1';
-    } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
-      packageDistribPrefix = '-*+';
-      packageDistribName = 'deb12u1';
-    } else if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
-      packageDistribPrefix = '-*-';
-      packageDistribName = '0ubuntu.22.04';
-    } else {
-      throw new Error(`Distrib ${Cypress.env('WEB_IMAGE_OS')} not managed in update/upgrade tests.`);
-    }
+      let packageDistribPrefix;
+      let packageDistribName;
+
+      if (Number(versionMatches[1]) < 24) {
+        packageDistribPrefix = '-';
+        packageDistribName = Cypress.env('WEB_IMAGE_OS');
+
+      } else if (
+        Number(versionMatches[1]) === 24 &&
+        Number(versionMatches[2]) < 10 &&
+        Number(versionMatches[3]) >= 10
+      ) {
+        // EX: 24.04.11 → patch >= 10
+        packageDistribPrefix = '-1+';
+        packageDistribName = 'deb12u1';
+
+      } else if (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) {
+        // EX: 24.04.0 to 24.04.9
+        packageDistribPrefix = '-1~';
+        packageDistribName = 'bookworm';
+
+      } else if (Cypress.env('WEB_IMAGE_OS') === 'bookworm') {
+        packageDistribPrefix = '-1+';
+        packageDistribName = 'deb12u1';
+
+      } else if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
+        packageDistribPrefix = '-1+';
+        packageDistribName = '0ubuntu.22.04';
+
+      } else {
+        throw new Error(`Distrib ${Cypress.env('WEB_IMAGE_OS')} not managed in update/upgrade tests.`);
+      }
 
     const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
     cy.log(`packageVersionSuffix: ${packageVersionSuffix}`);
