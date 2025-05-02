@@ -18037,20 +18037,66 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Invalid geo-coordinate format"
 # msgstr ""
 
-# msgid "Requested authentication context"
-# msgstr ""
+# msgid "Requested authentication context"
+# msgstr ""
 
-# msgid "Minimum"
+# msgid "Minimum"
 # msgstr ""
 
 # msgid "Exact"
-# msgstr ""
+# msgstr ""
 
 # msgid "Better"
 # msgstr ""
 
 # msgid "Maximum"
 # msgstr ""
+
+# ---- EXPORT CSV ----
+
+# msgid "Notifications enabled"
+# msgstr ""
+
+# msgid "Notifications disabled"
+# msgstr ""
+
+# msgid "All checks are disabled"
+# msgstr ""
+
+# msgid "Only passive checks are enabled"
+# msgstr ""
+
+# msgid "Only active checks are enabled"
+# msgstr ""
+
+# msgid "All checks are enabled"
+# msgstr ""
+
+# msgid "Resource Type"
+# msgstr ""
+
+# msgid "Parent Resource Type"
+# msgstr ""
+
+# msgid "Parent Resource Name"
+# msgstr ""
+
+# msgid "Parent Resource Status"
+# msgstr ""
+
+# msgid "An error occurred while filtering columns"
+# msgstr ""
+
+# msgid "Error while creating export request"
+# msgstr ""
+
+# msgid "Export format not supported"
+# msgstr ""
+
+# msgid "Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows."
+# msgstr ""
+
+# ---- END EXPORT CSV ----
 
 # msgid "Encryption level"
 # msgstr "Nivel de encriptación"
