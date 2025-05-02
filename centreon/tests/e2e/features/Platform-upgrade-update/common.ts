@@ -197,7 +197,6 @@ const installCentreon = (version: string): Cypress.Chainable => {
     const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
     cy.log(`packageVersionSuffix: ${packageVersionSuffix}`);
 
-    // ✅ Tous les paquets doivent avoir une version explicite :
     const packagesToInstall = [
       `centreon-common='${packageVersionSuffix}'`,
       `centreon-poller='${packageVersionSuffix}'`,
