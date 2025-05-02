@@ -50,16 +50,13 @@ class MonitoringServerController extends AbstractController
     use LoggerTrait;
 
     /**
-     * @var MonitoringServerServiceInterface
-     */
-    private $monitoringServerService;
-
-    /**
      * @param MonitoringServerServiceInterface $monitoringServerService
+     * @param bool $isCloudPlatform
      */
-    public function __construct(MonitoringServerServiceInterface $monitoringServerService)
-    {
-        $this->monitoringServerService = $monitoringServerService;
+    public function __construct(
+        private readonly MonitoringServerServiceInterface $monitoringServerService,
+        private readonly bool $isCloudPlatform
+    ) {
     }
 
     /**
@@ -78,9 +75,34 @@ class MonitoringServerController extends AbstractController
             MonitoringServer::SERIALIZER_GROUP_MAIN,
         ]);
 
+        $servers = $this->monitoringServerService->findServers();
+
+        /**
+         * @var Contact $user
+         */
+        $user = $this->getUser();
+        if ($this->isCloudPlatform && !$user->isAdmin()) {
+            $excludeCentral = $requestParameters->getExtraParameter('exclude_central');
+
+            if (in_array($excludeCentral, [true, "true", 1], true)) {
+                $remoteServers = $this->monitoringServerService->findRemoteServersIps();
+                $servers = array_filter($servers, function ($server) use ($remoteServers) {
+                    if (in_array($server->getAddress(), $remoteServers, true)) {
+                        return false;
+                    }
+
+                    if ($server->isLocalhost()) {
+                        return false;
+                    }
+
+                    return true;
+                });
+            }
+        }
+
         return $this->view(
             [
-                'result' => $this->monitoringServerService->findServers(),
+                'result' => $servers,
                 'meta' => $requestParameters->toArray()
             ]
         )->setContext($context);
