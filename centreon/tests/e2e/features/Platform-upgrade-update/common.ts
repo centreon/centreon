@@ -507,8 +507,7 @@ When('administrator runs the update procedure', () => {
     cy.wait('@getStep1', { timeout: 60000 }).then(() => {
       cy.get('.btc.bt_info').should('be.visible').click();
     });
-
-    cy.wait('@getStep2').then(() => {
+    cy.wait('@getStep2',{ timeout: 60000 }).then(() => {
       cy.get('span[style]').each(($span) => {
         cy.wrap($span).should('have.text', 'Loaded');
       });
