@@ -9,7 +9,7 @@ export const getNormalizedId = ({
 }: GetNormalizedIdProps): string => {
   const idWithoutPassword =
     inputType === 'number'
-      ? idToNormalize.replace(/[pP]assword|[pP]wd|[pP]asswd/gi, 'censored')
+      ? idToNormalize.replace(/[pP]assword|[pP]wd|[pP]asswd/gi, '')
       : '';
   return idWithoutPassword.replace(/[^A-Z0-9]+/gi, '');
 };

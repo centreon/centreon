@@ -14,7 +14,7 @@ describe('Textfield', () => {
       dataTestId: 'Keeper password'
     });
 
-    cy.get('[id="Keeperforthecensored"]').should('be.visible');
+    cy.get('[id="Keeperforthe"]').should('be.visible');
     cy.findAllByTestId('Keeper password').should('have.length', 2);
   });
 });
