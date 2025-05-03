@@ -105,7 +105,7 @@ const SelectField = ({
               [classes.compact]: compact
             }),
             'data-testid': dataTestId,
-            id: getNormalizedId(dataTestId || ''),
+            id: getNormalizedId({ idToNormalize: dataTestId || '' }),
             ...inputProps
           }
         }}

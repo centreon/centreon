@@ -62,7 +62,7 @@ export const IconButton = ({
           className={cx(classes.button, className)}
           color="primary"
           data-testid={dataTestid || ariaLabel}
-          id={getNormalizedId(ariaLabel || '')}
+          id={getNormalizedId({ idToNormalize: ariaLabel || '' })}
           {...props}
         />
       </span>

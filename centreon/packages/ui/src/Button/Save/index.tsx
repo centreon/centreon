@@ -61,7 +61,7 @@ const SaveButton = ({
             className
           )}
           data-testid={labelSave}
-          id={getNormalizedId(labelSave)}
+          id={getNormalizedId({ idToNormalize: labelSave })}
           loading={loading}
           loadingPosition={labelLoading ? 'start' : undefined}
           size={size}

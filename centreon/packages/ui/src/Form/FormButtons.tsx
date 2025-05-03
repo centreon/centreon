@@ -59,7 +59,7 @@ const FormButtons = (): JSX.Element => {
           aria-label={t(labelReset) || ''}
           data-testid={labelReset}
           disabled={not(canReset)}
-          id={getNormalizedId(labelReset)}
+          id={getNormalizedId({ idToNormalize: labelReset })}
           size="small"
           onClick={reset}
         >

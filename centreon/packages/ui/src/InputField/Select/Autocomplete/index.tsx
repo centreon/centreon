@@ -165,7 +165,7 @@ const AutocompleteField = forwardRef(
               ...params.inputProps,
               'aria-label': label,
               'data-testid': dataTestId || label,
-              id: getNormalizedId(label || ''),
+              id: getNormalizedId({ idToNormalize: label || '' }),
               ...(forceInputRenderValue
                 ? {
                     value: getOptionItemLabel(

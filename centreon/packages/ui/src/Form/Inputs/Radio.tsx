@@ -79,7 +79,9 @@ const Radio = ({
                 <MUIRadio
                   data-testid={`${dataTestId} ${optionLabel}`}
                   disabled={disabled}
-                  id={getNormalizedId(`${dataTestId}${optionLabel}`)}
+                  id={getNormalizedId({
+                    idToNormalize: `${dataTestId}${optionLabel}`
+                  })}
                   slotProps={{
                     input: {
                       'aria-label':

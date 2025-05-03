@@ -57,7 +57,7 @@ const Switch = ({
             checked={value}
             data-testid={dataTestId}
             disabled={disabled}
-            id={getNormalizedId(dataTestId || '')}
+            id={getNormalizedId({ idToNormalize: dataTestId || '' })}
             slotProps={{
               input: {
                 'aria-label': t(label) || ''

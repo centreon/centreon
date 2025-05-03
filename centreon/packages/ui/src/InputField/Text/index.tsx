@@ -161,7 +161,10 @@ const TextField = forwardRef(
             data-testid={dataTestId}
             error={!isNil(error)}
             helperText={displayErrorInTooltip ? undefined : error}
-            id={getNormalizedId(dataTestId || '')}
+            id={getNormalizedId({
+              idToNormalize: dataTestId || '',
+              inputType: type
+            })}
             label={label}
             ref={ref}
             size={size || 'small'}
@@ -212,6 +215,10 @@ const TextField = forwardRef(
               htmlInput: {
                 'aria-label': ariaLabel,
                 'data-testid': dataTestId,
+                id: getNormalizedId({
+                  idToNormalize: label as string,
+                  inputType: type
+                }),
                 ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
               }
             }}
