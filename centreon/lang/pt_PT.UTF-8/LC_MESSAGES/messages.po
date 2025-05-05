@@ -17154,7 +17154,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Generate new token"
 # msgstr ""
 
-# msgid "Token copied to the clipboard"
+# msgid "Authentication token copied to the clipboard"
 # msgstr ""
 
 # msgid "Token could not be copied"
@@ -17170,12 +17170,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Token has been created"
-# msgstr ""
-
-# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
-# msgstr ""
-
-# msgid "Delete token"
 # msgstr ""
 
 # msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
@@ -18488,6 +18482,53 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Display average as"
 # msgstr ""
 
+# msgid "Authentication tokens"
+# msgstr ""
+
+# msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Never expire"
+# msgstr ""
+
+# msgid "Generate token"
+# msgstr ""
+
+# msgid "Create authentication token"
+# msgstr ""
+
+# msgid "For security reasons, the token can only be displayed once. Remember to store it well."
+# msgstr ""
+
+# msgid "Done"
+# msgstr ""
+
+# msgid "Disable token"
+# msgstr ""
+
+
+# msgid "Token disabled"
+# msgstr ""
+
+# msgid "Token deleted"
+# msgstr ""
+
+# msgid "Enable/Disable"
+# msgstr ""
+
+# msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
+# msgstr ""
+
+# msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
+# msgstr ""
+
+# msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
+# msgstr ""
+
+# msgid "Enable token"
+# msgstr ""
+
+# msgid "Token enabled"
 # msgid "Host group created"
 # msgstr ""
 
