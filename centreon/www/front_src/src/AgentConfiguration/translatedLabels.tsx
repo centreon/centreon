@@ -76,4 +76,4 @@ export const labelWarningEncryptionLevelCMA =
 
 export const labelTLS = 'TLS';
 export const labelNoTLS = 'No TLS';
-export const labelInsecure = 'TLS insecure';
+export const labelInsecure = 'Insecure TLS';

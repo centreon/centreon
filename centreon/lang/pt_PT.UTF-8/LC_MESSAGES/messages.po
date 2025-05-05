@@ -18529,5 +18529,5 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "No TLS"
 # msgstr ""
 
-# msgid "TLS insecure"
+# msgid "Insecure TLS"
 # msgstr ""

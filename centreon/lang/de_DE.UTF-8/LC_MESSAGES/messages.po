@@ -17713,5 +17713,5 @@ msgstr "Erweiterter Modus"
 # msgid "No TLS"
 # msgstr ""
 
-# msgid "TLS insecure"
+# msgid "Insecure TLS"
 # msgstr ""

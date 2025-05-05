@@ -19873,7 +19873,7 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 msgid "No TLS"
 msgstr "Sans TLS"
 
-msgid "TLS insecure"
+msgid "Insecure TLS"
 msgstr "TLS non sécurisé"
 
 msgid "The selected inherited service template does not contain any check command. You must select one here."

@@ -18067,5 +18067,5 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "No TLS"
 # msgstr ""
 
-# msgid "TLS insecure"
+# msgid "Insecure TLS"
 # msgstr ""
