@@ -23,9 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 
+/**
+ * Class.
+ *
+ * @class AbstractRepositoryRDB
+ *
+ * @deprecated use {@see DatabaseRepository} instead
+ */
 class AbstractRepositoryRDB
 {
     use LoggerTrait;
@@ -33,7 +42,8 @@ class AbstractRepositoryRDB
     /** @var positive-int Maximum number of elements an SQL query can return */
     protected int $maxItemsByRequest = 5000;
 
-    protected DatabaseConnection $db;
+    /** @var DatabaseConnection */
+    protected ConnectionInterface $db;
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.
@@ -48,8 +58,46 @@ class AbstractRepositoryRDB
     {
         return str_replace(
             [':dbstg', ':db'],
-            [$this->db->getStorageDbName(), $this->db->getCentreonDbName()],
+            [$this->getDbNameRealTime(), $this->getDbNameConfiguration()],
             $request
         );
+    }
+
+    /**
+     * Calculate the number of rows returned by a SELECT FOUND_ROWS() query.
+     * Don't forget to call this method just after the query that you want to
+     * count the number of rows.
+     * The previous query must be a SELECT SQL_CALC_FOUND_ROWS query.
+     *
+     * @return int|null
+     */
+    protected function calculateNumberOfRows(): ?int
+    {
+        try {
+            return (int) $this->db->fetchOne('SELECT FOUND_ROWS()');
+        } catch (ConnectionException $exception) {
+            $this->error(
+                'Error while calculating the number of rows',
+                ['exception' => $exception->getContext()]
+            );
+
+            return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDbNameConfiguration(): string
+    {
+        return $this->db->getConnectionConfig()->getDatabaseNameConfiguration();
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDbNameRealTime(): string
+    {
+        return $this->db->getConnectionConfig()->getDatabaseNameRealTime();
     }
 }

@@ -22,15 +22,23 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Repository;
 
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Adaptation\Database\Connection\ConnectionInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * Class
+ *
+ * @class AbstractRepositoryDRB
+ * @package Centreon\Domain\Repository
+ *
+ * @deprecated use {@see DatabaseRepository} instead
+ */
 class AbstractRepositoryDRB
 {
-    /**
-     * @var DatabaseConnection
-     */
-    protected $db;
+    /** @var DatabaseConnection */
+    protected ConnectionInterface $db;
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.
@@ -43,8 +51,8 @@ class AbstractRepositoryDRB
     protected function translateDbName(string $request): string
     {
         return str_replace(
-            array(':dbstg', ':db'),
-            array($this->db->getStorageDbName(), $this->db->getCentreonDbName()),
+            [':dbstg', ':db'],
+            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
             $request
         );
     }

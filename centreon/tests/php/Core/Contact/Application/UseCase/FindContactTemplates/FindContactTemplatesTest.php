@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Contact\Application\UseCase\FindContactTemplates;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Application\Exception\ContactTemplateException;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
@@ -38,6 +38,7 @@ beforeEach(function () {
     $this->repository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
+    $this->repositoryException = $this->createMock(RepositoryException::class);
 });
 
 it('should present an ErrorResponse while an exception occured', function () {
@@ -51,7 +52,7 @@ it('should present an ErrorResponse while an exception occured', function () {
     $this->repository
         ->expects($this->once())
         ->method('findAll')
-        ->willThrowException(new \Exception());
+        ->willThrowException($this->repositoryException);
 
     $presenter = new FindContactTemplatesPresenterStub($this->presenterFormatter);
     $useCase($presenter);

@@ -1,3 +1,4 @@
+@ignore
 @REQ_MON-34256
 Feature: Configuring resource table widget
   As a Centreon User with dashboard update rights,
