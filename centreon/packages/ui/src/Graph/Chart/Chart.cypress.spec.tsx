@@ -231,8 +231,6 @@ describe('Line chart', () => {
         'true'
       );
       cy.get('[data-metric="hitratio"]').should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('does not display the tooltip when the corresponding prop is set', () => {
@@ -477,8 +475,6 @@ describe('Line chart', () => {
       cy.get('[data-metric="13536"]').should('be.visible');
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it('displays the curve in a step style when the prop is set', () => {
@@ -491,8 +487,6 @@ describe('Line chart', () => {
       cy.get('[data-metric="13534"]').should('be.visible');
       cy.get('[data-metric="13535"]').should('be.visible');
       checkLegendInformation();
-
-      cy.makeSnapshot();
     });
 
     it('shows the area when the prop is set', () => {
