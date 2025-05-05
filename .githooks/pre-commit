@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+# gitleaks check
+gitleaks detect -v --no-git
