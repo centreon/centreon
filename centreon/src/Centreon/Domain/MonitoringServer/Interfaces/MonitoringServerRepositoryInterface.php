@@ -132,7 +132,7 @@ interface MonitoringServerRepositoryInterface
     /**
      * Find remote servers IPs.
      *
-     * @return array
+     * @return string[]
      * @throws MonitoringServerException
      */
     public function findRemoteServersIps(): array;

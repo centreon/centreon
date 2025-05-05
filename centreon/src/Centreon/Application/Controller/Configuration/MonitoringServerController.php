@@ -87,11 +87,7 @@ class MonitoringServerController extends AbstractController
             if (in_array($excludeCentral, [true, "true", 1], true)) {
                 $remoteServers = $this->monitoringServerService->findRemoteServersIps();
                 $servers = array_filter($servers, function ($server) use ($remoteServers) {
-                    if (in_array($server->getAddress(), $remoteServers, true)) {
-                        return false;
-                    }
-
-                    if ($server->isLocalhost()) {
+                    if ($server->isLocalhost() && !in_array($server->getAddress(), $remoteServers, true)) {
                         return false;
                     }
 

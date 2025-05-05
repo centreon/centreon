@@ -96,7 +96,7 @@ interface MonitoringServerServiceInterface
     /**
      * Find remote monitoring servers IPs.
      *
-     * @return array
+     * @return string[]
      * @throws MonitoringServerException
      */
     public function findRemoteServersIps(): array;
