@@ -157,7 +157,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
             throw new ContactDisabledException();
         }
 
-        if (! $this->readTokenRepository->isTokenTypeManual($apiToken)) {
+        if ($this->readTokenRepository->isTokenTypeAuto($apiToken)) {
             $this->authenticationRepository->updateProviderTokenExpirationDate($providerToken);
         }
 
