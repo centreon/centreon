@@ -483,6 +483,13 @@ jobs:
           find centreon/www/widgets/ -maxdepth 1 -type f ! -name "*.php" ! -name "*.ts" -delete
         shell: bash
 
+      - name: Remove lockfiles and development files
+        run: |
+          find centreon -type f -name "compose*.*" -not -path "*vendor*" -delete
+          find centreon -type f -name "package*.*" -not -path "*vendor*" -delete
+          find centreon -type f -name "pnpm*.*" -not -path "*vendor*" -delete
+        shell: bash
+
       - name: Replace macros in source code
         run: |
           MACRO_REPLACEMENT_FILE="centreon/packaging/src/centreon-macroreplacement.txt"
