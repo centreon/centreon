@@ -32,6 +32,8 @@ interface Props {
 const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
   const adjustedDataRef = useRef<Data>();
 
+  const getBoolean = (value): boolean => Boolean(Number(value));
+
   const dataWithAdjustedMetricsColor = useMemo(() => {
     if (isNil(data)) {
       return data;
@@ -42,7 +44,16 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
 
     const newMetrics = Object.entries(metricsGroupedByColor).map(
       ([color, value]) => {
-        return value?.map((metric, index) =>
+        const adjustedValue = value?.map((item) => ({
+          ...item,
+          ds_data: {
+            ...item?.ds_data,
+            ds_filled: getBoolean(item?.ds_data?.ds_filled),
+            ds_invert: getBoolean(item?.ds_data?.ds_invert)
+          }
+        }));
+
+        return adjustedValue?.map((metric, index) =>
           set(
             lensPath(['ds_data', 'ds_color_line']),
             emphasizeCurveColor({ color, index }),
