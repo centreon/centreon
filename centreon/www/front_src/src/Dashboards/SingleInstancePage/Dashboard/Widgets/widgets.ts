@@ -30,7 +30,7 @@ const internalWidgets: Array<
     panelDefaultHeight: 3,
     panelDefaultWidth: 12,
     panelMinWidth: 3,
-    panelMinHeight: 2
+    panelMinHeight: 3
   },
   {
     name: 'metriccapacityplanning',
