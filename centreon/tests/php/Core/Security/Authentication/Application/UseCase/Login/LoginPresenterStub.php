@@ -20,7 +20,7 @@
  */
 declare(strict_types=1);
 
-namespace Tests\Core\Security\Authentication\Application\UseCase\LoginSession;
+namespace Tests\Core\Security\Authentication\Application\UseCase\Login;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 

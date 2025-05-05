@@ -42,7 +42,7 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Publish to Chromatic
-      uses: chromaui/action@v1
+      uses: chromaui/action@2bac6c4d6003cf368fd851b12dc679d511eee46b # v11.28.1
       with:
         projectToken: ${{ inputs.project_token }}
         workingDir: ${{ inputs.frontend_directory }}

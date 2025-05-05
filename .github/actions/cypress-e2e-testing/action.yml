@@ -47,7 +47,7 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Install Cypress binary
-      uses: nick-fields/retry@v2
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
       with:
         timeout_seconds: 120
         max_attempts: 10
@@ -56,7 +56,7 @@ runs:
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
     - name: Cypress end-to-end testing
-      uses: cypress-io/github-action@v6
+      uses: cypress-io/github-action@108b8684ae52e735ff7891524cbffbcd4be5b19f # v6.7.16
       with:
         command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }}
 

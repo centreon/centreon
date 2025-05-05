@@ -417,14 +417,6 @@ services:
     Centreon\Domain\Menu\Interfaces\MenuRepositoryInterface:
         class: Centreon\Infrastructure\Menu\MenuRepositoryRDB
 
-    Core\Security\Authentication\Application\UseCase\LoginSession\LoginSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
-
-    Core\Security\Authentication\Application\UseCase\LoginOpenIdSession\LoginOpenIdSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
-
     Security\Domain\Authentication\Interfaces\OpenIdProviderInterface:
         class: Core\Security\Authentication\Domain\Provider\OpenIdProvider
         tags: ['authentication.providers']
