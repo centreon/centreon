@@ -4,6 +4,7 @@ info:
   description: |
     # New features
     + Added endpoint to deploy services in a host based on associated host template(s)
+<<<<<<< HEAD
     # Updated features
     + Added host_category filter to /monitoring/hostgroups endpoint
     + Added new filters for the /monitoring/hosts/categories endpoint
@@ -17,6 +18,18 @@ info:
     + Added new 'thumbnail' key to dashboard listing endpoint, that contains thumbnail information
     + Added new 'thumbnail' key to dashboard update payload endpoint, that contains thumbnail information
     + Added new 'thumbnail_data' key to dashboard update payload endpoint, that contains thumbnail contents
+=======
+    + Added new endpoint to bulk delete services
+    + Added new endpoint to bulk delete hostgroups
+    + Added new endpoint to bulk enable/disable hostgroups
+    + Added new endpoint to get a token
+    + Added new endpoint to bulk duplicate hostgroups
+    +
+    # Updated features
+    + Updated endpoint to add an hostgroup
+    + Updated endpoint to update an hostgroup
+    + Update FindHostGroups response
+>>>>>>> f76c586bb6 (feat(token): handle CMA tokens in API and UI (#7030))
     + Added 'requested_authn_context' property to SAML provider configuration endpoints (GET, PUT)
     +
     # Information
@@ -4541,9 +4554,9 @@ paths:
   /administration/tokens:
     $ref: "./latest/onPremise/Administration/Token/AddTokenAndFindTokens.yaml"
   /administration/tokens/{token_name}:
-    $ref: "./latest/onPremise/Administration/Token/DeleteToken.yaml"
+    $ref: "./latest/onPremise/Administration/Token/GetAndDeleteToken.yaml"
   /administration/tokens/{token_name}/users/{user_id}:
-    $ref: "./latest/onPremise/Administration/Token/PartialUpdateAndDeleteTokenByUser.yaml"
+    $ref: "./latest/onPremise/Administration/Token/GetAndPartialUpdateAndDeleteTokenByUser.yaml"
   /administration/parameters:
     post:
       tags:

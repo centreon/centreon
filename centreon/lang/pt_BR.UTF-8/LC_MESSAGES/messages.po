@@ -22766,8 +22766,271 @@ msgstr ""
 #~ msgid "Start Minute"
 #~ msgstr "Comece minuto"
 
+<<<<<<< HEAD
 #~ msgid "End Hour"
 #~ msgstr "Hora final"
+=======
+# msgid "Sort by"
+# msgstr ""
+
+# msgid "See more on the Resources Status page"
+# msgstr ""
+
+# msgid "You are not allowed to log in"
+# msgstr ""
+
+#  msgid "You are not allowed to edit a service"
+#  msgstr ""
+
+#  msgid "Error while updating a service"
+#  msgstr ""
+
+# msgid "Error while searching for media"
+# msgstr ""
+
+# msgid "You are not allowed to list media"
+# msgstr ""
+
+# msgid "Playlists"
+# msgstr ""
+
+# msgid "Welcome to the Playlist interface!"
+# msgstr ""
+
+# msgid "Create a playlist"
+# msgstr ""
+
+# msgid "Playlist name"
+# msgstr ""
+
+# msgid "Playlist properties"
+# msgstr ""
+
+# msgid "Rotation time"
+# msgstr ""
+
+# msgid "Select dashboards"
+# msgstr ""
+
+# msgid "Define the order of dashboards"
+# msgstr ""
+
+# msgid "Add a dashboard"
+# msgstr ""
+
+# msgid "Playlist created"
+# msgstr ""
+
+# msgid "Playlist updated"
+# msgstr ""
+
+# msgid "Add at least 1 contact"
+# msgstr ""
+
+# msgid "Rotation time must be at least 10 seconds."
+# msgstr ""
+
+# msgid "Rotation time cannot exceed 60 seconds."
+# msgstr ""
+
+# msgid "Shares"
+# msgstr ""
+
+# msgid "Role"
+# msgstr ""
+
+# msgid "Creator"
+# msgstr ""
+
+# msgid "Creation date"
+# msgstr ""
+
+# msgid "Update"
+# msgstr ""
+
+# msgid "Public link"
+# msgstr ""
+
+# msgid "Private/Public"
+# msgstr ""
+
+# msgid "Copy link"
+# msgstr ""
+
+# msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+# msgstr ""
+
+# msgid "Failed to copy the link."
+# msgstr ""
+
+# msgid "Link has been copied!"
+# msgstr ""
+
+# msgid "Stop sharing"
+# msgstr ""
+
+# msgid "Viewer"
+# msgstr ""
+
+# msgid "Editor"
+# msgstr ""
+
+# msgid "Create"
+# msgstr ""
+
+# msgid "Publish your playlist"
+# msgstr ""
+
+# msgid "Settings"
+# msgstr ""
+
+# msgid "API token"
+# msgstr ""
+
+# msgid "Create new token"
+# msgstr ""
+
+# msgid "Revoked"
+# msgstr ""
+
+# msgid "For security reasons, the token can only be displayed once. Store it carefully."
+# msgstr ""
+
+# msgid "Generate new token"
+# msgstr ""
+
+# msgid "Authentication token copied to the clipboard"
+# msgstr ""
+
+# msgid "Token could not be copied"
+# msgstr ""
+
+# msgid "The end date must be greater than the current date by at least one day"
+# msgstr ""
+
+# msgid "This field is required"
+# msgstr ""
+
+# msgid "Token"
+# msgstr ""
+
+# msgid "Token has been created"
+# msgstr ""
+
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Delete token"
+# msgstr ""
+
+# msgid "Failed to copy link"
+# msgstr ""
+
+# msgid "Link copied"
+# msgstr ""
+
+# msgid "Add a contact"
+# msgstr ""
+
+# msgid "Add a contact group"
+# msgstr ""
+
+# msgid "Share with"
+# msgstr ""
+
+# msgid "Removed"
+# msgstr ""
+
+# msgid "Updated"
+# msgstr ""
+
+# msgid "User rights"
+# msgstr ""
+
+# msgid "The share list is empty"
+# msgstr ""
+
+# msgid "Failed to save shares"
+# msgstr ""
+
+# msgid "Shares saved"
+# msgstr ""
+
+# msgid "Show more filters"
+# msgstr ""
+
+# msgid "Show fewer filters"
+# msgstr ""
+
+# msgid "Select a dataset to display the preview."
+# msgstr ""
+
+# msgid "Not yet implemented"
+# msgstr ""
+
+# msgid "View as list"
+# msgstr ""
+
+# msgid "View as cards"
+# msgstr ""
+
+# msgid "Edit properties"
+# msgstr ""
+
+# msgid "Delete user"
+# msgstr ""
+
+# msgid "User deleted"
+# msgstr ""
+
+# msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+# msgstr ""
+
+# msgid "Create a new resource access rule"
+# msgstr ""
+
+# msgid "Edit resource access rule"
+# msgstr ""
+
+# msgid "Rule properties"
+# msgstr ""
+
+# msgid "Resource selection"
+# msgstr ""
+
+# msgid "Contacts/Contact groups"
+# msgstr ""
+
+# msgid "The resource access rule was successfully added"
+# msgstr ""
+
+# msgid "The resource access rule was successfully updated"
+# msgstr ""
+
+# msgid "Add new dataset"
+# msgstr ""
+
+# msgid "Choose at least one contact or contact group"
+# msgstr ""
+
+# msgid "Metaservice"
+# msgstr ""
+
+# msgid "Select resource type"
+# msgstr ""
+
+# msgid "Your comment has been saved."
+# msgstr ""
+
+# msgid "Displays data on resource status and events, centralized in a table."
+# msgstr ""
+
+# msgid "Problem (Down/Critical)"
+# msgstr ""
+
+# msgid "Undefined (Unreachable/Unknown)"
+# msgstr ""
+>>>>>>> f76c586bb6 (feat(token): handle CMA tokens in API and UI (#7030))
 
 #~ msgid "End Minute"
 #~ msgstr "Minuto final"
@@ -23648,8 +23911,61 @@ msgstr ""
 #~ msgid "The host of service is not defined"
 #~ msgstr "O host do serviço não esta definido"
 
+<<<<<<< HEAD
 #~ msgid "Host of downtime not found"
 #~ msgstr "O host do serviço não esta definido"
+=======
+# msgid "Authentication tokens"
+# msgstr ""
+
+# msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?"
+
+# msgstr ""
+
+# msgid "Never expire"
+# msgstr ""
+
+# msgid "Generate token"
+# msgstr ""
+
+# msgid "Create authentication token"
+# msgstr ""
+
+# msgid "For security reasons, the token can only be displayed once. Remember to store it well."
+# msgstr ""
+
+# msgid "Done"
+# msgstr ""
+
+# msgid "Disable token"
+# msgstr ""
+
+
+# msgid "Token disabled"
+# msgstr ""
+
+# msgid "Token deleted"
+# msgstr ""
+
+# msgid "Enable/Disable"
+# msgstr ""
+
+# msgid "You are about to disable the <strong>{{tokenName}}</strong> token. If you disable it, all requests made with this token will be rejected. Do you want to disable it ? You must export the configuration for the change to be taken into account."
+# msgstr ""
+
+# msgid "You are about to delete the <strong>{{tokenName}}</strong> token. This action cannot be undone. Do you want to delete this token anyway ? You must export the configuration for the change to be taken into account."
+# msgstr ""
+
+# msgid "You are about to enable the <strong>{{tokenName}}</strong> token. You must export the configuration for the change to be taken into account."
+# msgstr ""
+
+# msgid "Enable token"
+# msgstr ""
+
+# msgid "Token enabled"
+# msgid "Host group created"
+# msgstr ""
+>>>>>>> f76c586bb6 (feat(token): handle CMA tokens in API and UI (#7030))
 
 #~ msgid "Contact disabled."
 #~ msgstr "Contato desabilitado."
