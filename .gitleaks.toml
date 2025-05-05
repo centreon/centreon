@@ -15,10 +15,19 @@ paths = [
   '''composer\.lock''',
   '''yarn\.lock''',
   '''\.gitleaks\.toml$''',
+  '''centreon\/www\/include\/common\/javascript''',
   '''(.*?)(jpg|gif|doc|pdf|bin)$'''
 ]
 
 regexTarget = "match"
 regexes = [
-  '''ABCDEFG1234567890'''
+  '''ABCDEFG1234567890''',
+  '''IKbUBottl5eoyhf0I5Io2nuDsTA85D50''',
+  '''R0MIlEL91Hhh2OJIGIS9y43TDFWCRX0r2aClU7sI''',
+  '''6a174c20-f6de-a53c-74d2-6018fcceff64''',
+  '''Ns4CuByx9MBIZhkO83mMaKYrceFJ21YNmGDw59K8''',
+  '''gpg-pubkey-3fc49c1b-651d4c25''',
+  '''gpg-pubkey-8a7652bc-4cb6f1f6''',
+  '''AIDAQEAAAAAAAAAAAAAA''',
+  '''broker_instance-2'''
 ]
