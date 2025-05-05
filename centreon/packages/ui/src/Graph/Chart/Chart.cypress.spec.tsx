@@ -446,7 +446,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 312.508173777963)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 227.55748987831032)"]').should(
         'be.visible'
       );
 
@@ -528,8 +528,8 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="4.0625"]').should('be.visible');
-      cy.get('circle[cy="105.21757370835121"]').should('be.visible');
+      cy.get('circle[cx="28.4375"]').should('be.visible');
+      cy.get('circle[cy="231.74401768045848"]').should('be.visible');
 
       cy.makeSnapshot();
     });
