@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web 10.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 15:31+0000\n"
+"POT-Creation-Date: 2025-05-06 15:41+0000\n"
 "PO-Revision-Date: 2018-10-24 11:53+0100\n"
 "Last-Translator: Luiz Costa <me@luizgustavo.pro.br>\n"
 "Language-Team: Centreon team\n"
@@ -21654,25 +21654,6 @@ msgstr ""
 msgid "This is the description of the text widget"
 msgstr ""
 
-#: centreon/www/install/index.php
-msgid "new string to be translated"
-msgstr ""
-
-#: centreon/www/install/index.php
-#, fuzzy
-msgid "new new string to be translated"
-msgstr "O Broker precisa de opções para ser carregado"
-
-#: centreon/www/install/index.php
-#, fuzzy
-msgid "new new new string to be translated"
-msgstr "O Broker precisa de opções para ser carregado"
-
-#: centreon/www/install/index.php
-#, fuzzy
-msgid "old string to be translated"
-msgstr "O Broker precisa de opções para ser carregado"
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Connection port"
 msgstr "Porta de conexão"
@@ -22155,6 +22136,18 @@ msgstr "Ativar verificação"
 #, fuzzy
 msgid "Disable Host Check"
 msgstr "Desativar verificação"
+
+#, fuzzy
+#~ msgid "new new string to be translated"
+#~ msgstr "O Broker precisa de opções para ser carregado"
+
+#, fuzzy
+#~ msgid "new new new string to be translated"
+#~ msgstr "O Broker precisa de opções para ser carregado"
+
+#, fuzzy
+#~ msgid "old string to be translated"
+#~ msgstr "O Broker precisa de opções para ser carregado"
 
 #~ msgid "ACL Definition"
 #~ msgstr "Definição do permissionamento (ACL)"

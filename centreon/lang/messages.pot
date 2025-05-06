@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 15:31+0000\n"
+"POT-Creation-Date: 2025-05-06 15:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19871,22 +19871,6 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "This is the description of the text widget"
-msgstr ""
-
-#: centreon/www/install/index.php
-msgid "new string to be translated"
-msgstr ""
-
-#: centreon/www/install/index.php
-msgid "new new string to be translated"
-msgstr ""
-
-#: centreon/www/install/index.php
-msgid "new new new string to be translated"
-msgstr ""
-
-#: centreon/www/install/index.php
-msgid "old string to be translated"
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
