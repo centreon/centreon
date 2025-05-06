@@ -29,14 +29,12 @@ runs:
       with:
         github-token: ${{ inputs.token }}
         script: |
-          const { debug, getInput } = core;
+          const { debug } = core;
           const { getExecOutput } = exec;
-          // import { Octokit } from '@octokit/action'
 
           const { readFileSync } = require('fs');
           const { env } = require('process');
-          // const parseGitDiff = require('parse-git-diff');
-          // import parseGitDiff from 'parse-git-diff';
+
           const { default: parseGitDiff } = require('parse-git-diff');
 
           /*
