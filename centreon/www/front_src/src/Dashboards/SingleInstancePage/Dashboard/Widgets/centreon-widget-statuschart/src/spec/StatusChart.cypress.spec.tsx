@@ -120,7 +120,7 @@ const displayTypes = [
   }
 ];
 
-describe.only('Status chart', () => {
+describe('Status chart', () => {
   it('displays nothing when the API data is empty', () => {
     cy.interceptAPIRequest({
       alias: 'getResourcesByHost',
