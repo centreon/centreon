@@ -8,6 +8,8 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { resourceTypeQueryParameter } from '../../../AddEditWidget/WidgetProperties/Inputs/utils';
+import { WidgetResourceType } from '../../../AddEditWidget/models';
 import {
   CommonWidgetProps,
   GlobalRefreshInterval,
@@ -17,15 +19,12 @@ import {
 import {
   areResourcesFullfilled,
   buildResourceTypeNameForSearchParameter,
-  getResourcesSearchQueryParameters,
   getWidgetEndpoint,
   isResourceString
 } from '../../utils';
 import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';
-import { WidgetResourceType } from '../../../AddEditWidget/models';
-import { resourceTypeQueryParameter } from '../../../AddEditWidget/WidgetProperties/Inputs/utils';
 
 interface UseTopBottomProps
   extends Pick<
