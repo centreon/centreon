@@ -438,7 +438,8 @@ class SAML implements ProviderAuthenticationInterface
         $samlNameIdNameQualifier = $_SESSION['saml']['samlNameIdNameQualifier'] ?? null;
         $samlNameIdSPNameQualifier = $_SESSION['saml']['samlNameIdSPNameQualifier'] ?? null;
 
-        $this->info('logout from SAML and redirect');
+        $this->loginLogger->info(Provider::SAML, 'logout from SAML and redirect');
+
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
 
         $auth->logout(
