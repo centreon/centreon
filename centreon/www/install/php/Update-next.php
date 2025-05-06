@@ -188,14 +188,14 @@ $updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): 
 };
 
 /**
-  * Add Column connection_mode to agent_configuration table.
-  * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
-  *
-  * @param CentreonDB $pearDB
-  *
-  * @throws CentreonDbException
-  */
-  $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
+ * Add Column connection_mode to agent_configuration table.
+ * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
+ *
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ */
+$addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
 
     if ($pearDB->isColumnExist('agent_configuration', 'connection_mode')) {
@@ -248,8 +248,52 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
 };
 
 // -------------------------------------------- Broker modules directive -------------------------------------------- //
+$addColumnInEngineConf = function() use($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unabled to add column in cfg_nagios table';
 
-  $removeBrokerModuleDirective = function () use ($pearDB, &$errorMessage): void {
+    if ($pearDB->isColumnExist('cfg_nagios', 'broker_module_cfg_file')) {
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `cfg_nagios`
+            ADD COLUMN `broker_module_cfg_file` VARCHAR(255) DEFAULT NULL
+        SQL
+    );
+};
+
+$removeBrokerModuleDirectiveAndAddBrokerModuleConfigFile = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to get data from cfg_nagios_broker_module table';
+    $statement = $pearDB->executeQuery(
+        <<<'SQL'
+            SELECT `cfg_nagios_id`, `broker_module` FROM `cfg_nagios_broker_module`
+            WHERE `broker_module` LIKE '%cbmod.so %.json'
+        SQL
+    );
+
+    $brokerNagiosPair = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+    $errorMessage= 'Unable to update cfg_nagios table';
+    foreach ($brokerNagiosPair as $nagiosId => $brokerModuleDirective) {
+        if (preg_match('/cbmod\.so (.+\.json)/', $brokerModuleDirective, $matches)) {
+            $brokerConfigFile = $matches[1];
+        } else {
+            $brokerConfigFile = '';
+        }
+        $statement = $pearDB->executeQuery(
+            <<<'SQL'
+                UPDATE `cfg_nagios`
+                SET `broker_module_cfg_file` = :broker_module_config_file
+                WHERE `nagios_id` = :nagios_id
+            SQL,
+            [
+                'broker_module_config_file' => $brokerConfigFile,
+                'nagios_id' => $nagiosId,
+            ]
+        );
+    }
+
     $errorMessage = 'Unable to delete rows from cfg_nagios_broker_module table';
 
     $pearDB->executeStatement(
@@ -264,6 +308,7 @@ $updateTopologyForAuthenticationTokens = function () use ($pearDB, &$errorMessag
 try {
     $createJwtTable();
     $addConnectionModeColumnToAgentConfiguration();
+    $addColumnInEngineConf();
 
     // Transactional queries for configuration database
     if (! $pearDB->inTransaction()) {
@@ -274,7 +319,7 @@ try {
     $updateSamlProviderConfiguration($pearDB);
     $updateAgentConfiguration($pearDB);
     $updateTopologyForAuthenticationTokens();
-    $removeBrokerModuleDirective();
+    $removeBrokerModuleDirectiveAndAddBrokerModuleConfigFile();
 
     $pearDB->commit();
 

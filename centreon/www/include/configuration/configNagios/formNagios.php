@@ -551,6 +551,8 @@ foreach (CentreonMainCfg::EVENT_BROKER_OPTIONS as $bit => $label) {
 }
 $form->addGroup($eventBrokerOptionsData, 'event_broker_options', _("Broker Module Options"), '&nbsp;');
 
+$form->addElement('text', 'broker_module_cfg_file', _("Broker Module Configuration File"), $attrsText2);
+
 // New options for enable whitelist of macros sent to Centreon Broker
 $enableMacrosFilter = [];
 $enableMacrosFilter[] = $form->createElement('radio', 'enable_macros_filter', null, _("Yes"), 1);
