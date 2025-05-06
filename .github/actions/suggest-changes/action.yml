@@ -38,7 +38,6 @@ runs:
           // const parseGitDiff = require('parse-git-diff');
           // import parseGitDiff from 'parse-git-diff';
           const { default: parseGitDiff } = require('parse-git-diff');
-          console.log(parseGitDiff);
 
           /*
           const octokit = new Octokit({
@@ -68,7 +67,7 @@ runs:
           debug(`Diff output: ${diff.stdout}`)
 
           // Create an array of changes from the diff output based on patches
-          console.log(parseGitDiff);
+          console.log(diff.stdout);
           const parsedDiff = await parseGitDiff(diff.stdout)
 
           // Get changed files from parsedDiff (changed files have type 'ChangedFile')
@@ -144,8 +143,6 @@ runs:
               return [comment]
             })
           )
-
-          console.log('Comments:', comments)
 
           // Create a review with the suggested changes if there are any
           if (comments.length > 0) {
