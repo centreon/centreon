@@ -29,11 +29,6 @@ properties:
           type: string
           description: "Poller name"
           example: "my-poller-name"
-        is_central:
-          type: boolean
-          description: "Tells whether a poller is central or not"
-          example: false
-
   configuration:
     type: object
     description: |

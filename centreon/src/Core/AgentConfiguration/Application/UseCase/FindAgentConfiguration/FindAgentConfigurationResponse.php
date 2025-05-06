@@ -44,18 +44,6 @@ final class FindAgentConfigurationResponse implements StandardResponseInterface
      */
     public function getData(): mixed
     {
-        return [
-            'agentConfiguration' => $this->agentConfiguration,
-            'pollers' => array_map(
-                function (Poller $poller) {
-                    return [
-                        'id' => $poller->getId(),
-                        'name' => $poller->getName(),
-                        'is_central' => $poller->isLocalhost() === '1' && ! $poller->isRemoteServer(),
-                    ];
-                },
-                $this->pollers
-            ),
-        ];
+        return $this;
     }
 }
