@@ -14,7 +14,6 @@ interface Props extends CommonWidgetProps<PanelOptions> {
 }
 
 const Widget = ({
-  store,
   panelData,
   panelOptions,
   globalRefreshInterval,
@@ -48,7 +47,6 @@ const Widget = ({
       refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
       path="/bam/widget/batimeline"
-      store={store}
       queryClient={queryClient}
     />
   );
