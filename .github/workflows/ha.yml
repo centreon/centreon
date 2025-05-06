@@ -34,7 +34,7 @@ jobs:
   get-environment:
     uses: ./.github/workflows/get-environment.yml
     with:
-      version_file: centreon-ha/.env
+      version_file: .version.centreon-ha
 
   package:
     needs: [get-environment]
