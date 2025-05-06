@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web 10.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 14:56+0000\n"
+"POT-Creation-Date: 2025-05-06 15:10+0000\n"
 "PO-Revision-Date: 2018-10-19 13:42+0100\n"
 "Last-Translator: Luiz Costa <me@luizgustavo.pro.br>\n"
 "Language-Team: Centreon team\n"
@@ -21791,6 +21791,11 @@ msgstr ""
 #: centreon/www/install/index.php
 #, fuzzy
 msgid "new new string to be translated"
+msgstr "O Broker precisa de opções para ser carregado"
+
+#: centreon/www/install/index.php
+#, fuzzy
+msgid "new new new string to be translated"
 msgstr "O Broker precisa de opções para ser carregado"
 
 #: centreon/www/install/centreon_broker_translation.php
