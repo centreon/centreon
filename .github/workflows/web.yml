@@ -241,14 +241,14 @@ jobs:
           mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
           php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
 
-          # if [[ '${{ github.event_name }}' == 'pull_request' && `git status --porcelain` ]]; then
-          #   git config user.name "technique-ci"
-          #   git config user.email "technique+ci@centreon.com"
-          #   git status
-          #   git add .
-          #   git commit -m "chore(lang): update translations"
-          #   git push
-          # fi
+          if [[ '${{ github.event_name }}' == 'pull_request' && `git status --porcelain` ]]; then
+            # git config user.name "technique-ci"
+            # git config user.email "technique+ci@centreon.com"
+            git status
+            git add .
+            git commit -m "chore(lang): update translations"
+            git push
+          fi
         shell: bash
 
       - uses: ./.github/actions/suggest-changes
