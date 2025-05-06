@@ -51,6 +51,7 @@ beforeEach(function (): void {
         validator: $this->validator = $this->createMock(Validator::class),
         repositoryManager: $this->dataStorageEngine = $this->createMock(RepositoryManagerInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
+        isCloudPlatform: false,
     );
 
     $this->testedAddRequest = new AddAgentConfigurationRequest();

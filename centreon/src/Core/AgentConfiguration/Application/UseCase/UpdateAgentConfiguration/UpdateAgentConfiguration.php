@@ -55,6 +55,7 @@ final class UpdateAgentConfiguration
         private readonly Validator $validator,
         private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform,
     ) {}
 
     public function __invoke(
@@ -77,6 +78,19 @@ final class UpdateAgentConfiguration
                 );
 
                 return;
+            }
+
+            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
+                $pollers = $this->readAcRepository->findPollersByAcId($request->id);
+                foreach ($pollers as $poller) {
+                    if ($poller->isLocalhost() === '1' && ! $poller->isRemoteServer()) {
+                        $presenter->setResponseStatus(new ForbiddenResponse(
+                            AgentConfigurationException::accessNotAllowed()
+                        ));
+
+                        return;
+                    }
+                }
             }
 
             if (null === $agentConfiguration = $this->getAgentConfiguration($request->id)) {
