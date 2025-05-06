@@ -33,6 +33,9 @@ const configureSAML = (): Cypress.Chainable => {
     tag: 'input'
   }).type(SAMLConfigValues.loginAttribute, { force: true });
 
+  cy.getByLabel({ label: 'Requested authentication context' })
+    .should('be.visible');
+
   cy.getByLabel({
     label: 'Both identity provider and Centreon UI',
     tag: 'input'

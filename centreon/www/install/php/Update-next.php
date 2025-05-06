@@ -19,18 +19,55 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
+/**
+ * This file contains changes to be included in the next version.
+ * The actual version number should be added in the variable $version.
+ */
 $version = 'xx.xx.x';
 $errorMessage = '';
 
-// TODO add your functions here
+$updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to retrieve SAML provider configuration';
+    $samlConfiguration = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM `provider_configuration`
+            WHERE `type` = 'saml'
+            SQL
+    );
+
+    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
+        throw new \Exception('SAML configuration is missing');
+    }
+
+    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+
+    if (!isset($customConfiguration['requested_authn_context'])) {
+        $customConfiguration['requested_authn_context'] = 'minimum';
+        $query = <<<'SQL'
+                UPDATE `provider_configuration`
+                SET `custom_configuration` = :custom_configuration
+                WHERE `type` = 'saml'
+            SQL;
+        $queryParameters = QueryParameters::create(
+            [
+                QueryParameter::string(
+                    'custom_configuration',
+                    json_encode($customConfiguration, JSON_THROW_ON_ERROR)
+                )
+            ]
+        );
+
+        $pearDB->update($query, $queryParameters);
+    }
+};
 
 try {
-    // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
-
-    // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
@@ -38,7 +75,7 @@ try {
         $pearDB->beginTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
+    $updateSamlProviderConfiguration($pearDB);
 
     $pearDB->commit();
 
