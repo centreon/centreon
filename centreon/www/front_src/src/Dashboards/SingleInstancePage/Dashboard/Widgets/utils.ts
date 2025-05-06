@@ -484,7 +484,8 @@ export const getResourcesSearchQueryParameters = (
 export const buildResourceTypeNameForSearchParameter = (
   resourceType: WidgetResourceType
 ): string =>
-  equals(resourceType, WidgetResourceType.service)
+  equals(resourceType, WidgetResourceType.service) ||
+  equals(resourceType, WidgetResourceType.metaService)
     ? 'name'
     : `${resourceType.replace('-', '_')}.name`;
 

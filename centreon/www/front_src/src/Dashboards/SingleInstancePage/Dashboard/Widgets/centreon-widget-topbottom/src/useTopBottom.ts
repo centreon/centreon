@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { equals, isNil } from 'ramda';
+import { equals, isEmpty, isNil, pluck } from 'ramda';
 
 import {
   buildListingEndpoint,
@@ -16,12 +16,16 @@ import {
 } from '../../models';
 import {
   areResourcesFullfilled,
+  buildResourceTypeNameForSearchParameter,
   getResourcesSearchQueryParameters,
-  getWidgetEndpoint
+  getWidgetEndpoint,
+  isResourceString
 } from '../../utils';
 import { metricsTopDecoder } from './api/decoder';
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';
+import { WidgetResourceType } from '../../../AddEditWidget/models';
+import { resourceTypeQueryParameter } from '../../../AddEditWidget/WidgetProperties/Inputs/utils';
 
 interface UseTopBottomProps
   extends Pick<
@@ -68,9 +72,6 @@ const useTopBottom = ({
 
   const formattedMetricName = encodeURIComponent(metricName);
 
-  const { resourcesSearchConditions } =
-    getResourcesSearchQueryParameters(resources);
-
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
     getEndpoint: () =>
@@ -81,7 +82,32 @@ const useTopBottom = ({
           parameters: {
             limit: topBottomSettings.numberOfValues,
             search: {
-              conditions: resourcesSearchConditions
+              lists: resources
+                .filter((resource) => !isResourceString(resource.resources))
+                .map((resource) => ({
+                  field: equals(resource.resourceType, 'hostgroup')
+                    ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                    : resourceTypeQueryParameter[resource.resourceType],
+                  values: equals(resource.resourceType, 'service')
+                    ? pluck('name', resource.resources)
+                    : pluck('id', resource.resources)
+                })),
+              conditions: isEmpty(
+                resources.filter((resource) =>
+                  isResourceString(resource.resources)
+                )
+              )
+                ? undefined
+                : resources
+                    .filter((resource) => isResourceString(resource.resources))
+                    .map((resource) => ({
+                      field: buildResourceTypeNameForSearchParameter(
+                        resource.resourceType
+                      ),
+                      values: {
+                        $rg: resource.resources
+                      }
+                    }))
             },
             sort: {
               current_value: equals(topBottomSettings.order, 'bottom')

@@ -10,6 +10,7 @@ import { useResourceStyles } from '../Inputs.styles';
 const RegexField = ({
   changeRegexFieldOnResourceType,
   changeRegexField,
+  resourceType,
   value
 }): JSX.Element => {
   const { t } = useTranslation();
@@ -18,7 +19,7 @@ const RegexField = ({
   return (
     <TextField
       value={value}
-      dataTestId={labelEnterRegex}
+      dataTestId={`${labelEnterRegex}-${resourceType}`}
       fullWidth
       onChange={changeRegexField}
       label={t(labelEnterRegex)}
@@ -27,6 +28,7 @@ const RegexField = ({
           endAdornment: (
             <Tooltip label={t(labelDeactivateRegex)}>
               <IconButton
+                data-testid={`${labelDeactivateRegex}-${resourceType}`}
                 className={classes.selectedRegexIcon}
                 onClick={changeRegexFieldOnResourceType}
                 size="small"

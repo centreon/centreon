@@ -195,7 +195,8 @@ export const resourceTypeQueryParameter = {
   [WidgetResourceType.hostGroup]: 'hostgroup.id',
   [WidgetResourceType.serviceCategory]: 'servicecategory.id',
   [WidgetResourceType.serviceGroup]: 'servicegroup.id',
-  [WidgetResourceType.service]: 'service.name'
+  [WidgetResourceType.service]: 'service.name',
+  [WidgetResourceType.metaService]: 'metaservice.id'
 };
 
 interface ShowInputProps extends ShowInput {

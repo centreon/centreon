@@ -72,6 +72,7 @@ const ResourceField = ({
     <Tooltip label={t(labelActivateRegex)}>
       <IconButton
         className={classes.regexIcon}
+        data-testid={`${labelActivateRegex}-${resource.resourceType}`}
         onClick={changeRegexFieldOnResourceType({
           resourceType: resource.resourceType,
           index

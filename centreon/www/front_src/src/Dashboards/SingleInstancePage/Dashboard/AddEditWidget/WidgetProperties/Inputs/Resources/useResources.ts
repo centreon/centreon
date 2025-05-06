@@ -35,7 +35,6 @@ import {
 import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import { baseEndpoint } from '../../../../../../../api/endpoint';
-import Widget from '../../../../Widgets/centreon-widget-topbottom/src';
 import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   labelHost,
@@ -211,8 +210,11 @@ const singleMetricBaseResources = [
 const isResourcesString = (resources: Array<SelectEntry> | string) =>
   equals(type(resources), 'String');
 
-const getIsRegexResourceType = ({ resourceType, resources }): boolean =>
-  resources.some(
+const getIsRegexResourceType = ({
+  resourceType,
+  resources
+}): boolean | undefined =>
+  resources?.some(
     (resource: WidgetDataResource) =>
       resourceType === resource.resourceType &&
       isResourcesString(resource.resources)
