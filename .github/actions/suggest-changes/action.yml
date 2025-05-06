@@ -32,7 +32,6 @@ runs:
           const { readFileSync } = require('fs');
           const { env } = require('process');
           const parseGitDiff = require('parse-git-diff');
-          // const parseGitDiff = await import('parse-git-diff');
           console.log(parseGitDiff);
 
           /*
@@ -63,7 +62,8 @@ runs:
           debug(`Diff output: ${diff.stdout}`)
 
           // Create an array of changes from the diff output based on patches
-          const parsedDiff = parseGitDiff(diff.stdout)
+          console.log(parseGitDiff);
+          const parsedDiff = await parseGitDiff(diff.stdout)
 
           // Get changed files from parsedDiff (changed files have type 'ChangedFile')
           const changedFiles = parsedDiff.files.filter(
