@@ -101,7 +101,6 @@ if (!$centreon_bg->is_admin) {
 $query .= " AND motl.host_id = hosts.host_id
             AND motl.service_id = services.service_id
             AND motl.ticket_id = mot.ticket_id
-            AND mot.timestamp > services.last_hard_state_change
     ) UNION ALL (
         SELECT DISTINCT
             NULL as description,
@@ -121,7 +120,6 @@ if (!$centreon_bg->is_admin) {
 $query .= " AND motl.host_id = hosts.host_id
             AND motl.service_id IS NULL
             AND motl.ticket_id = mot.ticket_id
-            AND mot.timestamp > hosts.last_hard_state_change
     ) ORDER BY `host_name`, `description`, `timestamp` DESC";
 
 $hosts_done = [];
