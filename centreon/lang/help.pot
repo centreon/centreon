@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 14:54+0000\n"
+"POT-Creation-Date: 2025-05-06 14:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,20 +17,69 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: centreon/www/include/Administration/myAccount/help.php
-msgid ""
-"No: You don't consent to share your platform data. Contact Details: You "
-"consent to share your platform data including your alias and email. "
-"Anonymized: You consent to share your platform data, but your alias and "
-"email will be anonymized."
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "Path to RRDTool database for graphs of metrics."
 msgstr ""
 
-#: centreon/www/include/Administration/myAccount/help.php
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "Path to RRDTool database for graphs of status."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "Path to RRDTool database for graphs of monitoring engine stats."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "RRDTool database size (in days)."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
 msgid ""
-"If checked this option will restore the use of the deprecated pages.This "
-"includes display of the deprecated pages and internal redirection between "
-"pagesIf not checked this option will enable the full use of the new "
-"Monitoring page Resource Status"
+"Duration of retention regarding performance data stored in database. 0 means "
+"that no retention will be applied."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid ""
+"Duration of retention regarding downtimes stored in database. 0 means that "
+"no retention will be applied."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid ""
+"Duration of retention regarding comments stored in database. 0 means that no "
+"retention will be applied."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "Retention duration of logs. 0 means that no retention will be applied."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid ""
+"Retention duration of reporting data. 0 means that no retention will be "
+"applied."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid ""
+"Retention time for partitioned tables (data_bin, logs, log_archive_host, "
+"log_archive_service), by default 365 days."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid ""
+"number of partitions created in advance to prevent issues, by default 10 "
+"days."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid ""
+"Backup directory to store partition, by default /var/cache/centreon/backup."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/centstorage/help.php
+msgid "Enable/Disable logging of all modifications in Centreon"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/help.php
@@ -281,9 +330,100 @@ msgid ""
 "chart."
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/gorgone/help.php
+#: centreon/www/include/Administration/parameters/remote/help.php
+msgid ""
+"Enter the name of an active contact who have the right to 'reach API "
+"configuration' on the Central.This user will be used to call the API from "
+"the Remote to the Central."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/remote/help.php
+msgid "Enter the current password of this account."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/remote/help.php
+msgid "Full URL allowing access to the API of the Centreon's central server."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/remote/help.php
+msgid ""
+"Allows to skip the SSL certificate check on the Centreon's central server."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Enable Backup process"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid ""
+"Backup configuration files (MySQL, Apache, PHP, SNMP, centreon, centreon-"
+"engine, centreon-broker)"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Backup centreon database"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Backup centreon_storage database"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid ""
+"Backup type for centreon_storage database : mysqldump or LVM snapshot (need "
+"available space on MySQL LVM)"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Full backup period"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Partial backup period (available on partitioned tables)"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Directory where backups will be stored"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Temporary directory used by backup process"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Backup retention (in days)"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "MySQL configuration file path (i.e. /etc/my.cnf.d/centreon.cnf)"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Use SCP to copy backup on remote host"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Remote user used by SCP"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Remote host to copy by SCP"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/backup/help.php
+msgid "Remote directory to copy by SCP"
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/api/help.php
+#: centreon/www/include/Administration/parameters/gorgone/help.php
 msgid "Timeout value in seconds. Used to make actions calls timeout."
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/api/help.php
+msgid ""
+"Enable Centreon Broker statistics collection into the central server in "
+"order to reduce the network load generated by Centcore. Be carefull: broker "
+"statistics will not be available into Home > Broker statistics."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/gorgone/help.php
@@ -333,68 +473,6 @@ msgstr ""
 msgid ""
 "Define if connection to Gorgone API can be done even if a self signed "
 "certificat is used (Default: yes)."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Directory of log files."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Enables authentication debug."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Enables Monitoring Engine import debug."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Enables RRDTool debug."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Enables LDAP user import debug."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Enables SQL debug."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Enables Centcore debug."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Enables Centstorage debug."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Enables Centreontrapd debug."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/remote/help.php
-msgid ""
-"Enter the name of an active contact who have the right to 'reach API "
-"configuration' on the Central.This user will be used to call the API from "
-"the Remote to the Central."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/remote/help.php
-msgid "Enter the current password of this account."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/remote/help.php
-msgid "Full URL allowing access to the API of the Centreon's central server."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/remote/help.php
-msgid ""
-"Allows to skip the SSL certificate check on the Centreon's central server."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/help.php
@@ -552,69 +630,42 @@ msgid ""
 "contact's data and calculate new Centreon ACLs."
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid "Path to RRDTool database for graphs of metrics."
+#: centreon/www/include/Administration/parameters/rrdtool/help.php
+msgid "RRDTOOL binary complete path."
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid "Path to RRDTool database for graphs of status."
+#: centreon/www/include/Administration/parameters/rrdtool/help.php
+msgid "RRDTool version."
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid "Path to RRDTool database for graphs of monitoring engine stats."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid "RRDTool database size (in days)."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/centstorage/help.php
+#: centreon/www/include/Administration/parameters/rrdtool/help.php
 msgid ""
-"Duration of retention regarding performance data stored in database. 0 means "
-"that no retention will be applied."
+"Enable the rrdcached for Centreon. This option is valid only with Centreon "
+"Broker"
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid ""
-"Duration of retention regarding downtimes stored in database. 0 means that "
-"no retention will be applied."
+#: centreon/www/include/Administration/parameters/rrdtool/help.php
+msgid "Port for communicating with rrdcached"
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid ""
-"Duration of retention regarding comments stored in database. 0 means that no "
-"retention will be applied."
+#: centreon/www/include/Administration/parameters/rrdtool/help.php
+msgid "The absolute path to unix socket for communicating with rrdcached"
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid "Retention duration of logs. 0 means that no retention will be applied."
+#: centreon/www/include/Administration/parameters/knowledgeBase/help.php
+msgid "Knowledge wiki url. Exemple: http://wiki/mywiki"
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid ""
-"Retention duration of reporting data. 0 means that no retention will be "
-"applied."
+#: centreon/www/include/Administration/parameters/knowledgeBase/help.php
+msgid "Wiki account with delete right."
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid ""
-"Retention time for partitioned tables (data_bin, logs, log_archive_host, "
-"log_archive_service), by default 365 days."
+#: centreon/www/include/Administration/parameters/knowledgeBase/help.php
+msgid "Ignore ssl certificate."
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid ""
-"number of partitions created in advance to prevent issues, by default 10 "
-"days."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid ""
-"Backup directory to store partition, by default /var/cache/centreon/backup."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/centstorage/help.php
-msgid "Enable/Disable logging of all modifications in Centreon"
+#: centreon/www/include/Administration/parameters/knowledgeBase/help.php
+msgid "Wiki account password."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/engine/help.php
@@ -736,901 +787,119 @@ msgid ""
 "When enabled, \"Service Unknown\" notification messages will be displayed."
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/api/help.php
-msgid ""
-"Enable Centreon Broker statistics collection into the central server in "
-"order to reduce the network load generated by Centcore. Be carefull: broker "
-"statistics will not be available into Home > Broker statistics."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/rrdtool/help.php
-msgid "RRDTOOL binary complete path."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/rrdtool/help.php
-msgid "RRDTool version."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/rrdtool/help.php
-msgid ""
-"Enable the rrdcached for Centreon. This option is valid only with Centreon "
-"Broker"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/rrdtool/help.php
-msgid "Port for communicating with rrdcached"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/rrdtool/help.php
-msgid "The absolute path to unix socket for communicating with rrdcached"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/knowledgeBase/help.php
-msgid "Knowledge wiki url. Exemple: http://wiki/mywiki"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/knowledgeBase/help.php
-msgid "Wiki account with delete right."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/knowledgeBase/help.php
-msgid "Ignore ssl certificate."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/knowledgeBase/help.php
-msgid "Wiki account password."
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Enable Backup process"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid ""
-"Backup configuration files (MySQL, Apache, PHP, SNMP, centreon, centreon-"
-"engine, centreon-broker)"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Backup centreon database"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Backup centreon_storage database"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid ""
-"Backup type for centreon_storage database : mysqldump or LVM snapshot (need "
-"available space on MySQL LVM)"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Full backup period"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Partial backup period (available on partitioned tables)"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Directory where backups will be stored"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Temporary directory used by backup process"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Backup retention (in days)"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "MySQL configuration file path (i.e. /etc/my.cnf.d/centreon.cnf)"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Use SCP to copy backup on remote host"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Remote user used by SCP"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Remote host to copy by SCP"
-msgstr ""
-
-#: centreon/www/include/Administration/parameters/backup/help.php
-msgid "Remote directory to copy by SCP"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Time in seconds to wait before launching failover."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Category filter for flux in output"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Trusted CA's certificate."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"When enabled,\n"
-" the broker engine will check whether or not the replication is up to date "
-"before attempting to update data."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Interval in seconds before delete data from deleted pollers."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "File for external commands"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Enable or not data stream compression."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"The higher the buffer size is, the best compression.\n"
-" This however increase data streaming latency. Use with caution."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"Ranges from 0 (no compression) to 9 (best compression). Default is -1 (zlib "
-"compression)"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Enable or not configuration messages logging."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "IP address or hostname of the database server."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Database name."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Password of database user."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Port on which the DB server listens"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Target DBMS."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Database user."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Enable or not debug messages logging."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Enable or not error messages logging."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Name of the input or output object that will act as failover."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "File where Centreon Broker statistics will be stored"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"IP address or hostname of the host to connect to (leave blank for listening "
-"mode)."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Enable or not informational messages logging."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"Whether or not Broker should create entries in the index_data table.\n"
-" This process should be done by Centreon and this option should only be "
-"enabled by advanced \n"
-" users knowing what they're doing"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"Interval in seconds before change status of resources from a disconnected "
-"poller"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Interval length in seconds."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "RRD storage duration in seconds."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "How much messages must be logged."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Maximum size in bytes."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "The maximum size of log file."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "RRD file directory, for example /var/lib/centreon/metrics"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"For a file logger this is the path to the file. For a standard logger, one "
-"of 'stdout' or 'stderr'."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"Enable negotiation option (use only for version of Centren Broker >= 2.5)"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "This allows the retention to work even if the socket is listening"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"The Unix socket used to communicate with rrdcached.\n"
-" This is a global option, go to Administration > Options > RRDTool to modify "
-"it."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Path to the file."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Port to listen on (empty host) or to connect to (with host filled)."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"The TCP port used to communicate with rrdcached.\n"
-" This is a global option, go to Administration > Options > RRDTool to modify "
-"it."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Private key file path when TLS encryption is used."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Serialization protocol."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Public certificate file path when TLS encryption is used."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "The maximum queries per transaction before commit."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "The transaction timeout before running commit."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"The interval between check if some metrics must be rebuild. The default "
-"value is 300s"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"Time in seconds to wait between each connection attempt (Default value: 30s)."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "RRD file directory, for example /var/lib/centreon/status"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid ""
-"It should be enabled to control whether or not Centreon Broker\n"
-" should insert performance data in the data_bin table."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Enable TLS encryption."
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "This can be used to disable graph update and therefore reduce I/O"
-msgstr ""
-
-#: centreon/www/include/configuration/configCentreonBroker/help.php
-msgid "Usually cpus/2."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Enter the trap name as specified in the MIB file and send by the SNMP master "
-"agent."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid "Choose the matching mode."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Enter the full numeric object identifier (OID) starting with .1.3.6 (.iso."
-"org.dod)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-#: centreon/www/include/configuration/configObject/traps-mibs/help.php
-msgid ""
-"Choose a vendor from the list. The vendor must have been created beforehand."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid "Switch the submission of trap results to monitoring engine on or off."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Enter the status message to be submitted to monitoring engine. The original "
-"trap message will be placed into the entered string at the position of the "
-"variable $*."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Choose the service state to be submitted to monitoring engine together with "
-"the status message. This simple mode can be used if each trap can be mapped "
-"to exactly 1 monitoring engine status."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid "Severities are defined in the service category object."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Enable advanced matching mode for cases where a trap relates to multiple "
-"monitoring engine states and the trap message has to be parsed."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Define one or multiple regular expressions to match against the trap message "
-"and map it to the related monitoring engine service state. Use <a "
-"href='http://perldoc.perl.org/perlre.html'>perlre</a> for the format and "
-"place the expression between two slashes."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Choose whether or not the associated service should be actively rechecked "
-"after submission of this trap."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Choose whether or not a special command should be run by centreontrapd when "
-"this trap was received."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Define the command to execute by centreontrapd's trap handler. The command "
-"must be located in the PATH of the centreontrapd user."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Comment to describe per example the situation in which this trap will be "
-"send. Additionally the format and the parameters of the trap can be "
-"described."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid "Enable/Disable routing definition"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid "Routing definition to choose host(s)"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Permits to filter services of host(s). Skip if service_description not "
-"equals to the value set."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"PREEXEC commands are executed after 'routing' and before 'matching', "
-"'actions'"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Whether or not traps will be inserted into database. Disabled by default"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid "Minimum delay necessary for a trap to be processed after another one"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Whether execution interval will be applied to identical OIDs or identical "
-"OIDs and hosts"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid "Defines the trap execution method"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Skip trap if host or service is in downtime when centreontrapd proceeds. "
-"'History' option is more accurate but needs more powers. The option works "
-"only with centreon-broker AND central mode."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Regexp for removing or change some characters in output message (Example: s/"
-"\\|/-/g)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid "Submit or not the status to the monitoring engine, related to the rules"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Maximum execution time of trap processing. This includes Preexec commands, "
-"submit command and special command"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Custom Perl code. Will be executed with no change (security issue. Need to "
-"set centreontrapd secure_mode to '1')"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Choose a service from the list. The service must have been created "
-"beforehand."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps/help.php
-msgid ""
-"Choose a service template from the list. The service template must have been "
-"created beforehand."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid "Define a short name for this dependency."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid ""
-"Define a description for this dependency for easier identification and "
-"differentiation."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid ""
-"This directive indicates whether or not the dependency inherits dependencies "
-"of the host that is being depended upon (also referred to as the master "
-"host). In other words, if the master host is dependent upon other hosts and "
-"any one of those dependencies fail, this dependency will also fail."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid "Ignored by Centreon Engine."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid ""
-"This directive is used to specify the criteria that determine when the "
-"dependent host should not be actively checked. If the master host is in one "
-"of the failure states we specify, the dependent host will not be actively "
-"checked. If you specify None as an option, the execution dependency will "
-"never fail and the dependent host will always be actively checked (if other "
-"conditions allow for it to be)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid ""
-"This directive is used to define the criteria that determine when "
-"notifications for the dependent host should not be sent out. If the master "
-"host is in one of the failure states we specify, notifications for the "
-"dependent host will not be sent to contacts. If you specify None as an "
-"option, the notification dependency will never fail and notifications for "
-"the dependent host will always be sent out."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to identify the host(s) that the service that is "
-"being depended upon (also referred to as the master service) \"runs\" on or "
-"is associated with."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to identify the description of the service that is "
-"being depended upon (also referred to as the master service)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to identify the host(s) that the dependent service "
-"\"runs\" on or is associated with. Leaving this directive blank can be used "
-"to create \"same host\" dependencies."
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid "Directory of log files."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid ""
-"This directive is used to identify the description of the dependent service."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to identify the short name(s) of the hostgroup(s) "
-"that the service that is being depended upon (also referred to as the master "
-"service) \"runs\" on or is associated with. Multiple hostgroups should be "
-"separated by commas. The hostgroup_name may be used instead of, or in "
-"addition to, the host_name directive."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to specify the short name (s) of the hostgroup(s) "
-"that the dependent service \"runs\" on or is associated with. The "
-"dependent_hostgroup may be used instead of, or in addition to, the "
-"dependent_host directive."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to identify the description of the service group that "
-"is being depended upon (also referred to as the master service group)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to identify the description of the dependent service "
-"group."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to identify the description of the meta service that "
-"is being depended upon (also referred to as the master meta service)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to identify the description of the dependent meta "
-"service."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid ""
-"This directive is used to specify the short name of the time period during "
-"which this dependency is valid. If this directive is not specified, the "
-"dependency is considered to be valid during all times."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-msgid ""
-"This directive is used to identify the description of the dependent host."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_dependency/help.php
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid "Compatible with Centreon Broker only."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid "Enter a short name for the escalation to identify it."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"The alias is used to define a longer name or description for the escalation."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Enter a number that identifies the first notification for which this "
-"escalation is effective. For instance, if you set this value to 3, this "
-"escalation will only be used if the host is down or unreachable long enough "
-"for a third notification to go out."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Enter a number that identifies the last notification for which this "
-"escalation is effective. For instance, if you set this value to 5, this "
-"escalation will not be used if more than five notifications are sent out for "
-"the host. Setting this value to 0 means to keep using this escalation entry "
-"forever (no matter how many notifications go out)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Select the interval at which notifications should be made while this "
-"escalation is valid. If you specify a value of 0 for the interval, "
-"Monitoring Engine will send the first notification when this escalation "
-"definition is valid, but will then prevent any more problem notifications "
-"from being sent out. Notifications are sent out again until the host or "
-"service recovers. This is useful if you want to stop having notifications "
-"sent out after a certain amount of time. Note: If multiple escalation "
-"entries overlap for one or more notification ranges, the smallest "
-"notification interval from all escalation entries is used."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Select the time period during which this escalation is valid. If no time "
-"period is specified, the escalation is considered to be valid during all "
-"times."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Define the criteria that determine when the host escalation is used. The "
-"escalation is used only if the host is in one of the states specified in "
-"these options. If no options are specified in a host escalation, the "
-"escalation is considered to be valid during all host states."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Define the criteria that determine when the service escalation is used. The "
-"escalation is used only if the service is in one of the states specified in "
-"these options. If no options are specified in a service escalation, the "
-"escalation is considered to be valid during all service states."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Select the contact group(s) that should be notified when the notification is "
-"escalated. You must specify at least one contact group in each escalation "
-"definition."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Select the host(s) that the escalation should apply to or is associated with."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Select the service(s) the escalation should apply to or is associated with."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Select the hostgroup(s) that the escalation should apply to. The escalation "
-"will apply to all hosts that are members of the specified hostgroup(s)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Select the service group(s) the escalation should apply to or is associated "
-"with. The escalation will apply to all services that are members of the "
-"specified service group(s)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Select the meta service(s) the escalation should apply to or is associated "
-"with."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/escalation/help.php
-msgid ""
-"Select contacts that should be notified whenever there are problems (or "
-"recoveries) with this host. Useful if you want notifications to go to just a "
-"few people and don't want to configure contact groups. You must specify at "
-"least one contact or contact group in each host escalation definition."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps-manufacturer/help.php
-msgid "The alias is a longer name or description for the vendor/manufacturer."
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid "Enables authentication debug."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/traps-manufacturer/help.php
-msgid "The name is used to identify the vendor/manufacturer with a short name."
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid "Enables Monitoring Engine import debug."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/traps-manufacturer/help.php
-msgid ""
-"Use this for an optional description or comments about the vendor/"
-"manufacturer."
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid "Enables RRDTool debug."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
-#: centreon/www/include/configuration/configObject/service_categories/help.php
-msgid ""
-"Define a short name for this category. It will be displayed with this name "
-"in the ACL configuration."
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid "Enables LDAP user import debug."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
-#: centreon/www/include/configuration/configObject/service_categories/help.php
-msgid "Use this field for a longer description of this category."
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid "Enables SQL debug."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
-msgid "Select the hosts that this category is linked to."
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid "Enables Centcore debug."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
-msgid "Select the host templates that this category is linked to."
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid "Enables Centstorage debug."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
-#: centreon/www/include/configuration/configObject/service_categories/help.php
-msgid ""
-"Whether this category is a severity. Severities appear on the monitoring "
-"consoles."
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid "Enables Centreontrapd debug."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
-#: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/Administration/parameters/debug/help.php
 msgid ""
-"Severity level, must be a number. The items displayed will be sorted in "
-"ascending order. Thus the lowest severity is considered than the highest "
-"priority."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/host_categories/help.php
-#: centreon/www/include/configuration/configObject/service_categories/help.php
-msgid "Icon for this severity."
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/help.php
-#: centreon/www/include/configuration/configObject/service_categories/help.php
-msgid "Whether or not this category is enabled."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/host_categories/help.php
-msgid "Comment regarding this category."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/Administration/myAccount/help.php
 msgid ""
-"This directive is used to identify the short name(s) of the host(s) that is "
-"being depended upon (also referred to as the master host)."
+"No: You don't consent to share your platform data. Contact Details: You "
+"consent to share your platform data including your alias and email. "
+"Anonymized: You consent to share your platform data, but your alias and "
+"email will be anonymized."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
+#: centreon/www/include/Administration/myAccount/help.php
 msgid ""
-"This directive is used to identify the short name(s) of the hostgroup(s) "
-"that is being depended upon (also referred to as the master host). The "
-"hostgroup_name may be used instead of, or in addition to, the host_name "
-"directive."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid "This directive is used to identify the dependent host(s)."
+"If checked this option will restore the use of the deprecated pages.This "
+"includes display of the deprecated pages and internal redirection between "
+"pagesIf not checked this option will enable the full use of the new "
+"Monitoring page Resource Status"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_dependency/help.php
-msgid ""
-"This directive is used to identify the short name(s) of the dependent "
-"hostgroup(s). The dependent_hostgroup_name may be used instead of, or in "
-"addition to, the dependent_host_name directive."
+#: centreon/www/include/configuration/configGenerate/help.php
+msgid "Select the poller you would like to interact with."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
-msgid ""
-"Define a short name for the service group here. The short name will be used "
-"to display the service group in monitoring, views and reporting."
+#: centreon/www/include/configuration/configGenerate/help.php
+msgid "Generates configuration files and stores them in cache directory."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
-msgid "Define a longer name or description for the service group here."
+#: centreon/www/include/configuration/configGenerate/help.php
+msgid "Runs the scheduler debug mode."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
-msgid ""
-"This is a list of host-bound services that should be included in this "
-"service group."
+#: centreon/www/include/configuration/configGenerate/help.php
+msgid "Copies the generated files into the scheduler's configuration folder."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
-msgid ""
-"This is a list of host group-bound services that should be included in this "
-"service group."
+#: centreon/www/include/configuration/configGenerate/help.php
+msgid "Restart the scheduler: Restart, Reload or External Command."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
+#: centreon/www/include/configuration/configGenerate/help.php
 msgid ""
-"This is a list of service templates that should be included in this service "
-"group. Service template needs to be associated with a host template in order "
-"to show up here."
+"Run the commands that are defined in the poller configuration page "
+"(Configuration > Centreon > Poller > Post-Restart command)."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
+#: centreon/www/include/configuration/configObject/contactgroup/help.php
 msgid ""
-"This optional directive can be used to include services from other \"sub\" "
-"service groups in this service group."
+"The contact group name is a short name used to identify the contact group in "
+"other sections."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
+#: centreon/www/include/configuration/configObject/contactgroup/help.php
 msgid ""
-"This directive is used to define an optional string of notes pertaining to "
-"the service group. If you specify a note here, you will see it in the "
-"extended information CGI (when you are viewing information about the "
-"specified service group)."
+"The alias is a longer name or description used to identify the contact group."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
+#: centreon/www/include/configuration/configObject/contactgroup/help.php
 msgid ""
-"This directive is used to define an optional URL that can be used to provide "
-"more information about the service group. Any valid URL can be used. If you "
-"plan on using relative paths, the base path will be the same as what is used "
-"to access the CGIs (i.e. /cgi-bin/nagios/). This can be very useful if you "
-"want to make detailed information on the service group, emergency contact "
-"methods, etc. available to other support staff."
+"The linked contacts define a list of contacts that should be included in "
+"this group. This definition is an alternative way to specifying the contact "
+"groups in contact definitions."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
+#: centreon/www/include/configuration/configObject/contactgroup/help.php
 msgid ""
-"This directive is used to define an optional URL that can be used to provide "
-"more actions to be performed on the service group. Any valid URL can be "
-"used. If you plan on using relative paths, the base path will be the same as "
-"what is used to access the CGIs (i.e. /cgi-bin/nagios/)."
+"Refers to the ACL groups this contact group is linked to. This parameter is "
+"mandatory if you are not an administrator."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
+#: centreon/www/include/configuration/configObject/contactgroup/help.php
 msgid ""
-"Geographical coordinates use by Centreon Map module to position element on "
-"map. Define \"Latitude,Longitude\", for example for Paris coordinates set "
-"\"48.51,2.20\""
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/servicegroup/help.php
-msgid "Resource access rule to which the service group should be linked"
+"This optional directive can be used to include contacts from other \"sub\" "
+"contact groups in this contact group. Specify a list of other contact groups "
+"whose members should be included in this group."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/hostgroup/help.php
@@ -1799,94 +1068,820 @@ msgid ""
 "available in Centreon Engine (>= 1.3)"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/contactgroup/help.php
-msgid ""
-"The contact group name is a short name used to identify the contact group in "
-"other sections."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contactgroup/help.php
-msgid ""
-"The alias is a longer name or description used to identify the contact group."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contactgroup/help.php
-msgid ""
-"The linked contacts define a list of contacts that should be included in "
-"this group. This definition is an alternative way to specifying the contact "
-"groups in contact definitions."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contactgroup/help.php
-msgid ""
-"Refers to the ACL groups this contact group is linked to. This parameter is "
-"mandatory if you are not an administrator."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contactgroup/help.php
-msgid ""
-"This optional directive can be used to include contacts from other \"sub\" "
-"contact groups in this contact group. Specify a list of other contact groups "
-"whose members should be included in this group."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps-mibs/help.php
-msgid ""
-"Choose a local MIB file containing SNMP trap definitions to upload and "
-"import. The file will be parsed with snmpttconvertmib."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/timeperiod/help.php
-msgid "Define a short name to identify the time period."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/timeperiod/help.php
-msgid ""
-"Use the alias as a longer name or description to identify the time period."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/timeperiod/help.php
-msgid ""
-"The weekday directives are comma-delimited lists of time ranges that are "
-"\"valid\" times for a particular day of the week. Each time range is in the "
-"form of HH:MM-HH:MM, where hours are specified on a 24 hour clock. For "
-"example, 00:15-24:00 means 12:15am in the morning for this day until 12:00am "
-"midnight (a 23 hour, 45 minute total time range). If you wish to exclude an "
-"entire day from the timeperiod, simply do not include it in the timeperiod "
-"definition."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/timeperiod/help.php
-msgid ""
-"You can specify several different types of exceptions to the standard "
-"rotating weekday schedule. Exceptions can take a number of different forms "
-"including single days of a specific or generic month, single weekdays in a "
-"month, or single calendar dates. You can also specify a range of days/dates "
-"and even specify skip intervals to obtain functionality described by \"every "
-"3 days between these dates\". Weekdays and different types of exceptions all "
-"have different levels of precedence, so it is important to understand how "
-"they can affect each other."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/timeperiod/help.php
-msgid ""
-"This directive is used to specify other timeperiod used as a timeperiod "
-"model."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/timeperiod/help.php
-msgid ""
-"This directive is used to specify other timeperiod definitions whose time "
-"ranges should be excluded from this timeperiod."
-msgstr ""
-
+#: centreon/www/include/configuration/configObject/contact/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
 #: centreon/www/include/configuration/configObject/host/help.php
-#: centreon/www/include/configuration/configObject/contact/help.php
 #: centreon/www/include/monitoring/recurrentDowntime/help.php
 msgid ""
 "Choose the update mode for the below field: incremental adds the selected "
 "values, replacement overwrites the original values."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"The full name is used to identify the contact in contact group definitions "
+"and in notifications."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid "The alias is a short name used as login name in Centreon."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Specify the primary email address for the contact here. Additional (email) "
+"addresses can be defined under additional information of the contact. "
+"Depending on the notification command used, the email address can be used to "
+"send out email notifications."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Specify a pager number or an address at a pager gateway here. Any format is "
+"possible as long as it is supported by the notification command."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Link the contact to the contactgroup(s) the user should belong to. This is "
+"an alternative way to specifying the members in contactgroup definitions."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Enable notification form for this user. If you select \"no\" , this contact "
+"will never be generated into configuration files."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Define the host states for which notifications can be sent out to this "
+"contact. If you specify None as an option, the contact will not receive any "
+"type of host notifications."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Specify the time period during which the contact can be notified about host "
+"problems or recoveries. You can think of this as an \"on call\" time for "
+"host notifications for the contact."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Define one or more commands used to notify the contact of a host problem or "
+"recovery. All notification commands are executed when the contact needs to "
+"be notified."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Define the service states for which notifications can be sent out to this "
+"contact. If you specify None as an option, the contact will not receive any "
+"type of service notifications."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Specify the time period during which the contact can be notified about "
+"service problems or recoveries. You can think of this as an \"on call\" time "
+"for service notifications for the contact."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Define one ore more commands used to notify the contact of a service problem "
+"or recovery. All notification commands are executed when the contact needs "
+"to be notified."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid "Enter the LDAP Distinguished Name (DN) which identifies this user."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid "LDAP groups of user, for informative purpose."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid "Specify if the contact is allowed to login into centreon."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid "Define the password for the centreon login here."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid "Enter the password again."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Define the default language for the user for the centreon front-end here."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Define the default page for this user (displayed when they log in). ACLs "
+"must be defined so the user can access the page"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Specify if the user has administrative permissions. Administrators are not "
+"restricted by access control list (ACL) settings."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Token used for autologin. Refer to the Centreon documentation to know more "
+"about its usage."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Specify the source for user credentials. Choose between Centreon and LDAP, "
+"whereas LDAP is only available when configured in Administration Options."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Select the timezone, in which the user resides, from the list. The timezones "
+"are listed as time difference to Greenwich Mean Time (GMT) in hours."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid "Allow this user to access to Centreon Rest API with its account."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Allow this user to access to Centreon Rest API Realtime with its account."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"Addresses 1-6 are optional and used to define additional \"addresses\" for "
+"the contact. These addresses can be anything - cell phone numbers, instant "
+"messaging addresses, etc. - the format must be supported by your "
+"notification plugins."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"This directive is used to determine whether or not the contact will receive "
+"notifications about host problems and recoveries."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"This directive is used to determine whether or not the contact will receive "
+"notifications about service problems and recoveries."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"This directive is used to determine whether or not the contact can submit "
+"external commands to monitoring engine from the CGIs."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"This directive is used to determine whether or not status-related "
+"information about the contact is retained across program restarts. This is "
+"only useful if you have enabled state retention using the "
+"retain_state_information directive."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid ""
+"This directive is used to determine whether or not non-status information "
+"about the contact is retained across program restarts. This is only useful "
+"if you have enabled state retention using the retain_state_information "
+"directive."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/help.php
+msgid "ACL groups of user."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid "Name used for identification of this meta service."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+#, php-format
+msgid ""
+"Optional format string used for displaying the status of this meta service. "
+"The variable '%d' may be used and will be replaced by the calculated value."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid "Absolute value for warning level (low threshold)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid "Absolute value for critical level (low threshold)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid "Function to be applied to calculate the meta service status."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid "Data source type of the meta service."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid ""
+"Selection mode for services to be considered for this meta service. In "
+"service list mode, mark selected services in the options on meta service "
+"list. In SQL matching mode, specify a search string to be used in an SQL "
+"query."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid "Search string to be used in a SQL LIKE query for service selection."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid "Select the metric to measure for meta service status."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid ""
+"Specify the time period during which the meta service status is measured."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid ""
+"Define the number of times that Centreon will retry the service check "
+"command if it returns any state other than an OK state. Setting this value "
+"to 1 will cause Centreon to generate an alert without retrying the service "
+"check again."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid ""
+"Define the number of minutes between regularly scheduled checks of the meta "
+"service. \"Regular\" checks are those that occur when the service is in an "
+"OK state or when the service is in a non-OK state, but has already been "
+"rechecked max check attempts number of times."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid ""
+"Define the number of minutes to wait before scheduling a re-check for this "
+"service after a non-OK state was detected. Once the service has been retried "
+"max check attempts times without a change in its status, it will revert to "
+"being scheduled at its \"normal\" check interval rate."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid "Specify whether or not notifications for this meta service are enabled."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid ""
+"This is a list of contact groups that should be notified whenever there are "
+"problems (or recoveries) with this service."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid ""
+"Define the number of minutes to wait before re-notifying a contact that this "
+"service is still in a non-OK condition. A value of 0 disables re-"
+"notifications of contacts about problems for this service - only one problem "
+"notification will be sent out."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
+msgid ""
+"Specify the time period during which notifications of events for this "
+"service can be sent out to contacts. If a state change occurs during a time "
+"which is not covered by the time period, no notifications will be sent out."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+msgid ""
+"Define the states of the service for which notifications should be sent out. "
+"If you do not specify any notification options, Centreon will assume that "
+"you want notifications to be sent out for all possible states."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/meta_service/help.php
+#: centreon/www/include/configuration/configObject/service/help.php
+msgid ""
+"The optional definition of a graph template will be used as default graph "
+"template for this service."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid "Define a short name for this dependency."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid ""
+"Define a description for this dependency for easier identification and "
+"differentiation."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid ""
+"This directive indicates whether or not the dependency inherits dependencies "
+"of the host that is being depended upon (also referred to as the master "
+"host). In other words, if the master host is dependent upon other hosts and "
+"any one of those dependencies fail, this dependency will also fail."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid "Ignored by Centreon Engine."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid ""
+"This directive is used to specify the criteria that determine when the "
+"dependent host should not be actively checked. If the master host is in one "
+"of the failure states we specify, the dependent host will not be actively "
+"checked. If you specify None as an option, the execution dependency will "
+"never fail and the dependent host will always be actively checked (if other "
+"conditions allow for it to be)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid ""
+"This directive is used to define the criteria that determine when "
+"notifications for the dependent host should not be sent out. If the master "
+"host is in one of the failure states we specify, notifications for the "
+"dependent host will not be sent to contacts. If you specify None as an "
+"option, the notification dependency will never fail and notifications for "
+"the dependent host will always be sent out."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to identify the host(s) that the service that is "
+"being depended upon (also referred to as the master service) \"runs\" on or "
+"is associated with."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to identify the description of the service that is "
+"being depended upon (also referred to as the master service)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to identify the host(s) that the dependent service "
+"\"runs\" on or is associated with. Leaving this directive blank can be used "
+"to create \"same host\" dependencies."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid ""
+"This directive is used to identify the description of the dependent service."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to identify the short name(s) of the hostgroup(s) "
+"that the service that is being depended upon (also referred to as the master "
+"service) \"runs\" on or is associated with. Multiple hostgroups should be "
+"separated by commas. The hostgroup_name may be used instead of, or in "
+"addition to, the host_name directive."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to specify the short name (s) of the hostgroup(s) "
+"that the dependent service \"runs\" on or is associated with. The "
+"dependent_hostgroup may be used instead of, or in addition to, the "
+"dependent_host directive."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to identify the description of the service group that "
+"is being depended upon (also referred to as the master service group)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to identify the description of the dependent service "
+"group."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to identify the description of the meta service that "
+"is being depended upon (also referred to as the master meta service)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to identify the description of the dependent meta "
+"service."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid ""
+"This directive is used to specify the short name of the time period during "
+"which this dependency is valid. If this directive is not specified, the "
+"dependency is considered to be valid during all times."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+msgid ""
+"This directive is used to identify the description of the dependent host."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_dependency/help.php
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid "Compatible with Centreon Broker only."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid ""
+"Define a short name for the service group here. The short name will be used "
+"to display the service group in monitoring, views and reporting."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid "Define a longer name or description for the service group here."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid ""
+"This is a list of host-bound services that should be included in this "
+"service group."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid ""
+"This is a list of host group-bound services that should be included in this "
+"service group."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid ""
+"This is a list of service templates that should be included in this service "
+"group. Service template needs to be associated with a host template in order "
+"to show up here."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid ""
+"This optional directive can be used to include services from other \"sub\" "
+"service groups in this service group."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid ""
+"This directive is used to define an optional string of notes pertaining to "
+"the service group. If you specify a note here, you will see it in the "
+"extended information CGI (when you are viewing information about the "
+"specified service group)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid ""
+"This directive is used to define an optional URL that can be used to provide "
+"more information about the service group. Any valid URL can be used. If you "
+"plan on using relative paths, the base path will be the same as what is used "
+"to access the CGIs (i.e. /cgi-bin/nagios/). This can be very useful if you "
+"want to make detailed information on the service group, emergency contact "
+"methods, etc. available to other support staff."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid ""
+"This directive is used to define an optional URL that can be used to provide "
+"more actions to be performed on the service group. Any valid URL can be "
+"used. If you plan on using relative paths, the base path will be the same as "
+"what is used to access the CGIs (i.e. /cgi-bin/nagios/)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid ""
+"Geographical coordinates use by Centreon Map module to position element on "
+"map. Define \"Latitude,Longitude\", for example for Paris coordinates set "
+"\"48.51,2.20\""
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/servicegroup/help.php
+msgid "Resource access rule to which the service group should be linked"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid "Enter a short name for the escalation to identify it."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"The alias is used to define a longer name or description for the escalation."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Enter a number that identifies the first notification for which this "
+"escalation is effective. For instance, if you set this value to 3, this "
+"escalation will only be used if the host is down or unreachable long enough "
+"for a third notification to go out."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Enter a number that identifies the last notification for which this "
+"escalation is effective. For instance, if you set this value to 5, this "
+"escalation will not be used if more than five notifications are sent out for "
+"the host. Setting this value to 0 means to keep using this escalation entry "
+"forever (no matter how many notifications go out)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Select the interval at which notifications should be made while this "
+"escalation is valid. If you specify a value of 0 for the interval, "
+"Monitoring Engine will send the first notification when this escalation "
+"definition is valid, but will then prevent any more problem notifications "
+"from being sent out. Notifications are sent out again until the host or "
+"service recovers. This is useful if you want to stop having notifications "
+"sent out after a certain amount of time. Note: If multiple escalation "
+"entries overlap for one or more notification ranges, the smallest "
+"notification interval from all escalation entries is used."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Select the time period during which this escalation is valid. If no time "
+"period is specified, the escalation is considered to be valid during all "
+"times."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Define the criteria that determine when the host escalation is used. The "
+"escalation is used only if the host is in one of the states specified in "
+"these options. If no options are specified in a host escalation, the "
+"escalation is considered to be valid during all host states."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Define the criteria that determine when the service escalation is used. The "
+"escalation is used only if the service is in one of the states specified in "
+"these options. If no options are specified in a service escalation, the "
+"escalation is considered to be valid during all service states."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Select the contact group(s) that should be notified when the notification is "
+"escalated. You must specify at least one contact group in each escalation "
+"definition."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Select the host(s) that the escalation should apply to or is associated with."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Select the service(s) the escalation should apply to or is associated with."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Select the hostgroup(s) that the escalation should apply to. The escalation "
+"will apply to all hosts that are members of the specified hostgroup(s)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Select the service group(s) the escalation should apply to or is associated "
+"with. The escalation will apply to all services that are members of the "
+"specified service group(s)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Select the meta service(s) the escalation should apply to or is associated "
+"with."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/escalation/help.php
+msgid ""
+"Select contacts that should be notified whenever there are problems (or "
+"recoveries) with this host. Useful if you want notifications to go to just a "
+"few people and don't want to configure contact groups. You must specify at "
+"least one contact or contact group in each host escalation definition."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Enter the trap name as specified in the MIB file and send by the SNMP master "
+"agent."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid "Choose the matching mode."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Enter the full numeric object identifier (OID) starting with .1.3.6 (.iso."
+"org.dod)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+#: centreon/www/include/configuration/configObject/traps-mibs/help.php
+msgid ""
+"Choose a vendor from the list. The vendor must have been created beforehand."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid "Switch the submission of trap results to monitoring engine on or off."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Enter the status message to be submitted to monitoring engine. The original "
+"trap message will be placed into the entered string at the position of the "
+"variable $*."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Choose the service state to be submitted to monitoring engine together with "
+"the status message. This simple mode can be used if each trap can be mapped "
+"to exactly 1 monitoring engine status."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid "Severities are defined in the service category object."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Enable advanced matching mode for cases where a trap relates to multiple "
+"monitoring engine states and the trap message has to be parsed."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Define one or multiple regular expressions to match against the trap message "
+"and map it to the related monitoring engine service state. Use <a "
+"href='http://perldoc.perl.org/perlre.html'>perlre</a> for the format and "
+"place the expression between two slashes."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Choose whether or not the associated service should be actively rechecked "
+"after submission of this trap."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Choose whether or not a special command should be run by centreontrapd when "
+"this trap was received."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Define the command to execute by centreontrapd's trap handler. The command "
+"must be located in the PATH of the centreontrapd user."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Comment to describe per example the situation in which this trap will be "
+"send. Additionally the format and the parameters of the trap can be "
+"described."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid "Enable/Disable routing definition"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid "Routing definition to choose host(s)"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Permits to filter services of host(s). Skip if service_description not "
+"equals to the value set."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"PREEXEC commands are executed after 'routing' and before 'matching', "
+"'actions'"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Whether or not traps will be inserted into database. Disabled by default"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid "Minimum delay necessary for a trap to be processed after another one"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Whether execution interval will be applied to identical OIDs or identical "
+"OIDs and hosts"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid "Defines the trap execution method"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Skip trap if host or service is in downtime when centreontrapd proceeds. "
+"'History' option is more accurate but needs more powers. The option works "
+"only with centreon-broker AND central mode."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Regexp for removing or change some characters in output message (Example: s/"
+"\\|/-/g)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid "Submit or not the status to the monitoring engine, related to the rules"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Maximum execution time of trap processing. This includes Preexec commands, "
+"submit command and special command"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Custom Perl code. Will be executed with no change (security issue. Need to "
+"set centreontrapd secure_mode to '1')"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Choose a service from the list. The service must have been created "
+"beforehand."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/help.php
+msgid ""
+"Choose a service template from the list. The service template must have been "
+"created beforehand."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid ""
+"This directive is used to identify the short name(s) of the host(s) that is "
+"being depended upon (also referred to as the master host)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid ""
+"This directive is used to identify the short name(s) of the hostgroup(s) "
+"that is being depended upon (also referred to as the master host). The "
+"hostgroup_name may be used instead of, or in addition to, the host_name "
+"directive."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid "This directive is used to identify the dependent host(s)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_dependency/help.php
+msgid ""
+"This directive is used to identify the short name(s) of the dependent "
+"hostgroup(s). The dependent_hostgroup_name may be used instead of, or in "
+"addition to, the dependent_host_name directive."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps-groups/help.php
+msgid "The name is used to identify the group with a short name."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps-groups/help.php
+msgid "Select traps to be grouped. Execution will be sequential."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -2035,14 +2030,6 @@ msgid ""
 "default time unit of 60s, this number will mean multiples of 1 minute. A "
 "value of 0 disables re-notifications of contacts about problems for this "
 "service - only one problem notification will be sent out. (default value: 30)"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service/help.php
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"Specify the time period during which notifications of events for this "
-"service can be sent out to contacts. If a state change occurs during a time "
-"which is not covered by the time period, no notifications will be sent out."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -2198,13 +2185,6 @@ msgid ""
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"The optional definition of a graph template will be used as default graph "
-"template for this service."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service/help.php
 msgid "Host categories linked to the service."
 msgstr ""
 
@@ -2278,6 +2258,98 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid "This setting determines whether the service must be monitored or not."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+msgid ""
+"Define a short name for this category. It will be displayed with this name "
+"in the ACL configuration."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+msgid "Use this field for a longer description of this category."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_categories/help.php
+msgid ""
+"Select the service templates this category should be linked to. Every "
+"service based on the selected templates will be automatically linked with "
+"this category."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+msgid ""
+"Whether this category is a severity. Severities appear on the monitoring "
+"consoles."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+msgid ""
+"Severity level, must be a number. The items displayed will be sorted in "
+"ascending order. Thus the lowest severity is considered than the highest "
+"priority."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+msgid "Icon for this severity."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service_categories/help.php
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+msgid "Whether or not this category is enabled."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps-mibs/help.php
+msgid ""
+"Choose a local MIB file containing SNMP trap definitions to upload and "
+"import. The file will be parsed with snmpttconvertmib."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/connector/help.php
+msgid "Name which will be used for identifying the connector."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/connector/help.php
+msgid "A short description of the connector."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/connector/help.php
+msgid "The connector binary that centreon-engine will launch."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/connector/help.php
+msgid "Whether or not the connector is enabled."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps-manufacturer/help.php
+msgid "The alias is a longer name or description for the vendor/manufacturer."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps-manufacturer/help.php
+msgid "The name is used to identify the vendor/manufacturer with a short name."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps-manufacturer/help.php
+msgid ""
+"Use this for an optional description or comments about the vendor/"
+"manufacturer."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+msgid "Select the hosts that this category is linked to."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+msgid "Select the host templates that this category is linked to."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+msgid "Comment regarding this category."
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/help.php
@@ -2652,320 +2724,48 @@ msgid ""
 "or not."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/connector/help.php
-msgid "Name which will be used for identifying the connector."
+#: centreon/www/include/configuration/configObject/timeperiod/help.php
+msgid "Define a short name to identify the time period."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/connector/help.php
-msgid "A short description of the connector."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/connector/help.php
-msgid "The connector binary that centreon-engine will launch."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/connector/help.php
-msgid "Whether or not the connector is enabled."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/timeperiod/help.php
 msgid ""
-"The full name is used to identify the contact in contact group definitions "
-"and in notifications."
+"Use the alias as a longer name or description to identify the time period."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid "The alias is a short name used as login name in Centreon."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/timeperiod/help.php
 msgid ""
-"Specify the primary email address for the contact here. Additional (email) "
-"addresses can be defined under additional information of the contact. "
-"Depending on the notification command used, the email address can be used to "
-"send out email notifications."
+"The weekday directives are comma-delimited lists of time ranges that are "
+"\"valid\" times for a particular day of the week. Each time range is in the "
+"form of HH:MM-HH:MM, where hours are specified on a 24 hour clock. For "
+"example, 00:15-24:00 means 12:15am in the morning for this day until 12:00am "
+"midnight (a 23 hour, 45 minute total time range). If you wish to exclude an "
+"entire day from the timeperiod, simply do not include it in the timeperiod "
+"definition."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/timeperiod/help.php
 msgid ""
-"Specify a pager number or an address at a pager gateway here. Any format is "
-"possible as long as it is supported by the notification command."
+"You can specify several different types of exceptions to the standard "
+"rotating weekday schedule. Exceptions can take a number of different forms "
+"including single days of a specific or generic month, single weekdays in a "
+"month, or single calendar dates. You can also specify a range of days/dates "
+"and even specify skip intervals to obtain functionality described by \"every "
+"3 days between these dates\". Weekdays and different types of exceptions all "
+"have different levels of precedence, so it is important to understand how "
+"they can affect each other."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/timeperiod/help.php
 msgid ""
-"Link the contact to the contactgroup(s) the user should belong to. This is "
-"an alternative way to specifying the members in contactgroup definitions."
+"This directive is used to specify other timeperiod used as a timeperiod "
+"model."
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/contact/help.php
+#: centreon/www/include/configuration/configObject/timeperiod/help.php
 msgid ""
-"Enable notification form for this user. If you select \"no\" , this contact "
-"will never be generated into configuration files."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Define the host states for which notifications can be sent out to this "
-"contact. If you specify None as an option, the contact will not receive any "
-"type of host notifications."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Specify the time period during which the contact can be notified about host "
-"problems or recoveries. You can think of this as an \"on call\" time for "
-"host notifications for the contact."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Define one or more commands used to notify the contact of a host problem or "
-"recovery. All notification commands are executed when the contact needs to "
-"be notified."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Define the service states for which notifications can be sent out to this "
-"contact. If you specify None as an option, the contact will not receive any "
-"type of service notifications."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Specify the time period during which the contact can be notified about "
-"service problems or recoveries. You can think of this as an \"on call\" time "
-"for service notifications for the contact."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Define one ore more commands used to notify the contact of a service problem "
-"or recovery. All notification commands are executed when the contact needs "
-"to be notified."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid "Enter the LDAP Distinguished Name (DN) which identifies this user."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid "LDAP groups of user, for informative purpose."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid "Specify if the contact is allowed to login into centreon."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid "Define the password for the centreon login here."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid "Enter the password again."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Define the default language for the user for the centreon front-end here."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Define the default page for this user (displayed when they log in). ACLs "
-"must be defined so the user can access the page"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Specify if the user has administrative permissions. Administrators are not "
-"restricted by access control list (ACL) settings."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Token used for autologin. Refer to the Centreon documentation to know more "
-"about its usage."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Specify the source for user credentials. Choose between Centreon and LDAP, "
-"whereas LDAP is only available when configured in Administration Options."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Select the timezone, in which the user resides, from the list. The timezones "
-"are listed as time difference to Greenwich Mean Time (GMT) in hours."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid "Allow this user to access to Centreon Rest API with its account."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Allow this user to access to Centreon Rest API Realtime with its account."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"Addresses 1-6 are optional and used to define additional \"addresses\" for "
-"the contact. These addresses can be anything - cell phone numbers, instant "
-"messaging addresses, etc. - the format must be supported by your "
-"notification plugins."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"This directive is used to determine whether or not the contact will receive "
-"notifications about host problems and recoveries."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"This directive is used to determine whether or not the contact will receive "
-"notifications about service problems and recoveries."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"This directive is used to determine whether or not the contact can submit "
-"external commands to monitoring engine from the CGIs."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"This directive is used to determine whether or not status-related "
-"information about the contact is retained across program restarts. This is "
-"only useful if you have enabled state retention using the "
-"retain_state_information directive."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid ""
-"This directive is used to determine whether or not non-status information "
-"about the contact is retained across program restarts. This is only useful "
-"if you have enabled state retention using the retain_state_information "
-"directive."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/contact/help.php
-msgid "ACL groups of user."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid "Name used for identification of this meta service."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-#, php-format
-msgid ""
-"Optional format string used for displaying the status of this meta service. "
-"The variable '%d' may be used and will be replaced by the calculated value."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid "Absolute value for warning level (low threshold)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid "Absolute value for critical level (low threshold)."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid "Function to be applied to calculate the meta service status."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid "Data source type of the meta service."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"Selection mode for services to be considered for this meta service. In "
-"service list mode, mark selected services in the options on meta service "
-"list. In SQL matching mode, specify a search string to be used in an SQL "
-"query."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid "Search string to be used in a SQL LIKE query for service selection."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid "Select the metric to measure for meta service status."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"Specify the time period during which the meta service status is measured."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"Define the number of times that Centreon will retry the service check "
-"command if it returns any state other than an OK state. Setting this value "
-"to 1 will cause Centreon to generate an alert without retrying the service "
-"check again."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"Define the number of minutes between regularly scheduled checks of the meta "
-"service. \"Regular\" checks are those that occur when the service is in an "
-"OK state or when the service is in a non-OK state, but has already been "
-"rechecked max check attempts number of times."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"Define the number of minutes to wait before scheduling a re-check for this "
-"service after a non-OK state was detected. Once the service has been retried "
-"max check attempts times without a change in its status, it will revert to "
-"being scheduled at its \"normal\" check interval rate."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid "Specify whether or not notifications for this meta service are enabled."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"This is a list of contact groups that should be notified whenever there are "
-"problems (or recoveries) with this service."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"Define the number of minutes to wait before re-notifying a contact that this "
-"service is still in a non-OK condition. A value of 0 disables re-"
-"notifications of contacts about problems for this service - only one problem "
-"notification will be sent out."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/meta_service/help.php
-msgid ""
-"Define the states of the service for which notifications should be sent out. "
-"If you do not specify any notification options, Centreon will assume that "
-"you want notifications to be sent out for all possible states."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps-groups/help.php
-msgid "The name is used to identify the group with a short name."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/traps-groups/help.php
-msgid "Select traps to be grouped. Execution will be sequential."
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/service_categories/help.php
-msgid ""
-"Select the service templates this category should be linked to. Every "
-"service based on the selected templates will be automatically linked with "
-"this category."
+"This directive is used to specify other timeperiod definitions whose time "
+"ranges should be excluded from this timeperiod."
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/help.php
@@ -3110,48 +2910,6 @@ msgid ""
 "If disabled, the Central server will send configuration and external "
 "commands directly to the poller and will not use the Remote Server as a "
 "proxy."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerateTraps/help.php
-msgid "Generate a light database for traps."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerateTraps/help.php
-msgid "Push database to poller."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerateTraps/help.php
-msgid "Send restart or reload signal to centreontrapd."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerateTraps/help.php
-msgid "Poller to interact with."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerate/help.php
-msgid "Select the poller you would like to interact with."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerate/help.php
-msgid "Generates configuration files and stores them in cache directory."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerate/help.php
-msgid "Runs the scheduler debug mode."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerate/help.php
-msgid "Copies the generated files into the scheduler's configuration folder."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerate/help.php
-msgid "Restart the scheduler: Restart, Reload or External Command."
-msgstr ""
-
-#: centreon/www/include/configuration/configGenerate/help.php
-msgid ""
-"Run the commands that are defined in the poller configuration page "
-"(Configuration > Centreon > Poller > Post-Restart command)."
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/help.php
@@ -3963,210 +3721,293 @@ msgid ""
 "only for Centreon Engine)"
 msgstr ""
 
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Name of graph template."
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Time in seconds to wait before launching failover."
 msgstr ""
 
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Vertical Label (Y-axis)."
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Category filter for flux in output"
 msgstr ""
 
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Width of grid. Used to export the chart."
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Trusted CA's certificate."
 msgstr ""
 
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Height of grid. Used to export the chart."
-msgstr ""
-
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Lower limit of grid."
-msgstr ""
-
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Upper limit of grid."
-msgstr ""
-
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Base value."
-msgstr ""
-
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Enables auto scale of graph."
-msgstr ""
-
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Set as default graph template."
-msgstr ""
-
-#: centreon/www/include/views/graphTemplates/help.php
-msgid "Comments regarding the graph template."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Name of curve template."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "It is possible to define a specific service for the data source."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
+#: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid ""
-"Must be the display name of the metric. Refer to the check plugin for more "
-"information."
+"When enabled,\n"
+" the broker engine will check whether or not the replication is up to date "
+"before attempting to update data."
 msgstr ""
 
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Enables graph stacking."
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Interval in seconds before delete data from deleted pollers."
 msgstr ""
 
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Display order."
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "File for external commands"
 msgstr ""
 
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Inverted curve (with negative values)."
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Enable or not data stream compression."
 msgstr ""
 
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Curve thickness."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Curve line color."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
+#: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid ""
-"When filling property is enable, the area color displayed in Centreon is the "
-"curve line color with transparency.For exported graphs, the area color is "
-"defined with those fields."
+"The higher the buffer size is, the best compression.\n"
+" This however increase data streaming latency. Use with caution."
 msgstr ""
 
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Curve transparency. Used to export the chart."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Enables area filling."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Legend Name."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Displays the legend only, thus hiding the curve."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Number of line breaks after the legend."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints maximum value."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints minimum value."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Rounds the value."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints average value."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Prints last Value."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Print total value."
-msgstr ""
-
-#: centreon/www/include/views/componentTemplates/help.php
-msgid "Comments regarding the curve template."
-msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/help.php
-msgid "Name of virtual metric."
-msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/help.php
-msgid "Host / Service Data Source."
-msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/help.php
-msgid "DEF Type."
-msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/help.php
-msgid "RPN (Reverse Polish Notation) Function *."
-msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/help.php
-msgid "Metric unit."
-msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/help.php
-msgid "Warning threshold."
-msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/help.php
-msgid "Critical threshold."
-msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/help.php
-msgid "Hides curve and legend."
-msgstr ""
-
-#: centreon/www/include/views/virtualMetrics/help.php
-msgid "Comments regarding the virtual metric."
-msgstr ""
-
-#: centreon/www/include/monitoring/recurrentDowntime/help.php
-msgid "The name of the recurrent downtime rule."
-msgstr ""
-
-#: centreon/www/include/monitoring/recurrentDowntime/help.php
-msgid "Description of the downtime"
-msgstr ""
-
-#: centreon/www/include/monitoring/recurrentDowntime/help.php
-msgid "Option to enable or disable this downtime"
-msgstr ""
-
-#: centreon/www/include/monitoring/recurrentDowntime/help.php
+#: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid ""
-"This field give the possibility to configure the frequency of this downtime."
+"Ranges from 0 (no compression) to 9 (best compression). Default is -1 (zlib "
+"compression)"
 msgstr ""
 
-#: centreon/www/include/monitoring/recurrentDowntime/help.php
-msgid ""
-"This field give you the possibility to select all hosts implied by this "
-"downtime"
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Enable or not configuration messages logging."
 msgstr ""
 
-#: centreon/www/include/monitoring/recurrentDowntime/help.php
-msgid ""
-"This field give you the possibility to select all hostgroups and all hosts "
-"contained into the selected hostgroups implied by this downtime"
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "IP address or hostname of the database server."
 msgstr ""
 
-#: centreon/www/include/monitoring/recurrentDowntime/help.php
-msgid ""
-"This field give you the possibility to select all services implied by this "
-"downtime"
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Database name."
 msgstr ""
 
-#: centreon/www/include/monitoring/recurrentDowntime/help.php
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Password of database user."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Port on which the DB server listens"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Target DBMS."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Database user."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Enable or not debug messages logging."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Enable or not error messages logging."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Name of the input or output object that will act as failover."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "File where Centreon Broker statistics will be stored"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid ""
-"This field give you the possibility to select all servicegroups and all "
-"services contained into the servicegroups implied by this downtime"
+"IP address or hostname of the host to connect to (leave blank for listening "
+"mode)."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Enable or not informational messages logging."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid ""
+"Whether or not Broker should create entries in the index_data table.\n"
+" This process should be done by Centreon and this option should only be "
+"enabled by advanced \n"
+" users knowing what they're doing"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid ""
+"Interval in seconds before change status of resources from a disconnected "
+"poller"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Interval length in seconds."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "RRD storage duration in seconds."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "How much messages must be logged."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Maximum size in bytes."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "The maximum size of log file."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "RRD file directory, for example /var/lib/centreon/metrics"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid ""
+"For a file logger this is the path to the file. For a standard logger, one "
+"of 'stdout' or 'stderr'."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid ""
+"Enable negotiation option (use only for version of Centren Broker >= 2.5)"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "This allows the retention to work even if the socket is listening"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid ""
+"The Unix socket used to communicate with rrdcached.\n"
+" This is a global option, go to Administration > Options > RRDTool to modify "
+"it."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Path to the file."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Port to listen on (empty host) or to connect to (with host filled)."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid ""
+"The TCP port used to communicate with rrdcached.\n"
+" This is a global option, go to Administration > Options > RRDTool to modify "
+"it."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Private key file path when TLS encryption is used."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Serialization protocol."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Public certificate file path when TLS encryption is used."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "The maximum queries per transaction before commit."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "The transaction timeout before running commit."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid ""
+"The interval between check if some metrics must be rebuild. The default "
+"value is 300s"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid ""
+"Time in seconds to wait between each connection attempt (Default value: 30s)."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "RRD file directory, for example /var/lib/centreon/status"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid ""
+"It should be enabled to control whether or not Centreon Broker\n"
+" should insert performance data in the data_bin table."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Enable TLS encryption."
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "This can be used to disable graph update and therefore reduce I/O"
+msgstr ""
+
+#: centreon/www/include/configuration/configCentreonBroker/help.php
+msgid "Usually cpus/2."
+msgstr ""
+
+#: centreon/www/include/configuration/configGenerateTraps/help.php
+msgid "Generate a light database for traps."
+msgstr ""
+
+#: centreon/www/include/configuration/configGenerateTraps/help.php
+msgid "Push database to poller."
+msgstr ""
+
+#: centreon/www/include/configuration/configGenerateTraps/help.php
+msgid "Send restart or reload signal to centreontrapd."
+msgstr ""
+
+#: centreon/www/include/configuration/configGenerateTraps/help.php
+msgid "Poller to interact with."
+msgstr ""
+
+#: centreon/www/include/options/media/images/help.php
+msgid "Enter a new name for the image."
+msgstr ""
+
+#: centreon/www/include/options/media/images/help.php
+msgid ""
+"Enter an already existing or a new directory to add the uploads to it. A non-"
+"existent directory name will be created first."
+msgstr ""
+
+#: centreon/www/include/options/media/images/help.php
+msgid ""
+"Select a local file to upload. You can upload jpg, png, gif and gd2 files. "
+"Multiple images can be uploaded together inside archives like zip, tar, tar."
+"gz or tar.bz2."
+msgstr ""
+
+#: centreon/www/include/options/media/images/help.php
+msgid "Destination directory."
+msgstr ""
+
+#: centreon/www/include/options/media/images/help.php
+msgid "Images."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/help.php
+msgid "Name of menu rule."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/help.php
+msgid "Alias of menu rule."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/help.php
+msgid "Enable or disable the ACL menu rule."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/help.php
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+#: centreon/www/include/options/accessLists/resourcesACL/help.php
+msgid "Implied ACL groups."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/menusACL/help.php
+msgid "Comments regarding this menu rule."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
@@ -4175,12 +4016,6 @@ msgstr ""
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid "Description of action rule."
-msgstr ""
-
-#: centreon/www/include/options/accessLists/actionsACL/help.php
-#: centreon/www/include/options/accessLists/resourcesACL/help.php
-#: centreon/www/include/options/accessLists/menusACL/help.php
-msgid "Implied ACL groups."
 msgstr ""
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
@@ -4383,6 +4218,38 @@ msgid ""
 "also manage tokens for other users."
 msgstr ""
 
+#: centreon/www/include/options/accessLists/groupsACL/help.php
+msgid "Name of access group."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/groupsACL/help.php
+msgid "Alias of access group."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/groupsACL/help.php
+msgid "Implied users."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/groupsACL/help.php
+msgid "Implied user groups."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/groupsACL/help.php
+msgid "Enable or disable the access group."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/groupsACL/help.php
+msgid "ACL resource rules that are linked to the access group."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/groupsACL/help.php
+msgid "ACL menu rules that are linked to the access group."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/groupsACL/help.php
+msgid "ACL action rules that are linked to the access group."
+msgstr ""
+
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid "Name of resource rule."
 msgstr ""
@@ -4444,75 +4311,208 @@ msgid ""
 "blank, no filter is applied."
 msgstr ""
 
-#: centreon/www/include/options/accessLists/menusACL/help.php
-msgid "Name of menu rule."
+#: centreon/www/include/monitoring/recurrentDowntime/help.php
+msgid "The name of the recurrent downtime rule."
 msgstr ""
 
-#: centreon/www/include/options/accessLists/menusACL/help.php
-msgid "Alias of menu rule."
+#: centreon/www/include/monitoring/recurrentDowntime/help.php
+msgid "Description of the downtime"
 msgstr ""
 
-#: centreon/www/include/options/accessLists/menusACL/help.php
-msgid "Enable or disable the ACL menu rule."
+#: centreon/www/include/monitoring/recurrentDowntime/help.php
+msgid "Option to enable or disable this downtime"
 msgstr ""
 
-#: centreon/www/include/options/accessLists/menusACL/help.php
-msgid "Comments regarding this menu rule."
-msgstr ""
-
-#: centreon/www/include/options/accessLists/groupsACL/help.php
-msgid "Name of access group."
-msgstr ""
-
-#: centreon/www/include/options/accessLists/groupsACL/help.php
-msgid "Alias of access group."
-msgstr ""
-
-#: centreon/www/include/options/accessLists/groupsACL/help.php
-msgid "Implied users."
-msgstr ""
-
-#: centreon/www/include/options/accessLists/groupsACL/help.php
-msgid "Implied user groups."
-msgstr ""
-
-#: centreon/www/include/options/accessLists/groupsACL/help.php
-msgid "Enable or disable the access group."
-msgstr ""
-
-#: centreon/www/include/options/accessLists/groupsACL/help.php
-msgid "ACL resource rules that are linked to the access group."
-msgstr ""
-
-#: centreon/www/include/options/accessLists/groupsACL/help.php
-msgid "ACL menu rules that are linked to the access group."
-msgstr ""
-
-#: centreon/www/include/options/accessLists/groupsACL/help.php
-msgid "ACL action rules that are linked to the access group."
-msgstr ""
-
-#: centreon/www/include/options/media/images/help.php
-msgid "Enter a new name for the image."
-msgstr ""
-
-#: centreon/www/include/options/media/images/help.php
+#: centreon/www/include/monitoring/recurrentDowntime/help.php
 msgid ""
-"Enter an already existing or a new directory to add the uploads to it. A non-"
-"existent directory name will be created first."
+"This field give the possibility to configure the frequency of this downtime."
 msgstr ""
 
-#: centreon/www/include/options/media/images/help.php
+#: centreon/www/include/monitoring/recurrentDowntime/help.php
 msgid ""
-"Select a local file to upload. You can upload jpg, png, gif and gd2 files. "
-"Multiple images can be uploaded together inside archives like zip, tar, tar."
-"gz or tar.bz2."
+"This field give you the possibility to select all hosts implied by this "
+"downtime"
 msgstr ""
 
-#: centreon/www/include/options/media/images/help.php
-msgid "Destination directory."
+#: centreon/www/include/monitoring/recurrentDowntime/help.php
+msgid ""
+"This field give you the possibility to select all hostgroups and all hosts "
+"contained into the selected hostgroups implied by this downtime"
 msgstr ""
 
-#: centreon/www/include/options/media/images/help.php
-msgid "Images."
+#: centreon/www/include/monitoring/recurrentDowntime/help.php
+msgid ""
+"This field give you the possibility to select all services implied by this "
+"downtime"
+msgstr ""
+
+#: centreon/www/include/monitoring/recurrentDowntime/help.php
+msgid ""
+"This field give you the possibility to select all servicegroups and all "
+"services contained into the servicegroups implied by this downtime"
+msgstr ""
+
+#: centreon/www/include/views/virtualMetrics/help.php
+msgid "Name of virtual metric."
+msgstr ""
+
+#: centreon/www/include/views/virtualMetrics/help.php
+msgid "Host / Service Data Source."
+msgstr ""
+
+#: centreon/www/include/views/virtualMetrics/help.php
+msgid "DEF Type."
+msgstr ""
+
+#: centreon/www/include/views/virtualMetrics/help.php
+msgid "RPN (Reverse Polish Notation) Function *."
+msgstr ""
+
+#: centreon/www/include/views/virtualMetrics/help.php
+msgid "Metric unit."
+msgstr ""
+
+#: centreon/www/include/views/virtualMetrics/help.php
+msgid "Warning threshold."
+msgstr ""
+
+#: centreon/www/include/views/virtualMetrics/help.php
+msgid "Critical threshold."
+msgstr ""
+
+#: centreon/www/include/views/virtualMetrics/help.php
+msgid "Hides curve and legend."
+msgstr ""
+
+#: centreon/www/include/views/virtualMetrics/help.php
+msgid "Comments regarding the virtual metric."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Name of curve template."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "It is possible to define a specific service for the data source."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid ""
+"Must be the display name of the metric. Refer to the check plugin for more "
+"information."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Enables graph stacking."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Display order."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Inverted curve (with negative values)."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Curve thickness."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Curve line color."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid ""
+"When filling property is enable, the area color displayed in Centreon is the "
+"curve line color with transparency.For exported graphs, the area color is "
+"defined with those fields."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Curve transparency. Used to export the chart."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Enables area filling."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Legend Name."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Displays the legend only, thus hiding the curve."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Number of line breaks after the legend."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints maximum value."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints minimum value."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Rounds the value."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints average value."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Prints last Value."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Print total value."
+msgstr ""
+
+#: centreon/www/include/views/componentTemplates/help.php
+msgid "Comments regarding the curve template."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Name of graph template."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Vertical Label (Y-axis)."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Width of grid. Used to export the chart."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Height of grid. Used to export the chart."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Lower limit of grid."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Upper limit of grid."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Base value."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Enables auto scale of graph."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Set as default graph template."
+msgstr ""
+
+#: centreon/www/include/views/graphTemplates/help.php
+msgid "Comments regarding the graph template."
 msgstr ""
