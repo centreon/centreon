@@ -79,6 +79,21 @@ fi
 
 apt-get update
 
+apt-get install -y \
+  php8.2-common \
+  php8.2-cli \
+  php8.2-pdo \
+  php8.2-mysqlnd \
+  php8.2-gd \
+  php8.2-xml \
+  php8.2-mbstring \
+  php8.2-ldap \
+  php8.2-snmp \
+  php8.2-intl \
+  php8.2-fpm \
+  php8.2-curl \
+  php8.2-zip
+
 apt-get install -y /tmp/packages-centreon/centreon-*.deb
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
