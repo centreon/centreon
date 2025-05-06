@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 15:10+0000\n"
+"POT-Creation-Date: 2025-05-06 15:31+0000\n"
 "PO-Revision-Date: 2022-08-19 12:55+0200\n"
 "Last-Translator: Johannes Reiter <reiterjohannes3@googlemail.com>\n"
 "Language-Team: Centreon Team\n"
@@ -19335,6 +19335,10 @@ msgstr ""
 
 #: centreon/www/install/index.php
 msgid "new new new string to be translated"
+msgstr ""
+
+#: centreon/www/install/index.php
+msgid "old string to be translated"
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
