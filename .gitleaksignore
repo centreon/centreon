@@ -1,2 +1,8 @@
 .github/docker/keycloak/configuration/Centreon_SSO_realm.json:generic-api-key:964
 .github/docker/keycloak/configuration/Centreon_SSO_realm.json:generic-api-key:1110
+centreon/tests/php/Security/EncryptionTest.php:generic-api-key:45
+centreon/tests/php/Security/EncryptionTest.php:generic-api-key:46
+centreon/tests/php/Security/EncryptionTest.php:generic-api-key:47
+centreon/www/install/insertBaseConf.sql:generic-api-key:580
+centreon-ha/ocf-scripts/mariadb-centreon-common.sh:generic-api-key:46
+centreon-ha/ocf-scripts/mariadb-centreon-common.sh:generic-api-key:55
