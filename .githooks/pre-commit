@@ -1,5 +1,11 @@
 #!/usr/bin/env sh
 
-# gitleaks check
-echo "Gitleaks check"
+# Check for gitleaks installation
+echo "Beginning Gitleaks check"
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "Error: gitleaks is not installed. Please install it to use this hook."
+  echo "Visit https://github.com/gitleaks/gitleaks for installation instructions."
+  exit 1
+fi
+# Check fo secrets
 gitleaks detect -v --no-git

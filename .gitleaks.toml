@@ -16,7 +16,8 @@ paths = [
   '''yarn\.lock''',
   '''\.gitleaks\.toml$''',
   '''centreon\/www\/include\/common\/javascript''',
-  '''(.*?)(jpg|gif|doc|pdf|bin)$'''
+  '''(.*?)(jpg|gif|doc|pdf|bin)$''',
+  '''centreon/tests/e2e/results/logs''' # tests run results
 ]
 
 regexTarget = "match"
