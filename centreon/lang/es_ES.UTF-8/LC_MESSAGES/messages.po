@@ -18010,6 +18010,15 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Display average as"
 # msgstr ""
 
+# msgid "Reporting period"
+# msgstr ""
+
+# msgid "Business Activity availability"
+# msgstr ""
+
+# msgid "Displays availability and alerts of a Business Activity for a given period."
+# msgstr ""
+
 # msgid "Authentication tokens"
 # msgstr ""
 
@@ -18085,7 +18094,7 @@ msgstr "Sticky para cualquier estado que no sea OK"
 # msgid "Requested authentication context"
 # msgstr ""
 
-# msgid "Minimum"
+# msgid "Minimum"
 # msgstr ""
 
 # msgid "Exact"
@@ -18105,3 +18114,10 @@ msgstr "Sticky para cualquier estado que no sea OK"
 
 # msgid "You have selected No TLS for the encryption level. This parameter is meant for test purposes only and is not allowed in production. The agent monitoring will stop after 1 hour."
 # msgstr "Ustéd ha seleccionado No TLS como su nivel de encriptación. Este parametro está pensado exclusivamente para uso de prueba y no puede ser utilizado en producción. El agente de supervisión se detendrá después de una hora."
+ 
+# msgid "This month"
+# msgstr ""
+
+# msgid "This year"
+# msgstr ""
+
